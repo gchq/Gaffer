@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import com.google.common.collect.Maps;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -53,7 +54,17 @@ public class NamedViewTest {
                     .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
                     .build())
             .build();
-    private final ViewElementDefinition entityDef2 = new ViewElementDefinition.Builder().groupBy(TestGroups.ENTITY).build();
+    private final ViewElementDefinition entityDef2 = new ViewElementDefinition.Builder()
+            .preAggregationFilter(new ElementFilter.Builder()
+                    .select(TestPropertyNames.PROP_1)
+                    .execute(new ExampleFilterFunction())
+                    .build())
+            .build();
+
+    @Before
+    public void setup() {
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
+    }
 
     @Test
     public void shouldCreateEmptyNamedViewWithBasicConstructor() {
@@ -62,6 +73,8 @@ public class NamedViewTest {
 
         // Then
         assertTrue(namedView.getName().isEmpty());
+        assertTrue(namedView.getMergedNamedViewNames().isEmpty());
+        assertTrue(namedView.getParameterValues().isEmpty());
         assertTrue(namedView.getEdges().isEmpty());
         assertTrue(namedView.getEntities().isEmpty());
     }
@@ -102,9 +115,6 @@ public class NamedViewTest {
 
     @Test
     public void shouldBuildFullNamedView() {
-        // Given
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
-
         // When
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
@@ -114,15 +124,15 @@ public class NamedViewTest {
                 .build();
 
         // Then
+        assertEquals(TEST_VIEW_NAME, namedView.getName());
+
+        assertEquals(testParameters, namedView.getParameterValues());
+
         assertEquals(1, namedView.getEdges().size());
         assertSame(edgeDef1, namedView.getEdge(TestGroups.EDGE));
 
-
         assertEquals(1, namedView.getEntities().size());
         assertSame(entityDef1, namedView.getEntity(TestGroups.ENTITY));
-
-        assertEquals(TEST_VIEW_NAME, namedView.getName());
-        assertEquals(testParameters, namedView.getParameterValues());
     }
 
     @Test
@@ -130,12 +140,7 @@ public class NamedViewTest {
         // Given
         final NamedView namedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
+                .entity(TestGroups.ENTITY, entityDef2)
                 .build();
 
         // When
@@ -162,7 +167,6 @@ public class NamedViewTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
@@ -184,10 +188,15 @@ public class NamedViewTest {
     }
 
     @Test
+    public void shouldDefaultDeserialiseToView() throws SerialisationException {
+        final byte[] emptyJson = StringUtil.toBytes("{}");
+        View view = JSONSerialiser.deserialise(emptyJson, View.class);
+        assertEquals(View.class, view.getClass());
+    }
+
+    @Test
     public void shouldMergeNamedViews() {
         // Given / When
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
-
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
@@ -211,28 +220,8 @@ public class NamedViewTest {
     }
 
     @Test
-    public void shouldBuildNamedViewWithParams() {
-        // Given
-        Map<String, Object> paramMap = Maps.newHashMap();
-        paramMap.put("IS_MORE_THAN_X", 7L);
-
-        // When - full NamedView created with params
-        final NamedView namedView = new NamedView.Builder()
-                .name(TEST_VIEW_NAME)
-                .edge(TestGroups.EDGE, edgeDef2)
-                .parameterValues(paramMap)
-                .build();
-
-        assertEquals(1, namedView.getEdges().size());
-        assertSame(edgeDef2, namedView.getEdge(TestGroups.EDGE));
-        assertEquals(paramMap, namedView.getParameterValues());
-    }
-
-    @Test
     public void shouldMergeEmptyNamedViewWithPopulatedNamedView() {
-        // Given / When
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
-
+        // When
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
@@ -244,6 +233,12 @@ public class NamedViewTest {
         // Then
         assertEquals(TEST_VIEW_NAME, namedView.getName());
         assertEquals(testParameters, namedView.getParameterValues());
+
+        assertEquals(1, namedView.getEdges().size());
+        assertEquals(edgeDef1, namedView.getEdge(TestGroups.EDGE));
+
+        assertEquals(1, namedView.getEntities().size());
+        assertEquals(entityDef1, namedView.getEntity(TestGroups.ENTITY));
     }
 
     @Test
@@ -256,8 +251,6 @@ public class NamedViewTest {
             entityGroups.add(TestGroups.ENTITY + i);
             edgeGroups.add(TestGroups.EDGE + i);
         }
-
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         // When
         NamedView namedView1 = new NamedView.Builder()
@@ -300,8 +293,6 @@ public class NamedViewTest {
             edgeGroups.add(TestGroups.EDGE + i);
         }
 
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
-
         // When
         View view = new View.Builder()
                 .entities(entityGroups)
@@ -321,13 +312,6 @@ public class NamedViewTest {
         assertEquals(entityGroups.size(), namedView.getEntityGroups().size());
         assertTrue(namedView.getEdgeGroups().containsAll(edgeGroups));
         assertEquals(edgeGroups.size(), namedView.getEdgeGroups().size());
-    }
-
-    @Test
-    public void shouldDefaultDeserialiseToView() throws SerialisationException {
-        final byte[] emptyJson = StringUtil.toBytes("{}");
-        View view = JSONSerialiser.deserialise(emptyJson, View.class);
-        assertEquals(View.class, view.getClass());
     }
 
     @Test
@@ -366,6 +350,6 @@ public class NamedViewTest {
                 .merge(namedViewToMerge)
                 .build();
 
-        JsonAssert.assertEquals(namedViewToMerge.toCompactJson(), namedViewMerged.toCompactJson());
+        assertFalse(namedViewMerged.getMergedNamedViewNames().contains(namedViewName));
     }
 }

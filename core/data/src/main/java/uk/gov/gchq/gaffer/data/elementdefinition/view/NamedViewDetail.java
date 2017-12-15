@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,15 +34,12 @@ public class NamedViewDetail implements Serializable {
     private String namedView;
     private String description;
     private Map<String, ViewParameterDetail> parameters;
-    @JsonIgnore
-    private List<String> mergedNamedViewNames;
 
-    public NamedViewDetail(final String name, final String namedView, final String description, final Map<String, ViewParameterDetail> parameters, final List<String> mergedNamedViewNames) {
+    public NamedViewDetail(final String name, final String namedView, final String description, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
         setNamedView(namedView);
         setDescription(description);
         setParameters(parameters);
-        setMergedNamedViewNames(mergedNamedViewNames);
     }
 
     public String getName() {
@@ -80,20 +76,6 @@ public class NamedViewDetail implements Serializable {
                 this.parameters.putAll(parameters);
             } else {
                 this.parameters = parameters;
-            }
-        }
-    }
-
-    public List<String> getMergedNamedViewNames() {
-        return mergedNamedViewNames;
-    }
-
-    public void setMergedNamedViewNames(List<String> mergedNamedViewNames) {
-        if (mergedNamedViewNames != null) {
-            if (this.mergedNamedViewNames != null) {
-                this.mergedNamedViewNames.addAll(mergedNamedViewNames);
-            } else {
-                this.mergedNamedViewNames = mergedNamedViewNames;
             }
         }
     }
@@ -146,7 +128,6 @@ public class NamedViewDetail implements Serializable {
         private String namedView;
         private String description;
         private Map<String, ViewParameterDetail> parameters;
-        private List<String> mergedNamedViewNames;
 
         public Builder name(final String name) {
             this.name = name;
@@ -168,13 +149,8 @@ public class NamedViewDetail implements Serializable {
             return this;
         }
 
-        public Builder mergedNamedViewNames(List<String> mergedNamedViewNames) {
-            this.mergedNamedViewNames = mergedNamedViewNames;
-            return this;
-        }
-
         public NamedViewDetail build() {
-            return new NamedViewDetail(name, namedView, description, parameters, mergedNamedViewNames);
+            return new NamedViewDetail(name, namedView, description, parameters);
         }
     }
 }
