@@ -102,7 +102,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final Integer resultLimit = getWalks.getResultsLimit();
         final int hops = getWalks.getNumberOfGetEdgeOperations();
 
-        final List<EntityId> originalInput = Lists.newArrayList(new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false));
+        final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false);
+        final List<EntityId> originalInput = Lists.newArrayList(limitedInputItr);
 
         // Check hops and maxHops (if set)
         if (hops == 0) {
