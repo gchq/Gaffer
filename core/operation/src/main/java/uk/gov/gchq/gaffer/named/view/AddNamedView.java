@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -26,7 +27,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,7 +39,6 @@ public class AddNamedView implements Operation {
     private String namedView;
     private String description;
     private Map<String, ViewParameterDetail> parameters;
-    private List<String> mergedNamedViewNames;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
 
@@ -47,7 +46,7 @@ public class AddNamedView implements Operation {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -55,12 +54,9 @@ public class AddNamedView implements Operation {
         this.namedView = namedView;
     }
 
+    @JsonSetter("namedView")
     public void setNamedView(final NamedView namedView) {
         this.namedView = new String(namedView.toCompactJson());
-    }
-
-    public String getNamedViewAsString() {
-        return namedView;
     }
 
     public NamedView getNamedView() {
@@ -85,14 +81,6 @@ public class AddNamedView implements Operation {
 
     public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
-    }
-
-    public List<String> getMergedNamedViewNames() {
-        return mergedNamedViewNames;
-    }
-
-    public void setMergedNamedViewNames(List<String> mergedNamedViewNames) {
-        this.mergedNamedViewNames = mergedNamedViewNames;
     }
 
     public void setOverwriteFlag(final boolean overwriteFlag) {
@@ -120,7 +108,6 @@ public class AddNamedView implements Operation {
                 .namedView(namedView)
                 .description(description)
                 .parameters(parameters)
-                .mergedNamedViewNames(mergedNamedViewNames)
                 .overwrite(overwriteFlag)
                 .options(options)
                 .build();
@@ -153,11 +140,6 @@ public class AddNamedView implements Operation {
 
         public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             _getOp().setParameters(parameters);
-            return _self();
-        }
-
-        public Builder mergedNamedViewNames(final List<String> mergedNamedViewNames) {
-            _getOp().setMergedNamedViewNames(mergedNamedViewNames);
             return _self();
         }
 

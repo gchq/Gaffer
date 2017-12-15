@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
@@ -47,7 +46,7 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
      * @param operation the {@link GetAllNamedViews} {@link uk.gov.gchq.gaffer.operation.Operation}
      * @param context   the {@link Context}
      * @param store     the {@link Store} the operation should be run on
-     * @return namedViews the {@link CloseableIterable} of {@link NamedView}s in the NamedViewCache
+     * @return namedViews the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s in the NamedViewCache
      * @throws OperationException if the GetAllNamedViews Operation fails
      */
     @Override

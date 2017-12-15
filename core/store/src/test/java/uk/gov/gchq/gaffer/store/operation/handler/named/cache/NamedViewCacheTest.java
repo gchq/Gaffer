@@ -51,11 +51,15 @@ public class NamedViewCacheTest {
             .namedView(standardNamedView)
             .build();
 
+    private final NamedViewDetail standardNamedViewAsDetail = new NamedViewDetail.Builder().name(standardNamedView.getName()).namedView(standardNamedView).description("standard NamedView").build();
+
     private NamedViewDetail alternative = new NamedViewDetail.Builder()
             .name(alternativeNamedView.getName())
             .description("alternative NamedView")
             .namedView(alternativeNamedView)
             .build();
+
+    private final NamedViewDetail alternativeNamedViewAsDetail = new NamedViewDetail.Builder().name(alternativeNamedView.getName()).namedView(alternativeNamedView).description("alternative NamedView").build();
 
     @BeforeClass
     public static void setUp() {
@@ -75,7 +79,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false);
         NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
 
-        assertEquals(standardNamedView, namedViewFromCache);
+        assertEquals(standardNamedViewAsDetail, namedViewFromCache);
     }
 
     @Test
@@ -120,8 +124,8 @@ public class NamedViewCacheTest {
 
         Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
 
-        assertTrue(allViews.contains(standardNamedView));
-        assertTrue(allViews.contains(alternativeNamedView));
+        assertTrue(allViews.contains(standardNamedViewAsDetail));
+        assertTrue(allViews.contains(alternativeNamedViewAsDetail));
         assertEquals(2, allViews.size());
     }
 }

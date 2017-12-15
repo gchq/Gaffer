@@ -205,7 +205,7 @@ public class NamedViewResolverTest {
                         .select(IdentifierType.VERTEX.name())
                         .execute(new ExampleFilterFunction())
                         .build()).build())
-                .parameterValues(paramMap)
+                .parameters(paramMap)
                 .build();
 
         final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
@@ -235,7 +235,7 @@ public class NamedViewResolverTest {
                 .first(new GetElements.Builder()
                         .view(new NamedView.Builder()
                                 .name(NAMED_VIEW_NAME)
-                                .parameterValues(paramMap)
+                                .parameters(paramMap)
                                 .build())
                         .build())
                 .build();
@@ -269,7 +269,7 @@ public class NamedViewResolverTest {
                         .select(IdentifierType.VERTEX.name())
                         .execute(new IsMoreThan("${" + IS_MORE_THAN_X_PARAM_KEY + "}"))
                         .build()).build())
-                .parameterValues(paramMap)
+                .parameters(paramMap)
                 .build();
 
         final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
@@ -299,7 +299,7 @@ public class NamedViewResolverTest {
                 .first(new GetElements.Builder()
                         .view(new NamedView.Builder()
                                 .name(NAMED_VIEW_NAME)
-                                .parameterValues(paramMap)
+                                .parameters(paramMap)
                                 .build())
                         .build())
                 .build();

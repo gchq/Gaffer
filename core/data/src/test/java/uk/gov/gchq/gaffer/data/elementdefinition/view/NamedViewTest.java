@@ -74,7 +74,7 @@ public class NamedViewTest {
         // Then
         assertTrue(namedView.getName().isEmpty());
         assertTrue(namedView.getMergedNamedViewNames().isEmpty());
-        assertTrue(namedView.getParameterValues().isEmpty());
+        assertTrue(namedView.getParameters().isEmpty());
         assertTrue(namedView.getEdges().isEmpty());
         assertTrue(namedView.getEntities().isEmpty());
     }
@@ -120,13 +120,13 @@ public class NamedViewTest {
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
                 .name(TEST_VIEW_NAME)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .build();
 
         // Then
         assertEquals(TEST_VIEW_NAME, namedView.getName());
 
-        assertEquals(testParameters, namedView.getParameterValues());
+        assertEquals(testParameters, namedView.getParameters());
 
         assertEquals(1, namedView.getEdges().size());
         assertSame(edgeDef1, namedView.getEdge(TestGroups.EDGE));
@@ -141,6 +141,7 @@ public class NamedViewTest {
         final NamedView namedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME)
                 .entity(TestGroups.ENTITY, entityDef2)
+                .parameters(testParameters)
                 .build();
 
         // When
@@ -160,7 +161,10 @@ public class NamedViewTest {
                 "          } ]" +
                 "        }" +
                 "      }," +
-                "      \"name\": \"testViewName\"" +
+                "      \"name\": \"testViewName\"," +
+                "       \"parameters\": {" +
+                "           \"testParamKey\" : 1" +
+                "         }" +
                 "    }"), new String(json));
     }
 
@@ -171,7 +175,7 @@ public class NamedViewTest {
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
                 .name(TEST_VIEW_NAME)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .build();
 
         // When
@@ -180,7 +184,7 @@ public class NamedViewTest {
 
         // Then
         assertEquals(TEST_VIEW_NAME, deserialisedView.getName());
-        assertEquals(testParameters, namedView.getParameterValues());
+        assertEquals(testParameters, namedView.getParameters());
         assertEquals(1, namedView.getEdges().size());
         assertSame(edgeDef1, namedView.getEdge(TestGroups.EDGE));
         assertEquals(1, namedView.getEntities().size());
@@ -201,22 +205,27 @@ public class NamedViewTest {
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
                 .name(TEST_VIEW_NAME)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .build();
 
         NamedView namedView2 = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef2)
                 .entity(TestGroups.ENTITY_2, entityDef2)
                 .name(TEST_VIEW_NAME + 2)
-                .parameterValues(new HashMap<>())
+                .parameters(new HashMap<>())
                 .merge(namedView)
                 .build();
 
         // Then
         assertEquals(TEST_VIEW_NAME + 2, namedView2.getName());
-        assertEquals(testParameters, namedView2.getParameterValues());
+        assertEquals(testParameters, namedView2.getParameters());
+
         assertEquals(2, namedView2.getEntities().size());
+        assertEquals(entityDef1, namedView2.getEntity(TestGroups.ENTITY));
+        assertEquals(entityDef2, namedView2.getEntity(TestGroups.ENTITY_2));
+
         assertEquals(1, namedView2.getEdges().size());
+        assertEquals(edgeDef2, namedView2.getEdge(TestGroups.EDGE));
     }
 
     @Test
@@ -226,13 +235,13 @@ public class NamedViewTest {
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
                 .name(TEST_VIEW_NAME)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .merge(new NamedView())
                 .build();
 
         // Then
         assertEquals(TEST_VIEW_NAME, namedView.getName());
-        assertEquals(testParameters, namedView.getParameterValues());
+        assertEquals(testParameters, namedView.getParameters());
 
         assertEquals(1, namedView.getEdges().size());
         assertEquals(edgeDef1, namedView.getEdge(TestGroups.EDGE));
@@ -256,26 +265,26 @@ public class NamedViewTest {
         NamedView namedView1 = new NamedView.Builder()
                 .edges(edgeGroups)
                 .name(TEST_VIEW_NAME + 1)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .merge(new NamedView())
                 .build();
 
         NamedView namedView2 = new NamedView.Builder()
                 .entities(entityGroups)
                 .name(TEST_VIEW_NAME + 2)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .merge(namedView1)
                 .build();
 
         NamedView namedView3 = new NamedView.Builder()
                 .name(TEST_VIEW_NAME + 3)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .merge(namedView2)
                 .build();
 
         // Then
         assertEquals(TEST_VIEW_NAME + 3, namedView3.getName());
-        assertEquals(testParameters, namedView3.getParameterValues());
+        assertEquals(testParameters, namedView3.getParameters());
         assertTrue(namedView3.getEntityGroups().containsAll(entityGroups));
         assertEquals(entityGroups.size(), namedView3.getEntityGroups().size());
         assertTrue(namedView3.getEdgeGroups().containsAll(edgeGroups));
@@ -301,13 +310,13 @@ public class NamedViewTest {
         NamedView namedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME + 3)
                 .edges(edgeGroups)
-                .parameterValues(testParameters)
+                .parameters(testParameters)
                 .merge(view)
                 .build();
 
         // Then
         assertEquals(TEST_VIEW_NAME + 3, namedView.getName());
-        assertEquals(testParameters, namedView.getParameterValues());
+        assertEquals(testParameters, namedView.getParameters());
         assertTrue(namedView.getEntityGroups().containsAll(entityGroups));
         assertEquals(entityGroups.size(), namedView.getEntityGroups().size());
         assertTrue(namedView.getEdgeGroups().containsAll(edgeGroups));

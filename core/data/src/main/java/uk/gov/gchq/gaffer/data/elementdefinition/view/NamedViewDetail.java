@@ -17,8 +17,12 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -33,7 +37,7 @@ public class NamedViewDetail implements Serializable {
     private String name;
     private String namedView;
     private String description;
-    private Map<String, ViewParameterDetail> parameters;
+    private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
 
     public NamedViewDetail(final String name, final String namedView, final String description, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
@@ -46,23 +50,31 @@ public class NamedViewDetail implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(final String name) {
+        if (null != name && !name.isEmpty()) {
+            this.name = name;
+        } else {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
     }
 
     public String getNamedView() {
         return namedView;
     }
 
-    public void setNamedView(String namedView) {
-        this.namedView = namedView;
+    public void setNamedView(final String namedView) {
+        if (null != namedView) {
+            this.namedView = namedView;
+        } else {
+            throw new IllegalArgumentException("NamedView cannot be null");
+        }
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -70,7 +82,7 @@ public class NamedViewDetail implements Serializable {
         return parameters;
     }
 
-    public void setParameters(Map<String, ViewParameterDetail> parameters) {
+    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         if (parameters != null) {
             if (null != this.parameters) {
                 this.parameters.putAll(parameters);
@@ -84,27 +96,25 @@ public class NamedViewDetail implements Serializable {
     public NamedView getNamedView(final Map<String, Object> executionParams) {
         String thisViewString = namedView;
 
-        if (null != parameters) {
-            Set<String> paramKeys = parameters.keySet();
+        Set<String> paramKeys = parameters.keySet();
 
-            for (final String paramKey : paramKeys) {
-                Object paramValueObj;
+        for (final String paramKey : paramKeys) {
+            Object paramValueObj;
 
-                if (null != executionParams && executionParams.keySet().contains(paramKey)) {
-                    paramValueObj = executionParams.get(paramKey);
+            if (null != executionParams && executionParams.keySet().contains(paramKey)) {
+                paramValueObj = executionParams.get(paramKey);
+            } else {
+                if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
+                    paramValueObj = parameters.get(paramKey).getDefaultValue();
                 } else {
-                    if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
-                        paramValueObj = parameters.get(paramKey).getDefaultValue();
-                    } else {
-                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
-                    }
+                    throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                 }
-                try {
-                    thisViewString = thisViewString.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
-                }
+            }
+            try {
+                thisViewString = thisViewString.replace(buildParamNameString(paramKey),
+                        new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
+            } catch (final SerialisationException | UnsupportedEncodingException e) {
+                throw new IllegalArgumentException(e.getMessage());
             }
         }
 
@@ -118,6 +128,48 @@ public class NamedViewDetail implements Serializable {
 
         return namedView;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final NamedViewDetail op = (NamedViewDetail) obj;
+
+        return new EqualsBuilder()
+                .append(name, op.name)
+                .append(namedView, op.namedView)
+                .append(description, op.description)
+                .append(parameters, op.parameters)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(71, 3)
+                .append(name)
+                .append(namedView)
+                .append(description)
+                .append(parameters)
+                .hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .appendSuper(super.toString())
+                .append("name", name)
+                .append("namedView", namedView)
+                .append("description", description)
+                .append("parameters", parameters)
+                .toString();
+    }
+
 
     private String buildParamNameString(final String paramKey) {
         return "\"${" + paramKey + "}\"";
@@ -135,8 +187,12 @@ public class NamedViewDetail implements Serializable {
         }
 
         public Builder namedView(final NamedView namedView) {
-            this.namedView = new String(namedView.toCompactJson());
-            return this;
+            if (null != namedView) {
+                this.namedView = new String(namedView.toCompactJson());
+                return this;
+            } else {
+                throw new IllegalArgumentException("NamedView cannot be null");
+            }
         }
 
         public Builder description(final String description) {

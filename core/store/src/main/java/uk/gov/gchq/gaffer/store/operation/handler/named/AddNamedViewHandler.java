@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -42,11 +41,11 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     }
 
     /**
-     * Adds a {@link NamedView} to the NamedViewCache.  If no cache is specified it will created a new {@link NamedViewCache}.
+     * Adds a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to the NamedViewCache.  If no cache is specified it will created a new {@link NamedViewCache}.
      * The {@link AddNamedView} name field must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
-     * thrown. The handler then adds/overwrites the {@link NamedView} according to an overwrite flag.
+     * thrown. The handler then adds/overwrites the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} according to an overwrite flag.
      *
-     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link NamedView} to be added to cache
+     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be added to cache
      * @param context   the {@link Context}
      * @param store     the {@link Store} the operation should be run on
      * @return null (since the output is void)
