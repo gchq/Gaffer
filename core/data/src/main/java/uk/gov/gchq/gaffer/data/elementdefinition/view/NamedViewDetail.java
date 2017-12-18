@@ -31,6 +31,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Simple POJO containing the details associated with a {@link NamedView}.
+ */
 public class NamedViewDetail implements Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -92,6 +95,14 @@ public class NamedViewDetail implements Serializable {
         }
     }
 
+    /**
+     * Gets the NamedView after adding in the parameters specified.  If a parameter does
+     * not have a default and none is set an Exception will be thrown.
+     *
+     * @param executionParams Parameters to add
+     * @return the {@Link NamedView} with substituted parameters
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
     @JsonIgnore
     public NamedView getNamedView(final Map<String, Object> executionParams) {
         String thisViewString = namedView;

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Iterables;
 import org.junit.AfterClass;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -76,7 +77,7 @@ public class GetAllNamedViewsHandlerTest {
         CacheServiceLoader.shutdown();
     }
 
-    //@Test
+    @Test
     public void shouldGetAllNamedViewsFromCache() throws OperationException {
         // Given
         StoreProperties properties = new StoreProperties();
