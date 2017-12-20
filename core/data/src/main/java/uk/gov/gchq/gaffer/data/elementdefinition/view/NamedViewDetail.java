@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -103,7 +102,6 @@ public class NamedViewDetail implements Serializable {
      * @return the {@Link NamedView} with substituted parameters
      * @throws IllegalArgumentException if substituting the parameters fails
      */
-    @JsonIgnore
     public NamedView getNamedView(final Map<String, Object> executionParams) {
         String thisViewString = namedView;
 

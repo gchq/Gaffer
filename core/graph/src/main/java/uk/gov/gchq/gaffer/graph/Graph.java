@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -859,6 +860,16 @@ public final class Graph {
                 if (!hasNamedOpHook) {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
+            }
+            boolean hasNamedViewHook = false;
+            for (final GraphHook graphHook : config.getHooks()) {
+                if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
+                    hasNamedViewHook = true;
+                    break;
+                }
+            }
+            if (!hasNamedViewHook) {
+                config.getHooks().add(0, new NamedViewResolver());
             }
         }
 

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -39,7 +40,8 @@ import java.util.Map;
  * and adding it to a Gaffer graph.
  */
 public class AddNamedOperation implements Operation {
-    private String operations = null;
+    @Required
+    private String operations;
     private String operationName;
     private String description;
     private List<String> readAccessRoles = new ArrayList<>();

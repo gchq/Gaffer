@@ -63,6 +63,8 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
+        System.out.println(new String(NAMED_VIEW.toJson(true)));
+
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
                 .description(testDescription)
