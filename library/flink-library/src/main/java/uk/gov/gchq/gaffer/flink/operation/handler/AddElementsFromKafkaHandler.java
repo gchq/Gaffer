@@ -23,6 +23,7 @@ import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
+import uk.gov.gchq.gaffer.flink.operation.handler.util.SerialisationUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.store.Context;
@@ -55,9 +56,24 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
             env.setParallelism(op.getParallelism());
         }
 
-        final DataStream<Element> builder =
-                env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SimpleStringSchema(), createFlinkProperties(op)))
-                        .flatMap(new GafferMapFunction(op.getElementGenerator()));
+        final DataStream<Element> builder;
+
+        try {
+            builder =
+                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(),
+
+                                    // TODO EntryPoint for DeserializationSchema from SerialisationUtil
+
+                            new SimpleStringSchema()),
+                            createFlinkProperties(op))
+                            .flatMap(new GafferMapFunction(op.getElementGenerator()));
+        } catch (final Exception e) {
+            throw new OperationException("Unable to create instance of deserialisation schema \""
+                    + "classNameHere"
+                    + "\", instead the default of: "
+                    + SimpleStringSchema.class.getSimpleName()
+                    + " will be used.");
+        }
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.addSink(new GafferSink(op, store));
