@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.flink.operation.handler.util;
 
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
-import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 import uk.gov.gchq.gaffer.flink.operation.handler.serialisation.ByteArraySchema;
 
@@ -24,37 +23,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class SerialisationUtil {
-    private static final Map<String, Class<?>> STRING_TO_CLASS = new HashMap<>();
-    private static final Map<Class, DeserializationSchema> DESERIALIZATION_SCHEMAS = new HashMap<>();
 
-    private SerialisationUtil() {
-        // util class
+    private static final Map<Class<?>, DeserializationSchema> MAP = new HashMap<>();
+
+    private static <T> void put(final Class<T> key, final DeserializationSchema<? extends T> value) {
+        MAP.put(key, value);
+    }
+
+    private static <T> DeserializationSchema<T> get(final Class<T> subClass) {
+        return (DeserializationSchema<T>) MAP.get(subClass);
     }
 
     static {
-        DESERIALIZATION_SCHEMAS.put(String.class, new SimpleStringSchema());
-        DESERIALIZATION_SCHEMAS.put(byte[].class, new ByteArraySchema());
-
-
-        STRING_TO_CLASS.put("java.lang.String", String.class);
-        STRING_TO_CLASS.put("[B", byte[].class);
+        put(Byte[].class, new ByteArraySchema());
     }
 
-//    public static <T> DeserializationSchema<T> getFromMap(final String type) throws IllegalAccessException, InstantiationException {
-//        return test(STRING_TO_CLASS.get(type));
-//    }
-//
-//    private static <R> DeserializationSchema<R> test(final Class<R> clazz) {
-//        return DESERIALIZATION_SCHEMAS.get(clazz);
-//    }
-
     public static class Resolver {
-        public Resolver() {
-            new TypeResolver<>(String.class);
-        }
+        public Resolver() { }
 
-        public <T> Resolver(final Class<T> clazz) {
-            new TypeResolver<>(clazz);
+        public <T> TypeResolver<T> retrieve(final Class<T> clazz) {
+            return new TypeResolver<>(clazz);
         }
     }
 
@@ -65,11 +53,8 @@ public final class SerialisationUtil {
             subType = clazz;
         }
 
-        // TODO retrieve appropriate Schema for the subType, return Schema
-
         public DeserializationSchema<I> resolve() {
-            return null;
+            return get(subType);
         }
-
     }
 }

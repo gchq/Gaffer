@@ -60,12 +60,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
         try {
             builder =
-                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(),
-
-                                    // TODO EntryPoint for DeserializationSchema from SerialisationUtil
-
-                            new SimpleStringSchema()),
-                            createFlinkProperties(op))
+                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SerialisationUtil.Resolver().retrieve(Class.forName(FlinkConstants.SERIALISATION_TYPE)).resolve(), createFlinkProperties(op)))
                             .flatMap(new GafferMapFunction(op.getElementGenerator()));
         } catch (final Exception e) {
             throw new OperationException("Unable to create instance of deserialisation schema \""

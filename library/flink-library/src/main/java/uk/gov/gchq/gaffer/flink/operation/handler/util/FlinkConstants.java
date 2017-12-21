@@ -31,10 +31,11 @@ public final class FlinkConstants {
     public static final String MAX_QUEUE_SIZE = "gaffer.flink.operation.handler.max-queue-size";
 
     /**
-     * Operation option key for declaring a custom (de)serialisation schema.
-     * This is a SimpleStringSchema by default.
+     * Operation option key for declaring the expected type for which a custom (de)serialisation schema
+     * should be used.
+     * Eg. "java.lang.String", although a SimpleStringSchema is used by default.
      */
-    public static final String SERIALISATION_SCHEMA = "gaffer.flink.operation.handler.serialisation-schema";
+    public static final String SERIALISATION_TYPE = "gaffer.flink.operation.handler.serialisation-type";
 
     private FlinkConstants() {
         // private constructor to prevent users instantiating this class as it
