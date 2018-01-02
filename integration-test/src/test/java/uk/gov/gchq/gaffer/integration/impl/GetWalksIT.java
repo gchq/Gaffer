@@ -148,11 +148,21 @@ public class GetWalksIT extends AbstractStoreIT {
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
                 .operations(
-                        new GetElements(),
+                        new GetElements.Builder()
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build(),
                         new OperationChain.Builder()
                                 .first(new GetElements.Builder()
                                         .view(new View.Builder()
                                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                                        .preAggregationFilter(new ElementFilter.Builder()
+                                                                .select(TestPropertyNames.INT)
+                                                                .execute(new IsMoreThan(10000))
+                                                                .build())
+                                                        .build())
+                                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                                         .preAggregationFilter(new ElementFilter.Builder()
                                                                 .select(TestPropertyNames.INT)
                                                                 .execute(new IsMoreThan(10000))
@@ -241,7 +251,7 @@ public class GetWalksIT extends AbstractStoreIT {
         // When / Then
         try {
             Lists.newArrayList(graph.execute(op, user));
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception e) {
             assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
         }
     }
