@@ -51,12 +51,12 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return null;
+        return result;
     }
 
     @Override
     public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return null;
+        return result;
     }
 
     private void resolveViewsInOperations(final Operations<?> operations) {
