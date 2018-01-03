@@ -30,37 +30,11 @@ public final class LongUtil {
 
     /**
      * Gets a random positive long value based on the current time and a random number.
-     * Made up as follows:
-     * <ul style="list-style-type: none;">
-     * <li>If the current time bytes are: [a,b,c,d,e,f,h,i]
-     * <li>and the random number bytes are: [j,k,l,m]</li>
-     * <li>the result bytes would be: [e,f,h,i,j,k,l,m]</li>
-     * </ul>
      *
      * @return the time based random number
      */
     public static long getTimeBasedRandom() {
-        return getRandom(System.currentTimeMillis());
-    }
-
-    /**
-     * Gets a random positive long value based on the provided long and a
-     * randomly generated integer.
-     * Made up as follows:
-     * <ul style="list-style-type: none;">
-     * <li>If the long bytes are: [a,b,c,d,e,f,h,i]
-     * <li>and the random integer bytes are: [j,k,l,m]</li>
-     * <li>the result bytes would be: [e,f,h,i,j,k,l,m]</li>
-     * </ul>
-     *
-     * @param longVal a long value greater than 0 to use
-     * @return the long based random number
-     */
-    protected static long getRandom(final long longVal) {
-        if (longVal < 1) {
-            throw new IllegalArgumentException("The provided long value must greater than 0");
-        }
-
-        return ((longVal << 33) >>> 1) | RANDOM.nextInt(Integer.MAX_VALUE);
+        final long random = (System.currentTimeMillis() << 32) | RANDOM.nextInt(Integer.MAX_VALUE);
+        return Long.MIN_VALUE == random ? Long.MAX_VALUE : Math.abs(random);
     }
 }
