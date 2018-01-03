@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -79,6 +80,7 @@ import java.util.Map;
  * </pre>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonSimpleClassName
 public interface Operation extends Closeable {
     /**
      * Operation implementations should ensure a ShallowClone method is implemented.

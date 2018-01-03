@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
@@ -34,14 +32,11 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import javax.inject.Inject;
 
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -56,19 +51,23 @@ import java.util.function.Predicate;
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
 public class GraphConfigurationService implements IGraphConfigurationService {
-    private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(Predicate.class);
-    private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(Function.class);
-    private static final Set<Class> ELEMENT_GENERATORS = getSubClasses(ElementGenerator.class);
-    private static final Set<Class> OBJECT_GENERATORS = getSubClasses(ObjectGenerator.class);
-
     @Inject
     private GraphFactory graphFactory;
 
     @Inject
     private UserFactory userFactory;
 
+    public GraphConfigurationService() {
+        updateReflectionPaths();
+    }
+
     public static void initialise() {
         // Invoking this method will cause the static lists to be populated.
+        updateReflectionPaths();
+    }
+
+    private static void updateReflectionPaths() {
+        ReflectionUtil.addPaths(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 
     @Override
@@ -83,7 +82,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Set<Class> getFilterFunctions() {
-        return FILTER_FUNCTIONS;
+        return ReflectionUtil.getSubTypes(Predicate.class);
     }
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
@@ -101,7 +100,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         }
 
         final Set<Class> classes = new HashSet<>();
-        for (final Class functionClass : FILTER_FUNCTIONS) {
+        for (final Class functionClass : ReflectionUtil.getSubTypes(Predicate.class)) {
             try {
                 final Predicate function = (Predicate) functionClass.newInstance();
                 final Signature signature = Signature.getInputSignature(function);
@@ -145,7 +144,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Set<Class> getTransformFunctions() {
-        return TRANSFORM_FUNCTIONS;
+        return ReflectionUtil.getSubTypes(Function.class);
     }
 
     @Override
@@ -169,12 +168,12 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Set<Class> getElementGenerators() {
-        return ELEMENT_GENERATORS;
+        return ReflectionUtil.getSubTypes(ElementGenerator.class);
     }
 
     @Override
     public Set<Class> getObjectGenerators() {
-        return OBJECT_GENERATORS;
+        return ReflectionUtil.getSubTypes(ObjectGenerator.class);
     }
 
     @Override
@@ -185,32 +184,5 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     @Override
     public Boolean isOperationSupported(final Class operation) {
         return graphFactory.getGraph().isSupported(operation);
-    }
-
-    private static Set<Class> getSubClasses(final Class<?> clazz) {
-        final Set<URL> urls = new HashSet<>();
-        for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
-            urls.addAll(ClasspathHelper.forPackage(packagePrefix));
-        }
-
-        Set<Class> classes = new HashSet<>();
-        classes.addAll(new Reflections(urls).getSubTypesOf(clazz));
-        keepPublicConcreteClasses(classes);
-        return classes;
-    }
-
-    private static void keepPublicConcreteClasses(final Collection<Class> classes) {
-        if (null != classes) {
-            final Iterator<Class> itr = classes.iterator();
-            while (itr.hasNext()) {
-                final Class clazz = itr.next();
-                if (null != clazz) {
-                    final int modifiers = clazz.getModifiers();
-                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
-                        itr.remove();
-                    }
-                }
-            }
-        }
     }
 }

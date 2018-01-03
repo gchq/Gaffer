@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 
@@ -27,6 +28,7 @@ import java.io.Serializable;
  * It must also be able to deal with serialising null values.
  *
  */
+@JsonSimpleClassName
 public interface Serialiser<INPUT, OUTPUT> extends Serializable {
 
     /**

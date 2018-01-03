@@ -45,6 +45,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNamedIdAnnotationIntrospector;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -131,6 +133,10 @@ public class JSONSerialiser {
         modules.forEach(mapper::registerModule);
     }
 
+    public static void addSimpleClassNameParents(final Class... parentClassesToAdd) {
+        SimpleClassNameIdResolver.addParentClasses(parentClassesToAdd);
+    }
+
     public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
         if (StringUtils.isNotBlank(jsonSerialiserModules)) {
             final String modulesCsv = new StringDeduplicateConcat().apply(
@@ -187,6 +193,9 @@ public class JSONSerialiser {
 
         // Use the 'setFilters' method so it is compatible with older versions of jackson
         mapper.setFilters(getFilterProvider());
+
+        // Allows simple class names or full class names to be used.
+        mapper.setAnnotationIntrospector(new SimpleClassNamedIdAnnotationIntrospector());
         return mapper;
     }
 
