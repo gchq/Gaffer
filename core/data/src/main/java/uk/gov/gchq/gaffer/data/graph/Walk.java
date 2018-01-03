@@ -35,27 +35,26 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
 
 /**
- * A {@code Walk} describes a graph traversal which begins at a vertex and comprises
- * of:
- * <ul><li>a sequence of {@link Edge} objects, where the source of one edge must
- * follow on from the destination of the previous</li>
- * <li>an optional sequence of {@link Entity} objects which are associated to each
- * of the vertices visited on the Walk. Vertices with no associated entities are
+ * A {@code Walk} describes a graph traversal which begins at a vertex and
+ * comprises of: <ul><li>a sequence of {@link Edge} objects, where the source of
+ * one edge must follow on from the destination of the previous</li> <li>an
+ * optional sequence of {@link Entity} objects which are associated to each of
+ * the vertices visited on the Walk. Vertices with no associated entities are
  * still represented, but only as empty collections.</li></ul>
- *
+ * <p>
  * For example, a Walk through a simple graph could look like:
- *
+ * <p>
  * <pre>
  * {@code
  * A --> B --> C
@@ -87,7 +86,7 @@ public class Walk implements Iterable<Set<Edge>> {
     /**
      * Constructor used by Jackson.
      *
-     * @param edges the edges to add to the walk
+     * @param edges    the edges to add to the walk
      * @param entities the entities to add to the walk
      */
     @JsonCreator
@@ -108,7 +107,7 @@ public class Walk implements Iterable<Set<Edge>> {
     public Set<Entity> getEntitiesForVertex(final Object vertex) {
         return entities.stream()
                 .filter(e -> e.getKey().equals(vertex))
-                .map(e -> e.getValue())
+                .map(Entry::getValue)
                 .flatMap(Set::stream)
                 .collect(toSet());
     }
@@ -136,19 +135,19 @@ public class Walk implements Iterable<Set<Edge>> {
 
     @JsonIgnore
     public List<Set<Entity>> getEntities() {
-        return entities.stream().map(entry -> entry.getValue()).collect(toList());
+        return entities.stream().map(Entry::getValue).collect(toList());
     }
 
     /**
      * Get an ordered {@link List} of the vertices on the walk.
-     *
+     * <p>
      * This will include any repeated vertices.
      *
      * @return a list of the vertices on the walk
      */
     @JsonIgnore
     public List<Object> getVerticesOrdered() {
-        return entities.stream().map(entry -> entry.getKey()).collect(toList());
+        return entities.stream().map(Entry::getKey).collect(toList());
     }
 
     /**
@@ -158,7 +157,7 @@ public class Walk implements Iterable<Set<Edge>> {
      */
     @JsonIgnore
     public Set<Object> getVertexSet() {
-        return entities.stream().map(entry -> entry.getKey()).collect(toSet());
+        return entities.stream().map(Entry::getKey).collect(toSet());
     }
 
     @JsonIgnore
@@ -169,8 +168,8 @@ public class Walk implements Iterable<Set<Edge>> {
     /**
      * A walk is also a trail if it contains no repeated edges.
      *
-     * @return {@code true} if the walk does not contain any repeated edges, otherwise
-     * {@code false}
+     * @return {@code true} if the walk does not contain any repeated edges,
+     * otherwise {@code false}
      */
     @JsonIgnore
     public boolean isTrail() {
@@ -230,23 +229,23 @@ public class Walk implements Iterable<Set<Edge>> {
 
     public static final class Builder {
 
-        private final Stack<Set<Edge>> edges;
-        private final Stack<Entry<Object, Set<Entity>>> entities;
+        private final LinkedList<Set<Edge>> edges;
+        private final LinkedList<Entry<Object, Set<Entity>>> entities;
 
         public Builder() {
-            this.edges = new Stack<>();
-            this.entities = new Stack<>();
+            this.edges = new LinkedList<>();
+            this.entities = new LinkedList<>();
         }
 
         public Builder edge(final Edge edge) {
-            if (entities.empty()) {
-                entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getMatchedVertexValue(), Sets.newHashSet()));
+            if (entities.isEmpty()) {
+                entities.add(new AbstractMap.SimpleEntry<>(edge.getMatchedVertexValue(), Sets.newHashSet()));
             } else {
-                verifyEdge(entities.peek().getKey(), edge);
+                verifyEdge(entities.getLast().getKey(), edge);
             }
 
             edges.add(Sets.newHashSet(edge));
-            entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getAdjacentMatchedVertexValue(), Sets.newHashSet()));
+            entities.add(new AbstractMap.SimpleEntry<>(edge.getAdjacentMatchedVertexValue(), Sets.newHashSet()));
 
             return this;
         }
@@ -264,8 +263,8 @@ public class Walk implements Iterable<Set<Edge>> {
         public Builder edges(final Iterable<Edge> edges) {
             final List<Edge> edgeList = Streams.toStream(edges).collect(toList());
 
-            if (!distinct(edgeList.stream().map(e -> e.getMatchedVertexValue()).collect(toList()))
-                    && !distinct(edgeList.stream().map(e -> e.getAdjacentMatchedVertexValue()).collect(toList()))) {
+            if (!distinct(edgeList.stream().map(Edge::getMatchedVertexValue).collect(toList()))
+                    && !distinct(edgeList.stream().map(Edge::getAdjacentMatchedVertexValue).collect(toList()))) {
                 edgeSet(Sets.newHashSet(edges));
             } else {
                 edgeList(edgeList);
@@ -283,10 +282,10 @@ public class Walk implements Iterable<Set<Edge>> {
                     .orElseThrow(IllegalAccessError::new)
                     .getAdjacentMatchedVertexValue();
 
-            if (entities.empty()) {
-                entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(matchedVertexValue, Sets.newHashSet()));
+            if (entities.isEmpty()) {
+                entities.add(new AbstractMap.SimpleEntry<>(matchedVertexValue, Sets.newHashSet()));
             } else {
-                final Object root = entities.peek().getKey();
+                final Object root = entities.getLast().getKey();
 
                 if (!Objects.equals(root, matchedVertexValue)) {
                     throw new IllegalArgumentException("Edge must continue the current walk.");
@@ -294,7 +293,7 @@ public class Walk implements Iterable<Set<Edge>> {
             }
 
             this.edges.add(edges);
-            entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(adjacentMatchedVertexValue, Sets.newHashSet()));
+            entities.add(new AbstractMap.SimpleEntry<>(adjacentMatchedVertexValue, Sets.newHashSet()));
 
             return this;
         }
@@ -305,25 +304,23 @@ public class Walk implements Iterable<Set<Edge>> {
         }
 
         public Builder entity(final Entity entity) {
-            if (!edges.empty()) {
-                final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
+            if (!edges.isEmpty()) {
+                final Object root = edges.getLast().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
 
                 verifyEntity(root, entity);
             }
 
-            if (!entities.empty()) {
-                final Object root = entities.peek().getKey();
+            if (!entities.isEmpty()) {
+                final Object root = entities.getLast().getKey();
 
                 verifyEntity(root, entity);
 
-                final Entry<Object, Set<Entity>> entry = entities.pop();
+                final Entry<Object, Set<Entity>> entry = entities.getLast();
                 final Set<Entity> currentEntities = entry.getValue();
                 currentEntities.add(entity);
                 entry.setValue(currentEntities);
-                entities.push(entry);
             } else {
-                entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(entity.getVertex(), Sets.newHashSet(entity)));
-
+                entities.push(new AbstractMap.SimpleEntry<>(entity.getVertex(), Sets.newHashSet(entity)));
             }
             return this;
         }
@@ -333,29 +330,31 @@ public class Walk implements Iterable<Set<Edge>> {
                 return this;
             }
 
+            if (Iterables.size(entities) == 1) {
+                return entity(entities.iterator().next());
+            }
+
             if (distinct(Streams.toStream(entities).map(EntityId::getVertex).collect(toList()))) {
                 throw new IllegalArgumentException("Entities must all have the same vertex.");
             }
 
             final Entity entity = entities.iterator().next();
 
-            if (!edges.empty()) {
-                final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
+            if (!edges.isEmpty()) {
+                final Object root = edges.getLast().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
                 verifyEntity(root, entity);
             }
 
-            if (!this.entities.empty()) {
-                final Object root = this.entities.peek().getKey();
-
+            if (!this.entities.isEmpty()) {
+                final Entry<Object, Set<Entity>> entry = this.entities.getLast();
+                final Object root = entry.getKey();
                 verifyEntity(root, entity);
 
-                final Entry<Object, Set<Entity>> entry = this.entities.pop();
                 final Set<Entity> currentEntities = entry.getValue();
                 currentEntities.addAll(Lists.newArrayList(entities));
                 entry.setValue(currentEntities);
-                this.entities.push(entry);
             } else {
-                this.entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(entity.getVertex(), Sets.newHashSet(entities)));
+                this.entities.push(new AbstractMap.SimpleEntry<>(entity.getVertex(), Sets.newHashSet(entities)));
             }
 
             return this;

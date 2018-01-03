@@ -30,7 +30,7 @@ import java.util.Comparator;
 /**
  * An {@code EdgeSeed} contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
- * It is used as a mainly used as a seed for queries.
+ * It is mainly used as a seed for queries.
  */
 public class EdgeSeed extends ElementSeed implements EdgeId {
     private static final long serialVersionUID = -8137886975649690000L;

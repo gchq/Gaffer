@@ -50,7 +50,7 @@ This store implements the following Gaffer features:
 
 
 This Gaffer store implementation is very similar to the Accumulo Store. 
-One main difference is that due to constraints with HBase's column families the Gaffer group is store at the beginning of the column qualifier - this means filtering on groups is not as efficient as in HBase.
+One main difference is that due to constraints with HBase's column families the Gaffer group is store at the beginning of the column qualifier - this means filtering on groups is not as efficient in HBase.
 Please note that currently this store does not implement some of the advanced operations provided in the Accumulo store.
 
 - Scalability to large volumes of data;

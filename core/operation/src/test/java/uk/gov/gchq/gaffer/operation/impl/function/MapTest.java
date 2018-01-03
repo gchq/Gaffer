@@ -29,9 +29,11 @@ public class MapTest extends OperationTest<Map> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Map<Integer, String> map = new Map.Builder<Integer, String>()
+        final Map<Integer, Long> map = new Map.Builder<Integer>()
                 .input(3)
-                .function(Object::toString)
+                .first(Object::toString)
+                .then(Integer::parseInt)
+                .then(i -> (long) i)
                 .build();
 
         // Then
@@ -43,9 +45,9 @@ public class MapTest extends OperationTest<Map> {
         // Given
         final Iterable<Integer> input = Arrays.asList(1, 2, 3);
 
-        final Map<Iterable<Integer>, String> map = new Map.Builder<Iterable<Integer>, String>()
+        final Map<Iterable<Integer>, String> map = new Map.Builder<Iterable<Integer>>()
                 .input(input)
-                .function(Object::toString)
+                .first(Object::toString)
                 .build();
 
         // When

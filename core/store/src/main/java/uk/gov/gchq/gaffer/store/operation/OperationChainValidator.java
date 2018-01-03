@@ -74,16 +74,22 @@ public class OperationChainValidator {
                 newOutput = ((Output) operation).getClass();
             }
         } else {
-            if (operation instanceof Input) {
+            final Operation firstOp;
+            if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
+                firstOp = ((OperationChain<?>) operation).getOperations().get(0);
+            } else {
+                firstOp = operation;
+            }
+            if (firstOp instanceof Input) {
                 final Class<?> outputType = OperationUtil.getOutputType(output);
-                final Class<?> inputType = OperationUtil.getInputType(((Input) operation));
+                final Class<?> inputType = OperationUtil.getInputType(((Input) firstOp));
 
                 validationResult.add(OperationUtil.isValid(outputType, inputType));
             } else {
                 validationResult.addError("Invalid combination of operations: "
-                        + output.getName() + " -> " + operation.getClass().getName()
+                        + output.getName() + " -> " + firstOp.getClass().getName()
                         + ". " + output.getClass().getSimpleName() + " has an output but "
-                        + operation.getClass().getSimpleName() + " does not take an input.");
+                        + firstOp.getClass().getSimpleName() + " does not take an input.");
             }
             if (operation instanceof Output) {
                 newOutput = ((Output) operation).getClass();
