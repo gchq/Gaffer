@@ -45,13 +45,15 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
         AddNamedView addNamedView = new AddNamedView.Builder()
+                .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(testDescription)
                 .parameters(parameters)
                 .overwrite(true)
                 .build();
 
-        assertEquals(VIEW, addNamedView.getView());
+        assertEquals(TEST_NAMED_VIEW_NAME, addNamedView.getName());
+        JsonAssert.assertEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
         assertTrue(addNamedView.isOverwriteFlag());
         assertEquals(parameters, addNamedView.getParameters());
         assertEquals(testDescription, addNamedView.getDescription());
@@ -63,6 +65,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
         AddNamedView addNamedView = new AddNamedView.Builder()
+                .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(testDescription)
                 .parameters(parameters)
@@ -74,15 +77,17 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
         // Then
         assertNotSame(addNamedView, clone);
+        assertEquals(addNamedView.getName(), clone.getName());
         JsonAssert.assertEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
-        assertEquals(parameters, addNamedView.getParameters());
-        assertEquals(testDescription, addNamedView.getDescription());
+        assertEquals(addNamedView.getParameters(), clone.getParameters());
+        assertEquals(addNamedView.getDescription(), clone.getDescription());
     }
 
     @Override
     protected AddNamedView getTestObject() {
         return new AddNamedView.Builder()
+                .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .build();
     }

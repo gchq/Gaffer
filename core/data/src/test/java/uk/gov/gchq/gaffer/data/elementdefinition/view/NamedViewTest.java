@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,6 +290,8 @@ public class NamedViewTest {
         assertEquals(entityGroups.size(), namedView3.getEntityGroups().size());
         assertTrue(namedView3.getEdgeGroups().containsAll(edgeGroups));
         assertEquals(edgeGroups.size(), namedView3.getEdgeGroups().size());
+        assertEquals(2, namedView3.getMergedNamedViewNames().size());
+        assertTrue(namedView3.getMergedNamedViewNames().containsAll(Arrays.asList(TEST_VIEW_NAME + 1, TEST_VIEW_NAME + 2)));
     }
 
     @Test
