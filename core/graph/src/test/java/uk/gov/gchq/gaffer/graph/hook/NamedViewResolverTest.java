@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -49,15 +48,13 @@ import static org.mockito.Mockito.mock;
 public class NamedViewResolverTest {
 
     private static final String NAMED_VIEW_NAME = "namedViewName";
-    private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
     private static final String IS_MORE_THAN_X_PARAM_KEY = "IS_MORE_THAN_X";
     private static final String EDGE_NAME_PARAM_KEY = "EDGE_NAME";
     private static final String VALUE_JSON_STRING = "\"value\":";
     private static final NamedViewCache CACHE = mock(NamedViewCache.class);
     private static final Context CONTEXT = new Context(mock(User.class));
     private static final NamedViewResolver RESOLVER = new NamedViewResolver(CACHE);
-    private static final NamedView FULL_NAMED_VIEW = new NamedView.Builder()
-            .name(NAMED_VIEW_NAME)
+    private static final View FULL_VIEW = new View.Builder()
             .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                     .preAggregationFilter(new ElementFilter.Builder()
                             .select(TestPropertyNames.PROP_1)
@@ -66,8 +63,8 @@ public class NamedViewResolverTest {
                     .build())
             .build();
     private static final NamedViewDetail FULL_NAMED_VIEW_DETAIL = new NamedViewDetail.Builder()
-            .name(FULL_NAMED_VIEW.getName())
-            .namedView(FULL_NAMED_VIEW)
+            .name(NAMED_VIEW_NAME)
+            .view(FULL_VIEW)
             .build();
 
     @Test
@@ -88,7 +85,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertNamedViewAndViewEqual(FULL_NAMED_VIEW, getElements.getView());
+        JsonAssert.assertEquals(FULL_VIEW.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -96,6 +93,7 @@ public class NamedViewResolverTest {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
+        final View mergedView = new View.Builder().merge(FULL_VIEW).merge(viewToMerge).build();
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -105,14 +103,13 @@ public class NamedViewResolverTest {
                                 .build())
                         .build())
                 .build();
-        final NamedView namedViewMerged = new NamedView.Builder().merge(FULL_NAMED_VIEW).merge(viewToMerge).build();
 
         // When
         RESOLVER.preExecute(opChain, CONTEXT);
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertNamedViewAndViewEqual(namedViewMerged, getElements.getView());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -120,7 +117,8 @@ public class NamedViewResolverTest {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
-        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).namedView(namedViewToMerge).build();
+        final View mergedView = new View.Builder().merge(FULL_VIEW).edge(TestGroups.EDGE).build();
+        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).view(FULL_VIEW).build();
         given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewDetailToMerge);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
@@ -131,57 +129,13 @@ public class NamedViewResolverTest {
                                 .build())
                         .build())
                 .build();
-        final NamedView namedViewMerged = new NamedView.Builder().merge(FULL_NAMED_VIEW).merge(namedViewToMerge).build();
 
         // When
         RESOLVER.preExecute(opChain, CONTEXT);
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertNamedViewAndViewEqual(namedViewMerged, getElements.getView());
-    }
-
-    @Test
-    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException, SerialisationException {
-        // Given
-        final NamedView nestedNamedView1 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 1).entity(TestGroups.ENTITY_2).build();
-        final NamedViewDetail nestedNamedView1Detail = new NamedViewDetail.Builder().name(nestedNamedView1.getName()).namedView(nestedNamedView1).build();
-        final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).edge(TestGroups.EDGE).merge(nestedNamedView1).build();
-        final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).namedView(nestedNamedView).build();
-        final NamedView namedViewWithNestedNamedView = new NamedView.Builder()
-                .name(NAMED_VIEW_NAME)
-                .merge(nestedNamedView)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .build();
-        final NamedViewDetail namedViewWithNestedNamedViewDetail = new NamedViewDetail.Builder().name(namedViewWithNestedNamedView.getName()).namedView(namedViewWithNestedNamedView).build();
-
-        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().size() == 2);
-        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME));
-        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
-
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(namedViewWithNestedNamedViewDetail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedViewDetail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1Detail);
-
-        final OperationChain<?> opChain = new OperationChain.Builder()
-                .first(new GetElements.Builder()
-                        .view(new NamedView.Builder()
-                                .name(NAMED_VIEW_NAME)
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        RESOLVER.preExecute(opChain, CONTEXT);
-        GetElements getElements = (GetElements) opChain.getOperations().get(0);
-
-        // Then
-        assertNamedViewAndViewEqual(namedViewWithNestedNamedView, getElements.getView());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -198,19 +152,17 @@ public class NamedViewResolverTest {
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put(EDGE_NAME_PARAM_KEY, param);
 
-        // Make a real NamedView with a parameter
-        final NamedView extendedNamedView = new NamedView.Builder()
-                .name(NAMED_VIEW_NAME)
+        // Make a real View with a parameter
+        final View extendedView = new View.Builder()
                 .edge("${" + EDGE_NAME_PARAM_KEY + "}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
                         .select(IdentifierType.VERTEX.name())
                         .execute(new ExampleFilterFunction())
                         .build()).build())
-                .parameters(paramMap)
                 .build();
 
         final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
-                .name(extendedNamedView.getName())
-                .namedView(extendedNamedView)
+                .name(NAMED_VIEW_NAME)
+                .view(extendedView)
                 .parameters(paramDetailMap)
                 .build();
 
@@ -230,6 +182,7 @@ public class NamedViewResolverTest {
 
         // Then
         assertTrue(getElements.getView().getEdge(TestGroups.EDGE) != null);
+        assertTrue(getElements.getView().getEdge(TestGroups.EDGE_2) == null);
 
         final OperationChain<?> opChain1 = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -262,19 +215,17 @@ public class NamedViewResolverTest {
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put(IS_MORE_THAN_X_PARAM_KEY, param);
 
-        // Make a real NamedView with a parameter
-        final NamedView extendedNamedView = new NamedView.Builder()
-                .name(NAMED_VIEW_NAME)
+        // Make a real View with a parameter
+        final View extendedView = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
                         .select(IdentifierType.VERTEX.name())
                         .execute(new IsMoreThan("${" + IS_MORE_THAN_X_PARAM_KEY + "}"))
                         .build()).build())
-                .parameters(paramMap)
                 .build();
 
         final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
-                .name(extendedNamedView.getName())
-                .namedView(extendedNamedView)
+                .name(NAMED_VIEW_NAME)
+                .view(extendedView)
                 .parameters(paramDetailMap)
                 .build();
 
@@ -310,13 +261,5 @@ public class NamedViewResolverTest {
 
         // Then
         assertTrue(new String(getElements1.getView().toCompactJson()).contains(VALUE_JSON_STRING + 7));
-    }
-
-    private void assertNamedViewAndViewEqual(NamedView namedView, View view) throws SerialisationException {
-        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalElements()), JSONSerialiser.serialise(view.getGlobalElements()));
-        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalEntities()), JSONSerialiser.serialise(view.getGlobalEntities()));
-        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalEdges()), JSONSerialiser.serialise(view.getGlobalEdges()));
-        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getEdges()), JSONSerialiser.serialise(view.getEdges()));
-        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getEntities()), JSONSerialiser.serialise(view.getEntities()));
     }
 }

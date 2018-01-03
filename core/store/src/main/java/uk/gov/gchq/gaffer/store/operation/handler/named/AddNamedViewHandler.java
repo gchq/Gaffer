@@ -57,7 +57,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
 
         final NamedViewDetail namedView = new NamedViewDetail.Builder()
                 .name(operation.getName())
-                .namedView(operation.getNamedView())
+                .view(operation.getView())
                 .description(operation.getDescription())
                 .parameters(operation.getParameters())
                 .build();

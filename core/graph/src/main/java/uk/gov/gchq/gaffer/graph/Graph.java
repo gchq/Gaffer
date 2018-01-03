@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
@@ -237,20 +238,22 @@ public final class Graph {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
-                final View opView;
-                if (null == operationView.getView()) {
-                    opView = config.getView();
-                } else if (!operationView.getView().hasGroups()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(operationView.getView())
-                            .build();
-                } else {
-                    opView = operationView.getView();
-                }
+                if (!(operationView.getView() instanceof NamedView)) {
+                    final View opView;
+                    if (null == operationView.getView()) {
+                        opView = config.getView();
+                    } else if (!operationView.getView().hasGroups()) {
+                        opView = new View.Builder()
+                                .merge(config.getView())
+                                .merge(operationView.getView())
+                                .build();
+                    } else {
+                        opView = operationView.getView();
+                    }
 
-                opView.expandGlobalDefinitions();
-                operationView.setView(opView);
+                    opView.expandGlobalDefinitions();
+                    operationView.setView(opView);
+                }
             }
         }
     }

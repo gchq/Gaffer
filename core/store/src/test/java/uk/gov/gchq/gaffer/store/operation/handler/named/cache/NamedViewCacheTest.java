@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 
 import java.util.Properties;
@@ -42,24 +42,26 @@ import static org.junit.Assert.fail;
 public class NamedViewCacheTest {
     private static NamedViewCache cache;
     private static final String EXCEPTION_EXPECTED = "Exception expected";
-    private NamedView standardNamedView = new NamedView.Builder().name("standardView").build();
-    private NamedView alternativeNamedView = new NamedView.Builder().name("alternativeView").edge(TestGroups.EDGE).build();
+    private static final String STANDARD_VIEW_NAME = "standardView";
+    private static final String ALTERNATIVE_VIEW_NAME = "alternativeView";
+    private View standardView = new View.Builder().build();
+    private View alternativeView = new View.Builder().edge(TestGroups.EDGE).build();
 
     private NamedViewDetail standard = new NamedViewDetail.Builder()
-            .name(standardNamedView.getName())
-            .description("standard NamedView")
-            .namedView(standardNamedView)
+            .name(STANDARD_VIEW_NAME)
+            .description("standard View")
+            .view(standardView)
             .build();
 
-    private final NamedViewDetail standardNamedViewAsDetail = new NamedViewDetail.Builder().name(standardNamedView.getName()).namedView(standardNamedView).description("standard NamedView").build();
+    private final NamedViewDetail standardNamedViewAsDetail = new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view(standardView).description("standard View").build();
 
     private NamedViewDetail alternative = new NamedViewDetail.Builder()
-            .name(alternativeNamedView.getName())
-            .description("alternative NamedView")
-            .namedView(alternativeNamedView)
+            .name(ALTERNATIVE_VIEW_NAME)
+            .description("alternative View")
+            .view(alternativeView)
             .build();
 
-    private final NamedViewDetail alternativeNamedViewAsDetail = new NamedViewDetail.Builder().name(alternativeNamedView.getName()).namedView(alternativeNamedView).description("alternative NamedView").build();
+    private final NamedViewDetail alternativeNamedViewAsDetail = new NamedViewDetail.Builder().name(ALTERNATIVE_VIEW_NAME).view(alternativeView).description("alternative View").build();
 
     @BeforeClass
     public static void setUp() {
@@ -89,7 +91,7 @@ public class NamedViewCacheTest {
             cache.addNamedView(standard, false);
             fail(EXCEPTION_EXPECTED);
         } catch (OverwritingException e) {
-            assertTrue(e.getMessage().equals("Cache entry already exists for key: " + standardNamedView.getName()));
+            assertTrue(e.getMessage().equals("Cache entry already exists for key: " + STANDARD_VIEW_NAME));
         }
     }
 

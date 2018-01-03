@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -30,13 +30,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
- * A {@code AddNamedView} is an {@link Operation} for adding a {@link NamedView}
+ * A {@code AddNamedView} is an {@link Operation} for adding a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}
  * to a Gaffer graph.
  */
 public class AddNamedView implements Operation {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String name;
-    private String namedView;
+    private String view;
     private String description;
     private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
@@ -50,18 +50,18 @@ public class AddNamedView implements Operation {
         this.name = name;
     }
 
-    public void setNamedView(final String namedView) {
-        this.namedView = namedView;
+    public void setView(final String view) {
+        this.view = view;
     }
 
-    @JsonSetter("namedView")
-    public void setNamedView(final NamedView namedView) {
-        this.namedView = new String(namedView.toCompactJson());
+    @JsonSetter("view")
+    public void setView(final View namedView) {
+        this.view = new String(namedView.toCompactJson());
     }
 
-    public NamedView getNamedView() {
+    public View getView() {
         try {
-            return JSONSerialiser.deserialise(namedView.getBytes(CHARSET_NAME), NamedView.class);
+            return JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -105,7 +105,7 @@ public class AddNamedView implements Operation {
     public AddNamedView shallowClone() throws CloneFailedException {
         return new AddNamedView.Builder()
                 .name(name)
-                .namedView(namedView)
+                .view(view)
                 .description(description)
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
@@ -123,13 +123,13 @@ public class AddNamedView implements Operation {
             return _self();
         }
 
-        public Builder namedView(final String namedView) {
-            _getOp().setNamedView(namedView);
+        public Builder view(final String view) {
+            _getOp().setView(view);
             return _self();
         }
 
-        public Builder namedView(final NamedView namedView) {
-            _getOp().setNamedView(namedView);
+        public Builder view(final View view) {
+            _getOp().setView(view);
             return _self();
         }
 

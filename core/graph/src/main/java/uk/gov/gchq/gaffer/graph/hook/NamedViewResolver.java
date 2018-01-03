@@ -65,11 +65,11 @@ public class NamedViewResolver implements GraphHook {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
                 if (((OperationView) operation).getView() instanceof NamedView) {
-                    final NamedView resolvedNamedView = resolveNamedViewInOperation((NamedView) ((OperationView) operation).getView());
-                    resolvedNamedView.setName(null);
+                    final View resolvedView = resolveViewInOperation((NamedView) ((OperationView) operation).getView());
+                    ((NamedView) resolvedView).setName(null);
                     ((NamedView) ((OperationView) operation).getView()).setName(null);
                     final View viewMergedWithOriginalView = new View.Builder()
-                            .merge(resolvedNamedView)
+                            .merge(resolvedView)
                             .merge(((OperationView) operation).getView())
                             .build();
 
@@ -86,19 +86,19 @@ public class NamedViewResolver implements GraphHook {
         operations.getOperations().addAll((List) updatedOperations);
     }
 
-    private NamedView resolveNamedViewInOperation(final NamedView namedView) {
+    private NamedView resolveViewInOperation(final NamedView namedView) {
         NamedView.Builder newNamedView;
         try {
             NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
-            NamedView resolvedCachedNamedView = cachedNamedView.getNamedView(namedView.getParameters());
+            View resolvedCachedView = cachedNamedView.getView(namedView.getParameters());
             newNamedView = new NamedView.Builder()
                     .name(namedView.getName())
-                    .merge(resolvedCachedNamedView);
+                    .merge(resolvedCachedView);
 
-            if (null != resolvedCachedNamedView.getMergedNamedViewNames()) {
-                for (final String name : resolvedCachedNamedView.getMergedNamedViewNames()) {
+            if (resolvedCachedView instanceof NamedView && null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
+                for (final String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
                     final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
-                    final NamedView resolvedNestedCacheNamedView = nestedCachedNamedView.getNamedView(namedView.getParameters());
+                    final NamedView resolvedNestedCacheNamedView = new NamedView.Builder().name(null).merge(nestedCachedNamedView.getView(namedView.getParameters())).build();
                     newNamedView.merge(resolvedNestedCacheNamedView);
                 }
             }

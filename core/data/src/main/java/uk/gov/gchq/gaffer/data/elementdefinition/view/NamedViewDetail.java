@@ -37,13 +37,13 @@ public class NamedViewDetail implements Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String name;
-    private String namedView;
+    private String view;
     private String description;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
 
-    public NamedViewDetail(final String name, final String namedView, final String description, final Map<String, ViewParameterDetail> parameters) {
+    public NamedViewDetail(final String name, final String view, final String description, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
-        setNamedView(namedView);
+        setView(view);
         setDescription(description);
         setParameters(parameters);
     }
@@ -60,15 +60,15 @@ public class NamedViewDetail implements Serializable {
         }
     }
 
-    public String getNamedView() {
-        return namedView;
+    public String getView() {
+        return view;
     }
 
-    public void setNamedView(final String namedView) {
-        if (null != namedView) {
-            this.namedView = namedView;
+    public void setView(final String view) {
+        if (null != view) {
+            this.view = view;
         } else {
-            throw new IllegalArgumentException("NamedView cannot be null");
+            throw new IllegalArgumentException("View cannot be null");
         }
     }
 
@@ -95,15 +95,15 @@ public class NamedViewDetail implements Serializable {
     }
 
     /**
-     * Gets the NamedView after adding in the parameters specified.  If a parameter does
+     * Gets the View after adding in the parameters specified.  If a parameter does
      * not have a default and none is set an Exception will be thrown.
      *
      * @param executionParams Parameters to add
-     * @return the {@Link NamedView} with substituted parameters
+     * @return the {@link View} with substituted parameters
      * @throws IllegalArgumentException if substituting the parameters fails
      */
-    public NamedView getNamedView(final Map<String, Object> executionParams) {
-        String thisViewString = namedView;
+    public View getView(final Map<String, Object> executionParams) {
+        String thisViewString = view;
 
         Set<String> paramKeys = parameters.keySet();
 
@@ -127,15 +127,18 @@ public class NamedViewDetail implements Serializable {
             }
         }
 
-        NamedView namedView;
+        View view;
 
         try {
-            namedView = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
+            if (thisViewString.contains("uk.gov.gchq.gaffer.elementdefinition.view.NamedView")) {
+                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
+            } else {
+                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), View.class);
+            }
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-
-        return namedView;
+        return view;
     }
 
     @Override
@@ -152,7 +155,7 @@ public class NamedViewDetail implements Serializable {
 
         return new EqualsBuilder()
                 .append(name, op.name)
-                .append(namedView, op.namedView)
+                .append(view, op.view)
                 .append(description, op.description)
                 .append(parameters, op.parameters)
                 .isEquals();
@@ -162,7 +165,7 @@ public class NamedViewDetail implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(71, 3)
                 .append(name)
-                .append(namedView)
+                .append(view)
                 .append(description)
                 .append(parameters)
                 .hashCode();
@@ -173,7 +176,7 @@ public class NamedViewDetail implements Serializable {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
                 .append("name", name)
-                .append("namedView", namedView)
+                .append("view", view)
                 .append("description", description)
                 .append("parameters", parameters)
                 .toString();
@@ -186,7 +189,7 @@ public class NamedViewDetail implements Serializable {
 
     public static final class Builder {
         private String name;
-        private String namedView;
+        private String view;
         private String description;
         private Map<String, ViewParameterDetail> parameters;
 
@@ -195,12 +198,12 @@ public class NamedViewDetail implements Serializable {
             return this;
         }
 
-        public Builder namedView(final NamedView namedView) {
-            if (null != namedView) {
-                this.namedView = new String(namedView.toCompactJson());
+        public Builder view(final View view) {
+            if (null != view) {
+                this.view = new String(view.toCompactJson());
                 return this;
             } else {
-                throw new IllegalArgumentException("NamedView cannot be null");
+                throw new IllegalArgumentException("View cannot be null");
             }
         }
 
@@ -215,7 +218,7 @@ public class NamedViewDetail implements Serializable {
         }
 
         public NamedViewDetail build() {
-            return new NamedViewDetail(name, namedView, description, parameters);
+            return new NamedViewDetail(name, view, description, parameters);
         }
     }
 }

@@ -22,8 +22,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -59,7 +59,7 @@ public class AddNamedViewHandlerTest {
 
     private Store store = mock(Store.class);
 
-    NamedView namedView;
+    View view;
 
     AddNamedView addNamedView;
 
@@ -67,14 +67,13 @@ public class AddNamedViewHandlerTest {
     public void before() {
         testParameters.put("testParam", TEST_PARAM_VALUE);
 
-        namedView = new NamedView.Builder()
-                .name(testNamedViewName)
+        view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
 
         addNamedView = new AddNamedView.Builder()
-                .name(namedView.getName())
-                .namedView(namedView)
+                .name(testNamedViewName)
+                .view(view)
                 .parameters(testParameters)
                 .overwrite(false)
                 .build();
@@ -96,15 +95,15 @@ public class AddNamedViewHandlerTest {
         final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
 
         assertTrue(cacheContains(testNamedViewName));
-        assertEquals(addNamedView.getNamedView().getName(), result.getName());
+        assertEquals(addNamedView.getName(), result.getName());
         assertEquals(addNamedView.getParameters(), result.getParameters());
-        assertEquals(new String(addNamedView.getNamedView().toCompactJson()), result.getNamedView());
+        assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
 
     }
 
     @Test
     public void shouldNotAddNamedViewWithNoName() throws OperationException {
-        namedView.setName(null);
+        addNamedView.setName(null);
 
         try {
             handler.doOperation(addNamedView, context, store);

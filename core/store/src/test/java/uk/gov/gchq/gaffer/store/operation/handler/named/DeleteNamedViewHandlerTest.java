@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -56,7 +56,7 @@ public class DeleteNamedViewHandlerTest {
             .userId(testUserId)
             .build());
     private final Store store = mock(Store.class);
-    private NamedView namedView;
+    private View view;
     private AddNamedView addNamedView;
 
     @Before
@@ -66,14 +66,13 @@ public class DeleteNamedViewHandlerTest {
 
         testParameters.put("testParam", mock(ViewParameterDetail.class));
 
-        namedView = new NamedView.Builder()
-                .name(testNamedViewName)
+        view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
 
         addNamedView = new AddNamedView.Builder()
-                .name(namedView.getName())
-                .namedView(namedView)
+                .name(testNamedViewName)
+                .view(view)
                 .parameters(testParameters)
                 .overwrite(false)
                 .build();
