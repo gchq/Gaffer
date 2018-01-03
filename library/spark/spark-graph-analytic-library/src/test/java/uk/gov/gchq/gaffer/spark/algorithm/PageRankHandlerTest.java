@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.spark.algorithm;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.SparkSession;
@@ -32,8 +32,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.PageRank;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;

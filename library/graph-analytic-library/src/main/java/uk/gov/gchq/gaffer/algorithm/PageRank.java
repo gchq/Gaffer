@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.spark.operation.graphframe;
+package uk.gov.gchq.gaffer.algorithm;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
-import org.graphframes.GraphFrame;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Map;
@@ -39,10 +36,9 @@ import java.util.Map;
  * <p>
  * Setting both of these values will result in an error.
  */
-public class PageRank implements
-        InputOutput<GraphFrame, GraphFrame> {
+public class PageRank<I, O> implements InputOutput<I, O> {
 
-    public GraphFrame input;
+    public I input;
     public Map<String, String> options;
 
     /**
@@ -64,12 +60,12 @@ public class PageRank implements
     private Double resetProbability = 0.15d;
 
     @Override
-    public GraphFrame getInput() {
+    public I getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final GraphFrame input) {
+    public void setInput(final I input) {
         this.input = input;
     }
 
@@ -89,13 +85,13 @@ public class PageRank implements
     }
 
     @Override
-    public TypeReference<GraphFrame> getOutputTypeReference() {
-        return new TypeReferenceSparkImpl.GraphFrame();
+    public TypeReference<O> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
     }
 
     @Override
-    public PageRank shallowClone() throws CloneFailedException {
-        return new PageRank.Builder()
+    public PageRank<I, O> shallowClone() throws CloneFailedException {
+        return new PageRank.Builder<I, O>()
                 .input(input)
                 .maxIterations(maxIterations)
                 .tolerance(tolerance)
@@ -138,24 +134,24 @@ public class PageRank implements
         this.resetProbability = resetProbability;
     }
 
-    public static class Builder extends Operation.BaseBuilder<PageRank, Builder>
-            implements InputOutput.Builder<PageRank, GraphFrame, GraphFrame, Builder> {
+    public static class Builder<I, O> extends BaseBuilder<PageRank<I, O>, Builder<I, O>>
+            implements InputOutput.Builder<PageRank<I, O>, I, O, Builder<I, O>> {
 
         public Builder() {
-            super(new PageRank());
+            super(new PageRank<>());
         }
 
-        public Builder maxIterations(final Integer maxIterations) {
+        public Builder<I, O> maxIterations(final Integer maxIterations) {
             _getOp().setMaxIterations(maxIterations);
             return _self();
         }
 
-        public Builder tolerance(final Double tolerance) {
+        public Builder<I, O> tolerance(final Double tolerance) {
             _getOp().setTolerance(tolerance);
             return _self();
         }
 
-        public Builder resetProbability(final Double resetProbability) {
+        public Builder<I, O> resetProbability(final Double resetProbability) {
             _getOp().setResetProbability(resetProbability);
             return _self();
         }

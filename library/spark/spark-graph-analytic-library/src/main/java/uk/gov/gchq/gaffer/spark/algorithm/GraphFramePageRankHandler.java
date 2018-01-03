@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.spark.algorithm;
 
 import org.graphframes.GraphFrame;
+import org.graphframes.lib.PageRank;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.PageRank;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
- * The {@code PageRankHandler} operation handler handles {@link PageRank} operations.
+ * The {@code GraphFramePageRankHandler} operation handler handles {@link GraphFramePageRank}
+ * operations.
  *
  * The options are retrieved from the operation object and the operation is simply
  * delegated to the GraphFrames library.
@@ -36,16 +37,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * and the connections between vertices (along Edges), the PageRank values for Entities
  * which share a common vertex will be the same.
  */
-public class PageRankHandler implements OutputOperationHandler<PageRank, GraphFrame> {
+public class GraphFramePageRankHandler implements OutputOperationHandler<GraphFramePageRank, GraphFrame> {
 
     @Override
-    public GraphFrame doOperation(final PageRank operation, final Context context, final Store store) throws OperationException {
+    public GraphFrame doOperation(final GraphFramePageRank operation, final Context context, final Store store) throws OperationException {
 
         if (null == operation.getInput()) {
             throw new OperationException("Input must not be null.");
         }
 
-        org.graphframes.lib.PageRank pageRank = operation.getInput()
+        PageRank pageRank = operation.getInput()
                 .pageRank()
                 .resetProbability(operation.getResetProbability());
 
