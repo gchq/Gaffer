@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -214,9 +217,14 @@ public class ProxyStore extends Store {
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (Family.SUCCESSFUL != response.getStatusInfo().getFamily()) {
-            LOGGER.warn("Gaffer bad status {}", response.getStatus());
-            LOGGER.warn("Detail: {}", outputJson);
-            throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
+            final Error error;
+            try {
+                error = JSONSerialiser.deserialise(StringUtil.toBytes(outputJson), Error.class);
+            } catch (final Exception e) {
+                LOGGER.warn("Gaffer bad status {}. Detail: {}", response.getStatus(), outputJson);
+                throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
+            }
+            throw new GafferWrappedErrorRuntimeException(error);
         }
 
         O output = null;

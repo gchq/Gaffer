@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import com.google.common.primitives.Longs;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -27,28 +26,34 @@ import static org.junit.Assert.assertTrue;
 
 public class LongUtilTest {
     @Test
-    public void shouldGetTimeBasedRandomNumber() {
+    public void shouldGetRandomNumber() {
+        // Given
+        final long currentTime = System.currentTimeMillis();
+        final String currentTimeBits = Long.toBinaryString(currentTime);
+
         // When
-        final long random = LongUtil.getTimeBasedRandom();
+        final long random = LongUtil.getRandom(currentTime);
 
         // Then
-        // As we don't know the exact current time so just check the first couple of bytes
-        final byte[] randomBytes = Longs.toByteArray(random);
-        final byte[] currentTimeBytes = Longs.toByteArray(System.currentTimeMillis());
-        assertEquals(currentTimeBytes[4], randomBytes[0]);
-        assertEquals(currentTimeBytes[5], randomBytes[1]);
+        // As we don't know the exact current time so just check the first part
+        final String randomBits = Long.toBinaryString(random);
+        assertEquals(currentTimeBits.substring(currentTimeBits.length() - 30), randomBits.substring(0, 30));
     }
 
     @Test
-    public void shouldGetDifferentTimeBasedRandoms() {
+    public void shouldGetDifferentPositiveTimeBasedRandoms() {
         // Given
-        final int n = 1000;
+        int n = 1000;
 
         // When
         final Set<Long> timestamps = new HashSet<>(n);
         for (int i = 0; i < n; i++) {
             timestamps.add(LongUtil.getTimeBasedRandom());
         }
+
+        timestamps.add(LongUtil.getRandom(Long.MAX_VALUE));
+        timestamps.add(LongUtil.getRandom(1));
+        n += 2;
 
         // Then
         assertEquals(n, timestamps.size());

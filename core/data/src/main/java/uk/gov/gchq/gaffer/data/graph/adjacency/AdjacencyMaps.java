@@ -24,18 +24,15 @@ import java.util.List;
  * An {@code AdjacencyMaps} object contains a number of {@link AdjacencyMap}
  * objects and can be used to represent the changes in an AdjacencyMap over time
  * or to track the adjacency components of a graph over some other metric.
- *
- * @param <V> the type of object representing the vertices
- * @param <E> the type of object representing the edges
  */
-public interface AdjacencyMaps<V, E> extends Iterable<AdjacencyMap<V, E>> {
+public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
 
     /**
      * Add a new {@link AdjacencyMap}.
      *
      * @param adjacencyMap the AdjacencyMap to add
      */
-    default void add(final AdjacencyMap<V, E> adjacencyMap) {
+    default void add(final AdjacencyMap adjacencyMap) {
         asList().add(adjacencyMap);
     }
 
@@ -45,12 +42,12 @@ public interface AdjacencyMaps<V, E> extends Iterable<AdjacencyMap<V, E>> {
      * @param n the index of the adjacency map to retrieve
      * @return the nth AdjacencyMap
      */
-    default AdjacencyMap<V, E> get(final int n) {
+    default AdjacencyMap get(final int n) {
         return asList().get(n);
     }
 
     /**
-     * Return the number of {@link AdjacencyMaps} present in the AdjacencyMaps
+     * Return the number of {@link AdjacencyMap}s present in the AdjacencyMaps
      * object.
      * <p>
      * Depending on the context, this could refer to the number of hops present,
@@ -62,18 +59,28 @@ public interface AdjacencyMaps<V, E> extends Iterable<AdjacencyMap<V, E>> {
         return asList().size();
     }
 
+
+    /**
+     * Return {@code true} if this AdjacencyMaps object is empty, otherwise {@code false}.
+     *
+     * @return the empty state of this object
+     */
+    default boolean empty() {
+        return asList().isEmpty();
+    }
+
     /**
      * Print the {@code AdjacencyMaps} object in an easily readable format.
      *
-     * @return a prettily printed {@link String} representation of the AdjacencyMap
-     * object.
+     * @return a prettily printed {@link String} representation of the
+     * AdjacencyMap object.
      */
     default String prettyPrint() {
         return this.getClass().getName() + '@' + Integer.toHexString(this.hashCode()) + Arrays.toString(asList().toArray());
     }
 
     @Override
-    default Iterator<AdjacencyMap<V, E>> iterator() {
+    default Iterator<AdjacencyMap> iterator() {
         return asList().iterator();
     }
 
@@ -83,5 +90,5 @@ public interface AdjacencyMaps<V, E> extends Iterable<AdjacencyMap<V, E>> {
      *
      * @return a {@link List} representation of the current AdjacencyMaps object
      */
-    List<AdjacencyMap<V, E>> asList();
+    List<AdjacencyMap> asList();
 }

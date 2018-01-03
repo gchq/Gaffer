@@ -201,6 +201,10 @@ public abstract class AbstractStoreIT {
         graph = getGraphBuilder().addStoreProperties(storeProperties).build();
     }
 
+    protected void addGraphConfig(final GraphConfig graphConfig) {
+        graph = getGraphBuilder().config(graphConfig).build();
+    }
+
     protected Schema createSchema() {
         return createDefaultSchema();
     }
