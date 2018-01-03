@@ -21,7 +21,13 @@
         <artifactId>spark</artifactId>
         <version>1.2.0-RC2-SNAPSHOT</version>
     </parent>
+
     <artifactId>spark-library</artifactId>
+
+    <properties>
+        <graphframes.library.version>0.4.0</graphframes.library.version>
+        <graphframes.version>${graphframes.library.version}-spark2.1-s_${scala.version}</graphframes.version>
+    </properties>
 
     <dependencies>
         <!-- Gaffer dependencies -->
@@ -104,6 +110,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
+            <artifactId>spark-graphx_${scala.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
             <artifactId>spark-catalyst_${scala.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
@@ -112,6 +123,11 @@
             <artifactId>avro-mapred</artifactId>
             <version>${avro.version}</version>
             <classifier>hadoop2</classifier>
+        </dependency>
+        <dependency>
+            <groupId>graphframes</groupId>
+            <artifactId>graphframes</artifactId>
+            <version>${graphframes.version}</version>
         </dependency>
 
         <!-- Test dependencies-->
@@ -125,6 +141,13 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
