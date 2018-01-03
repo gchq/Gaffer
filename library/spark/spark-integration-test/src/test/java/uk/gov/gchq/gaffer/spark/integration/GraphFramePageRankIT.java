@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.spark.integration;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.SparkSession;
@@ -31,9 +31,9 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
+import uk.gov.gchq.gaffer.spark.algorithm.GraphFramePageRank;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.PageRank;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class PageRankHandlerTest {
+public class GraphFramePageRankIT {
 
     @Test
     public void shouldGetCorrectPageRankForGraphFrameUsingMaxIterations() throws OperationException {
@@ -62,7 +62,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -98,7 +98,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .tolerance(1E-2)
                 .build();
 
@@ -134,7 +134,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .tolerance(1E-1)
                 .resetProbability(0.5)
                 .build();
@@ -170,7 +170,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -200,7 +200,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -231,7 +231,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -267,7 +267,7 @@ public class PageRankHandlerTest {
                         .build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -304,7 +304,7 @@ public class PageRankHandlerTest {
                         .entity(TestGroups.ENTITY).build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -348,7 +348,7 @@ public class PageRankHandlerTest {
                         .entity(TestGroups.ENTITY).build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 
@@ -395,7 +395,7 @@ public class PageRankHandlerTest {
                         .entity(TestGroups.ENTITY).build())
                 .build();
 
-        final PageRank pageRank = new PageRank.Builder()
+        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
                 .maxIterations(20)
                 .build();
 

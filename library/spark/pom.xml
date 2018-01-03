@@ -28,6 +28,8 @@
     <modules>
         <module>spark-library</module>
         <module>spark-accumulo-library</module>
+        <module>spark-graph-analytic-library</module>
+        <module>spark-integration-test</module>
     </modules>
 
     <properties>

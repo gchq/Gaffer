@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.spark.operation.graphframe;
+package uk.gov.gchq.gaffer.algorithm;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.exception.CloneFailedException;
-import org.graphframes.GraphFrame;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Map;
 
 /**
- * A {@code PageRank} is an operation which uses the Databricks GraphFrames
- * library to execute the PageRank algorithm on an input graph.
+ * A {@code PageRank} is an operation which determines the PageRank values for an
+ * given input.
+ * <p>
+ * The specified input should contain a representation of {@link uk.gov.gchq.gaffer.data.element.Edge}s
+ * in a Gaffer graph. The PageRank algorithm is applied and a PageRank value is
+ * determined for each of the vertices encountered. Note that the PageRank algorithm
+ * will ignore any {@link uk.gov.gchq.gaffer.data.element.Entity} objects and values
+ * will only be calculated for entities which share a vertex with an Edge.
+ * <p>
+ * The output of a PageRank operation is identical to the input type, but the input
+ * data will be replaced with the results of the PageRank calculation.
  * <p>
  * Users specifying a PageRank operation MUST provide one of the following: <ul>
  * <li>tolerance - set the desired precision of the PageRank values. With this
@@ -39,37 +44,36 @@ import java.util.Map;
  * <p>
  * Setting both of these values will result in an error.
  */
-public class PageRank implements
-        InputOutput<GraphFrame, GraphFrame> {
+public class PageRank<T> implements InputOutput<T, T> {
 
-    public GraphFrame input;
+    public T input;
     public Map<String, String> options;
 
     /**
      * The desired precision of the PageRank values. Cannot
      * be used in conjunction with the maxIterations field.
      */
-    private Double tolerance;
+    protected Double tolerance;
 
     /**
      * The maximum number of iterations before terminating the operation. Cannot
      * be used in conjunction with the tolerance field.
      */
-    private Integer maxIterations;
+    protected Integer maxIterations;
 
     /**
      * The probability the algorithm starts from a node chosen uniformly at random
      * among all nodes in the network. (Also known as the damping factor.
      */
-    private Double resetProbability = 0.15d;
+    protected Double resetProbability = 0.15d;
 
     @Override
-    public GraphFrame getInput() {
+    public T getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final GraphFrame input) {
+    public void setInput(final T input) {
         this.input = input;
     }
 
@@ -89,13 +93,13 @@ public class PageRank implements
     }
 
     @Override
-    public TypeReference<GraphFrame> getOutputTypeReference() {
-        return new TypeReferenceSparkImpl.GraphFrame();
+    public TypeReference<T> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
     }
 
     @Override
-    public PageRank shallowClone() throws CloneFailedException {
-        return new PageRank.Builder()
+    public PageRank<T> shallowClone() {
+        return new PageRank.Builder<T>()
                 .input(input)
                 .maxIterations(maxIterations)
                 .tolerance(tolerance)
@@ -138,26 +142,34 @@ public class PageRank implements
         this.resetProbability = resetProbability;
     }
 
-    public static class Builder extends Operation.BaseBuilder<PageRank, Builder>
-            implements InputOutput.Builder<PageRank, GraphFrame, GraphFrame, Builder> {
+    public interface PageRankBuilder<OP extends PageRank<T>, T, B extends InputOutput.Builder<OP, T, T, ?>>
+            extends InputOutput.Builder<OP, T, T, B> {
 
-        public Builder() {
-            super(new PageRank());
-        }
-
-        public Builder maxIterations(final Integer maxIterations) {
+        default B maxIterations(final Integer maxIterations) {
             _getOp().setMaxIterations(maxIterations);
             return _self();
         }
 
-        public Builder tolerance(final Double tolerance) {
+        default B tolerance(final Double tolerance) {
             _getOp().setTolerance(tolerance);
             return _self();
         }
 
-        public Builder resetProbability(final Double resetProbability) {
+        default B resetProbability(final Double resetProbability) {
             _getOp().setResetProbability(resetProbability);
             return _self();
+        }
+    }
+
+    public static class Builder<T> extends BaseBuilder<PageRank<T>, Builder<T>>
+            implements PageRankBuilder<PageRank<T>, T, Builder<T>> {
+
+        public Builder() {
+            super(new PageRank<>());
+        }
+
+        public Builder(final PageRank<T> pageRank) {
+            super(pageRank);
         }
     }
 }

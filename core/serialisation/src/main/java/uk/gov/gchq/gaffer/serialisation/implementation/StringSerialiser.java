@@ -22,7 +22,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 /**
  * A {@code StringSerialiser} is used to serialise {@link String}s.
  */
-public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
+public class
+StringSerialiser extends ToBytesViaStringDeserialiser<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
 

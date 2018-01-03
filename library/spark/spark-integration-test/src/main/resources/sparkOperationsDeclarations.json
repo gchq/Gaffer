@@ -1,0 +1,70 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe.GetGraphFrameOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.algorithm.PageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.GraphFramePageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.IterableElementsPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.IterableElementsPageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.RDDPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.RDDPageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.JavaRDDPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.JavaRDDPageRankHandler"
+      }
+    }
+  ]
+}

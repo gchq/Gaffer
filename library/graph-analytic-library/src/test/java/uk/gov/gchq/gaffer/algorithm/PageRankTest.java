@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.spark.operation.graphframe;
+package uk.gov.gchq.gaffer.algorithm;
 
-import org.graphframes.GraphFrame;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -37,8 +36,8 @@ public class PageRankTest extends OperationTest<PageRank> {
     @Test
     public void shouldInvalidateOperationIfMaxIterationsAndToleranceAreSet() {
         // Given
-        final PageRank op = new PageRank.Builder()
-                .input(new GraphFrame())
+        final PageRank op = new PageRank.Builder<>()
+                .input(new Object())
                 .maxIterations(1)
                 .tolerance(0.1)
                 .build();
@@ -50,8 +49,8 @@ public class PageRankTest extends OperationTest<PageRank> {
     @Test
     public void shouldInvalidateOperationIfMaxIterationsAndToleranceAreNotSet() {
         // Given
-        final PageRank op = new PageRank.Builder()
-                .input(new GraphFrame())
+        final PageRank op = new PageRank.Builder<>()
+                .input(new Object())
                 .build();
 
         // Then
@@ -98,8 +97,8 @@ public class PageRankTest extends OperationTest<PageRank> {
 
     @Override
     protected PageRank getTestObject() {
-        return new PageRank.Builder()
-                .input(new GraphFrame())
+        return new PageRank.Builder<>()
+                .input(new Object())
                 .maxIterations(1)
                 .build();
     }
