@@ -133,8 +133,8 @@ public class JSONSerialiser {
         modules.forEach(mapper::registerModule);
     }
 
-    public static void addSimpleClassNameParents(final Class... parentClassesToAdd) {
-        SimpleClassNameIdResolver.addParentClasses(parentClassesToAdd);
+    public static void addSimpleClassNames(final boolean includeSubtypes, final Class... classes) {
+        SimpleClassNameIdResolver.addSimpleClassNames(includeSubtypes, classes);
     }
 
     public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {

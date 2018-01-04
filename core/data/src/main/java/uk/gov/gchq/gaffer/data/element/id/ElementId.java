@@ -29,7 +29,7 @@ import java.io.Serializable;
  * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Element}.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-@JsonSimpleClassName
+@JsonSimpleClassName(includeSubtypes = true)
 public interface ElementId extends Serializable {
     Matches isRelated(final ElementId that);
 

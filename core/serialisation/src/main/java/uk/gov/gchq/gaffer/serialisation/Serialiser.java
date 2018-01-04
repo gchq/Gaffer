@@ -26,9 +26,8 @@ import java.io.Serializable;
  * A class that implements this interface is responsible for serialising an
  * object of class INPUT to a OUTPUT, and for deserialising it back again.
  * It must also be able to deal with serialising null values.
- *
  */
-@JsonSimpleClassName
+@JsonSimpleClassName(includeSubtypes = true)
 public interface Serialiser<INPUT, OUTPUT> extends Serializable {
 
     /**

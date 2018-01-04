@@ -167,14 +167,16 @@
                                     <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
-                                    <include>com.google.guava*
-                                    </include>
+                                    <include>com.google.guava*</include>
                                     <include>org.apache.commons:commons-lang3
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
+                                    <include>com.google.code.gson*</include>
+                                    <include>org.reflections*</include>
+                                    <include>org.javassist*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

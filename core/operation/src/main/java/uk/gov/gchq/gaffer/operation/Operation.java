@@ -80,7 +80,7 @@ import java.util.Map;
  * </pre>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-@JsonSimpleClassName
+@JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
     /**
      * Operation implementations should ensure a ShallowClone method is implemented.
