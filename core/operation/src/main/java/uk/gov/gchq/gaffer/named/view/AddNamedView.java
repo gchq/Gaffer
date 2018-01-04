@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -27,6 +30,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -55,8 +59,30 @@ public class AddNamedView implements Operation {
     }
 
     @JsonSetter("view")
-    public void setView(final View namedView) {
-        this.view = new String(namedView.toCompactJson());
+    public void setView(final JsonNode viewNode) {
+        this.view = viewNode.toString();
+    }
+
+    @JsonIgnore
+    public String getViewAsString() {
+        return view;
+    }
+
+    @JsonGetter("view")
+    public JsonNode getViewAsJsonNode() {
+        try {
+            return JSONSerialiser.getJsonNodeFromString(view);
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
+    }
+
+    public void setView(final View view) {
+        try {
+            this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     public View getView() {
