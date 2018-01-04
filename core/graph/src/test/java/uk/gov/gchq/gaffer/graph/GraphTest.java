@@ -89,7 +89,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -504,7 +503,7 @@ public class GraphTest {
         verify(context).setOriginalOpChain(opChain);
     }
 
-    //@Test
+    @Test
     public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
         // Given
         final User user = mock(User.class);
@@ -518,9 +517,8 @@ public class GraphTest {
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
+        final OperationChain clonedOpChain = opChain.shallowClone();
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -538,7 +536,6 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(clonedOpChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.execute(clonedOpChain, context)).willReturn(result1);
 
         // When
@@ -552,7 +549,7 @@ public class GraphTest {
         verify(context).setOriginalOpChain(opChain);
     }
 
-    //@Test
+    @Test
     public void shouldCallAllGraphHooksAfterJobExecuted() throws OperationException {
         // Given
         final User user = mock(User.class);
@@ -566,9 +563,8 @@ public class GraphTest {
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
         final JobDetail result3 = mock(JobDetail.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
+        final OperationChain clonedOpChain = opChain.shallowClone();
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -586,7 +582,6 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(clonedOpChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.executeJob(clonedOpChain, context)).willReturn(result1);
 
         // When
