@@ -21,7 +21,7 @@ env:
   - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
   - MODULES=:flink-library,:hdfs-library,:spark,:spark-library,:spark-graph-analytic-library
   - MODULES=:library,:time-library
-  - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+  - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service,:graph-analytic-library
   - MODULES=:spark-integration-test
 
   global:
