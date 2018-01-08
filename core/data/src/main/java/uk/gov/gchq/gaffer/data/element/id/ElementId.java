@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.Serializable;
 
@@ -37,7 +38,7 @@ public interface ElementId extends Serializable {
 
     @JsonGetter("class")
     default String getClassName() {
-        return getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(getClass());
     }
 
     @JsonSetter("class")

@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
@@ -67,7 +68,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     }
 
     private static void updateReflectionPaths() {
-        ReflectionUtil.addPaths(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
+        ReflectionUtil.addReflectionPackages(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 
     @Override
@@ -94,7 +95,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
         final Class<?> clazz;
         try {
-            clazz = Class.forName(inputClass);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(inputClass));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
@@ -124,7 +125,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     public Set<String> getSerialisedFields(final String className) {
         final Class<?> clazz;
         try {
-            clazz = Class.forName(className);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
@@ -156,7 +157,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     public Set<Class> getNextOperations(final String operationClassName) {
         Class<? extends Operation> opClass;
         try {
-            opClass = Class.forName(operationClassName).asSubclass(Operation.class);
+            opClass = Class.forName(SimpleClassNameIdResolver.getClassName(operationClassName)).asSubclass(Operation.class);
         } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException("Operation class was not found: " + operationClassName, e);
         } catch (final ClassCastException e) {

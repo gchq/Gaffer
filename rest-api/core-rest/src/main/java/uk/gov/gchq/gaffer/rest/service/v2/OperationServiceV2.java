@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -250,7 +251,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
-        return Class.forName(className).asSubclass(Operation.class);
+        return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
     /**

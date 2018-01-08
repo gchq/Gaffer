@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -266,7 +267,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return null;
         }
 
-        return vertexSerialiser.getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(vertexSerialiser.getClass());
     }
 
     @Override
@@ -363,7 +364,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             } else {
                 Class<? extends Serialiser> serialiserClass;
                 try {
-                    serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialiser.class);
+                    serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(vertexSerialiserClass)).asSubclass(Serialiser.class);
                 } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }

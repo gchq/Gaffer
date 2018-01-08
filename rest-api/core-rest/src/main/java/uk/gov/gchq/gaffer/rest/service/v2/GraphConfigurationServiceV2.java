@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
@@ -68,7 +69,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     private static void updateReflectionPaths() {
-        ReflectionUtil.addPaths(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
+        ReflectionUtil.addReflectionPackages(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 
     @Override
@@ -94,7 +95,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
         final Class<?> clazz;
         try {
-            clazz = Class.forName(inputClass);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(inputClass));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
@@ -127,7 +128,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     public Response getSerialisedFields(final String className) {
         final Class<?> clazz;
         try {
-            clazz = Class.forName(className);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
