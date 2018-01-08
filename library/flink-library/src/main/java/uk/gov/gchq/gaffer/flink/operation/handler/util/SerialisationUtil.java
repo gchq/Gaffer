@@ -24,6 +24,10 @@ import java.util.Map;
 
 public final class SerialisationUtil {
 
+    static {
+        put(Byte[].class, new ByteArraySchema());
+    }
+
     private static final Map<Class<?>, DeserializationSchema> MAP = new HashMap<>();
 
     private static <T> void put(final Class<T> key, final DeserializationSchema<? extends T> value) {
@@ -32,10 +36,6 @@ public final class SerialisationUtil {
 
     private static <T> DeserializationSchema<T> get(final Class<T> subClass) {
         return (DeserializationSchema<T>) MAP.get(subClass);
-    }
-
-    static {
-        put(Byte[].class, new ByteArraySchema());
     }
 
     public static class Resolver {

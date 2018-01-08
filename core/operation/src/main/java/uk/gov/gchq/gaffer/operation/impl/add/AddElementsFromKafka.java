@@ -55,6 +55,8 @@ public class AddElementsFromKafka implements
     @Required
     private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
+    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator2;
+
     /**
      * The parallelism of the job to be created
      */
@@ -62,7 +64,6 @@ public class AddElementsFromKafka implements
 
     private boolean validate = true;
     private boolean skipInvalidElements;
-
 
     private Map<String, String> options;
 
@@ -159,6 +160,14 @@ public class AddElementsFromKafka implements
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
                 .build();
+    }
+
+    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getElementGenerator2() {
+        return elementGenerator2;
+    }
+
+    public void setElementGenerator2(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator2) {
+        this.elementGenerator2 = elementGenerator2;
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>

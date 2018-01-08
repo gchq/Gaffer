@@ -58,10 +58,24 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
         final DataStream<Element> builder;
 
+        final String type = op.getOption(FlinkConstants.MAP_FUNCTION_TYPE);
+        final GafferMapFunction function;
+        if (null == type) {
+            function = new StringMapFunction();
+        } else {
+            try {
+                function = Class.forName(type).asSubclass(GafferMapFunction.class).newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new OperationException(e);
+            }
+        }
+
+        function.setGeneratorClassName(op.getElementGenerator2());
+
         try {
             builder =
-                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SerialisationUtil.Resolver().retrieve(Class.forName(FlinkConstants.SERIALISATION_TYPE)).resolve(), createFlinkProperties(op)))
-                            .flatMap(new GafferMapFunction(op.getElementGenerator()));
+                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), function.getSerialisationType(), createFlinkProperties(op)))
+                            .flatMap(function);
         } catch (final Exception e) {
             throw new OperationException("Unable to create instance of deserialisation schema \""
                     + "classNameHere"

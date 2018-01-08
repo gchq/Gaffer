@@ -37,6 +37,8 @@ public final class FlinkConstants {
      */
     public static final String SERIALISATION_TYPE = "gaffer.flink.operation.handler.serialisation-type";
 
+    public static final String MAP_FUNCTION_TYPE = "";
+
     private FlinkConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.

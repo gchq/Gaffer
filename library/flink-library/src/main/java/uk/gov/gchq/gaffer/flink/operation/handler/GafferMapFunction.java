@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.streaming.util.serialization.DeserializationSchema;
 import org.apache.flink.util.Collector;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,14 +31,19 @@ import java.util.function.Function;
  * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
-public class GafferMapFunction implements FlatMapFunction<String, Element> {
+public abstract class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
     private static final long serialVersionUID = -2338397824952911347L;
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generatorClassName;
+
+    public void setGeneratorClassName(final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName) {
+        this.generatorClassName = generatorClassName;
+    }
+
+    private Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName;
 
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The constructor forces this to be serializable")
-    private transient Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+    private transient Function<Iterable<? extends T>, Iterable<? extends Element>> elementGenerator;
 
-    public GafferMapFunction(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generatorClassName) {
+    public GafferMapFunction(final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName) {
         this.generatorClassName = generatorClassName;
         try {
             this.elementGenerator = generatorClassName.newInstance();
@@ -47,18 +53,24 @@ public class GafferMapFunction implements FlatMapFunction<String, Element> {
         }
     }
 
+    public GafferMapFunction() {
+
+    }
+
     @Override
-    public void flatMap(final String csv, final Collector<Element> out) throws Exception {
+    public void flatMap(final T csv, final Collector<Element> out) throws Exception {
         if (null == elementGenerator) {
             elementGenerator = generatorClassName.newInstance();
         }
 
         if (elementGenerator instanceof OneToOneElementGenerator) {
-            out.collect(((OneToOneElementGenerator<String>) elementGenerator)._apply(csv));
+            out.collect(((OneToOneElementGenerator<T>) elementGenerator)._apply(csv));
         } else if (elementGenerator instanceof OneToManyElementGenerator) {
-            ((OneToManyElementGenerator<String>) elementGenerator)._apply(csv).forEach(out::collect);
+            ((OneToManyElementGenerator<T>) elementGenerator)._apply(csv).forEach(out::collect);
         } else {
             (elementGenerator).apply(Collections.singleton(csv)).forEach(out::collect);
         }
     }
+
+    public abstract DeserializationSchema<T> getSerialisationType();
 }

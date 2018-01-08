@@ -22,7 +22,7 @@ import org.apache.flink.streaming.util.serialization.SerializationSchema;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-public class ByteArraySchema implements DeserializationSchema<Byte[]>, SerializationSchema<byte[]> {
+public class ByteArraySchema implements DeserializationSchema<Byte[]> {
 
     @Override
     public Byte[] deserialize(final byte[] bytes) throws IOException {
@@ -37,10 +37,5 @@ public class ByteArraySchema implements DeserializationSchema<Byte[]>, Serializa
     @Override
     public BasicArrayTypeInfo<Byte[], Byte> getProducedType() {
         return BasicArrayTypeInfo.BYTE_ARRAY_TYPE_INFO;
-    }
-
-    @Override
-    public byte[] serialize(final byte[] bytes) {
-        return bytes;
     }
 }
