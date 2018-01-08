@@ -51,6 +51,7 @@ public class NamedViewResolverTest {
     private static final String NAMED_VIEW_NAME = "namedViewName";
     private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
     private static final String IS_MORE_THAN_X_PARAM_KEY = "IS_MORE_THAN_X";
+    private static final String SELECTION_PARAM_KEY = "SELECTION";
     private static final String EDGE_NAME_PARAM_KEY = "EDGE_NAME";
     private static final String VALUE_JSON_STRING = "\"value\":";
     private static final NamedViewCache CACHE = mock(NamedViewCache.class);
@@ -316,6 +317,7 @@ public class NamedViewResolverTest {
     public void shouldResolveNamedViewJsonWithParameters() throws CacheOperationFailedException {
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(IS_MORE_THAN_X_PARAM_KEY, 7L);
+        paramMap.put(SELECTION_PARAM_KEY, "VERTEX");
 
         ViewParameterDetail param = new ViewParameterDetail.Builder()
                 .defaultValue(2L)
@@ -323,8 +325,15 @@ public class NamedViewResolverTest {
                 .valueClass(Long.class)
                 .build();
 
+        ViewParameterDetail param2 = new ViewParameterDetail.Builder()
+                .description("selection filter")
+                .valueClass(String.class)
+                .required(true)
+                .build();
+
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put(IS_MORE_THAN_X_PARAM_KEY, param);
+        paramDetailMap.put(SELECTION_PARAM_KEY, param2);
 
         // real View json with a parameter
         final String extendedViewString = "{\n" +
@@ -337,7 +346,7 @@ public class NamedViewResolverTest {
                 "          \"orEqualTo\" : false,\n" +
                 "          \"value\" : \"${IS_MORE_THAN_X}\"\n" +
                 "        },\n" +
-                "        \"selection\" : [ \"VERTEX\" ]\n" +
+                "        \"selection\" : [ \"${SELECTION}\" ]\n" +
                 "      } ]\n" +
                 "    }\n" +
                 "  },\n" +
@@ -356,6 +365,7 @@ public class NamedViewResolverTest {
                 .first(new GetElements.Builder()
                         .view(new NamedView.Builder()
                                 .name(NAMED_VIEW_NAME)
+                                .parameters(paramMap)
                                 .build())
                         .build())
                 .build();
@@ -365,6 +375,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertTrue(new String(getElements.getView().toCompactJson()).contains(VALUE_JSON_STRING + 2));
+        assertTrue(new String(getElements.getView().toCompactJson()).contains(VALUE_JSON_STRING + 7));
+        assertTrue(new String(getElements.getView().toCompactJson()).contains("VERTEX"));
     }
 }
