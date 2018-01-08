@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,6 +68,18 @@ public class NamedViewDetail implements Serializable {
     public void setView(final String view) {
         if (null != view) {
             this.view = view;
+        } else {
+            throw new IllegalArgumentException("View cannot be null");
+        }
+    }
+
+    public void setView(final View view) {
+        if (null != view) {
+            try {
+                this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+            } catch (final SerialisationException se) {
+                throw new IllegalArgumentException(se.getMessage());
+            }
         } else {
             throw new IllegalArgumentException("View cannot be null");
         }
@@ -198,10 +211,23 @@ public class NamedViewDetail implements Serializable {
             return this;
         }
 
+        public Builder view(final String view) {
+            if (null != view) {
+                this.view = view;
+                return this;
+            } else {
+                throw new IllegalArgumentException("View cannot be null");
+            }
+        }
+
         public Builder view(final View view) {
             if (null != view) {
-                this.view = new String(view.toCompactJson());
-                return this;
+                try {
+                    this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+                    return this;
+                } catch (final SerialisationException se) {
+                    throw new IllegalArgumentException(se.getMessage());
+                }
             } else {
                 throw new IllegalArgumentException("View cannot be null");
             }

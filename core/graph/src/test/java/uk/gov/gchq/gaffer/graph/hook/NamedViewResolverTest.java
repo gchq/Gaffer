@@ -311,4 +311,60 @@ public class NamedViewResolverTest {
         // Then
         assertTrue(new String(getElements1.getView().toCompactJson()).contains(VALUE_JSON_STRING + 7));
     }
+
+    @Test
+    public void shouldResolveNamedViewJsonWithParameters() throws CacheOperationFailedException {
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put(IS_MORE_THAN_X_PARAM_KEY, 7L);
+
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .defaultValue(2L)
+                .description("more than filter")
+                .valueClass(Long.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put(IS_MORE_THAN_X_PARAM_KEY, param);
+
+        // real View json with a parameter
+        final String extendedViewString = "{\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.View\",\n" +
+                "  \"edges\" : {\n" +
+                "    \"BasicEdge\" : {\n" +
+                "      \"preAggregationFilterFunctions\" : [ {\n" +
+                "        \"predicate\" : {\n" +
+                "          \"class\" : \"uk.gov.gchq.koryphe.impl.predicate.IsMoreThan\",\n" +
+                "          \"orEqualTo\" : false,\n" +
+                "          \"value\" : \"${IS_MORE_THAN_X}\"\n" +
+                "        },\n" +
+                "        \"selection\" : [ \"VERTEX\" ]\n" +
+                "      } ]\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"entities\" : { }\n" +
+                "}\n";
+
+        final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
+                .name(NAMED_VIEW_NAME)
+                .view(extendedViewString)
+                .parameters(paramDetailMap)
+                .build();
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+        GetElements getElements = (GetElements) opChain.getOperations().get(0);
+
+        // Then
+        assertTrue(new String(getElements.getView().toCompactJson()).contains(VALUE_JSON_STRING + 2));
+    }
 }
