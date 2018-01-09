@@ -76,6 +76,11 @@ public class TypeDefinition {
         this.clazz = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)) : null;
     }
 
+    @JsonIgnore
+    public String getFullClassString() {
+        return null != clazz ? clazz.getName() : null;
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public List<Predicate> getValidateFunctions() {
         return validateFunctions;
