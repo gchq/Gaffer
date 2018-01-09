@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.spark.function;
 
 import com.google.common.collect.Iterators;
 import org.apache.spark.sql.Row;
 import org.graphframes.GraphFrame;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.GraphFrameAsIterable;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-
 import java.util.Iterator;
+import java.util.function.Function;
 
-public class GraphFrameAsIterableHandler implements OutputOperationHandler<GraphFrameAsIterable, Iterable<? extends Row>> {
+/**
+ * A {@link Function} to convert a {@link GraphFrame} into an {@link Iterable} of
+ * {@link Row}s.
+ */
+public class GraphFrameToIterableRow implements Function<GraphFrame, Iterable<? extends Row>> {
 
     @Override
-    public Iterable<? extends Row> doOperation(final GraphFrameAsIterable operation, final Context context, final Store store) throws OperationException {
-
-        if (null == operation.getInput()) {
-            throw new OperationException("Input must not be null");
-        }
-
-        final GraphFrame graphFrame = operation.getInput();
-
+    public Iterable<Row> apply(final GraphFrame graphFrame) {
         final Iterator<Row> vertices = graphFrame.vertices().toLocalIterator();
         final Iterator<Row> edges = graphFrame.edges().toLocalIterator();
 

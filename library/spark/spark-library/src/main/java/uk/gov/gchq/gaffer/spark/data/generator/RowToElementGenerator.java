@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.spark.data.generator;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
 
@@ -29,6 +30,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * A {@link OneToOneElementGenerator} for converting a {@link Row} object into a
+ * Gaffer {@link Element}.
+ *
+ * This generator requires that the Row object to be converted into an Element was
+ * originally created from an Element. It is not possible to convert an arbitrary
+ * Row object into an Element.
+ */
 public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
 
     private final List<String> reserved = Lists.newArrayList("src", "dst", "vertex", "directed", "group", "id", "matchedVertex");
@@ -44,7 +53,13 @@ public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
                     .group(group)
                     .vertex(vertex);
 
-            filterProperties(row).forEach(n -> builder.property(n, row.getAs(n)));
+            filterProperties(row).forEach(n -> {
+                final Object val = row.getAs(n);
+                if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
+                    return;
+                }
+                builder.property(n, val);
+            });
 
             return builder.build();
         } else {
@@ -65,16 +80,21 @@ public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
                 builder.matchedVertex(EdgeId.MatchedVertex.valueOf(matchedVertex));
             }
 
-            filterProperties(row).forEach(n -> builder.property(n, row.getAs(n)));
+            filterProperties(row).forEach(n -> {
+                final Object val = row.getAs(n);
+                if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
+                    return;
+                }
+                builder.property(n, val);
+            });
 
             return builder.build();
         }
     }
 
     private Stream<String> filterProperties(final Row row) {
-        return Arrays.asList(row.schema().fieldNames())
-                .stream()
+        return Arrays.stream(row.schema().fieldNames())
                 .filter(n -> !reserved.contains(n))
-                .filter(n -> null != row.getAs(n));
+                .filter(n -> !row.isNullAt(row.fieldIndex(n)));
     }
 }

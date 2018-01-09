@@ -30,23 +30,23 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
+import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.GraphFrameAsIterable;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RowToElementGeneratorTest {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
-    private static final String ENTITY_GROUP = "BasicEntity";
-    private static final String EDGE_GROUP = "BasicEdge";
-    private static final String EDGE_GROUP2 = "BasicEdge2";
+public class RowToElementGeneratorTest {
 
     static List<Element> getElements() {
         final List<String> names = Lists.newArrayList("Alice", "Bob", "Charlie", "David");
@@ -138,24 +138,34 @@ public class RowToElementGeneratorTest {
 
     @Test
     public void checkGetCorrectElementsInGraphFrame() throws OperationException {
+        // Given
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder().edge(EDGE_GROUP).entity(ENTITY_GROUP).build())
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(gfOperation)
-                .then(new GraphFrameAsIterable())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .build())
                 .then(new GenerateElements.Builder<Row>()
                         .generator(new RowToElementGenerator())
                         .build())
                 .build();
 
+        // When
         final Iterable<? extends Element> result = graph.execute(opChain, new User());
 
-        result.forEach(entity -> System.out.println(entity));
+        // Then
+        result.forEach(e -> {
+            assertThat(getElements(), hasItem(e));
+        });
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {

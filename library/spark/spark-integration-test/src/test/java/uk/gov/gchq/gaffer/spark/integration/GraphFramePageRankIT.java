@@ -22,6 +22,7 @@ import org.graphframes.GraphFrame;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -30,15 +31,18 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.algorithm.GraphFramePageRank;
+import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
+import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -55,35 +59,33 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY)
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
                         .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.49, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.58, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -91,35 +93,33 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY)
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .tolerance(1E-2)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
                         .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .tolerance(1E-2)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.49, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.58, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -127,36 +127,34 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY)
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .tolerance(1E-1)
+                        .resetProbability(0.5)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
                         .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .tolerance(1E-1)
-                .resetProbability(0.5)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.21, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.43, map.get("c"), 1E-1);
-        assertEquals(0.54, map.get("d"), 1E-1);
+        assertEquals(1.21, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.43, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.54, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -164,19 +162,15 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .build())
-                .build();
-
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
-
         final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
                 .build();
 
         try {
@@ -194,19 +188,15 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
-
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
-
         final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
                 .build();
 
         try {
@@ -224,35 +214,33 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElementsWithMultipleEntityTypes());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
                         .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(BasicEntity2,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2)), (f, s) -> s));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.49, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.58, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -260,35 +248,33 @@ public class GraphFramePageRankIT {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElementsWithMultipleEntityTypes());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
-                        .entity(TestGroups.ENTITY)
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
                         .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.49, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.58, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -298,34 +284,32 @@ public class GraphFramePageRankIT {
 
         graph.execute(new AddElements.Builder().input(getElements()).build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY).build())
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entity(TestGroups.ENTITY).build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.49, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.78, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.58, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -342,34 +326,32 @@ public class GraphFramePageRankIT {
 
         graph.execute(new AddElements.Builder().input(selfLoop).build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY).build())
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .entity(TestGroups.ENTITY).build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.82, map.get("a"), 1E-1);
-        assertEquals(0.67, map.get("b"), 1E-1);
-        assertEquals(1.36, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.82, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.67, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.36, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     @Test
@@ -389,34 +371,32 @@ public class GraphFramePageRankIT {
                 .input(edge1)
                 .build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
-                        .entity(TestGroups.ENTITY).build())
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetGraphFrameOfElements.Builder()
+                        .view(new View.Builder()
+                                .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                                .entity(TestGroups.ENTITY).build())
+                        .build())
+                .then(new GraphFramePageRank.Builder()
+                        .maxIterations(20)
+                        .build())
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
                 .build();
 
-        final GraphFramePageRank pageRank = new GraphFramePageRank.Builder()
-                .maxIterations(20)
-                .build();
+        final Iterable<? extends Element> results = graph.execute(opChain, new User());
 
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(pageRank)
-                .build();
+        final java.util.Map<Object, Entity> map = Streams.toStream(results)
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .collect(Collectors.toMap(Entity::getVertex, Function.identity(), (a, b) -> a));
 
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.43, map.get("a"), 1E-1);
-        assertEquals(0.96, map.get("b"), 1E-1);
-        assertEquals(1.51, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
+        assertEquals(1.43, (Double) map.get("a").getProperty("pagerank"), 1E-1);
+        assertEquals(0.96, (Double) map.get("b").getProperty("pagerank"), 1E-1);
+        assertEquals(1.51, (Double) map.get("c").getProperty("pagerank"), 1E-1);
+        assertEquals(0.15, (Double) map.get("d").getProperty("pagerank"), 1E-1);
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {

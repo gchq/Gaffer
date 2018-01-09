@@ -31,6 +31,11 @@
         <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>data</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -39,6 +44,13 @@
             <artifactId>spark-graph-analytic-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>spark-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>spark-library</artifactId>
@@ -80,6 +92,16 @@
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>spark-library</artifactId>
+            <version>1.2.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>spark-library</artifactId>
+            <version>1.2.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

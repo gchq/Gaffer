@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.spark.sql.SparkSession;
 import org.graphframes.GraphFrame;
 import org.junit.Test;
@@ -29,27 +28,29 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
+import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
+import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class GetGraphFrameOfElementsHandlerTest {
 
@@ -57,50 +58,35 @@ public class GetGraphFrameOfElementsHandlerTest {
 
     @Test
     public void shouldGetCorrectElementsInGraphFrame() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .entity(TestGroups.ENTITY)
+                        .entity(TestGroups.ENTITY_2)
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> vertices = graphFrame.vertices()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        final Set<String> edges = graphFrame.edges()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
-
-        edges.remove("null");
-        vertices.remove("null");
-
-        assertThat(vertices, hasSize(13));
-        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(vertices, hasItem(TestGroups.ENTITY));
-
-        assertThat(edges, hasSize(24));
-        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
-        assertThat(edges, hasItem(TestGroups.EDGE));
+        assertEquals(42, results.size());
+        assertElementEquals(getSimpleElements(), results);
     }
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithMultipleGroups() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
@@ -110,35 +96,19 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> vertices = graphFrame.vertices()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        final Set<String> edges = graphFrame.edges()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
-
-        edges.remove("null");
-        vertices.remove("null");
-
-        assertThat(vertices, hasSize(14));
-        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(vertices, hasItems(TestGroups.ENTITY, TestGroups.ENTITY_2));
-
-        assertThat(edges, hasSize(24));
-        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
-        assertThat(edges, hasItem(TestGroups.EDGE));
+        assertEquals(42, results.size());
+        assertElementEquals(getSimpleElements(), results);
     }
 
     @Test
@@ -240,7 +210,7 @@ public class GetGraphFrameOfElementsHandlerTest {
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithMatchingVertexNamesInDifferentGroups() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
@@ -250,27 +220,24 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> vertices = graphFrame.vertices()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        vertices.remove("null");
-
-        assertThat(vertices, hasSize(14));
-        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(vertices, hasItem(TestGroups.ENTITY));
-        assertThat(vertices, hasItem(TestGroups.ENTITY_2));
+        assertEquals(42, results.size());
+        assertElementEquals(getSimpleElements(), results);
     }
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithMultipleEdgesBetweenVertices() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elementsComplex.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE_2)
@@ -306,28 +273,28 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> edges = graphFrame.edges()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        edges.remove("null");
+        final List<Element> expected = getElements();
+        expected.add(edge1);
+        expected.add(edge2);
 
-        assertThat(edges, hasSize(25));
-        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
-        assertThat(edges, hasItem(TestGroups.EDGE));
-        assertThat(edges, hasItem(TestGroups.EDGE_2));
+        assertEquals(44, results.size());
+        assertElementEquals(expected, results);
     }
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithLoops() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elementsComplex.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
@@ -358,72 +325,57 @@ public class GetGraphFrameOfElementsHandlerTest {
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
-                        .entities(Lists.newArrayList(TestGroups.ENTITY))
-                        .edges(Lists.newArrayList(TestGroups.EDGE))
+                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> edges = graphFrame.edges()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        edges.remove("null");
+        final List<Element> expected = getElements();
+        expected.add(edge1);
+        expected.add(edge2);
 
-        assertThat(edges, hasSize(26));
-        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
-        assertThat(edges, hasItem(TestGroups.EDGE));
+        assertEquals(44, results.size());
+        assertElementEquals(expected, results);
     }
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithRepeatedElements() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        graph.execute(new AddElements.Builder().input(getElements()).build(), new User());
+        graph.execute(new AddElements.Builder().input(getSimpleElements()).build(), new User());
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
-                        .entities(Lists.newArrayList(TestGroups.ENTITY))
+                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
                         .edges(Lists.newArrayList(TestGroups.EDGE))
                         .build())
                 .build();
 
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(new Map.Builder<>()
+                        .first(new GraphFrameToIterableRow())
+                        .then(new RowToElementGenerator())
+                        .build())
+                .then(new ToSet<>())
+                .build();
 
-        final Set<String> edges = graphFrame.edges()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        final Set<Element> results = (Set<Element>) graph.execute(opChain, new User());
 
-        final Set<String> vertices = graphFrame.vertices()
-                .javaRDD()
-                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
-                .collect()
-                .stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
-
-        edges.remove("null");
-        vertices.remove("null");
-
-        assertThat(edges, hasSize(24));
-        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
-        assertThat(edges, hasItem(TestGroups.EDGE));
-
-        assertThat(vertices, hasSize(13));
-        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
-        assertThat(vertices, hasItem(TestGroups.ENTITY));
+        assertEquals(42, results.size());
+        assertElementEquals(getSimpleElements(), results);
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
@@ -437,6 +389,51 @@ public class GetGraphFrameOfElementsHandlerTest {
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;
+    }
+
+    static List<Element> getSimpleElements() {
+        final List<Element> elements = new ArrayList<>();
+
+        final Entity entityB = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("B")
+                .build();
+
+        final Entity entityC = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("C")
+                .build();
+
+        elements.add(entityB);
+        elements.add(entityC);
+
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("fullname", "name_" + i)
+                    .build();
+
+            final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY_2)
+                    .vertex("" + i)
+                    .build();
+
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("type", "type_" + i)
+                    .build();
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .build();
+
+            elements.add(edge1);
+            elements.add(edge2);
+            elements.add(entity1);
+            elements.add(entity2);
+        }
+        return elements;
     }
 
     static List<Element> getElements() {

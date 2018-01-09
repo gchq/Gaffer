@@ -13,6 +13,20 @@
       "groupBy": [
         "columnQualifier"
       ]
+    },
+    "BasicEntity2": {
+      "vertex": "string",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "int",
+        "property2": "float",
+        "property3": "double",
+        "property4": "long",
+        "count": "long"
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
     }
   },
   "edges": {
@@ -22,7 +36,7 @@
       "directed": "directed.either",
       "properties": {
         "columnQualifier": "colQualProperty",
-        "property1": "float",
+        "property1": "int",
         "property2": "float",
         "property3": "double",
         "property4": "long",
