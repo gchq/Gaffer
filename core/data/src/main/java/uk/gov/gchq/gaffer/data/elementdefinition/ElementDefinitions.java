@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -37,6 +38,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 /**
  * <p>
@@ -142,10 +145,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return hasEntities() || hasEdges();
     }
 
+    @JsonInclude(NON_EMPTY)
     public Map<String, EDGE_DEF> getEdges() {
         return edges;
     }
 
+    @JsonInclude(NON_EMPTY)
     public Map<String, ENTITY_DEF> getEntities() {
         return entities;
     }
