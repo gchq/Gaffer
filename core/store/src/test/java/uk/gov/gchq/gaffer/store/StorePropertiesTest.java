@@ -152,7 +152,11 @@ public class StorePropertiesTest {
         props.setReflectionPackages("package1,package2");
 
         // Then
-        assertEquals(Sets.newHashSet(ReflectionUtil.DEFAULT_PACKAGES, "package1", "package2"), props.getReflectionPackages());
+        assertEquals("package1,package2", props.getReflectionPackages());
+        final Set<String> expectedPackages = Sets.newHashSet(ReflectionUtil.DEFAULT_PACKAGES);
+        expectedPackages.add("package1");
+        expectedPackages.add("package2");
+        assertEquals(expectedPackages, ReflectionUtil.getReflectionPackages());
     }
 
     @Test
