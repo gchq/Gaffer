@@ -79,7 +79,7 @@ import java.util.Map;
  * }
  * </pre>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
     /**

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -26,7 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Collections;
@@ -40,19 +39,13 @@ import java.util.Map;
  */
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
-        MultiInput<EntityId>,
+        MultiEntityIdInput,
         SeededGraphFilters {
     private View view;
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
     private IncludeIncomingOutgoingType inOutType;
-
-    @Override
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    public Object[] createInputArray() {
-        return MultiInput.super.createInputArray();
-    }
 
     @Override
     public View getView() {
@@ -132,7 +125,7 @@ public class GetAdjacentIds implements
 
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
             implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
-            MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,
+            MultiEntityIdInput.Builder<GetAdjacentIds, Builder>,
             SeededGraphFilters.Builder<GetAdjacentIds, Builder> {
         public Builder() {
             super(new GetAdjacentIds());

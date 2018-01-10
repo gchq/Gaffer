@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import java.util.Iterator;
 
@@ -88,9 +89,49 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertFalse(itr.hasNext());
     }
 
+    @Test
+    public void shouldDeserialiseOperationWithVertices() throws SerialisationException {
+        // Given
+        final String json = "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"," +
+                "\"input\":[" +
+                "1," +
+                "{\"class\":\"uk.gov.gchq.gaffer.types.TypeSubTypeValue\",\"type\":\"t\",\"subType\":\"s\",\"value\":\"v\"}," +
+                "[\"java.lang.Long\",2]" +
+                "]}";
+
+        // When
+        final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L)),
+                Lists.newArrayList(deserialisedOp.getInput())
+        );
+    }
+
+    @Test
+    public void shouldDeserialiseOperationWithVerticesAndIds() throws SerialisationException {
+        // Given
+        final String json = String.format("{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"," +
+                "\"input\":[" +
+                "1," +
+                "{\"class\":\"uk.gov.gchq.gaffer.types.TypeSubTypeValue\",\"type\":\"t\",\"subType\":\"s\",\"value\":\"v\"}," +
+                "{\"vertex\":{\"java.lang.Long\":2},\"class\":\"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}" +
+                "]}");
+
+        // When
+        final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(new EntitySeed(1), new EntitySeed(new TypeSubTypeValue("t", "s", "v")), new EntitySeed(2L)),
+                Lists.newArrayList(deserialisedOp.getInput())
+        );
+    }
+
     private void builderShouldCreatePopulatedOperationAll() {
         final GetElements op = new GetElements.Builder()
-                .input(new EntitySeed("A"))
+                .input(new EntitySeed("A"), 1, new EdgeSeed(2L, 3L))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
@@ -100,6 +141,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER,
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
+        assertEquals(Lists.newArrayList(new EntitySeed("A"), new EntitySeed(1), new EdgeSeed(2L, 3L)), Lists.newArrayList(op.getInput()));
     }
 
     @Test
@@ -185,7 +227,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
         // Then
         assertNotSame(getElements, clone);
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(Lists.newArrayList(input), Lists.newArrayList(clone.getInput()));
         assertEquals(IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());

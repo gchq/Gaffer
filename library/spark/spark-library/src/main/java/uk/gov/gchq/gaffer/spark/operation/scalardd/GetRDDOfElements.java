@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
-        MultiInput<ElementId>,
+        MultiElementIdInput,
         SeededGraphFilters {
 
     private Map<String, String> options;
@@ -118,7 +118,7 @@ public class GetRDDOfElements implements
 
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
             implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
-            MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
+            MultiElementIdInput.Builder<GetRDDOfElements, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
             Operation.Builder<GetRDDOfElements, Builder> {
         public Builder() {

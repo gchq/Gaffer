@@ -276,6 +276,21 @@ public class JSONSerialiser {
     }
 
     /**
+     * @param json  the json of the object to deserialise
+     * @param clazz the class of the object to deserialise
+     * @param <T>   the type of the object
+     * @return the deserialised object
+     * @throws SerialisationException if the json fails to deserialise
+     */
+    public static <T> T deserialise(final String json, final Class<T> clazz) throws SerialisationException {
+        try {
+            return getInstance().mapper.readValue(json, clazz);
+        } catch (final IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
+    }
+
+    /**
      * @param bytes the bytes of the object to deserialise
      * @param clazz the class of the object to deserialise
      * @param <T>   the type of the object
