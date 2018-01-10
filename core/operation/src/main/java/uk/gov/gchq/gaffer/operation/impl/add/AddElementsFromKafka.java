@@ -52,6 +52,7 @@ public class AddElementsFromKafka implements
     @Required
     private String[] bootstrapServers;
 
+    @Required
     private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
 
     /**
@@ -63,7 +64,6 @@ public class AddElementsFromKafka implements
     private boolean skipInvalidElements;
 
     private Map<String, String> options;
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator;
 
     public String getTopic() {
         return topic;
@@ -104,18 +104,18 @@ public class AddElementsFromKafka implements
      * @deprecated Use {@link #getGenericElementGenerator()} instead
      */
     @Deprecated
-    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
-        return stringElementGenerator;
+    public Class<? extends Function> getElementGenerator() {
+        return elementGenerator;
     }
 
     /**
      * Sets the Element Generator class
-     * @param stringElementGenerator the Element Generator to use
+     * @param elementGenerator the Element Generator to use
      * @deprecated Use {@link #setGenericElementGenerator(Class)} instead
      */
     @Deprecated
-    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator) {
-        this.stringElementGenerator = stringElementGenerator;
+    public void setElementGenerator(final Class<? extends Function> elementGenerator) {
+        this.elementGenerator = (Class) elementGenerator;
     }
 
     @Override
@@ -164,7 +164,6 @@ public class AddElementsFromKafka implements
                 .topic(topic)
                 .groupId(groupId)
                 .bootstrapServers(bootstrapServers)
-                .generator(stringElementGenerator)
                 .genericGenerator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
@@ -188,7 +187,7 @@ public class AddElementsFromKafka implements
         }
 
         @Deprecated
-        public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
+        public Builder generator(final Class<? extends Function> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

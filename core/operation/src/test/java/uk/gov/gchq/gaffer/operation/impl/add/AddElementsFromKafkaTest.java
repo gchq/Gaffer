@@ -149,7 +149,7 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("topic", "groupId", "bootstrapServers");
+        return Sets.newHashSet("topic", "groupId", "bootstrapServers", "elementGenerator");
     }
 
     @Override
