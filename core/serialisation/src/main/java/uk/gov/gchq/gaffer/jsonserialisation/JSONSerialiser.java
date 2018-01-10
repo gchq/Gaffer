@@ -192,7 +192,10 @@ public class JSONSerialiser {
         // Use the 'setFilters' method so it is compatible with older versions of jackson
         mapper.setFilters(getFilterProvider());
 
-        // Allows simple class names or full class names to be used.
+        // Allow simple class names or full class names to be used in JSON.
+        // We must set this to true to ensure serialisation into json uses the
+        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
+        SimpleClassNameCache.setUseFullNameForSerialisation(true);
         SimpleClassNameIdResolver.configureObjectMapper(mapper);
         return mapper;
     }
