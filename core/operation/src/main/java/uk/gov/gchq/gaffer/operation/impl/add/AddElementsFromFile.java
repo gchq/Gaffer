@@ -40,8 +40,7 @@ public class AddElementsFromFile implements
     @Required
     private String filename;
 
-    @Required
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
+    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
 
     /**
      * The parallelism of the job to be created
@@ -50,6 +49,7 @@ public class AddElementsFromFile implements
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Map<String, String> options;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator;
 
     public String getFilename() {
         return filename;
@@ -67,12 +67,24 @@ public class AddElementsFromFile implements
         return this.parallelism;
     }
 
+    /**
+     * Retrieves the Element Generator class
+     * @return the Class of the String Element Generator
+     * @deprecated Use {@link #getGenericElementGenerator()} instead
+     */
+    @Deprecated
     public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
-        return elementGenerator;
+        return stringElementGenerator;
     }
 
-    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    /**
+     * Sets the Element Generator class
+     * @param stringElementGenerator the Element Generator to use for Strings
+     * @deprecated Use {@link #setGenericElementGenerator(Class)} instead
+     */
+    @Deprecated
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator) {
+        this.stringElementGenerator = stringElementGenerator;
     }
 
     @Override
@@ -109,12 +121,21 @@ public class AddElementsFromFile implements
     public AddElementsFromFile shallowClone() {
         return new AddElementsFromFile.Builder()
                 .filename(filename)
-                .generator(elementGenerator)
+                .generator(stringElementGenerator)
+                .genericGenerator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
                 .build();
+    }
+
+    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getGenericElementGenerator() {
+        return elementGenerator;
+    }
+
+    public void setGenericElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
+        this.elementGenerator = elementGenerator;
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>
@@ -123,8 +144,14 @@ public class AddElementsFromFile implements
             super(new AddElementsFromFile());
         }
 
+        @Deprecated
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setElementGenerator(generator);
+            return _self();
+        }
+
+        public Builder genericGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> generator) {
+            _getOp().setGenericElementGenerator(generator);
             return _self();
         }
 

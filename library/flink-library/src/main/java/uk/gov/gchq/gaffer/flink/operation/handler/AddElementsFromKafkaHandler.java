@@ -19,11 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
-import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
-import uk.gov.gchq.gaffer.flink.operation.handler.util.SerialisationUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.store.Context;
@@ -56,33 +54,25 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
             env.setParallelism(op.getParallelism());
         }
 
-        final DataStream<Element> builder;
-
-        final String type = op.getOption(FlinkConstants.MAP_FUNCTION_TYPE);
+        final String type = op.getOption(FlinkConstants.MAP_FUNCTION);
         final GafferMapFunction function;
         if (null == type) {
-            function = new StringMapFunction();
+            function = new StringMapFunction(op.getElementGenerator());
         } else {
             try {
                 function = Class.forName(type).asSubclass(GafferMapFunction.class).newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                function.setGeneratorClassName(op.getGenericElementGenerator());
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new OperationException(e);
             }
         }
 
-        function.setGeneratorClassName(op.getElementGenerator2());
-
-        try {
-            builder =
-                    env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), function.getSerialisationType(), createFlinkProperties(op)))
-                            .flatMap(function);
-        } catch (final Exception e) {
-            throw new OperationException("Unable to create instance of deserialisation schema \""
-                    + "classNameHere"
-                    + "\", instead the default of: "
-                    + SimpleStringSchema.class.getSimpleName()
-                    + " will be used.");
-        }
+        final DataStream<Element> builder = env.addSource(
+                new FlinkKafkaConsumer010<>(
+                        op.getTopic(),
+                        function.getSerialisationType(),
+                        createFlinkProperties(op)))
+                .flatMap(function);
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.addSink(new GafferSink(op, store));

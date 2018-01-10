@@ -32,6 +32,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -56,6 +57,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     public final RetryRule rule = new RetryRule();
 
     private KafkaProducer<Integer, String> producer;
+    private KafkaProducer<String, byte[]> byteProducer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
 
@@ -136,6 +138,46 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }
     }
 
+    @Test
+    public void shouldAddElementsFromByteArray() {
+        // Given
+        final Graph graph = createGraph();
+        final boolean validate = true;
+        final boolean skipInvalid = false;
+
+        final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
+                .parallelism(1)
+                .validate(validate)
+                .skipInvalidElements(skipInvalid)
+                .topic(TOPIC)
+                .bootstrapServers(BOOTSTRAP_SERVERS)
+                .groupId("groupId")
+                .genericGenerator(TestBytesGeneratorImpl.class)
+                .build();
+
+        // When
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+                graph.execute(op, new User());
+            } catch (final OperationException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(20000);
+                byteProducer = new KafkaProducer<>(byteProducerProps());
+                for (final byte[] dataBytes : DATA_BYTE_ARRAYS) {
+                    byteProducer.send(new ProducerRecord<>(TOPIC, dataBytes)).get();
+                }
+            } catch (final ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
+
     private File createZookeeperTmpDir() throws IOException {
         testFolder.delete();
         testFolder.create();
@@ -147,6 +189,14 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         props.put("bootstrap.servers", BOOTSTRAP_SERVERS);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        return props;
+    }
+
+    private Properties byteProducerProps() {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", BOOTSTRAP_SERVERS);
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
         return props;
     }
 

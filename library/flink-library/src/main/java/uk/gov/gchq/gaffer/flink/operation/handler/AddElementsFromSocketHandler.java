@@ -47,9 +47,22 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
             env.setParallelism(op.getParallelism());
         }
 
+        final String type = op.getOption(FlinkConstants.MAP_FUNCTION);
+        final GafferMapFunction function;
+        if (null == type) {
+            function = new StringMapFunction(op.getElementGenerator());
+        } else {
+            try {
+                function = Class.forName(type).asSubclass(GafferMapFunction.class).newInstance();
+                function.setGeneratorClassName(op.getGenericElementGenerator());
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new OperationException(e);
+            }
+        }
+
         final DataStream<Element> builder =
                 env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
-                        .flatMap(new GafferMapFunction(op.getElementGenerator()));
+                        .flatMap(function);
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.addSink(new GafferSink(op, store));

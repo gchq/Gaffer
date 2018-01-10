@@ -45,8 +45,7 @@ public class AddElementsFromSocket implements
     @Required
     private int port;
 
-    @Required
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
+    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
 
     /**
      * The parallelism of the job to be created
@@ -57,6 +56,7 @@ public class AddElementsFromSocket implements
     private boolean skipInvalidElements;
     private String delimiter = DEFAULT_DELIMITER;
     private Map<String, String> options;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator;
 
     public String getHostname() {
         return hostname;
@@ -74,12 +74,24 @@ public class AddElementsFromSocket implements
         this.port = port;
     }
 
+    /**
+     * Retrieves the Element Generator class
+     * @return the Class of the String Element Generator
+     * @deprecated Use {@link #getGenericElementGenerator()} instead
+     */
+    @Deprecated
     public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
-        return elementGenerator;
+        return stringElementGenerator;
     }
 
-    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    /**
+     * Sets the Element Generator class
+     * @param stringElementGenerator the Element Generator to use for Strings
+     * @deprecated Use {@link #setGenericElementGenerator(Class)} instead
+     */
+    @Deprecated
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> stringElementGenerator) {
+        this.stringElementGenerator = stringElementGenerator;
     }
 
     @Override
@@ -133,7 +145,8 @@ public class AddElementsFromSocket implements
         return new AddElementsFromSocket.Builder()
                 .hostname(hostname)
                 .port(port)
-                .generator(elementGenerator)
+                .generator(stringElementGenerator)
+                .genericGenerator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
@@ -142,14 +155,28 @@ public class AddElementsFromSocket implements
                 .build();
     }
 
+    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getGenericElementGenerator() {
+        return elementGenerator;
+    }
+
+    public void setGenericElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
+        this.elementGenerator = elementGenerator;
+    }
+
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
             implements Validatable.Builder<AddElementsFromSocket, Builder> {
         public Builder() {
             super(new AddElementsFromSocket());
         }
 
+        @Deprecated
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setElementGenerator(generator);
+            return _self();
+        }
+
+        public Builder genericGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> generator) {
+            _getOp().setGenericElementGenerator(generator);
             return _self();
         }
 

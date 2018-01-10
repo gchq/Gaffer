@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
-import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.serialisation.ByteArraySchema;
@@ -25,7 +23,7 @@ import uk.gov.gchq.gaffer.flink.operation.handler.serialisation.ByteArraySchema;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
+ * Implementation of {@link GafferMapFunction} to allow Byte arrays representing {@link Element}s
  * to be mapped to Element objects.
  */
 public class BytesMapFunction extends GafferMapFunction<Byte[]> {

@@ -37,6 +37,9 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class FlinkTest {
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -125,8 +128,14 @@ public abstract class FlinkTest {
     );
 
     public static final String[] DATA_VALUES = {"1", "1", "2", "3", "1", "2"};
+    public static final String[] DATA_VALUES_2 = {"1", "3", "6", "12", "17", "23"};
+    public static final String[] DATA_VALUES_3 = {"3", "1", "4", "1", "5", "9"};
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
     public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
+    public static final List<byte[]> DATA_BYTE_ARRAYS = Arrays.asList(
+            DATA_BYTES,
+            StringUtil.toBytes(StringUtils.join(DATA_VALUES_2, "\n")),
+            StringUtil.toBytes(StringUtils.join(DATA_VALUES_3, "\n")));
 
     public static Graph createGraph() {
         return new Graph.Builder()

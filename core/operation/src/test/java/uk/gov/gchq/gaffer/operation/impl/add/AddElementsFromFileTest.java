@@ -125,7 +125,7 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("filename", "elementGenerator");
+        return Sets.newHashSet("filename");
     }
 
     @Override

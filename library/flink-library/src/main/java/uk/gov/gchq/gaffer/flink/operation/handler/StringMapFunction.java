@@ -15,21 +15,15 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
-import org.apache.flink.util.Collector;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-import java.util.Collections;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
+ * Implementation of {@link GafferMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
 public class StringMapFunction extends GafferMapFunction<String> {
@@ -37,7 +31,6 @@ public class StringMapFunction extends GafferMapFunction<String> {
     public StringMapFunction() {
 
     }
-
 
     public StringMapFunction(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generatorClassName) {
         super(generatorClassName);

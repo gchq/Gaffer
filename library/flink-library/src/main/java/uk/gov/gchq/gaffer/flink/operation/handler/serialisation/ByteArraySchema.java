@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.flink.operation.handler.serialisation;
 
 import org.apache.flink.api.common.typeinfo.BasicArrayTypeInfo;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
-import org.apache.flink.streaming.util.serialization.SerializationSchema;
 
 import java.io.IOException;
 import java.util.stream.Stream;
