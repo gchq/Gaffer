@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -30,6 +31,7 @@ import java.util.Map;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
+@JsonPropertyOrder(value = {"class", "key", "input"})
 public class ExportToSet<T> implements
         ExportTo<T> {
     private String key;

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -40,6 +41,7 @@ import java.util.Properties;
  * out a query on a Gaffer {@link uk.gov.gchq.gaffer.graph.Graph} to a different
  * graph.
  */
+@JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
 public class ExportToOtherGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

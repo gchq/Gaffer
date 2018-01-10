@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.function;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -35,6 +36,7 @@ import java.util.Map;
  * For multiple groups, a {@link Map} of {@link uk.gov.gchq.gaffer.data.element.Edge}s, or {@link uk.gov.gchq.gaffer.data.element.Entity}s
  * to their relevant {@link ElementTransformer}s can be provided.
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class Transform implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

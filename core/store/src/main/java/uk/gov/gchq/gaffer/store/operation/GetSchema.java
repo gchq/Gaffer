@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -29,6 +30,7 @@ import java.util.Map;
  * A {@code GetSchema} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
  * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.Store}.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetSchema implements Output<Schema> {
     private Map<String, String> options;
     private boolean compact = false;

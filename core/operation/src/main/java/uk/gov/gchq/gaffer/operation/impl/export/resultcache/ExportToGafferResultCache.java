@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 
@@ -31,6 +32,7 @@ import java.util.Set;
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
+@JsonPropertyOrder(value = {"class", "key", "input"}, alphabetic = true)
 public class ExportToGafferResultCache<T> implements
         ExportTo<T> {
     private String key;

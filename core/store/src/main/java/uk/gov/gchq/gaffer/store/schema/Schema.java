@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -66,6 +67,7 @@ import java.util.Set;
  * @see ElementDefinitions
  */
 @JsonDeserialize(builder = Schema.Builder.class)
+@JsonPropertyOrder(value = {"class", "edges", "entities", "vertexSerialiser", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     private final TypeDefinition unknownType = new TypeDefinition();
 

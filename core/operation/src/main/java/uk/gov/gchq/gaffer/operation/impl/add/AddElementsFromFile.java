@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,6 +33,7 @@ import java.util.function.Function;
  *
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "file", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromFile implements
         Operation,
         Validatable {
