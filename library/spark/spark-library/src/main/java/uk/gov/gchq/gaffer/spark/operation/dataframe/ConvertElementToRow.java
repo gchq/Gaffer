@@ -85,14 +85,14 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                     if (element instanceof Entity) {
                         fields.appendElem(null);
                     } else {
-                        fields.appendElem(((Edge)element).getDirectedType().isDirected());
+                        fields.appendElem(((Edge) element).getDirectedType().isDirected());
                     }
                     break;
                 case SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME:
                     if (element instanceof Entity) {
                         fields.appendElem(null);
                     } else {
-                        final EdgeId.MatchedVertex matchedVertex = ((Edge)element).getMatchedVertex();
+                        final EdgeId.MatchedVertex matchedVertex = ((Edge) element).getMatchedVertex();
                         if (null != matchedVertex) {
                             fields.appendElem(matchedVertex.toString());
                         } else {
