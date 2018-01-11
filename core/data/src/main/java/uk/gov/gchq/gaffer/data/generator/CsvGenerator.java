@@ -30,10 +30,9 @@ import java.util.regex.Pattern;
  * Generates a CSV string for each {@link Element}, based on the fields and constants provided.
  * <p>
  * For example, if you provide:<br>
- * &nbsp&nbsp fields=[prop1, SOURCE, DESTINATION, prop2, GROUP] and constants=["constant1", "constant2"]<br>
+ * &nbsp;&nbsp; fields=[prop1, SOURCE, DESTINATION, prop2, GROUP] and constants=["constant1", "constant2"]<br>
  * The output will be:<br>
- * &nbsp&nbsp prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
- * </p>
+ * &nbsp;&nbsp; prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
  */
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";

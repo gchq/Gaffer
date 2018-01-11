@@ -36,16 +36,14 @@ import java.util.Map;
  *     </ul>
  *     The generator will store these in a {@code LinkedHashMap}, for which the fields will be represented as:<br>
  *     {<br>
- *         &nbsp&nbsp GROUP: "EdgeGroup",<br>
- *         &nbsp&nbsp SOURCE: "A",<br>
- *         &nbsp&nbsp DESTINATION: "B",<br>
- *         &nbsp&nbsp DIRECTED: "true"<br>
- *         &nbsp&nbsp PROPERTY1: "propValue"<br>
+ *         &nbsp;&nbsp; GROUP: "EdgeGroup",<br>
+ *         &nbsp;&nbsp; SOURCE: "A",<br>
+ *         &nbsp;&nbsp; DESTINATION: "B",<br>
+ *         &nbsp;&nbsp; DIRECTED: "true"<br>
+ *         &nbsp;&nbsp; PROPERTY1: "propValue"<br>
  *     }
- * </p>
  * <p>Any constants relevant to a particular {@code Element} can be added,
  * and will be stored in a separate {@code LinkedHashMap}.
- * </p>
  */
 public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>> {
     public static final String GROUP = "GROUP";
