@@ -20,6 +20,10 @@ import com.google.common.collect.Iterables;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
+/**
+ * An {@code ExtractWalkVertex} is a utility {@link KorypheFunction},
+ * for simplifying the extraction of the starting Vertex from a {@link Walk} object.
+ */
 public class ExtractWalkVertex extends KorypheFunction<Walk, Object> {
     @Override
     public Object apply(final Walk walk) {
