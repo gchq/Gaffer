@@ -82,8 +82,7 @@ public class NamedViewResolver implements GraphHook {
             }
             updatedOperations.add(operation);
         }
-        operations.getOperations().clear();
-        operations.getOperations().addAll((List) updatedOperations);
+        operations.updateOperations((List) updatedOperations);
     }
 
     private NamedView resolveViewInOperation(final NamedView namedView) {
