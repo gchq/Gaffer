@@ -60,9 +60,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         validateOperation(operation);
 
-        final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
-        LOGGER.info("Using working directory for splits files: " + splitsFilePath);
-        operation.setSplitsFilePath(splitsFilePath);
+        if (null == operation.getSplitsFilePath()) {
+            final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
+            LOGGER.info("Using working directory for splits files: " + splitsFilePath);
+            operation.setSplitsFilePath(splitsFilePath);
+        }
 
         try {
             checkHdfsDirectories(operation, store);
