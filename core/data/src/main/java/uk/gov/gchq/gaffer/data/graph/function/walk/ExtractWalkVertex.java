@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
-import com.google.common.collect.Iterables;
-
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
@@ -30,6 +28,6 @@ public class ExtractWalkVertex extends KorypheFunction<Walk, Object> {
         if (null == walk) {
             throw new IllegalArgumentException("Walk cannot be null");
         }
-        return Iterables.get(walk.getEntities().get(0), 0).getVertex();
+        return walk.getSourceVertex();
     }
 }

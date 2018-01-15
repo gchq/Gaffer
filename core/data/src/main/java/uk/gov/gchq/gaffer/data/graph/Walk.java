@@ -188,6 +188,16 @@ public class Walk implements Iterable<Set<Edge>> {
         return distinct(getVerticesOrdered());
     }
 
+    @JsonIgnore
+    public Object getSourceVertex() {
+        return entities.get(0).getKey();
+    }
+
+    @JsonIgnore
+    public Object getDestinationVertex() {
+        return entities.get(entities.size() - 1).getKey();
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
