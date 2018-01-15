@@ -456,12 +456,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             matchedVertex = EdgeId.MatchedVertex.SOURCE;
         }
 
-        String group;
-        try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AccumuloElementConversionException(e.getMessage(), e);
-        }
+        final String group = getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
         try {
             final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
                     ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), direction.isDirected(), matchedVertex, null);

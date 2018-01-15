@@ -16,8 +16,10 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.Test;
@@ -34,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.Context;
@@ -54,6 +57,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
@@ -233,6 +237,33 @@ public class AccumuloStoreRelationTest {
                 .map(elementConverter::apply)
                 .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
+    }
+
+    @Test
+    public void shouldReturnEmptyDataFrameWithNoResultsFromFilter() throws StoreException, OperationException {
+        // Given
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Schema schema = getSchema();
+        final View view = getViewFromSchema(schema);
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        store.initialise("graphId", schema, properties);
+        addElements(store);
+        final String[] requiredColumns = new String[1];
+        requiredColumns[0] = "property1";
+        final Filter[] filters = new Filter[1];
+        filters[0] = new EqualTo("group", "abc");
+
+        // When
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                SparkContextUtil.createContext(new User(), sparkSession),
+                Collections.emptyList(), view, store, null);
+        final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
+
+        // Then
+        assertTrue(rdd.isEmpty());
+
     }
 
     private static Schema getSchema() {

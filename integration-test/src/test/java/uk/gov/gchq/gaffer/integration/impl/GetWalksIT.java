@@ -210,7 +210,6 @@ public class GetWalksIT extends AbstractStoreIT {
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
         results.forEach(r -> r.getEntities().forEach(l -> {
-            System.out.println(l);
             assertThat(l, is(not(empty())));
         }));
     }
