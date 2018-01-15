@@ -33,7 +33,7 @@ import java.util.function.Function;
  *
  * @see Builder
  */
-@JsonPropertyOrder(value = {"class", "file", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "filename", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromFile implements
         Operation,
         Validatable {

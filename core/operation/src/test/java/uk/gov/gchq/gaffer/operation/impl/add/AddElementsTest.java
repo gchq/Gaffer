@@ -29,8 +29,10 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -90,6 +92,11 @@ public class AddElementsTest extends OperationTest<AddElements> {
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final AddElements addElements = getTestObject();
+
+        final Map<String, String> options = new HashMap<>();
+        options.put("option", "value");
+
+        addElements.setOptions(options);
 
         // When
         String json = new String(JSONSerialiser.serialise(addElements, true));

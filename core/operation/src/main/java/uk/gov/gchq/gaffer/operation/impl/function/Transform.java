@@ -36,7 +36,7 @@ import java.util.Map;
  * For multiple groups, a {@link Map} of {@link uk.gov.gchq.gaffer.data.element.Edge}s, or {@link uk.gov.gchq.gaffer.data.element.Entity}s
  * to their relevant {@link ElementTransformer}s can be provided.
  */
-@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
 public class Transform implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
