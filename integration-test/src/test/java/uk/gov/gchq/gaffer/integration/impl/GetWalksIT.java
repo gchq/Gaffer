@@ -70,6 +70,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GetWalksIT extends AbstractStoreIT {
 
@@ -138,6 +139,43 @@ public class GetWalksIT extends AbstractStoreIT {
     }
 
     @Test
+    public void shouldReturnNoResultsWhenNoEntityResults() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(
+                        new GetElements.Builder()
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build(),
+                        new OperationChain.Builder()
+                                .first(new GetElements.Builder()
+                                        .view(new View.Builder()
+                                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                                        .preAggregationFilter(new ElementFilter.Builder()
+                                                                .select(TestPropertyNames.INT)
+                                                                .execute(new IsMoreThan(10000))
+                                                                .build())
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .then(new GetElements())
+                                .build())
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertEquals(0, Lists.newArrayList(results).size());
+    }
+
+    @Test
     public void shouldGetPathsWithEntities() throws Exception {
         // Given
         final User user = new User();
@@ -172,9 +210,43 @@ public class GetWalksIT extends AbstractStoreIT {
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
         results.forEach(r -> r.getEntities().forEach(l -> {
-            System.out.println(l);
             assertThat(l, is(not(empty())));
         }));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGetPathsWithHopContainingNoEdges() throws Exception {
+        // Given
+        final User user = new User();
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements getEntities = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        final GetElements getElements = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(getElements, getEntities, getElements)
+                .build();
+
+        // When / Then
+        try {
+            Lists.newArrayList(graph.execute(op, user));
+        } catch (final Exception e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
+        }
     }
 
     @Test

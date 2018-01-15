@@ -26,21 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 public class LongUtilTest {
     @Test
-    public void shouldGetRandomNumber() {
-        // Given
-        final long currentTime = System.currentTimeMillis();
-        final String currentTimeBits = Long.toBinaryString(currentTime);
-
-        // When
-        final long random = LongUtil.getRandom(currentTime);
-
-        // Then
-        // As we don't know the exact current time so just check the first part
-        final String randomBits = Long.toBinaryString(random);
-        assertEquals(currentTimeBits.substring(currentTimeBits.length() - 30), randomBits.substring(0, 30));
-    }
-
-    @Test
     public void shouldGetDifferentPositiveTimeBasedRandoms() {
         // Given
         int n = 1000;
@@ -50,10 +35,6 @@ public class LongUtilTest {
         for (int i = 0; i < n; i++) {
             timestamps.add(LongUtil.getTimeBasedRandom());
         }
-
-        timestamps.add(LongUtil.getRandom(Long.MAX_VALUE));
-        timestamps.add(LongUtil.getRandom(1));
-        n += 2;
 
         // Then
         assertEquals(n, timestamps.size());
