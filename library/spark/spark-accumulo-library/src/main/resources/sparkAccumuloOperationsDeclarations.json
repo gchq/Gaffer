@@ -59,12 +59,6 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe.GetGraphFrameOfElementsHandler"
       }
-    },
-    {
-      "operation": "uk.gov.gchq.gaffer.spark.operation.graphframe.GraphFrameAsIterable",
-      "handler": {
-        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe.GraphFrameAsIterableHandler"
-      }
     }
   ]
 }
