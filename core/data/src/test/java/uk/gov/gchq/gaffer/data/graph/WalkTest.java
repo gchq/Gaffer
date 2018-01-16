@@ -44,6 +44,7 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class WalkTest {
@@ -499,6 +500,48 @@ public class WalkTest {
 
         // Then
         assertThat(walk.isPath(), is(false));
+    }
+
+    @Test
+    public void shouldGetSourceVertexFromWalk() {
+        // Given
+        // [A] -> [B] -> [C]
+        //  \             \
+        //   (BasicEntity) (BasicEntity)
+
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edges(EDGE_AB, EDGE_BC)
+                .entity(ENTITY_C)
+                .build();
+
+        // When
+        final Object result = walk.getSourceVertex();
+
+        // Then
+        assertEquals(result, "A");
+    }
+
+    @Test
+    public void shouldGetDestinationVertexFromWalk() {
+        // Given
+        // [A]     ->    [E]     ->    [D]
+        //  \             \             \
+        //   (BasicEntity) (BasicEntity) (BasicEntity)
+
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edge(EDGE_AE)
+                .entities(ENTITY_E)
+                .edge(EDGE_ED)
+                .entity(ENTITY_D)
+                .build();
+
+        // When
+        final Object result = walk.getDestinationVertex();
+
+        // Then
+        assertEquals(result, "D");
     }
 
     private List<EdgeId> getEdges() {
