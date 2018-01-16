@@ -34,9 +34,9 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
 public interface MultiElementIdInput extends MultiInput<ElementId> {
 
     /**
-     * Creates an array using the iterable set as the input and returns null if the input is null.
+     * Creates an array of the input. If possible EntityIds are unwrapped into vertices.
      *
-     * @return an array of inputs
+     * @return an array of inputs or null if the input is null.
      */
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
@@ -52,6 +52,12 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
         );
     }
 
+    /**
+     * Sets the input from an array of vertices and element ids.
+     * Vertices are wrapped in an EntitySeed object.
+     *
+     * @param input the input array to set.
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("input")
     default void setInputFromVerticesAndIds(final Object[] input) {
@@ -60,10 +66,12 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonIgnore
+    @Override
     default Object[] createInputArray() {
-        return null != getInput() ? Iterables.toArray(getInput(), Object.class) : null;
+        return MultiInput.super.createInputArray();
     }
 
+    @Override
     default void setInput(final ElementId[] input) {
         if (null == input) {
             setInput(((Iterable) null));

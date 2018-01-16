@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -233,6 +235,24 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals(SeedMatchingType.RELATED, clone.getSeedMatching());
         assertEquals("true", clone.getOption("testOption"));
+    }
+
+    @Test
+    public void shouldCreateInputFromVertices() {
+        // When
+        final GetElements op = new GetElements.Builder()
+                .input("1", new EntitySeed("2"), new Entity("group1", "3"), new EdgeSeed("4", "5"), new Edge("group", "6", "7", true))
+                .build();
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3"), new EdgeSeed("4", "5"), new Edge("group", "6", "7", true)),
+                Lists.newArrayList(op.getInput())
+        );
+        assertEquals(
+                Lists.newArrayList("1", "2", "3", new EdgeSeed("4", "5"), new Edge("group", "6", "7", true)),
+                Lists.newArrayList(op.createInputArrayOfVerticesAndIds())
+        );
     }
 
     @Override

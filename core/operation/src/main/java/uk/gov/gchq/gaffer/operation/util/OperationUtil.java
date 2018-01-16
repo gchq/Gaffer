@@ -18,65 +18,110 @@ package uk.gov.gchq.gaffer.operation.util;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
+import uk.gov.gchq.gaffer.operation.function.FromElementId;
+import uk.gov.gchq.gaffer.operation.function.FromEntityId;
+import uk.gov.gchq.gaffer.operation.function.ToElementId;
+import uk.gov.gchq.gaffer.operation.function.ToEntityId;
 import uk.gov.gchq.koryphe.util.IterableUtil;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * Utility methods for {@link uk.gov.gchq.gaffer.operation.Operation}s.
+ */
 public final class OperationUtil {
     private OperationUtil() {
     }
 
+    /**
+     * Converts an array of objects into {@link ElementId}s.
+     * If an item is not an {@link ElementId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is already an {@link ElementId} is not modified.
+     *
+     * @param input an array containing vertices and {@link ElementId}s.
+     * @return an iterable if {@link ElementId}s.
+     */
     public static Iterable<? extends ElementId> toElementIds(final Object... input) {
         if (null == input) {
             return null;
         }
-        return (Iterable) Arrays.stream(input)
-                .map(i -> i instanceof ElementId ? i : new EntitySeed(i))
-                .collect(Collectors.toList());
+        return Arrays.stream(input).map(new ToElementId()).collect(Collectors.toList());
     }
 
+    /**
+     * Converts an iterable of objects into {@link ElementId}s.
+     * If an item is not an {@link ElementId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is already an {@link ElementId} is not modified.
+     * The conversion is done lazily.
+     *
+     * @param input an iterable containing vertices and {@link ElementId}s.
+     * @return an iterable if {@link ElementId}s.
+     */
     public static Iterable<? extends ElementId> toElementIds(final Iterable<?> input) {
         if (null == input) {
             return null;
         }
-        return IterableUtil.map(input, i -> i instanceof ElementId ? i : new EntitySeed(i));
+        return IterableUtil.map(input, new ToElementId());
     }
 
+    /**
+     * Takes an iterable of {@link ElementId}s and unwraps any {@link EntityId} into
+     * simple vertex objects.
+     * The conversion is done lazily.
+     *
+     * @param input an iterable if {@link ElementId}s.
+     * @return an iterable if {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}s and vertices.
+     */
     public static Iterable<?> fromElementIds(final Iterable<? extends ElementId> input) {
         if (null == input) {
             return null;
         }
-        if (SimpleClassNameCache.isUseFullNameForSerialisation()) {
-            return input;
-        }
-        return IterableUtil.map(input, e -> e instanceof EntityId ? ((EntityId) e).getVertex() : e);
+        return IterableUtil.map(input, new FromElementId());
     }
 
+    /**
+     * Converts an array of objects into {@link EntityId}s.
+     * If an item is not an {@link EntityId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is already an {@link EntityId} is not modified.
+     *
+     * @param input an array containing vertices and {@link EntityId}s.
+     * @return an iterable if {@link EntityId}s.
+     */
     public static Iterable<? extends EntityId> toEntityIds(final Object... input) {
         if (null == input) {
             return null;
         }
-        return (Iterable) Arrays.stream(input)
-                .map(i -> i instanceof EntityId ? i : new EntitySeed(i))
-                .collect(Collectors.toList());
+        return Arrays.stream(input).map(new ToEntityId()).collect(Collectors.toList());
     }
 
+    /**
+     * Converts an iterable of objects into {@link EntityId}s.
+     * If an item is not an {@link EntityId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is already an {@link EntityId} is not modified.
+     * The conversion is done lazily.
+     *
+     * @param input an iterable containing vertices and {@link EntityId}s.
+     * @return an iterable if {@link EntityId}s.
+     */
     public static Iterable<? extends EntityId> toEntityIds(final Iterable<?> input) {
         if (null == input) {
             return null;
         }
-        return IterableUtil.map(input, i -> i instanceof EntityId ? i : new EntitySeed(i));
+        return IterableUtil.map(input, new ToEntityId());
     }
 
+    /**
+     * Takes an iterable of {@link EntityId}s and unwraps them into simple vertex objects.
+     * The conversion is done lazily.
+     *
+     * @param input an iterable if {@link ElementId}s.
+     * @return an iterable if {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}s and vertices.
+     */
     public static Iterable<?> fromEntityIds(final Iterable<? extends EntityId> input) {
         if (null == input) {
             return null;
         }
-        if (SimpleClassNameCache.isUseFullNameForSerialisation()) {
-            return input;
-        }
-        return IterableUtil.map(input, e -> e instanceof EntityId ? ((EntityId) e).getVertex() : e);
+        return IterableUtil.map(input, new FromEntityId());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public interface MultiEntityIdInput extends MultiInput<EntityId> {
         }
 
         return Iterables.toArray(
-                OperationUtil.fromElementIds(getInput()),
+                OperationUtil.fromEntityIds(getInput()),
                 Object.class
         );
     }
@@ -60,10 +60,12 @@ public interface MultiEntityIdInput extends MultiInput<EntityId> {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonIgnore
+    @Override
     default Object[] createInputArray() {
-        return null != getInput() ? Iterables.toArray(getInput(), Object.class) : null;
+        return MultiInput.super.createInputArray();
     }
 
+    @Override
     default void setInput(final EntityId[] input) {
         if (null == input) {
             setInput(((Iterable) null));
