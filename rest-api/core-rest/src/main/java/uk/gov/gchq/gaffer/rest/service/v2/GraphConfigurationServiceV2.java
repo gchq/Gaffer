@@ -38,9 +38,11 @@ import javax.ws.rs.core.Response;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -168,27 +170,27 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
                                                     .introspect(type);
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
-        // TODO convert this to a Set<Map<String, String>> of field name : class type, check that it's displayed correctly in the REST API
-        final Set<String> fields = new HashSet<>();
+        final Map<String, String> fieldMap = new HashMap<>();
         for (final BeanPropertyDefinition property : properties) {
-            final StringBuilder propInfo = new StringBuilder(property.getName());
+            final String propName = property.getName();
+            String propClass = "";
 
-            if (property.getName().equals("class")) {
-                propInfo.append(" : ").append(className);
+            if (propName.equals("class")) {
+                propClass = className;
             }
 
             if (null != property.getField()) {
-                propInfo.append(" : ").append(property.getField().getGenericType().getTypeName());
+                propClass = property.getField().getGenericType().getTypeName();
             }
 
-            // TODO handling of Enums (field instanceof enum?) then add that they are a String since this will be deserialised correctly anyway.
-
-            fields.add(propInfo.toString());
-
-            // TODO test more classes, maybe write an IT?
+            fieldMap.put(propName, propClass);
         }
 
-        return Response.ok(fields)
+        // TODO handling of Enums (field instanceof enum?) then add that they are a String since this will be deserialised correctly anyway.
+
+        // TODO test more classes, maybe write an IT?
+
+        return Response.ok(fieldMap)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
