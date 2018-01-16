@@ -81,7 +81,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
         return null;
     }
 
-    private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws CacheOperationFailedException, OperationException {
+    private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws OperationException {
         for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
                 throw new OperationException("NamedOperations can not be nested within NamedOperations");
