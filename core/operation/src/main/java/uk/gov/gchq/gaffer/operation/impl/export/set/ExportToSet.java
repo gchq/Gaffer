@@ -31,7 +31,7 @@ import java.util.Map;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-@JsonPropertyOrder(value = {"class", "key", "input"})
+@JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
 public class ExportToSet<T> implements
         ExportTo<T> {
     private String key;

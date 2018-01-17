@@ -41,7 +41,7 @@ import java.util.Properties;
  * out a query on a Gaffer {@link uk.gov.gchq.gaffer.graph.Graph} to a different
  * graph.
  */
-@JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "graphId"}, alphabetic = true)
 public class ExportToOtherGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

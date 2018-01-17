@@ -105,6 +105,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
                 "  \"validate\" : true,%n" +
+                "  \"options\" : {\"option\": \"value\"},%n" +
                 "  \"skipInvalidElements\" : false%n" +
                 "}"), json);
     }

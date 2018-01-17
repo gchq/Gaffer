@@ -32,7 +32,7 @@ import java.util.Set;
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
-@JsonPropertyOrder(value = {"class", "key", "input"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
 public class ExportToGafferResultCache<T> implements
         ExportTo<T> {
     private String key;

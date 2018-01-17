@@ -67,7 +67,7 @@ import java.util.Set;
  * @see ElementDefinitions
  */
 @JsonDeserialize(builder = Schema.Builder.class)
-@JsonPropertyOrder(value = {"class", "edges", "entities", "vertexSerialiser", "types"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     private final TypeDefinition unknownType = new TypeDefinition();
 

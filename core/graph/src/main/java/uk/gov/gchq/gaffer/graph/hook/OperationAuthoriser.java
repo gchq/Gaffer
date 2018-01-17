@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -41,6 +42,7 @@ import java.util.Set;
  * user is authorised to execute an operation chain. This class requires a map
  * of operation authorisations.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class OperationAuthoriser implements GraphHook {
     private final Set<String> allAuths = new HashSet<>();
     private final Map<Class<?>, Set<String>> auths = new HashMap<>();
