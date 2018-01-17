@@ -519,7 +519,7 @@ public class WalkTest {
         final Object result = walk.getSourceVertex();
 
         // Then
-        assertEquals(result, "A");
+        assertEquals("A", result);
     }
 
     @Test
@@ -541,7 +541,7 @@ public class WalkTest {
         final Object result = walk.getDestinationVertex();
 
         // Then
-        assertEquals(result, "D");
+        assertEquals("D", result);
     }
 
     private List<EdgeId> getEdges() {
