@@ -21,9 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -45,7 +46,12 @@ public class AddNamedViewHandlerTest {
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
-    private final Map<String, Object> testParameters = new HashMap<>();
+    private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
+    private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder()
+            .defaultValue(1L)
+            .description("Limit param")
+            .valueClass(Long.class)
+            .build();
 
     private Context context = new Context(new User.Builder()
             .userId(testUserId)
@@ -53,22 +59,21 @@ public class AddNamedViewHandlerTest {
 
     private Store store = mock(Store.class);
 
-    NamedView namedView;
+    View view;
 
     AddNamedView addNamedView;
 
     @Before
     public void before() {
-        testParameters.put("testParam", "testKey");
+        testParameters.put("testParam", TEST_PARAM_VALUE);
 
-        namedView = new NamedView.Builder()
-                .name(testNamedViewName)
+        view = new View.Builder()
                 .edge(TestGroups.EDGE)
-                .parameters(testParameters)
                 .build();
 
         addNamedView = new AddNamedView.Builder()
-                .namedView(namedView)
+                .name(testNamedViewName)
+                .view(view)
                 .overwrite(false)
                 .build();
 
@@ -86,30 +91,29 @@ public class AddNamedViewHandlerTest {
     public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
         handler.doOperation(addNamedView, context, store);
 
-        final NamedView result = namedViewCache.getNamedView(testNamedViewName);
+        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
 
         assertTrue(cacheContains(testNamedViewName));
-        assertEquals(addNamedView.getNamedView().getName(), result.getName());
-        assertEquals(addNamedView.getNamedView().getParameters(), result.getParameters());
-        JsonAssert.assertEquals(addNamedView.getNamedView().toCompactJson(), result.toCompactJson());
+        assertEquals(addNamedView.getName(), result.getName());
+        assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
 
     }
 
     @Test
     public void shouldNotAddNamedViewWithNoName() throws OperationException {
-        namedView.setName(null);
+        addNamedView.setName(null);
 
         try {
             handler.doOperation(addNamedView, context, store);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().equals("NamedView name must be set"));
+            System.out.println(e.getMessage());
+            assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
         }
     }
 
-
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedView> namedViews = namedViewCache.getAllNamedViews();
-        for (final NamedView namedView : namedViews) {
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+        for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;
             }

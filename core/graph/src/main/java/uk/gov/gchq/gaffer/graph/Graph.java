@@ -25,9 +25,11 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -236,20 +238,22 @@ public final class Graph {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
-                final View opView;
-                if (null == operationView.getView()) {
-                    opView = config.getView();
-                } else if (!operationView.getView().hasGroups()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(operationView.getView())
-                            .build();
-                } else {
-                    opView = operationView.getView();
-                }
+                if (!(operationView.getView() instanceof NamedView)) {
+                    final View opView;
+                    if (null == operationView.getView()) {
+                        opView = config.getView();
+                    } else if (!operationView.getView().hasGroups()) {
+                        opView = new View.Builder()
+                                .merge(config.getView())
+                                .merge(operationView.getView())
+                                .build();
+                    } else {
+                        opView = operationView.getView();
+                    }
 
-                opView.expandGlobalDefinitions();
-                operationView.setView(opView);
+                    opView.expandGlobalDefinitions();
+                    operationView.setView(opView);
+                }
             }
         }
     }
@@ -859,6 +863,16 @@ public final class Graph {
                 if (!hasNamedOpHook) {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
+            }
+            boolean hasNamedViewHook = false;
+            for (final GraphHook graphHook : config.getHooks()) {
+                if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
+                    hasNamedViewHook = true;
+                    break;
+                }
+            }
+            if (!hasNamedViewHook) {
+                config.getHooks().add(0, new NamedViewResolver());
             }
         }
 

@@ -23,7 +23,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -49,23 +50,23 @@ public class GetAllNamedViewsHandlerTest {
 
     private Store store = mock(Store.class);
 
-    private NamedView namedView = new NamedView.Builder()
-            .name(testNamedViewName)
+    private View view = new View.Builder()
             .edge(TestGroups.EDGE)
             .build();
 
     private AddNamedView addNamedView = new AddNamedView.Builder()
-            .namedView(namedView)
+            .name(testNamedViewName)
+            .view(view)
             .overwrite(false)
             .build();
 
-    private NamedView namedView2 = new NamedView.Builder()
-            .name(testNamedViewName + 2)
+    private View view2 = new View.Builder()
             .entity(TestGroups.ENTITY)
             .build();
 
     private AddNamedView addNamedView2 = new AddNamedView.Builder()
-            .namedView(namedView2)
+            .name(testNamedViewName + 2)
+            .view(view2)
             .overwrite(false)
             .build();
 
@@ -80,17 +81,19 @@ public class GetAllNamedViewsHandlerTest {
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
+        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder().name(testNamedViewName).view(view).build();
+        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder().name(testNamedViewName + 2).view(view2).build();
         addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
         GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when
         GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
-        CloseableIterable<NamedView> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
+        CloseableIterable<NamedViewDetail> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
 
         // Then
         assertEquals(2, Iterables.size(namedViewList));
-        assertTrue(Iterables.contains(namedViewList, namedView));
-        assertTrue(Iterables.contains(namedViewList, namedView2));
+        assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
+        assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
     }
 }

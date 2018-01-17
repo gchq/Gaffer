@@ -16,30 +16,81 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * A {@code AddNamedView} is an {@link Operation} for adding a {@link NamedView}
+ * A {@code AddNamedView} is an {@link Operation} for adding a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}
  * to a Gaffer graph.
  */
 public class AddNamedView implements Operation {
-    private NamedView namedView = null;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private String name;
+    private String view;
     private String description;
-    private Map<String, Object> parameters;
+    private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
 
-    public void setNamedView(final NamedView namedView) {
-        this.namedView = namedView;
+    public String getName() {
+        return name;
     }
 
-    public NamedView getNamedView() {
-        return namedView;
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public void setView(final String view) {
+        this.view = view;
+    }
+
+    @JsonSetter("view")
+    public void setView(final JsonNode viewNode) {
+        this.view = viewNode.toString();
+    }
+
+    @JsonIgnore
+    public String getViewAsString() {
+        return view;
+    }
+
+    @JsonGetter("view")
+    public JsonNode getViewAsJsonNode() {
+        try {
+            return JSONSerialiser.getJsonNodeFromString(view);
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
+    }
+
+    public void setView(final View view) {
+        try {
+            this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
+    }
+
+    public View getView() {
+        try {
+            return JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
+        } catch (final UnsupportedEncodingException | SerialisationException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public String getDescription() {
@@ -50,14 +101,13 @@ public class AddNamedView implements Operation {
         this.description = description;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
+    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         this.parameters = parameters;
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
     }
-
 
     public void setOverwriteFlag(final boolean overwriteFlag) {
         this.overwriteFlag = overwriteFlag;
@@ -80,7 +130,8 @@ public class AddNamedView implements Operation {
     @Override
     public AddNamedView shallowClone() throws CloneFailedException {
         return new AddNamedView.Builder()
-                .namedView(namedView)
+                .name(name)
+                .view(view)
                 .description(description)
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
@@ -93,8 +144,18 @@ public class AddNamedView implements Operation {
             super(new AddNamedView());
         }
 
-        public Builder namedView(final NamedView namedView) {
-            _getOp().setNamedView(namedView);
+        public Builder name(final String name) {
+            _getOp().setName(name);
+            return _self();
+        }
+
+        public Builder view(final String view) {
+            _getOp().setView(view);
+            return _self();
+        }
+
+        public Builder view(final View view) {
+            _getOp().setView(view);
             return _self();
         }
 
@@ -103,7 +164,7 @@ public class AddNamedView implements Operation {
             return _self();
         }
 
-        public Builder parameters(final Map<String, Object> parameters) {
+        public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             _getOp().setParameters(parameters);
             return _self();
         }
@@ -111,10 +172,6 @@ public class AddNamedView implements Operation {
         public Builder overwrite(final boolean overwriteFlag) {
             _getOp().setOverwriteFlag(overwriteFlag);
             return _self();
-        }
-
-        public Builder overwrite() {
-            return overwrite(true);
         }
     }
 }

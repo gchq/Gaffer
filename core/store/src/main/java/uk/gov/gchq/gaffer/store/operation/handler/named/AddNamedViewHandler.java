@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,8 +26,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
+import java.util.Map;
+
 /**
- * Operation handler for {@link AddNamedView} which adds a NamedView to the cache.
+ * Operation handler for {@link AddNamedView} which adds a NamedViewDetail to the cache.
  */
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
@@ -41,11 +44,11 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     }
 
     /**
-     * Adds a {@link NamedView} to the NamedViewCache.  If no cache is specified it will created a new {@link NamedViewCache}.
+     * Adds a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to the NamedViewCache.  If no cache is specified it will created a new {@link NamedViewCache}.
      * The {@link AddNamedView} name field must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
-     * thrown. The handler then adds/overwrites the {@link NamedView} according to an overwrite flag.
+     * thrown. The handler then adds/overwrites the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} according to an overwrite flag.
      *
-     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link NamedView} to be added to cache
+     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be added to cache
      * @param context   the {@link Context}
      * @param store     the {@link Store} the operation should be run on
      * @return null (since the output is void)
@@ -53,13 +56,18 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
      */
     @Override
     public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
-        validate(operation);
+        if (null == operation.getName() || operation.getName().isEmpty()) {
+            throw new IllegalArgumentException("NamedView name must be set and not empty");
+        }
 
-        final NamedView namedView = new NamedView.Builder()
-                .name(operation.getNamedView().getName())
-                .merge(operation.getNamedView())
+        final NamedViewDetail namedView = new NamedViewDetail.Builder()
+                .name(operation.getName())
+                .view(operation.getViewAsString())
+                .description(operation.getDescription())
                 .parameters(operation.getParameters())
                 .build();
+
+        validate(namedView);
 
         try {
             cache.addNamedView(namedView, operation.isOverwriteFlag());
@@ -69,9 +77,15 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         return null;
     }
 
-    private void validate(final AddNamedView op) {
-        if (null == op.getNamedView().getName()) {
-            throw new IllegalArgumentException("NamedView name must be set");
+    private void validate(final NamedViewDetail namedViewDetail) throws OperationException {
+        if (null != namedViewDetail.getParameters()) {
+            String viewString = namedViewDetail.getView();
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetail : namedViewDetail.getParameters().entrySet()) {
+                String varName = "${" + parameterDetail.getKey() + "}";
+                if (!viewString.contains(varName)) {
+                    throw new OperationException("Parameter specified in NamedView doesn't occur in View string for " + varName);
+                }
+            }
         }
     }
 }

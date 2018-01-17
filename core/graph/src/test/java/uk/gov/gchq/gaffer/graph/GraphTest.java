@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
@@ -88,7 +89,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -517,9 +517,8 @@ public class GraphTest {
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
+        final OperationChain clonedOpChain = opChain.shallowClone();
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -537,7 +536,6 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(clonedOpChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.execute(clonedOpChain, context)).willReturn(result1);
 
         // When
@@ -565,9 +563,8 @@ public class GraphTest {
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
         final JobDetail result3 = mock(JobDetail.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
+        final OperationChain clonedOpChain = opChain.shallowClone();
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -585,7 +582,6 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(clonedOpChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
         given(store.executeJob(clonedOpChain, context)).willReturn(result1);
 
         // When
@@ -1413,7 +1409,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
     }
 
     @Test
@@ -1438,7 +1434,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass()), graph.getGraphHooks());
     }
 
     @Test
@@ -1463,7 +1459,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, NamedOperationResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
     }
 
     @Test
@@ -1487,7 +1483,7 @@ public class GraphTest {
 
         // Then
         assertEquals(
-                Arrays.asList(OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class),
+                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class),
                 graph.getGraphHooks()
         );
     }
@@ -1516,10 +1512,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(
-                Arrays.asList(OperationChainLimiter.class, OperationAuthoriser.class),
-                graph.getGraphHooks()
-        );
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1543,7 +1536,7 @@ public class GraphTest {
                         .build())
                 .build(), graph.getView());
         assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(OperationChainLimiter.class, AddOperationsToChain.class),
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class),
                 graph.getGraphHooks());
     }
 
@@ -1589,7 +1582,7 @@ public class GraphTest {
         assertEquals(graphId2, graph.getGraphId());
         assertEquals(view2, graph.getView());
         assertEquals(library2, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(hook1.getClass(), hook2.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
     }
 
@@ -1635,7 +1628,7 @@ public class GraphTest {
         assertEquals(graphId1, graph.getGraphId());
         assertEquals(view1, graph.getView());
         assertEquals(library1, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
     }
 

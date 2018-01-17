@@ -16,6 +16,9 @@ jcs.auxiliary.DC.attributes.OptimizeOnShutdown=true
 # Region for named operations
 jcs.region.namedOperationsRegion=DC
 
+# Region for named views
+jcs.region.namedViewRegion=DC
+
 # Region for aging off after 1 week
 jcs.region.jobTrackerRegion=DC
 jcs.region.jobTrackerRegion.cacheattributes.UseMemoryShrinker=true
