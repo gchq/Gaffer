@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.handler.dataframe.DataFrameUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * A {@code GetGraphFrameOfElementsHandler} handles {@link GetGraphFrameOfElements}
  * operations.
- *
+ * <p>
  * The implementation found here is very similar to the {@link uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler}
  * implementation. The main difference is that the resulting {@link Dataset} of
  * elements are split into two {@link Dataset}s based on the groups provided in
@@ -80,7 +81,14 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
         // Create a DataFrame of Entities
         final Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
 
-        return GraphFrame.apply(entities.withColumnRenamed("vertex", "id"), edges);
+        // We also add dummy entities for all vertices present in the edge dataset,
+        // in case there are no corresponding Entities
+        final Dataset<Row> sources = sparkSession.sql("select src as vertex from elements where group in " + edgeGroups);
+        final Dataset<Row> destinations = sparkSession.sql("select dst as vertex from elements where group in " + edgeGroups);
+
+        final Dataset<Row> vertices = sources.union(destinations).distinct();
+
+        return GraphFrame.apply(DataFrameUtil.union(vertices, entities).withColumnRenamed("vertex", "id"), edges);
     }
 
     private String groupsToString(final Set<String> groups) {
