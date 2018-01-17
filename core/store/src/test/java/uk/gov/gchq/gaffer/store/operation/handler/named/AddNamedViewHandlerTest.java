@@ -106,7 +106,6 @@ public class AddNamedViewHandlerTest {
         try {
             handler.doOperation(addNamedView, context, store);
         } catch (final IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
         }
     }
