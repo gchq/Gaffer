@@ -77,7 +77,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         return null;
     }
 
-    private void validate(NamedViewDetail namedViewDetail) throws OperationException {
+    private void validate(final NamedViewDetail namedViewDetail) throws OperationException {
         if (null != namedViewDetail.getParameters()) {
             String viewString = namedViewDetail.getView();
             for (final Map.Entry<String, ViewParameterDetail> parameterDetail : namedViewDetail.getParameters().entrySet()) {

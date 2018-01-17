@@ -74,7 +74,6 @@ public class AddNamedViewHandlerTest {
         addNamedView = new AddNamedView.Builder()
                 .name(testNamedViewName)
                 .view(view)
-                .parameters(testParameters)
                 .overwrite(false)
                 .build();
 
@@ -96,7 +95,6 @@ public class AddNamedViewHandlerTest {
 
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
-        assertEquals(addNamedView.getParameters(), result.getParameters());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
 
     }
@@ -108,7 +106,8 @@ public class AddNamedViewHandlerTest {
         try {
             handler.doOperation(addNamedView, context, store);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().equals("NamedView name must be set"));
+            System.out.println(e.getMessage());
+            assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
         }
     }
 

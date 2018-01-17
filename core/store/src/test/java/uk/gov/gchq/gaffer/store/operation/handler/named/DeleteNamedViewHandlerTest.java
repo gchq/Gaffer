@@ -73,7 +73,6 @@ public class DeleteNamedViewHandlerTest {
         addNamedView = new AddNamedView.Builder()
                 .name(testNamedViewName)
                 .view(view)
-                .parameters(testParameters)
                 .overwrite(false)
                 .build();
 
