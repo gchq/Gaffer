@@ -49,22 +49,22 @@ import static org.junit.Assert.fail;
 
 public class WalkTest {
 
-    private final static Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
-    private final static Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
-    private final static Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
-    private final static Edge EDGE_FC = new Edge.Builder().group(TestGroups.EDGE).source("F").dest("C").directed(true).build();
-    private final static Edge EDGE_EF = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("F").directed(true).build();
-    private final static Edge EDGE_ED = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("D").directed(true).build();
-    private final static Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
-    private final static Edge EDGE_AE = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("E").directed(true).build();
+    private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
+    private static final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
+    private static final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
+    private static final Edge EDGE_FC = new Edge.Builder().group(TestGroups.EDGE).source("F").dest("C").directed(true).build();
+    private static final Edge EDGE_EF = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("F").directed(true).build();
+    private static final Edge EDGE_ED = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("D").directed(true).build();
+    private static final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
+    private static final Edge EDGE_AE = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("E").directed(true).build();
 
-    private final static Entity ENTITY_A = new Entity.Builder().group(TestGroups.ENTITY).vertex("A").build();
-    private final static Entity ENTITY_B = new Entity.Builder().group(TestGroups.ENTITY).vertex("B").build();
-    private final static Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
-    private final static Entity ENTITY_D = new Entity.Builder().group(TestGroups.ENTITY).vertex("D").build();
-    private final static Entity ENTITY_E = new Entity.Builder().group(TestGroups.ENTITY).vertex("E").build();
-    private final static Entity ENTITY_F = new Entity.Builder().group(TestGroups.ENTITY).vertex("F").build();
-    private final static Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
+    private static final Entity ENTITY_A = new Entity.Builder().group(TestGroups.ENTITY).vertex("A").build();
+    private static final Entity ENTITY_B = new Entity.Builder().group(TestGroups.ENTITY).vertex("B").build();
+    private static final Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
+    private static final Entity ENTITY_D = new Entity.Builder().group(TestGroups.ENTITY).vertex("D").build();
+    private static final Entity ENTITY_E = new Entity.Builder().group(TestGroups.ENTITY).vertex("E").build();
+    private static final Entity ENTITY_F = new Entity.Builder().group(TestGroups.ENTITY).vertex("F").build();
+    private static final Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws Exception {
@@ -542,6 +542,39 @@ public class WalkTest {
 
         // Then
         assertEquals("D", result);
+    }
+
+
+    @Test
+    public void shouldGetSourceVertexFromWalkWithNoEntities() {
+        // Given
+        // [A] -> [B] -> [C]
+
+        final Walk walk = new Walk.Builder()
+                .edges(EDGE_AB, EDGE_BC)
+                .build();
+
+        // When
+        final Object result = walk.getSourceVertex();
+
+        // Then
+        assertEquals("A", result);
+    }
+
+    @Test
+    public void shouldGetDestinationVertexFromWalkWithNoEntities() {
+        // Given
+        // [A] -> [B] -> [C]
+
+        final Walk walk = new Walk.Builder()
+                .edges(EDGE_AB, EDGE_BC)
+                .build();
+
+        // When
+        final Object result = walk.getDestinationVertex();
+
+        // Then
+        assertEquals("C", result);
     }
 
     private List<EdgeId> getEdges() {
