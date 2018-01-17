@@ -35,13 +35,15 @@ import java.util.Map;
  *         <li>Property1: "propValue"</li>
  *     </ul>
  *     The generator will store these in a {@code LinkedHashMap}, for which the fields will be represented as:<br>
- *     {<br>
- *         &nbsp;&nbsp; GROUP: "EdgeGroup",<br>
- *         &nbsp;&nbsp; SOURCE: "A",<br>
- *         &nbsp;&nbsp; DESTINATION: "B",<br>
- *         &nbsp;&nbsp; DIRECTED: "true"<br>
- *         &nbsp;&nbsp; PROPERTY1: "propValue"<br>
+ *     <pre>
+ *     {
+ *          GROUP: "EdgeGroup",
+ *          SOURCE: "A",
+ *          DESTINATION: "B",
+ *          DIRECTED: "true"
+ *          PROPERTY1: "propValue"
  *     }
+ *     </pre>
  * <p>Any constants relevant to a particular {@code Element} can be added,
  * and will be stored in a separate {@code LinkedHashMap}.
  */
