@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -43,6 +44,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -147,11 +149,11 @@ public class GraphConfigurationServiceV2Test {
     @Test
     public void shouldGetSerialisedFields() {
         // When
-        final Set<String> fields = (Set<String>) service.getSerialisedFields(IsA.class.getName()).getEntity();
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFields(IsA.class.getName()).getEntity();
 
         // Then
         assertEquals(1, fields.size());
-        assertTrue(fields.contains("type"));
+        assertTrue(fields.keySet().contains("type"));
     }
 
     @Test
