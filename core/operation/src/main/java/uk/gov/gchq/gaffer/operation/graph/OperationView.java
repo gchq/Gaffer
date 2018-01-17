@@ -21,7 +21,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -135,7 +134,7 @@ public interface OperationView {
             throw new IllegalArgumentException("Supplied View list cannot be null");
         }
 
-        final NamedView.Builder builder = new NamedView.Builder();
+        final View.Builder builder = new View.Builder();
 
         if (null != getView()) {
             builder.merge(getView());

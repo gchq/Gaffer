@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 
@@ -41,6 +42,9 @@ public class OperationViewTest {
                     .groupBy("group")
                     .build())
             .build();
+    private final NamedView testNamedView1 = new NamedView.Builder()
+            .name("testNamedView")
+            .build();
     private final View mergedTestViews = new View.Builder().merge(testView1).merge(testView2).build();
 
     private OperationViewImpl operationView;
@@ -60,7 +64,15 @@ public class OperationViewTest {
     }
 
     @Test
-    public void shouldMergeTWoViewsWhenOneAlreadySet() {
+    public void shouldMergeTwoViewsWhenOneIsNamedView() {
+        // When
+        operationView.setViews(Arrays.asList(testView1, testNamedView1));
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldMergeTwoViewsWhenOneAlreadySet() {
         // When
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView2));
