@@ -21,6 +21,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Extension;
+import io.swagger.annotations.ExtensionProperty;
 import io.swagger.annotations.ResponseHeader;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -56,7 +58,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/schema")
     @ApiOperation(value = "Gets the schema",
-            notes = "Returns the full schema for the Store, detailing the entire list of Elements " +
+            notes = "Returns the full schema for the Store, which should outline the entire list of Elements " +
                     "to be stored in the Graph.",
             response = String.class,
             responseContainer = "list",
@@ -71,8 +73,8 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions.",
-            notes = "Returns, in no particular order, the complete list of fully qualified " +
-                    "classpaths of the filtering functions, that are available to the user.",
+            notes = "Returns (in no particular order) the complete list of fully qualified " +
+                    "classpaths, of filtering functions that are available to the user.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -115,7 +117,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/elementGenerators")
     @ApiOperation(value = "Gets available element generators",
-            notes = "Returns a list of the the fully qualified class paths of the elementGenerators available.",
+            notes = "Returns a list of the fully qualified class paths of the elementGenerators available.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -129,7 +131,8 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/objectGenerators")
     @ApiOperation(value = "Gets available object generators",
-            notes = "Returns a list of the the fully qualified class paths of the objectGenerators available.",
+            notes = "Returns a list of the fully qualified class paths of the objectGenerators available.",
+            response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
             responseHeaders = {

@@ -20,6 +20,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Extension;
+import io.swagger.annotations.ExtensionProperty;
 import io.swagger.annotations.ResponseHeader;
 
 import javax.ws.rs.Consumes;
@@ -65,6 +67,7 @@ public interface IPropertiesServiceV2 {
     @Path("/{propertyName}")
     @Produces({TEXT_PLAIN, APPLICATION_JSON})
     @ApiOperation(value = "Gets the property value for the specified property name.",
+            notes = "Retrieves the value of the provided system property.",
             response = String.class,
             produces = TEXT_PLAIN,
             responseHeaders = {

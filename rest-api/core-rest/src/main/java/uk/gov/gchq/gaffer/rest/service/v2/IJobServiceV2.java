@@ -61,6 +61,11 @@ public interface IJobServiceV2 {
 
     @POST
     @ApiOperation(value = "Submits the given operation job to the graph",
+            notes = "A Job essentially runs an OperationChain (OpChain) asynchronously, and caches the results. " +
+                    "This endpoint submits a provided Operation or OpChain to the graph for execution, as a Job. " +
+                    "This can be useful if an OpChain takes a long time to return results, or you'd like the results to be stored. " +
+                    "One small difference is that a JobDetail is returned rather than the results directly, " +
+                    "but they can be extracted with the GetJobResults Operation/Endpoint.",
             response = JobDetail.class, code = 201, produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
@@ -76,6 +81,7 @@ public interface IJobServiceV2 {
 
     @GET
     @ApiOperation(value = "Get the details of all jobs",
+            notes = "While a Job is/ Jobs are running, you can check the status of them all using this endpoint. ",
             response = JobDetail.class,
             responseContainer = "List",
             produces = APPLICATION_JSON,
@@ -91,6 +97,8 @@ public interface IJobServiceV2 {
     @GET
     @Path("{id}")
     @ApiOperation(value = "Get the details of a job",
+            notes = "This endpoint is useful for checking the details of a singular Job, given its' Job ID. " +
+                    "This shows information such as the current status, the user who executed the Job, startTime etc.",
             response = JobDetail.class,
             produces = APPLICATION_JSON,
             responseHeaders = {
@@ -106,6 +114,8 @@ public interface IJobServiceV2 {
     @GET
     @Path("{id}/results")
     @ApiOperation(value = "Get the results of a job",
+            notes = "Once a Job has FINISHED, this endpoint will extract the results, " +
+                    "and display them as one would expect from running an Operation/OpChain.",
             response = Object.class,
             responseContainer = "List",
             produces = APPLICATION_JSON,

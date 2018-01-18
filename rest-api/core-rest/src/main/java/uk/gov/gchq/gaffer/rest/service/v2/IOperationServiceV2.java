@@ -110,7 +110,7 @@ public interface IOperationServiceV2 {
     @ApiOperation(value = "Gets details about the specified operation class.",
             notes = "This endpoint exposes the fields (and whether or not they are required); " +
                     "a list of all possible Operations that could follow it; " +
-                    "a simple example in JSON, which includes the queried Operation class.",
+                    "and a small example in JSON, which includes the queried Operation class.",
             produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
@@ -124,7 +124,7 @@ public interface IOperationServiceV2 {
     @GET
     @Path("/{className}/example")
     @ApiOperation(value = "Gets example JSON for the specified operation class.",
-            notes = "Returns a fully justified and formatted JSON example, " +
+            notes = "Returns a fully justified and formatted JSON example of the given Operation, " +
                     "containing a few Operations for demonstration and usage purposes.",
             produces = APPLICATION_JSON,
             responseHeaders = {
