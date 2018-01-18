@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -28,6 +29,7 @@ import java.util.Map;
  * A {@link GetAllNamedOperations} is an {@link uk.gov.gchq.gaffer.operation.Operation}
  * for retrieving all {@link NamedOperation}s associated with a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetAllNamedOperations implements
         Output<CloseableIterable<NamedOperationDetail>> {
     private Map<String, String> options;

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -34,6 +35,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToMap.Builder
  */
+@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 public class ToMap implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {

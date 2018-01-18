@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -34,6 +36,7 @@ import java.util.function.Function;
  *
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "hostname", "port", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromSocket implements
         Operation,
         Validatable {

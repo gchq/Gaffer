@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.time;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
@@ -45,6 +46,7 @@ import java.util.TreeSet;
  * more than N timestamps are added then a uniform random sample of size N of the timestamps is retained.
  * </p>
  */
+@JsonPropertyOrder(alphabetic = true)
 @JsonDeserialize(builder = BoundedTimestampSet.Builder.class)
 public class BoundedTimestampSet implements TimestampSet {
     public enum State {

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -34,6 +35,7 @@ import java.util.Map;
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
  */
+@JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 public class GetAllElements implements
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {
