@@ -160,13 +160,35 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
 
-            fail("Validation in the GetDataFrameOfElementsHandler should result in an exception being thrown.");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("schema contains property [vertex]"));
-        }
+        final Set<String> vertices = graphFrame.vertices()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        final Set<String> edges = graphFrame.edges()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        edges.remove("null");
+        vertices.remove("null");
+
+        assertThat(vertices, hasSize(15));
+        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(vertices, hasItems(TestGroups.ENTITY, TestGroups.ENTITY_2));
+
+        assertThat(edges, hasSize(24));
+        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+        assertThat(edges, hasItem(TestGroups.EDGE));
     }
 
     @Test
@@ -186,7 +208,7 @@ public class GetGraphFrameOfElementsHandlerTest {
 
             fail("Validation in the GetGraphFrameOfElements operation should result in an exception being thrown.");
         } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("Cannot create a Graphframe unless the View contains edges."));
+            assertTrue(e.getMessage().contains("Cannot create a GraphFrame unless the View contains edges."));
         }
     }
 

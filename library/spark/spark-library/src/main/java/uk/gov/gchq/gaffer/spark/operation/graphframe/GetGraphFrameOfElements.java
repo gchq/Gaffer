@@ -17,26 +17,20 @@
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.collections.CollectionUtils;
 import org.graphframes.GraphFrame;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * An {@code Operation} that returns an Apache Spark {@code GraphFrame} (i.e. an
@@ -110,21 +104,7 @@ public class GetGraphFrameOfElements implements
         final ValidationResult result = Output.super.validate();
 
         if (!view.hasEdges()) {
-            result.addError("Cannot create a Graphframe unless the View contains edges.");
-        }
-
-        final List<ViewElementDefinition> viewElementDefinitions = Stream.concat(view.getEntities().values().stream(), view.getEdges().values().stream())
-                .collect(Collectors.toList());
-
-        for (final ViewElementDefinition viewElementDefinition : viewElementDefinitions) {
-            if (null != viewElementDefinition && null != viewElementDefinition.getProperties()) {
-                final Collection<String> repeatedProperties = CollectionUtils.intersection(viewElementDefinition.getProperties(), GetDataFrameOfElements.RESERVED_FIELDS);
-                if (!repeatedProperties.isEmpty()) {
-                    result.addError("Cannot create a GraphFrame using the current View - the properties: [" +
-                            String.join(", ", repeatedProperties) + "] are reserved and must not be in the View."
-                    );
-                }
-            }
+            result.addError("Cannot create a GraphFrame unless the View contains edges.");
         }
 
         return result;
