@@ -17,8 +17,12 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -39,6 +43,7 @@ import java.util.Map;
  * @see View
  */
 @JsonDeserialize(builder = NamedView.Builder.class)
+@JsonPropertyOrder(value = {"class", "name", "edges", "entities"}, alphabetic = true)
 public class NamedView extends View {
 
     @Required
@@ -144,19 +149,19 @@ public class NamedView extends View {
             if (null != view) {
                 if (view instanceof NamedView) {
                     NamedView namedViewInstance = (NamedView) view;
-                    if (null != namedViewInstance.getName() && !namedViewInstance.getName().isEmpty()) {
-                        if (null == self().getElementDefs().getName() || self().getElementDefs().getName().isEmpty()) {
+                    if (StringUtils.isNotEmpty(namedViewInstance.getName())) {
+                        if (StringUtils.isEmpty(self().getElementDefs().getName())) {
                             self().name(namedViewInstance.getName());
                         } else {
-                            if (self().getElementDefs().getName() != ((NamedView) view).getName()) {
+                            if (!self().getElementDefs().getName().equals(((NamedView) view).getName())) {
                                 self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
                             }
                         }
                     }
-                    if (null != namedViewInstance.getMergedNamedViewNames() && !namedViewInstance.getMergedNamedViewNames().isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(namedViewInstance.getMergedNamedViewNames())) {
                         self().getElementDefs().setMergedNamedViewNames(namedViewInstance.getMergedNamedViewNames());
                     }
-                    if (null != namedViewInstance.getParameters() && !namedViewInstance.getParameters().isEmpty()) {
+                    if (MapUtils.isNotEmpty(namedViewInstance.getParameters())) {
                         self().parameters(namedViewInstance.getParameters());
                     }
                 }

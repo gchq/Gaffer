@@ -378,4 +378,47 @@ public class NamedViewResolverTest {
         assertTrue(new String(getElements.getView().toCompactJson()).contains(VALUE_JSON_STRING + 7));
         assertTrue(new String(getElements.getView().toCompactJson()).contains("VERTEX"));
     }
+
+    @Test
+    public void shouldResolveMultipleNestedNamedViews() throws CacheOperationFailedException {
+        // Given
+        final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).entity(TestGroups.ENTITY_2).build();
+        final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).view(nestedNamedView).build();
+
+        final NamedView nestedNamedView1 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).merge(nestedNamedView).build();
+        final NamedViewDetail nestedNamedView1Detail = new NamedViewDetail.Builder().name(nestedNamedView1.getName()).view(nestedNamedView1).build();
+
+        final NamedView nestedNamedView2 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 2).edge(TestGroups.EDGE_2).merge(nestedNamedView1).build();
+        final NamedViewDetail nestedNamedView2Detail = new NamedViewDetail.Builder().name(nestedNamedView2.getName()).view(nestedNamedView2).build();
+
+        final NamedView nestedNamedView3 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 3).edge(TestGroups.EDGE_3).merge(nestedNamedView2).build();
+        final NamedViewDetail nestedNamedView3Detail = new NamedViewDetail.Builder().name(nestedNamedView3.getName()).view(nestedNamedView3).build();
+
+        assertEquals(3, nestedNamedView3.getMergedNamedViewNames().size());
+        assertTrue(nestedNamedView3.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME));
+        assertTrue(nestedNamedView3.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
+        assertTrue(nestedNamedView3.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 2));
+
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1Detail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 2)).willReturn(nestedNamedView2Detail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 3)).willReturn(nestedNamedView3Detail);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(nestedNamedView3.getName())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+        GetElements getElements = (GetElements) opChain.getOperations().get(0);
+        nestedNamedView3.setName(null);
+        final View mergedView = new View.Builder().merge(nestedNamedView3).build();
+
+        // Then
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+    }
 }

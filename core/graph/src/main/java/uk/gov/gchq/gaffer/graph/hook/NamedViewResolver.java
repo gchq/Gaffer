@@ -27,9 +27,6 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
@@ -60,8 +57,6 @@ public class NamedViewResolver implements GraphHook {
     }
 
     private void resolveViewsInOperations(final Operations<?> operations) {
-        final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
-
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
                 if (((OperationView) operation).getView() instanceof NamedView) {
@@ -80,9 +75,7 @@ public class NamedViewResolver implements GraphHook {
                     resolveViewsInOperations((Operations<?>) operation);
                 }
             }
-            updatedOperations.add(operation);
         }
-        operations.updateOperations((List) updatedOperations);
     }
 
     private NamedView resolveViewInOperation(final NamedView namedView) {

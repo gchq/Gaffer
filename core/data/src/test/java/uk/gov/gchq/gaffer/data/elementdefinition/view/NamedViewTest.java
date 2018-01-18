@@ -364,4 +364,34 @@ public class NamedViewTest {
 
         assertFalse(namedViewMerged.getMergedNamedViewNames().contains(namedViewName));
     }
+
+    @Test
+    public void shouldAddAllMergedNamedViewNamesToTopLevelNamedView() {
+        final String namedViewName = "namedViewName";
+
+        final NamedView namedViewToMerge3 = new NamedView.Builder()
+                .name(namedViewName + 3)
+                .edge(TestGroups.EDGE_2)
+                .build();
+
+        final NamedView namedViewToMerge2 = new NamedView.Builder()
+                .name(namedViewName + 2)
+                .merge(namedViewToMerge3)
+                .edge(TestGroups.EDGE)
+                .build();
+
+        final NamedView namedViewToMerge1 = new NamedView.Builder()
+                .name(namedViewName + 1)
+                .merge(namedViewToMerge2)
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        final NamedView namedViewMerged = new NamedView.Builder()
+                .name(namedViewName)
+                .merge(namedViewToMerge1)
+                .build();
+
+        assertEquals(3, namedViewMerged.getMergedNamedViewNames().size());
+        assertEquals(Arrays.asList(namedViewName+1, namedViewName+2, namedViewName+3), namedViewMerged.getMergedNamedViewNames());
+    }
 }

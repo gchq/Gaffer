@@ -852,27 +852,23 @@ public final class Graph {
         }
 
         private void updateGraphHooks(final GraphConfig config) {
-            if (store.isSupported(NamedOperation.class)) {
-                boolean hasNamedOpHook = false;
-                for (final GraphHook graphHook : config.getHooks()) {
-                    if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
-                        hasNamedOpHook = true;
-                        break;
-                    }
-                }
-                if (!hasNamedOpHook) {
-                    config.getHooks().add(0, new NamedOperationResolver());
-                }
-            }
+            boolean hasNamedOpHook = false;
             boolean hasNamedViewHook = false;
             for (final GraphHook graphHook : config.getHooks()) {
+                if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                    hasNamedOpHook = true;
+                }
                 if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
                     hasNamedViewHook = true;
-                    break;
                 }
             }
             if (!hasNamedViewHook) {
                 config.getHooks().add(0, new NamedViewResolver());
+            }
+            if (!hasNamedOpHook) {
+                if (store.isSupported(NamedOperation.class)) {
+                    config.getHooks().add(0, new NamedOperationResolver());
+                }
             }
         }
 

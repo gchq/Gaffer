@@ -1438,7 +1438,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddNamedOperationResolverHookFirst() throws Exception {
+    public void shouldAddNamedOperationResolverHookAfterNamedOperationResolver() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -1459,7 +1459,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, NamedOperationResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
     }
 
     @Test
