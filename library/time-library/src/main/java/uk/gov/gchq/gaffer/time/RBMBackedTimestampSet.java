@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.time;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +56,7 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
  * the epoch.
  * </p>
  */
+@JsonPropertyOrder(alphabetic = true)
 @JsonDeserialize(builder = RBMBackedTimestampSet.Builder.class)
 public class RBMBackedTimestampSet implements TimestampSet {
     private static final Instant MIN_TIME = Instant.ofEpochMilli(0L);

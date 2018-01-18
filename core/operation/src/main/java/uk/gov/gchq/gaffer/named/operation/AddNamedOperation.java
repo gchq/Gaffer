@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -39,6 +40,7 @@ import java.util.Map;
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
  * and adding it to a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 public class AddNamedOperation implements Operation {
     @Required
     private String operations;

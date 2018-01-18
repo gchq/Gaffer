@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -35,6 +36,7 @@ import java.util.function.Function;
  *
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromKafka implements
         Operation,
         Validatable {

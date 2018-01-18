@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,6 +37,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class Validate implements
         Validatable,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
