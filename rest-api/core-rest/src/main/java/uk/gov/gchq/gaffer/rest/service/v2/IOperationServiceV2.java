@@ -83,20 +83,23 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    Response execute(final Operation operation);
+    Response execute(@ApiParam(value = "The operation to be performed on the graph") final Operation operation);
 
     @POST
     @Path("/execute/chunked")
-    @ApiOperation(value = "Performs the given operation on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Performs the given operation on the graph, returning a chunked output.",
+            notes = "WARNING - This does not work in Swagger.",
+            response = Object.class,
+            produces = APPLICATION_JSON)
     @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    ChunkedOutput<String> executeChunked(final Operation operation);
+    ChunkedOutput<String> executeChunked(@ApiParam(value = "The operation to be performed, returning a chunked output") final Operation operation);
 
     @SuppressFBWarnings
-    ChunkedOutput<String> executeChunkedChain(final OperationChain opChain);
+    ChunkedOutput<String> executeChunkedChain(@ApiParam(value = "The operation chain to be performed, returning a chunked output") final OperationChain opChain);
 
     @GET
     @Path("/{className}")
@@ -109,7 +112,7 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response operationDetails(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
+    Response operationDetails(@ApiParam(value = "The fully qualified class name, for which details should be returned") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @GET
     @Path("/{className}/example")
@@ -122,11 +125,11 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response operationExample(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
+    Response operationExample(@ApiParam(value = "The fully qualified class name, for which a formatted JSON example should be returned") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @GET
     @Path("/{className}/next")
-    @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
+    @ApiOperation(value = "Gets all the compatible operations which could be added to an operation chain after the provided operation.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -136,7 +139,7 @@ public interface IOperationServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response nextOperations(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className);
+    Response nextOperations(@ApiParam(value = "The fully qualified class name, for which all possible compatible follow-up operations should be returned") @PathParam("className") final String className);
 
 }
 

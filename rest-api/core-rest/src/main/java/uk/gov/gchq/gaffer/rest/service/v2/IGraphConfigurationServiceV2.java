@@ -79,7 +79,7 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class is provided.",
+    @ApiOperation(value = "Gets available filter functions for the given input class.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -155,7 +155,7 @@ public interface IGraphConfigurationServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = CLASS_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
+    Response getSerialisedFields(@ApiParam(value = "The name of the Java class, for which the serialised fields should be retrieved") @PathParam("className") final String className);
 
     @GET
     @Path("/description")

@@ -72,7 +72,7 @@ public interface IJobServiceV2 {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
-    Response executeJob(final Operation operation) throws OperationException;
+    Response executeJob(@ApiParam(value = "The operation job to be submitted to the graph") final Operation operation) throws OperationException;
 
     @GET
     @ApiOperation(value = "Get the details of all jobs",
@@ -101,7 +101,7 @@ public interface IJobServiceV2 {
             @ApiResponse(code = 404, message = JOB_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
-    Response details(@ApiParam(value = "a job id") @PathParam("id") final String id) throws OperationException;
+    Response details(@ApiParam(value = "A job id, for which the details should be returned") @PathParam("id") final String id) throws OperationException;
 
     @GET
     @Path("{id}/results")
@@ -116,5 +116,5 @@ public interface IJobServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
-    Response results(@ApiParam(value = "a job id") @PathParam("id") final String id) throws OperationException;
+    Response results(@ApiParam(value = "A job id, for which the results should be returned") @PathParam("id") final String id) throws OperationException;
 }

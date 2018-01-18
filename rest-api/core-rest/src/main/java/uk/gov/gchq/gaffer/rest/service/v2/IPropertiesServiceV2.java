@@ -71,6 +71,6 @@ public interface IPropertiesServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = PROPERTY_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response getProperty(@ApiParam(value = "the property name") @PathParam("propertyName") final String propertyName);
+    Response getProperty(@ApiParam(value = "The property name for which the value should be retrieved") @PathParam("propertyName") final String propertyName);
 
 }
