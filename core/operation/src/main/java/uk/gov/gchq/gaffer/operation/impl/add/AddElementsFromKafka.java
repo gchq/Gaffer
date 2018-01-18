@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -38,6 +39,8 @@ import java.util.function.Function;
 public class AddElementsFromKafka implements
         Operation,
         Validatable {
+    public static final Class<String> DEFAULT_CONSUME_AS = String.class;
+
     @Required
     private String topic;
 
@@ -62,7 +65,7 @@ public class AddElementsFromKafka implements
 
     private boolean validate = true;
     private boolean skipInvalidElements;
-
+    private Class<?> consumeAs = DEFAULT_CONSUME_AS;
     private Map<String, String> options;
 
     public String getTopic() {
@@ -98,23 +101,11 @@ public class AddElementsFromKafka implements
         this.bootstrapServers = bootstrapServers;
     }
 
-    /**
-     * Retrieves the Element Generator class
-     * @return the Class of the Element Generator
-     * @deprecated Use {@link #getGenericElementGenerator()} instead
-     */
-    @Deprecated
-    public Class<? extends Function> getElementGenerator() {
+    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getElementGenerator() {
         return elementGenerator;
     }
 
-    /**
-     * Sets the Element Generator class
-     * @param elementGenerator the Element Generator to use
-     * @deprecated Use {@link #setGenericElementGenerator(Class)} instead
-     */
-    @Deprecated
-    public void setElementGenerator(final Class<? extends Function> elementGenerator) {
+    public void setElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
         this.elementGenerator = (Class) elementGenerator;
     }
 
@@ -136,6 +127,18 @@ public class AddElementsFromKafka implements
     @Override
     public void setSkipInvalidElements(final boolean skipInvalidElements) {
         this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    public Class<?> getConsumeAs() {
+        return consumeAs;
+    }
+
+    public void setConsumeAs(final Class<?> consumeAs) {
+        if (null == consumeAs) {
+            this.consumeAs = DEFAULT_CONSUME_AS;
+        }
+        this.consumeAs = consumeAs;
     }
 
     @Override
@@ -164,20 +167,12 @@ public class AddElementsFromKafka implements
                 .topic(topic)
                 .groupId(groupId)
                 .bootstrapServers(bootstrapServers)
-                .genericGenerator(elementGenerator)
+                .generator((Class) consumeAs, elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
                 .build();
-    }
-
-    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getGenericElementGenerator() {
-        return elementGenerator;
-    }
-
-    public void setGenericElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = elementGenerator;
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>
@@ -186,14 +181,15 @@ public class AddElementsFromKafka implements
             super(new AddElementsFromKafka());
         }
 
-        @Deprecated
-        public Builder generator(final Class<? extends Function> generator) {
-            _getOp().setElementGenerator(generator);
+        public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
+            _getOp().setConsumeAs(String.class);
+            _getOp().setElementGenerator((Class)generator);
             return _self();
         }
 
-        public Builder genericGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> generator) {
-            _getOp().setGenericElementGenerator(generator);
+        public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
+            _getOp().setConsumeAs(consumeAs);
+            _getOp().setElementGenerator((Class)generator);
             return _self();
         }
 

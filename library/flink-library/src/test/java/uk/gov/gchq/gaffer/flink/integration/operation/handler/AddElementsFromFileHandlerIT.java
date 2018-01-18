@@ -46,7 +46,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
     }
 
     @Test
-    public void shouldAddElements() throws Exception {
+    public void shouldAddElementsWithStringConsumer() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
@@ -54,7 +54,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
 
         final AddElementsFromFile op = new AddElementsFromFile.Builder()
                 .filename(file.getAbsolutePath())
-                .generator(TestGeneratorImpl.class)
+                .generator(String.class, TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)

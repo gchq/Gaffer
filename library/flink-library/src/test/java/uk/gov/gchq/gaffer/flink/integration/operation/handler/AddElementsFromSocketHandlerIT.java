@@ -32,7 +32,7 @@ import java.net.Socket;
 
 public class AddElementsFromSocketHandlerIT extends FlinkTest {
     @Test
-    public void shouldAddElements() throws Exception {
+    public void shouldAddElementsWithStringConsumer() throws Exception {
         // Given
         MapStore.resetStaticMap();
         final Graph graph = createGraph();
@@ -54,7 +54,7 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
         }).start();
 
         final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .generator(TestGeneratorImpl.class)
+                .generator(String.class, TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)

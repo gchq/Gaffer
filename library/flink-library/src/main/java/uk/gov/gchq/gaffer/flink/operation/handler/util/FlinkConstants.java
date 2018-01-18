@@ -30,20 +30,6 @@ public final class FlinkConstants {
      */
     public static final String MAX_QUEUE_SIZE = "gaffer.flink.operation.handler.max-queue-size";
 
-//    /**
-//     * Operation option key for declaring the expected type for which a custom (de)serialisation schema
-//     * should be used.
-//     * Eg. "java.lang.String", although a SimpleStringSchema is used by default.
-//     */
-//    public static final String SERIALISATION_TYPE = "gaffer.flink.operation.handler.serialisation-type";
-
-    /**
-     * Operation option key for defining the implementation of the GafferMapFunction
-     * to use for adding Elements.
-     * This is a StringMapFunction by default.
-     */
-    public static final String MAP_FUNCTION = "gaffer.flink.operation.handler.map-function";
-
     private FlinkConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.

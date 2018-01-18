@@ -15,26 +15,27 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler.serialisation;
 
-import org.apache.flink.api.common.typeinfo.BasicArrayTypeInfo;
+import org.apache.flink.api.common.typeinfo.PrimitiveArrayTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.util.serialization.DeserializationSchema;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 
-public class ByteArraySchema implements DeserializationSchema<Byte[]> {
+public class ByteArraySchema implements DeserializationSchema<byte[]> {
+    private static final long serialVersionUID = -524497959583479967L;
 
     @Override
-    public Byte[] deserialize(final byte[] bytes) throws IOException {
-        return Stream.of(bytes).toArray(Byte[]::new);
+    public byte[] deserialize(final byte[] bytes) throws IOException {
+        return bytes;
     }
 
     @Override
-    public boolean isEndOfStream(final Byte[] bytes) {
+    public boolean isEndOfStream(final byte[] bytes) {
         return false;
     }
 
     @Override
-    public BasicArrayTypeInfo<Byte[], Byte> getProducedType() {
-        return BasicArrayTypeInfo.BYTE_ARRAY_TYPE_INFO;
+    public TypeInformation<byte[]> getProducedType() {
+        return PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO;
     }
 }

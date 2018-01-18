@@ -15,28 +15,15 @@
  */
 package uk.gov.gchq.gaffer.generator;
 
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
-import java.util.Arrays;
-
 public class TestBytesGeneratorImpl implements OneToManyElementGenerator<byte[]> {
+    private TestGeneratorImpl delegate = new TestGeneratorImpl();
+
     @Override
     public Iterable<Element> _apply(final byte[] domainObject) {
-        return Arrays.asList(
-                new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(domainObject)
-                .property(TestPropertyNames.COUNT, 2L)
-                .build(),
-                new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(domainObject)
-                .property(TestPropertyNames.COUNT, 1L)
-                .build()
-        );
+        return delegate._apply(null != domainObject ? StringUtil.toString(domainObject) : null);
     }
 }

@@ -42,27 +42,18 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
     @Override
     public Object doOperation(final AddElementsFromFile op, final Context context, final Store store) throws OperationException {
+        if (String.class != op.getConsumeAs()) {
+            throw new IllegalArgumentException("This Flink handler cannot consume records as " + op.getConsumeAs() + ". You must consume records as String");
+        }
+
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         if (null != op.getParallelism()) {
             env.setParallelism(op.getParallelism());
         }
 
-        final String type = op.getOption(FlinkConstants.MAP_FUNCTION);
-        final GafferMapFunction function;
-        if (null == type) {
-            function = new StringMapFunction(op.getElementGenerator());
-        } else {
-            try {
-                function = Class.forName(type).asSubclass(GafferMapFunction.class).newInstance();
-                function.setGeneratorClassName(op.getGenericElementGenerator());
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new OperationException(e);
-            }
-        }
-
         final FlatMapOperator<String, Element> builder =
                 env.readTextFile(op.getFilename())
-                        .flatMap(function);
+                        .flatMap(new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator()));
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.output(new GafferOutput(op, store));

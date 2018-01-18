@@ -54,19 +54,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
             env.setParallelism(op.getParallelism());
         }
 
-        final String type = op.getOption(FlinkConstants.MAP_FUNCTION);
-        final GafferMapFunction function;
-        if (null == type) {
-            function = new StringMapFunction(op.getElementGenerator());
-        } else {
-            try {
-                function = Class.forName(type).asSubclass(GafferMapFunction.class).newInstance();
-                function.setGeneratorClassName(op.getGenericElementGenerator());
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new OperationException(e);
-            }
-        }
-
+        final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator());
         final DataStream<Element> builder = env.addSource(
                 new FlinkKafkaConsumer010<>(
                         op.getTopic(),
