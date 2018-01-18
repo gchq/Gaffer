@@ -42,10 +42,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
     public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
-        if (String.class != op.getConsumeAs()) {
-            throw new IllegalArgumentException("This Flink handler cannot consume records as " + op.getConsumeAs() + ". You must consume records as String");
-        }
-
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         if (null != op.getParallelism()) {
             env.setParallelism(op.getParallelism());
@@ -53,7 +49,7 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
 
         final DataStream<Element> builder =
                 env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
-                        .flatMap(new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator()));
+                        .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.addSink(new GafferSink(op, store));

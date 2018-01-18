@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -39,7 +37,6 @@ import java.util.function.Function;
 public class AddElementsFromSocket implements
         Operation,
         Validatable {
-    public static final Class<String> DEFAULT_CONSUME_AS = String.class;
     public static final String DEFAULT_DELIMITER = "\n";
 
     @Required
@@ -49,7 +46,7 @@ public class AddElementsFromSocket implements
     private int port;
 
     @Required
-    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
     /**
      * The parallelism of the job to be created
@@ -59,7 +56,6 @@ public class AddElementsFromSocket implements
     private boolean validate = true;
     private boolean skipInvalidElements;
     private String delimiter = DEFAULT_DELIMITER;
-    private Class<?> consumeAs = DEFAULT_CONSUME_AS;
     private Map<String, String> options;
 
     public String getHostname() {
@@ -78,24 +74,12 @@ public class AddElementsFromSocket implements
         this.port = port;
     }
 
-    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getElementGenerator() {
+    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = (Class) elementGenerator;
-    }
-
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
-    public Class<?> getConsumeAs() {
-        return consumeAs;
-    }
-
-    public void setConsumeAs(final Class<?> consumeAs) {
-        if (null == consumeAs) {
-            this.consumeAs = DEFAULT_CONSUME_AS;
-        }
-        this.consumeAs = consumeAs;
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
+        this.elementGenerator = elementGenerator;
     }
 
     @Override
@@ -149,21 +133,13 @@ public class AddElementsFromSocket implements
         return new AddElementsFromSocket.Builder()
                 .hostname(hostname)
                 .port(port)
-                .generator((Class) consumeAs, elementGenerator)
+                .generator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
                 .delimiter(delimiter)
                 .options(options)
                 .build();
-    }
-
-    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getGenericElementGenerator() {
-        return elementGenerator;
-    }
-
-    public void setGenericElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = elementGenerator;
     }
 
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
@@ -173,14 +149,7 @@ public class AddElementsFromSocket implements
         }
 
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
-            _getOp().setConsumeAs(String.class);
-            _getOp().setElementGenerator((Class)generator);
-            return _self();
-        }
-
-        public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
-            _getOp().setConsumeAs(consumeAs);
-            _getOp().setElementGenerator((Class)generator);
+            _getOp().setElementGenerator(generator);
             return _self();
         }
 

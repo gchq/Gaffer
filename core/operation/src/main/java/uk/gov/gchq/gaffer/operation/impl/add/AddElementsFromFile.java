@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -36,8 +34,6 @@ import java.util.function.Function;
 public class AddElementsFromFile implements
         Operation,
         Validatable {
-    public static final Class<String> DEFAULT_CONSUME_AS = String.class;
-
     /**
      * The fully qualified path of the file from which Flink should consume
      */
@@ -45,7 +41,7 @@ public class AddElementsFromFile implements
     private String filename;
 
     @Required
-    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
     /**
      * The parallelism of the job to be created
@@ -53,7 +49,6 @@ public class AddElementsFromFile implements
     private Integer parallelism;
     private boolean validate = true;
     private boolean skipInvalidElements;
-    private Class<?> consumeAs = DEFAULT_CONSUME_AS;
     private Map<String, String> options;
 
     public String getFilename() {
@@ -72,24 +67,12 @@ public class AddElementsFromFile implements
         return this.parallelism;
     }
 
-    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getElementGenerator() {
+    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = (Class) elementGenerator;
-    }
-
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
-    public Class<?> getConsumeAs() {
-        return consumeAs;
-    }
-
-    public void setConsumeAs(final Class<?> consumeAs) {
-        if (null == consumeAs) {
-            this.consumeAs = DEFAULT_CONSUME_AS;
-        }
-        this.consumeAs = consumeAs;
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
+        this.elementGenerator = elementGenerator;
     }
 
     @Override
@@ -126,7 +109,7 @@ public class AddElementsFromFile implements
     public AddElementsFromFile shallowClone() {
         return new AddElementsFromFile.Builder()
                 .filename(filename)
-                .generator((Class) consumeAs, elementGenerator)
+                .generator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
@@ -141,14 +124,7 @@ public class AddElementsFromFile implements
         }
 
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
-            _getOp().setConsumeAs(String.class);
-            _getOp().setElementGenerator((Class) generator);
-            return _self();
-        }
-
-        public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
-            _getOp().setConsumeAs(consumeAs);
-            _getOp().setElementGenerator((Class) generator);
+            _getOp().setElementGenerator(generator);
             return _self();
         }
 
