@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -36,10 +37,12 @@ import java.util.function.Function;
  *
  * @see Builder
  */
-@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "consumeAs", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromKafka implements
         Operation,
         Validatable {
+    public static final Class<String> DEFAULT_CONSUME_AS = String.class;
+
     @Required
     private String topic;
 
@@ -55,7 +58,7 @@ public class AddElementsFromKafka implements
     private String[] bootstrapServers;
 
     @Required
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
+    private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
 
     /**
      * The parallelism of the job to be created
@@ -64,8 +67,7 @@ public class AddElementsFromKafka implements
 
     private boolean validate = true;
     private boolean skipInvalidElements;
-
-
+    private Class<?> consumeAs = DEFAULT_CONSUME_AS;
     private Map<String, String> options;
 
     public String getTopic() {
@@ -101,12 +103,12 @@ public class AddElementsFromKafka implements
         this.bootstrapServers = bootstrapServers;
     }
 
-    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
+    public Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
-        this.elementGenerator = elementGenerator;
+    public void setElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
+        this.elementGenerator = (Class) elementGenerator;
     }
 
     @Override
@@ -127,6 +129,18 @@ public class AddElementsFromKafka implements
     @Override
     public void setSkipInvalidElements(final boolean skipInvalidElements) {
         this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    public Class<?> getConsumeAs() {
+        return consumeAs;
+    }
+
+    public void setConsumeAs(final Class<?> consumeAs) {
+        if (null == consumeAs) {
+            this.consumeAs = DEFAULT_CONSUME_AS;
+        }
+        this.consumeAs = consumeAs;
     }
 
     @Override
@@ -155,7 +169,7 @@ public class AddElementsFromKafka implements
                 .topic(topic)
                 .groupId(groupId)
                 .bootstrapServers(bootstrapServers)
-                .generator(elementGenerator)
+                .generator((Class) consumeAs, elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
@@ -170,7 +184,14 @@ public class AddElementsFromKafka implements
         }
 
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
-            _getOp().setElementGenerator(generator);
+            _getOp().setConsumeAs(String.class);
+            _getOp().setElementGenerator((Class) generator);
+            return _self();
+        }
+
+        public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
+            _getOp().setConsumeAs(consumeAs);
+            _getOp().setElementGenerator((Class) generator);
             return _self();
         }
 
