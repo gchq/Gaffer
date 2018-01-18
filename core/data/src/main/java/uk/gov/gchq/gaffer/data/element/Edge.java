@@ -139,8 +139,6 @@ public class Edge extends Element implements EdgeId {
         return destination;
     }
 
-    // TODO figure out why this isn't being JSON ignored when serialised (#getSerialisedFields still returns this and it shouldn't)
-
     @JsonIgnore
     @Override
     public DirectedType getDirectedType() {
