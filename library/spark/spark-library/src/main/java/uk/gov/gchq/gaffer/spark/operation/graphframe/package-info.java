@@ -15,6 +15,6 @@
  */
 
 /**
- * Operation classes for creating and consuming Graphframes using Spark in Gaffer.
+ * Operation classes for creating and consuming GraphFrames using Spark in Gaffer.
  */
 package uk.gov.gchq.gaffer.spark.operation.graphframe;

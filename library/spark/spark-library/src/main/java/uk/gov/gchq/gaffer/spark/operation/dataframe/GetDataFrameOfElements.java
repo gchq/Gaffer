@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -31,7 +30,6 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An {@code Operation} that returns an Apache Spark {@code DataFrame} (i.e. a {@link Dataset} of
@@ -51,8 +49,6 @@ import java.util.Set;
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {
-
-    public static final Set<String> RESERVED_FIELDS = Sets.newHashSet("id", "vertex", "group", "src", "dst");
 
     private List<Converter> converters;
     private Map<String, String> options;
