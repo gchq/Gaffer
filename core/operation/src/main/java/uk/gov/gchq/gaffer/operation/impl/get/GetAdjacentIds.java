@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -38,6 +39,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiInput<EntityId>,

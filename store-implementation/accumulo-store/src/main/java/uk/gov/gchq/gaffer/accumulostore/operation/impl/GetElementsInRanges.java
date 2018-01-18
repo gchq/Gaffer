@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -36,6 +37,7 @@ import java.util.Map;
  * This returns all data between the provided
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s.
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetElementsInRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,

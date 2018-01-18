@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -26,6 +27,7 @@ import java.util.Map;
  * A {@code DiscardOutput} operation is used as a terminal operation to indicate
  * that the results from the previous operation are not used again.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class DiscardOutput implements
         Input<Object> {
 

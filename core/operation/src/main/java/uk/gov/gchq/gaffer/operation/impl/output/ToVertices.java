@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -31,6 +32,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToVertices.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class ToVertices implements
         InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
         MultiInput<ElementId> {

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.job;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -30,6 +31,7 @@ import java.util.Map;
  * A {@code GetAllJobDetails} operation is used to retrieve all of the {@link JobDetail}s
  * related to a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetAllJobDetails implements
         Output<CloseableIterable<JobDetail>> {
     private Map<String, String> options;

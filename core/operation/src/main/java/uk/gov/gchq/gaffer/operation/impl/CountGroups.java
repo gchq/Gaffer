@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.GroupCounts;
@@ -35,6 +36,7 @@ import java.util.Map;
  *
  * @see CountGroups.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class CountGroups implements
         InputOutput<Iterable<? extends Element>, GroupCounts>,
         MultiInput<Element> {

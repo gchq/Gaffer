@@ -15,8 +15,11 @@
  */
 package uk.gov.gchq.gaffer.operation.util;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
+@JsonPropertyOrder(value = {"elementAggregator", "groupBy"}, alphabetic = true)
 public class AggregatePair {
     private String[] groupBy = null;
     private ElementAggregator elementAggregator = null;

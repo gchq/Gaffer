@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
@@ -23,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import java.util.Date;
 import java.util.Map;
 
+@JsonPropertyOrder(alphabetic = true)
 public class OperationImpl implements Operation {
     @Required
     private String requiredField1;

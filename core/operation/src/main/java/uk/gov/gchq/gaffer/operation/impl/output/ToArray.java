@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -29,6 +30,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToArray.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class ToArray<T> implements
         InputOutput<Iterable<? extends T>, T[]>,
         MultiInput<T> {

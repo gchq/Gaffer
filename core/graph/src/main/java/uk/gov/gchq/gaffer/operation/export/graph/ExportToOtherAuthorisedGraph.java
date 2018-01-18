@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
@@ -36,6 +37,7 @@ import java.util.Map;
  * The graphs that are available to be exported to are limited to predefined set.
  * This is a more restricted version of {@link ExportToOtherGraph}.
  */
+@JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
 public class ExportToOtherAuthorisedGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

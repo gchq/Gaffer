@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -36,6 +37,7 @@ import java.util.function.Function;
  * @param <I> the type of the input object
  * @param <O> the type of the output object
  */
+@JsonPropertyOrder(value = {"class", "input", "functions"}, alphabetic = true)
 public class Map<I, O> implements InputOutput<I, O> {
     private I input;
     private java.util.Map<String, String> options;
