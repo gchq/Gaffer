@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 
@@ -25,6 +27,7 @@ import java.util.Map;
  * A {@code DeleteNamedOperation} is an {@link Operation} for removing an existing
  * {@link NamedOperation} from a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class", "operationName"}, alphabetic = true)
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;

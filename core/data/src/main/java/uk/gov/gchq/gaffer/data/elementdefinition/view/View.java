@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -34,7 +35,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +58,7 @@ import java.util.function.Function;
  * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
 @JsonDeserialize(builder = View.Builder.class)
+@JsonPropertyOrder(value = {"class", "edges", "entities"}, alphabetic = true)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
@@ -142,16 +143,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return hasEdgeFilters(ViewElementDefinition::hasPostAggregationFilters)
                 || hasEdgeFilters(ViewElementDefinition::hasPostTransformFilters)
                 || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);
-    }
-
-    @JsonIgnore
-    public Map<String, ViewElementDefinition> getElements() {
-        final Map<String, ViewElementDefinition> elements = new HashMap<>();
-
-        elements.putAll(getEntities());
-        elements.putAll(getEdges());
-
-        return elements;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")

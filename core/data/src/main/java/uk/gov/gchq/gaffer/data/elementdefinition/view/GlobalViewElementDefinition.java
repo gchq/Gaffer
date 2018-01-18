@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -33,6 +34,18 @@ import java.util.Set;
  * A {@code GlobalViewElementDefinition} is an {@link ViewElementDefinition} containing
  * a {@link Set} of group names.
  */
+@JsonPropertyOrder(value = {
+        "groups",
+        "preAggregationFilter",
+        "groupBy",
+        "aggregator",
+        "postAggregationFilter",
+        "transientProperties",
+        "transformer",
+        "postTransformFilter",
+        "properties",
+        "excludeProperties"
+}, alphabetic = true)
 @JsonDeserialize(builder = GlobalViewElementDefinition.Builder.class)
 public class GlobalViewElementDefinition extends ViewElementDefinition {
     protected Set<String> groups;

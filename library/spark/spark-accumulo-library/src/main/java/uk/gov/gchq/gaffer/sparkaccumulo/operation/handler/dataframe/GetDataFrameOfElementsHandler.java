@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,9 +49,10 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
         }
 
         for (final SchemaEntityDefinition entityDef : store.getSchema().getEntities().values()) {
-            if (entityDef.containsProperty("vertex")) {
+            final Collection<String> conflicts = CollectionUtils.intersection(entityDef.getProperties(), GetDataFrameOfElements.RESERVED_FIELDS);
+            if (!conflicts.isEmpty()) {
                 throw new OperationException("Cannot execute GetDataFrameOfElements" +
-                        " when schema contains a property called vertex.");
+                        " when schema contains property " + conflicts.toString() + ".");
             }
         }
 
