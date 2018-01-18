@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
  * GetElements} operations. These are executed sequentially, with the output of
  * one operation providing the input {@link EntityId}s for the next.
  */
+@JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiInput<EntityId>,

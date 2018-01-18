@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.function;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -32,6 +33,7 @@ import java.util.Map;
  * An <code>Aggregate</code> operation applies {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}(s) to the provided
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
+@JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
 public class Aggregate implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
