@@ -60,9 +60,10 @@ public interface IOperationServiceV2 {
 
     @GET
     @ApiOperation(value = "Gets all operations supported by the store.",
+            notes = "This endpoint returns a list of the fully qualified classpaths, for all operations supported by the store.",
+            produces = APPLICATION_JSON,
             response = String.class,
             responseContainer = "list",
-            produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
             })
@@ -72,8 +73,11 @@ public interface IOperationServiceV2 {
     @POST
     @Path("/execute")
     @ApiOperation(value = "Performs the given operation on the graph",
-            response = Object.class,
+            notes = "Attempts to execute the provided operation on the graph, and returns the result below. " +
+                    "Simple examples for each operation can be added using the drop-down below. " +
+                    "<b>WARNING</b> - Adding a new example overwrites anything currently in the value box with no prompt!",
             produces = APPLICATION_JSON,
+            response = Object.class,
             responseHeaders = {
                     @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
@@ -88,7 +92,7 @@ public interface IOperationServiceV2 {
     @POST
     @Path("/execute/chunked")
     @ApiOperation(value = "Performs the given operation on the graph, returning a chunked output.",
-            notes = "WARNING - This does not work in Swagger.",
+            notes = "<b>WARNING</b> - This does not work in Swagger.",
             response = Object.class,
             produces = APPLICATION_JSON)
     @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
@@ -104,6 +108,9 @@ public interface IOperationServiceV2 {
     @GET
     @Path("/{className}")
     @ApiOperation(value = "Gets details about the specified operation class.",
+            notes = "This endpoint exposes the fields (and whether or not they are required); " +
+                    "a list of all possible Operations that could follow it; " +
+                    "a simple example in JSON, which includes the queried Operation class.",
             produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
@@ -117,6 +124,8 @@ public interface IOperationServiceV2 {
     @GET
     @Path("/{className}/example")
     @ApiOperation(value = "Gets example JSON for the specified operation class.",
+            notes = "Returns a fully justified and formatted JSON example, " +
+                    "containing a few Operations for demonstration and usage purposes.",
             produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
@@ -130,9 +139,11 @@ public interface IOperationServiceV2 {
     @GET
     @Path("/{className}/next")
     @ApiOperation(value = "Gets all the compatible operations which could be added to an operation chain after the provided operation.",
+            notes = "Returns a complete list of all possible compatible operations, " +
+                    "that could follow the queried Operation in an OperationChain.",
+            produces = APPLICATION_JSON,
             response = String.class,
             responseContainer = "list",
-            produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
             })

@@ -32,6 +32,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import java.util.Map;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.CLASS_NOT_FOUND;
@@ -54,6 +56,8 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/schema")
     @ApiOperation(value = "Gets the schema",
+            notes = "Returns the full schema for the Store, detailing the entire list of Elements " +
+                    "to be stored in the Graph.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -67,6 +71,8 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions.",
+            notes = "Returns, in no particular order, the complete list of fully qualified " +
+                    "classpaths of the filtering functions, that are available to the user.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -80,6 +86,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/filterFunctions/{inputClass}")
     @ApiOperation(value = "Gets available filter functions for the given input class.",
+            notes = "Returns a list of the fully qualified classpaths of all filter functions that are applicable to the queried input class.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -94,6 +101,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/transformFunctions")
     @ApiOperation(value = "Gets available transform functions",
+            notes = "Returns a list of the fully qualified classpaths of all available transform functions, in no particular order.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -107,6 +115,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/elementGenerators")
     @ApiOperation(value = "Gets available element generators",
+            notes = "Returns a list of the the fully qualified class paths of the elementGenerators available.",
             response = String.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -120,7 +129,7 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/objectGenerators")
     @ApiOperation(value = "Gets available object generators",
-            response = String.class,
+            notes = "Returns a list of the the fully qualified class paths of the objectGenerators available.",
             responseContainer = "list",
             produces = APPLICATION_JSON,
             responseHeaders = {
@@ -133,6 +142,8 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits",
+            notes = "Returns a list of traits that the current store can support, " +
+                    "such as different types of Aggregation and Filtering.",
             response = StoreTrait.class,
             responseContainer = "list",
             produces = APPLICATION_JSON,
@@ -146,8 +157,11 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/serialisedFields/{className}")
     @ApiOperation(value = "Gets all serialised fields for a given java class.",
-            response = String.class,
-            responseContainer = "list",
+            notes = "Provides a map of all serialised (ie, not to be ignored) fields, " +
+                    "for a given class, alongside information related to the expected " +
+                    "type of the class.",
+            response = Map.class,
+            responseContainer = "map",
             produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)

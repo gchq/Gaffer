@@ -51,6 +51,8 @@ public interface IPropertiesServiceV2 {
     @GET
     @Path("/")
     @ApiOperation(value = "Gets all available properties",
+            notes = "Retrieves all properties associated with the application, " +
+                    "eg. the app title, or the logo hyperlink.",
             response = Map.class,
             produces = APPLICATION_JSON,
             responseHeaders = {
