@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -41,6 +42,7 @@ import java.util.Map;
  * @param <I_ITEM> the input iterable item type
  * @param <O>      the output type
  */
+@JsonPropertyOrder(value = {"class", "input", "operationName"}, alphabetic = true)
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
         MultiInput<I_ITEM> {

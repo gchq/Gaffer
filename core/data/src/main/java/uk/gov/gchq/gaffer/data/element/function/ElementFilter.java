@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -34,6 +35,7 @@ import java.util.function.Predicate;
  * An {@code ElementFilter} is a {@link Predicate} which evaluates a condition against
  * a provided {@link Element} object.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
     private boolean readOnly;

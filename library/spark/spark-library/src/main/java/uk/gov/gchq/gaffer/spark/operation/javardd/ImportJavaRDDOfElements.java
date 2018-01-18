@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.spark.api.java.JavaRDD;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
-
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class ImportJavaRDDOfElements implements
         Operation,
         Input<JavaRDD<Element>> {

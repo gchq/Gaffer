@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -29,6 +30,7 @@ import java.util.Map;
  * and is used to determine whether a particular user has the required permissions
  * to execute a given {@link OperationChain}.
  */
+@JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
 public class ScoreOperationChain implements Output<Integer> {
     private OperationChain operationChain;
     private Map<String, String> options;

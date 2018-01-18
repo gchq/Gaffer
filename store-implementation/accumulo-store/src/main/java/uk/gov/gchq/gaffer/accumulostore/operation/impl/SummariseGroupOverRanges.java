@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -39,6 +40,7 @@ import java.util.Map;
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class SummariseGroupOverRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
