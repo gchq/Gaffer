@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,10 +44,12 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -156,17 +159,26 @@ public class GraphConfigurationServiceV2Test {
         assertTrue(fields.keySet().contains("type"));
     }
 
-    // TODO test more classes, maybe write an IT?
-
-
     @Test
-    public void shouldGetSerialisedFieldsForEdgeClass() {
+    public void shouldGetCorrectSerialisedFieldsForEdgeClass() {
         // When
         final Map<String, String> fields = (Map<String, String>) service.getSerialisedFields(Edge.class.getName()).getEntity();
 
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("class", "uk.gov.gchq.gaffer.data.element.Edge");
+        expectedFields.put("source", "java.lang.Object");
+        expectedFields.put("destination", "java.lang.Object");
+        expectedFields.put("matchedVertex", "java.lang.String");
+        expectedFields.put("group", "java.lang.String");
+        expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
+        expectedFields.put("directed", "boolean");
+
         // Then
-        // TODO: finish test
-        assertEquals(1, fields.size());
+        assertEquals(7, fields.size());
+
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
+        assertFalse(fields.keySet().contains("directedType"));
     }
 
     @Test
