@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -36,6 +37,7 @@ import java.util.function.Function;
  *
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "consumeAs", "elementGenerator"}, alphabetic = true)
 public class AddElementsFromKafka implements
         Operation,
         Validatable {
@@ -183,13 +185,13 @@ public class AddElementsFromKafka implements
 
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setConsumeAs(String.class);
-            _getOp().setElementGenerator((Class)generator);
+            _getOp().setElementGenerator((Class) generator);
             return _self();
         }
 
         public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
             _getOp().setConsumeAs(consumeAs);
-            _getOp().setElementGenerator((Class)generator);
+            _getOp().setElementGenerator((Class) generator);
             return _self();
         }
 

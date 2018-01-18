@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
+@JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
 public class ImportKeyValueJavaPairRDDToAccumulo implements
         Input<JavaPairRDD<Key, Value>> {
     @Required

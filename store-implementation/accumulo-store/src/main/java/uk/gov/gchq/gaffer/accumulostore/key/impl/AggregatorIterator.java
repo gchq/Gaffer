@@ -57,13 +57,7 @@ public class AggregatorIterator extends Combiner {
         if (!iter.hasNext()) {
             return value;
         }
-        final String group;
-        try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AggregationException("Failed to recreate a graph element from a key and value", e);
-        }
-
+        final String group = elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
         Properties properties;
         final ElementAggregator aggregator = schema.getElement(group).getIngestAggregator();
         try {

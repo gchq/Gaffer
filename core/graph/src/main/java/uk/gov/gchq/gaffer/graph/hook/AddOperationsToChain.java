@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -33,6 +35,7 @@ import java.util.Map;
  * A user can also specify authorised Operations to add, and if the user has
  * the opAuths, the additional Operations will be added to the chain.
  */
+@JsonPropertyOrder(value = {"class", "start", "before", "after", "end", "authorisedOps"}, alphabetic = true)
 public class AddOperationsToChain implements GraphHook {
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
     private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
