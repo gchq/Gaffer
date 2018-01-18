@@ -156,6 +156,19 @@ public class GraphConfigurationServiceV2Test {
         assertTrue(fields.keySet().contains("type"));
     }
 
+    // TODO test more classes, maybe write an IT?
+
+
+    @Test
+    public void shouldGetSerialisedFieldsForEdgeClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFields(Edge.class.getName()).getEntity();
+
+        // Then
+        // TODO: finish test
+        assertEquals(1, fields.size());
+    }
+
     @Test
     public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
         // When / Then
