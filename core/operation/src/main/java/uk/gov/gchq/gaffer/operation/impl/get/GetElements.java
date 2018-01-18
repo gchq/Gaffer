@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -59,6 +60,7 @@ import java.util.Map;
  * <li>{@code DirectedType.EITHER} - return both directed or undirected edges</li>
  * </ul>
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetElements implements
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
         MultiElementIdInput,

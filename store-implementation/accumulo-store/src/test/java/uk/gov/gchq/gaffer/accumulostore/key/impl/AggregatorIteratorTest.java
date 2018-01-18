@@ -20,6 +20,11 @@ import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.ByteSequence;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,8 +33,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.key.MockAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -40,12 +49,20 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AggregatorIteratorTest {
 
@@ -54,7 +71,6 @@ public class AggregatorIteratorTest {
             .storeProps(AggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
             .loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
-    private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
@@ -62,18 +78,12 @@ public class AggregatorIteratorTest {
     public static void setup() throws IOException, StoreException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-
-        defaultView = new View.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
-                .build();
     }
 
     @AfterClass
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
-        defaultView = null;
     }
 
     @Before
@@ -163,5 +173,41 @@ public class AggregatorIteratorTest {
         final Edge aggregatedEdge = (Edge) results.get(0);
         assertEquals(expectedResult, aggregatedEdge);
         assertEquals(expectedResult.getProperties(), aggregatedEdge.getProperties());
+    }
+
+    @Test
+    public void shouldGetGroupFromElementConverter() throws IOException {
+        MockAccumuloElementConverter.cleanUp();
+        // Given
+        MockAccumuloElementConverter.mock = mock(AccumuloElementConverter.class);
+        final Key key = mock(Key.class);
+        final List<Value> values = Arrays.asList(mock(Value.class), mock(Value.class));
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition())
+                .build();
+        final ByteSequence colFamData = mock(ByteSequence.class);
+        final byte[] colFam = StringUtil.toBytes(TestGroups.ENTITY);
+        final SortedKeyValueIterator sortedKeyValueIterator = mock(SortedKeyValueIterator.class);
+        final IteratorEnvironment iteratorEnvironment = mock(IteratorEnvironment.class);
+        final Map<String, String> options = new HashMap();
+
+        options.put("columns", "test");
+        options.put(AccumuloStoreConstants.SCHEMA, new String(schema.toCompactJson()));
+        options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS, MockAccumuloElementConverter.class.getName());
+
+        given(colFamData.getBackingArray()).willReturn(colFam);
+        given(key.getColumnFamilyData()).willReturn(colFamData);
+        given(MockAccumuloElementConverter.mock.getGroupFromColumnFamily(colFam)).willReturn(TestGroups.ENTITY);
+
+        final AggregatorIterator aggregatorIterator = new AggregatorIterator();
+
+        // When
+        aggregatorIterator.init(sortedKeyValueIterator, options, iteratorEnvironment);
+        aggregatorIterator.reduce(key, values.iterator());
+
+        // Then
+        verify(MockAccumuloElementConverter.mock, times(1)).getGroupFromColumnFamily(colFam);
+
+        MockAccumuloElementConverter.cleanUp();
     }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -43,6 +44,7 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
+@JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

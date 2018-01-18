@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.store.Context;
  * A {@code Log4jLogger} is a simple {@link GraphHook} that sends logs of the
  * original operation chains executed by users on a graph to a {@link Logger}.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class Log4jLogger implements GraphHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(Log4jLogger.class);
 

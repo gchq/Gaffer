@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -57,6 +58,7 @@ import java.util.Map;
  * @param <T> the type of splits
  * @see SampleElementsForSplitPoints.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,
