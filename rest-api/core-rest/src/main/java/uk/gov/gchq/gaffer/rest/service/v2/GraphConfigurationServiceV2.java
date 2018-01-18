@@ -32,6 +32,9 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.koryphe.signature.Signature;
 
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -44,9 +47,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
