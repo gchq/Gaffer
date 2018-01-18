@@ -32,10 +32,8 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.koryphe.signature.Signature;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
@@ -167,28 +168,26 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
         final ObjectMapper mapper = new ObjectMapper();
         final JavaType type = mapper.getTypeFactory().constructType(clazz);
         final BeanDescription introspection = mapper.getSerializationConfig()
-                                                    .introspect(type);
+                .introspect(type);
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
         final Map<String, String> fieldMap = new HashMap<>();
         for (final BeanPropertyDefinition property : properties) {
             final String propName = property.getName();
-            String propClass = "";
-
-            if (propName.equals("class")) {
-                propClass = className;
+            if (property.hasGetter() || property.hasSetter()) {
+                if (null == property.getField()) {
+                    if ("class".equals(propName)) {
+                        fieldMap.put(propName, className);
+                    }
+                } else {
+                    Type genericType = property.getField().getGenericType();
+                    if (genericType instanceof Class && ((Class) genericType).isEnum()) {
+                        genericType = String.class;
+                    }
+                    fieldMap.put(propName, genericType.getTypeName());
+                }
             }
-
-            if (null != property.getField()) {
-                propClass = property.getField().getGenericType().getTypeName();
-            }
-
-            fieldMap.put(propName, propClass);
         }
-
-        // TODO handling of Enums (field instanceof enum?) then add that they are a String since this will be deserialised correctly anyway.
-
-        // TODO test more classes, maybe write an IT?
 
         return Response.ok(fieldMap)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)

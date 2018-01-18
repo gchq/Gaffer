@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -43,6 +44,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -152,6 +154,19 @@ public class GraphConfigurationServiceV2Test {
         // Then
         assertEquals(1, fields.size());
         assertTrue(fields.contains("type"));
+    }
+
+    // TODO test more classes, maybe write an IT?
+
+
+    @Test
+    public void shouldGetSerialisedFieldsForEdgeClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFields(Edge.class.getName()).getEntity();
+
+        // Then
+        // TODO: finish test
+        assertEquals(1, fields.size());
     }
 
     @Test
