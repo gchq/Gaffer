@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -44,6 +45,7 @@ import java.util.Map;
  * The schema of the {@code Dataframe} is formed of all properties from the first group, followed by all
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
+@JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {

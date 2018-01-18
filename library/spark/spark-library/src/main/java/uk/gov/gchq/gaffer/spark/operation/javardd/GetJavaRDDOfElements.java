@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 
@@ -34,6 +35,7 @@ import java.util.Map;
  * A {@code GetJavaRDDOfElements} operation retrieves all the {@link Element}s
  * for the input seeds from the target store, and returns them inside a {@link JavaRDD}.
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
         MultiInput<ElementId>,

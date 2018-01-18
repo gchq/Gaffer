@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -43,6 +44,7 @@ import java.util.Map;
  *
  * @see SampleDataForSplitPoints.Builder
  */
+@JsonPropertyOrder(value = {"class", "splitsFilePath"}, alphabetic = true)
 public class SampleDataForSplitPoints implements
         Operation,
         MapReduce {

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,6 +33,7 @@ import java.util.Map;
  * Used by the {@link AddOperationsToChain} operation to store details around which
  * operations to add to the chain.
  */
+@JsonPropertyOrder(value = {"class", "start", "before", "after", "end"}, alphabetic = true)
 public class AdditionalOperations {
     private List<byte[]> start;
     private List<byte[]> end;

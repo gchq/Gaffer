@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
@@ -42,6 +43,10 @@ import java.util.function.Predicate;
  * A {@code TypeDefinition} contains the an object's java class along with how to validate and aggregate the object.
  * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
+@JsonPropertyOrder(value = {
+        "description",
+        "class"
+}, alphabetic = true)
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public class TypeDefinition {
     private Class<?> clazz;
