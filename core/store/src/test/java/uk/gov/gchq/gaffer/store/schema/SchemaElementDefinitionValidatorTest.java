@@ -171,29 +171,6 @@ public class SchemaElementDefinitionValidatorTest {
     public void shouldValidateFunctionSelectionsAndReturnFalseWhenFunctionTypeDoesNotEqualSelectionType() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-        given(elementDef.getPropertyClass("selection")).willReturn((Class) Long.class);
-
-        final IsMoreThan function = new IsMoreThan("abcd");
-        final ElementFilter elementFilter = new ElementFilter.Builder()
-                .select("selection")
-                .execute(function)
-                .build();
-        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-
-        // When
-        final ValidationResult result = validator.validateFunctionArgumentTypes(elementFilter, elementDef);
-
-        // Then
-        assertFalse(result.isValid());
-        assertEquals(result.getErrorString(), "Validation errors: \nControl value class java.lang.String is not compatible" +
-                " with the input type: class java.lang.Long", result.getErrorString());
-
-    }
-
-    @Test
-    public void shouldValidateFunctionSelectionsAndReturnTrueWhenFunctionTypeDoesNotEqualSelectionTypeButCanBeAutoUpdated() {
-        // Given
-        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         given(elementDef.getPropertyClass("selection")).willReturn((Class) String.class);
 
         final IsMoreThan function = new IsMoreThan(5);
@@ -207,8 +184,10 @@ public class SchemaElementDefinitionValidatorTest {
         final ValidationResult result = validator.validateFunctionArgumentTypes(elementFilter, elementDef);
 
         // Then
-        assertTrue(result.isValid());
-        assertEquals("5", function.getControlValue());
+        assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
