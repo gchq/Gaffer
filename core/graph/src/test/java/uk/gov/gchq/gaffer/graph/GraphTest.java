@@ -1438,7 +1438,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddNamedOperationResolverHookAfterNamedOperationResolver() throws Exception {
+    public void shouldAddNamedViewResolverHookAfterNamedOperationResolver() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());

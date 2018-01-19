@@ -337,7 +337,6 @@ public class NamedViewResolverTest {
 
         // real View json with a parameter
         final String extendedViewString = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.View\",\n" +
                 "  \"edges\" : {\n" +
                 "    \"BasicEdge\" : {\n" +
                 "      \"preAggregationFilterFunctions\" : [ {\n" +
