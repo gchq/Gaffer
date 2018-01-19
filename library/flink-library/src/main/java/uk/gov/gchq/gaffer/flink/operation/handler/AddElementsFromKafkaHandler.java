@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
-import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
@@ -55,9 +54,13 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
             env.setParallelism(op.getParallelism());
         }
 
-        final DataStream<Element> builder =
-                env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SimpleStringSchema(), createFlinkProperties(op)))
-                        .flatMap(new GafferMapFunction(op.getElementGenerator()));
+        final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator());
+        final DataStream<Element> builder = env.addSource(
+                new FlinkKafkaConsumer010<>(
+                        op.getTopic(),
+                        function.getSerialisationType(),
+                        createFlinkProperties(op)))
+                .flatMap(function);
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.addSink(new GafferSink(op, store));
