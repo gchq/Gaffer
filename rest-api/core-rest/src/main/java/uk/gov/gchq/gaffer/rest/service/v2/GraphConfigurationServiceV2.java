@@ -171,6 +171,32 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
                 .introspect(type);
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
+        final Set<String> fields = new HashSet<>();
+        for (final BeanPropertyDefinition property : properties) {
+            fields.add(property.getName());
+        }
+
+        return Response.ok(fields)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public Response getSerialisedFieldClasses(final String className) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
+        }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JavaType type = mapper.getTypeFactory().constructType(clazz);
+        final BeanDescription introspection = mapper.getSerializationConfig()
+                .introspect(type);
+        final List<BeanPropertyDefinition> properties = introspection.findProperties();
+
         final Map<String, String> fieldMap = new HashMap<>();
         for (final BeanPropertyDefinition property : properties) {
             final String propName = property.getName();
