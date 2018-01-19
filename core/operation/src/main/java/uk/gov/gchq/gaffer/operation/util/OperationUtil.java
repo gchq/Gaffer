@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.operation.util;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.function.FromElementId;
 import uk.gov.gchq.gaffer.operation.function.FromEntityId;
 import uk.gov.gchq.gaffer.operation.function.ToElementId;
@@ -36,7 +35,7 @@ public final class OperationUtil {
 
     /**
      * Converts an array of objects into {@link ElementId}s.
-     * If an item is not an {@link ElementId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is not an {@link ElementId} then it is wrapped in an {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
      * If an item is already an {@link ElementId} is not modified.
      *
      * @param input an array containing vertices and {@link ElementId}s.
@@ -51,7 +50,7 @@ public final class OperationUtil {
 
     /**
      * Converts an iterable of objects into {@link ElementId}s.
-     * If an item is not an {@link ElementId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is not an {@link ElementId} then it is wrapped in an {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
      * If an item is already an {@link ElementId} is not modified.
      * The conversion is done lazily.
      *
@@ -82,7 +81,7 @@ public final class OperationUtil {
 
     /**
      * Converts an array of objects into {@link EntityId}s.
-     * If an item is not an {@link EntityId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is not an {@link EntityId} then it is wrapped in an {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
      * If an item is already an {@link EntityId} is not modified.
      *
      * @param input an array containing vertices and {@link EntityId}s.
@@ -97,7 +96,7 @@ public final class OperationUtil {
 
     /**
      * Converts an iterable of objects into {@link EntityId}s.
-     * If an item is not an {@link EntityId} then it is wrapped in an {@link EntitySeed}.
+     * If an item is not an {@link EntityId} then it is wrapped in an {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
      * If an item is already an {@link EntityId} is not modified.
      * The conversion is done lazily.
      *

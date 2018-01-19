@@ -67,7 +67,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"score\": 0,%n" +
                 "  \"overwriteFlag\": true,%n" +
                 "  \"operationChain\": {" +
-                "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
+                "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [\"seed\"]}]}" +
                 "}"), json);
     }
 

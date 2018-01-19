@@ -79,7 +79,7 @@ public class OneOrMore<T> implements Iterable<T> {
                 return true;
             }
 
-            if (singleItem.equals(item)) {
+            if (deduplicate && singleItem.equals(item)) {
                 return false;
             }
 

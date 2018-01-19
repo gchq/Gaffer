@@ -168,7 +168,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         assertEquals(IncludeIncomingOutgoingType.INCOMING,
                 clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(Lists.newArrayList(input), Lists.newArrayList(clone.getInput()));
     }
 
     @Test
