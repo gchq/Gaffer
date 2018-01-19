@@ -666,56 +666,6 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldNotFailValidationWhenTypeArgumentOfPredicateIsIncorrectButCanBeAutoUpdated() throws OperationException {
-        // Given
-        final Schema schema = new Schema.Builder()
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source("junctionA")
-                        .destination("junctionB")
-                        .property(TestPropertyNames.COUNT, "count.long")
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source("junctionA")
-                        .destination("junctionB")
-                        .property(TestPropertyNames.COUNT, "count.long")
-                        .build())
-                .type("count.long", new TypeDefinition(Long.class))
-                .build();
-
-        given(store.getSchema()).willReturn(schema);
-
-        final Edge edge = new Edge.Builder()
-                .group(TestGroups.EDGE)
-                .source("junctionA")
-                .dest("junctionB")
-                .property(TestPropertyNames.COUNT, 2L)
-                .build();
-
-        final Edge edge1 = new Edge.Builder()
-                .group(TestGroups.EDGE)
-                .source("junctionA")
-                .dest("junctionB")
-                .property(TestPropertyNames.COUNT, 1L)
-                .build();
-
-        input.add(edge);
-        input.add(edge1);
-
-        final Filter filter = new Filter.Builder()
-                .input(input)
-                .globalEdges(new ElementFilter.Builder()
-                        .select(TestPropertyNames.COUNT)
-                        .execute(new IsMoreThan(0D))
-                        .build())
-                .build();
-
-        // When
-        handler.doOperation(filter, context, store);
-
-        // Then - no exceptions
-    }
-
-    @Test
     public void shouldFilterBasedOnMatchedVertex() throws OperationException {
         // Given
         final Schema schema = new Schema.Builder()
