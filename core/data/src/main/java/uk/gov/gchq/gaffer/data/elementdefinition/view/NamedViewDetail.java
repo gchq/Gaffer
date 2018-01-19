@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -41,6 +43,9 @@ public class NamedViewDetail implements Serializable {
     private String view;
     private String description;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
+
+    public NamedViewDetail() {
+    }
 
     public NamedViewDetail(final String name, final String view, final String description, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
@@ -93,6 +98,7 @@ public class NamedViewDetail implements Serializable {
         this.description = description;
     }
 
+    @JsonInclude(Include.NON_DEFAULT)
     public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
     }

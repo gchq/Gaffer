@@ -26,8 +26,10 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -114,6 +116,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             return toMap();
         } else if (operation instanceof GetWalks) {
             return getWalks();
+        } else if (operation instanceof AddNamedView) {
+            return addNamedView();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -473,6 +477,20 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                                 .build())
                         .build())
                 .resultsLimit(10000)
+                .build();
+    }
+
+    @Override
+    public AddNamedView addNamedView() {
+        return new AddNamedView.Builder()
+                .name("summarise")
+                .description("Summarises all elements")
+                .overwrite(true)
+                .view(new View.Builder()
+                        .globalElements(new GlobalViewElementDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
                 .build();
     }
 
