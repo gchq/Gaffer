@@ -22,26 +22,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,48 +56,19 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
 public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2 {
-    private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(Predicate.class);
-    private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(Function.class);
-    private static final Set<Class> ELEMENT_GENERATORS = getSubClasses(ElementGenerator.class);
-    private static final Set<Class> OBJECT_GENERATORS = getSubClasses(ObjectGenerator.class);
-
     @Inject
     private GraphFactory graphFactory;
 
     @Inject
     private UserFactory userFactory;
 
+    public GraphConfigurationServiceV2() {
+        updateReflectionPaths();
+    }
+
     public static void initialise() {
         // Invoking this method will cause the static lists to be populated.
-    }
-
-    private static Set<Class> getSubClasses(final Class<?> clazz) {
-        final Set<URL> urls = new HashSet<>();
-        for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT)
-                .split(",")) {
-            urls.addAll(ClasspathHelper.forPackage(packagePrefix));
-        }
-
-        Set<Class> classes = new HashSet<>();
-        classes.addAll(new Reflections(urls).getSubTypesOf(clazz));
-        keepPublicConcreteClasses(classes);
-        return classes;
-    }
-
-    private static void keepPublicConcreteClasses(final Collection<Class> classes) {
-        if (null != classes) {
-            final Iterator<Class> itr = classes.iterator();
-            while (itr.hasNext()) {
-                final Class clazz = itr.next();
-                if (null != clazz) {
-                    final int modifiers = clazz.getModifiers();
-                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier
-                            .isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
-                        itr.remove();
-                    }
-                }
-            }
-        }
+        updateReflectionPaths();
     }
 
     @Override
@@ -113,7 +80,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getFilterFunction() {
-        return Response.ok(FILTER_FUNCTIONS)
+        return Response.ok(ReflectionUtil.getSubTypes(Predicate.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -127,13 +94,13 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
         final Class<?> clazz;
         try {
-            clazz = Class.forName(inputClass);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(inputClass));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
 
         final Set<Class> classes = new HashSet<>();
-        for (final Class functionClass : FILTER_FUNCTIONS) {
+        for (final Class functionClass : ReflectionUtil.getSubTypes(Predicate.class)) {
             try {
                 final Predicate function = (Predicate) functionClass.newInstance();
                 final Signature signature = Signature.getInputSignature(function);
@@ -160,7 +127,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     public Response getSerialisedFields(final String className) {
         final Class<?> clazz;
         try {
-            clazz = Class.forName(className);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
@@ -229,7 +196,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getTransformFunctions() {
-        return Response.ok(TRANSFORM_FUNCTIONS)
+        return Response.ok(ReflectionUtil.getSubTypes(Function.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -243,15 +210,19 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getElementGenerators() {
-        return Response.ok(ELEMENT_GENERATORS)
+        return Response.ok(ReflectionUtil.getSubTypes(ElementGenerator.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
 
     @Override
     public Response getObjectGenerators() {
-        return Response.ok(OBJECT_GENERATORS)
+        return Response.ok(ReflectionUtil.getSubTypes(ObjectGenerator.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
+    }
+
+    private static void updateReflectionPaths() {
+        ReflectionUtil.addReflectionPackages(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 }

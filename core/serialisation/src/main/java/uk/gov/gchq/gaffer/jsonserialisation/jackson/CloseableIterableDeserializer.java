@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -41,6 +42,12 @@ public class CloseableIterableDeserializer extends JsonDeserializer<CloseableIte
      * Type variable to store information about the contained type at runtime.
      */
     private JavaType valueType;
+
+    public static SimpleModule getModule() {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
+        return module;
+    }
 
     @Override
     public CloseableIterable<?> deserialize(final JsonParser jp,
