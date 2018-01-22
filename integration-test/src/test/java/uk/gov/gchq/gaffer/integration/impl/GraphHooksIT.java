@@ -92,6 +92,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                                         .build())
                                 .build())
                         .build())
+                .overwrite(true)
                 .build();
 
         graph.execute(addNamedView, getUser());
@@ -106,6 +107,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                         .build())
                 .description("named operation GetAllElements test query")
                 .name("GetAllElements test")
+                .overwrite(true)
                 .build();
 
         graph.execute(addNamedOperation, getUser());
