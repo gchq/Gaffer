@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +24,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
@@ -42,9 +46,12 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -152,6 +159,68 @@ public class GraphConfigurationServiceV2Test {
         // Then
         assertEquals(1, fields.size());
         assertTrue(fields.contains("type"));
+    }
+
+    @Test
+    public void shouldGetSerialisedFieldsForGetElementsClass() {
+        // When
+        final Set<String> fields = (Set<String>) service.getSerialisedFields(GetElements.class.getName()).getEntity();
+
+        final Set<String> expectedFields = new HashSet<>();
+        expectedFields.add("input");
+        expectedFields.add("view");
+        expectedFields.add("includeIncomingOutGoing");
+        expectedFields.add("seedMatching");
+        expectedFields.add("options");
+        expectedFields.add("directedType");
+        expectedFields.add("views");
+
+        // Then
+        assertEquals(7, fields.size());
+        assertTrue(expectedFields.containsAll(fields));
+    }
+
+    @Test
+    public void shouldGetCorrectSerialisedFieldsForEdgeClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(Edge.class.getName()).getEntity();
+
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("class", "uk.gov.gchq.gaffer.data.element.Edge");
+        expectedFields.put("source", "java.lang.Object");
+        expectedFields.put("destination", "java.lang.Object");
+        expectedFields.put("matchedVertex", "java.lang.String");
+        expectedFields.put("group", "java.lang.String");
+        expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
+        expectedFields.put("directed", "boolean");
+
+        // Then
+        assertEquals(7, fields.size());
+
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
+        assertFalse(fields.keySet().contains("directedType"));
+    }
+
+    @Test
+    public void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(GetWalks.class.getName()).getEntity();
+
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("operations",
+                "java.util.List<uk.gov.gchq.gaffer.operation.OperationChain<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
+        expectedFields.put("input",
+                "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId>");
+        expectedFields.put("options",
+                "java.util.Map<java.lang.String, java.lang.String>");
+        expectedFields.put("resultsLimit", "java.lang.Integer");
+
+        // Then
+        assertEquals(4, fields.size());
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
+        assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
+        assertFalse(fields.keySet().contains("HOP_DEFINITION"));
     }
 
     @Test
