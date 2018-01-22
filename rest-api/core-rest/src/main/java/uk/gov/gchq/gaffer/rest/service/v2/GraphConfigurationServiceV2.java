@@ -35,8 +35,11 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -66,10 +69,6 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     public static void initialise() {
         // Invoking this method will cause the static lists to be populated.
         updateReflectionPaths();
-    }
-
-    private static void updateReflectionPaths() {
-        ReflectionUtil.addReflectionPackages(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 
     @Override
@@ -149,6 +148,45 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
                 .build();
     }
 
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public Response getSerialisedFieldClasses(final String className) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
+        }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JavaType type = mapper.getTypeFactory().constructType(clazz);
+        final BeanDescription introspection = mapper.getSerializationConfig()
+                .introspect(type);
+        final List<BeanPropertyDefinition> properties = introspection.findProperties();
+
+        final Map<String, String> fieldMap = new HashMap<>();
+        for (final BeanPropertyDefinition property : properties) {
+            final String propName = property.getName();
+            if (property.hasGetter() || property.hasSetter()) {
+                if (null == property.getField()) {
+                    if ("class".equals(propName)) {
+                        fieldMap.put(propName, className);
+                    }
+                } else {
+                    Type genericType = property.getField().getGenericType();
+                    if (genericType instanceof Class && ((Class) genericType).isEnum()) {
+                        genericType = String.class;
+                    }
+                    fieldMap.put(propName, genericType.getTypeName());
+                }
+            }
+        }
+
+        return Response.ok(fieldMap)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
     @Override
     public Response getDescription() {
         return Response.ok(graphFactory.getGraph().getDescription())
@@ -182,5 +220,9 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
         return Response.ok(ReflectionUtil.getSubTypes(ObjectGenerator.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
+    }
+
+    private static void updateReflectionPaths() {
+        ReflectionUtil.addReflectionPackages(System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT));
     }
 }
