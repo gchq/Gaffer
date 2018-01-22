@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -43,6 +44,7 @@ import java.util.Map;
  * @see MapReduce
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "failurePath", "workingPath"}, alphabetic = true)
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce {

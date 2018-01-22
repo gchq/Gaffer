@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -33,6 +34,7 @@ import java.util.Map;
  *
  * @see ExportToGafferResultCache
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetGafferResultCacheExport implements
         GetExport,
         Output<CloseableIterable<?>> {

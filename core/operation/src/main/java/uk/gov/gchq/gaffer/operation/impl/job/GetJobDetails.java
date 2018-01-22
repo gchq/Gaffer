@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.job;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -29,6 +30,7 @@ import java.util.Map;
  * A {@code GetJobDetails} operation is used to retrieve the details of a single
  * job from a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetJobDetails implements
         Output<JobDetail> {
     private String jobId;

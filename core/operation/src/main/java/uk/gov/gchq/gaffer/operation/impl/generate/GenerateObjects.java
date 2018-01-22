@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -36,6 +37,7 @@ import java.util.function.Function;
  * @param <OBJ> the type of objects in the output iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects.Builder
  */
+@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 public class GenerateObjects<OBJ> implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends OBJ>>,
         MultiInput<Element> {

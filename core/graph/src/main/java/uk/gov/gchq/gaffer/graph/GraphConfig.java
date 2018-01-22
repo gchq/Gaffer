@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
 
@@ -48,6 +49,7 @@ import java.util.List;
  *
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
+@JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
     private String graphId;
     private View view;

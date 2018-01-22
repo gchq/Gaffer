@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -37,6 +38,7 @@ import java.util.Map;
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetElementsWithinSet implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiInput<EntityId>,

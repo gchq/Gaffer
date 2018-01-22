@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.rdd.RDD;
 
@@ -32,6 +33,7 @@ import java.util.Map;
  * A {@code GetRDDOfAllElements} operation retrieves all the {@link Element}s
  * from the target store, and returns them inside a {@link RDD}.
  */
+@JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 public class GetRDDOfAllElements implements
         Output<RDD<Element>>,
         GraphFilters {

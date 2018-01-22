@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -48,6 +49,7 @@ import java.util.Map;
  *
  * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
  **/
+@JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
 public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {
     @Required

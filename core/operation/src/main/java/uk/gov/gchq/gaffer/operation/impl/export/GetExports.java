@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -36,6 +37,7 @@ import java.util.Map;
  * The keys in the map are: "[ExportOperationClassName]: [key]"
  * The values in the map are the exported values.
  */
+@JsonPropertyOrder(value = {"class", "getExports"}, alphabetic = true)
 public class GetExports implements
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
