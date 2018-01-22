@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -82,7 +80,7 @@ import java.util.Map;
  * }
  * </pre>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = OperationChain.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
     /**
@@ -231,16 +229,6 @@ public interface Operation extends Closeable {
     @Deprecated
     static <O> OperationChain<O> asOperationChain(final Operation operation) {
         return (OperationChain<O>) OperationChain.wrap(operation);
-    }
-
-    @JsonGetter("class")
-    default String getClassName() {
-        return OperationChain.class.equals(getClass()) ? null : SimpleClassNameIdResolver.getSimpleClassName(getClass());
-    }
-
-    @JsonSetter("class")
-    default void setClassName(final String className) {
-        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {

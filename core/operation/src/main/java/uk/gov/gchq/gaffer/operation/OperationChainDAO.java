@@ -58,13 +58,11 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
      *
      * @return null
      */
-    @Override
     @JsonGetter("class")
     public String getClassName() {
         return null;
     }
 
-    @Override
     @JsonSetter("class")
     public void setClassName(final String className) {
         if (null != className
