@@ -87,7 +87,7 @@ public final class GraphSerialisable implements Serializable {
                     .config(new GraphConfig.Builder()
                             .library(library)
                             .build())
-                    .addToLibrary(true)
+                    .addToLibrary(false)
                     .build();
         }
         return graph;
