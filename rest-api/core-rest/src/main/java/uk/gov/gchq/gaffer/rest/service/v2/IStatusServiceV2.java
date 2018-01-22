@@ -44,6 +44,7 @@ public interface IStatusServiceV2 {
 
     @GET
     @ApiOperation(value = "Returns the status of the service",
+            notes = "A simple way to check the current status of the application/service.",
             response = SystemStatus.class,
             produces = APPLICATION_JSON,
             responseHeaders = {

@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
-        MultiInput<ElementId>,
+        MultiElementIdInput,
         SeededGraphFilters {
 
     private Map<String, String> options;
@@ -118,7 +118,7 @@ public class GetJavaRDDOfElements implements
 
     public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
             implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementId>, JavaRDD<Element>, Builder>,
-            MultiInput.Builder<GetJavaRDDOfElements, ElementId, Builder>,
+            MultiElementIdInput.Builder<GetJavaRDDOfElements, Builder>,
             SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
             Operation.Builder<GetJavaRDDOfElements, Builder> {
         public Builder() {

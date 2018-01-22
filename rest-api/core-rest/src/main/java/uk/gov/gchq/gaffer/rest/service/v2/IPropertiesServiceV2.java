@@ -51,6 +51,8 @@ public interface IPropertiesServiceV2 {
     @GET
     @Path("/")
     @ApiOperation(value = "Gets all available properties",
+            notes = "Retrieves all properties associated with the application, " +
+                    "eg. the app title, or the logo hyperlink.",
             response = Map.class,
             produces = APPLICATION_JSON,
             responseHeaders = {
@@ -62,7 +64,8 @@ public interface IPropertiesServiceV2 {
     @GET
     @Path("/{propertyName}")
     @Produces({TEXT_PLAIN, APPLICATION_JSON})
-    @ApiOperation(value = "Gets the property value for the specified property name.",
+    @ApiOperation(value = "Gets the property value for the specified property name",
+            notes = "Retrieves the value of the provided system property.",
             response = String.class,
             produces = TEXT_PLAIN,
             responseHeaders = {
@@ -71,6 +74,6 @@ public interface IPropertiesServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = PROPERTY_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response getProperty(@ApiParam(value = "the property name") @PathParam("propertyName") final String propertyName);
+    Response getProperty(@ApiParam(value = "The property name for which the value should be retrieved") @PathParam("propertyName") final String propertyName);
 
 }

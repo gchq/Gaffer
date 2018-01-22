@@ -45,6 +45,9 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -495,6 +498,11 @@ public class StoreTest {
                 GetAllNamedOperations.class,
                 DeleteNamedOperation.class,
 
+                // Named View
+                AddNamedView.class,
+                GetAllNamedViews.class,
+                DeleteNamedView.class,
+
                 // ElementComparison
                 Max.class,
                 Min.class,
@@ -582,6 +590,11 @@ public class StoreTest {
                 AddNamedOperation.class,
                 GetAllNamedOperations.class,
                 DeleteNamedOperation.class,
+
+                // Named View
+                AddNamedView.class,
+                GetAllNamedViews.class,
+                DeleteNamedView.class,
 
                 // ElementComparison
                 Max.class,

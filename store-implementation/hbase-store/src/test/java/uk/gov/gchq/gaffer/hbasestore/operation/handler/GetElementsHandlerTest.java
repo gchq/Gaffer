@@ -68,7 +68,7 @@ public class GetElementsHandlerTest {
         final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
         final GetElementsHandler handler = new GetElementsHandler();
         final GetElements getElements = new GetElements.Builder()
-                .input(ids)
+                .inputIds(ids)
                 .seedMatching(SeedMatching.SeedMatchingType.RELATED)
                 .build();
 
@@ -92,7 +92,7 @@ public class GetElementsHandlerTest {
         final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
         final GetElementsHandler handler = new GetElementsHandler();
         final GetElements getElements = new GetElements.Builder()
-                .input(ids)
+                .inputIds(ids)
                 .seedMatching(null)
                 .build();
 
@@ -116,7 +116,7 @@ public class GetElementsHandlerTest {
         final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
         final GetElementsHandler handler = new GetElementsHandler();
         final GetElements getElements = new GetElements.Builder()
-                .input(ids)
+                .inputIds(ids)
                 .seedMatching(SeedMatching.SeedMatchingType.EQUAL)
                 .build();
 
