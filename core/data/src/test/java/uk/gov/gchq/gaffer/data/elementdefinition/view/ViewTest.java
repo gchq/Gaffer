@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -42,7 +43,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class ViewTest {
+public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldCreateEmptyViewWithBasicConstructor() {
@@ -104,6 +105,26 @@ public class ViewTest {
         assertEquals(2, view.getEntities().size());
         assertSame(entityDef1, view.getEntity(TestGroups.ENTITY));
         assertSame(entityDef2, view.getEntity(TestGroups.ENTITY_2));
+    }
+
+    @Test
+    public void shouldSerialiseTfoJsonSkippingEmptyElementMaps() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        // When
+        final byte[] json = toJson(view);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{" +
+                "  \"globalEdges\" : [ {%n" +
+                "    \"groupBy\" : [ ]%n" +
+                "  } ]%n" +
+                "}"), new String(json));
     }
 
     @Test
@@ -211,6 +232,11 @@ public class ViewTest {
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
         assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
+    }
+
+    @Override
+    protected View getTestObject() {
+        return new View();
     }
 
     @Test

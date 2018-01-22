@@ -132,6 +132,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -231,7 +232,7 @@ public abstract class Store {
         this.schema = schema;
         setProperties(properties);
 
-        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
+        updateJsonSerialiser();
 
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker();
@@ -240,6 +241,18 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
+    }
+
+    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
+        if (null != storeProperties) {
+            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(), storeProperties.getJsonSerialiserModules());
+        } else {
+            JSONSerialiser.update();
+        }
+    }
+
+    public void updateJsonSerialiser() {
+        updateJsonSerialiser(getProperties());
     }
 
     /**
@@ -463,6 +476,9 @@ public abstract class Store {
         } else {
             this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
         }
+
+        ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+        updateJsonSerialiser();
     }
 
     public GraphLibrary getGraphLibrary() {

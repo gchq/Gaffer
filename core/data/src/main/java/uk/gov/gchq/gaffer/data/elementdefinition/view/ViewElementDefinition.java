@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
@@ -152,7 +153,7 @@ public class ViewElementDefinition implements ElementDefinition {
 
         Map<String, String> propertyMap = new HashMap<>();
         for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
-            propertyMap.put(entry.getKey(), entry.getValue().getName());
+            propertyMap.put(entry.getKey(), SimpleClassNameIdResolver.getSimpleClassName(entry.getValue()));
         }
 
         return propertyMap;

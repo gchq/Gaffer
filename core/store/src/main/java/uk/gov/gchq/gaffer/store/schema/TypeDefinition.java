@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,12 +73,17 @@ public class TypeDefinition {
 
     @JsonGetter("class")
     public String getClassString() {
-        return null != clazz ? clazz.getName() : null;
+        return null != clazz ? SimpleClassNameIdResolver.getSimpleClassName(clazz) : null;
     }
 
     @JsonSetter("class")
     public void setClassString(final String classType) throws ClassNotFoundException {
-        this.clazz = null != classType ? Class.forName(classType) : null;
+        this.clazz = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)) : null;
+    }
+
+    @JsonIgnore
+    public String getFullClassString() {
+        return null != clazz ? clazz.getName() : null;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -110,7 +116,7 @@ public class TypeDefinition {
             return null;
         }
 
-        return serialiser.getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(serialiser.getClass());
     }
 
     @Deprecated
@@ -121,7 +127,7 @@ public class TypeDefinition {
         } else {
             final Class<? extends Serialiser> serialiserClass;
             try {
-                serialiserClass = Class.forName(clazz).asSubclass(Serialiser.class);
+                serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(clazz)).asSubclass(Serialiser.class);
             } catch (final ClassNotFoundException e) {
                 throw new SchemaException(e.getMessage(), e);
             }

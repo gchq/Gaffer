@@ -705,7 +705,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.isValid());
+        assertTrue(result.getErrorString(), result.isValid());
     }
 
     @Test
@@ -771,7 +771,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.isValid());
+        assertTrue(result.getErrorString(), result.isValid());
     }
 
     @Test
@@ -837,7 +837,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.isValid());
+        assertTrue(result.getErrorString(), result.isValid());
     }
 
     @Test
@@ -850,7 +850,7 @@ public class ViewValidatorTest {
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
                                 .execute(new Not<>(new Or.Builder<>()
                                         .select(0)
-                                        .execute(new IsMoreThan(2))
+                                        .execute(new IsMoreThan("abcd"))
                                         .select(1)
                                         .execute(new IsEqual("some other value"))
                                         .build()))
@@ -858,10 +858,10 @@ public class ViewValidatorTest {
                         .build())
                 .build();
         final Schema schema = new Schema.Builder()
-                .type("obj", String.class)
+                .type("int", Integer.class)
                 .type("string", String.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_1, "int")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
                 .build();
