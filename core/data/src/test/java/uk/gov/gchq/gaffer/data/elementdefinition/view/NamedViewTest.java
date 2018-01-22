@@ -391,6 +391,6 @@ public class NamedViewTest {
                 .build();
 
         assertEquals(3, namedViewMerged.getMergedNamedViewNames().size());
-        assertEquals(Arrays.asList(namedViewName+1, namedViewName+2, namedViewName+3), namedViewMerged.getMergedNamedViewNames());
+        assertEquals(Arrays.asList(namedViewName + 1, namedViewName + 2, namedViewName + 3), namedViewMerged.getMergedNamedViewNames());
     }
 }
