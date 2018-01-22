@@ -97,7 +97,7 @@ public interface IJobServiceV2 {
     @GET
     @Path("{id}")
     @ApiOperation(value = "Get the details of a job",
-            notes = "This endpoint is useful for checking the details of a singular Job, given its' Job ID. " +
+            notes = "This endpoint is useful for checking the details of a singular Job, given its Job ID. " +
                     "This shows information such as the current status, the user who executed the Job, startTime etc.",
             response = JobDetail.class,
             produces = APPLICATION_JSON,

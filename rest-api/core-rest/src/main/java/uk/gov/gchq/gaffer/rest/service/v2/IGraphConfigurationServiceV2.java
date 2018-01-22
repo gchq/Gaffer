@@ -21,8 +21,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Extension;
-import io.swagger.annotations.ExtensionProperty;
 import io.swagger.annotations.ResponseHeader;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;

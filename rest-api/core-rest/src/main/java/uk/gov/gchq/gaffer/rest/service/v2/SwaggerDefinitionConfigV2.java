@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
