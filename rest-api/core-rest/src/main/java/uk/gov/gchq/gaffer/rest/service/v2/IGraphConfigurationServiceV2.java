@@ -70,7 +70,7 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions.",
+    @ApiOperation(value = "Gets available filter functions",
             notes = "Returns (in no particular order) the complete list of fully qualified " +
                     "classpaths, of filtering functions that are available to the user.",
             response = String.class,
@@ -85,7 +85,7 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class.",
+    @ApiOperation(value = "Gets available filter functions for the given input class",
             notes = "Returns a list of the fully qualified classpaths of all filter functions that are applicable to the queried input class.",
             response = String.class,
             responseContainer = "list",
@@ -157,12 +157,12 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/serialisedFields/{className}")
-    @ApiOperation(value = "Gets all serialised fields for a given java class.",
+    @ApiOperation(value = "Gets all serialised fields for a given java class",
             notes = "Provides a map of all serialised (ie, not to be ignored) fields, " +
                     "for a given class, alongside information related to the expected " +
                     "type of the class.",
-            response = Map.class,
-            responseContainer = "map",
+            response = String.class,
+            responseContainer = "list",
             produces = APPLICATION_JSON,
             responseHeaders = {
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
@@ -174,7 +174,7 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/serialisedFields/{className}/classes")
-    @ApiOperation(value = "Gets all serialised fields and their class type, for a given java class.",
+    @ApiOperation(value = "Gets all serialised fields and their class type, for a given java class",
             response = String.class,
             responseContainer = "map",
             produces = APPLICATION_JSON,
