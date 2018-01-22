@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -29,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
@@ -64,7 +63,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetElements implements
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
-        MultiInput<ElementId>,
+        MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
     private SeedMatchingType seedMatching;
@@ -195,17 +194,6 @@ public class GetElements implements
     }
 
     /**
-     * Creates an array using the iterable set as the input and returns null if the input is null.
-     *
-     * @return an array of inputs
-     */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @Override
-    public Object[] createInputArray() {
-        return MultiInput.super.createInputArray();
-    }
-
-    /**
      * Get the output type which in this case is {@link CloseableIterable} of {@link Element}s
      *
      * @return the ClosableIterable of Elements type reference
@@ -245,7 +233,7 @@ public class GetElements implements
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
             implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<GetElements, ElementId, Builder>,
+            MultiElementIdInput.Builder<GetElements, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
             SeedMatching.Builder<GetElements, Builder> {
         public Builder() {

@@ -63,7 +63,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                         .merge(op.getView())
                         .entities(Collections.emptyMap())
                         .build())
-                .input(op.getInput())
+                .inputIds(op.getInput())
                 .directedType(op.getDirectedType())
                 .inOutType(op.getIncludeIncomingOutGoing())
                 .build();
