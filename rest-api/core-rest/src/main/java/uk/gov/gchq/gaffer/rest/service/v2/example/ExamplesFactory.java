@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -121,4 +122,11 @@ public interface ExamplesFactory {
      * @return the example class for GetWalks
      */
     GetWalks getWalks();
+
+    /**
+     * Generates an example for the {@link AddNamedView} operation.
+     *
+     * @return the example class
+     */
+    AddNamedView addNamedView();
 }

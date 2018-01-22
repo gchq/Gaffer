@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -50,6 +52,9 @@ public class NamedOperationDetail implements Serializable {
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Integer score;
+
+    public NamedOperationDetail() {
+    }
 
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
@@ -97,6 +102,7 @@ public class NamedOperationDetail implements Serializable {
         return creatorId;
     }
 
+    @JsonInclude(Include.NON_DEFAULT)
     public Map<String, ParameterDetail> getParameters() {
         return parameters;
     }
