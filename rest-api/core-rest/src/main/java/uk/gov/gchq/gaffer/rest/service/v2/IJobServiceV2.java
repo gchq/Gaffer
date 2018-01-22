@@ -81,7 +81,7 @@ public interface IJobServiceV2 {
 
     @GET
     @ApiOperation(value = "Get the details of all jobs",
-            notes = "While a Job is/ Jobs are running, you can check the status of them all using this endpoint. ",
+            notes = "While any Jobs are running, you can check the status of them all using this endpoint. ",
             response = JobDetail.class,
             responseContainer = "List",
             produces = APPLICATION_JSON,

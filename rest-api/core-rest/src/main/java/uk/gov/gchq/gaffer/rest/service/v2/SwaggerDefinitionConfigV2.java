@@ -29,7 +29,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @SwaggerDefinition(
         info = @Info(
                 version = "v2",
-                title = "Gaffer REST API",
+                title = "",
                 description = "A number of configured properties can be retrieved from the \"config\" endpoints. " +
                         "If enabled, the \"job\" endpoints allow the retrieval of job details, as well as submitting a new job. " +
                         "\"Operation\" endpoints include information on available ops, individual ops, and execution of ops. " +

@@ -74,8 +74,7 @@ public interface IOperationServiceV2 {
     @Path("/execute")
     @ApiOperation(value = "Performs the given operation on the graph",
             notes = "Attempts to execute the provided operation on the graph, and returns the result below. " +
-                    "Simple examples for each operation can be added using the drop-down below. " +
-                    "<b>WARNING</b> - Adding a new example overwrites anything currently in the value box with no prompt!",
+                    "Simple examples for each operation can be added using the drop-down below.",
             produces = APPLICATION_JSON,
             response = Object.class,
             responseHeaders = {
@@ -138,7 +137,7 @@ public interface IOperationServiceV2 {
 
     @GET
     @Path("/{className}/next")
-    @ApiOperation(value = "Gets all the compatible operations which could be added to an operation chain after the provided operation.",
+    @ApiOperation(value = "Gets all the compatible operations which could follow the provided operation.",
             notes = "Returns a complete list of all possible compatible operations, " +
                     "that could follow the queried Operation in an OperationChain.",
             produces = APPLICATION_JSON,
