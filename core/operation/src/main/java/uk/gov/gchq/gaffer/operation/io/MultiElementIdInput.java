@@ -73,5 +73,20 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
             _getOp().setInput(OperationUtil.toElementIds(input));
             return _self();
         }
+
+        default B input(final ElementId... input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
+            return inputIds(Lists.newArrayList(input));
+        }
+
+        default B inputIds(final Iterable<? extends ElementId> input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
+            _getOp().setInput(input);
+            return _self();
+        }
     }
 }

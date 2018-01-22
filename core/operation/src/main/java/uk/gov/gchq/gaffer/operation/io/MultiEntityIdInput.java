@@ -66,5 +66,20 @@ public interface MultiEntityIdInput extends MultiInput<EntityId> {
             _getOp().setInput(OperationUtil.toEntityIds(input));
             return _self();
         }
+
+        default B input(final EntityId... input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
+            return inputIds(Lists.newArrayList(input));
+        }
+
+        default B inputIds(final Iterable<? extends EntityId> input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
+            _getOp().setInput(input);
+            return _self();
+        }
     }
 }
