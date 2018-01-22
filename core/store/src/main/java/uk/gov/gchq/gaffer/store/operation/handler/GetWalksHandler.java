@@ -137,11 +137,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                 }
             }
 
-            if (nextSeeds.isEmpty()) {
-                if (entityMaps.size() > adjacencyMaps.size()) {
-                    adjacencyMaps.add(adjacencyMap);
-                }
-            } else {
+            if (hops > adjacencyMaps.size()) {
                 adjacencyMaps.add(adjacencyMap);
             }
             entityMaps.add(entityMap);

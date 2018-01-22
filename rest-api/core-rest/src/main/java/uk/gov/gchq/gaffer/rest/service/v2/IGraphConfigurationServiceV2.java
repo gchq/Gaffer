@@ -175,6 +175,20 @@ public interface IGraphConfigurationServiceV2 {
     Response getSerialisedFields(@ApiParam(value = "The name of the Java class, for which the serialised fields should be retrieved") @PathParam("className") final String className);
 
     @GET
+    @Path("/serialisedFields/{className}/classes")
+    @ApiOperation(value = "Gets all serialised fields and their class type, for a given java class.",
+            response = String.class,
+            responseContainer = "map",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 404, message = CLASS_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getSerialisedFieldClasses(@ApiParam(value = "A java class name") @PathParam("className") final String className);
+
+    @GET
     @Path("/description")
     @Produces(TEXT_PLAIN)
     @ApiOperation(value = "Gets the Graph description",

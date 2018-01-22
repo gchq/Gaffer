@@ -763,7 +763,7 @@ public class StoreTest {
         // Then
         assertEquals(TestCustomJsonSerialiser1.class, JSONSerialiser.getInstance().getClass());
         assertSame(TestCustomJsonSerialiser1.mapper, JSONSerialiser.getMapper());
-        verify(TestCustomJsonSerialiser1.mapper).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
+        verify(TestCustomJsonSerialiser1.mapper, times(2)).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
     }
 
     @Test

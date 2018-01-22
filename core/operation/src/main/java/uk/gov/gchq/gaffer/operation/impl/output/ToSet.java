@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -32,6 +33,7 @@ import java.util.Set;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToSet.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class ToSet<T> implements
         InputOutput<Iterable<? extends T>, Set<? extends T>>,
         MultiInput<T> {

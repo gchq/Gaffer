@@ -30,16 +30,11 @@ public final class LongUtil {
 
     /**
      * Gets a random positive long value based on the current time and a random number.
-     * Made up as follows:
-     * <ul style="list-style-type: none;">
-     * <li>If the current time bytes are: [a,b,c,d,e,f,h,i]
-     * <li>and the random number bytes are: [j,k,l,m]</li>
-     * <li>the result bytes would be: [e,f,h,i,j,k,l,m]</li>
-     * </ul>
      *
      * @return the time based random number
      */
     public static long getTimeBasedRandom() {
-        return RANDOM.nextInt(Integer.MAX_VALUE) | (System.currentTimeMillis() << 32);
+        final long random = (System.currentTimeMillis() << 32) | RANDOM.nextInt(Integer.MAX_VALUE);
+        return Long.MIN_VALUE == random ? Long.MAX_VALUE : Math.abs(random);
     }
 }

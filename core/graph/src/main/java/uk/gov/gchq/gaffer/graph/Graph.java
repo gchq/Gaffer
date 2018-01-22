@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -506,6 +507,7 @@ public final class Graph {
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
+                ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
                 JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
             }
             return this;

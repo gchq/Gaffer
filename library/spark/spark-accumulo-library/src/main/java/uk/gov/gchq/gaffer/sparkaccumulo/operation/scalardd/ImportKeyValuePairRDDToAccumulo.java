@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
+@JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
 public class ImportKeyValuePairRDDToAccumulo implements
         Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;

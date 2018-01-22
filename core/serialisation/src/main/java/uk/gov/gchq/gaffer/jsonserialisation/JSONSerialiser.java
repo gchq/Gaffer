@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -41,10 +40,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -131,6 +131,10 @@ public class JSONSerialiser {
         modules.forEach(mapper::registerModule);
     }
 
+    public static void addSimpleClassNames(final boolean includeSubtypes, final Class... classes) {
+        SimpleClassNameCache.addSimpleClassNames(includeSubtypes, classes);
+    }
+
     public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
         if (StringUtils.isNotBlank(jsonSerialiserModules)) {
             final String modulesCsv = new StringDeduplicateConcat().apply(
@@ -180,13 +184,19 @@ public class JSONSerialiser {
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        mapper.registerModule(getCloseableIterableDeserialiserModule());
+        mapper.registerModule(CloseableIterableDeserializer.getModule());
 
         // Using the deprecated version for compatibility with older versions of jackson
         mapper.registerModule(new JSR310Module());
 
         // Use the 'setFilters' method so it is compatible with older versions of jackson
         mapper.setFilters(getFilterProvider());
+
+        // Allow simple class names or full class names to be used in JSON.
+        // We must set this to true to ensure serialisation into json uses the
+        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
+        SimpleClassNameCache.setUseFullNameForSerialisation(true);
+        SimpleClassNameIdResolver.configureObjectMapper(mapper);
         return mapper;
     }
 
@@ -351,11 +361,5 @@ public class JSONSerialiser {
             update();
         }
         return instance;
-    }
-
-    private static SimpleModule getCloseableIterableDeserialiserModule() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
-        return module;
     }
 }

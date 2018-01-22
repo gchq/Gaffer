@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -37,6 +38,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
+@JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
 public class AddElements implements
         Validatable,
         MultiInput<Element> {

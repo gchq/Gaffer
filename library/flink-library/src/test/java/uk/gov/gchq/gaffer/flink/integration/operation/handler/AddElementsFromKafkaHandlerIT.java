@@ -31,7 +31,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -45,11 +47,9 @@ import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
-    private static final String TOPIC = UUID.randomUUID().toString();
-    private static final String BOOTSTRAP_SERVERS = "localhost:" + getOpenPort();
-
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     @Rule
@@ -58,9 +58,12 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private KafkaProducer<Integer, String> producer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
+    private String bootstrapServers;
 
     @Before
     public void before() throws Exception {
+        bootstrapServers = "localhost:" + getOpenPort();
+
         // Create zookeeper server
         zkServer = new TestingServer(-1, createZookeeperTmpDir());
         zkServer.start();
@@ -87,19 +90,29 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     }
 
     @Test
-    public void shouldAddElements() throws Exception {
+    public void shouldAddElementsWithStringConsumer() throws Exception {
+        shouldAddElements(String.class, TestGeneratorImpl.class);
+    }
+
+    @Test
+    public void shouldAddElementsWithByteArrayConsumer() throws Exception {
+        shouldAddElements(byte[].class, TestBytesGeneratorImpl.class);
+    }
+
+    protected <T> void shouldAddElements(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator) throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
         final boolean skipInvalid = false;
+        final String topic = UUID.randomUUID().toString();
 
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
-                .generator(TestGeneratorImpl.class)
+                .generator(consumeAs, elementGenerator)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .topic(TOPIC)
-                .bootstrapServers(BOOTSTRAP_SERVERS)
+                .topic(topic)
+                .bootstrapServers(bootstrapServers)
                 .groupId("groupId")
                 .build();
 
@@ -119,7 +132,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
                 // Create kafka producer and add some data
                 producer = new KafkaProducer<>(producerProps());
                 for (final String dataValue : DATA_VALUES) {
-                    producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
+                    producer.send(new ProducerRecord<>(topic, dataValue)).get();
                 }
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
@@ -144,7 +157,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
 
     private Properties producerProps() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", BOOTSTRAP_SERVERS);
+        props.put("bootstrap.servers", bootstrapServers);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         return props;
@@ -154,7 +167,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         Properties props = new Properties();
         props.put("zookeeper.connect", zkServer.getConnectString());
         props.put("broker.id", "0");
-        props.setProperty("listeners", "PLAINTEXT://" + BOOTSTRAP_SERVERS);
+        props.setProperty("listeners", "PLAINTEXT://" + bootstrapServers);
         return props;
     }
 

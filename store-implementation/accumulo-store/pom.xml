@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.2.0-RC2-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -167,14 +167,14 @@
                                     <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
-                                    <include>com.google.guava*
-                                    </include>
+                                    <include>com.google.guava*</include>
                                     <include>org.apache.commons:commons-lang3
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
+                                    <include>io.github.lukehutch.fastclasspathscanner*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -66,6 +68,7 @@ import java.util.Set;
  * @see ElementDefinitions
  */
 @JsonDeserialize(builder = Schema.Builder.class)
+@JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
     private final TypeDefinition unknownType = new TypeDefinition();
 
@@ -266,7 +269,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return null;
         }
 
-        return vertexSerialiser.getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(vertexSerialiser.getClass());
     }
 
     @Override
@@ -363,7 +366,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             } else {
                 Class<? extends Serialiser> serialiserClass;
                 try {
-                    serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialiser.class);
+                    serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(vertexSerialiserClass)).asSubclass(Serialiser.class);
                 } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
