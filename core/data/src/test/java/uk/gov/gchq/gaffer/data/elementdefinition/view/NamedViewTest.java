@@ -151,7 +151,6 @@ public class NamedViewTest {
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView\"," +
-                "  \"edges\" : { }," +
                 "  \"entities\" : {\n" +
                 "    \"BasicEntity\" : {\n" +
                 "       \"preAggregationFilterFunctions\" : [ {\n" +
@@ -392,6 +391,6 @@ public class NamedViewTest {
                 .build();
 
         assertEquals(3, namedViewMerged.getMergedNamedViewNames().size());
-        assertEquals(Arrays.asList(namedViewName+1, namedViewName+2, namedViewName+3), namedViewMerged.getMergedNamedViewNames());
+        assertEquals(Arrays.asList(namedViewName + 1, namedViewName + 2, namedViewName + 3), namedViewMerged.getMergedNamedViewNames());
     }
 }
