@@ -36,11 +36,14 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -75,7 +78,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     private static Set<Class> getSubClasses(final Class<?> clazz) {
         final Set<URL> urls = new HashSet<>();
         for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT)
-                                                .split(",")) {
+                .split(",")) {
             urls.addAll(ClasspathHelper.forPackage(packagePrefix));
         }
 
@@ -104,15 +107,15 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     @Override
     public Response getSchema() {
         return Response.ok(graphFactory.getGraph().getSchema())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
     public Response getFilterFunction() {
         return Response.ok(FILTER_FUNCTIONS)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
@@ -148,8 +151,8 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
         }
 
         return Response.ok(classes)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
@@ -165,7 +168,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
         final ObjectMapper mapper = new ObjectMapper();
         final JavaType type = mapper.getTypeFactory().constructType(clazz);
         final BeanDescription introspection = mapper.getSerializationConfig()
-                                                    .introspect(type);
+                .introspect(type);
         final List<BeanPropertyDefinition> properties = introspection.findProperties();
 
         final Set<String> fields = new HashSet<>();
@@ -174,8 +177,47 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
         }
 
         return Response.ok(fields)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public Response getSerialisedFieldClasses(final String className) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
+        }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JavaType type = mapper.getTypeFactory().constructType(clazz);
+        final BeanDescription introspection = mapper.getSerializationConfig()
+                .introspect(type);
+        final List<BeanPropertyDefinition> properties = introspection.findProperties();
+
+        final Map<String, String> fieldMap = new HashMap<>();
+        for (final BeanPropertyDefinition property : properties) {
+            final String propName = property.getName();
+            if (property.hasGetter() || property.hasSetter()) {
+                if (null == property.getField()) {
+                    if ("class".equals(propName)) {
+                        fieldMap.put(propName, className);
+                    }
+                } else {
+                    Type genericType = property.getField().getGenericType();
+                    if (genericType instanceof Class && ((Class) genericType).isEnum()) {
+                        genericType = String.class;
+                    }
+                    fieldMap.put(propName, genericType.getTypeName());
+                }
+            }
+        }
+
+        return Response.ok(fieldMap)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -188,28 +230,28 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     @Override
     public Response getTransformFunctions() {
         return Response.ok(TRANSFORM_FUNCTIONS)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
     public Response getStoreTraits() {
         return Response.ok(graphFactory.getGraph().getStoreTraits())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
     public Response getElementGenerators() {
         return Response.ok(ELEMENT_GENERATORS)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
     public Response getObjectGenerators() {
         return Response.ok(OBJECT_GENERATORS)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 }
