@@ -249,10 +249,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3"), new EdgeSeed("4", "5"), new Edge("group", "6", "7", true)),
                 Lists.newArrayList(op.getInput())
         );
-        assertEquals(
-                Lists.newArrayList("1", "2", "3", new EdgeSeed("4", "5"), new Edge("group", "6", "7", true)),
-                Lists.newArrayList(op.createInputArrayOfVerticesAndIds())
-        );
     }
 
     @Override

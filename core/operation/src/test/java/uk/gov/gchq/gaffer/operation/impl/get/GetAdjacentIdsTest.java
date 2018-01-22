@@ -172,7 +172,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
     }
 
     @Test
-    public void shouldCreateInputFromVertices() {
+    public void shouldSetInputFromVerticesAndEntityIds() {
         // When
         final GetAdjacentIds op = new GetAdjacentIds.Builder()
                 .input("1", new EntitySeed("2"), new Entity("group1", "3"))
@@ -182,10 +182,6 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         assertEquals(
                 Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3")),
                 Lists.newArrayList(op.getInput())
-        );
-        assertEquals(
-                Lists.newArrayList("1", "2", "3"),
-                Lists.newArrayList(op.createInputArrayOfVerticesAndIds())
         );
     }
 

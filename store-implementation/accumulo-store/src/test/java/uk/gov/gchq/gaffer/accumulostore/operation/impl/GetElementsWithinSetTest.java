@@ -96,10 +96,6 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
                 Lists.newArrayList(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1),
                 Lists.newArrayList(op.getInput())
         );
-        assertEquals(
-                Lists.newArrayList(AccumuloTestData.SEED_B.getVertex(), AccumuloTestData.SEED_B1.getVertex()),
-                Lists.newArrayList(op.createInputArrayOfVerticesAndIds())
-        );
     }
 
     @Override

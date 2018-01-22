@@ -115,15 +115,6 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
                 Lists.newArrayList(AccumuloTestData.SEED_A, AccumuloTestData.SEED_A1),
                 Lists.newArrayList(op.getInputB())
         );
-
-        assertEquals(
-                Lists.newArrayList(AccumuloTestData.SEED_B.getVertex(), AccumuloTestData.SEED_B1.getVertex()),
-                Lists.newArrayList(op.createInputArrayOfVerticesAndIds())
-        );
-        assertEquals(
-                Lists.newArrayList(AccumuloTestData.SEED_A.getVertex(), AccumuloTestData.SEED_A1.getVertex()),
-                Lists.newArrayList(op.createInputBArrayOfVerticesAndIds())
-        );
     }
 
     @Override

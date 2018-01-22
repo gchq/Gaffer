@@ -16,13 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.io;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.util.OperationUtil;
@@ -32,35 +28,14 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
  * {@link EntityId}s.
  */
 public interface MultiEntityIdInput extends MultiInput<EntityId> {
-
-    /**
-     * Creates an array using the iterable set as the input and returns null if the input is null.
-     *
-     * @return an array of inputs
-     */
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter("input")
-    default Object[] createInputArrayOfVerticesAndIds() {
-        if (null == getInput()) {
-            return null;
-        }
-
-        return Iterables.toArray(
-                OperationUtil.fromEntityIds(getInput()),
-                Object.class
-        );
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("input")
     default void setInputFromVerticesAndIds(final Object[] input) {
         setInput(OperationUtil.toEntityIds(input));
     }
 
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
-    @JsonIgnore
     @Override
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     default Object[] createInputArray() {
         return MultiInput.super.createInputArray();
     }

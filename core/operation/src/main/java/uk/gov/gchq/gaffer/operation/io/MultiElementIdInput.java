@@ -16,13 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.io;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.util.OperationUtil;
@@ -32,25 +28,6 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
  * {@link ElementId}s.
  */
 public interface MultiElementIdInput extends MultiInput<ElementId> {
-
-    /**
-     * Creates an array of the input. If possible EntityIds are unwrapped into vertices.
-     *
-     * @return an array of inputs or null if the input is null.
-     */
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter("input")
-    default Object[] createInputArrayOfVerticesAndIds() {
-        if (null == getInput()) {
-            return null;
-        }
-
-        return Iterables.toArray(
-                OperationUtil.fromElementIds(getInput()),
-                Object.class
-        );
-    }
 
     /**
      * Sets the input from an array of vertices and element ids.
@@ -64,9 +41,8 @@ public interface MultiElementIdInput extends MultiInput<ElementId> {
         setInput(OperationUtil.toElementIds(input));
     }
 
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
-    @JsonIgnore
     @Override
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     default Object[] createInputArray() {
         return MultiInput.super.createInputArray();
     }

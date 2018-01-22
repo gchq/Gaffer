@@ -16,13 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.util.OperationUtil;
@@ -32,36 +28,16 @@ import uk.gov.gchq.gaffer.operation.util.OperationUtil;
  * {@link EntityId}s.
  */
 public interface MultiEntityIdInputB extends MultiInputB<EntityId> {
-
-    /**
-     * Creates an array using the iterable set as the inputB and returns null if the inputB is null.
-     *
-     * @return an array of inputBs
-     */
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter("inputB")
-    default Object[] createInputBArrayOfVerticesAndIds() {
-        if (null == getInputB()) {
-            return null;
-        }
-
-        return Iterables.toArray(
-                OperationUtil.fromElementIds(getInputB()),
-                Object.class
-        );
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonSetter("inputB")
     default void setInputBFromVerticesAndIds(final Object[] inputB) {
         setInputB(OperationUtil.toEntityIds(inputB));
     }
 
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
-    @JsonIgnore
+    @Override
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     default Object[] createInputBArray() {
-        return null != getInputB() ? Iterables.toArray(getInputB(), Object.class) : null;
+        return MultiInputB.super.createInputBArray();
     }
 
     default void setInputB(final EntityId[] inputB) {
