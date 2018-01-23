@@ -45,9 +45,9 @@ public class NamedOperationCache {
      * against the write roles associated with the {@link NamedOperationDetail}. If it turns out the user is overwriting a
      * non-existent NamedOperationDetail, then the users NamedOperationDetail will be added normally.
      *
-     * @param namedOperation    The NamedOperationDetail that the user wants to store
-     * @param overwrite         Flag relating to whether the user is adding (false) or updating/overwriting (true).
-     * @param user              The user making the request
+     * @param namedOperation The NamedOperationDetail that the user wants to store
+     * @param overwrite      Flag relating to whether the user is adding (false) or updating/overwriting (true).
+     * @param user           The user making the request
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
@@ -150,7 +150,7 @@ public class NamedOperationCache {
      * Clear the named operation cache.
      *
      * @throws CacheOperationFailedException if there was an error clearing the
-     * cache
+     *                                       cache
      */
     public void clear() throws CacheOperationFailedException {
         try {
@@ -166,7 +166,7 @@ public class NamedOperationCache {
      *
      * @param name the name of the operation to delete
      * @throws CacheOperationFailedException if there was an error deleting the
-     * operation from the cache
+     *                                       operation from the cache
      */
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
@@ -184,7 +184,7 @@ public class NamedOperationCache {
      * @param overwrite if true, overwrite any existing entry which matches the
      *                  provided name
      * @throws CacheOperationFailedException if there was an error adding the
-     * operation to the cache
+     *                                       operation to the cache
      */
     public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite) throws CacheOperationFailedException {
         try {
@@ -204,7 +204,7 @@ public class NamedOperationCache {
      * @param name the name of the named operation to retrieve
      * @return the details of the requested named operation
      * @throws CacheOperationFailedException if there was an error accessing the
-     * cache
+     *                                       cache
      */
     public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
         if (null == name) {

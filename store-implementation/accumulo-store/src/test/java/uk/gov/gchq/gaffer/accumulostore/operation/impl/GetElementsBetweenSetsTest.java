@@ -1,5 +1,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
@@ -95,6 +96,25 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertEquals(AccumuloTestData.SEED_B, clone.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, clone.getInputB().iterator().next());
         assertEquals(view, clone.getView());
+    }
+
+    @Test
+    public void shouldCreateInputFromVertices() {
+        // Given
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1.getVertex())
+                .inputB(AccumuloTestData.SEED_A, AccumuloTestData.SEED_A1.getVertex())
+                .build();
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1),
+                Lists.newArrayList(op.getInput())
+        );
+        assertEquals(
+                Lists.newArrayList(AccumuloTestData.SEED_A, AccumuloTestData.SEED_A1),
+                Lists.newArrayList(op.getInputB())
+        );
     }
 
     @Override

@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,11 @@ public class StoreProperties implements Cloneable {
 
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
+
+    /**
+     * CSV of extra packages to be included in the reflection scanning.
+     */
+    public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
@@ -382,6 +388,15 @@ public class StoreProperties implements Cloneable {
 
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
+    }
+
+    public String getReflectionPackages() {
+        return get(REFLECTION_PACKAGES);
+    }
+
+    public void setReflectionPackages(final String packages) {
+        set(REFLECTION_PACKAGES, packages);
+        ReflectionUtil.addReflectionPackages(packages);
     }
 
     public Integer getJobExecutorThreadCount() {

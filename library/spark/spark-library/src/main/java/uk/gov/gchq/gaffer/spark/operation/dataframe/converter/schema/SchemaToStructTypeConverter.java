@@ -129,7 +129,7 @@ public class SchemaToStructTypeConverter {
             if (elementDefn instanceof SchemaEntityDefinition) {
                 entityOrEdgeByGroup.put(group, EntityOrEdge.ENTITY);
                 final SchemaEntityDefinition entityDefinition = (SchemaEntityDefinition) elementDefn;
-                final String vertexClass = schema.getType(entityDefinition.getVertex()).getClassString();
+                final String vertexClass = schema.getType(entityDefinition.getVertex()).getFullClassString();
                 final DataType vertexType = getType(vertexClass);
                 if (null == vertexType) {
                     throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
@@ -139,8 +139,8 @@ public class SchemaToStructTypeConverter {
             } else {
                 entityOrEdgeByGroup.put(group, EntityOrEdge.EDGE);
                 final SchemaEdgeDefinition edgeDefinition = (SchemaEdgeDefinition) elementDefn;
-                final String srcClass = schema.getType(edgeDefinition.getSource()).getClassString();
-                final String dstClass = schema.getType(edgeDefinition.getDestination()).getClassString();
+                final String srcClass = schema.getType(edgeDefinition.getSource()).getFullClassString();
+                final String dstClass = schema.getType(edgeDefinition.getDestination()).getFullClassString();
                 final DataType srcType = getType(srcClass);
                 final DataType dstType = getType(dstClass);
                 if (null == srcType || null == dstType) {

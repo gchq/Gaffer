@@ -1000,6 +1000,47 @@ public class FederatedStoreTest {
         );
     }
 
+    @Test
+    public void shouldNotAddGraphToLibraryWhenReinitialisingFederatedStoreWithGraphFromCache() throws Exception {
+        //Check cache is empty
+        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        assertNull(CacheServiceLoader.getService());
+
+        //initialise FedStore
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        //add something so it will be in the cache
+        Graph graphToAdd = new Graph.Builder()
+                .config(new GraphConfig(ACC_ID_1))
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES_1))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .addToLibrary(false)
+                .build();
+
+        store.addGraphs(null, TEST_USER, true, graphToAdd);
+
+        //check is in the store
+        assertEquals(1, store.getAllGraphIds(blankUser).size());
+        //check is in the cache
+        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
+        //check isn't in the library
+        assertNull(store.getGraphLibrary().get(ACC_ID_1));
+
+        //restart the store
+        store = new FederatedStore();
+        // clear and set the GraphLibrary again
+        store.setGraphLibrary(library);
+        //initialise the FedStore
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        //check is in the cache still
+        assertTrue("Keys: " + CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME) + " did not contain " + ACC_ID_1, CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
+        //check is in the store from the cache
+        assertEquals(1, store.getAllGraphIds(blankUser).size());
+        //check the graph isn't in the GraphLibrary
+        assertNull(store.getGraphLibrary().get(ACC_ID_1));
+    }
+
     private boolean checkUnexpected(final Collection<Graph> unexpectedGraphs, final Collection<Graph> returnedGraphs) {
         for (Graph graph : unexpectedGraphs) {
             if (returnedGraphs.contains(graph)) {
