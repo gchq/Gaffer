@@ -103,8 +103,8 @@ public class GetGraphFrameOfElements implements
     public ValidationResult validate() {
         final ValidationResult result = Output.super.validate();
 
-        if (!view.hasEdges()) {
-            result.addError("Cannot create a GraphFrame unless the View contains edges.");
+        if (!view.hasEdges() && !view.hasEntities()) {
+            result.addError("Cannot create a GraphFrame unless the View contains edges or entities.");
         }
 
         return result;

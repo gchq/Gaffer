@@ -75,20 +75,27 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
         // Create a DataFrame of Edges - must add an "id" column which we fill with
         // the row number. We add a partitionBy on group to avoid creating a single
         // partition for all data.
-        final Dataset<Row> edges = sparkSession.sql("select * from elements where group in " + edgeGroups)
+        Dataset<Row> edges = sparkSession.sql("select * from elements where group in " + edgeGroups)
                 .withColumn("id", functions.row_number().over(Window.orderBy("group").partitionBy("group")));
 
         // Create a DataFrame of Entities
-        final Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
+        Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
 
-        // We also add dummy entities for all vertices present in the edge dataset,
-        // in case there are no corresponding Entities
-        final Dataset<Row> sources = sparkSession.sql("select src as vertex from elements where group in " + edgeGroups);
-        final Dataset<Row> destinations = sparkSession.sql("select dst as vertex from elements where group in " + edgeGroups);
+        if (!edges.rdd().isEmpty()) {
+            // We also add dummy entities for all vertices present in the edge dataset,
+            // in case there are no corresponding Entities
+            final Dataset<Row> sources = sparkSession.sql("select src as vertex from elements where group in " + edgeGroups);
+            final Dataset<Row> destinations = sparkSession.sql("select dst as vertex from elements where group in " + edgeGroups);
 
-        final Dataset<Row> vertices = sources.union(destinations).distinct();
+            final Dataset<Row> vertices = sources.union(destinations).distinct();
 
-        return GraphFrame.apply(DataFrameUtil.union(vertices, entities).withColumnRenamed("vertex", "id"), edges);
+            entities = DataFrameUtil.union(vertices, entities);
+        } else {
+            // If there are no edges, add an empty DataFrame
+            edges = DataFrameUtil.emptyGraphFrame().edges();
+        }
+
+        return GraphFrame.apply(entities.withColumnRenamed("vertex", "id"), edges);
     }
 
     private String groupsToString(final Set<String> groups) {

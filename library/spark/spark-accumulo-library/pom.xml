@@ -70,6 +70,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>

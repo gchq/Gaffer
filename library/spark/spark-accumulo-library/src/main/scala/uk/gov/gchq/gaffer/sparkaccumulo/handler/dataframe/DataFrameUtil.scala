@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.handler.dataframe
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
+import org.graphframes.GraphFrame
+import org.graphframes.examples.Graphs
 
 /**
   * Utility class for manipulating [[org.apache.spark.sql.DataFrame]]s using the Scala API.
@@ -56,5 +58,14 @@ object DataFrameUtil {
     val total = ds1Cols ++ ds2Cols
 
     ds1.select(expr(ds1Cols, total): _*).union(ds2.select(expr(ds2Cols, total): _*))
+  }
+
+  /**
+    * Create an empty [[org.graphframes.GraphFrame]].
+    *
+    * @return an empty GraphFrame
+    */
+  def emptyGraphFrame(): GraphFrame = {
+    Graphs.empty[String]
   }
 }

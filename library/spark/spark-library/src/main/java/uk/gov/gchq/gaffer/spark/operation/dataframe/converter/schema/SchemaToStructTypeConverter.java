@@ -49,6 +49,11 @@ import java.util.Set;
  * {@link View} are used. Properties that can either automatically be converted into a value that can be used in
  * a Spark Dataframe, or for which a {@link Converter} is provided, will be present in the {@link StructType}.
  * If the same property is present in more than one group, then it must be consistent, i.e. of the same type.
+ *
+ * The converter will ignore any properties which share a name with the key property names required by a Spark
+ * Dataframe. This will result in these properties being missed if they are specified in the Gaffer {@link Schema}.
+ * I.e if {@link org.apache.spark.sql.Row}s are converted back into Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s
+ * it will not be possible to recreate the original Elements.
  */
 public class SchemaToStructTypeConverter {
 
