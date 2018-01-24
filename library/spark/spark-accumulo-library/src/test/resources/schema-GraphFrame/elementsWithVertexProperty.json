@@ -4,7 +4,7 @@
       "vertex": "string",
       "properties": {
         "vertex": "string",
-        "propertyA" : "string"
+        "fullname": "string"
       }
     },
     "BasicEntity2": {
@@ -19,7 +19,8 @@
       "destination": "string",
       "directed": "directed.either",
       "properties": {
-        "vertex": "string"
+        "vertex": "string",
+        "type": "string"
       }
     },
     "BasicEdge2": {

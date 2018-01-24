@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.generator;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
@@ -43,6 +45,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RowToElementGeneratorTest {
+    @Before
+    public void before() {
+        SparkSessionProvider.getSparkSession();
+    }
+
     @Test
     public void checkGetCorrectElementsInGraphFrame() throws OperationException {
         // Given

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.spark.data.generator;
 
-import com.google.common.base.Strings;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.sql.Row;
 
@@ -57,22 +56,18 @@ public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
     public Element _apply(final Row row) {
         final Element element;
         final String group = row.getAs(SchemaToStructTypeConverter.GROUP);
-        if (ArrayUtils.contains(row.schema().fieldNames(), SchemaToStructTypeConverter.SRC_COL_NAME)) {
+        final Object source = ArrayUtils.contains(row.schema().fieldNames(), SchemaToStructTypeConverter.SRC_COL_NAME) ? row.getAs(SchemaToStructTypeConverter.SRC_COL_NAME) : null;
+        if (null != source) {
+            final Object destination = row.getAs(SchemaToStructTypeConverter.DST_COL_NAME);
             final boolean directed = row.getAs(SchemaToStructTypeConverter.DIRECTED_COL_NAME);
             final String matchedVertexStr = row.getAs(SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME);
             final MatchedVertex matchedVertex = null != matchedVertexStr ? MatchedVertex.valueOf(matchedVertexStr) : null;
-            final Object source = row.getAs(SchemaToStructTypeConverter.SRC_COL_NAME);
-            final Object destination = row.getAs(SchemaToStructTypeConverter.DST_COL_NAME);
             element = new Edge(group, source, destination, directed, matchedVertex, null);
         } else {
             element = new Entity(group, row.getAs(SchemaToStructTypeConverter.ID));
         }
 
         getPropertyNames(row).forEach(n -> {
-            final Object val = row.getAs(n);
-            if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
-                return;
-            }
             element.putProperty(n, row.getAs(n));
         });
 
