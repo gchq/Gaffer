@@ -47,6 +47,24 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler"
       }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.IterableElementsPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.IterableElementsPageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.RDDPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.RDDPageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.JavaRDDPageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.JavaRDDPageRankHandler"
+      }
     }
   ]
 }
