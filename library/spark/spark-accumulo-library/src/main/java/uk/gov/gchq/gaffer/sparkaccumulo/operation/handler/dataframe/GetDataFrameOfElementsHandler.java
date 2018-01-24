@@ -44,6 +44,7 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
         } else {
             operationOptions = new HashMap<>();
         }
+
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(context,
                 operation.getConverters(),
                 operation.getView(),

@@ -150,7 +150,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);
     }
 
-
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
     @Override
