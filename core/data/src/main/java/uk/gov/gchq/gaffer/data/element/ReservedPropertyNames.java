@@ -18,41 +18,44 @@ package uk.gov.gchq.gaffer.data.element;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Enumeration of all protected property names.
+ *
+ * These property names should not appear in any schemas used within a Gaffer graph.
  */
 public enum ReservedPropertyNames {
 
     VERTEX("vertex"),
-    SOURCE("src"),
-    DESTINATION("dst"),
+    SOURCE("src", "source"),
+    DESTINATION("dst", "destination"),
     DIRECTED("directed"),
     MATCHED_VERTEX("matchedVertex"),
     ID("id");
 
     private static final List<ReservedPropertyNames> VALUES = Arrays.asList(values());
+
     private static final List<String> NAMES = VALUES.stream()
-            .map(ReservedPropertyNames::getName)
-            .collect(Collectors.toList());
+            .flatMap(ReservedPropertyNames::getNames)
+            .collect(toList());
 
-    private final String name;
+    private final List<String> nameList;
 
-    ReservedPropertyNames(final String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
+    ReservedPropertyNames(final String... names) {
+        this.nameList = Arrays.stream(names)
+                .flatMap(n -> Stream.of(n, n.toUpperCase()))
+                .collect(toList());
     }
 
     public static boolean contains(final String property) {
         return NAMES.contains(property);
     }
 
-    @Override
-    public String toString() {
-        return name;
+    public Stream<String> getNames() {
+        return nameList.stream();
     }
+
 }

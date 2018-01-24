@@ -49,7 +49,7 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
 
         final FlatMapOperator<String, Element> builder =
                 env.readTextFile(op.getFilename())
-                        .flatMap(new GafferMapFunction(op.getElementGenerator()));
+                        .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
 
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
             builder.output(new GafferOutput(op, store));

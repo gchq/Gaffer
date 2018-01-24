@@ -46,11 +46,82 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class GetGraphFrameOfElementsHandlerTest {
 
     private static final int NUM_ELEMENTS = 10;
+
+    static List<Element> getElements() {
+        final List<Element> elements = new ArrayList<>();
+
+        final Entity entityB = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("B")
+                .property("columnQualifier", 1)
+                .property("count", 1L)
+                .build();
+
+        final Entity entityC = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("C")
+                .property("columnQualifier", 1)
+                .property("count", 1L)
+                .build();
+
+        elements.add(entityB);
+        elements.add(entityC);
+
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("columnQualifier", 1)
+                    .property("property1", i)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 6L)
+                    .build();
+
+            final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY_2)
+                    .vertex("" + i)
+                    .property("columnQualifier", 1)
+                    .property("property1", i)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 6L)
+                    .build();
+
+
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("columnQualifier", 1)
+                    .property("property1", 2)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 100L)
+                    .build();
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("columnQualifier", 6)
+                    .property("property1", 7)
+                    .property("property2", 8.0F)
+                    .property("property3", 9.0D)
+                    .property("property4", 10L)
+                    .property("count", i * 200L)
+                    .build();
+
+            elements.add(edge1);
+            elements.add(edge2);
+            elements.add(entity1);
+            elements.add(entity2);
+        }
+        return elements;
+    }
 
     @Test
     public void shouldGetCorrectElementsInGraphFrame() throws OperationException {
@@ -203,13 +274,32 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
 
-            fail("Validation in the GetGraphFrameOfElements operation should result in an exception being thrown.");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("Cannot create a GraphFrame unless the View contains edges."));
-        }
+        final Set<String> vertices = graphFrame.vertices()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        final Set<String> edges = graphFrame.edges()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        edges.remove("null");
+        vertices.remove("null");
+
+        assertThat(vertices, hasSize(14));
+        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"));
+        assertThat(vertices, hasItems(TestGroups.ENTITY, TestGroups.ENTITY_2));
+
+        assertThat(edges, hasSize(0));
     }
 
     @Test
@@ -472,77 +562,5 @@ public class GetGraphFrameOfElementsHandlerTest {
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;
-    }
-
-    static List<Element> getElements() {
-        final List<Element> elements = new ArrayList<>();
-
-        final Entity entityB = new Entity.Builder().group(TestGroups.ENTITY)
-                .vertex("B")
-                .property("columnQualifier", 1)
-                .property("count", 1L)
-                .build();
-
-        final Entity entityC = new Entity.Builder().group(TestGroups.ENTITY)
-                .vertex("C")
-                .property("columnQualifier", 1)
-                .property("count", 1L)
-                .build();
-
-        elements.add(entityB);
-        elements.add(entityC);
-
-        for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                    .vertex("" + i)
-                    .property("columnQualifier", 1)
-                    .property("property1", i)
-                    .property("property2", 3.0F)
-                    .property("property3", 4.0D)
-                    .property("property4", 5L)
-                    .property("count", 6L)
-                    .build();
-
-            final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY_2)
-                    .vertex("" + i)
-                    .property("columnQualifier", 1)
-                    .property("property1", i)
-                    .property("property2", 3.0F)
-                    .property("property3", 4.0D)
-                    .property("property4", 5L)
-                    .property("count", 6L)
-                    .build();
-
-
-            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
-                    .source("" + i)
-                    .dest("B")
-                    .directed(true)
-                    .property("columnQualifier", 1)
-                    .property("property1", 2)
-                    .property("property2", 3.0F)
-                    .property("property3", 4.0D)
-                    .property("property4", 5L)
-                    .property("count", 100L)
-                    .build();
-
-            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
-                    .source("" + i)
-                    .dest("C")
-                    .directed(true)
-                    .property("columnQualifier", 6)
-                    .property("property1", 7)
-                    .property("property2", 8.0F)
-                    .property("property3", 9.0D)
-                    .property("property4", 10L)
-                    .property("count", i * 200L)
-                    .build();
-
-            elements.add(edge1);
-            elements.add(edge2);
-            elements.add(entity1);
-            elements.add(entity2);
-        }
-        return elements;
     }
 }

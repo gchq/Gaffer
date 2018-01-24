@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
-import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 
@@ -27,13 +28,21 @@ public class HBaseSchemaHidingIT extends SchemaHidingIT {
 
     @Override
     protected void cleanUp() {
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final HBaseProperties storeProps = HBaseProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+
+        final HBaseStore store;
+        try {
+            store = Class.forName(storeProps.getStoreClass()).asSubclass(HBaseStore.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
+        }
+
         try {
             store.preInitialise(
                     "graphId",
                     createFullSchema(),
-                    HBaseProperties.loadStoreProperties(storePropertiesPath));
-
+                    storeProps
+            );
             TableUtils.dropTable(store);
         } catch (final Exception e) {
             // ignore exceptions

@@ -30,7 +30,7 @@ import javax.ws.rs.Path;
 import static uk.gov.gchq.gaffer.rest.application.ApplicationConfigV1.VERSION;
 
 /**
- * An {@code ApplicationConfig} sets up the application resources.
+ * An implementation of {@code ApplicationConfig}, containing v1-specific configuration for the application.
  */
 @Path(VERSION)
 public class ApplicationConfigV1 extends ApplicationConfig {

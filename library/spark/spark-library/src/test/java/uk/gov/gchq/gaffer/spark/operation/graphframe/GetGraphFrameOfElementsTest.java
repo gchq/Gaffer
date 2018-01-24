@@ -61,7 +61,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
 
         // Then
         assertTrue(opWithEdgesOnly.validate().isValid());
-        assertFalse(opWithEntitiesOnly.validate().isValid());
+        assertTrue(opWithEntitiesOnly.validate().isValid());
         assertFalse(opWithEmptyView.validate().isValid());
     }
 

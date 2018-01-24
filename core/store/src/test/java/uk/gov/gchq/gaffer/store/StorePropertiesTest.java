@@ -18,10 +18,13 @@ package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.databind.Module;
 import com.google.common.collect.Sets;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -30,6 +33,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class StorePropertiesTest {
+
+    @Before
+    @After
+    public void cleanUp() {
+        ReflectionUtil.resetReflectionPackages();
+    }
 
     @Test
     public void shouldMergeProperties() {
@@ -132,6 +141,22 @@ public class StorePropertiesTest {
 
         // Then
         assertEquals("1,2,3", props.getOperationDeclarationPaths());
+    }
+
+    @Test
+    public void shouldAddReflectionPackagesToKorypheReflectionUtil() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+
+        // When
+        props.setReflectionPackages("package1,package2");
+
+        // Then
+        assertEquals("package1,package2", props.getReflectionPackages());
+        final Set<String> expectedPackages = Sets.newHashSet(ReflectionUtil.DEFAULT_PACKAGES);
+        expectedPackages.add("package1");
+        expectedPackages.add("package2");
+        assertEquals(expectedPackages, ReflectionUtil.getReflectionPackages());
     }
 
     @Test

@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
+
 import java.io.Serializable;
 
 /**
@@ -27,6 +30,7 @@ import java.io.Serializable;
  * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Element}.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+@JsonSimpleClassName(includeSubtypes = true)
 public interface ElementId extends Serializable {
     Matches isRelated(final ElementId that);
 
@@ -34,7 +38,7 @@ public interface ElementId extends Serializable {
 
     @JsonGetter("class")
     default String getClassName() {
-        return getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(getClass());
     }
 
     @JsonSetter("class")

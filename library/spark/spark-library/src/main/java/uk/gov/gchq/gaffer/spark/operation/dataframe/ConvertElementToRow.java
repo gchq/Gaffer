@@ -85,9 +85,7 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                     final Object value = element.getProperties().get(property);
                     if (null == value) {
                         fields.appendElem(null);
-                    } else if (ReservedPropertyNames.contains(property)) {
-                        // do nothing
-                    } else {
+                    } else if (!ReservedPropertyNames.contains(property)) {
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(element.getProperties().get(property));
                         } else {

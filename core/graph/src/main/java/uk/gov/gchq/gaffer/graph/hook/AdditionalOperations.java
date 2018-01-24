@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class AdditionalOperations {
 
         final Map<String, List<byte[]>> serialisedOps = new HashMap<>(ops.size());
         for (final Map.Entry<String, List<Operation>> entry : ops.entrySet()) {
-            serialisedOps.put(entry.getKey(), serialiseOperations(entry.getValue()));
+            serialisedOps.put(SimpleClassNameIdResolver.getClassName(entry.getKey()), serialiseOperations(entry.getValue()));
         }
 
         return serialisedOps;
@@ -98,7 +99,7 @@ public class AdditionalOperations {
 
         final Map<String, List<Operation>> ops = new HashMap<>(serialisedOps.size());
         for (final Map.Entry<String, List<byte[]>> entry : serialisedOps.entrySet()) {
-            ops.put(entry.getKey(), deserialiseOperations(entry.getValue()));
+            ops.put(SimpleClassNameIdResolver.getClassName(entry.getKey()), deserialiseOperations(entry.getValue()));
         }
 
         return ops;

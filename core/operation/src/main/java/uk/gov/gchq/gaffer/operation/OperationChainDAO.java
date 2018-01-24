@@ -67,7 +67,9 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
     public void setClassName(final String className) {
         if (null != className
                 && !OperationChain.class.getName().equals(className)
-                && !OperationChainDAO.class.getName().equals(className)) {
+                && !OperationChainDAO.class.getName().equals(className)
+                && !OperationChain.class.getSimpleName().equals(className)
+                && !OperationChainDAO.class.getSimpleName().equals(className)) {
             throw new IllegalArgumentException("Class name should be " + OperationChain.class.getName() + " or null");
         }
     }
