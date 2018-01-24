@@ -79,6 +79,10 @@ public class OneOrMore<T> implements Iterable<T> {
                 return true;
             }
 
+            if (deduplicate && singleItem.equals(item)) {
+                return false;
+            }
+
             collection = newCollection.apply(singleItem);
             singleItem = null;
         }

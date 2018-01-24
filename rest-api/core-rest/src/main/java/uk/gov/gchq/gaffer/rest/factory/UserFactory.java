@@ -48,7 +48,7 @@ public interface UserFactory {
     /**
      * Create a new {@link Context} object.
      *
-     * @return a new user
+     * @return a new context containing a User object
      */
     default Context createContext() {
         return new Context(createUser());

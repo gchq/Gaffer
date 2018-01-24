@@ -218,6 +218,9 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
+                                    <include>com.google.code.gson*</include>
+                                    <include>org.reflections*</include>
+                                    <include>org.javassist*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

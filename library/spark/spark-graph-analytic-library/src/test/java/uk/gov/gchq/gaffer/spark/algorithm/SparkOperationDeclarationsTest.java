@@ -23,9 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler;
-import uk.gov.gchq.gaffer.spark.algorithm.handler.IterableElementsPageRankHandler;
-import uk.gov.gchq.gaffer.spark.algorithm.handler.JavaRDDPageRankHandler;
-import uk.gov.gchq.gaffer.spark.algorithm.handler.RDDPageRankHandler;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 
@@ -33,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SparkOperationDeclarationsTest {
-    public static final String OP_DECLARATIONS_JSON_PATH = "sparkOperationsDeclarations.json";
+    public static final String OP_DECLARATIONS_JSON_PATH = "sparkGraphAnalyticOperationsDeclarations.json";
 
     @Test
     public void shouldContainAllSparkAnalyticOperationsAndHandlers() throws SerialisationException {
@@ -42,7 +39,7 @@ public class SparkOperationDeclarationsTest {
                 .deserialise(StreamUtil.openStream(getClass(), OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
 
         // Then
-        assertEquals(5, deserialised.getOperations().size());
+        assertEquals(2, deserialised.getOperations().size());
 
         final OperationDeclaration od0 = deserialised.getOperations().get(0);
         assertEquals(PageRank.class, od0.getOperation());
@@ -51,17 +48,5 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od1 = deserialised.getOperations().get(1);
         assertEquals(GraphFramePageRank.class, od1.getOperation());
         assertTrue(od1.getHandler() instanceof GraphFramePageRankHandler);
-
-        final OperationDeclaration od2 = deserialised.getOperations().get(2);
-        assertEquals(IterableElementsPageRank.class, od2.getOperation());
-        assertTrue(od2.getHandler() instanceof IterableElementsPageRankHandler);
-
-        final OperationDeclaration od3 = deserialised.getOperations().get(3);
-        assertEquals(RDDPageRank.class, od3.getOperation());
-        assertTrue(od3.getHandler() instanceof RDDPageRankHandler);
-
-        final OperationDeclaration od4 = deserialised.getOperations().get(4);
-        assertEquals(JavaRDDPageRank.class, od4.getOperation());
-        assertTrue(od4.getHandler() instanceof JavaRDDPageRankHandler);
     }
 }

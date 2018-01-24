@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -29,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -49,9 +50,10 @@ import java.util.stream.Collectors;
  * GetElements} operations. These are executed sequentially, with the output of
  * one operation providing the input {@link EntityId}s for the next.
  */
+@JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
-        MultiInput<EntityId>,
+        MultiEntityIdInput,
         Operations<OperationChain<Iterable<Element>>> {
 
     public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
@@ -183,7 +185,7 @@ public class GetWalks implements
     public static final class Builder
             extends Operation.BaseBuilder<GetWalks, Builder>
             implements InputOutput.Builder<GetWalks, Iterable<? extends EntityId>, Iterable<Walk>, Builder>,
-            MultiInput.Builder<GetWalks, EntityId, Builder> {
+            MultiEntityIdInput.Builder<GetWalks, Builder> {
 
         public Builder() {
             super(new GetWalks());

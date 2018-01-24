@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -38,8 +40,10 @@ import java.util.Map;
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
  * and adding it to a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 public class AddNamedOperation implements Operation {
-    private String operations = null;
+    @Required
+    private String operations;
     private String operationName;
     private String description;
     private List<String> readAccessRoles = new ArrayList<>();

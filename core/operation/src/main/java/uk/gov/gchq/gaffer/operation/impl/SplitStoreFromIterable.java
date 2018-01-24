@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
@@ -27,6 +29,7 @@ import java.util.Map;
  * @param <T> the type of splits
  * @see SplitStoreFromIterable.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class SplitStoreFromIterable<T> implements Operation,
         MultiInput<T> {
     private Iterable<? extends T> input;

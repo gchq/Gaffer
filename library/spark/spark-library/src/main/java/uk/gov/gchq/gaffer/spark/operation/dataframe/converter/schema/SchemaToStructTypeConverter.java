@@ -24,6 +24,7 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.FreqMapConverter;
@@ -48,6 +49,11 @@ import java.util.Set;
  * {@link View} are used. Properties that can either automatically be converted into a value that can be used in
  * a Spark Dataframe, or for which a {@link Converter} is provided, will be present in the {@link StructType}.
  * If the same property is present in more than one group, then it must be consistent, i.e. of the same type.
+ *
+ * The converter will ignore any properties which share a name with the key property names required by a Spark
+ * Dataframe. This will result in these properties being missed if they are specified in the Gaffer {@link Schema}.
+ * I.e if {@link org.apache.spark.sql.Row}s are converted back into Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s
+ * it will not be possible to recreate the original Elements.
  */
 public class SchemaToStructTypeConverter {
 
@@ -125,7 +131,7 @@ public class SchemaToStructTypeConverter {
             if (elementDefn instanceof SchemaEntityDefinition) {
                 entityOrEdgeByGroup.put(group, EntityOrEdge.ENTITY);
                 final SchemaEntityDefinition entityDefinition = (SchemaEntityDefinition) elementDefn;
-                final String vertexClass = schema.getType(entityDefinition.getVertex()).getClassString();
+                final String vertexClass = schema.getType(entityDefinition.getVertex()).getFullClassString();
                 final DataType vertexType = getType(vertexClass);
                 if (null == vertexType) {
                     throw new RuntimeException("Vertex must be a recognised type: found " + vertexClass);
@@ -135,8 +141,8 @@ public class SchemaToStructTypeConverter {
             } else {
                 entityOrEdgeByGroup.put(group, EntityOrEdge.EDGE);
                 final SchemaEdgeDefinition edgeDefinition = (SchemaEdgeDefinition) elementDefn;
-                final String srcClass = schema.getType(edgeDefinition.getSource()).getClassString();
-                final String dstClass = schema.getType(edgeDefinition.getDestination()).getClassString();
+                final String srcClass = schema.getType(edgeDefinition.getSource()).getFullClassString();
+                final String dstClass = schema.getType(edgeDefinition.getDestination()).getFullClassString();
                 final DataType srcType = getType(srcClass);
                 final DataType dstType = getType(dstClass);
                 if (null == srcType || null == dstType) {
@@ -156,35 +162,40 @@ public class SchemaToStructTypeConverter {
             }
             final Set<String> properties = elementDefn.getProperties();
             for (final String property : properties) {
-                // Check if property is of a known type that can be handled by default
-                final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
-                DataType propertyType = getType(propertyClass);
-                if (null != propertyType) {
-                    propertyNeedsConversion.put(property, needsConversion(propertyClass));
-                    structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
-                    LOGGER.info("Property {} is of type {}", property, propertyType);
-                } else {
-                    // Check if any of the provided converters can handle it
-                    if (null != converters) {
-                        for (final Converter converter : converters) {
-                            if (converter.canHandle(elementDefn.getPropertyClass(property))) {
-                                propertyNeedsConversion.put(property, true);
-                                propertyType = converter.convertedType();
-                                converterByProperty.put(property, converter);
-                                structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
-                                LOGGER.info("Property {} of type {} will be converted by {} to {}",
-                                        property,
-                                        propertyClass,
-                                        converter.getClass().getName(),
-                                        propertyType);
-                                break;
+                if (!ReservedPropertyNames.contains(property)) {
+                    // Check if property is of a known type that can be handled by default
+                    final String propertyClass = elementDefn.getPropertyClass(property).getCanonicalName();
+                    DataType propertyType = getType(propertyClass);
+                    if (null != propertyType) {
+                        propertyNeedsConversion.put(property, needsConversion(propertyClass));
+                        structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
+                        LOGGER.info("Property {} is of type {}", property, propertyType);
+                    } else {
+                        // Check if any of the provided converters can handle it
+                        if (null != converters) {
+                            for (final Converter converter : converters) {
+                                if (converter.canHandle(elementDefn.getPropertyClass(property))) {
+                                    propertyNeedsConversion.put(property, true);
+                                    propertyType = converter.convertedType();
+                                    converterByProperty.put(property, converter);
+                                    structFieldList.add(new StructField(property, propertyType, true, Metadata.empty()));
+                                    LOGGER.info("Property {} of type {} will be converted by {} to {}",
+                                            property,
+                                            propertyClass,
+                                            converter.getClass().getName(),
+                                            propertyType);
+                                    break;
+                                }
+                            }
+                            if (null == propertyType) {
+                                LOGGER.warn("Ignoring property {} as it is not a recognised type and none of the provided "
+                                        + "converters can handle it", property);
                             }
                         }
-                        if (null == propertyType) {
-                            LOGGER.warn("Ignoring property {} as it is not a recognised type and none of the provided "
-                                    + "converters can handle it", property);
-                        }
                     }
+                } else {
+                    LOGGER.warn("Ignoring property {} in group {} as it shares a name with a reserved keyword used to define "
+                            + "elements.", property, group);
                 }
             }
             structTypeByGroup.put(group, new StructType(structFieldList.toArray(new StructField[structFieldList.size()])));

@@ -48,7 +48,7 @@ public class GafferMapFunctionTest {
     public void shouldDelegateToGafferElementGenerator() throws Exception {
         // Given
         final String csv = "1,2,3,4";
-        final GafferMapFunction function = new GafferMapFunction(MockedGenerator.class);
+        final GafferMapFunction function = new GafferMapFunction<>(String.class, MockedGenerator.class);
         final Iterable expectedResults = Arrays.asList(
                 mock(Element.class),
                 mock(Element.class)
@@ -70,7 +70,7 @@ public class GafferMapFunctionTest {
     public void shouldDelegateToGafferOneToOneElementGenerator() throws Exception {
         // Given
         final String csv = "1,2,3,4";
-        final GafferMapFunction function = new GafferMapFunction(MockedOneToOneGenerator.class);
+        final GafferMapFunction function = new GafferMapFunction<>(String.class, MockedOneToOneGenerator.class);
         final Element expectedResult = mock(Element.class);
         final Collector<Element> collector = mock(Collector.class);
         given(mockOneToOneGenerator._apply(csv)).willReturn(expectedResult);
@@ -86,7 +86,7 @@ public class GafferMapFunctionTest {
     public void shouldDelegateToGafferOneToManyElementGenerator() throws Exception {
         // Given
         final String csv = "1,2,3,4";
-        final GafferMapFunction function = new GafferMapFunction(MockedOneToManyGenerator.class);
+        final GafferMapFunction function = new GafferMapFunction<>(String.class, MockedOneToManyGenerator.class);
         final Iterable expectedResults = Arrays.asList(
                 mock(Element.class),
                 mock(Element.class)

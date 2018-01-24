@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfElements> {
 
     @Test
-    public void shouldInvalidateOperationIfViewDoesNotContainEdgesAndEntities() {
+    public void shouldValidateOperationIfViewDoesNotContainEdgesOrEntities() {
         // Given
         final GetGraphFrameOfElements opWithEdgesOnly = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -50,7 +50,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
 
         final GetGraphFrameOfElements opWithEntitiesOnly = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
-                        .entity(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
                         .build())
                 .build();
 
@@ -60,8 +60,8 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
                 .build();
 
         // Then
-        assertFalse(opWithEdgesOnly.validate().isValid());
-        assertFalse(opWithEntitiesOnly.validate().isValid());
+        assertTrue(opWithEdgesOnly.validate().isValid());
+        assertTrue(opWithEntitiesOnly.validate().isValid());
         assertFalse(opWithEmptyView.validate().isValid());
     }
 
@@ -85,6 +85,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .properties("vertex")
                                 .build())
+                        .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
@@ -92,10 +93,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
         final ValidationResult validationResult = op.validate();
 
         // Then
-        assertFalse(validationResult.isValid());
-        assertThat(validationResult.getErrorString(),
-                containsString("Cannot create a GraphFrame using the current View " +
-                        "- the properties: vertex are reserved and must not be in the View."));
+        assertTrue(validationResult.isValid());
     }
 
     @Override

@@ -52,7 +52,7 @@ public class GetAdjacentIdsHandlerTest {
         final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
         final GetAdjacentIdsHandler handler = new GetAdjacentIdsHandler();
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
-                .input(ids)
+                .inputIds(ids)
                 .option("option1", "optionValue")
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .directedType(DirectedType.DIRECTED)

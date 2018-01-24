@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -130,18 +131,25 @@ public interface OperationView {
      * @param views the list of views to merge
      */
     default void setViews(final List<View> views) {
-        if (null == views) {
-            throw new IllegalArgumentException("Supplied View list cannot be null");
+        if (null != views) {
+            boolean isNamedView = null != getView() && getView() instanceof NamedView;
+            if (!isNamedView) {
+                for (final View view : views) {
+                    if (null != view && view instanceof NamedView) {
+                        isNamedView = true;
+                        break;
+                    }
+                }
+            }
+            final View.BaseBuilder builder = isNamedView ? new NamedView.Builder() : new View.Builder();
+
+            if (null != getView()) {
+                builder.merge(getView());
+            }
+            views.forEach(view -> builder.merge(view));
+
+            setView(builder.build());
         }
-
-        final View.Builder builder = new View.Builder();
-
-        if (null != getView()) {
-            builder.merge(getView());
-        }
-        views.forEach(view -> builder.merge(view));
-
-        setView(builder.build());
     }
 
     interface Builder<OP extends OperationView, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {

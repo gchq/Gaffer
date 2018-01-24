@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.spark.rdd.RDD;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -27,6 +28,7 @@ import java.util.Map;
  * A {@code ImportRDDOfElements} takes a {@link RDD} containing {@link Element}s
  * and adds them to a target Gaffer store.
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class ImportRDDOfElements implements
         Input<RDD<Element>> {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

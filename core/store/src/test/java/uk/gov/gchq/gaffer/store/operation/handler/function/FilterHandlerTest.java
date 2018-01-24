@@ -653,7 +653,7 @@ public class FilterHandlerTest {
                 .input(input)
                 .globalEdges(new ElementFilter.Builder()
                         .select(TestPropertyNames.COUNT)
-                        .execute(new IsMoreThan(0D))
+                        .execute(new IsMoreThan("abcd"))
                         .build())
                 .build();
 

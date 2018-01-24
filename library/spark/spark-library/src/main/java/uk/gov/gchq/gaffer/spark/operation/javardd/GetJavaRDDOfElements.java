@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 
@@ -25,7 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
@@ -34,9 +35,10 @@ import java.util.Map;
  * A {@code GetJavaRDDOfElements} operation retrieves all the {@link Element}s
  * for the input seeds from the target store, and returns them inside a {@link JavaRDD}.
  */
+@JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
-        MultiInput<ElementId>,
+        MultiElementIdInput,
         SeededGraphFilters {
 
     private Map<String, String> options;
@@ -116,7 +118,7 @@ public class GetJavaRDDOfElements implements
 
     public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
             implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementId>, JavaRDD<Element>, Builder>,
-            MultiInput.Builder<GetJavaRDDOfElements, ElementId, Builder>,
+            MultiElementIdInput.Builder<GetJavaRDDOfElements, Builder>,
             SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
             Operation.Builder<GetJavaRDDOfElements, Builder> {
         public Builder() {

@@ -84,11 +84,6 @@ public class ProxyStore extends Store {
     @Override
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
-
-        final String jsonSerialiserClass = getProperties().getJsonSerialiserClass();
-        if (null != jsonSerialiserClass) {
-            JSONSerialiser.update(jsonSerialiserClass, getProperties().getJsonSerialiserModules());
-        }
         client = createClient();
         schema = fetchSchema();
         traits = fetchTraits();

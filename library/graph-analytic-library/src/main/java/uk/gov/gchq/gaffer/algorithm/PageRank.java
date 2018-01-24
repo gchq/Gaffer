@@ -45,6 +45,7 @@ import java.util.Map;
  * Setting both of these values will result in an error.
  */
 public class PageRank<T> implements InputOutput<T, T> {
+    public static final double DEFAULT_RESET_PROBABILITY = 0.15d;
 
     public T input;
     public Map<String, String> options;
@@ -65,7 +66,7 @@ public class PageRank<T> implements InputOutput<T, T> {
      * The probability the algorithm starts from a node chosen uniformly at random
      * among all nodes in the network. (Also known as the damping factor.
      */
-    protected Double resetProbability = 0.15d;
+    protected Double resetProbability = DEFAULT_RESET_PROBABILITY;
 
     @Override
     public T getInput() {

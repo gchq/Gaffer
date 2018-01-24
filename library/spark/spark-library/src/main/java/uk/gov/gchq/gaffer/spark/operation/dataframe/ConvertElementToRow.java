@@ -23,6 +23,7 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
@@ -104,7 +105,7 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                     final Object value = element.getProperties().get(property);
                     if (null == value) {
                         fields.appendElem(null);
-                    } else {
+                    } else if (!ReservedPropertyNames.contains(property)) {
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(element.getProperties().get(property));
                         } else {

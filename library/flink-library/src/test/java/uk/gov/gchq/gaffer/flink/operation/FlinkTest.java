@@ -106,24 +106,6 @@ public abstract class FlinkTest {
                     .build()
     );
 
-    public static final java.util.List<? extends Element> EXPECTED_ELEMENTS_2 = Lists.newArrayList(
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("4")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("5")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("6")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build()
-    );
-
     public static final String[] DATA_VALUES = {"1", "1", "2", "3", "1", "2"};
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
     public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);

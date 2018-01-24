@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,13 +43,6 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
             operationOptions = operation.getOptions();
         } else {
             operationOptions = new HashMap<>();
-        }
-
-        for (final SchemaEntityDefinition entityDef : store.getSchema().getEntities().values()) {
-            if (entityDef.containsProperty("vertex")) {
-                throw new OperationException("Cannot execute GetDataFrameOfElements" +
-                        " when schema contains a property called vertex.");
-            }
         }
 
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(context,
