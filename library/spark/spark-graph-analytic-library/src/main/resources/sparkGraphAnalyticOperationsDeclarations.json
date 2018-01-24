@@ -1,0 +1,16 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.algorithm.PageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.algorithm.GraphFramePageRank",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.algorithm.handler.GraphFramePageRankHandler"
+      }
+    }
+  ]
+}
