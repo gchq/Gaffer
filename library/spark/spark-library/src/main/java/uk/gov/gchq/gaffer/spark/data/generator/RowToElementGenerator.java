@@ -17,84 +17,71 @@
 package uk.gov.gchq.gaffer.spark.data.generator;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.sql.Row;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId.MatchedVertex;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * A {@link OneToOneElementGenerator} for converting a {@link Row} object into a
- * Gaffer {@link Element}.
- *
+ * A {@code RowToElementGenerator} is a {@link OneToOneElementGenerator} for
+ * converting a {@link Row} objects into a Gaffer {@link Element}.
  * This generator requires that the Row object to be converted into an Element was
  * originally created from an Element. It is not possible to convert an arbitrary
  * Row object into an Element.
  */
 public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
+    private final Validator<Row> rowValidator = r -> null != r && null != r.getAs(SchemaToStructTypeConverter.GROUP);
 
-    private final List<String> reserved = Lists.newArrayList("src", "dst", "vertex", "directed", "group", "id", "matchedVertex");
+    @Override
+    public Iterable<? extends Element> apply(final Iterable<? extends Row> rows) {
+        return new TransformIterable<Row, Element>(rows, rowValidator, true) {
+            @Override
+            protected Element transform(final Row row) {
+                return _apply(row);
+            }
+        };
+    }
 
     @Override
     public Element _apply(final Row row) {
-
-        if (null == row.getAs("src")) {
-            final String group = row.getAs("group");
-            final Object vertex = row.getAs("id");
-
-            final Entity.Builder builder = new Entity.Builder()
-                    .group(group)
-                    .vertex(vertex);
-
-            filterProperties(row).forEach(n -> {
-                final Object val = row.getAs(n);
-                if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
-                    return;
-                }
-                builder.property(n, val);
-            });
-
-            return builder.build();
+        final Element element;
+        final String group = row.getAs(SchemaToStructTypeConverter.GROUP);
+        if (ArrayUtils.contains(row.schema().fieldNames(), SchemaToStructTypeConverter.SRC_COL_NAME)) {
+            final boolean directed = row.getAs(SchemaToStructTypeConverter.DIRECTED_COL_NAME);
+            final String matchedVertexStr = row.getAs(SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME);
+            final MatchedVertex matchedVertex = null != matchedVertexStr ? MatchedVertex.valueOf(matchedVertexStr) : null;
+            final Object source = row.getAs(SchemaToStructTypeConverter.SRC_COL_NAME);
+            final Object destination = row.getAs(SchemaToStructTypeConverter.DST_COL_NAME);
+            element = new Edge(group, source, destination, directed, matchedVertex, null);
         } else {
-            final String group = row.getAs("group");
-            final boolean directed = row.getAs("directed");
-            final String matchedVertex = row.getAs("matchedVertex");
-
-            final Object source = row.getAs("src");
-            final Object destination = row.getAs("dst");
-
-            final Edge.Builder builder = new Edge.Builder()
-                    .group(group)
-                    .source(source)
-                    .dest(destination)
-                    .directed(directed);
-
-            if (null != matchedVertex) {
-                builder.matchedVertex(EdgeId.MatchedVertex.valueOf(matchedVertex));
-            }
-
-            filterProperties(row).forEach(n -> {
-                final Object val = row.getAs(n);
-                if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
-                    return;
-                }
-                builder.property(n, val);
-            });
-
-            return builder.build();
+            element = new Entity(group, row.getAs(SchemaToStructTypeConverter.ID));
         }
+
+        getPropertyNames(row).forEach(n -> {
+            final Object val = row.getAs(n);
+            if (val instanceof String && Strings.isNullOrEmpty((String) val)) {
+                return;
+            }
+            element.putProperty(n, row.getAs(n));
+        });
+
+        return element;
     }
 
-    private Stream<String> filterProperties(final Row row) {
+    private Stream<String> getPropertyNames(final Row row) {
         return Arrays.stream(row.schema().fieldNames())
-                .filter(n -> !reserved.contains(n))
+                .filter(f -> !ReservedPropertyNames.contains(f))
                 .filter(n -> !row.isNullAt(row.fieldIndex(n)));
     }
 }
