@@ -15,6 +15,6 @@
  */
 
 /**
- * Serialisation implementations which maintain the ordering of bytes.
+ * Functions for converting Spark related data objects into different representations.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+package uk.gov.gchq.gaffer.spark.function;

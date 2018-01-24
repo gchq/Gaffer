@@ -74,6 +74,8 @@ public class SchemaToStructTypeConverter {
     public static final String VERTEX_COL_NAME = "vertex";
     public static final String SRC_COL_NAME = "src";
     public static final String DST_COL_NAME = "dst";
+    public static final String DIRECTED_COL_NAME = "directed";
+    public static final String MATCHED_VERTEX_COL_NAME = "matchedVertex";
 
     private final Schema schema;
     private final List<Converter> converters = new ArrayList<>();
@@ -155,6 +157,8 @@ public class SchemaToStructTypeConverter {
                         dstType);
                 structFieldList.add(new StructField(SRC_COL_NAME, srcType, true, Metadata.empty()));
                 structFieldList.add(new StructField(DST_COL_NAME, dstType, true, Metadata.empty()));
+                structFieldList.add(new StructField(DIRECTED_COL_NAME, DataTypes.BooleanType, true, Metadata.empty()));
+                structFieldList.add(new StructField(MATCHED_VERTEX_COL_NAME, DataTypes.StringType, true, Metadata.empty()));
             }
             final Set<String> properties = elementDefn.getProperties();
             for (final String property : properties) {

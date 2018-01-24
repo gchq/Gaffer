@@ -3,7 +3,7 @@
     "string": {
       "class": "java.lang.String",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "int": {
@@ -12,7 +12,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "float": {
@@ -21,7 +21,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "double": {
@@ -30,7 +30,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "long": {
@@ -39,7 +39,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "directed.either": {
@@ -51,7 +51,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "colQualProperty": {
@@ -60,7 +60,7 @@
         "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
       },
       "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
       }
     },
     "freqMapProperty": {
