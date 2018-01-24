@@ -36,9 +36,11 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -49,6 +51,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -237,5 +240,50 @@ public class ProxyStoreBasicIT {
                 .input(DEFAULT_ELEMENTS)
                 .build();
         graph.execute(add, USER);
+    }
+
+    // TODO should fail but doesn't
+    @Test
+    public void test() throws OperationException {
+        final String json = "[\n" +
+                "  {\n" +
+                "    \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
+                "    \"group\": \"Cardinality\",\n" +
+                "    \"vertex\": \"293020,87860\",\n" +
+                "    \"properties\": {\n" +
+                "      \"hllp\": {\n" +
+                "        \"com.clearspring.analytics.stream.cardinality.HyperLogLogPlus\": {\n" +
+                "          \"hyperLogLogPlus\": {\n" +
+                "            \"hyperLogLogPlusSketchBytes\": \"/////gUFAQH9GA==\",\n" +
+                "            \"cardinality\": 1\n" +
+                "          }\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"count\": {\n" +
+                "        \"java.lang.Long\": 264\n" +
+                "      },\n" +
+                "      \"edgeGroup\": {\n" +
+                "        \"java.util.TreeSet\": [\n" +
+                "          \"JunctionLocatedAt\"\n" +
+                "        ]\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "]";
+
+        final byte[] jsonBytes = json.getBytes();
+
+        final Iterable<? extends Element> result;
+
+        try {
+            result = JSONSerialiser.deserialise(jsonBytes, TypeReferenceImpl.createIterableT());
+            for (final Object obj : result) {
+                System.out.println(obj);
+            }
+        } catch (final SerialisationException e) {
+            System.out.println(e.getMessage());
+        }
+
+
     }
 }

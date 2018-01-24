@@ -130,10 +130,13 @@ public class OperationChain<OUT> implements Output<OUT>,
         if (!operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
             if (lastOp instanceof Output) {
-                return ((Output) lastOp).getOutputTypeReference();
+                if (((Output) lastOp).getOutputTypeReference() instanceof TypeReferenceImpl.IterableObj) {
+                    return operations.get(operations.size() -2) instanceof Output ?
+                            ((Output) operations.get(operations.size() - 2)).getOutputTypeReference() :
+                            ((Output) lastOp).getOutputTypeReference();
+                }
             }
         }
-
         return (TypeReference<OUT>) new TypeReferenceImpl.Void();
     }
 
