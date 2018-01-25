@@ -15,6 +15,6 @@
  */
 
 /**
- * Serialisation implementations which maintain the ordering of bytes.
+ * Gaffer generators for creating Elements from Spark datatypes.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+package uk.gov.gchq.gaffer.spark.data.generator;

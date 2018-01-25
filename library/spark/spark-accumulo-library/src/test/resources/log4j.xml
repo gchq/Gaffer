@@ -23,30 +23,8 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-    <logger name="org.apache.accumulo.core.client.ClientConfiguration">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.accumulo.core.conf.SiteConfiguration">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.util.NativeCodeLoader">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.util.NativeCodeLoader">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.spark.util.ClosureCleaner">
-        <level value="ERROR"/>
-    </logger>
-    <logger name="org.apache.spark.sql.SparkSession$Builder">
-        <level value="ERROR"/>
-    </logger>
     <root>
-        <priority value="warn"></priority>
+        <priority value="error"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>
