@@ -72,10 +72,10 @@ public class DataFrameUtil {
     }
 
     /**
-     * Create an empty [[org.graphframes.GraphFrame]].
+     * Create an empty dataset for use as edges in a {@link org.graphframes.GraphFrame}.
      *
-     * @param sparkSession
-     * @return an empty GraphFrame
+     * @param sparkSession the spark session
+     * @return an empty Dataset<Row> with a src and dst column.
      */
     public static Dataset<Row> emptyEdges(final SparkSession sparkSession) {
         return sparkSession.emptyDataFrame().select(lit(null).as("src"), lit(null).as("dst"));
