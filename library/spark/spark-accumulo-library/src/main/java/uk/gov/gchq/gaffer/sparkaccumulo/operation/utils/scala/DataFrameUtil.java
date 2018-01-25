@@ -29,9 +29,12 @@ import static org.apache.spark.sql.functions.lit;
 
 
 /**
- * Utility class for manipulating [[org.apache.spark.sql.DataFrame]]s.
+ * Utility class for manipulating DataFrames.
  */
-public class DataFrameUtil {
+public final class DataFrameUtil {
+    private DataFrameUtil() {
+    }
+
     /**
      * Use pattern matching to fill a column with the corresponding value (if it
      * exists), otherwise null.
@@ -40,7 +43,7 @@ public class DataFrameUtil {
      * @param allCols a set containing all columns of interest
      * @return a list containing the filled columns
      */
-    private static Column[] expr(Set<String> cols, Set<String> allCols) {
+    private static Column[] expr(final Set<String> cols, final Set<String> allCols) {
         return allCols.stream()
                 .map(x -> {
                     if (cols.contains(x)) {
@@ -52,14 +55,14 @@ public class DataFrameUtil {
     }
 
     /**
-     * Carry out a union of two [[org.apache.spark.sql.DataFrame]]s where the input
-     * dataframes may contain a different number of columns.
-     * The resulting dataframe will contain entries for all of the columns found in
-     * the input dataframes, with null entries used as placeholders.
+     * Carry out a union of two {@link Dataset}s where the input
+     * Datasets may contain a different number of columns.
+     * The resulting Dataset will contain entries for all of the columns found in
+     * the input Dataset, with null entries used as placeholders.
      *
-     * @param ds1 the first dataframe
-     * @param ds2 the second dataframe
-     * @return the combined dataframe
+     * @param ds1 the first Dataset
+     * @param ds2 the second Dataset
+     * @return the combined Dataset
      */
     public static Dataset<Row> union(final Dataset<Row> ds1, final Dataset<Row> ds2) {
         Set<String> ds1Cols = Sets.newHashSet(ds1.columns());
@@ -72,10 +75,10 @@ public class DataFrameUtil {
     }
 
     /**
-     * Create an empty dataset for use as edges in a {@link org.graphframes.GraphFrame}.
+     * Create an empty {@link Dataset} of {@link Row}s for use as edges in a {@link org.graphframes.GraphFrame}.
      *
      * @param sparkSession the spark session
-     * @return an empty Dataset<Row> with a src and dst column.
+     * @return an empty {@link Dataset} of {@link Row}s with a src and dst column.
      */
     public static Dataset<Row> emptyEdges(final SparkSession sparkSession) {
         return sparkSession.emptyDataFrame().select(lit(null).as("src"), lit(null).as("dst"));
