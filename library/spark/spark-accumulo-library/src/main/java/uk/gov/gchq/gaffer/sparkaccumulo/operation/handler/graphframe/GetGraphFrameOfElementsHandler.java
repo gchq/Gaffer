@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.handler.dataframe.DataFrameUtil;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.DataFrameUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -93,7 +93,7 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
             entities = DataFrameUtil.union(vertices, entities);
         } else {
             // If there are no edges, add an empty DataFrame
-            edges = DataFrameUtil.emptyGraphFrame().edges();
+            edges = DataFrameUtil.emptyEdges(sparkSession);
         }
 
         return GraphFrame.apply(entities.withColumnRenamed(SchemaToStructTypeConverter.VERTEX_COL_NAME, SchemaToStructTypeConverter.ID), edges);
