@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.declaration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -79,7 +79,7 @@ public class OperationDeclarations {
                 }
             }
         } catch (final IOException e) {
-            throw new SchemaException("Failed to load element definitions from paths: " + paths, e);
+            throw new GafferRuntimeException("Failed to load element definitions from paths: " + paths + ". Due to " + e.getMessage(), e);
         }
 
         return allDefinitions;
@@ -89,7 +89,7 @@ public class OperationDeclarations {
         try {
             return JSONSerialiser.deserialise(json, OperationDeclarations.class);
         } catch (final SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
+            throw new GafferRuntimeException("Failed to load element definitions from bytes. Due to " + e.getMessage(), e);
         }
     }
 
@@ -97,7 +97,7 @@ public class OperationDeclarations {
         try {
             return JSONSerialiser.deserialise(inputStream, OperationDeclarations.class);
         } catch (final SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
+            throw new GafferRuntimeException("Failed to load element definitions from bytes. Due to " + e.getMessage(), e);
         }
     }
 }

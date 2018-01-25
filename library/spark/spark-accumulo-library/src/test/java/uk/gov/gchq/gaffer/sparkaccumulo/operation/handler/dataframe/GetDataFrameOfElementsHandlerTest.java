@@ -82,6 +82,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(EDGE_GROUP);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
+            fields1.appendElem(true);
+            fields1.appendElem(null);
             fields1.appendElem(1);
             fields1.appendElem(2);
             fields1.appendElem(3.0F);
@@ -93,6 +95,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem(EDGE_GROUP);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
+            fields2.appendElem(true);
+            fields2.appendElem(null);
             fields2.appendElem(6);
             fields2.appendElem(7);
             fields2.appendElem(8.0F);
@@ -150,6 +154,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(100L);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
+            fields1.appendElem(true);
+            fields1.appendElem(null);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final MutableList<Object> fields2 = new MutableList<>();
             fields2.appendElem(EDGE_GROUP);
@@ -162,6 +168,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem(i * 200L);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
+            fields2.appendElem(true);
+            fields2.appendElem(null);
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
             final MutableList<Object> fields3 = new MutableList<>();
             fields3.appendElem(ENTITY_GROUP);
@@ -172,6 +180,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields3.appendElem(4.0D);
             fields3.appendElem(5L);
             fields3.appendElem(6);
+            fields3.appendElem(null);
+            fields3.appendElem(null);
             fields3.appendElem(null);
             fields3.appendElem(null);
             expectedRows.add(Row$.MODULE$.fromSeq(fields3));
@@ -261,6 +271,8 @@ public class GetDataFrameOfElementsHandlerTest {
             fields.appendElem(EDGE_GROUP);
             fields.appendElem("" + i);
             fields.appendElem("C");
+            fields.appendElem(true);
+            fields.appendElem(null);
             fields.appendElem(6);
             fields.appendElem(7);
             fields.appendElem(8.0F);
@@ -318,6 +330,8 @@ public class GetDataFrameOfElementsHandlerTest {
         fields1.appendElem(EDGE_GROUP);
         fields1.appendElem("B");
         fields1.appendElem("C");
+        fields1.appendElem(true);
+        fields1.appendElem(null);
         fields1.appendElem(freqMap);
         final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
         hllpp.offer("AAA");
@@ -369,6 +383,8 @@ public class GetDataFrameOfElementsHandlerTest {
         fields1.appendElem(EDGE_GROUP);
         fields1.appendElem("B");
         fields1.appendElem("C");
+        fields1.appendElem(true);
+        fields1.appendElem(null);
         fields1.appendElem(freqMap);
         final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
         hllpp.offer("AAA");
@@ -426,6 +442,8 @@ public class GetDataFrameOfElementsHandlerTest {
                 fields2.appendElem(EDGE_GROUP);
                 fields2.appendElem("" + i);
                 fields2.appendElem("C");
+                fields2.appendElem(true);
+                fields2.appendElem(null);
                 fields2.appendElem(6);
                 fields2.appendElem(7);
                 fields2.appendElem(8.0F);

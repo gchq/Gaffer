@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
+package uk.gov.gchq.gaffer.spark;
 
 import org.apache.spark.sql.SparkSession;
-
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 
 public class SparkSessionProvider {
     private static SparkSession sparkSession;
@@ -26,7 +24,7 @@ public class SparkSessionProvider {
         if (null == sparkSession) {
             sparkSession = SparkSession.builder()
                     .master("local")
-                    .appName("spark-accumulo-library-tests")
+                    .appName("spark-library-tests")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                     .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)

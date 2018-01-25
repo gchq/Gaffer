@@ -26,7 +26,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
@@ -497,6 +499,18 @@ public class StoreProperties implements Cloneable {
         } else if (!requiredClass.isAssignableFrom(storePropertiesClass)) {
             throw new IllegalArgumentException("The given properties is not of type " + requiredClass.getName() + " actual: " + storePropertiesClass.getName());
         }
+    }
+
+    @Override
+    public String toString() {
+        if (DebugUtil.checkDebugMode()) {
+            return new ToStringBuilder(this)
+                    .append("properties", getProperties())
+                    .toString();
+        }
+
+        // If we are not in debug mode then don't return the property values in case we leak sensitive properties.
+        return super.toString();
     }
 
     private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, final StoreProperties properties) {

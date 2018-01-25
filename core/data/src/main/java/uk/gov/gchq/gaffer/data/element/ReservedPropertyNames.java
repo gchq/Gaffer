@@ -24,11 +24,11 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * Enumeration of all protected property names.
- *
  * These property names should not appear in any schemas used within a Gaffer graph.
  */
 public enum ReservedPropertyNames {
 
+    GROUP("group"),
     VERTEX("vertex"),
     SOURCE("src", "source"),
     DESTINATION("dst", "destination"),

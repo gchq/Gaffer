@@ -72,7 +72,7 @@ public class SchemaElementDefinitionValidator {
 
         for (final String property : elementDef.getProperties()) {
             if (ReservedPropertyNames.contains(property)) {
-                LOGGER.warn("Element definition contains a reserved property name {}." +
+                LOGGER.warn("Element definition contains a reserved property name {}. " +
                         "This may prevent some analytics from being used on this graph.", property);
             }
         }

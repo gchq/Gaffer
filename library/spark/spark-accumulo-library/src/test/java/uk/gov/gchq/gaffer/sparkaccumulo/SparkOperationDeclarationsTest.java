@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe.GetGraphFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportJavaRDDOfElementsHandler;
@@ -92,5 +94,9 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od8 = deserialised.getOperations().get(8);
         assertEquals(ImportRDDOfElements.class, od8.getOperation());
         assertTrue(od8.getHandler() instanceof ImportRDDOfElementsHandler);
+
+        final OperationDeclaration od9 = deserialised.getOperations().get(9);
+        assertEquals(GetGraphFrameOfElements.class, od9.getOperation());
+        assertTrue(od9.getHandler() instanceof GetGraphFrameOfElementsHandler);
     }
 }

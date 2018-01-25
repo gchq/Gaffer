@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.handler.dataframe.DataFrameUtil;
 import uk.gov.gchq.gaffer.store.Context;
@@ -76,16 +77,16 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
         // the row number. We add a partitionBy on group to avoid creating a single
         // partition for all data.
         Dataset<Row> edges = sparkSession.sql("select * from elements where group in " + edgeGroups)
-                .withColumn("id", functions.row_number().over(Window.orderBy("group").partitionBy("group")));
+                .withColumn(SchemaToStructTypeConverter.ID, functions.row_number().over(Window.orderBy(SchemaToStructTypeConverter.GROUP).partitionBy(SchemaToStructTypeConverter.GROUP)));
 
         // Create a DataFrame of Entities
-        Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
+        Dataset<Row> entities = sparkSession.sql("select * from elements where " + SchemaToStructTypeConverter.GROUP + " in " + entityGroups);
 
         if (!edges.rdd().isEmpty()) {
             // We also add dummy entities for all vertices present in the edge dataset,
             // in case there are no corresponding Entities
-            final Dataset<Row> sources = sparkSession.sql("select src as vertex from elements where group in " + edgeGroups);
-            final Dataset<Row> destinations = sparkSession.sql("select dst as vertex from elements where group in " + edgeGroups);
+            final Dataset<Row> sources = sparkSession.sql("select " + SchemaToStructTypeConverter.SRC_COL_NAME + " as " + SchemaToStructTypeConverter.VERTEX_COL_NAME + " from elements where " + SchemaToStructTypeConverter.GROUP + " in " + edgeGroups);
+            final Dataset<Row> destinations = sparkSession.sql("select " + SchemaToStructTypeConverter.DST_COL_NAME + " as " + SchemaToStructTypeConverter.VERTEX_COL_NAME + " from elements where " + SchemaToStructTypeConverter.GROUP + " in " + edgeGroups);
 
             final Dataset<Row> vertices = sources.union(destinations).distinct();
 
@@ -95,7 +96,7 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
             edges = DataFrameUtil.emptyGraphFrame().edges();
         }
 
-        return GraphFrame.apply(entities.withColumnRenamed("vertex", "id"), edges);
+        return GraphFrame.apply(entities.withColumnRenamed(SchemaToStructTypeConverter.VERTEX_COL_NAME, SchemaToStructTypeConverter.ID), edges);
     }
 
     private String groupsToString(final Set<String> groups) {

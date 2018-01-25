@@ -49,7 +49,6 @@ import java.util.Set;
  * {@link View} are used. Properties that can either automatically be converted into a value that can be used in
  * a Spark Dataframe, or for which a {@link Converter} is provided, will be present in the {@link StructType}.
  * If the same property is present in more than one group, then it must be consistent, i.e. of the same type.
- *
  * The converter will ignore any properties which share a name with the key property names required by a Spark
  * Dataframe. This will result in these properties being missed if they are specified in the Gaffer {@link Schema}.
  * I.e if {@link org.apache.spark.sql.Row}s are converted back into Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -71,9 +70,12 @@ public class SchemaToStructTypeConverter {
     }
 
     public static final String GROUP = "group";
+    public static final String ID = "id";
     public static final String VERTEX_COL_NAME = "vertex";
     public static final String SRC_COL_NAME = "src";
     public static final String DST_COL_NAME = "dst";
+    public static final String DIRECTED_COL_NAME = "directed";
+    public static final String MATCHED_VERTEX_COL_NAME = "matchedVertex";
 
     private final Schema schema;
     private final List<Converter> converters = new ArrayList<>();
@@ -155,6 +157,8 @@ public class SchemaToStructTypeConverter {
                         dstType);
                 structFieldList.add(new StructField(SRC_COL_NAME, srcType, true, Metadata.empty()));
                 structFieldList.add(new StructField(DST_COL_NAME, dstType, true, Metadata.empty()));
+                structFieldList.add(new StructField(DIRECTED_COL_NAME, DataTypes.BooleanType, true, Metadata.empty()));
+                structFieldList.add(new StructField(MATCHED_VERTEX_COL_NAME, DataTypes.StringType, true, Metadata.empty()));
             }
             final Set<String> properties = elementDefn.getProperties();
             for (final String property : properties) {

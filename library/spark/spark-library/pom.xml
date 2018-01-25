@@ -25,7 +25,7 @@
     <artifactId>spark-library</artifactId>
 
     <properties>
-        <graphframes.library.version>0.5.0</graphframes.library.version>
+        <graphframes.library.version>0.4.0</graphframes.library.version>
         <graphframes.version>${graphframes.library.version}-spark2.1-s_${scala.version}</graphframes.version>
     </properties>
 

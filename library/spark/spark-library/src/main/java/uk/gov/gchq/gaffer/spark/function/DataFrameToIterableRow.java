@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
+package uk.gov.gchq.gaffer.spark.function;
+
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+
+import java.util.function.Function;
+
 /**
- * Serialisation implementations which maintain the ordering of bytes.
+ * A {@link Function} to convert a {@link Dataset} into an {@link Iterable} of
+ * {@link Row}s.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+public class DataFrameToIterableRow implements Function<Dataset<Row>, Iterable<? extends Row>> {
+
+    @Override
+    public Iterable<? extends Row> apply(final Dataset<Row> dataset) {
+        return dataset::toLocalIterator;
+    }
+}
