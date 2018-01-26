@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler.graphframes;
 
-import org.graphframes.GraphFrame;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -39,9 +37,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class GetGraphFrameOfElementsHandlerTest {
@@ -57,17 +53,8 @@ public class GetGraphFrameOfElementsHandlerTest {
     public void shouldGetCorrectElementsInGraphFrame() throws OperationException {
         // Given
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
+                .first(new GetGraphFrameOfElements())
                 .then(new Map.Builder<>()
                         .first(new GraphFrameToIterableRow())
                         .then(new RowToElementGenerator())
@@ -79,110 +66,6 @@ public class GetGraphFrameOfElementsHandlerTest {
 
         // Then
         assertElementEquals(getSimpleElements(), results);
-    }
-
-    @Test
-    public void shouldGetCorrectElementsInGraphFrameWithVertexProperty() throws OperationException {
-        // Given
-        final List<Element> elements = getSimpleElements();
-        for (final Element element : elements) {
-            element.putProperty("vertex", "value");
-        }
-        final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", elements);
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(new Map.Builder<>()
-                        .first(new GraphFrameToIterableRow())
-                        .then(new RowToElementGenerator())
-                        .build())
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(opChain, new User());
-
-        // Then
-        assertElementEquals(getSimpleElements(), results);
-    }
-
-    @Test
-    public void shouldGetCorrectElementsInGraphFrameWithNoEdges() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(new Map.Builder<>()
-                        .first(new GraphFrameToIterableRow())
-                        .then(new RowToElementGenerator())
-                        .build())
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(opChain, new User());
-
-        // Then
-        assertElementEquals(getSimpleElements().stream().filter(e -> e instanceof Entity).collect(Collectors.toList()), results);
-    }
-
-    @Test
-    public void shouldBehaviourInGraphFrameWithNoEntities() throws OperationException {
-        // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .build())
-                .build();
-
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
-                .then(new Map.Builder<>()
-                        .first(new GraphFrameToIterableRow())
-                        .then(new RowToElementGenerator())
-                        .build())
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(opChain, new User());
-
-        // Then
-        assertElementEquals(getSimpleElements().stream().filter(e -> e instanceof Edge).collect(Collectors.toList()), results);
-    }
-
-    @Test
-    public void shouldGetCorrectElementsInGraphFrameWithNoElements() throws OperationException {
-        // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", new ArrayList<>());
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
-        // When
-        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
-
-        // Then
-        assertTrue(graphFrame.edges().javaRDD().isEmpty());
-        assertTrue(graphFrame.vertices().javaRDD().isEmpty());
     }
 
     @Test
@@ -215,17 +98,8 @@ public class GetGraphFrameOfElementsHandlerTest {
 
         graph.execute(new AddElements.Builder().input(edge1, edge2).build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
+                .first(new GetGraphFrameOfElements())
                 .then(new Map.Builder<>()
                         .first(new GraphFrameToIterableRow())
                         .then(new RowToElementGenerator())
@@ -273,17 +147,8 @@ public class GetGraphFrameOfElementsHandlerTest {
 
         graph.execute(new AddElements.Builder().input(edge1, edge2).build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
+                .first(new GetGraphFrameOfElements())
                 .then(new Map.Builder<>()
                         .first(new GraphFrameToIterableRow())
                         .then(new RowToElementGenerator())
@@ -306,17 +171,8 @@ public class GetGraphFrameOfElementsHandlerTest {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         graph.execute(new AddElements.Builder().input(getSimpleElements()).build(), new User());
 
-        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .edge(TestGroups.EDGE_2)
-                        .entity(TestGroups.ENTITY)
-                        .entity(TestGroups.ENTITY_2)
-                        .build())
-                .build();
-
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(gfOperation)
+                .first(new GetGraphFrameOfElements())
                 .then(new Map.Builder<>()
                         .first(new GraphFrameToIterableRow())
                         .then(new RowToElementGenerator())

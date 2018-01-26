@@ -15,6 +15,6 @@
  */
 
 /**
- * Operation handlers for obtaining GraphFrames from Accumulo using Spark.
+ * Scala utilities to assist with reading/writing data from/to in spark.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
+package uk.gov.gchq.gaffer.spark.utils.scala;

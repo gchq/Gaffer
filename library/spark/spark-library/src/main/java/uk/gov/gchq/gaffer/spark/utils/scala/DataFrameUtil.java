@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala;
+package uk.gov.gchq.gaffer.spark.utils.scala;
 
 import com.google.common.collect.Sets;
 import org.apache.spark.sql.Column;
