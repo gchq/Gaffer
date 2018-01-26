@@ -23,6 +23,7 @@ import org.apache.spark.sql.expressions.Window;
 import org.apache.spark.sql.functions;
 import org.graphframes.GraphFrame;
 
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -56,8 +57,8 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
                 .options(operation.getOptions())
                 .build();
 
-        final Dataset<Row> elements = store.execute(getDataFrame, context);
-
+        Dataset<Row> elements = store.execute(getDataFrame, context);
+        elements = renameColumns(elements);
         elements.createOrReplaceTempView("elements");
 
         final String edgeGroups = groupsToString(operation.getView().getEdgeGroups());
@@ -89,6 +90,18 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
         }
 
         return GraphFrame.apply(entities.withColumnRenamed(SchemaToStructTypeConverter.VERTEX_COL_NAME, SchemaToStructTypeConverter.ID), edges);
+    }
+
+    private Dataset<Row> renameColumns(final Dataset<Row> elements) {
+        // Try to rename columns in case the Gaffer store uses different names.
+        Dataset<Row> renamedElements = elements.withColumnRenamed(ReservedPropertyNames.GROUP.name(), SchemaToStructTypeConverter.GROUP);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.ID.name(), SchemaToStructTypeConverter.ID);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.SOURCE.name(), SchemaToStructTypeConverter.SRC_COL_NAME);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.DESTINATION.name(), SchemaToStructTypeConverter.DST_COL_NAME);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.DIRECTED.name(), SchemaToStructTypeConverter.DIRECTED_COL_NAME);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.VERTEX.name(), SchemaToStructTypeConverter.VERTEX_COL_NAME);
+        renamedElements = renamedElements.withColumnRenamed(ReservedPropertyNames.MATCHED_VERTEX.name(), SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME);
+        return renamedElements;
     }
 
     private String groupsToString(final Set<String> groups) {
