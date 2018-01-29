@@ -42,7 +42,9 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -419,5 +421,30 @@ public class NamedViewResolverTest {
 
         // Then
         JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfAnotherNamedViewNeedingResolvingDoesNotExist() throws CacheOperationFailedException, SerialisationException {
+        // Given
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willThrow(new IllegalArgumentException("NamedView does not exist: " + NAMED_VIEW_NAME + 1));
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .merge(namedViewToMerge)
+                                .build())
+                        .build())
+                .build();
+
+        // When / Then
+        try {
+            RESOLVER.preExecute(opChain, CONTEXT);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 }

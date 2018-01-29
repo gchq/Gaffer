@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
@@ -61,7 +64,6 @@ public class NamedViewResolver implements GraphHook {
             if (operation instanceof OperationView) {
                 if (((OperationView) operation).getView() instanceof NamedView) {
                     final View resolvedView = resolveViewInOperation((NamedView) ((OperationView) operation).getView());
-                    ((NamedView) resolvedView).setName(null);
                     ((NamedView) ((OperationView) operation).getView()).setName(null);
                     final View viewMergedWithOriginalView = new View.Builder()
                             .merge(resolvedView)
@@ -78,26 +80,32 @@ public class NamedViewResolver implements GraphHook {
         }
     }
 
-    private NamedView resolveViewInOperation(final NamedView namedView) {
-        NamedView.Builder newNamedView;
+    private View resolveViewInOperation(final NamedView namedView) {
+        View.Builder newView;
         try {
             NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
             View resolvedCachedView = cachedNamedView.getView(namedView.getParameters());
-            newNamedView = new NamedView.Builder()
-                    .name(namedView.getName())
+            newView = new View.Builder()
                     .merge(resolvedCachedView);
 
+            List<String> mergedNamedViewsToResolve = new ArrayList<>();
+
+            if (null != namedView.getMergedNamedViewNames()) {
+                mergedNamedViewsToResolve.addAll(namedView.getMergedNamedViewNames());
+            }
+
             if (resolvedCachedView instanceof NamedView && null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                for (final String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                    final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
-                    final NamedView resolvedNestedCacheNamedView = new NamedView.Builder().name(null).merge(nestedCachedNamedView.getView(namedView.getParameters())).build();
-                    newNamedView.merge(resolvedNestedCacheNamedView);
-                }
+                mergedNamedViewsToResolve.addAll(((NamedView) resolvedCachedView).getMergedNamedViewNames());
+            }
+
+            for (final String name : mergedNamedViewsToResolve) {
+                final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
+                newView.merge(nestedCachedNamedView.getView(namedView.getParameters()));
             }
         } catch (final CacheOperationFailedException e) {
             // failed to find the namedView in the cache
             throw new RuntimeException(e);
         }
-        return newNamedView.build();
+        return newView.build();
     }
 }
