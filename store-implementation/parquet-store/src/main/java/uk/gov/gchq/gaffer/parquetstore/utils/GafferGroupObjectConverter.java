@@ -256,7 +256,7 @@ public class GafferGroupObjectConverter implements Serializable {
         Object src = null;
         Object dst = null;
         boolean isDir = false;
-        for (final Map.Entry<String, String[]> columnToPaths : columnToPaths.entrySet()) {
+        for (final Map.Entry<String, String[]> columnToPaths : this.columnToPaths.entrySet()) {
             final String column = columnToPaths.getKey();
             final String[] paths = columnToPaths.getValue();
             final Object[] parquetObjectsForColumn = new Object[paths.length];

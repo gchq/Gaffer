@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,7 +37,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -193,7 +193,7 @@ public class GetWalks implements
 
         public Builder operations(final Output... operations) {
             if (null != operations) {
-                _getOp().setOperations(Arrays.asList(operations));
+                _getOp().setOperations(Lists.newArrayList(operations));
             }
             return _self();
         }
@@ -219,7 +219,7 @@ public class GetWalks implements
 
         public Builder addOperations(final Output... operations) {
             if (null != operations) {
-                _getOp().addOperations(Arrays.asList(operations));
+                _getOp().addOperations(Lists.newArrayList(operations));
             }
             return _self();
         }
