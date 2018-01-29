@@ -62,6 +62,7 @@ uk.gov.gchq.gaffer.federatedstore.operation.handler
 uk.gov.gchq.gaffer.federatedstore.operation.handler.impl
 uk.gov.gchq.gaffer.federatedstore.util
 uk.gov.gchq.gaffer.flink.operation.handler
+uk.gov.gchq.gaffer.flink.operation.handler.serialisation
 uk.gov.gchq.gaffer.flink.operation.handler.util
 uk.gov.gchq.gaffer.graph
 uk.gov.gchq.gaffer.graph.hook
@@ -98,6 +99,8 @@ uk.gov.gchq.gaffer.mapstore.utils
 uk.gov.gchq.gaffer.named.operation
 uk.gov.gchq.gaffer.named.operation.cache.exception
 uk.gov.gchq.gaffer.named.operation.serialisation
+uk.gov.gchq.gaffer.named.view
+uk.gov.gchq.gaffer.named.view.serialisation
 uk.gov.gchq.gaffer.operation
 uk.gov.gchq.gaffer.operation.data
 uk.gov.gchq.gaffer.operation.data.generator
@@ -107,6 +110,7 @@ uk.gov.gchq.gaffer.operation.export.graph.handler
 uk.gov.gchq.gaffer.operation.export.resultcache
 uk.gov.gchq.gaffer.operation.export.resultcache.handler
 uk.gov.gchq.gaffer.operation.export.resultcache.handler.util
+uk.gov.gchq.gaffer.operation.function
 uk.gov.gchq.gaffer.operation.graph
 uk.gov.gchq.gaffer.operation.impl
 uk.gov.gchq.gaffer.operation.impl.add
@@ -175,6 +179,8 @@ uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation
 uk.gov.gchq.gaffer.sketches.serialisation.json
 uk.gov.gchq.gaffer.spark
+uk.gov.gchq.gaffer.spark.data.generator
+uk.gov.gchq.gaffer.spark.function
 uk.gov.gchq.gaffer.spark.operation
 uk.gov.gchq.gaffer.spark.operation.dataframe
 uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception
@@ -182,6 +188,8 @@ uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property
 uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl
 uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.datasketches.theta
 uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema
+uk.gov.gchq.gaffer.spark.operation.graphframe
+uk.gov.gchq.gaffer.spark.operation.handler.graphframe
 uk.gov.gchq.gaffer.spark.operation.javardd
 uk.gov.gchq.gaffer.spark.operation.scalardd
 uk.gov.gchq.gaffer.spark.serialisation
@@ -191,6 +199,8 @@ uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality
 uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies
 uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles
 uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling
+uk.gov.gchq.gaffer.spark.utils
+uk.gov.gchq.gaffer.spark.utils.scala
 uk.gov.gchq.gaffer.sparkaccumulo.operation
 uk.gov.gchq.gaffer.sparkaccumulo.operation.handler
 uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe
