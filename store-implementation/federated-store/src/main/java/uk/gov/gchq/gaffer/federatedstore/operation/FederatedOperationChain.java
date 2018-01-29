@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -37,7 +38,6 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +94,7 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
     @JsonIgnore
     @Override
     public List<OperationChain> getOperations() {
-        return Collections.singletonList(operationChain);
+        return Lists.newArrayList(operationChain);
     }
 
     public FederatedOperationChain<O_ITEM> shallowClone() throws CloneFailedException {
