@@ -81,12 +81,15 @@ public class NamedViewResolver implements GraphHook {
     }
 
     private View resolveViewInOperation(final NamedView namedView) {
-        View.Builder newView;
+        View.Builder newView = new View.Builder();
         try {
             NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
             View resolvedCachedView = cachedNamedView.getView(namedView.getParameters());
-            newView = new View.Builder()
-                    .merge(resolvedCachedView);
+
+            if (resolvedCachedView instanceof NamedView) {
+                ((NamedView) resolvedCachedView).setName(null);
+            }
+            newView.merge(resolvedCachedView);
 
             List<String> mergedNamedViewsToResolve = new ArrayList<>();
 
@@ -99,12 +102,18 @@ public class NamedViewResolver implements GraphHook {
             }
 
             for (final String name : mergedNamedViewsToResolve) {
-                final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
-                newView.merge(nestedCachedNamedView.getView(namedView.getParameters()));
+                final NamedViewDetail nestedCachedNamedViewDetail = cache.getNamedView(name);
+                if (null != nestedCachedNamedViewDetail) {
+                    final View nestedCachedNamedView = nestedCachedNamedViewDetail.getView(namedView.getParameters());
+                    if (nestedCachedNamedView instanceof NamedView) {
+                        ((NamedView) nestedCachedNamedView).setName(null);
+                    }
+                    newView.merge(nestedCachedNamedView);
+                }
             }
         } catch (final CacheOperationFailedException e) {
-            // failed to find the namedView in the cache
-            throw new RuntimeException(e);
+            // failed to find the namedView in the cache.
+            // ignore this as it users might know it isn't in there.
         }
         return newView.build();
     }

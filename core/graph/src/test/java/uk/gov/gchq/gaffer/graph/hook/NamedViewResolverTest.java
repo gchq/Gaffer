@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
@@ -42,9 +43,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -122,8 +121,8 @@ public class NamedViewResolverTest {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
+        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).view(namedViewToMerge).build();
         final View mergedView = new View.Builder().merge(FULL_VIEW).edge(TestGroups.EDGE).build();
-        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).view(FULL_VIEW).build();
         given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewDetailToMerge);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
@@ -424,11 +423,16 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfAnotherNamedViewNeedingResolvingDoesNotExist() throws CacheOperationFailedException, SerialisationException {
+     public void shouldBuildFullViewWhenaFullNamedViewToBeMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willThrow(new IllegalArgumentException("NamedView does not exist: " + NAMED_VIEW_NAME + 1));
+        final View finalExpectedView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .merge(FULL_VIEW)
+                .build();
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(null);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -439,12 +443,39 @@ public class NamedViewResolverTest {
                         .build())
                 .build();
 
-        // When / Then
-        try {
-            RESOLVER.preExecute(opChain, CONTEXT);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+
+        // Then
+        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldBuildFullViewWhenANamedViewNeedingToBeResolvedAndMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
+        // Given
+        final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
+        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(NAMED_VIEW_NAME + 1).view(viewToMerge).build();
+        final View finalExpectedView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .merge(FULL_VIEW)
+                .build();
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewDetailToMerge);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .merge(new NamedView.Builder().name(NAMED_VIEW_NAME+1).build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+
+        // Then
+        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 }

@@ -108,7 +108,7 @@ public class NamedViewCacheTest {
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
         try {
             cache.getNamedView(null);
-        } catch (IllegalArgumentException e) {
+        } catch (CacheOperationFailedException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
         }
     }
