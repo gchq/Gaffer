@@ -115,7 +115,6 @@ public class GetGraphFrameOfElementsHandlerTest {
 
     @Test
     public void shouldGetCorrectElementsInGraphFrameWithNoEdges() throws OperationException {
-        // Given
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
