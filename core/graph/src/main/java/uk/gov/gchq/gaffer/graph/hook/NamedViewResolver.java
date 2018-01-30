@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
