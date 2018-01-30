@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.apache.commons.lang3.StringUtils;
-
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -104,12 +102,9 @@ public class NamedViewResolver implements GraphHook {
                 if (resolvedCachedView instanceof NamedView) {
                     ((NamedView) resolvedCachedView).setName(null);
                     fullyResolvedView.merge(resolvedCachedView);
-                    if (null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()
-                            && !((NamedView) resolvedCachedView).getMergedNamedViewNames().isEmpty()) {
+                    if (null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
                         for (String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                            if (StringUtils.isNotEmpty(name)) {
                                 fullyResolvedView.merge(resolveNamedView(name, parameters));
-                            }
                         }
                     }
                 } else {
