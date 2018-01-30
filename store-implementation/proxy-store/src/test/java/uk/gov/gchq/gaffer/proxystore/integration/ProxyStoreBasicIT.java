@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore.integration;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,22 +37,21 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -62,10 +62,12 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ProxyStoreBasicIT {
@@ -242,48 +244,51 @@ public class ProxyStoreBasicIT {
         graph.execute(add, USER);
     }
 
-    // TODO should fail but doesn't
     @Test
-    public void test() throws OperationException {
-        final String json = "[\n" +
-                "  {\n" +
-                "    \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
-                "    \"group\": \"Cardinality\",\n" +
-                "    \"vertex\": \"293020,87860\",\n" +
-                "    \"properties\": {\n" +
-                "      \"hllp\": {\n" +
-                "        \"com.clearspring.analytics.stream.cardinality.HyperLogLogPlus\": {\n" +
-                "          \"hyperLogLogPlus\": {\n" +
-                "            \"hyperLogLogPlusSketchBytes\": \"/////gUFAQH9GA==\",\n" +
-                "            \"cardinality\": 1\n" +
-                "          }\n" +
-                "        }\n" +
-                "      },\n" +
-                "      \"count\": {\n" +
-                "        \"java.lang.Long\": 264\n" +
-                "      },\n" +
-                "      \"edgeGroup\": {\n" +
-                "        \"java.util.TreeSet\": [\n" +
-                "          \"JunctionLocatedAt\"\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "]";
+    public void shouldCorrectlyDeserialiseResultsIntoEntitiesAfterLimitOperation() throws OperationException {
+        addDefaultElements();
+        final Iterable<? extends Element> results = graph.execute(
+                new OperationChain.Builder()
+                        .first(new GetAllElements())
+                        .then(new Limit<>(2))
+                        .build(), new User());
 
-        final byte[] jsonBytes = json.getBytes();
-
-        final Iterable<? extends Element> result;
-
-        try {
-            result = JSONSerialiser.deserialise(jsonBytes, TypeReferenceImpl.createIterableT());
-            for (final Object obj : result) {
-                System.out.println(obj);
-            }
-        } catch (final SerialisationException e) {
-            System.out.println(e.getMessage());
-        }
-
-
+        assertEquals(2, Iterables.size(results));
+        assertThat(results, containsInAnyOrder(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[1]));
     }
+
+    @Test
+    public void shouldExecuteGetWalksAndDeserialiseResultsCorrectlyAfterLimitOperation() throws OperationException {
+        addDefaultElements();
+        final Iterable<? extends Walk> results = graph.execute(
+                new OperationChain.Builder()
+                        .first(new GetWalks.Builder()
+                                .input(new EntitySeed("1"))
+                                .operations(new GetElements())
+                                .build())
+                        .then(new Limit<>(1))
+                        .build(), new User());
+
+        assertEquals(1, Iterables.size(results));
+        assertEquals(1, Iterables.size(Iterables.get(results, 0).getEdges()));
+        assertEquals(2, Iterables.size(Iterables.get(results, 0).getEntities()));
+
+        assertTrue(
+                Iterables.get(  // 4. first Edge from Set
+                        Iterables.get(  // 3. first Set of Edges from List
+                                Iterables.get(results, 0)   // 1. first Walk from results
+                                        .getEdges(),    // 2. List of Edges
+                                0),
+                        0).equals(DEFAULT_ELEMENTS[2]));
+
+        assertTrue(
+                Iterables.get(  // 4. first Entity from Set
+                        Iterables.get(  // 3. first Set of Entities from List
+                                Iterables.get(results, 0)   // 1. First Walk from results
+                                        .getEntities(), // 2. List of entities
+                                0),
+                        0).equals(DEFAULT_ELEMENTS[0]));
+    }
+
+
 }

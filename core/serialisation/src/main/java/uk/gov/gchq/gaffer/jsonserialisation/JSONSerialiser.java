@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
@@ -89,12 +90,13 @@ public class JSONSerialiser {
     private static JSONSerialiser instance;
 
     private final ObjectMapper mapper;
+    private final ObjectMapper mapperWithTyping;
 
     /**
      * Constructs a {@code JSONSerialiser} that skips nulls and default values.
      */
     protected JSONSerialiser() {
-        this(createDefaultMapper());
+        this(createDefaultMapper(false), createDefaultMapper(true));
     }
 
     /**
@@ -103,10 +105,16 @@ public class JSONSerialiser {
      * default mapper provided from JSONSerialiser.createDefaultMapper() then
      * add your custom configuration.
      *
-     * @param mapper a custom object mapper
+     * @param mapper a custom serialiser object mapper
+     * @param mapper a custom deserialiser object mapper
      */
     protected JSONSerialiser(final ObjectMapper mapper) {
+        this(mapper, null);
+    }
+
+    protected JSONSerialiser(final ObjectMapper mapper, final ObjectMapper mapperWithTyping) {
         this.mapper = mapper;
+        this.mapperWithTyping = mapperWithTyping;
     }
 
     /**
@@ -118,6 +126,9 @@ public class JSONSerialiser {
     protected void registerModules(final Module... modules) {
         for (final Module module : modules) {
             mapper.registerModule(module);
+            if (null != mapperWithTyping) {
+                mapperWithTyping.registerModules(modules);
+            }
         }
     }
 
@@ -129,6 +140,9 @@ public class JSONSerialiser {
      */
     protected void registerModules(final Collection<Module> modules) {
         modules.forEach(mapper::registerModule);
+        if (null != mapperWithTyping) {
+            modules.forEach(mapperWithTyping::registerModule);
+        }
     }
 
     public static void addSimpleClassNames(final boolean includeSubtypes, final Class... classes) {
@@ -172,6 +186,9 @@ public class JSONSerialiser {
             final List<Module> modules = factory.getModules();
             if (null != modules) {
                 newInstance.mapper.registerModules(modules);
+                if (null != newInstance.mapperWithTyping) {
+                    newInstance.mapperWithTyping.registerModules(modules);
+                }
             }
         }
         instance = newInstance;
@@ -179,12 +196,20 @@ public class JSONSerialiser {
     }
 
     public static ObjectMapper createDefaultMapper() {
+        return createDefaultMapper(false);
+    }
+
+    public static ObjectMapper createDefaultMapper(final boolean withTyping) {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
         mapper.registerModule(CloseableIterableDeserializer.getModule());
+
+        if (withTyping) {
+            mapper.enableDefaultTypingAsProperty(DefaultTyping.JAVA_LANG_OBJECT, "class");
+        }
 
         // Using the deprecated version for compatibility with older versions of jackson
         mapper.registerModule(new JSR310Module());
@@ -276,6 +301,29 @@ public class JSONSerialiser {
     }
 
     /**
+     * @param json  the json of the object to deserialise
+     * @param clazz the class of the object to deserialise
+     * @param <T>   the type of the object
+     * @return the deserialised object
+     * @throws SerialisationException if the json fails to deserialise
+     */
+    public static <T> T deserialise(final String json, final Class<T> clazz) throws SerialisationException {
+        if (null != getInstance().mapperWithTyping) {
+            try {
+                return getInstance().mapperWithTyping.readValue(json, clazz);
+            } catch (final IOException e) {
+                // ignore error
+            }
+        }
+
+        try {
+            return getInstance().mapper.readValue(json, clazz);
+        } catch (final IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
+    }
+
+    /**
      * @param bytes the bytes of the object to deserialise
      * @param clazz the class of the object to deserialise
      * @param <T>   the type of the object
@@ -283,6 +331,14 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public static <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
+        if (null != getInstance().mapperWithTyping) {
+            try {
+                return getInstance().mapperWithTyping.readValue(bytes, clazz);
+            } catch (final IOException e) {
+                // ignore error
+            }
+        }
+
         try {
             return getInstance().mapper.readValue(bytes, clazz);
         } catch (final IOException e) {
@@ -314,6 +370,14 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public static <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
+        if (null != getInstance().mapperWithTyping) {
+            try {
+                return getInstance().mapperWithTyping.readValue(bytes, type);
+            } catch (final IOException e) {
+                // ignore error
+            }
+        }
+
         try {
             return getInstance().mapper.readValue(bytes, type);
         } catch (final IOException e) {
@@ -343,6 +407,14 @@ public class JSONSerialiser {
      * @throws SerialisationException if the bytes fail to deserialise
      */
     public static JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
+        if (null != getInstance().mapperWithTyping) {
+            try {
+                return getInstance().mapperWithTyping.readTree(content);
+            } catch (final IOException e) {
+                // ignore error
+            }
+        }
+
         try {
             return getInstance().mapper.readTree(content);
         } catch (final IOException e) {
