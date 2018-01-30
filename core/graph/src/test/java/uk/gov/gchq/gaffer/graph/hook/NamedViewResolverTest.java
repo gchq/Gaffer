@@ -423,7 +423,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-     public void shouldBuildFullViewWhenaFullNamedViewToBeMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
+     public void shouldBuildFullViewWhenAFullNamedViewToBeMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
         // Given
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
         final View finalExpectedView = new View.Builder()

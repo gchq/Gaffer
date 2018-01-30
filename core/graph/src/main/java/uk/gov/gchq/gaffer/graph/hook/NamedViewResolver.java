@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import org.apache.commons.lang.StringUtils;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -27,8 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
@@ -81,40 +82,45 @@ public class NamedViewResolver implements GraphHook {
     }
 
     private View resolveViewInOperation(final NamedView namedView) {
-        View.Builder newView = new View.Builder();
+        View.Builder viewBuilder = new View.Builder();
+
+        viewBuilder.merge(resolveNamedView(namedView.getName(), namedView.getParameters()));
+
+        if (null != namedView.getMergedNamedViewNames()) {
+            for (String name : namedView.getMergedNamedViewNames()) {
+                viewBuilder.merge(resolveNamedView(name, namedView.getParameters()));
+            }
+        }
+        return viewBuilder.build();
+    }
+
+    private View resolveNamedView(final String namedViewName, final Map<String, Object> parameters) {
+        View.Builder fullyResolvedView = new View.Builder();
         try {
-            NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
-            View resolvedCachedView = cachedNamedView.getView(namedView.getParameters());
+            NamedViewDetail cachedNamedView = cache.getNamedView(namedViewName);
+            if (null != cachedNamedView) {
+                View resolvedCachedView = cachedNamedView.getView(parameters);
 
-            if (resolvedCachedView instanceof NamedView) {
-                ((NamedView) resolvedCachedView).setName(null);
-            }
-            newView.merge(resolvedCachedView);
-
-            List<String> mergedNamedViewsToResolve = new ArrayList<>();
-
-            if (null != namedView.getMergedNamedViewNames()) {
-                mergedNamedViewsToResolve.addAll(namedView.getMergedNamedViewNames());
-            }
-
-            if (resolvedCachedView instanceof NamedView && null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                mergedNamedViewsToResolve.addAll(((NamedView) resolvedCachedView).getMergedNamedViewNames());
-            }
-
-            for (final String name : mergedNamedViewsToResolve) {
-                final NamedViewDetail nestedCachedNamedViewDetail = cache.getNamedView(name);
-                if (null != nestedCachedNamedViewDetail) {
-                    final View nestedCachedNamedView = nestedCachedNamedViewDetail.getView(namedView.getParameters());
-                    if (nestedCachedNamedView instanceof NamedView) {
-                        ((NamedView) nestedCachedNamedView).setName(null);
+                if (resolvedCachedView instanceof NamedView) {
+                    ((NamedView) resolvedCachedView).setName(null);
+                    fullyResolvedView.merge(resolvedCachedView);
+                    if (null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()
+                            && !((NamedView) resolvedCachedView).getMergedNamedViewNames().isEmpty()) {
+                        for (String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
+                            if (StringUtils.isNotEmpty(name)) {
+                                fullyResolvedView.merge(resolveNamedView(name, parameters));
+                            }
+                        }
                     }
-                    newView.merge(nestedCachedNamedView);
+                } else {
+                    fullyResolvedView.merge(resolvedCachedView);
                 }
             }
         } catch (final CacheOperationFailedException e) {
             // failed to find the namedView in the cache.
-            // ignore this as it users might know it isn't in there.
+            // ignore this as users might know it isn't in there.
         }
-        return newView.build();
+
+        return fullyResolvedView.build();
     }
 }
