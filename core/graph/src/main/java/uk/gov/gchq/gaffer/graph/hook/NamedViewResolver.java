@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -45,7 +47,7 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveViewsInOperations(opChain);
+        resolveViews(opChain);
     }
 
     @Override
@@ -58,63 +60,63 @@ public class NamedViewResolver implements GraphHook {
         return result;
     }
 
-    private void resolveViewsInOperations(final Operations<?> operations) {
+    private void resolveViews(final Operations<?> operations) {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
-                if (((OperationView) operation).getView() instanceof NamedView) {
-                    final View resolvedView = resolveViewInOperation((NamedView) ((OperationView) operation).getView());
-                    ((NamedView) ((OperationView) operation).getView()).setName(null);
-                    final View viewMergedWithOriginalView = new View.Builder()
-                            .merge(resolvedView)
-                            .merge(((OperationView) operation).getView())
-                            .build();
-
-                    ((OperationView) operation).setView(viewMergedWithOriginalView);
+                final OperationView opView = ((OperationView) operation);
+                if (opView.getView() instanceof NamedView) {
+                    opView.setView(resolveView((NamedView) opView.getView()));
                 }
-            } else {
-                if (operation instanceof Operations) {
-                    resolveViewsInOperations((Operations<?>) operation);
-                }
+            } else if (operation instanceof Operations) {
+                resolveViews((Operations<?>) operation);
             }
         }
     }
 
-    private View resolveViewInOperation(final NamedView namedView) {
-        View.Builder viewBuilder = new View.Builder();
-
-        viewBuilder.merge(resolveNamedView(namedView.getName(), namedView.getParameters()));
-
-        if (null != namedView.getMergedNamedViewNames()) {
-            for (String name : namedView.getMergedNamedViewNames()) {
-                viewBuilder.merge(resolveNamedView(name, namedView.getParameters()));
+    private View resolveView(final NamedView namedView) {
+        View resolvedView = resolveView(namedView.getName(), namedView.getParameters());
+        if (CollectionUtils.isNotEmpty(namedView.getMergedNamedViewNames())) {
+            final View.Builder viewBuilder = new View.Builder();
+            viewBuilder.merge(resolvedView);
+            for (final String name : namedView.getMergedNamedViewNames()) {
+                viewBuilder.merge(resolveView(name, namedView.getParameters()));
             }
+            resolvedView = viewBuilder.build();
         }
-        return viewBuilder.build();
+
+        namedView.setName(null);
+        return new View.Builder()
+                .merge(resolvedView)
+                .merge(namedView)
+                .build();
     }
 
-    private View resolveNamedView(final String namedViewName, final Map<String, Object> parameters) {
-        View.Builder fullyResolvedView = new View.Builder();
+    private View resolveView(final String namedViewName, final Map<String, Object> parameters) {
+        final NamedViewDetail cachedNamedView;
         try {
-            NamedViewDetail cachedNamedView = cache.getNamedView(namedViewName);
-            if (null != cachedNamedView) {
-                View resolvedCachedView = cachedNamedView.getView(parameters);
-
-                if (resolvedCachedView instanceof NamedView) {
-                    ((NamedView) resolvedCachedView).setName(null);
-                    fullyResolvedView.merge(resolvedCachedView);
-                    if (null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                        for (String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                                fullyResolvedView.merge(resolveNamedView(name, parameters));
-                        }
-                    }
-                } else {
-                    fullyResolvedView.merge(resolvedCachedView);
-                }
-            }
+            cachedNamedView = cache.getNamedView(namedViewName);
         } catch (final CacheOperationFailedException e) {
             throw new RuntimeException(e);
         }
 
-        return fullyResolvedView.build();
+        View resolvedView;
+        if (null == cachedNamedView) {
+            resolvedView = new View();
+        } else {
+            resolvedView = cachedNamedView.getView(parameters);
+            if (resolvedView instanceof NamedView) {
+                ((NamedView) resolvedView).setName(null);
+                if (CollectionUtils.isNotEmpty(((NamedView) resolvedView).getMergedNamedViewNames())) {
+                    final View.Builder viewBuilder = new View.Builder();
+                    viewBuilder.merge(resolvedView);
+                    for (final String name : ((NamedView) resolvedView).getMergedNamedViewNames()) {
+                        viewBuilder.merge(resolveView(name, parameters));
+                    }
+                    resolvedView = viewBuilder.build();
+                }
+            }
+        }
+
+        return resolvedView;
     }
 }
