@@ -30,7 +30,7 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
         DeleteNamedView operation = new DeleteNamedView.Builder().name(namedViewName).build();
 
         // Then
-        assertEquals(namedViewName, operation.getViewName());
+        assertEquals(namedViewName, operation.getName());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
 
         // Then
         assertNotSame(deleteNamedView, clone);
-        assertEquals(namedViewName, clone.getViewName());
+        assertEquals(namedViewName, clone.getName());
     }
 
     @Override
