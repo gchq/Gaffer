@@ -54,13 +54,13 @@ import java.util.Set;
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}s.
  */
 @JsonPropertyOrder(value = {
-        "preAggregationFilter",
+        "preAggregationFilterFunctions",
         "groupBy",
         "aggregator",
-        "postAggregationFilter",
+        "postAggregationFilterFunctions",
         "transientProperties",
-        "transformer",
-        "postTransformFilter",
+        "transformFunctions",
+        "postTransformFilterFunctions",
         "properties",
         "excludeProperties"
 }, alphabetic = true)

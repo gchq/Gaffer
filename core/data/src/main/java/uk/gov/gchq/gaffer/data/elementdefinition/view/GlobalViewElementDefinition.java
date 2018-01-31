@@ -36,13 +36,13 @@ import java.util.Set;
  */
 @JsonPropertyOrder(value = {
         "groups",
-        "preAggregationFilter",
+        "preAggregationFilterFunctions",
         "groupBy",
         "aggregator",
-        "postAggregationFilter",
+        "postAggregationFilterFunctions",
         "transientProperties",
-        "transformer",
-        "postTransformFilter",
+        "transformFunctions",
+        "postTransformFilterFunctions",
         "properties",
         "excludeProperties"
 }, alphabetic = true)
