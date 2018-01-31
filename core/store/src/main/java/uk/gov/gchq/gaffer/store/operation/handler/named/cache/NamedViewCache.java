@@ -164,7 +164,7 @@ public class NamedViewCache {
             if (null != namedViewFromCache) {
                 return namedViewFromCache;
             } else {
-                throw new CacheOperationFailedException("No NamedViewDetail with the name " + name + " exists in the cache");
+                throw new CacheOperationFailedException("No NamedView with the name " + name + " exists in the cache");
             }
         } else {
             throw new CacheOperationFailedException("NamedView name cannot be null");

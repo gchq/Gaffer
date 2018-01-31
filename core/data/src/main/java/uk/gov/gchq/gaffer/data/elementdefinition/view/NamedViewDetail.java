@@ -113,6 +113,39 @@ public class NamedViewDetail implements Serializable {
     }
 
     /**
+     * Gets the View after adding in default values for any parameters. If a parameter
+     * does not have a default, null is inserted.
+     *
+     * @return The {@link View}
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
+    public View getViewWithDefaultParams() {
+        String viewStringWithDefaults = view;
+
+        if (null != parameters) {
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    viewStringWithDefaults = viewStringWithDefaults.replace(buildParamNameString(paramKey),
+                            StringUtil.toString(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue())));
+                } catch (final SerialisationException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        View view;
+
+        try {
+            view = JSONSerialiser.deserialise(StringUtil.toBytes(viewStringWithDefaults), View.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return view;
+    }
+
+    /**
      * Gets the View after adding in the parameters specified.  If a parameter does
      * not have a default and none is set an Exception will be thrown.
      *

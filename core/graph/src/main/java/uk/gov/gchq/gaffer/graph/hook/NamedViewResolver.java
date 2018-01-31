@@ -112,8 +112,7 @@ public class NamedViewResolver implements GraphHook {
                 }
             }
         } catch (final CacheOperationFailedException e) {
-            // failed to find the namedView in the cache.
-            // ignore this as users might know it isn't in there.
+            throw new RuntimeException(e);
         }
 
         return fullyResolvedView.build();
