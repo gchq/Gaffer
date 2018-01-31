@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.named.view;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
@@ -48,6 +51,11 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
 
     @Override
     protected DeleteNamedView getTestObject() {
-        return new DeleteNamedView.Builder().name(namedViewName).build();
+        return new DeleteNamedView();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Collections.singleton("name");
     }
 }
