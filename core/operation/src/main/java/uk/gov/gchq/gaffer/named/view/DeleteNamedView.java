@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -27,18 +28,18 @@ import java.util.Map;
  * A {@code DeleteNamedView} is an {@link Operation} for removing a
  * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} from a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class", "name"}, alphabetic = true)
 public class DeleteNamedView implements Operation {
-
     @Required
-    private String viewName;
+    private String name;
     private Map<String, String> options;
 
-    public String getViewName() {
-        return viewName;
+    public String getName() {
+        return name;
     }
 
-    public void setViewName(final String viewName) {
-        this.viewName = viewName;
+    public void setName(final String name) {
+        this.name = name;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class DeleteNamedView implements Operation {
     @Override
     public DeleteNamedView shallowClone() throws CloneFailedException {
         return new DeleteNamedView.Builder()
-                .name(viewName)
+                .name(name)
                 .options(options)
                 .build();
     }
@@ -65,7 +66,7 @@ public class DeleteNamedView implements Operation {
         }
 
         public Builder name(final String name) {
-            _getOp().setViewName(name);
+            _getOp().setName(name);
             return _self();
         }
     }
