@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -30,6 +31,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 
+@JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
 public class If implements InputOutput<Object, Object>, Operations {
 
     private Object input;
@@ -57,6 +59,7 @@ public class If implements InputOutput<Object, Object>, Operations {
     @Override
     public If shallowClone() throws CloneFailedException {
         return new If.Builder()
+                .input(input)
                 .condition(condition)
                 .predicate(predicate)
                 .then(then)
