@@ -16,6 +16,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -52,8 +55,13 @@ public class If implements InputOutput<Object, Object>, Operations {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
-        return null;
+    public If shallowClone() throws CloneFailedException {
+        return new If.Builder()
+                .condition(condition)
+                .predicate(predicate)
+                .then(then)
+                .otherwise(otherwise)
+                .build();
     }
 
     @Override
@@ -103,7 +111,45 @@ public class If implements InputOutput<Object, Object>, Operations {
         this.predicate = predicate;
     }
 
-    //todo write builder, fill in shallowClone, override hashcode, equals, and toString
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final If filter = (If) obj;
+
+        return new EqualsBuilder()
+                .append(condition, filter.condition)
+                .append(predicate, filter.predicate)
+                .append(then, filter.then)
+                .append(otherwise, filter.otherwise)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(31, 83)
+                .append(condition)
+                .append(predicate)
+                .append(then)
+                .append(otherwise)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append(condition)
+                .append(predicate)
+                .append(then)
+                .append(otherwise)
+                .toString();
+    }
 
     public static final class Builder extends Operation.BaseBuilder<If, Builder>
         implements InputOutput.Builder<If, Object, Object, Builder> {
@@ -116,6 +162,19 @@ public class If implements InputOutput<Object, Object>, Operations {
             return _self();
         }
 
-//        public Builder
+        public Builder predicate(final Predicate<Object> predicate) {
+            _getOp().predicate = predicate;
+            return _self();
+        }
 
+        public Builder then(final Operation op) {
+            _getOp().then = op;
+            return _self();
+        }
+
+        public Builder otherwise(final Operation op) {
+            _getOp().otherwise = op;
+            return _self();
+        }
+    }
 }

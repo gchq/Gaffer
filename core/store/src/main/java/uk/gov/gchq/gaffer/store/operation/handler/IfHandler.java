@@ -54,7 +54,7 @@ public class IfHandler implements OutputOperationHandler<If, Object> {
                 return input;
             }
             updateOperationInput(operation.getOtherwise(), input);
-            return store.execute((Output) operation.getThen(), context);
+            return store.execute((Output) operation.getOtherwise(), context);
         }
     }
 
