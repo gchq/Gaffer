@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.FixedAbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -62,7 +62,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
-public class GetElementsIT extends AbstractStoreIT {
+public class GetElementsIT extends FixedAbstractStoreIT {
     // ElementId Seeds
     public static final Collection<ElementId> ENTITY_SEEDS_EXIST =
             Arrays.asList(

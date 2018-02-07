@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.FixedAbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
@@ -51,7 +51,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class GeneratorsIT extends AbstractStoreIT {
+public class GeneratorsIT extends FixedAbstractStoreIT {
     private static final String NEW_SOURCE = "newSource";
     private static final String NEW_DEST = "newDest";
     private static final String NEW_VERTEX = "newVertex";

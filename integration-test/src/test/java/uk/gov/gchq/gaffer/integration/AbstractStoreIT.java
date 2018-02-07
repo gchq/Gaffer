@@ -24,7 +24,6 @@ import org.junit.rules.TestName;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -102,18 +102,20 @@ public abstract class AbstractStoreIT {
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
     protected static Graph graph;
-    private static Schema storeSchema = new Schema();
-    private static StoreProperties storeProperties;
-    private static String singleTestMethod;
+    protected static Schema storeSchema = new Schema();
+    protected static StoreProperties storeProperties;
+    protected static String singleTestMethod;
 
-    private final Map<EntityId, Entity> entities = createEntities();
-    private final Map<EdgeId, Edge> edges = createEdges();
+    protected final Map<EntityId, Entity> entities = createEntities();
+    protected final Map<EdgeId, Edge> edges = createEdges();
 
     @Rule
     public TestName name = new TestName();
     private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
     private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
 
+    protected String originalMethodName;
+    private Method method;
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
         AbstractStoreIT.storeProperties = storeProperties;
@@ -151,39 +153,87 @@ public abstract class AbstractStoreIT {
      */
     @Before
     public void setup() throws Exception {
-        assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
+        initialise();
+        validateTest();
+    }
 
-        final String originalMethodName = name.getMethodName().endsWith("]")
+    protected void initialise() throws Exception {
+        originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
                 : name.getMethodName();
 
+        method = this.getClass().getMethod(originalMethodName);
+    }
+
+    protected void validateTest() throws Exception {
+        assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
         assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
+        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
-        final Method testMethod = this.getClass().getMethod(originalMethodName);
+        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
+        if (null != skippedMethods) {
+            assumeTrue("Skipping test. Justification: " + skippedMethods.get(method.getName()), !skippedMethods.containsKey(originalMethodName));
+        }
+    }
+
+    protected void validateTraits() {
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
-
-        for (final Annotation annotation : testMethod.getDeclaredAnnotations()) {
+        for (final Annotation annotation : method.getDeclaredAnnotations()) {
             if (annotation.annotationType().equals(TraitRequirement.class)) {
                 final TraitRequirement traitRequirement = (TraitRequirement) annotation;
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }
-        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
-
-        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
-        if (null != skippedMethods) {
-            assumeTrue("Skipping test. Justification: " + skippedMethods.get(originalMethodName), !skippedMethods.containsKey(originalMethodName));
-        }
-
-        createGraph();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
     }
 
-    protected void createGraph() {
+    protected void createDefaultGraph() {
         graph = getGraphBuilder()
+                .build();
+
+        validateTraits();
+    }
+
+    public void createGraph(final Schema schema) {
+        graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(schema)
+                .build();
+    }
+
+    public void createGraph(final GraphConfig config) {
+        graph = new Graph.Builder()
+                .config(config)
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema())
+                .build();
+    }
+
+    public void createGraph(final Schema schema, final StoreProperties properties) {
+        graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
+                .storeProperties(properties)
+                .addSchema(schema)
+                .build();
+    }
+
+    public void createGraph(final StoreProperties properties) {
+        graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
+                .storeProperties(properties)
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema())
                 .build();
     }
 
@@ -398,4 +448,5 @@ public abstract class AbstractStoreIT {
     protected User getUser() {
         return new User();
     }
+
 }
