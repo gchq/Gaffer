@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -31,6 +32,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 
+
+// TODO Write JavaDoc
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
 public class If implements InputOutput<Object, Object>, Operations {
 
@@ -39,6 +42,8 @@ public class If implements InputOutput<Object, Object>, Operations {
     private Boolean condition;
     private Operation then;
     private Operation otherwise;
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     private Predicate<Object> predicate;
 
     @Override
