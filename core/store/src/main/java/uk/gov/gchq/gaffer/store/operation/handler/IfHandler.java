@@ -24,8 +24,11 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * An operation handler for {@link If} operations.
+ * If {@link If#getThen()} or {@link If#getOtherwise()} returns a null operation, then the input object will simply be returned.
+ */
 public class IfHandler implements OutputOperationHandler<If, Object> {
-
     @Override
     public Object doOperation(final If operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {

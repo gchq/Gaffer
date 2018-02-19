@@ -32,8 +32,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
 
-
-// TODO Write JavaDoc
+/**
+ * A {@code If} is an {@link Operation} which will execute one of two Operations, based on the result of testing an input Object against a provided {@link Predicate}.
+ * A simple boolean, or anything that resolves to a boolean, can also be used in place of the Predicate.
+ */
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
 public class If implements InputOutput<Object, Object>, Operations {
 
