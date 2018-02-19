@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -30,6 +31,7 @@ import java.util.Map;
  * A {@link GetAllNamedViews} is an {@link uk.gov.gchq.gaffer.operation.Operation}
  * for retrieving all {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s associated with a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetail>> {
     private Map<String, String> options;
 

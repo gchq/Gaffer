@@ -23,15 +23,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Simple POJO containing the details associated with a {@link NamedView}.
@@ -114,6 +113,39 @@ public class NamedViewDetail implements Serializable {
     }
 
     /**
+     * Gets the View after adding in default values for any parameters. If a parameter
+     * does not have a default, null is inserted.
+     *
+     * @return The {@link View}
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
+    public View getViewWithDefaultParams() {
+        String viewStringWithDefaults = view;
+
+        if (null != parameters) {
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    viewStringWithDefaults = viewStringWithDefaults.replace(buildParamNameString(paramKey),
+                            StringUtil.toString(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue())));
+                } catch (final SerialisationException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        View view;
+
+        try {
+            view = JSONSerialiser.deserialise(StringUtil.toBytes(viewStringWithDefaults), View.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return view;
+    }
+
+    /**
      * Gets the View after adding in the parameters specified.  If a parameter does
      * not have a default and none is set an Exception will be thrown.
      *
@@ -122,26 +154,26 @@ public class NamedViewDetail implements Serializable {
      * @throws IllegalArgumentException if substituting the parameters fails
      */
     public View getView(final Map<String, Object> executionParams) {
-        String thisViewString = view;
+        String viewString = view;
 
-        Set<String> paramKeys = parameters.keySet();
+        for (final Map.Entry<String, ViewParameterDetail> entry : parameters.entrySet()) {
+            final String paramKey = entry.getKey();
+            final ViewParameterDetail paramDetail = entry.getValue();
 
-        for (final String paramKey : paramKeys) {
-            Object paramValueObj;
-
+            final Object paramValueObj;
             if (null != executionParams && executionParams.keySet().contains(paramKey)) {
                 paramValueObj = executionParams.get(paramKey);
             } else {
-                if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
-                    paramValueObj = parameters.get(paramKey).getDefaultValue();
+                if (null != paramDetail.getDefaultValue() && !paramDetail.isRequired()) {
+                    paramValueObj = paramDetail.getDefaultValue();
                 } else {
                     throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                 }
             }
             try {
-                thisViewString = thisViewString.replace(buildParamNameString(paramKey),
-                        new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
-            } catch (final SerialisationException | UnsupportedEncodingException e) {
+                viewString = viewString.replace(buildParamNameString(paramKey),
+                        StringUtil.toString(JSONSerialiser.serialise(paramValueObj)));
+            } catch (final SerialisationException e) {
                 throw new IllegalArgumentException(e.getMessage());
             }
         }
@@ -149,11 +181,7 @@ public class NamedViewDetail implements Serializable {
         View view;
 
         try {
-            if (thisViewString.contains("uk.gov.gchq.gaffer.elementdefinition.view.NamedView")) {
-                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
-            } else {
-                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), View.class);
-            }
+            view = JSONSerialiser.deserialise(StringUtil.toBytes(viewString), View.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

@@ -40,14 +40,14 @@ public class NamedViewCache {
      * If it turns out the user is overwriting a non-existent {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}, then the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} will be added normally.
      *
      * @param namedViewDetail The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to store
-     * @param overwrite Flag relating to whether the user is adding (false) or updating/overwriting (true).
+     * @param overwrite       Flag relating to whether the user is adding (false) or updating/overwriting (true).
      * @throws CacheOperationFailedException if the add operation fails.
      */
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite) throws CacheOperationFailedException {
         if (null != namedViewDetail.getName()) {
             namedViewDetail.getName();
         } else {
-            throw new IllegalArgumentException("NamedView name cannot be null");
+            throw new CacheOperationFailedException("NamedView name cannot be null");
         }
 
         if (!overwrite) {
@@ -82,7 +82,7 @@ public class NamedViewCache {
         if (null != name) {
             return getFromCache(name);
         } else {
-            throw new IllegalArgumentException("NamedView name cannot be null");
+            throw new CacheOperationFailedException("NamedView name cannot be null");
         }
     }
 
@@ -164,7 +164,7 @@ public class NamedViewCache {
             if (null != namedViewFromCache) {
                 return namedViewFromCache;
             } else {
-                throw new CacheOperationFailedException("No NamedViewDetail with the name " + name + " exists in the cache");
+                throw new CacheOperationFailedException("No NamedView with the name " + name + " exists in the cache");
             }
         } else {
             throw new CacheOperationFailedException("NamedView name cannot be null");

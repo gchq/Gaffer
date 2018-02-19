@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -107,6 +108,26 @@ public class AddNamedViewHandlerTest {
             handler.doOperation(addNamedView, context, store);
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
+        }
+    }
+
+    @Test
+    public void shouldNotAddNestedNamedView() throws OperationException {
+        final NamedView nestedNamedView = new NamedView.Builder()
+                .name(testNamedViewName + 1)
+                .edge(TestGroups.EDGE)
+                .build();
+
+        addNamedView = new AddNamedView.Builder()
+                .name(testNamedViewName)
+                .view(nestedNamedView)
+                .overwrite(false)
+                .build();
+
+        try {
+            handler.doOperation(addNamedView, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("NamedView can not be nested within NamedView"));
         }
     }
 

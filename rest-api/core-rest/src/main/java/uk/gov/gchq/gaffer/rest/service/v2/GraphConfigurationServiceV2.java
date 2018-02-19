@@ -153,7 +153,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     public Response getSerialisedFieldClasses(final String className) {
         final Class<?> clazz;
         try {
-            clazz = Class.forName(className);
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
         } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
