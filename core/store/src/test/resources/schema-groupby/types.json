@@ -1,0 +1,22 @@
+{
+  "types": {
+    "id.string": {
+      "class": "java.lang.String"
+    },
+    "directed.true": {
+      "class": "java.lang.Boolean"
+    },
+    "count.long": {
+      "class": "java.lang.Long",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "prop.string": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    }
+  }
+}

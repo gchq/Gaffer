@@ -23,26 +23,44 @@ import kafka.utils.TestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.generators.JsonToElementGenerator;
 import uk.gov.gchq.gaffer.integration.impl.loader.AbstractLoaderIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
-public class AddElementsFromKafkaLoaderIT extends AbstractLoaderIT<AddElementsFromKafka> {
+public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromKafka> {
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @Rule
     public final RetryRule rule = new RetryRule();
 
@@ -67,7 +85,28 @@ public class AddElementsFromKafkaLoaderIT extends AbstractLoaderIT<AddElementsFr
     }
 
     @Override
+    protected Iterable<? extends Element> getInputElements() {
+        return getEntities().values();
+    }
+
+    @Override
+    protected Map<EntityId, Entity> createEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = 0; i <= 10; i++) {
+            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+                entity.putProperty(TestPropertyNames.COUNT, 1L);
+                addToMap(entity, entities);
+            }
+        }
+
+        return entities;
+    }
+
+    @Override
     protected void configure(final Iterable<? extends Element> elements) throws Exception {
+        MapStore.resetStaticMap();
+
         bootstrapServers = "localhost:" + getOpenPort();
 
         // Create zookeeper server
@@ -79,11 +118,49 @@ public class AddElementsFromKafkaLoaderIT extends AbstractLoaderIT<AddElementsFr
     }
 
     @Override
+    protected void addElements(final Graph graph) throws Exception {
+        final AddElementsFromKafka op = createOperation(input);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+                graph.execute(op, new User());
+            } catch (final OperationException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(20000);
+                // Create kafka producer and add some data
+                producer = new KafkaProducer<>(producerProps());
+
+                final List<String> vertices = new ArrayList<>();
+                for (final Element element : input) {
+                    if (element instanceof Entity) {
+                        vertices.add(((Entity) element).getVertex().toString());
+                    }
+                }
+
+                for (final String dataValue : vertices) {
+                    producer.send(new ProducerRecord<>(op.getTopic(), dataValue)).get();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        // Wait....
+        Thread.sleep(30000);
+    }
+
+    @Override
     protected AddElementsFromKafka createOperation(final Iterable<? extends Element> elements) {
         return new AddElementsFromKafka.Builder()
-                .generator(String.class, JsonToElementGenerator.class)
+                .generator(String.class, GeneratorImpl.class)
                 .parallelism(1)
-                .validate(true)
+                .validate(false)
                 .skipInvalidElements(false)
                 .topic(UUID.randomUUID().toString())
                 .bootstrapServers(bootstrapServers)
@@ -119,5 +196,11 @@ public class AddElementsFromKafkaLoaderIT extends AbstractLoaderIT<AddElementsFr
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @Override
+    public StoreProperties createStoreProperties() {
+        return MapStoreProperties.loadStoreProperties("store.properties");
     }
 }

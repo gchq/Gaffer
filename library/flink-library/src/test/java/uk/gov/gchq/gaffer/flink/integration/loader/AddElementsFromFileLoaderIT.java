@@ -22,10 +22,14 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.generators.JsonToElementGenerator;
 import uk.gov.gchq.gaffer.integration.impl.loader.AbstractLoaderIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -34,7 +38,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddElementsFromFileLoaderIT extends AbstractLoaderIT<AddElementsFromFile> {
+
+// TODO: Run on AccumuloStore
+public class AddElementsFromFileLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromFile> {
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -42,6 +48,8 @@ public class AddElementsFromFileLoaderIT extends AbstractLoaderIT<AddElementsFro
 
     @Override
     protected void configure(final Iterable<? extends Element> elements) throws Exception {
+        MapStore.resetStaticMap();
+
         file = testFolder.newFile("inputFile.txt");
 
         final List<String> lines = new ArrayList<>();
@@ -52,10 +60,6 @@ public class AddElementsFromFileLoaderIT extends AbstractLoaderIT<AddElementsFro
         }
 
         FileUtils.writeLines(file, lines);
-
-        final StoreProperties storeProperties = getStoreProperties();
-        storeProperties.addOperationDeclarationPaths("FlinkOperationDeclarations.json");
-        AbstractStoreIT.setStoreProperties(storeProperties);
     }
 
     @Override
@@ -63,20 +67,16 @@ public class AddElementsFromFileLoaderIT extends AbstractLoaderIT<AddElementsFro
         return new AddElementsFromFile.Builder()
                 .filename(file.getAbsolutePath())
                 .generator(JsonToElementGenerator.class)
-                .validate(true)
+                .validate(false)
                 .skipInvalidElements(false)
                 .build();
     }
 
     @Override
-    protected void addElements() throws OperationException {
-        graph.execute(createOperation(input), getUser());
+    public StoreProperties createStoreProperties() {
+        final StoreProperties storeProperties = MapStoreProperties.loadStoreProperties("store.properties");
+        storeProperties.addOperationDeclarationPaths("FlinkOperationDeclarations.json");
 
-        // Wait for elements to be ingested.
-        try {
-            Thread.sleep(2000);
-        } catch (final InterruptedException ex) {
-            throw new OperationException(ex);
-        }
+        return storeProperties;
     }
 }

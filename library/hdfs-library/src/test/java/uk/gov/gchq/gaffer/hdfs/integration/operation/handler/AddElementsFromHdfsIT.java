@@ -228,7 +228,7 @@ public abstract class AddElementsFromHdfsIT {
     }
 
     protected void addElementsFromHdfs(final Schema schema, final boolean fullyAggregated) throws Exception {
-        // Given
+        // Given¡¡
         createInputFile(inputDir, 0, NUM_ELEMENTS);
         final Graph graph = createGraph(schema);
 
