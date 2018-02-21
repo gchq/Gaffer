@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.named.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -40,10 +42,14 @@ import java.util.Map;
  * A {@code AddNamedView} is an {@link Operation} for adding a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}
  * to a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class", "name", "description", "view"}, alphabetic = true)
 public class AddNamedView implements Operation {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    @Required
     private String name;
+    @Required
     private String view;
+
     private String description;
     private List<String> writeAccessRoles = new ArrayList<>();
     private Map<String, ViewParameterDetail> parameters;
@@ -64,7 +70,7 @@ public class AddNamedView implements Operation {
 
     @JsonSetter("view")
     public void setView(final JsonNode viewNode) {
-        this.view = viewNode.toString();
+        this.view = null == viewNode ? null : viewNode.toString();
     }
 
     @JsonIgnore
@@ -75,7 +81,7 @@ public class AddNamedView implements Operation {
     @JsonGetter("view")
     public JsonNode getViewAsJsonNode() {
         try {
-            return JSONSerialiser.getJsonNodeFromString(view);
+            return null == view ? null : JSONSerialiser.getJsonNodeFromString(view);
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -83,7 +89,7 @@ public class AddNamedView implements Operation {
 
     public void setView(final View view) {
         try {
-            this.view = new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
+            this.view = null == view ? null : new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -91,7 +97,7 @@ public class AddNamedView implements Operation {
 
     public View getView() {
         try {
-            return JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
+            return null == view ? null : JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new IllegalArgumentException(e.getMessage());
         }

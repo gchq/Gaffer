@@ -44,13 +44,13 @@ public class NamedViewCache {
      * @param overwrite       Flag relating to whether the user is adding (false) or updating/overwriting (true).
      * @param user            The user making the request.
      * @param adminRole       The admin role supplied for permissions.
-     * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedViewDetail requested, or if the add operation fails for some reason.
+     * @throws CacheOperationFailedException if the add operation fails.
      */
     public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user, final String adminRole) throws CacheOperationFailedException {
         if (null != namedViewDetail.getName()) {
             namedViewDetail.getName();
         } else {
-            throw new IllegalArgumentException("NamedView name cannot be null");
+            throw new CacheOperationFailedException("NamedView name cannot be null");
         }
 
         if (!overwrite) {
@@ -112,7 +112,7 @@ public class NamedViewCache {
         if (null != name) {
             return getFromCache(name);
         } else {
-            throw new IllegalArgumentException("NamedView name cannot be null");
+            throw new CacheOperationFailedException("NamedView name cannot be null");
         }
     }
 
@@ -194,7 +194,7 @@ public class NamedViewCache {
             if (null != namedViewFromCache) {
                 return namedViewFromCache;
             } else {
-                throw new CacheOperationFailedException("No NamedViewDetail with the name " + name + " exists in the cache");
+                throw new CacheOperationFailedException("No NamedView with the name " + name + " exists in the cache");
             }
         } else {
             throw new IllegalArgumentException("NamedView name cannot be null");

@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -59,7 +61,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
             throw new IllegalArgumentException("NamedView name must be set and not empty");
         }
 
-        final NamedViewDetail namedView = new NamedViewDetail.Builder()
+        final NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
                 .name(operation.getName())
                 .view(operation.getViewAsString())
                 .description(operation.getDescription())
@@ -67,17 +69,25 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
                 .parameters(operation.getParameters())
                 .build();
 
-        validate(namedView);
+        validate(namedViewDetail.getViewWithDefaultParams(), namedViewDetail);
 
         try {
+<<<<<<< HEAD
             cache.addNamedView(namedView, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminRole());
+=======
+            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag());
+>>>>>>> develop
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
     }
 
-    private void validate(final NamedViewDetail namedViewDetail) throws OperationException {
+    private void validate(final View namedViewWithDefaultParams, final NamedViewDetail namedViewDetail) throws OperationException {
+        if (namedViewWithDefaultParams instanceof NamedView) {
+            throw new OperationException("NamedView can not be nested within NamedView");
+        }
+
         if (null != namedViewDetail.getParameters()) {
             String viewString = namedViewDetail.getView();
             for (final Map.Entry<String, ViewParameterDetail> parameterDetail : namedViewDetail.getParameters().entrySet()) {
