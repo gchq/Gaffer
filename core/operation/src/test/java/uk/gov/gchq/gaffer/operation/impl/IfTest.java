@@ -41,20 +41,20 @@ public class IfTest extends OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final If<Object, Object> filter = getTestObject();
+        final If<Object, Object> ifOp = getTestObject();
 
         // Then
-        assertThat(filter.getInput(), is(notNullValue()));
-        assertTrue(filter.getCondition());
-        assertTrue(filter.getThen() instanceof GetElements);
-        assertTrue(filter.getOtherwise() instanceof GetAllElements);
+        assertThat(ifOp.getInput(), is(notNullValue()));
+        assertTrue(ifOp.getCondition());
+        assertTrue(ifOp.getThen() instanceof GetElements);
+        assertTrue(ifOp.getOtherwise() instanceof GetAllElements);
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         final Object input = "testInput";
-        final If filter = new If.Builder<>()
+        final If ifOp = new If.Builder<>()
                 .input(input)
                 .condition(true)
                 .then(new GetElements.Builder()
@@ -64,10 +64,10 @@ public class IfTest extends OperationTest {
                 .build();
 
         // When
-        final If clone = filter.shallowClone();
+        final If clone = ifOp.shallowClone();
 
         // Then
-        assertNotSame(filter, clone);
+        assertNotSame(ifOp, clone);
         assertEquals(input, clone.getInput());
     }
 
@@ -95,7 +95,7 @@ public class IfTest extends OperationTest {
                 .then(new Limit<>(3))
                 .build();
 
-        final If<Object, Object> filter = new If.Builder<>()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(true)
                 .then(getElements)
                 .otherwise(opChain)
@@ -104,7 +104,7 @@ public class IfTest extends OperationTest {
         final Collection<Operation> expectedOps = Lists.newArrayList(OperationChain.wrap(getElements), opChain);
 
         // When
-        final Collection<Operation> result = filter.getOperations();
+        final Collection<Operation> result = ifOp.getOperations();
 
         // Then
         assertEquals(expectedOps, result);
@@ -122,26 +122,26 @@ public class IfTest extends OperationTest {
                 .then(new Limit<>(3))
                 .build();
 
-        final If<Object, Object> filter = new If.Builder<>()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(false)
                 .build();
 
         final Collection<Operation> opList = Lists.newArrayList(getElements, opChain);
 
         // When
-        filter.updateOperations(opList);
+        ifOp.updateOperations(opList);
 
         // Then
-        assertNotNull(filter.getThen());
-        assertNotNull(filter.getOtherwise());
-        assertEquals(getElements, filter.getThen());
-        assertEquals(opChain, filter.getOtherwise());
+        assertNotNull(ifOp.getThen());
+        assertNotNull(ifOp.getOtherwise());
+        assertEquals(getElements, ifOp.getThen());
+        assertEquals(opChain, ifOp.getOtherwise());
     }
 
     @Test
     public void shouldThrowErrorForTryingToUpdateOperationsWithEmptyList() {
         // Given
-        final If<Object, Object> filter = new If.Builder<>()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(true)
                 .build();
 
@@ -149,7 +149,7 @@ public class IfTest extends OperationTest {
 
         // When / Then
         try {
-            filter.updateOperations(opList);
+            ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Unable to update operations - there are not enough operations to set \"then\""));
@@ -163,7 +163,7 @@ public class IfTest extends OperationTest {
                 .input(new EntitySeed("1"))
                 .build();
 
-        final If<Object, Object> filter = new If.Builder<>()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(false)
                 .build();
 
@@ -171,7 +171,7 @@ public class IfTest extends OperationTest {
 
         // When / Then
         try {
-            filter.updateOperations(opList);
+            ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Unable to update operations - there are not enough operations to set \"otherwise\""));
@@ -189,17 +189,37 @@ public class IfTest extends OperationTest {
 
         final Limit limit = new Limit(5);
 
-        final If<Object, Object> filter = new If.Builder<>()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .build();
 
         final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit);
 
         // When / Then
         try {
-            filter.updateOperations(opList);
+            ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Unable to update operations - there are too many operations: 3"));
         }
+    }
+    
+    @Test
+    public void testShallowClone() {
+        // Given
+        final Object input = "testInput";
+        final GetAllElements getAllElements = new GetAllElements();
+
+        final If<Object, Object> ifOp = new If.Builder<>()
+                .input(input)
+                .then(getAllElements)
+                .build();
+
+        // When
+        final If<Object, Object> clone = ifOp.shallowClone();
+
+        // Then
+        assertNotNull(clone);
+        assertNotSame(clone, ifOp);
+        assertEquals(input, clone.getInput());
     }
 }

@@ -31,17 +31,18 @@ import uk.gov.gchq.gaffer.store.Store;
 public class IfHandler implements OutputOperationHandler<If<Object, Object>, Object> {
     @Override
     public Object doOperation(final If operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
-            throw new OperationException("Input cannot be null");
-        }
-
         final Object input = operation.getInput();
 
         boolean computedCondition;
 
         if (null == operation.getCondition()) {
-            computedCondition = null != operation.getPredicate()
-                    && operation.getPredicate().test(input);
+            try {
+                computedCondition = null != operation.getPredicate()
+                        && operation.getPredicate().test(input);
+            } catch (final ClassCastException e) {
+                throw new OperationException("The predicate '" + operation.getPredicate().getClass().getSimpleName()
+                        + "' cannot accept an input of type '" + input.getClass().getSimpleName());
+            }
         } else {
             computedCondition = operation.getCondition();
         }

@@ -137,7 +137,7 @@ public class If<I, O> implements InputOutput<I, O>,
         return condition;
     }
 
-    public void setCondition(final boolean condition) {
+    public void setCondition(final Boolean condition) {
         this.condition = condition;
     }
 
@@ -212,7 +212,7 @@ public class If<I, O> implements InputOutput<I, O>,
             super(new If<>());
         }
 
-        public Builder<I, O> condition(final boolean condition) {
+        public Builder<I, O> condition(final Boolean condition) {
             _getOp().setCondition(condition);
             return _self();
         }
