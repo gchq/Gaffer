@@ -187,7 +187,7 @@ Apache Kafka (org.apache.kafka:kafka_2.11:0.10.0.0,org.apache.kafka:kafka-client
 - Apache License, Version 2.0
 
 
-Apache Flink (org.apache.flink:flink-java:1.3.2,org.apache.flink:flink-clients_2.11:1.3.2,org.apache.flink:flink-connector-kafka_2.11:1.3.2))
+Apache Flink (org.apache.flink:flink-java:1.4.1,org.apache.flink:flink-clients_2.11:1.4.1,org.apache.flink:flink-connector-kafka_2.11:1.4.1))
 
 - Apache License, Version 2.0
 
