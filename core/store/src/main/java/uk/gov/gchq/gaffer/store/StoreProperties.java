@@ -74,6 +74,8 @@ public class StoreProperties implements Cloneable {
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
 
+    public static final String ADMIN_ROLE = "gaffer.store.admin.role";
+
     /**
      * CSV of extra packages to be included in the reflection scanning.
      */
@@ -444,6 +446,14 @@ public class StoreProperties implements Cloneable {
 
     public void setJsonSerialiserModules(final String modules) {
         set(JSON_SERIALISER_MODULES, modules);
+    }
+
+    public String getAdminRole() {
+        return get(ADMIN_ROLE, "");
+    }
+
+    public void setAdminRole(final String adminRole) {
+        set(ADMIN_ROLE, adminRole);
     }
 
     public Properties getProperties() {

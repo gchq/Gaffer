@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -250,20 +251,25 @@ public class NamedOperationDetail implements Serializable {
                 .toString();
     }
 
-    public boolean hasReadAccess(final User user) {
-        return hasAccess(user, readAccessRoles);
+    public boolean hasReadAccess(final User user, final String adminRole) {
+        return hasAccess(user, readAccessRoles, adminRole);
     }
 
-    public boolean hasWriteAccess(final User user) {
-        return hasAccess(user, writeAccessRoles);
+    public boolean hasWriteAccess(final User user, final String adminRole) {
+        return hasAccess(user, writeAccessRoles, adminRole);
     }
 
-    private boolean hasAccess(final User user, final List<String> roles) {
+    private boolean hasAccess(final User user, final List<String> roles, final String adminRole) {
         if (null != roles) {
             for (final String role : roles) {
                 if (user.getOpAuths().contains(role)) {
                     return true;
                 }
+            }
+        }
+        if (StringUtils.isNotBlank(adminRole)) {
+            if (user.getOpAuths().contains(adminRole)) {
+                return true;
             }
         }
         return user.getUserId().equals(creatorId);

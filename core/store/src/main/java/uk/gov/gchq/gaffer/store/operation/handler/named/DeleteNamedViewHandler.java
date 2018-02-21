@@ -52,7 +52,7 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
     @Override
     public Void doOperation(final DeleteNamedView namedViewOp, final Context context, final Store store) throws OperationException {
         try {
-            cache.deleteNamedView(namedViewOp.getViewName());
+            cache.deleteNamedView(namedViewOp.getViewName(), context.getUser(), store.getProperties().getAdminRole());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

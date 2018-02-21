@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetAllNamedViewsHandlerTest {
@@ -78,6 +79,7 @@ public class GetAllNamedViewsHandlerTest {
     @Test
     public void shouldGetAllNamedViewsFromCache() throws OperationException {
         // Given
+        given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
@@ -93,6 +95,8 @@ public class GetAllNamedViewsHandlerTest {
 
         // Then
         assertEquals(2, Iterables.size(namedViewList));
+        System.out.println(namedViewAsDetail);
+        System.out.println(namedViewList);
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
     }

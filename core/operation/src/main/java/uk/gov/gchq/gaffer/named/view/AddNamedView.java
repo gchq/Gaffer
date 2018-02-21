@@ -31,6 +31,9 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,6 +45,7 @@ public class AddNamedView implements Operation {
     private String name;
     private String view;
     private String description;
+    private List<String> writeAccessRoles = new ArrayList<>();
     private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
@@ -101,6 +105,14 @@ public class AddNamedView implements Operation {
         this.description = description;
     }
 
+    public List<String> getWriteAccessRoles() {
+        return writeAccessRoles;
+    }
+
+    public void setWriteAccessRoles(final List<String> writeAccessRoles) {
+        this.writeAccessRoles = writeAccessRoles;
+    }
+
     public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         this.parameters = parameters;
     }
@@ -133,6 +145,7 @@ public class AddNamedView implements Operation {
                 .name(name)
                 .view(view)
                 .description(description)
+                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
                 .options(options)
@@ -161,6 +174,11 @@ public class AddNamedView implements Operation {
 
         public Builder description(final String description) {
             _getOp().setDescription(description);
+            return _self();
+        }
+
+        public Builder writeAccessRoles(final String... roles) {
+            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
             return _self();
         }
 

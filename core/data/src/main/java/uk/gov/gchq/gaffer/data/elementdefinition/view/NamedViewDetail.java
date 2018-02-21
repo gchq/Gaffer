@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -30,6 +31,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,15 +45,19 @@ public class NamedViewDetail implements Serializable {
     private String name;
     private String view;
     private String description;
+    private String creatorId;
+    private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
 
     public NamedViewDetail() {
     }
 
-    public NamedViewDetail(final String name, final String view, final String description, final Map<String, ViewParameterDetail> parameters) {
+    public NamedViewDetail(final String name, final String view, final String description, final String userId, final List<String> writers, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
         setView(view);
         setDescription(description);
+        this.creatorId = userId;
+        this.writeAccessRoles = writers;
         setParameters(parameters);
     }
 
@@ -96,6 +103,18 @@ public class NamedViewDetail implements Serializable {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public List<String> getWriteAccessRoles() {
+        return writeAccessRoles;
+    }
+
+    public boolean hasWriteAccess(final String userId, final Set<String> opAuths, final String adminRole) {
+        return hasAccess(userId, opAuths, writeAccessRoles, adminRole);
     }
 
     @JsonInclude(Include.NON_DEFAULT)
@@ -176,6 +195,8 @@ public class NamedViewDetail implements Serializable {
                 .append(name, op.name)
                 .append(view, op.view)
                 .append(description, op.description)
+                .append(creatorId, op.creatorId)
+                .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .isEquals();
     }
@@ -186,6 +207,8 @@ public class NamedViewDetail implements Serializable {
                 .append(name)
                 .append(view)
                 .append(description)
+                .append(creatorId)
+                .append(writeAccessRoles)
                 .append(parameters)
                 .hashCode();
     }
@@ -197,6 +220,8 @@ public class NamedViewDetail implements Serializable {
                 .append("name", name)
                 .append("view", view)
                 .append("description", description)
+                .append("creatorId", creatorId)
+                .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .toString();
     }
@@ -206,10 +231,28 @@ public class NamedViewDetail implements Serializable {
         return "\"${" + paramKey + "}\"";
     }
 
+    private boolean hasAccess(final String userId, final Set<String> opAuths, final List<String> roles, final String adminRole) {
+        if (null != roles) {
+            for (final String role : roles) {
+                if (opAuths.contains(role)) {
+                    return true;
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(adminRole)) {
+            if (opAuths.contains(adminRole)) {
+                return true;
+            }
+        }
+        return userId.equals(creatorId);
+    }
+
     public static final class Builder {
         private String name;
         private String view;
         private String description;
+        private String creatorId;
+        private List<String> writers = new ArrayList<>();
         private Map<String, ViewParameterDetail> parameters;
 
         public Builder name(final String name) {
@@ -244,13 +287,23 @@ public class NamedViewDetail implements Serializable {
             return this;
         }
 
+        public Builder creatorId(final String creatorId) {
+            this.creatorId = creatorId;
+            return this;
+        }
+
+        public Builder writers(final List<String> writers) {
+            this.writers = writers;
+            return this;
+        }
+
         public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             this.parameters = parameters;
             return this;
         }
 
         public NamedViewDetail build() {
-            return new NamedViewDetail(name, view, description, parameters);
+            return new NamedViewDetail(name, view, description, creatorId, writers, parameters);
         }
     }
 }

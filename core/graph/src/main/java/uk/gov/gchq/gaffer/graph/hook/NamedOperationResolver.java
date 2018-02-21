@@ -78,7 +78,7 @@ public class NamedOperationResolver implements GraphHook {
     private List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user) {
         final NamedOperationDetail namedOpDetail;
         try {
-            namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
+            namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user, null);
         } catch (final CacheOperationFailedException e) {
             // Unable to find named operation - just return the original named operation
             return Collections.singletonList(namedOp);

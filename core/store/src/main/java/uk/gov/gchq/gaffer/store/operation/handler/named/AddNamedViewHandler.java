@@ -34,7 +34,6 @@ import java.util.Map;
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
 
-
     public AddNamedViewHandler() {
         this(new NamedViewCache());
     }
@@ -64,13 +63,14 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
                 .name(operation.getName())
                 .view(operation.getViewAsString())
                 .description(operation.getDescription())
+                .writers(operation.getWriteAccessRoles())
                 .parameters(operation.getParameters())
                 .build();
 
         validate(namedView);
 
         try {
-            cache.addNamedView(namedView, operation.isOverwriteFlag());
+            cache.addNamedView(namedView, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminRole());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
