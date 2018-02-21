@@ -25,11 +25,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * A {@link CachingIterable} is a {@link CloseableIterable} that attempts to
+ * cache the iterable the first time it is read. Subsequently, when iterator is
+ * called, an iterator to the cached iterable is returned. The caching is disabled
+ * if the iterable size is greater than a provided max size. By default this is
+ * 100,000.
+ *
+ * @param <T> the type of the iterable.
+ */
 public class CachingIterable<T> implements CloseableIterable<T> {
     public static final int DEFAULT_MAX_SIZE = 100000;
 
     private final Iterable<T> iterable;
     private final int maxSize;
+    private boolean tooLarge;
 
     private Iterable<T> cachedIterable;
 
@@ -48,12 +58,17 @@ public class CachingIterable<T> implements CloseableIterable<T> {
             this.iterable = iterable;
         }
         this.maxSize = maxSize;
+        this.tooLarge = false;
     }
 
     @Override
     public CloseableIterator<T> iterator() {
         if (null != cachedIterable) {
             return new WrappedCloseableIterator<>(cachedIterable.iterator());
+        }
+
+        if (tooLarge) {
+            return new WrappedCloseableIterator<>(iterable.iterator());
         }
 
         return new CachingIterator();
@@ -94,10 +109,13 @@ public class CachingIterable<T> implements CloseableIterable<T> {
             }
 
             final T next = iterator.next();
-            if (null != cache && cache.size() < maxSize) {
-                cache.add(next);
-            } else {
-                cache = null;
+            if (null != cache) {
+                if (cache.size() < maxSize) {
+                    cache.add(next);
+                } else {
+                    tooLarge = true;
+                    cache = null;
+                }
             }
             return next;
         }
