@@ -24,8 +24,10 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ContextTest {
@@ -47,20 +49,17 @@ public class ContextTest {
     }
 
     @Test
-    public void shouldConstructContextWithUserAndJobId() {
+    public void shouldConstructContextWithUser() {
         // Given
         final User user = new User();
-        final String randomId = "randomId";
 
         // When
         final Context context = new Context.Builder()
                 .user(user)
-                .jobId(randomId)
                 .build();
 
         // Then
         assertEquals(user, context.getUser());
-        assertEquals(randomId, context.getJobId());
         assertTrue(context.getExporters().isEmpty());
     }
 
@@ -72,6 +71,33 @@ public class ContextTest {
 
         // Then
         assertEquals(User.UNKNOWN_USER_ID, context.getUser().getUserId());
+    }
+
+    @Test
+    public void shouldConstructContextWithContext() {
+        // Given
+        final Context context = new Context.Builder()
+                .user(new User())
+                .build();
+        final Exporter exporter = mock(Exporter.class);
+        context.addExporter(exporter);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain opChainClone = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(opChainClone);
+        context.setOriginalOpChain(opChain);
+        context.setConfig("key", "value");
+
+        // When
+        final Context clone = new Context(context);
+
+        // Then
+        assertSame(context.getUser(), clone.getUser());
+        assertNotEquals(context.getJobId(), clone.getJobId());
+        assertNotSame(context.getOriginalOpChain(), clone.getOriginalOpChain());
+        assertSame(opChainClone, clone.getOriginalOpChain());
+        assertEquals(1, clone.getExporters().size());
+        assertSame(exporter, clone.getExporters().iterator().next());
+        assertEquals(context.getConfig("key"), clone.getConfig("key"));
     }
 
     @Test
