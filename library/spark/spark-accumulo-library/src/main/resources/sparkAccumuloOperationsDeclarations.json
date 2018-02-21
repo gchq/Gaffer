@@ -59,6 +59,18 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.spark.operation.handler.graphframe.GetGraphFrameOfElementsHandler"
       }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.GetJavaRDDOfElementsInRanges",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsInRangesHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.GetRDDOfElementsInRanges",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsInRangesHandler"
+      }
     }
   ]
 }
