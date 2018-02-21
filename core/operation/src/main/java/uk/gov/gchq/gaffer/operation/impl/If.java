@@ -18,59 +18,70 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Predicate;
 
 /**
  * A {@code If} is an {@link Operation} which will execute one of two Operations, based on the result of testing an input Object against a provided {@link Predicate}.
  * A simple boolean, or anything that resolves to a boolean, can also be used in place of the Predicate.
+ *
+ * @see If.Builder
  */
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
-public class If implements InputOutput<Object, Object>, Operations {
+public class If<I, O> implements InputOutput<I, O>,
+        Operations {
 
-    private Object input;
+    private I input;
     private Map<String, String> options;
     private Boolean condition;
     private Operation then;
     private Operation otherwise;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    private Predicate<Object> predicate;
+    private Predicate<I> predicate;
+
+    public If() {
+    }
 
     @Override
-    public Object getInput() {
+    public I getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Object input) {
+    public void setInput(final I input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<O> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
     }
 
     @Override
-    public If shallowClone() throws CloneFailedException {
-        return new If.Builder()
+    public If<I, O> shallowClone() throws CloneFailedException {
+        return new If.Builder<I, O>()
                 .input(input)
                 .condition(condition)
                 .predicate(predicate)
                 .then(then)
                 .otherwise(otherwise)
+                .options(options)
                 .build();
     }
 
@@ -85,8 +96,41 @@ public class If implements InputOutput<Object, Object>, Operations {
     }
 
     @Override
-    public Collection getOperations() {
-        return null;
+    public Collection<Operation> getOperations() {
+        if (null == then) {
+            if (null == otherwise) {
+                return Collections.emptyList();
+            }
+            return Collections.singletonList(OperationChain.wrap(otherwise));
+        }
+
+        if (null == otherwise) {
+            return Collections.singletonList(OperationChain.wrap(then));
+        }
+
+        return Lists.newArrayList(OperationChain.wrap(then), OperationChain.wrap(otherwise));
+    }
+
+    @Override
+    public void updateOperations(final Collection operations) {
+        final Iterator<Operation> itr = operations.iterator();
+        if (null == then) {
+            if (!itr.hasNext()) {
+                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"then\"");
+            }
+            then = itr.next();
+        }
+
+        if (null == otherwise) {
+            if (!itr.hasNext()) {
+                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"otherwise\"");
+            }
+            otherwise = itr.next();
+        }
+
+        if (itr.hasNext()) {
+            throw new IllegalArgumentException("Unable to update operations - there are too many operations: " + operations.size());
+        }
     }
 
     public Boolean getCondition() {
@@ -113,11 +157,11 @@ public class If implements InputOutput<Object, Object>, Operations {
         this.otherwise = otherwise;
     }
 
-    public Predicate<Object> getPredicate() {
+    public Predicate<I> getPredicate() {
         return predicate;
     }
 
-    public void setPredicate(final Predicate<Object> predicate) {
+    public void setPredicate(final Predicate<I> predicate) {
         this.predicate = predicate;
     }
 
@@ -161,29 +205,30 @@ public class If implements InputOutput<Object, Object>, Operations {
                 .toString();
     }
 
-    public static final class Builder extends Operation.BaseBuilder<If, Builder>
-        implements InputOutput.Builder<If, Object, Object, Builder> {
+    public static final class Builder<I, O>
+            extends Operation.BaseBuilder<If<I, O>, Builder<I, O>>
+            implements InputOutput.Builder<If<I, O>, I, O, Builder<I, O>> {
         public Builder() {
-            super(new If());
+            super(new If<>());
         }
 
-        public Builder condition(final boolean condition) {
-            _getOp().condition = condition;
+        public Builder<I, O> condition(final boolean condition) {
+            _getOp().setCondition(condition);
             return _self();
         }
 
-        public Builder predicate(final Predicate<Object> predicate) {
-            _getOp().predicate = predicate;
+        public Builder<I, O> predicate(final Predicate<I> predicate) {
+            _getOp().setPredicate(predicate);
             return _self();
         }
 
-        public Builder then(final Operation op) {
-            _getOp().then = op;
+        public Builder<I, O> then(final Operation op) {
+            _getOp().setThen(op);
             return _self();
         }
 
-        public Builder otherwise(final Operation op) {
-            _getOp().otherwise = op;
+        public Builder<I, O> otherwise(final Operation op) {
+            _getOp().setOtherwise(op);
             return _self();
         }
     }

@@ -43,7 +43,7 @@ public interface ScoreResolver<T extends Operation> {
      * @param defaultScoreResolver the default score resolver to look up scores for nested operations
      * @return the score for the operation, otherwise null if not found
      */
-    default Integer getScore(final T operation, final ScoreResolver defaultScoreResolver) {
-        return getScore(operation);
+    default Integer getScore(final T operation, final ScoreResolver<T> defaultScoreResolver) {
+        return defaultScoreResolver.getScore(operation);
     }
 }

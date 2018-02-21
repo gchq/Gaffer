@@ -53,7 +53,7 @@ public class IfHandlerTest {
         final GetWalks then = mock(GetWalks.class);
         final GetElements otherwise = mock(GetElements.class);
 
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .predicate(predicate)
                 .then(then)
@@ -81,7 +81,7 @@ public class IfHandlerTest {
         final GetWalks then = mock(GetWalks.class);
         final GetElements otherwise = mock(GetElements.class);
 
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .predicate(predicate)
                 .then(then)
@@ -109,7 +109,7 @@ public class IfHandlerTest {
         final GetWalks then = mock(GetWalks.class);
         final GetElements otherwise = mock(GetElements.class);
 
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .predicate(predicate)
                 .then(then)
@@ -135,7 +135,7 @@ public class IfHandlerTest {
         final GetWalks then = null;
         final GetElements otherwise = null;
 
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .predicate(predicate)
                 .then(then)
@@ -162,7 +162,7 @@ public class IfHandlerTest {
         final Object input = Arrays.asList(new EntitySeed("1"), new EntitySeed("2"));
         final GetElements then = mock(GetElements.class);
         final GetAllElements otherwise = mock(GetAllElements.class);
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .condition(true)
                 .then(then)
@@ -186,7 +186,7 @@ public class IfHandlerTest {
         final Predicate<Object> predicate = mock(Predicate.class);
         final OperationChain<Object> then = mock(OperationChain.class);
         final GetAllElements otherwise = mock(GetAllElements.class);
-        final If filter = new If.Builder()
+        final If filter = new If.Builder<>()
                 .input(input)
                 .predicate(predicate)
                 .then(then)
