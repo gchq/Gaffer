@@ -72,11 +72,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         validate(namedViewDetail.getViewWithDefaultParams(), namedViewDetail);
 
         try {
-<<<<<<< HEAD
             cache.addNamedView(namedView, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminRole());
-=======
-            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag());
->>>>>>> develop
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
