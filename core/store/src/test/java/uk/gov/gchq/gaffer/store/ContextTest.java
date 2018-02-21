@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -71,6 +72,20 @@ public class ContextTest {
 
         // Then
         assertEquals(User.UNKNOWN_USER_ID, context.getUser().getUserId());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfUserIsNull() {
+        // Given
+        final User user = null;
+
+        // When / Then
+        try {
+            new Context(user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("User is required", e.getMessage());
+        }
     }
 
     @Test
