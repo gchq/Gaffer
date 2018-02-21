@@ -22,26 +22,23 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.If;
 
 import java.util.Collection;
-import java.util.Map;
 
 public class IfScoreResolver implements ScoreResolver<If> {
     public static final int DEFAULT_OPERATION_SCORE = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(IfScoreResolver.class);
-
-    private final DefaultScoreResolver defaultResolver;
-
-    public IfScoreResolver(final Map<Class<? extends Operation>, Integer> opScores) {
-        defaultResolver = new DefaultScoreResolver(opScores);
+    @Override
+    public Integer getScore(final If operation) {
+        throw new UnsupportedOperationException("Default Score Resolver has not been provided.");
     }
 
     @Override
-    public Integer getScore(final If operation) {
+    public Integer getScore(final If operation, final ScoreResolver defaultScoreResolver) {
         if (null != operation) {
             final Collection<Operation> ops = operation.getOperations();
             Integer maxScore = DEFAULT_OPERATION_SCORE;
 
             for (final Operation op : ops) {
-                final Integer score = defaultResolver.getScore(op);
+                final Integer score = defaultScoreResolver.getScore(op);
                 maxScore = Integer.max(score, maxScore);
             }
 

@@ -44,6 +44,6 @@ public interface ScoreResolver<T extends Operation> {
      * @return the score for the operation, otherwise null if not found
      */
     default Integer getScore(final T operation, final ScoreResolver<T> defaultScoreResolver) {
-        return defaultScoreResolver.getScore(operation);
+        return getScore(operation);
     }
 }

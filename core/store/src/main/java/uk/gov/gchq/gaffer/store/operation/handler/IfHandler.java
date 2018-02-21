@@ -36,31 +36,38 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
         boolean computedCondition;
 
         if (null == operation.getCondition()) {
+            final Object intermediate;
+
+            if (null == operation.getConditional().getTransform()) {
+                intermediate = input;
+            } else {
+                final Operation transform = operation.getConditional().getTransform();
+                updateOperationInput(transform, input);
+                intermediate = getResultsOrNull(transform, context, store);
+
+                if (null == intermediate) {
+                    throw new OperationException("Conditional transform produced a null output");
+                }
+            }
+
             try {
-                computedCondition = null != operation.getPredicate()
-                        && operation.getPredicate().test(input);
+                computedCondition = null != operation.getConditional().getPredicate()
+                        && operation.getConditional().getPredicate().test(intermediate);
             } catch (final ClassCastException e) {
-                throw new OperationException("The predicate '" + operation.getPredicate().getClass().getSimpleName()
-                        + "' cannot accept an input of type '" + input.getClass().getSimpleName());
+                throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
+                        + "' cannot accept an input of type '" + intermediate.getClass().getSimpleName());
             }
         } else {
             computedCondition = operation.getCondition();
         }
 
         final Operation nextOp = computedCondition ? operation.getThen() : operation.getOtherwise();
-        final Object result;
-        if (null ==  nextOp) {
+        if (null == nextOp) {
             return input;
         } else {
             updateOperationInput(nextOp, input);
-            if (nextOp instanceof Output) {
-                result = store.execute((Output) nextOp, context);
-            } else {
-                store.execute(nextOp, context);
-                result = null;
-            }
+            return getResultsOrNull(nextOp, context, store);
         }
-        return result;
     }
 
     private void updateOperationInput(final Operation operation, final Object input) {
@@ -79,6 +86,15 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
     private void setOperationInput(final Operation operation, final Object input) {
         if (null == ((Input) operation).getInput()) {
             ((Input) operation).setInput(input);
+        }
+    }
+
+    private Object getResultsOrNull(final Operation op, final Context context, final Store store) throws OperationException {
+        if (op instanceof Output) {
+            return store.execute((Output) op, context);
+        } else {
+            store.execute(op, context);
+            return null;
         }
     }
 }

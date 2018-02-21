@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -29,16 +28,28 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
- * A {@code If} is an {@link Operation} which will execute one of two Operations, based on the result of testing an input Object against a provided {@link Predicate}.
- * A simple boolean, or anything that resolves to a boolean, can also be used in place of the Predicate.
+ * A {@code If} is an {@link Operation} which will execute one of two Operations,
+ * based on the result of testing an input Object against a provided {@link java.util.function.Predicate}.
+ *
+ * <p>This <code>Predicate</code> can also be configured with an {@link Conditional},
+ * which simply wraps an <code>Operation</code> and a <code> Predicate</code>.
+ * This enables pre-predicate transformation of the input,
+ * which allows properties other than the input object to be passed to the predicate,
+ * whilst preserving the initial input.</p>
+ *
+ * <p>As an example, this allows you to build an {@link Operation}
+ * which extracts a property from the input, passes it to the predicate,
+ * then the untouched original input is passed on to the <code>Operation</code> determined by the predicate test. </p>
+ *
+ * <p>A simple boolean, or anything that resolves to a boolean, can also be used to determine which <code>Operation</code> to execute. </p>
  *
  * @see If.Builder
  */
@@ -52,8 +63,7 @@ public class If<I, O> implements InputOutput<I, O>,
     private Operation then;
     private Operation otherwise;
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    private Predicate<I> predicate;
+    private Conditional conditional;
 
     public If() {
     }
@@ -78,7 +88,6 @@ public class If<I, O> implements InputOutput<I, O>,
         return new If.Builder<I, O>()
                 .input(input)
                 .condition(condition)
-                .predicate(predicate)
                 .then(then)
                 .otherwise(otherwise)
                 .options(options)
@@ -157,12 +166,12 @@ public class If<I, O> implements InputOutput<I, O>,
         this.otherwise = otherwise;
     }
 
-    public Predicate<I> getPredicate() {
-        return predicate;
+    public Conditional getConditional() {
+        return conditional;
     }
 
-    public void setPredicate(final Predicate<I> predicate) {
-        this.predicate = predicate;
+    public void setConditional(final Conditional conditional) {
+        this.conditional = conditional;
     }
 
     @Override
@@ -179,7 +188,7 @@ public class If<I, O> implements InputOutput<I, O>,
 
         return new EqualsBuilder()
                 .append(condition, filter.condition)
-                .append(predicate, filter.predicate)
+                .append(conditional, filter.conditional)
                 .append(then, filter.then)
                 .append(otherwise, filter.otherwise)
                 .isEquals();
@@ -189,7 +198,7 @@ public class If<I, O> implements InputOutput<I, O>,
     public int hashCode() {
         return new HashCodeBuilder(31, 83)
                 .append(condition)
-                .append(predicate)
+                .append(conditional)
                 .append(then)
                 .append(otherwise)
                 .toHashCode();
@@ -199,7 +208,7 @@ public class If<I, O> implements InputOutput<I, O>,
     public String toString() {
         return new ToStringBuilder(this)
                 .append(condition)
-                .append(predicate)
+                .append(conditional)
                 .append(then)
                 .append(otherwise)
                 .toString();
@@ -217,8 +226,8 @@ public class If<I, O> implements InputOutput<I, O>,
             return _self();
         }
 
-        public Builder<I, O> predicate(final Predicate<I> predicate) {
-            _getOp().setPredicate(predicate);
+        public Builder<I, O> conditional(final Conditional conditional) {
+            _getOp().setConditional(conditional);
             return _self();
         }
 
