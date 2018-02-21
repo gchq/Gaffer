@@ -15,19 +15,27 @@
  */
 package uk.gov.gchq.gaffer.rest.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class JsonSerialisationUtil {
@@ -55,22 +63,24 @@ public final class JsonSerialisationUtil {
                 genericType = clazz;
             }
 
-            if (null != property.getSetter() && null == genericType) {
-                genericType = resolveConcreteSetterParameterType(property);
+            final Iterable<AnnotatedMethod> setterMethods = resolveMethods(property, "set");
+            final Iterable<AnnotatedMethod> getterMethods = resolveMethods(property, "get");
+
+            if (null == genericType) {
+                genericType = setterWithAnnotation(setterMethods);
             }
 
-            // TODO if genType is null, try property setter? Similar to above but without comparison to super class?
+            if (null == genericType) {
+                genericType = getterWithAnnotationAndNotIgnored(getterMethods);
+            }
 
             if (null != property.getGetter() && null == genericType) {
                 genericType = property.getGetter().getGenericReturnType();
             }
 
             if (null != property.getField() && null == genericType) {
-                System.out.println(property.getField());
                 genericType = property.getField().getGenericType();
             }
-
-            // TODO check if parameter type is generic, if so return Object.class
 
             if (genericType instanceof Class && ((Class) genericType).isEnum()) {
                 genericType = String.class;
@@ -83,26 +93,79 @@ public final class JsonSerialisationUtil {
     }
 
     /**
-     * This method attempts to resolve the parameter type of a setter from the context of the property.
-     * Initially designed for {@link #getSerialisedFieldClasses(String)}, whereby if an Interface method was
-     * annotated with JsonPropertyInfo, the field class was resolved to a generic type.
-     * This now provides accurate type info for passing values via REST (since the setter information is used)
+     * This method attempts to resolve the most specific and/or contextually relevant method for a given property,
+     * in order to retrieve the parameter type for interacting with the property via JSON/REST.
      *
-     * @param property the property for which the type should be resolved
-     * @return the type for a given field, to be passed via REST
+     * @param property the property for which the method should be resolved
+     * @return the parameter type for the method, or null
      */
-    private static Type resolveConcreteSetterParameterType(final BeanPropertyDefinition property) {
-        final AnnotatedClass contextClass = property.getPrimaryMember().getContextClass();
+    private static Iterable<AnnotatedMethod> resolveMethods(final BeanPropertyDefinition property, final String getOrSet) {
+        if (null == property.getPrimaryMember()) {
+            return new ArrayList<>();
+        }
 
-        final List<Type> methodTypes = Streams.toStream(contextClass.memberMethods())
-                .filter(m -> m.getName().equals(property.getSetter().getName()))
+        final AnnotatedClass contextClass = property.getPrimaryMember().getContextClass();  // TODO find out why Edge#directedType causes a NPE here
+
+        return Streams.toStream(contextClass.memberMethods())
+                .filter(m -> StringUtils.containsIgnoreCase(m.getName(), property.getName()))
+                .filter(m -> StringUtils.containsIgnoreCase(m.getName(), getOrSet))
                 .filter(m -> m.getDeclaringClass().getName().equals(contextClass.getName()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Attempts to find a setter with a Json-related annotation, to avoid possible telescoping duplicates.
+     *
+     * @param methods the list of methods contextually related to a property
+     * @return the parameter type for the setter
+     */
+    private static Type setterWithAnnotation(final Iterable<AnnotatedMethod> methods) {
+        final List<Type> methodTypes = Streams.toStream(methods)
+                .filter(m -> m.hasAnnotation(JsonProperty.class) || m.hasAnnotation(JsonSetter.class))
                 .map(m -> m.getGenericParameterType(0))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        // TODO modify so that if there are multiple setters, only the parameter type of the annotated method is used (see @ IsIn#setAllowedValues)
-        // maybe check for an annotation on the setter during the stream, filter by that?
-        // or leave as AnnotatedMethods in the stream, and if size >1, check for JsonTypeInfo annotation?
+        return methodTypes.isEmpty() ? setterWithoutAnnotation(methods) : methodTypes.get(0);
+    }
+
+    /**
+     * If no annotated setter can be found, then attempt to use the most specific setter,
+     * ie the setter from the context class.
+     *
+     * @param methods the list of methods contextually related to a property
+     * @return the parameter type for the setter, or null
+     */
+    private static Type setterWithoutAnnotation(final Iterable<AnnotatedMethod> methods) {
+        final List<Type> methodTypes = Streams.toStream(methods)
+                .map(m -> m.getGenericParameterType(0))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
         return methodTypes.isEmpty() ? null : methodTypes.get(0);
+    }
+
+    /**
+     * Attempts to find a getter that is either designated as so by the JsonGetter annotation,
+     * or at least a getter that is not marked with JsonIgnore.
+     *
+     * @param methods the list of methods contextually related to a property
+     * @return the generic return type for the getter, or null
+     */
+    private static Type getterWithAnnotationAndNotIgnored(final Iterable<AnnotatedMethod> methods) {
+        final List<Type> methodTypes = Streams.toStream(methods)
+                .filter(m -> m.hasAnnotation(JsonGetter.class) || !m.hasAnnotation(JsonIgnore.class))
+                .map(AnnotatedMethod::getGenericReturnType)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return methodTypes.isEmpty() ? null : methodTypes.get(0);
+    }
+
+    private static boolean hasJsonIgnore(final Iterable<AnnotatedMethod> methods) {
+        return !Streams.toStream(methods)
+                .filter(m -> m.hasAnnotation(JsonIgnore.class))
+                .collect(Collectors.toList())
+                .isEmpty();
     }
 }

@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class JsonSerialisationUtilTest {
 
@@ -41,30 +43,12 @@ public class JsonSerialisationUtilTest {
     @Test
     public void testInRange() {
         // Given
-        final String classname = "uk.gov.gchq.koryphe.impl.predicate.range.InRange";
+        final String className = "uk.gov.gchq.koryphe.impl.predicate.range.InRange";
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("start", "T");
         expectedValues.put("end", "T");
         expectedValues.put("startInclusive", "java.lang.Boolean");
         expectedValues.put("endInclusive", "java.lang.Boolean");
-
-        // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(classname);
-
-        // Then
-        assertEquals(expectedValues.entrySet(), result.entrySet());
-    }
-
-    // TODO fails but shouldn't
-    @Test
-    public void testGetWalks() {
-        // Given
-        final String className = "uk.gov.gchq.gaffer.operation.impl.GetWalks";
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("resultsLimit", "java.lang.Integer");
-        expectedValues.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
-        expectedValues.put("options", "java.util.Map<java.lang.String, java.lang.String");
-        expectedValues.put("input", "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
@@ -73,13 +57,91 @@ public class JsonSerialisationUtilTest {
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
+    @Test
+    public void testInDateRangeAndInTimeRange() {
+        // Given
+        final String classNameIDR = "uk.gov.gchq.koryphe.impl.predicate.range.InDateRange";
+        final String classNameITR = "uk.gov.gchq.koryphe.impl.predicate.range.InTimeRange";
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("timeUnit", "java.lang.String");
+        expectedValues.put("offsetUnit", "java.lang.String");
+        expectedValues.put("start", "java.lang.String");
+        expectedValues.put("startOffset", "java.lang.Long");
+        expectedValues.put("startInclusive", "java.lang.Boolean");
+        expectedValues.put("end", "java.lang.String");
+        expectedValues.put("endOffset", "java.lang.Long");
+        expectedValues.put("endInclusive", "java.lang.Boolean");
 
-    /* TODO:
-    class with annotations in self
-    class with annotations in parent class
-    class with multiple setters/getters
-    class with no getters/setters?
-    class with generic parameters
-    */
+        // When
+        final Map<String, String> resultIDR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameIDR);
+        final Map<String, String> resultITR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameITR);
 
+        // Then
+        assertEquals(expectedValues.entrySet(), resultIDR.entrySet());
+        assertEquals(resultIDR.entrySet(), resultITR.entrySet());
+    }
+
+    @Test
+    public void testGetWalks() {
+        // Given
+        final String className = "uk.gov.gchq.gaffer.operation.impl.GetWalks";
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("resultsLimit", "java.lang.Integer");
+        expectedValues.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
+        expectedValues.put("options", "java.util.Map<java.lang.String, java.lang.String>");
+        expectedValues.put("input", "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId>");
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithNoGettersOrSetters() {
+        // Given
+        final String className = "uk.gov.gchq.koryphe.impl.predicate.IsTrue";
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then
+        assertTrue(result.entrySet().isEmpty());
+    }
+
+    @Test
+    public void testClassContainingJsonAnnotations() {
+        // Given
+        final String className = "uk.gov.gchq.gaffer.data.graph.Walk";
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("edges", "java.util.List<java.util.Set<uk.gov.gchq.gaffer.data.element.Edge>>");
+        expectedValues.put("entities", "java.util.List<java.util.Map.java.util.Map$Entry<java.lang.Object, java.util.Set<uk.gov.gchq.gaffer.data.element.Entity>>>");
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then]
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testEdge() {
+        // Given
+        final String className = "uk.gov.gchq.gaffer.data.element.Edge";
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("class", "uk.gov.gchq.gaffer.data.element.Edge");
+        expectedFields.put("source", "java.lang.Object");
+        expectedFields.put("destination", "java.lang.Object");
+        expectedFields.put("matchedVertex", "java.lang.String");
+        expectedFields.put("group", "java.lang.String");
+        expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
+        expectedFields.put("directed", "boolean");
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+
+        // Then
+        assertEquals(result.entrySet(), expectedFields.entrySet());
+    }
 }
