@@ -192,13 +192,18 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         }
     }
 
-
+    /**
+     * Adds Gaffer's native {@link ScoreResolver} implementations to the list of available <code>ScoreResolver</code>s.
+     * Any new implementations should be added to the map in this method, along with their respective class.
+     *
+     * @return a map of Operation class to ScoreResolver implementation
+     */
     private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
         defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
 
-        return defaultResolvers;
+        return Collections.unmodifiableMap(defaultResolvers);
     }
 
     public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
