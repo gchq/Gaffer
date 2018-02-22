@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -51,6 +53,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private final Map<String, Integer> authScores = new HashMap<>();
     private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers = new HashMap<>();
     private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(Collections.unmodifiableMap(opScores));
+
+    private static final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_SCORE_RESOLVERS = addDefaultScoreResolvers();
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -90,7 +94,6 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
                     }
 
                     chainScore += opScore;
-
                 }
             }
         }
@@ -164,6 +167,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
         this.scoreResolvers.clear();
+        scoreResolvers.putAll(DEFAULT_SCORE_RESOLVERS);
         if (null != resolvers) {
             this.scoreResolvers.putAll(resolvers);
         }
@@ -186,6 +190,19 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             }
             i++;
         }
+    }
+
+
+    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
+
+        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+
+        return defaultResolvers;
+    }
+
+    public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
+        return Collections.unmodifiableMap(DEFAULT_SCORE_RESOLVERS);
     }
 
 }
