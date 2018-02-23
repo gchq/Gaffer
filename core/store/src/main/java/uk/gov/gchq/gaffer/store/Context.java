@@ -52,8 +52,8 @@ public class Context {
     }
 
     /**
-     * Create a new {@link Context} based on the provide context.
-     * A shallow clone of the context is carried out and a new jobId is created.
+     * Create a new {@link Context} based on the provided context.
+     * A shallow clone of the context is carried out and a new job ID is created.
      *
      * @param context the context to shallow clone.
      */
@@ -84,7 +84,7 @@ public class Context {
      * @param user   the user
      * @param config the config
      * @param jobId  the job ID
-     * @deprecated this should not be used. You should let the Context automatically set the job id.
+     * @deprecated this should not be used. You should let the Context automatically set the job ID.
      */
     @Deprecated
     private Context(final User user, final Map<String, Object> config, final String jobId) {
@@ -210,11 +210,11 @@ public class Context {
         }
 
         /**
-         * Sets the job id.
+         * Sets the job ID.
          *
          * @param jobId the job ID to set on the context
          * @return the Builder
-         * @deprecated this should not be used. You should let the Context automatically set the job id.
+         * @deprecated this should not be used. You should let the Context automatically set the job ID.
          */
         @Deprecated
         public Builder jobId(final String jobId) {
