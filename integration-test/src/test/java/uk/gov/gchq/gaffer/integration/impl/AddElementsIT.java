@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.FixedAbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -43,7 +43,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertTrue;
 
-public class AddElementsIT extends FixedAbstractStoreIT {
+public class AddElementsIT extends AbstractStoreIT {
 
     public static final Entity VALID = new Entity.Builder()
             .group(TestGroups.ENTITY_2)

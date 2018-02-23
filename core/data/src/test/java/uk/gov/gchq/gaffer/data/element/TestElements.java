@@ -29,15 +29,6 @@ public final class TestElements {
                 .build();
     }
 
-    public static Edge getFullEdge(final Object source, final Object destination) {
-        return new Edge.Builder()
-                .source(source)
-                .dest(destination)
-                .group(TestGroups.EDGE)
-                .directed(true)
-                .build();
-    }
-
     public static Entity getBasicEntity(final Object vertex) {
         return new Entity.Builder()
                 .vertex(vertex)

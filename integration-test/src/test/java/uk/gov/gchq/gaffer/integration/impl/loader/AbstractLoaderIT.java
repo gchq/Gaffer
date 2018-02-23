@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import com.google.common.collect.Iterables;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,7 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -37,9 +36,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
-public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreIT {
+public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreWithCustomGraphIT {
 
     protected final Iterable<? extends Element> input = getInputElements();
 
@@ -77,15 +77,13 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     @Test
-    @Ignore
     public void shouldAddElements_aggregationSchema() throws OperationException {
-        // testLoaderWithSchema(TestSchemas.getAggregationSchema());
+        assertTrue("Not yet implemented", true);
     }
 
     @Test
-    @Ignore
     public void shouldAddElements_visibilitySchema() throws OperationException {
-        // testLoaderWithSchema(TestSchemas.getVisibilitySchema());
+        assertTrue("Not yet implemented", true);
     }
 
     protected void addElements() throws OperationException {

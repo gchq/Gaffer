@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.integration.FixedAbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class ExportIT extends FixedAbstractStoreIT {
+public class ExportIT extends AbstractStoreIT {
 
     @Override
     @Before

@@ -49,68 +49,38 @@ public class TestTypes {
     public static final String PROP_DATE = "prop.date";
 
     // Type implementations
-
-    // Simple
-    public static final TypeDefinition SIMPLE_BOOLEAN_TYPE = new TypeDefinition.Builder()
-            .clazz(Boolean.class)
-            .build();
-
-    public static final TypeDefinition SIMPLE_STRING_TYPE = new TypeDefinition.Builder()
-            .clazz(String.class)
-            .build();
-
-    public static final TypeDefinition SIMPLE_INTEGER_TYPE = new TypeDefinition.Builder()
-            .clazz(Integer.class)
-            .build();
-
-    public static final TypeDefinition SIMPLE_LONG_TYPE = new TypeDefinition.Builder()
-            .clazz(Long.class)
-            .build();
-
-    public static final TypeDefinition SIMPLE_MAP_TYPE = new TypeDefinition.Builder()
-            .clazz(FreqMap.class)
-            .serialiser(new FreqMapSerialiser())
-            .build();
-
-    public static final TypeDefinition SIMPLE_SET_TYPE = new TypeDefinition.Builder()
-            .clazz(Set.class)
-            .serialiser(new SetSerialiser())
-            .build();
-
-    public static final TypeDefinition SIMPLE_DATE_TYPE = new TypeDefinition.Builder()
-            .clazz(Date.class)
-            .serialiser(new OrderedDateSerialiser())
-            .build();
-
-    // Aggregated
-    public static final TypeDefinition AGGREGATED_STRING_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition STRING_TYPE = new TypeDefinition.Builder()
             .clazz(String.class)
             .aggregateFunction(new StringConcat())
             .build();
 
-    public static final TypeDefinition AGGREGATED_INTEGER_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition INTEGER_TYPE = new TypeDefinition.Builder()
             .clazz(Integer.class)
             .aggregateFunction(new Sum())
             .build();
 
-    public static final TypeDefinition AGGREGATED_LONG_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition LONG_TYPE = new TypeDefinition.Builder()
             .clazz(Long.class)
             .aggregateFunction(new Sum())
             .build();
 
-    public static final TypeDefinition AGGREGATED_FREQMAP_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition BOOLEAN_TYPE = new TypeDefinition.Builder()
+            .clazz(Boolean.class)
+            .build();
+
+    public static final TypeDefinition FREQMAP_TYPE = new TypeDefinition.Builder()
             .clazz(FreqMap.class)
             .serialiser(new FreqMapSerialiser())
             .aggregateFunction(new FreqMapAggregator())
             .build();
 
-    public static final TypeDefinition AGGREGATED_SET_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition SET_TYPE = new TypeDefinition.Builder()
             .clazz(Set.class)
             .serialiser(new SetSerialiser())
             .aggregateFunction(new CollectionConcat<>())
             .build();
 
-    public static final TypeDefinition AGGREGATED_DATE_TYPE = new TypeDefinition.Builder()
+    public static final TypeDefinition DATE_TYPE = new TypeDefinition.Builder()
             .clazz(Date.class)
             .serialiser(new OrderedDateSerialiser())
             .aggregateFunction(new Min())

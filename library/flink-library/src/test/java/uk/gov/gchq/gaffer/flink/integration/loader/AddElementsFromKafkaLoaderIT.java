@@ -35,8 +35,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.integration.generators.JsonToElementGenerator;
-import uk.gov.gchq.gaffer.integration.impl.loader.AbstractLoaderIT;
 import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -201,6 +199,6 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
 
     @Override
     public StoreProperties createStoreProperties() {
-        return MapStoreProperties.loadStoreProperties("store.properties");
+        return MapStoreProperties.loadStoreProperties("mapStore.properties");
     }
 }

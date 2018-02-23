@@ -23,14 +23,13 @@ import uk.gov.gchq.gaffer.store.TestTypes;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_DATE_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_FREQMAP_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_INTEGER_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_LONG_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_SET_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.AGGREGATED_STRING_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.SIMPLE_BOOLEAN_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.SIMPLE_STRING_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.BOOLEAN_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.DATE_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.FREQMAP_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.INTEGER_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.LONG_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.SET_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
 
 /**
  * Static utility class for creating {@link Schema} objects for use in test classes.
@@ -84,9 +83,9 @@ public final class TestSchemas {
         }
 
         public Builder basicSchema() {
-            schemaBuilder.type(TestTypes.VERTEX_STRING, SIMPLE_STRING_TYPE)
-                    .type(TestTypes.DIRECTED_EITHER, SIMPLE_BOOLEAN_TYPE)
-                    .type(TestTypes.PROP_COUNT, AGGREGATED_LONG_TYPE)
+            schemaBuilder.type(TestTypes.VERTEX_STRING, STRING_TYPE)
+                    .type(TestTypes.DIRECTED_EITHER, BOOLEAN_TYPE)
+                    .type(TestTypes.PROP_COUNT, LONG_TYPE)
                     .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                             .vertex(TestTypes.VERTEX_STRING)
                             .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
@@ -101,17 +100,17 @@ public final class TestSchemas {
         }
 
         public Builder fullSchema() {
-            schemaBuilder.type(TestTypes.VERTEX_STRING, SIMPLE_STRING_TYPE)
-                    .type(TestTypes.DIRECTED_EITHER, SIMPLE_BOOLEAN_TYPE)
-                    .type(TestTypes.PROP_COUNT, AGGREGATED_LONG_TYPE)
-                    .type(TestTypes.PROP_INTEGER, AGGREGATED_INTEGER_TYPE)
-                    .type(TestTypes.PROP_LONG, AGGREGATED_LONG_TYPE)
-                    .type(TestTypes.PROP_STRING, AGGREGATED_STRING_TYPE)
-                    .type(TestTypes.PROP_MAP, AGGREGATED_FREQMAP_TYPE)
-                    .type(TestTypes.PROP_SET_STRING, AGGREGATED_SET_TYPE)
-                    .type(TestTypes.PROP_DATE, AGGREGATED_DATE_TYPE)
-                    .type(TestTypes.TIMESTAMP, AGGREGATED_LONG_TYPE)
-                    .type(TestTypes.VISIBILITY, AGGREGATED_STRING_TYPE)
+            schemaBuilder.type(TestTypes.VERTEX_STRING, STRING_TYPE)
+                    .type(TestTypes.DIRECTED_EITHER, BOOLEAN_TYPE)
+                    .type(TestTypes.PROP_COUNT, LONG_TYPE)
+                    .type(TestTypes.PROP_INTEGER, INTEGER_TYPE)
+                    .type(TestTypes.PROP_LONG, LONG_TYPE)
+                    .type(TestTypes.PROP_STRING, STRING_TYPE)
+                    .type(TestTypes.PROP_MAP, FREQMAP_TYPE)
+                    .type(TestTypes.PROP_SET_STRING, SET_TYPE)
+                    .type(TestTypes.PROP_DATE, DATE_TYPE)
+                    .type(TestTypes.TIMESTAMP, LONG_TYPE)
+                    .type(TestTypes.VISIBILITY, STRING_TYPE)
                     .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                             .vertex(TestTypes.VERTEX_STRING)
                             .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)

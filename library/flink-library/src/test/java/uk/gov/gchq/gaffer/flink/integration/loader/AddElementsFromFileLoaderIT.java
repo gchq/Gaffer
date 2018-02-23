@@ -19,36 +19,52 @@ package uk.gov.gchq.gaffer.flink.integration.loader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.integration.generators.JsonToElementGenerator;
-import uk.gov.gchq.gaffer.integration.impl.loader.AbstractLoaderIT;
+import uk.gov.gchq.gaffer.data.generator.JsonToElementGenerator;
 import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.runners.Parameterized.Parameters;
 
 
 // TODO: Run on AccumuloStore
+@RunWith(Parameterized.class)
 public class AddElementsFromFileLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromFile> {
+
+    @Parameters
+    public static Iterable<? extends String> instances() {
+        final Object[] obj = new Object[]{};
+
+        return Arrays.asList("mapStore.properties", "accumuloStore.properties");
+    }
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
 
+    private final String storePropertiesPath;
+
+    public AddElementsFromFileLoaderIT(final String storePropertiesPath) {
+        this.storePropertiesPath = storePropertiesPath;
+    }
+
     @Override
     protected void configure(final Iterable<? extends Element> elements) throws Exception {
-        MapStore.resetStaticMap();
+        if (storePropertiesPath.contains("map")) {
+            MapStore.resetStaticMap();
+        }
 
         file = testFolder.newFile("inputFile.txt");
 
@@ -74,7 +90,7 @@ public class AddElementsFromFileLoaderIT extends AbstractStandaloneLoaderIT<AddE
 
     @Override
     public StoreProperties createStoreProperties() {
-        final StoreProperties storeProperties = MapStoreProperties.loadStoreProperties("store.properties");
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
         storeProperties.addOperationDeclarationPaths("FlinkOperationDeclarations.json");
 
         return storeProperties;

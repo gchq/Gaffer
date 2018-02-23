@@ -83,7 +83,7 @@ public class AddElementsFromSocketLoaderIT extends AbstractStandaloneLoaderIT<Ad
 
     @Override
     public StoreProperties createStoreProperties() {
-        return MapStoreProperties.loadStoreProperties("store.properties");
+        return StoreProperties.loadStoreProperties("mapStore.properties");
     }
 
     @After
