@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-/**
- * Implementation details for the MapImpl map-based data store.
- */
-package uk.gov.gchq.gaffer.mapstore.impl;
+package uk.gov.gchq.gaffer.federatedstore.operation;
+
+import uk.gov.gchq.gaffer.operation.AbstractOperationsVersionTest;
+
+public class FederatedOperationsVersionTest extends AbstractOperationsVersionTest {
+
+    public FederatedOperationsVersionTest() {
+        super("uk.gov.gchq.gaffer");
+    }
+}

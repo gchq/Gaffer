@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -36,6 +37,7 @@ import java.util.Map;
  * @see Limit.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "resultsLimit"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class Limit<T> implements
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {

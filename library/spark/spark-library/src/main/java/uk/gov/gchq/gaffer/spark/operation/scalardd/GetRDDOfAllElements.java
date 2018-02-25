@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
@@ -34,6 +35,7 @@ import java.util.Map;
  * from the target store, and returns them inside a {@link RDD}.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class GetRDDOfAllElements implements
         Output<RDD<Element>>,
         GraphFilters {

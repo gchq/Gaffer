@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -59,6 +60,7 @@ import java.util.Map;
  * @see SampleElementsForSplitPoints.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since(version = "1.1.1")
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,

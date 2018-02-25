@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * job from a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class GetJobDetails implements
         Output<JobDetail> {
     private String jobId;

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.view.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.Map;
  * for retrieving all {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s associated with a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since(version = "1.3.0")
 public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetail>> {
     private Map<String, String> options;
 

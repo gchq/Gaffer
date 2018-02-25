@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
@@ -37,6 +38,7 @@ import java.util.Map;
  * input seeds from the target store, and returns them inside a {@link RDD}.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiElementIdInput,

@@ -20,10 +20,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "inputPath", "failurePath"}, alphabetic = true)
+@Since(version="1.0.0")
 public class ImportAccumuloKeyValueFiles implements
         Operation {
     @Required

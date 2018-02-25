@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} from a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "name"}, alphabetic = true)
+@Since(version = "1.3.0")
 public class DeleteNamedView implements Operation {
     @Required
     private String name;

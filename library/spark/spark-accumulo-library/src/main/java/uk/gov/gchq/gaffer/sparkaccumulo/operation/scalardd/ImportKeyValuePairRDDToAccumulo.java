@@ -22,11 +22,13 @@ import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class ImportKeyValuePairRDDToAccumulo implements
         Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;

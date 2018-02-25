@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore.impl;
+package uk.gov.gchq.gaffer.mapstore.operation.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

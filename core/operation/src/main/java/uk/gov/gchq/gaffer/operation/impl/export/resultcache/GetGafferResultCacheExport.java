@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -35,6 +36,7 @@ import java.util.Map;
  * @see ExportToGafferResultCache
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class GetGafferResultCacheExport implements
         GetExport,
         Output<CloseableIterable<?>> {

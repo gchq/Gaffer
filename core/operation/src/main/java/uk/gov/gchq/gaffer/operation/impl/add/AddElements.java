@@ -24,6 +24,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
@@ -39,6 +40,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 @JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class AddElements implements
         Validatable,
         MultiInput<Element> {

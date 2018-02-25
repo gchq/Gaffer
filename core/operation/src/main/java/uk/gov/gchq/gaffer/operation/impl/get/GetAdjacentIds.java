@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
@@ -39,6 +40,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiEntityIdInput,

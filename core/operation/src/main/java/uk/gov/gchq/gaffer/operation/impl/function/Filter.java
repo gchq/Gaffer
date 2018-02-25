@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
@@ -41,6 +42,7 @@ import java.util.Map;
  * {@link  uk.gov.gchq.gaffer.data.element.Edge}s or {@link uk.gov.gchq.gaffer.data.element.Entity}s.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class Filter implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

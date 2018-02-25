@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -47,6 +48,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class Min implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,

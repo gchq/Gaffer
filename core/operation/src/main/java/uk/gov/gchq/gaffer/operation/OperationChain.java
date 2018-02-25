@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
 @JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
+@Since(version = "1.0.0")
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
