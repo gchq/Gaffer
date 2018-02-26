@@ -470,23 +470,6 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldSetAndGetNamedOpScores() {
-        // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
-        final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
-        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = new NamedOperation<>();
-
-        namedOpScoreResolvers.put(namedOp.getClass(), new NamedOperationScoreResolver());
-        handler.setScoreResolvers(namedOpScoreResolvers);
-
-        // When
-        final Map<Class<? extends Operation>, ScoreResolver> results = handler.getScoreResolvers();
-
-        // Then
-        assertEquals(namedOpScoreResolvers, results);
-    }
-
-    @Test
     public void shouldPassValidationOfOperationScores() throws ClassNotFoundException {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
