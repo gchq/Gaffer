@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -130,6 +131,7 @@ public interface OperationView {
      *
      * @param views the list of views to merge
      */
+    @JsonIgnore
     default void setViews(final List<View> views) {
         if (null != views) {
             boolean isNamedView = null != getView() && getView() instanceof NamedView;

@@ -44,6 +44,10 @@ import java.util.stream.Collectors;
  */
 public final class JsonSerialisationUtil {
 
+    private JsonSerialisationUtil() {
+
+    }
+
     public static Map<String, String> getSerialisedFieldClasses(final String className) {
         final Class<?> clazz;
         try {
@@ -81,7 +85,7 @@ public final class JsonSerialisationUtil {
                 genericType = property.getField().getGenericType();
             }
 
-            if (null == genericType) {
+            if (null != property.getConstructorParameter() && null == genericType) {
                 genericType = property.getConstructorParameter().getParameterType();
             }
 
@@ -100,6 +104,7 @@ public final class JsonSerialisationUtil {
      * in order to retrieve the parameter type for interacting with the property via JSON/REST.
      *
      * @param property the property for which the method should be resolved
+     * @param getOrSet string to search for get or set methods
      * @return the parameter type for the method, or null
      */
     private static Iterable<AnnotatedMethod> resolveMethods(final BeanPropertyDefinition property, final String getOrSet) {
