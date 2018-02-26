@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.data.generator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
