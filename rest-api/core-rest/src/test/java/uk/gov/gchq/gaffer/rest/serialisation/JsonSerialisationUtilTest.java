@@ -137,11 +137,13 @@ public class JsonSerialisationUtilTest {
         expectedFields.put("group", "java.lang.String");
         expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
         expectedFields.put("directed", "boolean");
+        expectedFields.put("directedType", "java.lang.String");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
         // Then
+        assertEquals(8, result.size());
         assertEquals(result.entrySet(), expectedFields.entrySet());
     }
 }

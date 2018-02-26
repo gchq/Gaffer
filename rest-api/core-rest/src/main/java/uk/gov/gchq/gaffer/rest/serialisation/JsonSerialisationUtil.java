@@ -38,6 +38,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * A utility class containing methods relevant to JSON Serialisation and Deserialisation,
+ * for the REST API.
+ */
 public final class JsonSerialisationUtil {
 
     public static Map<String, String> getSerialisedFieldClasses(final String className) {
@@ -57,21 +61,16 @@ public final class JsonSerialisationUtil {
         final Map<String, String> fieldMap = new HashMap<>();
         for (final BeanPropertyDefinition property : properties) {
             final String propName = property.getName();
-            Type genericType = null;
 
             if ("class".equals(propName)) {
-                genericType = clazz;
+                fieldMap.put(propName, clazz.getTypeName());
+                continue;
             }
 
-            final Iterable<AnnotatedMethod> setterMethods = resolveMethods(property, "set");
-            final Iterable<AnnotatedMethod> getterMethods = resolveMethods(property, "get");
+            Type genericType = setterWithAnnotation(resolveMethods(property, "set"));
 
             if (null == genericType) {
-                genericType = setterWithAnnotation(setterMethods);
-            }
-
-            if (null == genericType) {
-                genericType = getterWithAnnotationAndNotIgnored(getterMethods);
+                genericType = getterWithAnnotationAndNotIgnored(resolveMethods(property, "get"));
             }
 
             if (null != property.getGetter() && null == genericType) {
@@ -80,6 +79,10 @@ public final class JsonSerialisationUtil {
 
             if (null != property.getField() && null == genericType) {
                 genericType = property.getField().getGenericType();
+            }
+
+            if (null == genericType) {
+                genericType = property.getConstructorParameter().getParameterType();
             }
 
             if (genericType instanceof Class && ((Class) genericType).isEnum()) {
@@ -104,7 +107,7 @@ public final class JsonSerialisationUtil {
             return new ArrayList<>();
         }
 
-        final AnnotatedClass contextClass = property.getPrimaryMember().getContextClass();  // TODO find out why Edge#directedType causes a NPE here
+        final AnnotatedClass contextClass = property.getPrimaryMember().getContextClass();
 
         return Streams.toStream(contextClass.memberMethods())
                 .filter(m -> StringUtils.containsIgnoreCase(m.getName(), property.getName()))

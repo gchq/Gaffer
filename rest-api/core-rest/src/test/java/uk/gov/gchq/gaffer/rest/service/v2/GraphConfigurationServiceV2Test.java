@@ -193,13 +193,13 @@ public class GraphConfigurationServiceV2Test {
         expectedFields.put("group", "java.lang.String");
         expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
         expectedFields.put("directed", "boolean");
+        expectedFields.put("directedType", "java.lang.String");
 
         // Then
-        assertEquals(7, fields.size());
+        assertEquals(8, fields.size());
 
         assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
         assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
-        assertFalse(fields.keySet().contains("directedType"));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class GraphConfigurationServiceV2Test {
 
         final Map<String, String> expectedFields = new HashMap<>();
         expectedFields.put("operations",
-                "java.util.List<uk.gov.gchq.gaffer.operation.OperationChain<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
+                "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
         expectedFields.put("input",
                 "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId>");
         expectedFields.put("options",
