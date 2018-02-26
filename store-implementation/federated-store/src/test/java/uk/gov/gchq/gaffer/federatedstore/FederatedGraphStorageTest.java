@@ -69,7 +69,6 @@ public class FederatedGraphStorageTest {
     private User testUser;
     private User authUser;
     private User blankUser;
-    private Context nullUserContext;
     private Context testUserContext;
     private Context authUserContext;
     private Context blankUserContext;
@@ -117,7 +116,6 @@ public class FederatedGraphStorageTest {
         testUser = testUser();
         authUser = authUser();
         blankUser = blankUser();
-        nullUserContext = new Context(nullUser);
         testUserContext = new Context(testUser);
         authUserContext = new Context(authUser);
         blankUserContext = new Context(blankUser);
