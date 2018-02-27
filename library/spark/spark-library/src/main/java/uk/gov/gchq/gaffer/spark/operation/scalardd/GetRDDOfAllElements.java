@@ -35,7 +35,7 @@ import java.util.Map;
  * from the target store, and returns them inside a {@link RDD}.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetRDDOfAllElements implements
         Output<RDD<Element>>,
         GraphFilters {

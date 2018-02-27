@@ -33,7 +33,7 @@ import java.util.Map;
  * for retrieving all {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s associated with a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.3.0")
+@Since("1.3.0")
 public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetail>> {
     private Map<String, String> options;
 

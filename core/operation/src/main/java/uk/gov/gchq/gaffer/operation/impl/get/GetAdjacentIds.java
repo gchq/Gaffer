@@ -40,7 +40,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiEntityIdInput,

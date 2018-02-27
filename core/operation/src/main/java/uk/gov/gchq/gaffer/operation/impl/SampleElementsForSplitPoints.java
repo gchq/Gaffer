@@ -60,7 +60,7 @@ import java.util.Map;
  * @see SampleElementsForSplitPoints.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.1.1")
+@Since("1.1.1")
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,

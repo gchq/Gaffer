@@ -35,7 +35,7 @@ import java.util.Map;
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class Aggregate implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

@@ -34,7 +34,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToVertices.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToVertices implements
         InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
         MultiInput<ElementId> {

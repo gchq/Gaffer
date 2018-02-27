@@ -37,7 +37,7 @@ import java.util.Map;
  * for the input seeds from the target store, and returns them inside a {@link JavaRDD}.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
         MultiElementIdInput,

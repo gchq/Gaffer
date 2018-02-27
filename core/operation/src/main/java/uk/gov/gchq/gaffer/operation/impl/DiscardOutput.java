@@ -29,7 +29,7 @@ import java.util.Map;
  * that the results from the previous operation are not used again.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class DiscardOutput implements
         Input<Object> {
 

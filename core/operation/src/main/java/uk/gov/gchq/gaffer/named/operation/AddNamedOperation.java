@@ -42,7 +42,7 @@ import java.util.Map;
  * and adding it to a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class AddNamedOperation implements Operation {
     @Required
     private String operations;

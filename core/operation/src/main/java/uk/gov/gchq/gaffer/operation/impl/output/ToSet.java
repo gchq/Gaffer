@@ -35,7 +35,7 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToSet.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToSet<T> implements
         InputOutput<Iterable<? extends T>, Set<? extends T>>,
         MultiInput<T> {

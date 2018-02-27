@@ -47,7 +47,7 @@ import java.util.Map;
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {

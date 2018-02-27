@@ -42,7 +42,7 @@ import java.util.Map;
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class SummariseGroupOverRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,

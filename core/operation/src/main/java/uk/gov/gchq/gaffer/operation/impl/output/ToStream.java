@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToStream.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToStream<T> implements
         InputOutput<Iterable<? extends T>, Stream<? extends T>>,
         MultiInput<T> {

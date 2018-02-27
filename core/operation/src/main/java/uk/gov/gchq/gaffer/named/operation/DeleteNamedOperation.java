@@ -29,7 +29,7 @@ import java.util.Map;
  * {@link NamedOperation} from a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "operationName"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;

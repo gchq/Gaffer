@@ -30,7 +30,7 @@ import java.util.Map;
  * and adds them to a target Gaffer store.
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ImportRDDOfElements implements
         Input<RDD<Element>> {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

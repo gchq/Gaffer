@@ -32,7 +32,7 @@ import java.util.Map;
  * present in a {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class CountAllElementsDefaultView implements
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {

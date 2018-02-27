@@ -38,7 +38,7 @@ import java.util.Map;
  * @see CountGroups.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class CountGroups implements
         InputOutput<Iterable<? extends Element>, GroupCounts>,
         MultiInput<Element> {

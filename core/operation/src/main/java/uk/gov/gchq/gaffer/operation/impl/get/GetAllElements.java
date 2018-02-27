@@ -37,7 +37,7 @@ import java.util.Map;
  * There are also various flags to filter out the elements returned.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetAllElements implements
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {

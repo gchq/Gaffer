@@ -39,7 +39,7 @@ import java.util.function.Function;
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GenerateObjects<OBJ> implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends OBJ>>,
         MultiInput<Element> {

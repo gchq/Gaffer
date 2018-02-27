@@ -46,7 +46,7 @@ import java.util.Map;
  * @see Builder
  */
 @JsonPropertyOrder(value = {"class", "failurePath", "workingPath"}, alphabetic = true)
-@Since(version="1.0.0")
+@Since("1.0.0")
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce {

@@ -51,7 +51,7 @@ import java.util.Map;
  * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
  **/
 @JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
-@Since(version = "1.1.0")
+@Since("1.1.0")
 public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {
     @Required

@@ -31,7 +31,7 @@ import java.util.Map;
  * for retrieving all {@link NamedOperation}s associated with a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetAllNamedOperations implements
         Output<CloseableIterable<NamedOperationDetail>> {
     private Map<String, String> options;

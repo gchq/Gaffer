@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements
  */
-@Since(version = "1.3.0")
+@Since("1.3.0")
 public class GetGraphFrameOfElements implements
         Output<GraphFrame>,
         GraphFilters {

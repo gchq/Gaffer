@@ -40,7 +40,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 @JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class AddElements implements
         Validatable,
         MultiInput<Element> {

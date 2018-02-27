@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @Deprecated
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class SplitStore implements Operation {
     @Required
     private String inputPath;

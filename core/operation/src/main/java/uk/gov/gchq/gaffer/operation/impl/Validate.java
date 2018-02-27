@@ -39,7 +39,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class Validate implements
         Validatable,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,

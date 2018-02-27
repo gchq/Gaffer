@@ -36,7 +36,7 @@ import java.util.Map;
  * @see ExportToGafferResultCache
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetGafferResultCacheExport implements
         GetExport,
         Output<CloseableIterable<?>> {

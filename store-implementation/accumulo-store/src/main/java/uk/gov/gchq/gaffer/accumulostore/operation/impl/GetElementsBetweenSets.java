@@ -46,7 +46,7 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 @JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

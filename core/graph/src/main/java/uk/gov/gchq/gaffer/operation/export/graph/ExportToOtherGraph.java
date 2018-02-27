@@ -43,7 +43,7 @@ import java.util.Properties;
  * graph.
  */
 @JsonPropertyOrder(value = {"class", "input", "graphId"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ExportToOtherGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

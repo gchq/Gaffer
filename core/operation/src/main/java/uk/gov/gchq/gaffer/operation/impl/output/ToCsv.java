@@ -37,7 +37,7 @@ import java.util.Map;
  * @see ToCsv.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {

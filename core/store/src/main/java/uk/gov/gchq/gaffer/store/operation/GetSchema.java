@@ -32,7 +32,7 @@ import java.util.Map;
  * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.Store}.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.1.0")
+@Since("1.1.0")
 public class GetSchema implements Output<Schema> {
     private Map<String, String> options;
     private boolean compact = false;

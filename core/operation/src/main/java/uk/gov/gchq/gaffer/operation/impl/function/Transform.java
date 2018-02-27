@@ -38,7 +38,7 @@ import java.util.Map;
  * to their relevant {@link ElementTransformer}s can be provided.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class Transform implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

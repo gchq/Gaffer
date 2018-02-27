@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ImportJavaRDDOfElements implements
         Operation,
         Input<JavaRDD<Element>> {

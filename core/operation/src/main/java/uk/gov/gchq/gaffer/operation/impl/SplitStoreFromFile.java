@@ -34,7 +34,7 @@ import java.util.Map;
  * @see SplitStoreFromFile.Builder
  */
 @JsonPropertyOrder(value = {"class", "inputPath"}, alphabetic = true)
-@Since(version = "1.1.1")
+@Since("1.1.1")
 public class SplitStoreFromFile implements Operation {
     @Required
     private String inputPath;

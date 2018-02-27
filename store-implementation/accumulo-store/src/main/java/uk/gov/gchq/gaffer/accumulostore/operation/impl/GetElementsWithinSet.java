@@ -39,7 +39,7 @@ import java.util.Map;
  * set.
  **/
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetElementsWithinSet implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

@@ -21,8 +21,6 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
-import uk.gov.gchq.gaffer.operation.TestOperation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
@@ -30,7 +28,6 @@ import java.util.Date;
 import java.util.Map;
 
 @JsonPropertyOrder(alphabetic = true)
-@TestOperation
 public class InputImpl implements MultiInput<String> {
     @Required
     // Public so the validation of the required field can be tested differently

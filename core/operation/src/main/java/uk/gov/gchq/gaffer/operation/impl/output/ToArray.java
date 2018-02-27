@@ -32,7 +32,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToArray.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToArray<T> implements
         InputOutput<Iterable<? extends T>, T[]>,
         MultiInput<T> {

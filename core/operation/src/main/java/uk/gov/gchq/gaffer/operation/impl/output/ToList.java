@@ -34,7 +34,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToList.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToList<T> implements
         InputOutput<Iterable<? extends T>, List<? extends T>>,
         MultiInput<T> {

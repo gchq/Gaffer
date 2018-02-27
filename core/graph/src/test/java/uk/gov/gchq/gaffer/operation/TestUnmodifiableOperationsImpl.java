@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@TestOperation
 public class TestUnmodifiableOperationsImpl implements Operation, Operations<Operation> {
 
     private final List<Operation> ops;

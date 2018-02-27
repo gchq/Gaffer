@@ -32,7 +32,7 @@ import java.util.Map;
  * @see Count.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class Count<T> implements
         InputOutput<Iterable<? extends T>, Long>,
         MultiInput<T> {

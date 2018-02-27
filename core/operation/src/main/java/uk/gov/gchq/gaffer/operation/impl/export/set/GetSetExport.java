@@ -34,7 +34,7 @@ import java.util.Map;
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
 @JsonPropertyOrder(value = {"class", "start", "end"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetSetExport implements
         GetExport,
         Output<Iterable<?>> {

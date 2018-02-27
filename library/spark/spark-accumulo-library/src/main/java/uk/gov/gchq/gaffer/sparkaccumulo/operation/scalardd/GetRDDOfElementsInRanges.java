@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetRDDOfElementsInRanges implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, RDD<Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,

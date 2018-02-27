@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@TestOperation
 public class TestOperationsImpl implements Operation, Operations<Operation> {
 
     private final List<Operation> ops;

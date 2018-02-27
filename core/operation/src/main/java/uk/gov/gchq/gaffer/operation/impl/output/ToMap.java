@@ -37,7 +37,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToMap.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ToMap implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {

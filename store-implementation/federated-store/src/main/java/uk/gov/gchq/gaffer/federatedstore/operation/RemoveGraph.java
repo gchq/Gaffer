@@ -38,7 +38,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class RemoveGraph implements FederatedOperation {
 
     @Required

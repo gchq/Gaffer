@@ -34,7 +34,7 @@ import java.util.Set;
  * The results can be of any type - as long as they are json serialisable.
  */
 @JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ExportToGafferResultCache<T> implements
         ExportTo<T> {
     private String key;

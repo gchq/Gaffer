@@ -46,7 +46,7 @@ import java.util.Map;
  * @see SampleDataForSplitPoints.Builder
  */
 @JsonPropertyOrder(value = {"class", "splitsFilePath"}, alphabetic = true)
-@Since(version="1.0.0")
+@Since("1.0.0")
 public class SampleDataForSplitPoints implements
         Operation,
         MapReduce {

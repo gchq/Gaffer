@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class ImportKeyValueJavaPairRDDToAccumulo implements
         Input<JavaPairRDD<Key, Value>> {
     @Required

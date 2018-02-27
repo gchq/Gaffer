@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * one operation providing the input {@link EntityId}s for the next.
  */
 @JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
-@Since(version = "1.1.0")
+@Since("1.1.0")
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiEntityIdInput,

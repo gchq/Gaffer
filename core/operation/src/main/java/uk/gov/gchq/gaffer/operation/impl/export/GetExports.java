@@ -39,7 +39,7 @@ import java.util.Map;
  * The values in the map are the exported values.
  */
 @JsonPropertyOrder(value = {"class", "getExports"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetExports implements
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();

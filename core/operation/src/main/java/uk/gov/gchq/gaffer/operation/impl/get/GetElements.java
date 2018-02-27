@@ -62,7 +62,7 @@ import java.util.Map;
  * </ul>
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetElements implements
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
         MultiElementIdInput,

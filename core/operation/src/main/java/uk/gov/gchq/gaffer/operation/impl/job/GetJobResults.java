@@ -32,7 +32,7 @@ import java.util.Map;
  * a job on a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class GetJobResults extends GetGafferResultCacheExport {
     private Map<String, String> options;
 

@@ -49,7 +49,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
-@Since(version = "1.0.0")
+@Since("1.0.0")
 public class Max implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,
