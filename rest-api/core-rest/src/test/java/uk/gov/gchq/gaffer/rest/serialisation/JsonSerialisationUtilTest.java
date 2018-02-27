@@ -44,8 +44,8 @@ public class JsonSerialisationUtilTest {
         // Given
         final String className = "uk.gov.gchq.koryphe.impl.predicate.range.InRange";
         final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("start", "java.lang.Comparable<T>");
-        expectedValues.put("end", "java.lang.Comparable<T>");
+        expectedValues.put("start", "java.lang.Comparable");
+        expectedValues.put("end", "java.lang.Comparable");
         expectedValues.put("startInclusive", "java.lang.Boolean");
         expectedValues.put("endInclusive", "java.lang.Boolean");
 
@@ -143,6 +143,6 @@ public class JsonSerialisationUtilTest {
 
         // Then
         assertEquals(8, result.size());
-        assertEquals(result.entrySet(), expectedFields.entrySet());
+        assertEquals(expectedFields.entrySet(), result.entrySet());
     }
 }
