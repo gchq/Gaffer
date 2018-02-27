@@ -85,6 +85,10 @@ public abstract class Element implements ElementId {
         return properties;
     }
 
+    public Object removeProperty(final String propName) {
+        return properties.remove(propName);
+    }
+
     public String getGroup() {
         return group;
     }
