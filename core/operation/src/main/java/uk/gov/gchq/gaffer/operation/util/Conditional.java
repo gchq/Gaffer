@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.util;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.function.Predicate;
@@ -28,6 +30,7 @@ public class Conditional {
     private Operation transform;
     private Predicate predicate;
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Operation getTransform() {
         return transform;
     }
@@ -36,6 +39,7 @@ public class Conditional {
         this.transform = transform;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Predicate getPredicate() {
         return predicate;
     }

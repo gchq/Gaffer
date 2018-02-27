@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
@@ -57,6 +58,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
     private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
@@ -424,8 +426,12 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final Limit limit = new Limit();
         final GetAllElements getAllElements = new GetAllElements();
         final GetElements getElements = new GetElements();
-        final If ifOp = new If.Builder()
-                .predicate(exists)
+
+        final Conditional conditional = new Conditional();
+        conditional.setPredicate(exists);
+
+        final If ifOp = new If.Builder<>()
+                .conditional(conditional)
                 .then(getElements)
                 .otherwise(getAllElements)
                 .build();

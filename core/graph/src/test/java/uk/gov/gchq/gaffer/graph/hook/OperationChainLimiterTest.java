@@ -245,19 +245,4 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
         // Then
         assertEquals(opScores, result);
     }
-
-    @Test
-    public void shouldSetAndGetScoreResolvers() {
-        // Given
-        final OperationChainLimiter hook = new OperationChainLimiter();
-        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
-        resolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
-
-        // When
-        hook.setScoreResolvers(resolvers);
-        final Map<Class<? extends Operation>, ScoreResolver> result = hook.getScoreResolvers();
-
-        // Then
-        assertEquals(resolvers, result);
-    }
 }
