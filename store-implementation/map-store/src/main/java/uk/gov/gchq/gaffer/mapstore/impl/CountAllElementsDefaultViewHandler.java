@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore.operation.impl;
+package uk.gov.gchq.gaffer.mapstore.impl;
 
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;

@@ -17,4 +17,4 @@
 /**
  * Implementation details for the MapImpl map-based data store.
  */
-package uk.gov.gchq.gaffer.mapstore.operation.impl;
+package uk.gov.gchq.gaffer.mapstore.impl;
