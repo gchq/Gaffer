@@ -29,6 +29,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code Repeat} is a Gaffer {@link Operation} for executing a delegate <code>Operation</code>
+ * for a specified number of repeats.
+ * <p>The delegate operation can also be an implementation of {@link Operations},
+ * so for example, a small {@link uk.gov.gchq.gaffer.operation.OperationChain} could be delegated
+ * to the <code>Repeat</code>, and repeated a number of times.</p>
+ */
 @JsonPropertyOrder(value = {"class", "input", "operation", "times"}, alphabetic = true)
 public class Repeat implements InputOutput<Object, Object>,
         Operations<Operation> {

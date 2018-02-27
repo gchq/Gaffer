@@ -22,8 +22,33 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * A {@code RepeatHandler} is a handler for {@link Repeat} operations.
+ *
+ * This handler can be configured with a maximum number of repeats, with the default being 20.
+ *
+ * If the delegate operation is an implementation of {@link Output}, the output value from each
+ * operation is passed as the input to the next. Otherwise, the delegate operation is just
+ * executed on the store for the configured number of repeats.
+ */
 public class RepeatHandler implements OutputOperationHandler<Repeat, Object> {
-    private final int maxTimes = 20;
+    private int maxTimes;
+
+    public RepeatHandler() {
+        this(20);
+    }
+
+    public RepeatHandler(final int maxTimes) {
+        this.maxTimes = maxTimes;
+    }
+
+    public void setMaxTimes(final int maxTimes) {
+        this.maxTimes = maxTimes;
+    }
+
+    public int getMaxTimes() {
+        return maxTimes;
+    }
 
     @Override
     public Object doOperation(final Repeat operation, final Context context, final Store store) throws OperationException {

@@ -19,6 +19,14 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.Repeat;
 
+/**
+ * A {@code RepeatScoreResolver} is an implementation of {@link ScoreResolver} for
+ * the {@link Repeat} operation.
+ * <p>The score will simply be the number of repeats
+ * multiplied by the score of the delegate operation,
+ * or if the delegate is an implementation of {@link Operations},
+ * the sum of the scores of the operations contained within.</p>
+ */
 public class RepeatScoreResolver implements ScoreResolver<Repeat> {
     @Override
     public Integer getScore(final Repeat repeat, final ScoreResolver defaultScoreResolver) {
