@@ -26,12 +26,14 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import org.apache.commons.lang3.StringUtils;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +45,18 @@ import java.util.stream.Collectors;
  * for the REST API.
  */
 public final class JsonSerialisationUtil {
+    private static Map<String, Map<String, String>> cache = Collections.emptyMap();
 
     private JsonSerialisationUtil() {
 
     }
 
     public static Map<String, String> getSerialisedFieldClasses(final String className) {
+        final Map<String, String> cachedResult = cache.get(className);
+        if (null != cachedResult) {
+            return cachedResult;
+        }
+
         final Class<?> clazz;
         try {
             clazz = Class.forName(SimpleClassNameIdResolver.getClassName(className));
@@ -66,35 +74,60 @@ public final class JsonSerialisationUtil {
         for (final BeanPropertyDefinition property : properties) {
             final String propName = property.getName();
 
+            String propClass;
             if ("class".equals(propName)) {
-                fieldMap.put(propName, clazz.getTypeName());
-                continue;
+                propClass = Class.class.getName();
+            } else {
+                Type genericType = null;
+                if (null != property.getSetter() && null != property.getSetter().getGenericParameterTypes() && 1 == property.getSetter().getGenericParameterTypes().length) {
+                    genericType = property.getSetter().getGenericParameterTypes()[0];
+                }
+                if (null == genericType) {
+                    genericType = setterWithAnnotation(resolveMethods(property, "set"));
+                }
+                if (null == genericType) {
+                    genericType = getterWithAnnotationAndNotIgnored(resolveMethods(property, "get"));
+                }
+                if (null == genericType && null != property.getGetter()) {
+                    genericType = property.getGetter().getGenericReturnType();
+                }
+                if (null == genericType && null != property.getField()) {
+                    genericType = property.getField().getGenericType();
+                }
+                if (null == genericType && null != property.getConstructorParameter()) {
+                    genericType = property.getConstructorParameter().getParameterType();
+                }
+                if (null != genericType && genericType instanceof Class && ((Class) genericType).isEnum()) {
+                    genericType = String.class;
+                }
+                if (null == genericType) {
+                    propClass = Object.class.getName();
+                } else {
+                    if (genericType instanceof TypeVariableImpl
+                            && null != ((TypeVariableImpl) genericType).getBounds()
+                            && 1 == ((TypeVariableImpl) genericType).getBounds().length) {
+                        propClass = ((TypeVariableImpl) genericType).getBounds()[0].getTypeName();
+                    } else {
+                        propClass = genericType.getTypeName();
+                    }
+                    if (null != propClass) {
+                        // Try and replace any primitive types with the full class name, e.g int/boolean with java.lang.Integer/java.lang.Boolean
+                        if (!propClass.contains(".")) {
+                            propClass = SimpleClassNameIdResolver.getClassName(propClass);
+                        }
+                        propClass = propClass.replaceAll("\\? extends ", "")
+                                .replaceAll("\\? super ", "")
+                                .replaceAll(" ", "");
+                    }
+                }
             }
 
-            Type genericType = setterWithAnnotation(resolveMethods(property, "set"));
-
-            if (null == genericType) {
-                genericType = getterWithAnnotationAndNotIgnored(resolveMethods(property, "get"));
-            }
-
-            if (null != property.getGetter() && null == genericType) {
-                genericType = property.getGetter().getGenericReturnType();
-            }
-
-            if (null != property.getField() && null == genericType) {
-                genericType = property.getField().getGenericType();
-            }
-
-            if (null != property.getConstructorParameter() && null == genericType) {
-                genericType = property.getConstructorParameter().getParameterType();
-            }
-
-            if (genericType instanceof Class && ((Class) genericType).isEnum()) {
-                genericType = String.class;
-            }
-
-            fieldMap.put(propName, genericType != null ? genericType.getTypeName() : Object.class.getName());
+            fieldMap.put(propName, propClass);
         }
+
+        final Map<String, Map<String, String>> newCache = new HashMap<>(cache);
+        newCache.put(className, Collections.unmodifiableMap(fieldMap));
+        cache = Collections.unmodifiableMap(newCache);
 
         return fieldMap;
     }

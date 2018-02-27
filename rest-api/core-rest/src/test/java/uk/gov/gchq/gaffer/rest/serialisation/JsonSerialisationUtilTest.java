@@ -44,8 +44,8 @@ public class JsonSerialisationUtilTest {
         // Given
         final String className = "uk.gov.gchq.koryphe.impl.predicate.range.InRange";
         final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("start", "T");
-        expectedValues.put("end", "T");
+        expectedValues.put("start", "java.lang.Comparable<T>");
+        expectedValues.put("end", "java.lang.Comparable<T>");
         expectedValues.put("startInclusive", "java.lang.Boolean");
         expectedValues.put("endInclusive", "java.lang.Boolean");
 
@@ -87,8 +87,8 @@ public class JsonSerialisationUtilTest {
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("resultsLimit", "java.lang.Integer");
         expectedValues.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
-        expectedValues.put("options", "java.util.Map<java.lang.String, java.lang.String>");
-        expectedValues.put("input", "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId>");
+        expectedValues.put("options", "java.util.Map<java.lang.String,java.lang.String>");
+        expectedValues.put("input", "java.lang.Object[]");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
@@ -115,7 +115,7 @@ public class JsonSerialisationUtilTest {
         final String className = "uk.gov.gchq.gaffer.data.graph.Walk";
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("edges", "java.util.List<java.util.Set<uk.gov.gchq.gaffer.data.element.Edge>>");
-        expectedValues.put("entities", "java.util.List<java.util.Map.java.util.Map$Entry<java.lang.Object, java.util.Set<uk.gov.gchq.gaffer.data.element.Entity>>>");
+        expectedValues.put("entities", "java.util.List<java.util.Map.java.util.Map$Entry<java.lang.Object,java.util.Set<uk.gov.gchq.gaffer.data.element.Entity>>>");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
@@ -129,13 +129,13 @@ public class JsonSerialisationUtilTest {
         // Given
         final String className = "uk.gov.gchq.gaffer.data.element.Edge";
         final Map<String, String> expectedFields = new HashMap<>();
-        expectedFields.put("class", "uk.gov.gchq.gaffer.data.element.Edge");
+        expectedFields.put("class", "java.lang.Class");
         expectedFields.put("source", "java.lang.Object");
         expectedFields.put("destination", "java.lang.Object");
         expectedFields.put("matchedVertex", "java.lang.String");
         expectedFields.put("group", "java.lang.String");
         expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
-        expectedFields.put("directed", "boolean");
+        expectedFields.put("directed", "java.lang.Boolean");
         expectedFields.put("directedType", "java.lang.String");
 
         // When
