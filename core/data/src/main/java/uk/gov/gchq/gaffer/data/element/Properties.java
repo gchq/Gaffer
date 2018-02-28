@@ -43,10 +43,13 @@ public class Properties extends HashMap<String, Object> {
 
     @Override
     public Object put(final String name, final Object value) {
-        if (null != name && null != value) {
-            return super.put(name, value);
+        if (null != name) {
+            if (null == value) {
+                return super.remove(name);
+            } else {
+                return super.put(name, value);
+            }
         }
-
         return null;
     }
 
