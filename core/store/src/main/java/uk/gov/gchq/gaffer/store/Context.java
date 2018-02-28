@@ -48,17 +48,60 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, new HashMap<>(), createJobId());
+        this(user, new HashMap<>());
     }
 
-    private Context(final User user, final Map<String, Object> config, final String jobId) {
+    /**
+     * Create a new {@link Context} based on the provided context.
+     * A shallow clone of the context is carried out and a new job ID is created.
+     *
+     * @param context the context to shallow clone.
+     */
+    public Context(final Context context) {
+        this(null != context ? context.user : null, null != context ? context.config : null);
+        exporters.putAll(context.exporters);
+        if (null != context.originalOpChain) {
+            originalOpChain = context.originalOpChain.shallowClone();
+        }
+    }
+
+    private Context(final User user, final Map<String, Object> config) {
+        if (null == user) {
+            throw new IllegalArgumentException("User is required");
+        }
         this.user = user;
         if (null == config) {
             this.config = new HashMap<>();
         } else {
             this.config = config;
         }
-        this.jobId = jobId;
+        this.jobId = createJobId();
+    }
+
+    /**
+     * Constructs a context with a provided job ID
+     *
+     * @param user   the user
+     * @param config the config
+     * @param jobId  the job ID
+     * @deprecated this should not be used. You should let the Context automatically set the job ID.
+     */
+    @Deprecated
+    private Context(final User user, final Map<String, Object> config, final String jobId) {
+        if (null == user) {
+            throw new IllegalArgumentException("User is required");
+        }
+        this.user = user;
+        if (null == config) {
+            this.config = new HashMap<>();
+        } else {
+            this.config = config;
+        }
+        if (null == jobId) {
+            this.jobId = createJobId();
+        } else {
+            this.jobId = jobId;
+        }
     }
 
     public User getUser() {
@@ -166,6 +209,14 @@ public class Context {
             return this;
         }
 
+        /**
+         * Sets the job ID.
+         *
+         * @param jobId the job ID to set on the context
+         * @return the Builder
+         * @deprecated this should not be used. You should let the Context automatically set the job ID.
+         */
+        @Deprecated
         public Builder jobId(final String jobId) {
             this.jobId = jobId;
             return this;
