@@ -47,7 +47,7 @@ public class FederatedOperationChainHandler<O_ITEM> implements OutputOperationHa
             if (null != updatedOp) {
                 Object result = null;
                 try {
-                    result = graph.execute(updatedOp, context.getUser());
+                    result = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
