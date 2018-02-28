@@ -198,18 +198,15 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowErrorForMissingSchema() throws Exception {
-        //When / Then
-        try {
-            store.execute(new AddGraph.Builder()
-                    .graphId(ACC_ID_2)
-                    .isPublic(true)
-                    .parentPropertiesId(ID_PROPS_ACC_2)
-                    .build(), userContext);
-            fail("a graph was created without a defined schema");
-        } catch (final Exception e) {
-            assertContains(e.getCause(), GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, ACC_ID_2, "Schema");
-        }
+    public void shouldNotThrowErrorForNoSchema() throws Exception {
+        //When
+        store.execute(new AddGraph.Builder()
+                .graphId(ACC_ID_2)
+                .isPublic(true)
+                .parentPropertiesId(ID_PROPS_ACC_2)
+                .build(), userContext);
+
+        // Then - no exception
     }
 
     @Test
