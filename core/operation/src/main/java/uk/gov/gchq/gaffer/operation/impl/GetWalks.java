@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
  * one operation providing the input {@link EntityId}s for the next.
  */
 @JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
+@Since("1.1.0")
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiEntityIdInput,

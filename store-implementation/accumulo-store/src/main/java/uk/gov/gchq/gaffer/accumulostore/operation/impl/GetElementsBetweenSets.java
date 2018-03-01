@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
@@ -45,6 +46,7 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 @JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

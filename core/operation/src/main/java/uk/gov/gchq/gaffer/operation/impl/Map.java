@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -38,6 +39,7 @@ import java.util.function.Function;
  * @param <O> the type of the output object
  */
 @JsonPropertyOrder(value = {"class", "input", "functions"}, alphabetic = true)
+@Since("1.2.0")
 public class Map<I, O> implements InputOutput<I, O> {
     private I input;
     private java.util.Map<String, String> options;
