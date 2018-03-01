@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
@@ -37,6 +38,7 @@ import java.util.Map;
  * to their relevant {@link ElementTransformer}s can be provided.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
+@Since("1.0.0")
 public class Transform implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

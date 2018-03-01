@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import java.util.Map;
  * @see SplitStoreFromFile.Builder
  */
 @JsonPropertyOrder(value = {"class", "inputPath"}, alphabetic = true)
+@Since("1.1.1")
 public class SplitStoreFromFile implements Operation {
     @Required
     private String inputPath;

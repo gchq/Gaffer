@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -32,6 +33,7 @@ import java.util.Map;
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
 @JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
+@Since("1.0.0")
 public class ExportToSet<T> implements
         ExportTo<T> {
     private String key;

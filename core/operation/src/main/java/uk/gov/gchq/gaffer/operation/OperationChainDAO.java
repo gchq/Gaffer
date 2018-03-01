@@ -30,6 +30,7 @@ import java.util.List;
  *              in the chain.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+@Since("1.0.0")
 public class OperationChainDAO<OUT> extends OperationChain<OUT> {
 
     public OperationChainDAO() {

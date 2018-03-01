@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
@@ -43,6 +44,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements
  */
+@Since("1.3.0")
 public class GetGraphFrameOfElements implements
         Output<GraphFrame>,
         GraphFilters {

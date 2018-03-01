@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -31,6 +32,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class GetAllGraphIds implements
         FederatedOperation,
         Output<Iterable<? extends String>> {

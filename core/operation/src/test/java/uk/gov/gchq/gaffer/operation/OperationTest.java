@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.commonutil.VersionUtil;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collections;
@@ -30,6 +31,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -71,6 +74,22 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Map<String, String> actual = testObject.getOptions();
         Assert.assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
+    }
+
+    @Test
+    public void shouldHaveSinceAnnotation() {
+        // Given
+        final T op = getTestObject();
+
+        // When
+        final Since annotation = op.getClass().getAnnotation(Since.class);
+
+        // Then
+        assumeTrue("Missing Since annotation on class." + op.getClass().getName(),
+                null != annotation && null != annotation.value());
+
+        assumeTrue(annotation.value() + " is not a valid value string.",
+                VersionUtil.validateVersionString(annotation.value()));
     }
 }
 

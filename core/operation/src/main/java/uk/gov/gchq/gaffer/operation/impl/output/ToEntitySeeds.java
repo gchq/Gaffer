@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -32,6 +33,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class ToEntitySeeds implements
         InputOutput<Iterable<? extends Object>, Iterable<? extends EntitySeed>>,
         MultiInput<Object> {

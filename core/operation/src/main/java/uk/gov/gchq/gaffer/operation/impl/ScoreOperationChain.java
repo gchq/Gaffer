@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * to execute a given {@link OperationChain}.
  */
 @JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
+@Since("1.0.0")
 public class ScoreOperationChain implements Output<Integer> {
     private OperationChain operationChain;
     private Map<String, String> options;

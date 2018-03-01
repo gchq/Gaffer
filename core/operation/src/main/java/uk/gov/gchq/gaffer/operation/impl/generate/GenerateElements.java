@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -38,6 +39,7 @@ import java.util.function.Function;
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
+@Since("1.0.0")
 public class GenerateElements<OBJ> implements
         InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
         MultiInput<OBJ> {

@@ -20,11 +20,13 @@ import org.apache.spark.api.java.JavaRDD;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class ImportJavaRDDOfElements implements
         Operation,
         Input<JavaRDD<Element>> {
