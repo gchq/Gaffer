@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 import java.util.function.Function;

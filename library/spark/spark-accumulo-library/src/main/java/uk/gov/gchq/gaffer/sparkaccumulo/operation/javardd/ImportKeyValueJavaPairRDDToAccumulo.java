@@ -22,8 +22,8 @@ import org.apache.spark.api.java.JavaPairRDD;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 

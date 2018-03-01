@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
