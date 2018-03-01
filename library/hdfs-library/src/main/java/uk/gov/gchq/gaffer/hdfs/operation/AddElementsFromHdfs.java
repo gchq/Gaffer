@@ -21,7 +21,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 

@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
-import uk.gov.gchq.gaffer.operation.Since;
+import uk.gov.gchq.koryphe.Since;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

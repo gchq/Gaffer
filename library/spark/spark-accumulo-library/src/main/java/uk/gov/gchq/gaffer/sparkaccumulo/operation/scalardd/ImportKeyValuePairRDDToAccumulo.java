@@ -22,8 +22,8 @@ import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 

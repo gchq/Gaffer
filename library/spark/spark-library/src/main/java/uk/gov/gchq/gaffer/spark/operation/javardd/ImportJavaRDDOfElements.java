@@ -20,8 +20,8 @@ import org.apache.spark.api.java.JavaRDD;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
