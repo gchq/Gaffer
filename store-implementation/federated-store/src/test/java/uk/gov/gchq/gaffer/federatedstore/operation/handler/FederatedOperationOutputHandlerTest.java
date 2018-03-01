@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -38,6 +39,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -154,7 +156,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Store mockStoreInner = Mockito.mock(Store.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
         given(mockStoreInner.getProperties()).willReturn(storeProperties);
-        given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException(message));
+        given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
@@ -167,7 +169,6 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         } catch (OperationException e) {
             assertEquals(message, e.getCause().getMessage());
         }
-
     }
 
     @Test
@@ -234,12 +235,16 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
         //Then
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1);
-        verify(mockStore1).execute(any(OperationChain.class), eq(context));
-        verify(mockStore2, never()).execute(any(OperationChain.class), eq(context));
-        verify(mockStore3).execute(any(OperationChain.class), eq(context));
-        verify(mockStore4, never()).execute(any(OperationChain.class), eq(context));
-        // When
-
+        ArgumentCaptor<Context> context1Captor = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore1).execute(any(OperationChain.class), context1Captor.capture());
+        assertNotEquals(context.getJobId(), context1Captor.getValue().getJobId());
+        assertEquals(context.getUser(), context1Captor.getValue().getUser());
+        verify(mockStore2, never()).execute(any(OperationChain.class), any(Context.class));
+        ArgumentCaptor<Context> context3Captor = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore3).execute(any(OperationChain.class), context3Captor.capture());
+        assertNotEquals(context.getJobId(), context3Captor.getValue().getJobId());
+        assertEquals(context.getUser(), context3Captor.getValue().getUser());
+        verify(mockStore4, never()).execute(any(OperationChain.class), any(Context.class));
     }
 
     protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
