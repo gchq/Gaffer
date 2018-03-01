@@ -124,6 +124,31 @@ public class PropertiesTest {
     }
 
     @Test
+    public void shouldRemovePropertyIfAddedWithNullValue() {
+        // Given
+        final Properties properties = new Properties();
+        properties.put("property1", "propertyValue1");
+        properties.put("property2", "propertyValue2");
+
+        // When
+        properties.put("property1", null);
+
+        // Then
+        assertEquals(1, properties.size());
+        assertEquals(null, properties.get("property1"));
+    }
+
+    @Test
+    public void shouldNotAddPropertyIfPropertyNameIsNull() {
+        // When
+        final Properties properties = new Properties();
+        properties.put(null, "propertyValue1");
+
+        // Then
+        assertEquals(0, properties.size());
+    }
+
+    @Test
     public void shouldCloneProperties() {
         // Given
         final String property1 = "property 1";

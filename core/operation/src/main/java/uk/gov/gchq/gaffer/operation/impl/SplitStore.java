@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  */
 @Deprecated
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class SplitStore implements Operation {
     @Required
     private String inputPath;

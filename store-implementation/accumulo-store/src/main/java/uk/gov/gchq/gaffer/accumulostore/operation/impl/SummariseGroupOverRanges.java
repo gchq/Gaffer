@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import java.util.Map;
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class SummariseGroupOverRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,

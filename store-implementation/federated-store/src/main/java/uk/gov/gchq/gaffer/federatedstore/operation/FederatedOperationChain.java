@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,6 +51,7 @@ import java.util.Map;
  * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
  **/
 @JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
+@Since("1.1.0")
 public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {
     @Required

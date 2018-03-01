@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
@@ -59,6 +60,7 @@ import java.util.Map;
  * @see SampleElementsForSplitPoints.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.1.1")
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,
