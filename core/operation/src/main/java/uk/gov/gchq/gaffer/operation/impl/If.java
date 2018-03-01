@@ -33,23 +33,25 @@ import uk.gov.gchq.gaffer.operation.util.Conditional;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * A {@code If} is an {@link Operation} which will execute one of two Operations,
  * based on the result of testing an input Object against a provided {@link java.util.function.Predicate}.
  *
- * <p>This <code>Predicate</code> can also be configured with an {@link Conditional},
- * which simply wraps an <code>Operation</code> and a <code> Predicate</code>.
+ * <p>This {@code Predicate} can also be configured with an {@link Conditional},
+ * which simply wraps an {@code Operation} and a {@code Predicate}.
  * This enables pre-predicate transformation of the input,
  * which allows properties other than the input object to be passed to the predicate,
  * whilst preserving the initial input.</p>
  *
  * <p>As an example, this allows you to build an {@link Operation}
  * which extracts a property from the input, passes it to the predicate,
- * then the untouched original input is passed on to the <code>Operation</code> determined by the predicate test. </p>
+ * then the untouched original input is passed on to the operation determined by the predicate test. </p>
  *
- * <p>A simple boolean, or anything that resolves to a boolean, can also be used to determine which <code>Operation</code> to execute. </p>
+ * <p>A simple boolean, or anything that resolves to a boolean, can also be used to determine which Operation to execute. </p>
  *
  * @see If.Builder
  */
@@ -106,23 +108,34 @@ public class If<I, O> implements InputOutput<I, O>,
 
     @Override
     public Collection<Operation> getOperations() {
-        if (null == then) {
-            if (null == otherwise) {
-                return Collections.emptyList();
-            }
-            return Collections.singletonList(OperationChain.wrap(otherwise));
+        final List<Operation> ops = new LinkedList<>();
+
+        if (null != conditional && null != conditional.getTransform()) {
+            ops.add(OperationChain.wrap(conditional.getTransform()));
         }
 
-        if (null == otherwise) {
-            return Collections.singletonList(OperationChain.wrap(then));
+        if (null != then) {
+            ops.add(OperationChain.wrap(then));
         }
 
-        return Lists.newArrayList(OperationChain.wrap(then), OperationChain.wrap(otherwise));
+        if (null != otherwise) {
+            ops.add(OperationChain.wrap(otherwise));
+        }
+
+        return ops;
     }
 
     @Override
     public void updateOperations(final Collection operations) {
         final Iterator<Operation> itr = operations.iterator();
+
+        if (null != conditional && null == conditional.getTransform()) {
+            if (!itr.hasNext()) {
+                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"conditional#transform\"");
+            }
+            conditional.setTransform(itr.next());
+        }
+
         if (null == then) {
             if (!itr.hasNext()) {
                 throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"then\"");

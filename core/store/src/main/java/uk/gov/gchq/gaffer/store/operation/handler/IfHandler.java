@@ -38,7 +38,7 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
         if (null == operation.getCondition()) {
             final Object intermediate;
 
-            if (null == operation.getConditional().getTransform()) {
+            if (null != operation.getConditional() && null == operation.getConditional().getTransform()) {
                 intermediate = input;
             } else {
                 final Operation transform = operation.getConditional().getTransform();

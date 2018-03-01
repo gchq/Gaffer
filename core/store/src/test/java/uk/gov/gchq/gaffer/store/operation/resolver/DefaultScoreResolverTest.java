@@ -63,4 +63,9 @@ public class DefaultScoreResolverTest {
         // Then
         assertEquals(2, score);
     }
+
+    @Test
+    public void shouldGetScoreForOperationChain() {
+
+    }
 }

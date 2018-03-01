@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Operations;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,14 +47,22 @@ public class DefaultScoreResolver implements ScoreResolver<Operation> {
 
     @Override
     public Integer getScore(final Operation operation) {
+        int score = DEFAULT_OPERATION_SCORE;
         if (null != operation) {
-            final Class<? extends Operation> opClass = operation.getClass();
-            final List<Class<? extends Operation>> keys = new ArrayList<>(opScores.keySet());
-            for (int i = keys.size() - 1; i >= 0; i--) {
-                final Class<? extends Operation> key = keys.get(i);
-                if (key.isAssignableFrom(opClass)) {
-                    return opScores.get(key);
+            if (operation instanceof Operations) {
+                for (Operation op : ((Operations<?>) operation).getOperations()) {
+                    score += getScore(op);
                 }
+            } else {
+                final Class<? extends Operation> opClass = operation.getClass();
+                final List<Class<? extends Operation>> keys = new ArrayList<>(opScores.keySet());
+                for (int i = keys.size() - 1; i >= 0; i--) {
+                    final Class<? extends Operation> key = keys.get(i);
+                    if (key.isAssignableFrom(opClass)) {
+                        score += opScores.get(key);
+                    }
+                }
+                return score;
             }
             LOGGER.warn("The operation '{}' was not found in the config file provided - the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
         } else {
