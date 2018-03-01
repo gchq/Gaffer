@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.Since;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
  * that the results from the previous operation are not used again.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class DiscardOutput implements
         Input<Object> {
 
