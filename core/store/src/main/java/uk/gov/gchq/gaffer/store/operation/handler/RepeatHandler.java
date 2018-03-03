@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Repeat;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.util.OperationConstants;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -32,23 +33,7 @@ import uk.gov.gchq.gaffer.store.Store;
  * executed on the store for the configured number of repeats.
  */
 public class RepeatHandler implements OutputOperationHandler<Repeat, Object> {
-    private int maxTimes;
-
-    public RepeatHandler() {
-        this(20);
-    }
-
-    public RepeatHandler(final int maxTimes) {
-        this.maxTimes = maxTimes;
-    }
-
-    public void setMaxTimes(final int maxTimes) {
-        this.maxTimes = maxTimes;
-    }
-
-    public int getMaxTimes() {
-        return maxTimes;
-    }
+    private int maxTimes = OperationConstants.MAX_REPEATS_DEFAULT;
 
     @Override
     public Object doOperation(final Repeat operation, final Context context, final Store store) throws OperationException {

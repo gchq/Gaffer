@@ -30,22 +30,11 @@ import uk.gov.gchq.gaffer.operation.impl.Repeat;
 public class RepeatScoreResolver implements ScoreResolver<Repeat> {
     @Override
     public Integer getScore(final Repeat repeat, final ScoreResolver defaultScoreResolver) {
-        int score = 0;
-        if (null != repeat) {
-            final Operation delegate = repeat.getOperation();
-
-            if (delegate instanceof Operations) {
-
-                for (final Operation op : ((Operations<Operation>) delegate).getOperations()) {
-                    score += defaultScoreResolver.getScore(op);
-                }
-            } else {
-                score = defaultScoreResolver.getScore(delegate);
-            }
-
-            score *= repeat.getTimes();
+        if (null == repeat || null == repeat.getOperation()) {
+            return 0;
         }
-        return score;
+
+        return repeat.getTimes() * defaultScoreResolver.getScore(repeat.getOperation());
     }
 
     @Override

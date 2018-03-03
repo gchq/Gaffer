@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -23,6 +24,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.util.OperationConstants;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,28 +33,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@code Repeat} is a Gaffer {@link Operation} for executing a delegate <code>Operation</code>
+ * A {@code Repeat} is a Gaffer {@link Operation} for executing a delegate {@code Operation}
  * for a specified number of repeats.
  * <p>The delegate operation can also be an implementation of {@link Operations},
  * so for example, a small {@link uk.gov.gchq.gaffer.operation.OperationChain} could be delegated
- * to the <code>Repeat</code>, and repeated a number of times.</p>
+ * to the {@code Repeat}, and repeated a number of times.</p>
  */
+@Since("1.4.0")
 @JsonPropertyOrder(value = {"class", "input", "operation", "times"}, alphabetic = true)
 public class Repeat implements InputOutput<Object, Object>,
         Operations<Operation> {
     private Operation operation;
-    private int times;
+    private int times = OperationConstants.TIMES_DEFAULT;
     private Object input;
     private Map<String, String> options;
-
-    public Repeat() {
-
-    }
-
-    public Repeat(final Operation operation, final int times) {
-        this.operation = operation;
-        this.times = times;
-    }
 
     public void setOperation(final Operation operation) {
         this.operation = operation;
@@ -65,6 +60,7 @@ public class Repeat implements InputOutput<Object, Object>,
         this.times = times;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public int getTimes() {
         return times;
     }

@@ -44,6 +44,9 @@ public class DefaultScoreResolver implements ScoreResolver<Operation> {
         }
     }
 
+    // TODO create new branch with this fixed to work recursively
+    // then merge in, make sure test passes
+    // do same for if operation
     @Override
     public Integer getScore(final Operation operation) {
         if (null != operation) {

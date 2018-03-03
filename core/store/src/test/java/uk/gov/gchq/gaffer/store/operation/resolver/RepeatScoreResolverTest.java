@@ -42,7 +42,10 @@ public class RepeatScoreResolverTest {
         final RepeatScoreResolver resolver = new RepeatScoreResolver();
         final DefaultScoreResolver defaultResolver = new DefaultScoreResolver(new LinkedHashMap<>());
 
-        final Repeat repeat = new Repeat(new GetAdjacentIds(), 2);
+        final Repeat repeat = new Repeat.Builder()
+                .operation(new GetAdjacentIds())
+                .times(2)
+                .build();
 
         // When
         final int score = resolver.getScore(repeat, defaultResolver);
@@ -112,7 +115,10 @@ public class RepeatScoreResolverTest {
         // Given
         final RepeatScoreResolver resolver = new RepeatScoreResolver();
 
-        final Repeat repeat = new Repeat(new GetAdjacentIds(), 3);
+        final Repeat repeat = new Repeat.Builder()
+                .operation(new GetAdjacentIds())
+                .times(3)
+                .build();
 
         // When / Then
         try {
