@@ -32,7 +32,7 @@ import java.util.Map;
  * returns the score based on a map of operation scores.
  */
 public class DefaultScoreResolver implements ScoreResolver<Operation> {
-    public static final int DEFAULT_OPERATION_SCORE = 1;
+    public static final int DEFAULT_OPERATION_SCORE = 0;
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultScoreResolver.class);
 
     private final Map<Class<? extends Operation>, Integer> opScores;
@@ -53,16 +53,16 @@ public class DefaultScoreResolver implements ScoreResolver<Operation> {
                 for (Operation op : ((Operations<?>) operation).getOperations()) {
                     score += getScore(op);
                 }
+                return score;
             } else {
                 final Class<? extends Operation> opClass = operation.getClass();
                 final List<Class<? extends Operation>> keys = new ArrayList<>(opScores.keySet());
                 for (int i = keys.size() - 1; i >= 0; i--) {
                     final Class<? extends Operation> key = keys.get(i);
                     if (key.isAssignableFrom(opClass)) {
-                        score += opScores.get(key);
+                        return opScores.get(key);
                     }
                 }
-                return score;
             }
             LOGGER.warn("The operation '{}' was not found in the config file provided - the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
         } else {

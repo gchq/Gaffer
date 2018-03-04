@@ -19,15 +19,20 @@ package uk.gov.gchq.gaffer.store.operation.resolver;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class DefaultScoreResolverTest {
@@ -66,6 +71,26 @@ public class DefaultScoreResolverTest {
 
     @Test
     public void shouldGetScoreForOperationChain() {
+        // Given
+        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
+        final GetElements getElements = mock(GetElements.class);
+        final Limit limit = mock(Limit.class);
+        final List<Operation> opList = Arrays.asList(getAdjacentIds, getElements, limit);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(opList);
 
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(GetElements.class, 2);
+        opScores.put(GetAdjacentIds.class, 3);
+        opScores.put(Limit.class, 1);
+
+        final DefaultScoreResolver resolver = new DefaultScoreResolver(opScores);
+
+        // When
+        final int score = resolver.getScore(opChain);
+
+        // Then
+        assertEquals(6, score);
     }
 }
