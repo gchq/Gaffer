@@ -18,32 +18,29 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.List;
 
 /**
- * A generic handler for Operations with CloseableIterable of elements for FederatedStore
+ * A generic handler for Operations with CloseableIterable of elements for FederatedStore.
+ * Simply executes the operation on each delegate graph then chains the results together
+ * using a {@link ChainedIterable}.
  *
- * @see uk.gov.gchq.gaffer.store.operation.handler.OperationHandler
- * @see FederatedStore
- * @see OutputOperationHandler
+ * @see FederatedOperationOutputHandler
  */
-public class FederatedOperationGenericOutputHandler<OP extends Output<CloseableIterable>> extends FederatedOperationOutputHandler<OP,  CloseableIterable> {
-
+public class FederatedOperationIterableHandler<OP extends Output<O>, O extends Iterable> extends FederatedOperationOutputHandler<OP, O> {
     @Override
-    protected CloseableIterable<? extends Element> mergeResults(final List<CloseableIterable> results, final OP operation, final Context context, final Store store) {
-        // Concatenate all the results into 1 iterable
+    protected O mergeResults(final List<O> results, final OP operation, final Context context, final Store store) {
         if (results.isEmpty()) {
-            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
+            return (O) new EmptyClosableIterable<>();
         }
-        return new ChainedIterable<>(CollectionUtil.toIterableArray(results));
+
+        // Concatenate all the results into 1 iterable
+        return (O) new ChainedIterable<>(CollectionUtil.toIterableArray(results));
     }
 }

@@ -615,7 +615,7 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
-    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+    public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
@@ -698,7 +698,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    protected void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -707,7 +707,11 @@ public abstract class Store {
     }
 
     public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
-        operationHandlers.put(opClass, handler);
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
     protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {

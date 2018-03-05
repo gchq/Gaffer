@@ -74,7 +74,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     }
 
     protected void addGenericHandler(final FederatedStore store, final Graph graph) {
-        for (Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
+        for (final Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
             //some operations are not suitable for FederatedOperationGenericOutputHandler
             if (Output.class.isAssignableFrom(supportedOperation) && !store.isSupported(supportedOperation)) {
                 Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
@@ -82,11 +82,11 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
                 Class outputClass;
                 try {
                     outputClass = supportedOutputOperation.newInstance().getOutputClass();
-                } catch (InstantiationException | IllegalAccessException e) {
+                } catch (final InstantiationException | IllegalAccessException e) {
                     continue;
                 }
                 if (CloseableIterable.class.equals(outputClass)) {
-                    store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationGenericOutputHandler());
+                    store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
                 }
             }
         }

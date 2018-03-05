@@ -58,7 +58,7 @@ public class AddGenericHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
-        verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationGenericOutputHandler.class));
+        verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
     }
  @Test
     public void shouldNotHandleAnything() throws Exception {
@@ -67,7 +67,7 @@ public class AddGenericHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
-        verify(store, never()).addOperationHandler(any(), any(FederatedOperationGenericOutputHandler.class));
+        verify(store, never()).addOperationHandler(any(), any(FederatedOperationIterableHandler.class));
     }
 
 
