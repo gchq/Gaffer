@@ -698,7 +698,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+    protected void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -706,11 +706,11 @@ public abstract class Store {
         }
     }
 
-    protected final <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
         operationHandlers.put(opClass, handler);
     }
 
-    protected final OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 

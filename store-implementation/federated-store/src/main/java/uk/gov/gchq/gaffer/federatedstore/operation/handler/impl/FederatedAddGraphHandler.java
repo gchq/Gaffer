@@ -16,12 +16,15 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -58,6 +61,8 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
+        addGenericHandler((FederatedStore) store, graph);
+
         try {
             ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
         } catch (final StorageException e) {
@@ -66,5 +71,24 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
         return null;
+    }
+
+    protected void addGenericHandler(final FederatedStore store, final Graph graph) {
+        for (Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
+            //some operations are not suitable for FederatedOperationGenericOutputHandler
+            if (Output.class.isAssignableFrom(supportedOperation) && !store.isSupported(supportedOperation)) {
+                Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
+
+                Class outputClass;
+                try {
+                    outputClass = supportedOutputOperation.newInstance().getOutputClass();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    continue;
+                }
+                if (CloseableIterable.class.equals(outputClass)) {
+                    store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationGenericOutputHandler());
+                }
+            }
+        }
     }
 }
