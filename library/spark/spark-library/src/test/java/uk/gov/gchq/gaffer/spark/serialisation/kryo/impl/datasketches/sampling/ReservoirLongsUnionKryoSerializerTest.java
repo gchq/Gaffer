@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.Assert.assertArrayEquals;
