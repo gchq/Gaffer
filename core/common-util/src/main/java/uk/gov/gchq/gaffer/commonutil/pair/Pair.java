@@ -22,13 +22,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
+import java.io.Serializable;
+
 /**
  * A simple class to contain a pair of items.
  *
  * @param <F> type of first item in the pair
  * @param <S> type of second item in the pair
  */
-public class Pair<F, S> {
+public class Pair<F, S> implements Serializable {
     private static final long serialVersionUID = 4769405415756562347L;
 
     private F first;

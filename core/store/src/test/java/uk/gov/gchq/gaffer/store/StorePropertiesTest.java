@@ -32,15 +32,31 @@ import static org.junit.Assert.assertNull;
 public class StorePropertiesTest {
 
     @Test
+    public void shouldMergeProperties() {
+        // Given
+        final StoreProperties props1 = createStoreProperties();
+        final StoreProperties props2 = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "store2.properties"));
+
+        // When
+        props1.merge(props2);
+
+        // Then
+        assertEquals("value1", props1.get("key1"));
+        assertEquals("value2", props1.get("key2"));
+        assertEquals("value2", props1.get("testKey"));
+    }
+
+    @Test
     public void shouldRemovePropertyWhenPropertyValueIsNull() {
         // Given
         final StoreProperties props = createStoreProperties();
+        System.out.println(props.getProperties());
 
         // When
-        props.setId(null);
+        props.set("testKey", null);
 
         // Then
-        assertNull(props.getId());
+        assertNull(props.get("testKey"));
     }
 
     @Test

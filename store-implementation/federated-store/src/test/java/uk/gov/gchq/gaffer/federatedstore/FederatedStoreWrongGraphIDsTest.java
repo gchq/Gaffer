@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -47,6 +50,7 @@ public class FederatedStoreWrongGraphIDsTest {
     public static final String THERE_SHOULD_BE_ONE_ELEMENT = "There should be one element";
     public static final String EXCEPTION_NOT_AS_EXPECTED = "Exception not as expected";
     public static final String USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION = "Using the wrong graphId should have thrown exception.";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore store;
     private FederatedStoreProperties fedProps;
     private HashMapGraphLibrary library;
@@ -55,22 +59,18 @@ public class FederatedStoreWrongGraphIDsTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
-        fedProps.setGraphIds(GRAPH_1);
-        fedProps.setGraphPropId(GRAPH_1, PROP_1);
-        fedProps.setGraphSchemaId(GRAPH_1, SCHEMA_1);
-        fedProps.setTrueGraphIsPublicValue(GRAPH_1);
+        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
         MapStoreProperties mapStoreProperties = new MapStoreProperties();
-        mapStoreProperties.setId(PROP_1);
 
-        library.addProperties(mapStoreProperties);
-        library.addSchema(new Schema.Builder()
-                .id(SCHEMA_1)
+        library.addProperties(PROP_1, mapStoreProperties);
+        library.addSchema(SCHEMA_1, new Schema.Builder()
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
@@ -84,6 +84,7 @@ public class FederatedStoreWrongGraphIDsTest {
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
         store.initialise(FED_ID, null, fedProps);
+        store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
         final Entity expectedEntity = new Entity.Builder()
                 .group(E1_GROUP)
                 .vertex("v1")

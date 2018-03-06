@@ -24,11 +24,19 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
-public class GetAllGraphIds implements Output<Iterable<? extends String>> {
+public class GetAllGraphIds implements
+        FederatedOperation,
+        Output<Iterable<? extends String>> {
     private Map<String, String> options;
+
+    public GetAllGraphIds() {
+        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    }
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {

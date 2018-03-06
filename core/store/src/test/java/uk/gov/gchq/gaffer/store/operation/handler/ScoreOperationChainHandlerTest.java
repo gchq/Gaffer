@@ -21,13 +21,17 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -35,6 +39,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.InputStream;
@@ -42,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,6 +57,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class ScoreOperationChainHandlerTest {
@@ -138,6 +147,276 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
+    public void shouldExecuteScoreOperationChainContainingNamedOperation() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+
+        final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties storeProperties = new StoreProperties();
+
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
+        final Limit op3 = mock(Limit.class);
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(GetAdjacentIds.class, 2);
+        opScores.put(GetElements.class, 1);
+        opScores.put(Limit.class, 1);
+        handler.setOpScores(opScores);
+
+        final String opName = "basicOp";
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+        namedOp.setOperationName(opName);
+
+        resolvers.put(namedOp.getClass(), scoreResolver);
+        handler.setScoreResolvers(resolvers);
+
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
+        final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
+
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(store.getProperties()).willReturn(storeProperties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(7, result);
+    }
+
+    @Test
+    public void shouldCorrectlyExecuteScoreOperationChainWhenNamedOperationScoreIsNull() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+
+        final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties storeProperties = new StoreProperties();
+
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
+        final Limit op3 = mock(Limit.class);
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(GetAdjacentIds.class, 3);
+        opScores.put(GetElements.class, 2);
+        opScores.put(Limit.class, 1);
+        handler.setOpScores(opScores);
+
+        final String opName = "basicOp";
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+        namedOp.setOperationName(opName);
+
+        resolvers.put(namedOp.getClass(), scoreResolver);
+        handler.setScoreResolvers(resolvers);
+
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(null);
+        final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
+
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(store.getProperties()).willReturn(storeProperties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(7, result);
+
+    }
+
+    @Test
+    public void shouldResolveScoreOperationChainWithMultipleScoreResolvers() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+
+        final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
+        final ScoreResolver scoreResolver1 = mock(NamedOperationScoreResolver.class);
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties storeProperties = mock(StoreProperties.class);
+
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final AddElements op2 = mock(AddElements.class);
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(GetAdjacentIds.class, 2);
+        handler.setOpScores(opScores);
+
+        final String opName = "namedOp";
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+        namedOp.setOperationName(opName);
+
+        resolvers.put(namedOp.getClass(), scoreResolver);
+        resolvers.put(op2.getClass(), scoreResolver1);
+        handler.setScoreResolvers(resolvers);
+
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
+        given(scoreResolver1.getScore(eq(op2), any())).willReturn(5);
+
+        final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, namedOp));
+
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(store.getProperties()).willReturn(storeProperties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(10, result);
+    }
+
+    @Test
+    public void shouldCorrectlyResolveScoreForNullListOfOperations() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+
+        handler.setScoreResolvers(resolvers);
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+
+        final List<? extends Operation> opList = null;
+
+        final OperationChain opChain = new OperationChain(opList);
+
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(store.getProperties()).willReturn(properties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void shouldCorrectlyResolveScoreForNestedOperationWithNullOperationList() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+
+        final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+
+        final GetAllElements op1 = mock(GetAllElements.class);
+        final Transform op2 = mock(Transform.class);
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(GetAllElements.class, 2);
+        opScores.put(Transform.class, 1);
+        handler.setOpScores(opScores);
+
+        final String opName = "namedOp";
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+        namedOp.setOperationName(opName);
+
+        resolvers.put(namedOp.getClass(), scoreResolver);
+        handler.setScoreResolvers(resolvers);
+
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
+
+        final List<? extends Operation> opList = null;
+
+        final OperationChain nestedOpChain = new OperationChain(opList);
+
+        final OperationChain opChain = new OperationChain(Arrays.asList(
+                op1,
+                op2,
+                nestedOpChain,
+                namedOp));
+
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(store.getProperties()).willReturn(properties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(6, result);
+    }
+
+    @Test
+    public void shouldReturnZeroForANullOperationChain() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+        final StoreProperties properties = mock(StoreProperties.class);
+
+        final OperationChain opChain = null;
+
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(store.getProperties()).willReturn(properties);
+
+        // When
+        final Object result = handler.doOperation(new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build(), context, store);
+
+        // Then
+        assertEquals(0, result);
+    }
+
+    @Test
     public void shouldSetAndGetAuthScores() {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
@@ -186,6 +465,23 @@ public class ScoreOperationChainHandlerTest {
 
         // Then
         assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetNamedOpScores() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = new NamedOperation<>();
+
+        namedOpScoreResolvers.put(namedOp.getClass(), new NamedOperationScoreResolver());
+        handler.setScoreResolvers(namedOpScoreResolvers);
+
+        // When
+        final Map<Class<? extends Operation>, ScoreResolver> results = handler.getScoreResolvers();
+
+        // Then
+        assertEquals(namedOpScoreResolvers, results);
     }
 
     @Test

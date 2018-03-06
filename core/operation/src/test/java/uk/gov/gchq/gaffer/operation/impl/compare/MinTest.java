@@ -91,6 +91,15 @@ public class MinTest extends OperationTest<Min> {
         assertEquals(comparator, clone.getComparators().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Element.class, outputClass);
+    }
+
     @Override
     protected Min getTestObject() {
         return new Min();

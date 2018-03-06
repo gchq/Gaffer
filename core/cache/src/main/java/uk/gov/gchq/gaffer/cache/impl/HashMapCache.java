@@ -16,8 +16,13 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import uk.gov.gchq.gaffer.cache.ICache;
+import com.google.common.collect.Lists;
 
+import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -29,18 +34,41 @@ import java.util.Set;
  * @param <K> The object type that acts as the key for the HashMap
  * @param <V> The value that is stored in the HashMap
  */
-public class HashMapCache <K, V> implements ICache<K, V> {
+public class HashMapCache<K, V> implements ICache<K, V> {
+    private static final JavaSerialiser JAVA_SERIALISER = new JavaSerialiser();
+    private boolean useJavaSerialisation;
+    private HashMap<K, Object> cache = new HashMap<>();
 
-    private final HashMap<K, V> cache = new HashMap<>();
+    public HashMapCache(final boolean useJavaSerialisation) {
+        this.useJavaSerialisation = useJavaSerialisation;
+    }
+
+    public HashMapCache() {
+        this(false);
+    }
 
     @Override
     public V get(final K key) {
-        return cache.get(key);
+        try {
+            return (V) (useJavaSerialisation
+                    ? JAVA_SERIALISER.deserialise((byte[]) cache.get(key))
+                    : cache.get(key));
+        } catch (final SerialisationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void put(final K key, final V value) {
-        cache.put(key, value);
+        if (useJavaSerialisation) {
+            try {
+                cache.put(key, JAVA_SERIALISER.serialise(value));
+            } catch (final SerialisationException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            cache.<K, V>put(key, value);
+        }
     }
 
     @Override
@@ -50,7 +78,20 @@ public class HashMapCache <K, V> implements ICache<K, V> {
 
     @Override
     public Collection<V> getAllValues() {
-        return cache.values();
+        ArrayList<V> rtn = Lists.newArrayList();
+        if (useJavaSerialisation) {
+            cache.values()
+                    .forEach((Object o) -> {
+                        try {
+                            rtn.add((V) JAVA_SERIALISER.deserialise((byte[]) o));
+                        } catch (final SerialisationException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } else {
+            rtn.addAll((Collection<V>) cache.values());
+        }
+        return rtn;
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.exception;
+package uk.gov.gchq.gaffer.commonutil.exception;
 
 /**
  * An {@code OverwritingException} should be thrown when a condition will cause

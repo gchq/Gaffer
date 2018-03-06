@@ -63,7 +63,7 @@ public final class IngestUtils {
      * @param conn       - An existing connection to an Accumulo instance
      * @param table      - The table name
      * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
+     * @param splitsFile - A path for the output splits file
      * @param maxSplits  - The maximum number of splits
      * @return The number of splits in the table
      * @throws IOException for any IO issues reading from the file system. Other accumulo exceptions are caught and wrapped in an IOException.
@@ -128,7 +128,7 @@ public final class IngestUtils {
      * Read a splits file and get the number of split points within
      *
      * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
+     * @param splitsFile - A path for the output splits file
      * @return An integer representing the number of entries in the file.
      * @throws IOException for any IO issues reading from the file system.
      */
@@ -152,7 +152,7 @@ public final class IngestUtils {
      * <p>
      *
      * @param fs      - The FileSystem in which to create the splits file
-     * @param dirPath - The Path to the directory
+     * @param dirPath - The path to the directory
      * @throws IOException for any IO issues interacting with the file system.
      */
 

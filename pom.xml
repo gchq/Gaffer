@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -272,6 +272,10 @@
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -307,6 +311,10 @@
                     <exclusion>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -349,6 +357,10 @@
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -384,6 +396,10 @@
                     <exclusion>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -424,6 +440,10 @@
                     <exclusion>
                         <groupId>com.sun.jersey.contribs</groupId>
                         <artifactId>jersey-guice</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -509,6 +529,7 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

@@ -42,6 +42,15 @@ public class GenerateElementsTest extends OperationTest<GenerateElements> {
     }
 
     @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
+    @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GenerateElements<String> op = new GenerateElements.Builder<String>()

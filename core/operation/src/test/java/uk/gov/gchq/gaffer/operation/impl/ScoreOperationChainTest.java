@@ -73,6 +73,15 @@ public class ScoreOperationChainTest extends OperationTest {
         assertEquals(opChain, clone.getOperationChain());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Integer.class, outputClass);
+    }
+
     @Override
     protected ScoreOperationChain getTestObject() {
         return new ScoreOperationChain();

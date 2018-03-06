@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -43,10 +45,13 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -58,7 +63,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
+public class OperationChainTest extends OperationsTest<OperationChain> {
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
@@ -75,11 +80,11 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(0)
-                                                        .getClass());
+                .get(0)
+                .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(1)
-                                                        .getClass());
+                .get(1)
+                .getClass());
     }
 
     @Test
@@ -140,6 +145,42 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
                         exportToGafferCache,
                         addElements2,
                         getJobDetails
+                },
+                opChain.getOperationArray());
+    }
+
+    @Test
+    public void shouldBuildOperationChainWithTypeUnsafe() {
+        // When
+        final GetAdjacentIds getAdjIds1 = new GetAdjacentIds();
+        final ExportToSet<CloseableIterable<? extends EntityId>> exportToSet1 = new ExportToSet<>();
+        final DiscardOutput discardOutput1 = new DiscardOutput();
+        final GetSetExport getSetExport1 = new GetSetExport();
+        final GetAdjacentIds getAdjIds2 = new GetAdjacentIds();
+        final ExportToSet<CloseableIterable<? extends EntityId>> exportToSet2 = new ExportToSet<>();
+        final DiscardOutput discardOutput2 = new DiscardOutput();
+        final GetSetExport getSetExport2 = new GetSetExport();
+        final OperationChain<CloseableIterable<? extends EntityId>> opChain = new Builder()
+                .first(getAdjIds1)
+                .then(exportToSet1)
+                .then(discardOutput1)
+                .then(getSetExport1)
+                .thenTypeUnsafe(getAdjIds2)  // we can use the type unsafe here as we know the output from the set export will be an Iterable of EntityIds
+                .then(exportToSet2)
+                .then(discardOutput2)
+                .then(getSetExport2)
+                .buildTypeUnsafe(); // again we can use the type unsafe here as we know the output from the set export will be an Iterable of EntityIds
+
+        // Then
+        assertArrayEquals(new Operation[]{
+                        getAdjIds1,
+                        exportToSet1,
+                        discardOutput1,
+                        getSetExport1,
+                        getAdjIds2,
+                        exportToSet2,
+                        discardOutput2,
+                        getSetExport2
                 },
                 opChain.getOperationArray());
     }
@@ -227,12 +268,12 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         final Limit<Element> limit = mock(Limit.class);
 
         final OperationChain opChain1 = new OperationChain.Builder().first(addElements)
-                                                                    .then(getElements)
-                                                                    .build();
+                .then(getElements)
+                .build();
 
         final OperationChain<?> opChain2 = new OperationChain.Builder().first(opChain1)
-                                                                       .then(limit)
-                                                                       .build();
+                .then(limit)
+                .build();
         // When
         final List<Operation> operations = opChain2.flatten();
 
@@ -268,17 +309,101 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         }
 
         final OperationChain opChain = new OperationChain(ops);
+        final Map<String, String> options = mock(Map.class);
+        opChain.setOptions(options);
 
         // When
         final OperationChain clone = opChain.shallowClone();
 
         // Then
         assertEquals(clonedOps, clone.getOperations());
+        assertSame(options, clone.getOptions());
     }
+
+    @Test
+    public void shouldWrapOperation() throws IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final Map<String, String> options = mock(Map.class);
+        given(operation.getOptions()).willReturn(options);
+
+        // When
+        final OperationChain wrappedChain = OperationChain.wrap(operation);
+
+        // Then
+        assertEquals(1, wrappedChain.getOperations().size());
+        assertEquals(operation, wrappedChain.getOperations().get(0));
+        assertSame(operation.getOptions(), wrappedChain.getOptions());
+    }
+
+    @Test
+    public void shouldWrapOutputOperation() throws IOException {
+        // Given
+        final Operation operation = mock(Output.class);
+        final Map<String, String> options = mock(Map.class);
+        given(operation.getOptions()).willReturn(options);
+
+        // When
+        final OperationChain wrappedChain = OperationChain.wrap(operation);
+
+        // Then
+        assertEquals(1, wrappedChain.getOperations().size());
+        assertEquals(operation, wrappedChain.getOperations().get(0));
+        assertSame(operation.getOptions(), wrappedChain.getOptions());
+    }
+
+    @Test
+    public void shouldNotWrapOperationChain() throws IOException {
+        // Given
+        final Operation operation = mock(OperationChain.class);
+        final Map<String, String> options = mock(Map.class);
+        given(operation.getOptions()).willReturn(options);
+
+        // When
+        final OperationChain wrappedChain = OperationChain.wrap(operation);
+
+        // Then
+        assertSame(operation, wrappedChain);
+        assertSame(operation.getOptions(), wrappedChain.getOptions());
+    }
+
+    @Test
+    public void shouldNotWrapOperationChainDAO() throws IOException {
+        // Given
+        final Operation operation = mock(OperationChainDAO.class);
+        final Map<String, String> options = mock(Map.class);
+        given(operation.getOptions()).willReturn(options);
+
+        // When
+        final OperationChain wrappedChain = OperationChain.wrap(operation);
+
+        // Then
+        assertSame(operation, wrappedChain);
+        assertSame(operation.getOptions(), wrappedChain.getOptions());
+    }
+
 
     @Override
     protected OperationChain getTestObject() {
         return new OperationChain();
     }
 
+    @Override
+    public void shouldGetOperations() {
+        // Given
+        final List<Operation> ops = Lists.newArrayList(
+                mock(Operation.class),
+                mock(GetAllElements.class),
+                mock(Aggregate.class),
+                mock(Limit.class)
+        );
+
+        final OperationChain<Operation> opChain = new OperationChain<>(ops);
+
+        // When
+        final Collection<Operation> getOps = opChain.getOperations();
+
+        // Then
+        assertEquals(ops, getOps);
+    }
 }

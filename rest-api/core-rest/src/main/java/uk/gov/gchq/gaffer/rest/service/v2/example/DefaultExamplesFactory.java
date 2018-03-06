@@ -22,20 +22,28 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.compare.Max;
+import uk.gov.gchq.gaffer.operation.impl.compare.Min;
+import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
@@ -96,6 +104,16 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .first(getAllElements())
                     .then(new Limit<>(1))
                     .build();
+        } else if (operation instanceof Sort) {
+            return sort();
+        } else if (operation instanceof Max) {
+            return max();
+        } else if (operation instanceof Min) {
+            return min();
+        } else if (operation instanceof ToMap) {
+            return toMap();
+        } else if (operation instanceof GetWalks) {
+            return getWalks();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -389,6 +407,78 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         op.setInput(objs);
         populateOperation(op);
         return op;
+    }
+
+    @Override
+    public Sort sort() {
+        return new Sort.Builder()
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEntityPropertyName())
+                        .reverse(true)
+                        .build())
+                .resultLimit(20)
+                .deduplicate(true)
+                .build();
+    }
+
+    @Override
+    public Max max() {
+        return new Max.Builder()
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEdgePropertyName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public Min min() {
+        return new Min.Builder()
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEdgePropertyName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public ToMap toMap() {
+        return new ToMap.Builder()
+                .generator(new MapGenerator.Builder()
+                        .group(getAnEdgeGroup())
+                        .source("source")
+                        .property(getAnEdgePropertyName(), "edge property " + getAnEdgePropertyName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public GetWalks getWalks() {
+        final List<String> edges = new ArrayList<>(getSchema().getEdgeGroups());
+        if (edges.isEmpty()) {
+            return new GetWalks();
+        }
+
+        final EntityId entityId = getEntityId(1);
+        if (null == entityId.getVertex()) {
+            entityId.setVertex("vertex1");
+        }
+
+        return new GetWalks.Builder()
+                .input(entityId)
+                .operation(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(edges.get(0))
+                                .build())
+                        .build())
+                .operation(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
+                                .build())
+                        .build())
+                .resultsLimit(10000)
+                .build();
     }
 
     private void populateOperation(final Output operation) {
