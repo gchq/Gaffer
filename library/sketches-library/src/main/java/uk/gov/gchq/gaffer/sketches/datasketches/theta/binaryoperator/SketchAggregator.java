@@ -19,12 +19,14 @@ import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code SketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link Sketch}s
  * using a {@link Union}.
  */
+@Since("1.0.0")
 public class SketchAggregator extends KorypheBinaryOperator<Sketch> {
 
     @Override

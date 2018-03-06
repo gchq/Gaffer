@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code HyperLogLogPlusAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link HyperLogLogPlus}s and merges the sketches together.
  */
+@Since("1.0.0")
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
     protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {

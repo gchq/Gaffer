@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -27,6 +28,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  *
  * @param <T> The type of object in the reservoir.
  */
+@Since("1.0.0")
 public class ReservoirItemsUnionAggregator<T> extends KorypheBinaryOperator<ReservoirItemsUnion<T>> {
 
     @Override

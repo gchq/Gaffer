@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Map;
  * A {@code MapGenerator} is a generator which creates a representation of an {@link Element}
  * using a {@link LinkedHashMap}.
  */
+@Since("1.0.0")
 public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>> {
     public static final String GROUP = "GROUP";
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
