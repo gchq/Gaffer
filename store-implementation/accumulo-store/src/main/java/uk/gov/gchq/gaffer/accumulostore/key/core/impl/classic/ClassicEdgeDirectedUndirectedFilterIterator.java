@@ -143,6 +143,11 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
             deduplicateUndirectedEdges = true;
         }
+        LOGGER.debug("Initialised ClassicEdgeDirectedUndirectedFilterIterator with "
+                + "incomingEdges = {}, outgoingEdges = {}, directedEdges = {}, unDirectedEdges = {}, "
+                + " entities = {}, edges = {}, deduplicateUndirectedEdges = {}",
+                incomingEdges, outgoingEdges, directedEdges, unDirectedEdges,
+                entities, edges, deduplicateUndirectedEdges);
     }
 
     @Override
