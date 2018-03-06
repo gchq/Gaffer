@@ -32,6 +32,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link SchemaLoader} implementation to load fully featured {@link uk.gov.gchq.gaffer.store.schema.Schema}s
+ * for testing purposes.
+ */
 public class FullSchemaLoader implements SchemaLoader {
 
     @Override

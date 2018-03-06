@@ -49,6 +49,11 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
+/**
+ * Unit test specifications for data loading operations.
+ *
+ * @param <T> the operation implementation to test
+ */
 public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreWithCustomGraphIT {
 
     protected Iterable<? extends Element> input;
@@ -191,7 +196,18 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
-    protected void getAllElements() throws Exception {
+    protected void addElements() throws OperationException {
+        graph.execute(createOperation(input), getUser());
+    }
+
+    protected Iterable<? extends Element> getInputElements() {
+        final Iterable<? extends Element> edges = getEdges().values();
+        final Iterable<? extends Element> entities = getEntities().values();
+
+        return Iterables.concat(edges, entities);
+    }
+
+    private void getAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
                 if (!includeEntities && !includeEdges) {
@@ -244,17 +260,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
         // Then
         assertElementEquals(expectedElements, results);
-    }
-
-    protected void addElements() throws OperationException {
-        graph.execute(createOperation(input), getUser());
-    }
-
-    protected Iterable<? extends Element> getInputElements() {
-        final Iterable<? extends Element> edges = getEdges().values();
-        final Iterable<? extends Element> entities = getEntities().values();
-
-        return Iterables.concat(edges, entities);
     }
 
     protected abstract void configure(final Iterable<? extends Element> elements) throws Exception ;

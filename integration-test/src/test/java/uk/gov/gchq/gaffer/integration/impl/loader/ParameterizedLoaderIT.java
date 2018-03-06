@@ -30,13 +30,29 @@ import uk.gov.gchq.gaffer.integration.impl.loader.schemas.FullSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchemas;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
+
+/**
+ * This is the main class for carrying out data loading testing.
+ *
+ * This class will invoke a suite of tests (specified in {@link AbstractLoaderIT}
+ * and run these tests for each of the {@link Schema} types specified in the parameter
+ * list.
+ *
+ * To use this class to test a new data loading operation, extend it and implement
+ * the {@link AbstractLoaderIT#createOperation(Iterable)} and {@link AbstractLoaderIT#configure(Iterable)}
+ * methods.
+ *
+ * @param <T> the type of the {@link Operation} being tested
+ */
 @RunWith(Parameterized.class)
 public abstract class ParameterizedLoaderIT<T extends Operation> extends AbstractLoaderIT<T> {
 
@@ -47,12 +63,12 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
         return Arrays.asList(new Object[][]{
-                {TestSchemas.TestSchema.FULL_SCHEMA, new FullSchemaLoader(), new User("user", Sets.newHashSet("public"))},
-                {TestSchemas.TestSchema.BASIC_SCHEMA, new BasicSchemaLoader(), new User()}
+                {FULL_SCHEMA, new FullSchemaLoader(), new User("user", Sets.newHashSet("public"))},
+                {BASIC_SCHEMA, new BasicSchemaLoader(), new User()}
         });
     }
 
-    public ParameterizedLoaderIT(final TestSchemas.TestSchema schema, final SchemaLoader loader, final User user) {
+    public ParameterizedLoaderIT(final TestSchema schema, final SchemaLoader loader, final User user) {
         this.schema = schema.getSchema();
         this.loader = loader;
         this.user = user;

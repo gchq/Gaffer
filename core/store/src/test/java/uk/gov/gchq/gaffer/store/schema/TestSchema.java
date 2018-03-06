@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -38,47 +37,25 @@ import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
 /**
  * Static utility class for creating {@link Schema} objects for use in test classes.
  */
-public final class TestSchemas {
+public enum TestSchema {
 
-    public static Schema getEmptySchema() {
-        return new Builder().emptySchema()
-                .build();
+    EMPTY_SCHEMA(new Builder().emptySchema().build()),
+    BASIC_SCHEMA(new Builder().basicSchema().build()),
+    FULL_SCHEMA(new Builder().fullSchema().build());
+
+    private final Schema schema;
+
+    TestSchema(final Schema schema) {
+        this.schema = schema;
     }
 
-    public static Schema getBasicSchema() {
-        return new Builder().basicSchema()
-                .build();
+    public Schema getSchema() {
+        return schema;
     }
 
-    public static Schema getFullSchema() {
-        return new Builder().fullSchema()
-                .build();
-    }
-
-    public static Schema merge(final Schema schema1, final Schema schema2) {
-        return new Schema.Builder(schema1)
-                .merge(schema2)
-                .build();
-    }
-
-    public enum TestSchema {
-        BASIC_SCHEMA(TestSchemas.getBasicSchema()),
-        FULL_SCHEMA(TestSchemas.getFullSchema());
-
-        private final Schema schema;
-
-        TestSchema(final Schema schema) {
-            this.schema = schema;
-        }
-
-        public Schema getSchema() {
-            return schema;
-        }
-
-        @Override
-        public String toString() {
-            return WordUtils.capitalize(StringUtils.lowerCase(name().replaceAll("_"," ")));
-        }
+    @Override
+    public String toString() {
+        return WordUtils.capitalize(StringUtils.lowerCase(name().replaceAll("_", " ")));
     }
 
     private static class Builder {

@@ -27,8 +27,13 @@ import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link SchemaLoader} implementation to load basic {@link uk.gov.gchq.gaffer.store.schema.Schema}s
+ * for testing purposes.
+ */
 public class BasicSchemaLoader implements SchemaLoader {
 
+    @Override
     public Map<EdgeId, Edge> createEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
@@ -74,6 +79,7 @@ public class BasicSchemaLoader implements SchemaLoader {
         return edges;
     }
 
+    @Override
     public Map<EntityId, Entity> createEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {

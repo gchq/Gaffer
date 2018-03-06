@@ -35,13 +35,15 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchemas;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
 
 public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends StandaloneIT {
 
@@ -63,7 +65,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
 
     @Override
     protected Schema createSchema() {
-        return TestSchemas.getBasicSchema();
+        return BASIC_SCHEMA.getSchema();
     }
 
     @Override
@@ -79,7 +81,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
     @Test
     public void shouldAddElements_basicSchema() throws Exception {
         // Given
-        final Graph graph = createGraph(TestSchemas.getBasicSchema());
+        final Graph graph = createGraph(BASIC_SCHEMA.getSchema());
 
         // When
         addElements(graph);
@@ -93,7 +95,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
     @Test
     public void shouldAddElements_fullSchema() throws Exception {
         // Given
-        final Graph graph = createGraph(TestSchemas.getFullSchema());
+        final Graph graph = createGraph(FULL_SCHEMA.getSchema());
 
         // When
         addElements(graph);

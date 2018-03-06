@@ -19,13 +19,16 @@ package uk.gov.gchq.gaffer.integration.impl.loader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchemas;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
+
+/**
+ * {@link AbstractLoaderIT} implementation for the {@link AddElements} operation.
+ */
 public class AddElementsLoaderIT extends ParameterizedLoaderIT<AddElements> {
 
-    public AddElementsLoaderIT(final TestSchemas.TestSchema schema, final SchemaLoader loader, final User user) {
+    public AddElementsLoaderIT(final TestSchema schema, final SchemaLoader loader, final User user) {
         super(schema, loader, user);
     }
 
