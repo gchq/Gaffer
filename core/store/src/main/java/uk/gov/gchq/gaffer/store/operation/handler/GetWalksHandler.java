@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.data.graph.entity.SimpleEntityMaps;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.Repeat;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -102,6 +103,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final Integer resultLimit = getWalks.getResultsLimit();
         final int hops = getWalks.getNumberOfGetEdgeOperations();
 
+
         final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false);
         final List<EntityId> originalInput = Lists.newArrayList(limitedInputItr);
 
@@ -118,31 +120,20 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         List<Object> seeds = null;
 
         // Execute the operations
-        for (final Output<Iterable<Element>> operation : getWalks.getOperations()) {
-            final Iterable<Element> results = executeOperation(operation, originalInput, seeds, resultLimit, context, store);
-
-            final AdjacencyMap adjacencyMap = new AdjacencyMap();
-            final EntityMap entityMap = new EntityMap();
-
-            final List<Object> nextSeeds = new ArrayList<>();
-            for (final Element e : results) {
-                if (e instanceof Edge) {
-                    final Edge edge = (Edge) e;
-                    final Object nextSeed = edge.getAdjacentMatchedVertexValue();
-                    nextSeeds.add(nextSeed);
-                    adjacencyMap.putEdge(edge.getMatchedVertexValue(), nextSeed, edge);
-                } else {
-                    final Entity entity = (Entity) e;
-                    entityMap.putEntity(entity.getVertex(), entity);
+        for (final OperationChain<Iterable<Element>> operation : getWalks.getOperations()) {
+            if (1 == operation.getOperations().size() && operation.getOperations().get(0) instanceof Repeat) {
+                final Repeat repeat = (Repeat) operation.getOperations().get(0);
+                if (null != repeat.getOperation()
+                        && repeat.getOperation() instanceof Output
+                        && Iterable.class.isAssignableFrom(((Output) repeat.getOperation()).getOutputClass())) {
+                    final int times = repeat.getTimes();
+                    for (int i = 0; i < times; i++) {
+                        seeds = executeOperation((Output) repeat.getOperation().shallowClone(), originalInput, seeds, resultLimit, context, store, hops, adjacencyMaps, entityMaps);
+                    }
                 }
+            } else {
+                seeds = executeOperation(operation, originalInput, seeds, resultLimit, context, store, hops, adjacencyMaps, entityMaps);
             }
-
-            if (hops > adjacencyMaps.size()) {
-                adjacencyMaps.add(adjacencyMap);
-            }
-            entityMaps.add(entityMap);
-
-            seeds = nextSeeds;
         }
 
         // Must add an empty entity map at the end if one has not been explicitly
@@ -173,6 +164,41 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     public void setPrune(final Boolean prune) {
         this.prune = prune;
+    }
+
+    private List<Object> executeOperation(final Output<Iterable<Element>> operation,
+                                          final Iterable<? extends EntityId> originalSeeds,
+                                          final List<Object> seeds,
+                                          final Integer resultLimit,
+                                          final Context context,
+                                          final Store store,
+                                          final int hops,
+                                          final AdjacencyMaps adjacencyMaps,
+                                          final EntityMaps entityMaps) throws OperationException {
+        final Iterable<Element> results = executeOperation(operation, originalSeeds, seeds, resultLimit, context, store);
+
+        final AdjacencyMap adjacencyMap = new AdjacencyMap();
+        final EntityMap entityMap = new EntityMap();
+
+        final List<Object> nextSeeds = new ArrayList<>();
+        for (final Element e : results) {
+            if (e instanceof Edge) {
+                final Edge edge = (Edge) e;
+                final Object nextSeed = edge.getAdjacentMatchedVertexValue();
+                nextSeeds.add(nextSeed);
+                adjacencyMap.putEdge(edge.getMatchedVertexValue(), nextSeed, edge);
+            } else {
+                final Entity entity = (Entity) e;
+                entityMap.putEntity(entity.getVertex(), entity);
+            }
+        }
+
+        if (hops > adjacencyMaps.size()) {
+            adjacencyMaps.add(adjacencyMap);
+        }
+        entityMaps.add(entityMap);
+
+        return nextSeeds;
     }
 
     private Iterable<Element> executeOperation(final Output<Iterable<Element>> operation,

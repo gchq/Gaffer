@@ -18,18 +18,19 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.OperationConstants;
 import uk.gov.gchq.koryphe.Since;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -102,11 +103,22 @@ public class Repeat implements InputOutput<Object, Object>,
 
     @Override
     public Collection<Operation> getOperations() {
-        final List<Operation> ops = new ArrayList<>();
-        for (int i = 0; i < times; i++) {
-            ops.add(operation);
+        if(null == operation) {
+            return Collections.emptyList();
         }
-        return ops;
+
+        return Collections.singleton(operation);
+    }
+
+    @Override
+    public void updateOperations(final Collection<Operation> operations) {
+        if(operations.isEmpty()) {
+            operation = null;
+        } else if(1 == operations.size()) {
+            operation = operations.iterator().next();
+        } else {
+            operation = new OperationChain(Lists.newArrayList(operations));
+        }
     }
 
     public static final class Builder
