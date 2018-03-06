@@ -24,6 +24,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,17 +37,20 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 /**
@@ -196,6 +200,112 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        assertFalse(results.iterator().hasNext());
+    }
+
+    @Test
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        assertFalse(results.iterator().hasNext());
+    }
+
+    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @Test
+    public void shouldGetElementsWithMatchedVertex() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_DIR_1), new EntitySeed(DEST_DIR_2), new EntitySeed(SOURCE_DIR_3))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        assertElementEquals(
+                getEdges().values()
+                        .stream()
+                        .filter(Edge::isDirected)
+                        .filter(edge -> {
+                            final List<String> vertices = Lists.newArrayList(SOURCE_DIR_1, SOURCE_DIR_2, SOURCE_DIR_3);
+                            return vertices.contains(edge.getMatchedVertexValue());
+                        })
+                        .collect(Collectors.toList()), results);
+    }
+
+    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @Test
+    public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_DIR_1), new EntitySeed(DEST_DIR_2), new EntitySeed(SOURCE_DIR_3))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
+                                        .execute(new IsIn(DEST_DIR_1, DEST_DIR_2, DEST_DIR_3))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        // Then
+        assertElementEquals(getEdges().values()
+                .stream()
+                .filter(Edge::isDirected)
+                .filter(edge -> {
+                    final List<String> vertices = Lists.newArrayList(SOURCE_DIR_1, DEST_DIR_2, SOURCE_DIR_3);
+                    return vertices.contains(edge.getMatchedVertexValue());
+                })
+                .filter(edge -> {
+                    final List<String> vertices = Lists.newArrayList(DEST_DIR_1, DEST_DIR_2, DEST_DIR_3);
+                    return vertices.contains(edge.getAdjacentMatchedVertexValue());
+                })
+                .collect(Collectors.toList()), results);
+    }
+
     protected void addElements() throws OperationException {
         graph.execute(createOperation(input), getUser());
     }
@@ -262,7 +372,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         assertElementEquals(expectedElements, results);
     }
 
-    protected abstract void configure(final Iterable<? extends Element> elements) throws Exception ;
+    protected abstract void configure(final Iterable<? extends Element> elements) throws Exception;
 
     protected abstract T createOperation(final Iterable<? extends Element> elements);
 
