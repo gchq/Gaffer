@@ -42,6 +42,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -295,7 +297,10 @@ public class FederatedStore extends Store {
         // Override the Operations that don't have an output
         getSupportedOperations()
                 .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
+                .filter(op -> !Output.class.isAssignableFrom(op)
+                        && !AddElements.class.equals(op)
+                        && !AddNamedOperation.class.equals(op)
+                        && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());

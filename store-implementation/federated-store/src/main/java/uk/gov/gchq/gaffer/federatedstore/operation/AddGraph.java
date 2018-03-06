@@ -25,6 +25,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
+@Since("1.0.0")
 public class AddGraph implements FederatedOperation {
 
     @Required

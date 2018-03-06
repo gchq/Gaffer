@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import java.util.Map;
  * There are also various flags to filter out the elements returned.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetAllElements implements
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {

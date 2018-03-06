@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class Validate implements
         Validatable,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,

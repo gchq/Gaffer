@@ -105,7 +105,7 @@ public interface IteratorSettingFactory {
     IteratorSetting getValidatorIteratorSetting(final AccumuloStore store);
 
     /**
-     * Returns an Iterator that will aggregate values at query time this is to
+     * Returns an Iterator that will aggregate values at query time. This is to
      * be used for the summarise option on getElement queries.
      *
      * @param view  the operation view
