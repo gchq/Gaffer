@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -61,6 +62,20 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
+        result.add(validatePropertyNames(elementDef));
+
+        return result;
+    }
+
+    protected ValidationResult validatePropertyNames(final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
+
+        for (final String property : elementDef.getProperties()) {
+            if (ReservedPropertyNames.contains(property)) {
+                LOGGER.warn("Element definition contains a reserved property name {}. " +
+                        "This may prevent some analytics from being used on this graph.", property);
+            }
+        }
 
         return result;
     }

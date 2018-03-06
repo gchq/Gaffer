@@ -72,8 +72,7 @@ public class NamedOperationResolver implements GraphHook {
                 updatedOperations.add(operation);
             }
         }
-        operations.getOperations().clear();
-        operations.getOperations().addAll((List) updatedOperations);
+        operations.updateOperations((List) updatedOperations);
     }
 
     private List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user) {

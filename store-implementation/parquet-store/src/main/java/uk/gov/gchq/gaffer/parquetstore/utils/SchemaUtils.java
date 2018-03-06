@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -240,7 +241,7 @@ public class SchemaUtils {
         } else {
             final Serialiser serialiser;
             try {
-                serialiser = (Serialiser) Class.forName(serialiserClassName).newInstance();
+                serialiser = (Serialiser) Class.forName(SimpleClassNameIdResolver.getClassName(serialiserClassName)).newInstance();
             } catch (final IllegalAccessException | InstantiationException | ClassNotFoundException e) {
                 throw new SerialisationException("Failed to instantiate the serialiser: " + serialiserClassName, e);
             }

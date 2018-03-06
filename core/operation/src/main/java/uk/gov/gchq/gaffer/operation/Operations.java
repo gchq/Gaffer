@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An <code>Operations</code> will hold a list of {@link Operation}s, which are often dealt with recursively.
@@ -41,8 +43,12 @@ public interface Operations<T extends Operation> {
      * @param operations the new operations.
      */
     default void updateOperations(final Collection<T> operations) {
-        getOperations().clear();
-        getOperations().addAll(operations);
+        try {
+            getOperations().clear();
+            getOperations().addAll(operations);
+        } catch (final Exception e) {
+            throw new RuntimeException("Unable to update operations from: " + getOperations() + " to " + operations, e);
+        }
     }
 
     /**
@@ -54,5 +60,24 @@ public interface Operations<T extends Operation> {
     @JsonIgnore
     default Class<T> getOperationsClass() {
         return (Class) Operation.class;
+    }
+
+    /**
+     * Recursively flattens nested operations.
+     *
+     * @return a list of flattened operations.
+     */
+    default List<Operation> flatten() {
+        final List<Operation> tmp = new ArrayList<>(1);
+
+        for (final Operation operation : getOperations()) {
+            if (operation instanceof Operations) {
+                tmp.addAll(((Operations) operation).flatten());
+            } else {
+                tmp.add(operation);
+            }
+        }
+
+        return tmp;
     }
 }

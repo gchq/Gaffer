@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -58,6 +59,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * @see uk.gov.gchq.gaffer.data.element.Properties
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
+@JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 public class AddGraph implements FederatedOperation {
 
     @Required

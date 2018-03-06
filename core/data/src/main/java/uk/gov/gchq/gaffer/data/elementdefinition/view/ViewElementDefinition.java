@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
@@ -51,6 +53,17 @@ import java.util.Set;
  * A {@code ViewElementDefinition} is an {@link ElementDefinition} containing
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}s.
  */
+@JsonPropertyOrder(value = {
+        "preAggregationFilterFunctions",
+        "groupBy",
+        "aggregator",
+        "postAggregationFilterFunctions",
+        "transientProperties",
+        "transformFunctions",
+        "postTransformFilterFunctions",
+        "properties",
+        "excludeProperties"
+}, alphabetic = true)
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition {
     protected ElementFilter preAggregationFilter;
@@ -140,7 +153,7 @@ public class ViewElementDefinition implements ElementDefinition {
 
         Map<String, String> propertyMap = new HashMap<>();
         for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
-            propertyMap.put(entry.getKey(), entry.getValue().getName());
+            propertyMap.put(entry.getKey(), SimpleClassNameIdResolver.getSimpleClassName(entry.getValue()));
         }
 
         return propertyMap;

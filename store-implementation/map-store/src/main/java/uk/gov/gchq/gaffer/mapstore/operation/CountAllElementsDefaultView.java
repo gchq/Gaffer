@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,6 +30,7 @@ import java.util.Map;
  * A {@code CountAllElementsDefaultView} operation counts all of the {@link Element}s
  * present in a {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class CountAllElementsDefaultView implements
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {

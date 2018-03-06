@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,6 +30,7 @@ import java.util.Map;
  *
  * @see Count.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 public class Count<T> implements
         InputOutput<Iterable<? extends T>, Long>,
         MultiInput<T> {

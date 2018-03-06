@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -167,7 +168,21 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         assertEquals(IncludeIncomingOutgoingType.INCOMING,
                 clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(Lists.newArrayList(input), Lists.newArrayList(clone.getInput()));
+    }
+
+    @Test
+    public void shouldSetInputFromVerticesAndEntityIds() {
+        // When
+        final GetAdjacentIds op = new GetAdjacentIds.Builder()
+                .input("1", new EntitySeed("2"), new Entity("group1", "3"))
+                .build();
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"), new Entity("group1", "3")),
+                Lists.newArrayList(op.getInput())
+        );
     }
 
     @Override

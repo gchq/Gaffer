@@ -23,6 +23,8 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
@@ -80,11 +82,30 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                         fields.appendElem(null);
                     }
                     break;
+                case SchemaToStructTypeConverter.DIRECTED_COL_NAME:
+                    if (element instanceof Entity) {
+                        fields.appendElem(null);
+                    } else {
+                        fields.appendElem(((Edge) element).getDirectedType().isDirected());
+                    }
+                    break;
+                case SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME:
+                    if (element instanceof Entity) {
+                        fields.appendElem(null);
+                    } else {
+                        final EdgeId.MatchedVertex matchedVertex = ((Edge) element).getMatchedVertex();
+                        if (null != matchedVertex) {
+                            fields.appendElem(matchedVertex.toString());
+                        } else {
+                            fields.appendElem(null);
+                        }
+                    }
+                    break;
                 default:
                     final Object value = element.getProperties().get(property);
                     if (null == value) {
                         fields.appendElem(null);
-                    } else {
+                    } else if (!ReservedPropertyNames.contains(property)) {
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(element.getProperties().get(property));
                         } else {

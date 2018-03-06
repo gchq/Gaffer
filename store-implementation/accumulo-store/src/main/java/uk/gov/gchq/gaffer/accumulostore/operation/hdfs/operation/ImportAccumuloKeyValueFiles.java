@@ -16,11 +16,14 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
+@JsonPropertyOrder(value = {"class", "inputPath", "failurePath"}, alphabetic = true)
 public class ImportAccumuloKeyValueFiles implements
         Operation {
     @Required

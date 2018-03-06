@@ -53,6 +53,12 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportRDDOfElementsHandler"
       }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.spark.operation.handler.graphframe.GetGraphFrameOfElementsHandler"
+      }
     }
   ]
 }

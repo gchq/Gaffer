@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 
@@ -25,8 +26,8 @@ import java.io.Serializable;
  * A class that implements this interface is responsible for serialising an
  * object of class INPUT to a OUTPUT, and for deserialising it back again.
  * It must also be able to deal with serialising null values.
- *
  */
+@JsonSimpleClassName(includeSubtypes = true)
 public interface Serialiser<INPUT, OUTPUT> extends Serializable {
 
     /**
