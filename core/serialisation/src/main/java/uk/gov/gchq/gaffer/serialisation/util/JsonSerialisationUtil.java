@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.serialisation;
+package uk.gov.gchq.gaffer.serialisation.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,8 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A utility class containing methods relevant to JSON Serialisation and Deserialisation,
- * for the REST API.
+ * A utility class containing methods relevant to JSON Serialisation and Deserialisation.
  */
 public final class JsonSerialisationUtil {
     private static Map<String, Map<String, String>> cache = Collections.emptyMap();
@@ -47,6 +46,12 @@ public final class JsonSerialisationUtil {
 
     }
 
+    /**
+     * Gets all the fields and their classes for a given class.
+     *
+     * @param className the class name to find the fields for.
+     * @return a map of field name to class name
+     */
     public static Map<String, String> getSerialisedFieldClasses(final String className) {
         final Map<String, String> cachedResult = cache.get(className);
         if (null != cachedResult) {
@@ -157,10 +162,10 @@ public final class JsonSerialisationUtil {
         return fieldMap;
     }
 
-    private static <T extends Annotation> T findAnnotation(final Class<?> builder, final Class<T> annotationClass) {
-        T anno = builder.getAnnotation(annotationClass);
+    private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
+        T anno = builderclass.getAnnotation(annotationClass);
         if (null == anno) {
-            Class<?> superClass = builder.getSuperclass();
+            Class<?> superClass = builderclass.getSuperclass();
             while (null != superClass && null == anno) {
                 anno = superClass.getAnnotation(annotationClass);
                 if (null == anno) {
@@ -169,7 +174,7 @@ public final class JsonSerialisationUtil {
             }
         }
         if (null == anno) {
-            for (final Class<?> interfaceClass : builder.getInterfaces()) {
+            for (final Class<?> interfaceClass : builderclass.getInterfaces()) {
                 if (null != interfaceClass) {
                     anno = interfaceClass.getAnnotation(annotationClass);
                     if (null != anno) {

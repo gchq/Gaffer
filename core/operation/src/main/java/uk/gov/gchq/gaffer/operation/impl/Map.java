@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -51,7 +50,6 @@ public class Map<I, O> implements InputOutput<I, O> {
         this(new ArrayList<>());
     }
 
-    @JsonIgnore
     public Map(final Function function) {
         this(Collections.singletonList(function));
     }
@@ -105,7 +103,6 @@ public class Map<I, O> implements InputOutput<I, O> {
         this.functions = funcs;
     }
 
-    @JsonIgnore
     public void setFunction(final Function function) {
         this.functions = new ArrayList<>();
         functions.add(function);
