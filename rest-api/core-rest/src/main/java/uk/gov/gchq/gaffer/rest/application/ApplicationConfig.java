@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
+import uk.gov.gchq.gaffer.rest.serialisation.TextMessageBodyWriter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +52,7 @@ public abstract class ApplicationConfig extends ResourceConfig {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
         resources.add(RestJsonProvider.class);
+        resources.add(TextMessageBodyWriter.class);
     }
 
     protected void addExceptionMappers() {

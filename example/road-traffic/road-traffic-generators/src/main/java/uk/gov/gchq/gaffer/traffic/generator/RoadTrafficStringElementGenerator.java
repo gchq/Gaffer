@@ -56,8 +56,8 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
 
         // Extract required fields
         final FreqMap vehicleCountsByType = getVehicleCounts(fields);
-        final Date date = getDate(fields[dCount.ordinal()], fields[Hour.ordinal()]);
-        final Date endTime = null != date ? DateUtils.addHours(date, 1) : null;
+        final Date startDate = getDate(fields[dCount.ordinal()], fields[Hour.ordinal()]);
+        final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
         final String region = fields[Region_Name.ordinal()];
         final String location = fields[ONS_LA_Name.ordinal()];
         final String road = fields[Road.ordinal()];
@@ -114,9 +114,9 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
                         .source(junctionA)
                         .dest(junctionB)
                         .directed(true)
-                        .property("startTime", date)
-                        .property("endTime", endTime)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .property("startDate", startDate)
+                        .property("endDate", endDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
                         .property("countByVehicleType", vehicleCountsByType)
                         .build());
 
@@ -124,19 +124,19 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
                 new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionA)
-                        .property("trafficByType", vehicleCountsByType)
-                        .property("endTime", endTime)
-                        .property("startTime", date)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .property("countByVehicleType", vehicleCountsByType)
+                        .property("endDate", endDate)
+                        .property("startDate", startDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
                         .build(),
 
                 new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionB)
-                        .property("trafficByType", vehicleCountsByType)
-                        .property("endTime", endTime)
-                        .property("startTime", date)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .property("countByVehicleType", vehicleCountsByType)
+                        .property("endDate", endDate)
+                        .property("startDate", startDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
                         .build()
         );
 
