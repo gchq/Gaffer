@@ -81,7 +81,7 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html).
+We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html).
 
 Related repositories
 --------------------

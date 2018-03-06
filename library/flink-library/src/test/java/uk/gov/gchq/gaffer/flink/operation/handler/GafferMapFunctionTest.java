@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
+import org.apache.flink.util.Collector;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,12 +25,12 @@ import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
+import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class GafferMapFunctionTest {
     private static ElementGenerator<String> mockGenerator;
@@ -48,14 +49,21 @@ public class GafferMapFunctionTest {
         // Given
         final String csv = "1,2,3,4";
         final GafferMapFunction function = new GafferMapFunction(MockedGenerator.class);
-        final Iterable expectedResult = mock(Iterable.class);
-        given(mockGenerator.apply(Collections.singleton(csv))).willReturn(expectedResult);
+        final Iterable expectedResults = Arrays.asList(
+                mock(Element.class),
+                mock(Element.class)
+        );
+
+        final Collector<Element> collector = mock(Collector.class);
+        given(mockGenerator.apply(Collections.singleton(csv))).willReturn(expectedResults);
 
         // When
-        final Iterable<? extends Element> result = function.map(csv);
+        function.flatMap(csv, collector);
 
         // Then
-        assertSame(expectedResult, result);
+        for (Element expectedResult : (Iterable<Element>) expectedResults) {
+            verify(collector).collect(expectedResult);
+        }
     }
 
     @Test
@@ -64,13 +72,14 @@ public class GafferMapFunctionTest {
         final String csv = "1,2,3,4";
         final GafferMapFunction function = new GafferMapFunction(MockedOneToOneGenerator.class);
         final Element expectedResult = mock(Element.class);
+        final Collector<Element> collector = mock(Collector.class);
         given(mockOneToOneGenerator._apply(csv)).willReturn(expectedResult);
 
         // When
-        final Iterable<? extends Element> result = function.map(csv);
+        function.flatMap(csv, collector);
 
         // Then
-        assertEquals(Collections.singleton(expectedResult), result);
+        verify(collector).collect(expectedResult);
     }
 
     @Test
@@ -78,14 +87,20 @@ public class GafferMapFunctionTest {
         // Given
         final String csv = "1,2,3,4";
         final GafferMapFunction function = new GafferMapFunction(MockedOneToManyGenerator.class);
-        final Iterable expectedResult = mock(Iterable.class);
-        given(mockOneToManyGenerator._apply(csv)).willReturn(expectedResult);
+        final Iterable expectedResults = Arrays.asList(
+                mock(Element.class),
+                mock(Element.class)
+        );
+        final Collector<Element> collector = mock(Collector.class);
+        given(mockOneToManyGenerator._apply(csv)).willReturn(expectedResults);
 
         // When
-        final Iterable<? extends Element> result = function.map(csv);
+        function.flatMap(csv, collector);
 
         // Then
-        assertSame(expectedResult, result);
+        for (Element expectedResult : (Iterable<Element>) expectedResults) {
+            verify(collector).collect(expectedResult);
+        }
     }
 
 

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -85,5 +86,18 @@ public class ContextTest {
         // Then
         assertSame(exporter, context.getExporter(exporter.getClass()));
         assertSame(exporter, context.getExporter(Exporter.class));
+    }
+
+    @Test
+    public void shouldSetAndGetOriginalOpChain() {
+        // Given
+        final OperationChain<?> opChain = mock(OperationChain.class);
+        final Context context = new Context();
+
+        // When
+        context.setOriginalOpChain(opChain);
+
+        // Then
+        assertSame(opChain, context.getOriginalOpChain());
     }
 }

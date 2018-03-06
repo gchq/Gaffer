@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -49,7 +49,7 @@
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
             <version>${accumulo.version}</version>
-            <!-- hadoop and avro use an older version of Jersey so to avoid deployment issues it must be excluded -->
+            <!-- hadoop-hdfs and avro use an older version of Jersey so to avoid deployment issues it must be excluded -->
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -132,6 +132,13 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>hdfs-library</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

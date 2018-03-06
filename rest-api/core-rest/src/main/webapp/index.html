@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="x-ua-compatible" content="IE=edge">
     <title>Gaffer REST</title>
-    <link rel="icon" type="image/png" href="images/favicon-32x32.png"
-          sizes="32x32"/>
-    <link rel="icon" type="image/png" href="images/favicon-16x16.png"
-          sizes="16x16"/>
     <link href='css/typography.css' media='screen' rel='stylesheet'
           type='text/css'/>
     <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
@@ -42,6 +38,7 @@
             init();
         });
 
+
     </script>
 </head>
 
@@ -49,16 +46,13 @@
 
 <div id='header'>
     <div class="swagger-ui-wrap">
-        <a id="logo" href="https://github.com/gchq/Gaffer"><img
-                class="logo__img" alt="swagger" height="30" width="30"
-                src="images/logo_small.png"/><span id="title"
-                                                   class="logo__title"></span></a>
+        <a id="logo" href="">
+            <span id="title" class="logo__title"></span></a>
 
         <form id='api_selector'>
             <div class='input'><input placeholder="http://example.com/api"
                                       id="input_baseUrl" name="baseUrl"
                                       type="text"/></div>
-            <div id='auth_container'></div>
             <div class='input'><a id="explore" class="header__btn" href="#"
                                   data-sw-translate>Explore</a></div>
         </form>

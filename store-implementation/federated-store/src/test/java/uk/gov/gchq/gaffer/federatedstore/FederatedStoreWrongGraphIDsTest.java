@@ -21,12 +21,13 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -67,9 +68,10 @@ public class FederatedStoreWrongGraphIDsTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        MapStoreProperties mapStoreProperties = new MapStoreProperties();
+        AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
-        library.addProperties(PROP_1, mapStoreProperties);
+        library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder()
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")

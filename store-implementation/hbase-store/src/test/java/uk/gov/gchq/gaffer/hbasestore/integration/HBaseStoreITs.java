@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.integration.impl.AddElementsIT;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 public class HBaseStoreITs extends AbstractStoreITs {
@@ -32,5 +33,7 @@ public class HBaseStoreITs extends AbstractStoreITs {
         } catch (final StoreException e) {
             // ignore any errors that occur when dropping test tables
         }
+        skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithoutAggregation", "There is a known issue around defining custom timestamps that are the same");
+        skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithAggregation", "There is a known issue around defining custom timestamps that are the same");
     }
 }

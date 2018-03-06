@@ -57,6 +57,7 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
+    public static final String ERROR_SERIALISING_GRAPH = "Error serialising Graph";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
@@ -96,35 +97,35 @@ public class FederatedGraphStorage {
      * @throws StorageException if unable to put arguments into storage
      */
     public void put(final Graph graph, final FederatedAccess access) throws StorageException {
-        String graphId = graph.getGraphId();
-        try {
-            if (null == access) {
-                throw new IllegalArgumentException(ACCESS_IS_NULL);
-            }
-            if (!exists(graph, access)) {
-                if (isCacheEnabled()) {
-                    addToCache(graph, access);
-                }
-
-                Set<Graph> existingGraphs = storage.get(access);
-                if (null == existingGraphs) {
-                    existingGraphs = Sets.newHashSet(graph);
-                    storage.put(access, existingGraphs);
-                } else {
-                    existingGraphs.add(graph);
+        if (graph != null) {
+            String graphId = graph.getGraphId();
+            try {
+                if (null == access) {
+                    throw new IllegalArgumentException(ACCESS_IS_NULL);
                 }
 
                 if (null != graphLibrary) {
-                    try {
-                        graphLibrary.add(graphId, graph.getSchema(), graph.getStoreProperties());
-                    } catch (final Exception e) {
-                        remove(graphId, new User(access.getAddingUserId()));
-                        throw e;
+                    graphLibrary.checkExisting(graphId, graph.getSchema(), graph.getStoreProperties());
+                }
+
+                if (!exists(graph, access)) {
+                    if (isCacheEnabled()) {
+                        addToCache(graph, access);
+                    }
+
+                    Set<Graph> existingGraphs = storage.get(access);
+                    if (null == existingGraphs) {
+                        existingGraphs = Sets.newHashSet(graph);
+                        storage.put(access, existingGraphs);
+                    } else {
+                        existingGraphs.add(graph);
                     }
                 }
+            } catch (final Exception e) {
+                throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
             }
-        } catch (final Exception e) {
-            throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
+        } else {
+            throw new StorageException("Graph cannot be null");
         }
     }
 
@@ -314,7 +315,7 @@ public class FederatedGraphStorage {
                 graphJson = JSONSerialiser.serialise(graph);
                 existJson = JSONSerialiser.serialise(found);
             } catch (final SerialisationException e) {
-                throw new StorageException(e);
+                throw new StorageException(ERROR_SERIALISING_GRAPH);
             }
             if (JsonUtil.equals(graphJson, existJson)) {
                 rtn = true;

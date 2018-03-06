@@ -94,6 +94,8 @@ public class GetRDDOfAllElementsHandlerIT {
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
         testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDD(
                 getGraphForDirectRDD(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDD1"),
                 getOperationWithDirectRDDOption());
@@ -107,6 +109,8 @@ public class GetRDDOfAllElementsHandlerIT {
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
         testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithView(
                 getGraphForDirectRDD(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithView1"),
                 getOperationWithDirectRDDOption());
@@ -125,6 +129,12 @@ public class GetRDDOfAllElementsHandlerIT {
                 getGraphForMockAccumuloWithVisibility(KeyPackage.CLASSIC),
                 getOperation());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
+                getGraphForMockAccumuloWithVisibility(KeyPackage.BYTE_ENTITY),
+                getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithVisibilityFilteringApplied(
+                getGraphForMockAccumuloWithVisibility(KeyPackage.CLASSIC),
+                getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithVisibilityFilteringApplied(
                 getGraphForDirectRDDWithVisibility(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithVisibilityFilteringApplied1"),
                 getOperationWithDirectRDDOption());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
@@ -142,6 +152,12 @@ public class GetRDDOfAllElementsHandlerIT {
                 getGraphForMockAccumuloForValidationChecking(KeyPackage.CLASSIC),
                 getOperation());
         testGetAllElementsInRDDWithValidationApplied(
+                getGraphForMockAccumuloForValidationChecking(KeyPackage.BYTE_ENTITY),
+                getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithValidationApplied(
+                getGraphForMockAccumuloForValidationChecking(KeyPackage.CLASSIC),
+                getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithValidationApplied(
                 getGraphForDirectRDDForValidationChecking(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithValidationApplied1"),
                 getOperationWithDirectRDDOption());
         testGetAllElementsInRDDWithValidationApplied(
@@ -158,6 +174,12 @@ public class GetRDDOfAllElementsHandlerIT {
         testGetAllElementsInRDDWithIngestAggregationApplied(
                 getGraphForMockAccumuloForIngestAggregation(KeyPackage.CLASSIC),
                 getOperation());
+        testGetAllElementsInRDDWithIngestAggregationApplied(
+                getGraphForMockAccumuloForIngestAggregation(KeyPackage.BYTE_ENTITY),
+                getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithIngestAggregationApplied(
+                getGraphForMockAccumuloForIngestAggregation(KeyPackage.CLASSIC),
+                getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithIngestAggregationApplied(
                 getGraphForDirectRDDForIngestAggregation(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithIngestAggregationApplied1"),
                 getOperationWithDirectRDDOption());
@@ -634,5 +656,11 @@ public class GetRDDOfAllElementsHandlerIT {
         final GetRDDOfAllElements op = getOperation();
         op.addOption(AbstractGetRDDHandler.USE_RFILE_READER_RDD, "true");
         return op;
+    }
+
+    private GetRDDOfAllElements getOperationWithBatchScannerEnabled() throws IOException {
+    	final GetRDDOfAllElements op = getOperation();
+    	op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
+    	return op;
     }
 }

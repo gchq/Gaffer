@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -37,8 +38,12 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.BAD_REQUEST;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_CREATED;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_SERVICE_UNAVAILABLE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
@@ -55,7 +60,12 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED
 public interface IJobServiceV2 {
 
     @POST
-    @ApiOperation(value = "Submits the given operation job to the graph", response = JobDetail.class, code = 201, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Submits the given operation job to the graph",
+            response = JobDetail.class, code = 201, produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 201, message = JOB_CREATED),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
@@ -65,7 +75,14 @@ public interface IJobServiceV2 {
     Response executeJob(final Operation operation) throws OperationException;
 
     @GET
-    @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Get the details of all jobs",
+            response = JobDetail.class,
+            responseContainer = "List",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
@@ -73,7 +90,13 @@ public interface IJobServiceV2 {
 
     @GET
     @Path("{id}")
-    @ApiOperation(value = "Get the details of a job", response = JobDetail.class, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Get the details of a job",
+            response = JobDetail.class,
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = JOB_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
@@ -82,7 +105,14 @@ public interface IJobServiceV2 {
 
     @GET
     @Path("{id}/results")
-    @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Get the results of a job",
+            response = Object.class,
+            responseContainer = "List",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})

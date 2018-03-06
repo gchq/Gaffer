@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 
+import java.util.LinkedHashMap;
+
 /**
  * Utility class containing methods for modifying {@link View} objects.
  */
@@ -31,7 +33,7 @@ public final class ViewUtil {
      * Remove properties from the supplied element, according to the {@link ViewElementDefinition}
      * in the {@link View}.
      *
-     * @param view the view to apply
+     * @param view    the view to apply
      * @param element the element to modify
      */
     public static void removeProperties(final View view, final Element element) {
@@ -43,7 +45,7 @@ public final class ViewUtil {
     /**
      * Remove properties from the supplied element, according to the {@link ViewElementDefinition}.
      *
-     * @param elDef the element definition to apply
+     * @param elDef   the element definition to apply
      * @param element the element to modify
      */
     public static void removeProperties(final ViewElementDefinition elDef, final Element element) {
@@ -53,7 +55,7 @@ public final class ViewUtil {
     /**
      * Remove properties from the supplied element, according to the {@link ViewElementDefinition}.
      *
-     * @param elDef the element definition to apply
+     * @param elDef      the element definition to apply
      * @param properties the properties to modify
      */
     public static void removeProperties(final ViewElementDefinition elDef, final Properties properties) {
@@ -64,5 +66,37 @@ public final class ViewUtil {
                 properties.keepOnly(elDef.getProperties());
             }
         }
+    }
+
+    /**
+     * Remove specified from the supplied view.
+     * Because The {@link View} is unmodifiable it will return a new {@link View} with the group(s) removed.
+     *
+     * @param view   the view to apply
+     * @param groups the groups to remove
+     * @return the new view with the groups removed
+     */
+    public static View removeGroups(final View view, final String... groups) {
+        if (null == view) {
+            throw new IllegalArgumentException("View cannot be null");
+        }
+
+        final LinkedHashMap<String, ViewElementDefinition> entities = new LinkedHashMap<>(view.getEntities());
+        final LinkedHashMap<String, ViewElementDefinition> edges = new LinkedHashMap<>(view.getEdges());
+
+        if (null != groups) {
+            for (final String group : groups) {
+                entities.remove(group);
+                edges.remove(group);
+            }
+        } else {
+            throw new IllegalArgumentException("Specified group(s) to remove is null");
+        }
+
+        return new View.Builder()
+                .merge(view)
+                .entities(entities)
+                .edges(edges)
+                .build();
     }
 }

@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.rest.service.v1;
 
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 
 public class AbstractRestApiV1IT extends AbstractRestApiIT<RestApiV1TestClient> {
 

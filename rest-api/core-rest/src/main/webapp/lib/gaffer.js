@@ -109,7 +109,7 @@ function log() {
 function initExampleOperations() {
     var availableOperationsSelect = $('.example-operations-select');
     $.get(
-          getVersion() + '/graph/operations',
+        'latest/graph/operations',
           null,
           function(availableOperations){
                // Sort operations based on name of operation (not including the package name)
@@ -136,6 +136,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
               initFromProperties(onPropertiesLoad);
               addExampleButtons();
+              hideJobsIfRequired();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
               }
@@ -163,11 +164,21 @@ function initFromProperties(onPropertiesLoad) {
         updateDescription(properties);
         updateBanner(properties);
         updateDocUrl(properties);
+        updateLogoLink(properties);
+        updateLogo(properties);
+        updateFavicon(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
     }
     $.get(getVersion() + '/properties', null, onSuccess);
+}
+
+function hideJobsIfRequired() {
+    $.get(getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails')
+    .fail(function() {
+         $("#resource_job").attr("hidden", true);
+    })
 }
 
 function updateTitle(properties) {
@@ -178,12 +189,14 @@ function updateTitle(properties) {
 }
 
 function updateBanner(properties) {
-    updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
-        $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
-        updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
-            $('#' + id).css({'background-color': value});
+    if($('#banner').length == 0) {
+        updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+            $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
+            updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+                $('#' + id).css({'background-color': value});
+            });
         });
-    });
+    }
 }
 
 function updateDescription(properties) {
@@ -196,6 +209,33 @@ function updateDocUrl(properties) {
     updateElementWithId('doc-url', 'gaffer.properties.app.doc.url', properties, function(value, id) {
         $('#' + id).html("For more information see our <a href='" + value + "'>documentation</a>.");
     });
+}
+
+function updateLogoLink(properties) {
+    updateElementWithId('logo', 'gaffer.properties.app.logo.link', properties, function(value, id) {
+        $('#' + id).attr("href", value);
+    });
+}
+
+function updateLogo(properties) {
+    if(!$('#logo img').hasClass('logo__img')) {
+        updateElementWithId('logo', 'gaffer.properties.app.logo.src', properties, function(value, id) {
+            $('#' + id).prepend("<img class='logo__img' alt='swagger' height='30' width='30' src='" + value + "'/>");
+        });
+    }
+}
+
+function updateFavicon(properties) {
+    if(!$('head').children().hasClass('favicon-16')) {
+        updateElement('gaffer.properties.app.logo.favicon.small', properties, function(value, id) {
+                $('head').prepend("<link class='favicon-16' rel='icon' type='image/png' href='" + value + "' sizes='16x16'/>");
+        });
+    }
+    if(!$('head').children().hasClass('favicon-32')) {
+        updateElement('gaffer.properties.app.logo.favicon.large', properties, function(value, id) {
+                $('head').prepend("<link class='favicon-32' rel='icon' type='image/png' href='" + value + "' sizes='32x32'/>");
+        });
+    }
 }
 
 function updateElement(key, properties, onSuccess) {
