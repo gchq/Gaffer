@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,29 +27,23 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchemas;
-import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,23 +60,16 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         configure(input);
     }
 
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
-    public void shouldAddElements() throws Exception {
+    public void shouldGetAllElements1() throws Exception {
         // Given
         createGraph(getSchema());
 
         // When
         addElements();
-        final List<? extends Element> result = Lists.newArrayList(getAllElements());
 
         // Then
-        shouldGetAllElements();
-//        shouldGetElementsWithMatchedVertex();
-//        shouldGetElementsWithMatchedVertexFilter();
-//        shouldGetElementsWithProvidedProperties();
-    }
-
-    protected void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
                 if (!includeEntities && !includeEdges) {
@@ -92,7 +78,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 }
                 for (final DirectedType directedType : DirectedType.values()) {
                     try {
-                        shouldGetAllElements(includeEntities, includeEdges, directedType);
+                        getAllElements(includeEntities, includeEdges, directedType);
                     } catch (final AssertionError e) {
                         throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
                                 + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
@@ -102,7 +88,129 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
-    private void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
+    @Test
+    public void shouldGetAllElementsFilteredOnGroup() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        final List<Element> resultList = Lists.newArrayList(results);
+        Assert.assertEquals(getEntities().size(), resultList.size());
+        for (final Element element : resultList) {
+            Assert.assertEquals(TestGroups.ENTITY, element.getGroup());
+        }
+    }
+
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
+    @Test
+    public void shouldGetAllFilteredElements() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(IdentifierType.VERTEX.name())
+                                        .execute(new IsEqual("A1"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        final List<Element> resultList = Lists.newArrayList(results);
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
+    }
+
+    @Test
+    public void shouldGetAllElementsWithProvidedProperties() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        for (final Element result : results) {
+            Assert.assertEquals(1, result.getProperties().size());
+            Assert.assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    @Test
+    public void shouldGetAllElementsWithExcludedProperties() throws Exception {
+        // Given
+        createGraph(getSchema());
+
+        // When
+        addElements();
+
+        // Then
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+
+        for (final Element result : results) {
+            Assert.assertEquals(1, result.getProperties().size());
+            Assert.assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    protected void getAllElements() throws Exception {
+        for (final boolean includeEntities : Arrays.asList(true, false)) {
+            for (final boolean includeEdges : Arrays.asList(true, false)) {
+                if (!includeEntities && !includeEdges) {
+                    // Cannot query for nothing!
+                    continue;
+                }
+                for (final DirectedType directedType : DirectedType.values()) {
+                    try {
+                        getAllElements(includeEntities, includeEdges, directedType);
+                    } catch (final AssertionError e) {
+                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
+                                + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
+                    }
+                }
+            }
+        }
+    }
+
+    private void getAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -140,10 +248,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
     protected void addElements() throws OperationException {
         graph.execute(createOperation(input), getUser());
-    }
-
-    protected Iterable<? extends Element> getAllElements() throws OperationException {
-        return graph.execute(new GetAllElements(), getUser());
     }
 
     protected Iterable<? extends Element> getInputElements() {

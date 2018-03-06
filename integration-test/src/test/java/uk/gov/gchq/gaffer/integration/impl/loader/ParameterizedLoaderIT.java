@@ -44,16 +44,16 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
     private final SchemaLoader loader;
     private final User user;
 
-    @Parameters
+    @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
         return Arrays.asList(new Object[][]{
-                {TestSchemas.getFullSchema(), new FullSchemaLoader(), new User("user", Sets.newHashSet("public"))},
-                {TestSchemas.getBasicSchema(), new BasicSchemaLoader(), new User()}
+                {TestSchemas.TestSchema.FULL_SCHEMA, new FullSchemaLoader(), new User("user", Sets.newHashSet("public"))},
+                {TestSchemas.TestSchema.BASIC_SCHEMA, new BasicSchemaLoader(), new User()}
         });
     }
 
-    public ParameterizedLoaderIT(final Schema schema, final SchemaLoader loader, final User user) {
-        this.schema = schema;
+    public ParameterizedLoaderIT(final TestSchemas.TestSchema schema, final SchemaLoader loader, final User user) {
+        this.schema = schema.getSchema();
         this.loader = loader;
         this.user = user;
     }

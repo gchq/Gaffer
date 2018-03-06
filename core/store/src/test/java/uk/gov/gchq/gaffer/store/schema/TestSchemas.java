@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
+
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -55,6 +59,26 @@ public final class TestSchemas {
         return new Schema.Builder(schema1)
                 .merge(schema2)
                 .build();
+    }
+
+    public enum TestSchema {
+        BASIC_SCHEMA(TestSchemas.getBasicSchema()),
+        FULL_SCHEMA(TestSchemas.getFullSchema());
+
+        private final Schema schema;
+
+        TestSchema(final Schema schema) {
+            this.schema = schema;
+        }
+
+        public Schema getSchema() {
+            return schema;
+        }
+
+        @Override
+        public String toString() {
+            return WordUtils.capitalize(StringUtils.lowerCase(name().replaceAll("_"," ")));
+        }
     }
 
     private static class Builder {
