@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Comparator;
 import java.util.List;
@@ -50,6 +51,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
+@Since("1.0.0")
 public class Sort implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element>,

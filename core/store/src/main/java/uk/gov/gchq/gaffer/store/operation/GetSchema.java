@@ -23,6 +23,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.Store}.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.1.0")
 public class GetSchema implements Output<Schema> {
     private Map<String, String> options;
     private boolean compact = false;

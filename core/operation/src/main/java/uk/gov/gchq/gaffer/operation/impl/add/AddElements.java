@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 @JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
+@Since("1.0.0")
 public class AddElements implements
         Validatable,
         MultiInput<Element> {

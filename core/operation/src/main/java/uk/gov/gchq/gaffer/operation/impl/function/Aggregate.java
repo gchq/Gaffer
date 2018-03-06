@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.Map;
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
+@Since("1.0.0")
 public class Aggregate implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

@@ -51,7 +51,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
             if (null != updatedOp) {
                 O execute = null;
                 try {
-                    execute = graph.execute(updatedOp, context.getUser());
+                    execute = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);

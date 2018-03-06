@@ -948,7 +948,7 @@ public final class Graph {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema) {
+                if (null == schema || schema.getGroups().isEmpty()) {
                     schema = store.getSchema();
                 }
 
@@ -965,7 +965,7 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema) {
+            if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
             }
         }

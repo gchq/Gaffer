@@ -157,6 +157,23 @@ public abstract class ElementTest {
     }
 
     @Test
+    public void shouldRemoveProperty() {
+        // Given
+        final Element element1 = newElement("group");
+        element1.putProperty("property1", "propertyValue1");
+        element1.putProperty("property2", "propertyValue2");
+
+        // When
+        element1.removeProperty("property1");
+
+        // Then
+        assertEquals(1, element1.getProperties().size());
+        assertEquals(null, element1.getProperty("property1"));
+        assertEquals("propertyValue2", element1.getProperty("property2"));
+
+    }
+
+    @Test
     public void shouldSerialiseAndDeserialiseProperties() throws SerialisationException {
         // Given
         final Element element = newElement("group");

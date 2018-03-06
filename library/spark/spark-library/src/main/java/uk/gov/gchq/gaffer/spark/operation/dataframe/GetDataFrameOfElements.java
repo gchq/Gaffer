@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import java.util.Map;
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {
