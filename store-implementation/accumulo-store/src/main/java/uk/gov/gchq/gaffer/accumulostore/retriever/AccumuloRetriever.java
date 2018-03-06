@@ -134,11 +134,11 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
 
         for (final String col : operation.getView().getEdgeGroups()) {
             scanner.fetchColumnFamily(new Text(col));
-            LOGGER.debug("Added {} as a column famility to fetch", col);
+            LOGGER.debug("Added {} as a column family to fetch", col);
         }
         for (final String col : operation.getView().getEntityGroups()) {
             scanner.fetchColumnFamily(new Text(col));
-            LOGGER.debug("Added {} as a column famility to fetch", col);
+            LOGGER.debug("Added {} as a column family to fetch", col);
         }
         return scanner;
     }
