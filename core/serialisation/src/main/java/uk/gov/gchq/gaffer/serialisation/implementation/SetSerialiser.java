@@ -37,6 +37,10 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     public SetSerialiser() {
     }
 
+    public SetSerialiser(final ToBytesSerialiser objectSerialiser) {
+        this.objectSerialiser = objectSerialiser;
+    }
+
     @Override
     public boolean canHandle(final Class clazz) {
         return Set.class.isAssignableFrom(clazz);

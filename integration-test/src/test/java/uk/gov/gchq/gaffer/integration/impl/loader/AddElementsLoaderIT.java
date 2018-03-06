@@ -17,9 +17,16 @@
 package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
-public class AddElementsLoaderIT extends AbstractLoaderIT<AddElements> {
+public class AddElementsLoaderIT extends ParameterizedLoaderIT<AddElements> {
+
+    public AddElementsLoaderIT(final Schema schema, final SchemaLoader loader, final User user) {
+        super(schema, loader, user);
+    }
 
     @Override
     public void configure(final Iterable<? extends Element> elements) {
@@ -32,4 +39,5 @@ public class AddElementsLoaderIT extends AbstractLoaderIT<AddElements> {
                 .input(elements)
                 .build();
     }
+
 }

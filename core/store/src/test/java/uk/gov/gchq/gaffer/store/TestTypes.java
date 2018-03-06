@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store;
 
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.SetSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -76,7 +77,7 @@ public class TestTypes {
 
     public static final TypeDefinition SET_TYPE = new TypeDefinition.Builder()
             .clazz(Set.class)
-            .serialiser(new SetSerialiser())
+            .serialiser(new SetSerialiser(new StringSerialiser()))
             .aggregateFunction(new CollectionConcat<>())
             .build();
 

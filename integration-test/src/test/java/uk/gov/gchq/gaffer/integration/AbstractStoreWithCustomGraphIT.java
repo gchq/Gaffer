@@ -105,8 +105,8 @@ public abstract class AbstractStoreWithCustomGraphIT {
     protected static StoreProperties storeProperties;
     protected static String singleTestMethod;
 
-    protected final Map<EntityId, Entity> entities = createEntities();
-    protected final Map<EdgeId, Edge> edges = createEdges();
+    protected  Map<EntityId, Entity> entities;
+    protected  Map<EdgeId, Edge> edges;
 
     @Rule
     public TestName name = new TestName();
@@ -157,6 +157,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
     }
 
     protected void initialise() throws Exception {
+        entities = createEntities();
+        edges = createEdges();
+
         originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
                 : name.getMethodName();
