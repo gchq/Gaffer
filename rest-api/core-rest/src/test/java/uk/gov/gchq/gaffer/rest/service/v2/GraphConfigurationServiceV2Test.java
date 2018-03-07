@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Sets;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -51,7 +52,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -176,8 +176,7 @@ public class GraphConfigurationServiceV2Test {
         expectedFields.add("views");
 
         // Then
-        assertEquals(7, fields.size());
-        assertTrue(expectedFields.containsAll(fields));
+        assertEquals(expectedFields, fields);
     }
 
     @Test
@@ -186,20 +185,17 @@ public class GraphConfigurationServiceV2Test {
         final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(Edge.class.getName()).getEntity();
 
         final Map<String, String> expectedFields = new HashMap<>();
-        expectedFields.put("class", "uk.gov.gchq.gaffer.data.element.Edge");
-        expectedFields.put("source", "java.lang.Object");
-        expectedFields.put("destination", "java.lang.Object");
-        expectedFields.put("matchedVertex", "java.lang.String");
-        expectedFields.put("group", "java.lang.String");
-        expectedFields.put("properties", "uk.gov.gchq.gaffer.data.element.Properties");
-        expectedFields.put("directed", "boolean");
+        expectedFields.put("class", Class.class.getName());
+        expectedFields.put("source", Object.class.getName());
+        expectedFields.put("destination", Object.class.getName());
+        expectedFields.put("matchedVertex", String.class.getName());
+        expectedFields.put("group", String.class.getName());
+        expectedFields.put("properties", Properties.class.getName());
+        expectedFields.put("directed", Boolean.class.getName());
+        expectedFields.put("directedType", String.class.getName());
 
         // Then
-        assertEquals(7, fields.size());
-
-        assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
-        assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
-        assertFalse(fields.keySet().contains("directedType"));
+        assertEquals(expectedFields, fields);
     }
 
     @Test
@@ -208,19 +204,13 @@ public class GraphConfigurationServiceV2Test {
         final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(GetWalks.class.getName()).getEntity();
 
         final Map<String, String> expectedFields = new HashMap<>();
-        expectedFields.put("operations",
-                "java.util.List<uk.gov.gchq.gaffer.operation.OperationChain<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
-        expectedFields.put("input",
-                "java.lang.Iterable<? extends uk.gov.gchq.gaffer.data.element.id.EntityId>");
-        expectedFields.put("options",
-                "java.util.Map<java.lang.String, java.lang.String>");
-        expectedFields.put("resultsLimit", "java.lang.Integer");
+        expectedFields.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
+        expectedFields.put("input", "java.lang.Object[]");
+        expectedFields.put("options", "java.util.Map<java.lang.String,java.lang.String>");
+        expectedFields.put("resultsLimit", Integer.class.getName());
 
         // Then
-        assertEquals(4, fields.size());
-        assertTrue(CollectionUtils.isEqualCollection(expectedFields.keySet(), fields.keySet()));
-        assertTrue(CollectionUtils.isEqualCollection(expectedFields.values(), fields.values()));
-        assertFalse(fields.keySet().contains("HOP_DEFINITION"));
+        assertEquals(expectedFields, fields);
     }
 
     @Test
@@ -282,16 +272,17 @@ public class GraphConfigurationServiceV2Test {
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException {
         // When
         byte[] bytes = JSONSerialiser.serialise(service.getStoreTraits().getEntity());
-        final Set<StoreTrait> traits = JSONSerialiser.deserialise(bytes, Set.class);
+        final Set<String> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
-        assertNotNull(traits);
-        assertEquals("Collection size should be 6", 6, traits.size());
-        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION.name()));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING.name()));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING.name()));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING.name()));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION.name()));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION.name()));
+        assertEquals(Sets.newHashSet(
+                        INGEST_AGGREGATION.name(),
+                        PRE_AGGREGATION_FILTERING.name(),
+                        POST_AGGREGATION_FILTERING.name(),
+                        POST_TRANSFORMATION_FILTERING.name(),
+                        TRANSFORMATION.name(),
+                        STORE_VALIDATION.name()
+                ),
+                traits);
     }
 }
