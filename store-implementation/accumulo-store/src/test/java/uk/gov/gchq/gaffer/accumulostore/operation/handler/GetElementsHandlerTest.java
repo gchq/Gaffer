@@ -63,4 +63,20 @@ public class GetElementsHandlerTest {
             assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
         }
     }
+
+    @Test
+    public void shouldNotReturnDeletedElements() {
+        // Given
+        final GetElementsHandler handler = new GetElementsHandler();
+        final GetElements op = new GetElements.Builder()
+                .build();
+
+        // When / Then
+        try {
+            handler.doOperation(op, new Context(), null);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
+        }
+    }
 }
