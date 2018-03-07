@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.Repeat;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -525,6 +526,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 Map.class,
+                Repeat.class,
 
                 // Function
                 Filter.class,
@@ -618,6 +620,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 Map.class,
+                Repeat.class,
 
                 // Function
                 Filter.class,

@@ -26,10 +26,12 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.impl.Repeat;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.RepeatScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
@@ -180,6 +182,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
         defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+        defaultResolvers.put(Repeat.class, new RepeatScoreResolver());
 
         return Collections.unmodifiableMap(defaultResolvers);
     }
