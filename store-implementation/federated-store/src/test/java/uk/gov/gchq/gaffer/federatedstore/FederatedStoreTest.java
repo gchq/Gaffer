@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -70,7 +71,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
@@ -622,16 +622,15 @@ public class FederatedStoreTest {
         // Then
         assertFalse(elements.iterator().hasNext());
 
-        try {
-            store.execute(new GetAllElements(),
-                    new Context(new User.Builder()
-                            .userId(blankUser.getUserId())
-                            .opAuths("x")
-                            .build()));
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        // When - user cannot see any graphs
+        final CloseableIterable<? extends Element> elements2 = store.execute(new GetAllElements(),
+                new Context(new User.Builder()
+                        .userId(blankUser.getUserId())
+                        .opAuths("x")
+                        .build()));
+
+        // Then
+        assertEquals(0, Iterables.size(elements2));
     }
 
     @Test
@@ -736,17 +735,13 @@ public class FederatedStoreTest {
                         .opAuth("auth")
                         .build());
 
-        try {
-            fedGraph.execute(
-                    new GetAllElements(),
-                    new User.Builder()
-                            .userId(USER_ID + "Other")
-                            .opAuths("x")
-                            .build());
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+
+        final CloseableIterable<? extends Element> elements2 = fedGraph.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID + "Other")
+                        .opAuths("x")
+                        .build());
+        assertEquals(0, Iterables.size(elements2));
 
         // Then
         assertEquals(0, before);
