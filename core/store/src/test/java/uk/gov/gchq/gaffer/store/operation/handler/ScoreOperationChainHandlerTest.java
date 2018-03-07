@@ -519,8 +519,6 @@ public class ScoreOperationChainHandlerTest {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
         final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_RESOLVERS = ScoreOperationChainHandler.getDefaultScoreResolvers();
-        final NamedOperationScoreResolver namedOpScoreResolver = new NamedOperationScoreResolver();
-
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
         expectedMap.putAll(DEFAULT_RESOLVERS);
 
