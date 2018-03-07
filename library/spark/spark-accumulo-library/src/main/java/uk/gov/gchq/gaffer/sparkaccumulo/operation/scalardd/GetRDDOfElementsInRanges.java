@@ -28,10 +28,12 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetRDDOfElementsInRanges implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, RDD<Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToList.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class ToList<T> implements
         InputOutput<Iterable<? extends T>, List<? extends T>>,
         MultiInput<T> {

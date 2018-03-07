@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -34,6 +35,7 @@ import java.util.function.Function;
  * @see Builder
  */
 @JsonPropertyOrder(value = {"class", "filename", "elementGenerator"}, alphabetic = true)
+@Since("1.0.0")
 public class AddElementsFromFile implements
         Operation,
         Validatable {

@@ -83,7 +83,7 @@ public class ExportToOtherGraphHandlerTest {
     @Before
     public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties.set(HashMapCacheService.STATIC_CACHE,String.valueOf(false));
+        storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
@@ -585,21 +585,17 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionSchemaCannotBeUsedIfNotDefinedOrFound() {
+    public void shouldNotThrowExceptionIfSchemaIsNotDefined() {
         // Given
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(new StoreProperties())
                 .build();
 
-        // When / Then
-        try {
-            validate(export);
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Validation errors: \n" +
-                    String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, "Schema"), e.getMessage());
-        }
+        // When
+        validate(export);
+
+        // Then - no exceptions
     }
 
     @Test

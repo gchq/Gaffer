@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * job from a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class GetJobDetails implements
         Output<JobDetail> {
     private String jobId;

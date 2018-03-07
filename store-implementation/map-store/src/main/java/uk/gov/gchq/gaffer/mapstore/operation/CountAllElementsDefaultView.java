@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * present in a {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class CountAllElementsDefaultView implements
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {

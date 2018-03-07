@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,8 @@ import java.util.Map;
  * This is a more restricted version of {@link ExportToOtherGraph}.
  */
 @JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
+
+@Since("1.0.0")
 public class ExportToOtherAuthorisedGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {
