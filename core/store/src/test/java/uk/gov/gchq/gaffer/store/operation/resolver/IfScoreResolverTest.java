@@ -29,11 +29,15 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -51,7 +55,7 @@ public class IfScoreResolverTest {
         final int score = resolver.getScore(operation, defaultResolver);
 
         // Then
-        assertEquals(1, score);
+        assertEquals(2, score);
     }
 
     @Test
@@ -90,7 +94,7 @@ public class IfScoreResolverTest {
         // Given
         final GetElements getElements = mock(GetElements.class);
         final ToMap toMap = mock(ToMap.class);
-        final uk.gov.gchq.gaffer.operation.impl.Map map = mock(uk.gov.gchq.gaffer.operation.impl.Map.class);
+        final Map map = mock(Map.class);
         final OperationChain conditionalChain = mock(OperationChain.class);
         final List<Operation> conditionalOps = new LinkedList<>();
         conditionalOps.add(getElements);
@@ -103,13 +107,13 @@ public class IfScoreResolverTest {
 
         given(conditional.getTransform()).willReturn(conditionalChain);
 
-        final GetWalks getWalks = mock(GetWalks.class);
         final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
+        final GetAllElements getAllElements = mock(GetAllElements.class);
 
         final If operation = new If.Builder<>()
                 .conditional(conditional)
-                .then(getWalks)
-                .otherwise(getAdjacentIds)
+                .then(getAdjacentIds)
+                .otherwise(getAllElements)
                 .build();
 
         final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
@@ -117,8 +121,8 @@ public class IfScoreResolverTest {
         opScores.put(GetElements.class, 2);
         opScores.put(ToMap.class, 2);
         opScores.put(Map.class, 3);
-        opScores.put(GetWalks.class, 4);
         opScores.put(GetAdjacentIds.class, 3);
+        opScores.put(GetAllElements.class, 4);
 
         final IfScoreResolver resolver = new IfScoreResolver();
         final DefaultScoreResolver defaultResolver = new DefaultScoreResolver(opScores);
@@ -131,12 +135,59 @@ public class IfScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreWithNestedOperations() {
+    public void shouldGetScoreForNestedOperations() {
+        // Given
+        final Map map = mock(Map.class);
+        final Conditional conditional = mock(Conditional.class);
+        given(conditional.getTransform()).willReturn(map);
 
+        final GetWalks getWalks = mock(GetWalks.class);
+        given(getWalks.getOperations()).willReturn(
+                Collections.singletonList(
+                        new OperationChain<>(
+                                new GetAdjacentIds(),
+                                new GetAdjacentIds())));
+
+        final GetAllElements getAllElements = new GetAllElements();
+
+        final If operation = new If.Builder<>()
+                .conditional(conditional)
+                .then(getWalks)
+                .otherwise(getAllElements)
+                .build();
+
+        final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(Map.class, 3);
+        opScores.put(GetAdjacentIds.class, 2);
+        opScores.put(GetAllElements.class, 3);
+
+        final IfScoreResolver resolver = new IfScoreResolver();
+        final DefaultScoreResolver defaultResolver = new DefaultScoreResolver(opScores);
+
+        // When
+        final int score = resolver.getScore(operation, defaultResolver);
+
+        // Then
+        assertEquals(7, score);
     }
 
     @Test
     public void shouldThrowErrorWhenNoDefaultResolverConfigured() {
+        // Given
+        final IfScoreResolver resolver = new IfScoreResolver();
 
+        final If operation = new If.Builder<>()
+                .conditional(new Conditional())
+                .then(new GetAllElements())
+                .build();
+
+        // When / Then
+        try {
+            resolver.getScore(operation);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertTrue(e.getMessage().contains("Default Score Resolver has not been provided."));
+        }
     }
 }

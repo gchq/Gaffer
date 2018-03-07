@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * An operation handler for {@link If} operations.
- * If {@link If#getThen()} or {@link If#getOtherwise()} returns a null operation, then the input object will simply be returned.
+ * If {@link If#getThen()} or {@link If#getOtherwise()} is called but returns a null operation,
+ * then the input object will simply be returned.
  */
 public class IfHandler implements OutputOperationHandler<If<Object, Object>, Object> {
     @Override

@@ -18,10 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.If;
-
-import java.util.Collection;
 
 /**
  * An {@code IfScoreResolver} is an implementation of {@link ScoreResolver}
