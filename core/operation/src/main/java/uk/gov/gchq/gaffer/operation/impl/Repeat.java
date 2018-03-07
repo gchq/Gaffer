@@ -18,9 +18,12 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -107,6 +110,15 @@ public class Repeat implements InputOutput<Object, Object>,
             ops.add(operation);
         }
         return ops;
+    }
+
+    @Override
+    public void updateOperations(final Collection<Operation> operations) {
+        if (operations.size() > 1) {
+            operation = new OperationChain(Lists.newArrayList(operations));
+        } else {
+            operation = Iterables.get(operations, 0);
+        }
     }
 
     public static final class Builder
