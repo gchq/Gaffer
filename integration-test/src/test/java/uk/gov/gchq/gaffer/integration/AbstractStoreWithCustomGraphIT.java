@@ -105,8 +105,11 @@ public abstract class AbstractStoreWithCustomGraphIT {
     protected static StoreProperties storeProperties;
     protected static String singleTestMethod;
 
-    protected  Map<EntityId, Entity> entities;
-    protected  Map<EdgeId, Edge> edges;
+    protected Map<EntityId, Entity> entities;
+    protected Map<EdgeId, Edge> edges;
+
+    protected final Map<String, User> userMap = new HashMap<>();
+    protected User user = new User();
 
     @Rule
     public TestName name = new TestName();
@@ -192,11 +195,28 @@ public abstract class AbstractStoreWithCustomGraphIT {
         }
     }
 
+    protected void applyVisibilityUser() {
+        if (!userMap.isEmpty()) {
+            for (final Annotation annotation : method.getDeclaredAnnotations()) {
+                if (annotation.annotationType().equals(VisibilityUser.class)) {
+                    final VisibilityUser userAnnotation = (VisibilityUser) annotation;
+
+                    final User user = userMap.get(userAnnotation.value());
+
+                    if (null != user) {
+                        this.user = user;
+                    }
+                }
+            }
+        }
+    }
+
     protected void createDefaultGraph() {
         graph = getGraphBuilder()
                 .build();
 
         validateTraits();
+        applyVisibilityUser();
     }
 
     public void createGraph(final Schema schema) {
@@ -448,7 +468,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
     }
 
     protected User getUser() {
-        return new User();
+        return user;
     }
 
 }

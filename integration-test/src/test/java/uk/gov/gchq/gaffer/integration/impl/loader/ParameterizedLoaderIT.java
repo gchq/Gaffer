@@ -25,9 +25,11 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.integration.impl.loader.schemas.AggregationSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.BasicSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.FullSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
+import uk.gov.gchq.gaffer.integration.impl.loader.schemas.VisibilitySchemaLoader;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TestSchema;
@@ -35,18 +37,21 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.AGGREGATION_SCHEMA;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
 
 /**
  * This is the main class for carrying out data loading testing.
- *
+ * <p>
  * This class will invoke a suite of tests (specified in {@link AbstractLoaderIT}
  * and run these tests for each of the {@link Schema} types specified in the parameter
  * list.
- *
+ * <p>
  * To use this class to test a new data loading operation, extend it and implement
  * the {@link AbstractLoaderIT#createOperation(Iterable)} and {@link AbstractLoaderIT#configure(Iterable)}
  * methods.
@@ -58,25 +63,29 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
 
     private final Schema schema;
     private final SchemaLoader loader;
-    private final User user;
+
+    private final User defaultUser = new User("privileged", Sets.newHashSet("public", "private"));
 
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
+        final Map<String, User> userMap = new HashMap<>();
+
+        userMap.put("basic", new User("basic", Sets.newHashSet("public")));
+        userMap.put("privileged", new User("privileged", Sets.newHashSet("public", "private")));
+
         return Arrays.asList(new Object[][]{
-                {FULL_SCHEMA, new FullSchemaLoader(), new User("user", Sets.newHashSet("public"))},
-                {BASIC_SCHEMA, new BasicSchemaLoader(), new User()}
+                {FULL_SCHEMA, new FullSchemaLoader(), userMap},
+                {VISIBILITY_SCHEMA, new VisibilitySchemaLoader(), userMap},
+                {AGGREGATION_SCHEMA, new AggregationSchemaLoader(), userMap},
+                {BASIC_SCHEMA, new BasicSchemaLoader(), userMap}
         });
     }
 
-    public ParameterizedLoaderIT(final TestSchema schema, final SchemaLoader loader, final User user) {
+    public ParameterizedLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
         this.schema = schema.getSchema();
         this.loader = loader;
-        this.user = user;
-    }
-
-    @Override
-    protected User getUser() {
-        return user;
+        this.userMap.putAll(userMap);
+        this.user = defaultUser;
     }
 
     @Override

@@ -21,6 +21,9 @@ import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.AddElementsIT;
+import uk.gov.gchq.gaffer.integration.impl.GetAllElementsIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 public class HBaseStoreITs extends AbstractStoreITs {

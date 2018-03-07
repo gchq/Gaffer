@@ -41,6 +41,8 @@ public enum TestSchema {
 
     EMPTY_SCHEMA(new Builder().emptySchema().build()),
     BASIC_SCHEMA(new Builder().basicSchema().build()),
+    VISIBILITY_SCHEMA(new Builder().visibilitySchema().build()),
+    AGGREGATION_SCHEMA(new Builder().aggregationSchema().build()),
     FULL_SCHEMA(new Builder().fullSchema().build());
 
     private final Schema schema;
@@ -97,6 +99,27 @@ public enum TestSchema {
                             .directed(TestTypes.DIRECTED_EITHER)
                             .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                             .build());
+            return this;
+        }
+
+        public Builder visibilitySchema() {
+            schemaBuilder.type(TestTypes.VERTEX_STRING, STRING_TYPE)
+                    .type(TestTypes.DIRECTED_EITHER, BOOLEAN_TYPE)
+                    .type(TestTypes.PROP_COUNT, LONG_TYPE)
+                    .type(TestTypes.VISIBILITY, STRING_TYPE)
+                    .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                            .vertex(TestTypes.VERTEX_STRING)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .build())
+                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                            .source(TestTypes.VERTEX_STRING)
+                            .destination(TestTypes.VERTEX_STRING)
+                            .directed(TestTypes.DIRECTED_EITHER)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .build())
+                    .visibilityProperty(TestPropertyNames.VISIBILITY);
             return this;
         }
 
@@ -167,6 +190,60 @@ public enum TestSchema {
                             .property(TestPropertyNames.PROP_5, TestTypes.PROP_SET_STRING)
                             .property(TestPropertyNames.DATE, TestTypes.PROP_DATE)
                             .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .aggregate(false)
+                            .build())
+                    .visibilityProperty(TestPropertyNames.VISIBILITY);
+            return this;
+        }
+
+        public Builder aggregationSchema() {
+            schemaBuilder.type(TestTypes.VERTEX_STRING, STRING_TYPE)
+                    .type(TestTypes.DIRECTED_EITHER, BOOLEAN_TYPE)
+                    .type(TestTypes.PROP_COUNT, LONG_TYPE)
+                    .type(TestTypes.PROP_INTEGER, INTEGER_TYPE)
+                    .type(TestTypes.PROP_LONG, LONG_TYPE)
+                    .type(TestTypes.PROP_STRING, STRING_TYPE)
+                    .type(TestTypes.VISIBILITY, STRING_TYPE)
+                    .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                            .vertex(TestTypes.VERTEX_STRING)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                            .property(TestPropertyNames.PROP_2, TestTypes.PROP_LONG)
+                            .property(TestPropertyNames.PROP_3, TestTypes.PROP_STRING)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .groupBy(TestPropertyNames.PROP_3)
+                            .aggregate(true)
+                            .build())
+                    .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                            .vertex(TestTypes.VERTEX_STRING)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                            .property(TestPropertyNames.PROP_2, TestTypes.PROP_LONG)
+                            .property(TestPropertyNames.PROP_3, TestTypes.PROP_STRING)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .aggregate(false)
+                            .build())
+                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                            .source(TestTypes.VERTEX_STRING)
+                            .destination(TestTypes.VERTEX_STRING)
+                            .directed(TestTypes.DIRECTED_EITHER)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                            .property(TestPropertyNames.PROP_2, TestTypes.PROP_LONG)
+                            .property(TestPropertyNames.PROP_3, TestTypes.PROP_STRING)
+                            .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                            .groupBy(TestPropertyNames.PROP_3)
+                            .aggregate(true)
+                            .build())
+                    .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                            .source(TestTypes.VERTEX_STRING)
+                            .destination(TestTypes.VERTEX_STRING)
+                            .directed(TestTypes.DIRECTED_EITHER)
+                            .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                            .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                            .property(TestPropertyNames.PROP_2, TestTypes.PROP_LONG)
+                            .property(TestPropertyNames.PROP_3, TestTypes.PROP_STRING)
                             .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
                             .aggregate(false)
                             .build())

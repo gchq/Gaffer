@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.time.Instant;
@@ -33,18 +32,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link SchemaLoader} implementation to load fully featured {@link uk.gov.gchq.gaffer.store.schema.Schema}s
- * for testing purposes.
+ * {@link SchemaLoader} implementation to load a {@link uk.gov.gchq.gaffer.store.schema.Schema}s
+ * featuring aggregation properties for testing purposes.
  */
-public class FullSchemaLoader implements SchemaLoader {
+public class AggregationSchemaLoader implements SchemaLoader {
 
     @Override
     public Map<EdgeId, Edge> createEdges() {
-        final Map<String, Long> map = new HashMap<>();
-        map.put("key", 1L);
-
-        final FreqMap freqMap = new FreqMap(map);
-
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
@@ -57,10 +51,6 @@ public class FullSchemaLoader implements SchemaLoader {
                         .property(TestPropertyNames.PROP_1, 1)
                         .property(TestPropertyNames.PROP_2, 1L)
                         .property(TestPropertyNames.PROP_3, "1")
-                        .property(TestPropertyNames.PROP_4, freqMap)
-                        .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
-                        .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
-                        .property(TestPropertyNames.TIMESTAMP, 1L)
                         .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
                 addToMap(edge, edges);
@@ -74,10 +64,6 @@ public class FullSchemaLoader implements SchemaLoader {
                         .property(TestPropertyNames.PROP_1, 1)
                         .property(TestPropertyNames.PROP_2, 1L)
                         .property(TestPropertyNames.PROP_3, "1")
-                        .property(TestPropertyNames.PROP_4, freqMap)
-                        .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
-                        .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
-                        .property(TestPropertyNames.TIMESTAMP, 1L)
                         .property(TestPropertyNames.VISIBILITY, "private")
                         .build();
                 addToMap(edgeDir, edges);
@@ -92,10 +78,6 @@ public class FullSchemaLoader implements SchemaLoader {
                     .property(TestPropertyNames.PROP_1, 1)
                     .property(TestPropertyNames.PROP_2, 1L)
                     .property(TestPropertyNames.PROP_3, "1")
-                    .property(TestPropertyNames.PROP_4, freqMap)
-                    .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
-                    .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
-                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .property(TestPropertyNames.VISIBILITY, "public")
                     .build();
             addToMap(edge, edges);
@@ -109,10 +91,6 @@ public class FullSchemaLoader implements SchemaLoader {
                     .property(TestPropertyNames.PROP_1, 1)
                     .property(TestPropertyNames.PROP_2, 1L)
                     .property(TestPropertyNames.PROP_3, "1")
-                    .property(TestPropertyNames.PROP_4, freqMap)
-                    .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
-                    .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
-                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .property(TestPropertyNames.VISIBILITY, "private")
                     .build();
             addToMap(edgeDir, edges);
@@ -123,9 +101,6 @@ public class FullSchemaLoader implements SchemaLoader {
 
     @Override
     public Map<EntityId, Entity> createEntities() {
-        final FreqMap freqMap = new FreqMap();
-        freqMap.upsert("key");
-
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
@@ -134,10 +109,6 @@ public class FullSchemaLoader implements SchemaLoader {
                 entity.putProperty(TestPropertyNames.PROP_1, 1);
                 entity.putProperty(TestPropertyNames.PROP_2, 1L);
                 entity.putProperty(TestPropertyNames.PROP_3, "1");
-                entity.putProperty(TestPropertyNames.PROP_4, freqMap);
-                entity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
-                entity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
-                entity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
                 entity.putProperty(TestPropertyNames.VISIBILITY, "public");
                 addToMap(entity, entities);
             }
@@ -147,10 +118,6 @@ public class FullSchemaLoader implements SchemaLoader {
             secondEntity.putProperty(TestPropertyNames.PROP_1, 1);
             secondEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             secondEntity.putProperty(TestPropertyNames.PROP_3, "1");
-            secondEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            secondEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
-            secondEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
-            secondEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             secondEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
             addToMap(secondEntity, entities);
 
@@ -159,10 +126,6 @@ public class FullSchemaLoader implements SchemaLoader {
             thirdEntity.putProperty(TestPropertyNames.PROP_1, 1);
             thirdEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             thirdEntity.putProperty(TestPropertyNames.PROP_3, "1");
-            thirdEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            thirdEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
-            thirdEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
-            thirdEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             thirdEntity.putProperty(TestPropertyNames.VISIBILITY, "private");
             addToMap(thirdEntity, entities);
 
@@ -171,10 +134,6 @@ public class FullSchemaLoader implements SchemaLoader {
             fourthEntity.putProperty(TestPropertyNames.PROP_1, 1);
             fourthEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             fourthEntity.putProperty(TestPropertyNames.PROP_3, "1");
-            fourthEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            fourthEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
-            fourthEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
-            fourthEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             fourthEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
             addToMap(fourthEntity, entities);
 
@@ -183,10 +142,6 @@ public class FullSchemaLoader implements SchemaLoader {
             fifthEntity.putProperty(TestPropertyNames.PROP_1, 1);
             fifthEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             fifthEntity.putProperty(TestPropertyNames.PROP_3, "1");
-            fifthEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            fifthEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
-            fifthEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
-            fifthEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             fifthEntity.putProperty(TestPropertyNames.VISIBILITY, "private");
             addToMap(fifthEntity, entities);
         }

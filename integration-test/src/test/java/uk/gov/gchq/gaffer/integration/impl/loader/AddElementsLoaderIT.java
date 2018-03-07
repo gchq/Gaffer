@@ -22,14 +22,15 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Map;
 
 /**
  * {@link AbstractLoaderIT} implementation for the {@link AddElements} operation.
  */
 public class AddElementsLoaderIT extends ParameterizedLoaderIT<AddElements> {
 
-    public AddElementsLoaderIT(final TestSchema schema, final SchemaLoader loader, final User user) {
-        super(schema, loader, user);
+    public AddElementsLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
+        super(schema, loader, userMap);
     }
 
     @Override
