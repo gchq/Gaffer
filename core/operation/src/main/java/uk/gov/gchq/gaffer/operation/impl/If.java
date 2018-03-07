@@ -55,7 +55,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
 public class If<I, O> implements InputOutput<I, O>,
-        Operations {
+        Operations<Operation> {
 
     private I input;
     private Map<String, String> options;
@@ -124,7 +124,7 @@ public class If<I, O> implements InputOutput<I, O>,
     }
 
     @Override
-    public void updateOperations(final Collection operations) {
+    public void updateOperations(final Collection<Operation> operations) {
         final Iterator<Operation> itr = operations.iterator();
 
         if (null != conditional && null == conditional.getTransform()) {
