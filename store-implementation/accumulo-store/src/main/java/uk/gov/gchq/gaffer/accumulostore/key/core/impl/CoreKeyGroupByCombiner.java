@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
 import org.apache.accumulo.core.iterators.conf.ColumnSet;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -64,6 +66,8 @@ import java.util.Set;
  */
 public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         implements OptionDescriber {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreKeyGroupByCombiner.class);
+
     private static final String COLUMNS_OPTION = "columns";
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
     protected Schema schema;
@@ -359,27 +363,32 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema", e);
         }
+        LOGGER.debug("Initialising CoreKeyGroupByCombiner with schema {}", schema);
         try {
             view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the view", e);
         }
+        LOGGER.debug("Initialising CoreKeyGroupByCombiner with view {}", view);
 
+        final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             elementConverter = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .forName(elementConverterClass)
                     .asSubclass(AccumuloElementConverter.class)
                     .getConstructor(Schema.class)
                     .newInstance(schema);
+            LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+            throw new AggregationException("Failed to create element converter of the class name provided ("
+                    + elementConverterClass + ")", e);
         }
 
         final String encodedColumns = options.get(COLUMNS_OPTION);
         if (StringUtils.isNotEmpty(encodedColumns)) {
             aggregatedGroups = new ColumnSet(Lists.newArrayList(Splitter.on(",").split(encodedColumns)));
+            LOGGER.debug("Setting aggregatedGroups to {}", aggregatedGroups);
         }
     }
 

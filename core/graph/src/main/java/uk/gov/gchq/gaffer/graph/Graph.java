@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -948,7 +948,7 @@ public final class Graph {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema) {
+                if (null == schema || schema.getGroups().isEmpty()) {
                     schema = store.getSchema();
                 }
 
@@ -965,7 +965,7 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema) {
+            if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
             }
         }

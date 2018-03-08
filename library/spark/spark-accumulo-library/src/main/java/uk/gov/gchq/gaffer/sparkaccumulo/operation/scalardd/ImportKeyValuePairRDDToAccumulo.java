@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@ import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
+@Since("1.0.0")
 public class ImportKeyValuePairRDDToAccumulo implements
         Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;

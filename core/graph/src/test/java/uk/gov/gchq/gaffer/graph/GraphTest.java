@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1098,6 +1098,33 @@ public class GraphTest {
         // Then
         assertEquals(returnedTraits, storeTraits);
 
+    }
+
+    @Test
+    public void shouldGetSchemaFromStoreIfSchemaIsEmpty() throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", String.class)
+                .build();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        final View view = mock(View.class);
+        new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .view(view)
+                        .build())
+                .addSchema(new Schema())
+                .store(store)
+                .build();
+
+        // When
+        verify(store).setOriginalSchema(schema);
     }
 
     @Test
