@@ -389,6 +389,36 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Test
+    public void shouldHandleIfOperationWithNoConditionalOrOtherwise() throws SerialisationException {
+        // Given
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStoreFromFile();
+        If ifOp = new If.Builder<>()
+                .then(new GetElements())
+                .build();
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(ifOp)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context(new User()));
+
+        // Then
+        final OperationChain expectedOpChain = new OperationChain.Builder()
+                .first(discardOutput)
+                .then(splitStore)
+                .then(new If.Builder<>()
+                        .then(new OperationChain<>(new CountGroups(), new GetElements()))
+                        .build())
+                .then(new Count())
+                .build();
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+    }
+
+    @Test
     public void shouldFailQuietlyIfNestedOperationsCannotBeModified() throws SerialisationException {
         // Given
         AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -101,27 +102,19 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
         this.options = options;
     }
 
+    @JsonIgnore
     @Override
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();
 
-        if (null == conditional || null == conditional.getTransform()) {
+        if (null == conditional) {
             ops.add(new OperationChain());
         } else {
             ops.add(OperationChain.wrap(conditional.getTransform()));
         }
 
-        if (null == then) {
-            ops.add(new OperationChain());
-        } else {
-            ops.add(OperationChain.wrap(then));
-        }
-
-        if (null == otherwise) {
-            ops.add(new OperationChain());
-        } else {
-            ops.add(OperationChain.wrap(otherwise));
-        }
+        ops.add(OperationChain.wrap(then));
+        ops.add(OperationChain.wrap(otherwise));
 
         return ops;
     }
@@ -133,18 +126,18 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
         }
 
         final Iterator<Operation> itr = operations.iterator();
-        final Operation transform = itr.next();
+        final Operation transform = extractNextOp(itr);
         if (null == conditional) {
-            final boolean hasTransform = !(transform instanceof Operations) || !((Operations) transform).getOperations().isEmpty();
-            if (hasTransform) {
+            if (null != transform) {
                 conditional = new Conditional();
                 conditional.setTransform(transform);
             }
         } else {
             conditional.setTransform(transform);
         }
-        then = itr.next();
-        otherwise = itr.next();
+
+        then = extractNextOp(itr);
+        otherwise = extractNextOp(itr);
     }
 
     public Boolean getCondition() {
@@ -223,6 +216,15 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
                 .append(otherwise)
                 .append(options)
                 .toString();
+    }
+
+    private Operation extractNextOp(final Iterator<Operation> itr) {
+        final Operation nextOp = itr.next();
+        if (!(nextOp instanceof Operations) || !((Operations) nextOp).getOperations().isEmpty()) {
+            return nextOp;
+        }
+
+        return null;
     }
 
     public static final class Builder<I, O>
