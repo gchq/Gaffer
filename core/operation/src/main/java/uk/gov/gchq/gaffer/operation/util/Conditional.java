@@ -15,7 +15,11 @@
  */
 package uk.gov.gchq.gaffer.operation.util;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
@@ -25,6 +29,7 @@ import java.util.function.Predicate;
  * A {@code Conditional} is a simple POJO for wrapping an {@link Operation} and a {@link Predicate},
  * to allow for pre-predicate transformations, whilst preserving the input data.
  */
+@JsonPropertyOrder(value = {"transform", "predicate"}, alphabetic = true)
 public class Conditional {
 
     private Operation transform;
@@ -48,4 +53,37 @@ public class Conditional {
         this.predicate = predicate;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Conditional conditional = (Conditional) obj;
+
+        return new EqualsBuilder()
+                .append(transform, conditional.transform)
+                .append(predicate, conditional.predicate)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(31, 83)
+                .append(transform)
+                .append(predicate)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append(transform)
+                .append(predicate)
+                .toString();
+    }
 }

@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +58,7 @@ public class IfTest extends OperationTest {
         final If ifOp = new If.Builder<>()
                 .input(input)
                 .condition(true)
+                .conditional(new Conditional())
                 .then(new GetElements.Builder()
                         .input(new EntitySeed("A"))
                         .build())
@@ -101,7 +103,7 @@ public class IfTest extends OperationTest {
                 .otherwise(opChain)
                 .build();
 
-        final Collection<Operation> expectedOps = Lists.newArrayList(OperationChain.wrap(getElements), opChain);
+        final Collection<Operation> expectedOps = Lists.newArrayList(new OperationChain<>(), OperationChain.wrap(getElements), opChain);
 
         // When
         final Collection<Operation> result = ifOp.getOperations();
@@ -126,7 +128,7 @@ public class IfTest extends OperationTest {
                 .condition(false)
                 .build();
 
-        final Collection<Operation> opList = Lists.newArrayList(getElements, opChain);
+        final Collection<Operation> opList = Lists.newArrayList(new OperationChain<>(), getElements, opChain);
 
         // When
         ifOp.updateOperations(opList);
@@ -152,7 +154,7 @@ public class IfTest extends OperationTest {
             ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Unable to update operations - there are not enough operations to set \"then\""));
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", e.getMessage());
         }
     }
 
@@ -174,7 +176,7 @@ public class IfTest extends OperationTest {
             ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Unable to update operations - there are not enough operations to set \"otherwise\""));
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", e.getMessage());
         }
     }
 
@@ -192,17 +194,17 @@ public class IfTest extends OperationTest {
         final If<Object, Object> ifOp = new If.Builder<>()
                 .build();
 
-        final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit);
+        final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit, limit);
 
         // When / Then
         try {
             ifOp.updateOperations(opList);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Unable to update operations - there are too many operations: 3"));
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 4 operations", e.getMessage());
         }
     }
-    
+
     @Test
     public void testShallowClone() {
         // Given

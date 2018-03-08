@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -53,20 +54,15 @@ import java.util.Map;
  *
  * @see If.Builder
  */
+@Since("1.4.0")
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
-public class If<I, O> implements InputOutput<I, O>,
-        Operations {
-
+public class If<I, O> implements InputOutput<I, O>, Operations {
     private I input;
-    private Map<String, String> options;
     private Boolean condition;
+    private Conditional conditional;
     private Operation then;
     private Operation otherwise;
-
-    private Conditional conditional;
-
-    public If() {
-    }
+    private Map<String, String> options;
 
     @Override
     public I getInput() {
@@ -88,6 +84,7 @@ public class If<I, O> implements InputOutput<I, O>,
         return new If.Builder<I, O>()
                 .input(input)
                 .condition(condition)
+                .conditional(conditional)
                 .then(then)
                 .otherwise(otherwise)
                 .options(options)
@@ -108,15 +105,21 @@ public class If<I, O> implements InputOutput<I, O>,
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();
 
-        if (null != conditional && null != conditional.getTransform()) {
+        if (null == conditional || null == conditional.getTransform()) {
+            ops.add(new OperationChain());
+        } else {
             ops.add(OperationChain.wrap(conditional.getTransform()));
         }
 
-        if (null != then) {
+        if (null == then) {
+            ops.add(new OperationChain());
+        } else {
             ops.add(OperationChain.wrap(then));
         }
 
-        if (null != otherwise) {
+        if (null == otherwise) {
+            ops.add(new OperationChain());
+        } else {
             ops.add(OperationChain.wrap(otherwise));
         }
 
@@ -125,32 +128,23 @@ public class If<I, O> implements InputOutput<I, O>,
 
     @Override
     public void updateOperations(final Collection operations) {
+        if (null == operations || 3 != operations.size()) {
+            throw new IllegalArgumentException("Unable to update operations - exactly 3 operations are required. Received " + (null != operations ? operations.size() : 0) + " operations");
+        }
+
         final Iterator<Operation> itr = operations.iterator();
-
-        if (null != conditional && null == conditional.getTransform()) {
-            if (!itr.hasNext()) {
-                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"conditional#transform\"");
+        final Operation transform = itr.next();
+        if (null == conditional) {
+            final boolean hasTransform = !(transform instanceof Operations) || !((Operations) transform).getOperations().isEmpty();
+            if (hasTransform) {
+                conditional = new Conditional();
+                conditional.setTransform(transform);
             }
-            conditional.setTransform(itr.next());
+        } else {
+            conditional.setTransform(transform);
         }
-
-        if (null == then) {
-            if (!itr.hasNext()) {
-                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"then\"");
-            }
-            then = itr.next();
-        }
-
-        if (null == otherwise) {
-            if (!itr.hasNext()) {
-                throw new IllegalArgumentException("Unable to update operations - there are not enough operations to set \"otherwise\"");
-            }
-            otherwise = itr.next();
-        }
-
-        if (itr.hasNext()) {
-            throw new IllegalArgumentException("Unable to update operations - there are too many operations: " + operations.size());
-        }
+        then = itr.next();
+        otherwise = itr.next();
     }
 
     public Boolean getCondition() {
@@ -198,30 +192,36 @@ public class If<I, O> implements InputOutput<I, O>,
         final If filter = (If) obj;
 
         return new EqualsBuilder()
+                .append(input, filter.input)
                 .append(condition, filter.condition)
                 .append(conditional, filter.conditional)
                 .append(then, filter.then)
                 .append(otherwise, filter.otherwise)
+                .append(options, filter.options)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(31, 83)
+                .append(input)
                 .append(condition)
                 .append(conditional)
                 .append(then)
                 .append(otherwise)
+                .append(options)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append(input)
                 .append(condition)
                 .append(conditional)
                 .append(then)
                 .append(otherwise)
+                .append(options)
                 .toString();
     }
 

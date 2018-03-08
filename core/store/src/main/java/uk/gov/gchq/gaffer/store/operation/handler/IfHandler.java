@@ -37,26 +37,24 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
         boolean computedCondition;
 
         if (null == operation.getCondition()) {
-            final Object intermediate;
-
-            if (null != operation.getConditional() && null == operation.getConditional().getTransform()) {
-                intermediate = input;
+            if (null == operation.getConditional() || null == operation.getConditional().getPredicate()) {
+                computedCondition = false;
             } else {
-                final Operation transform = operation.getConditional().getTransform();
-                updateOperationInput(transform, input);
-                intermediate = getResultsOrNull(transform, context, store);
-
-                if (null == intermediate) {
-                    throw new OperationException("Conditional transform produced a null output");
+                final Object intermediate;
+                if (null == operation.getConditional().getTransform()) {
+                    intermediate = input;
+                } else {
+                    final Operation transform = operation.getConditional().getTransform();
+                    updateOperationInput(transform, input);
+                    intermediate = getResultsOrNull(transform, context, store);
                 }
-            }
-
-            try {
-                computedCondition = null != operation.getConditional().getPredicate()
-                        && operation.getConditional().getPredicate().test(intermediate);
-            } catch (final ClassCastException e) {
-                throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
-                        + "' cannot accept an input of type '" + intermediate.getClass().getSimpleName());
+                try {
+                    computedCondition = operation.getConditional().getPredicate().test(intermediate);
+                } catch (final ClassCastException e) {
+                    final String inputType = null != intermediate ? intermediate.getClass().getSimpleName() : "null";
+                    throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
+                            + "' cannot accept an input of type '" + inputType);
+                }
             }
         } else {
             computedCondition = operation.getCondition();
