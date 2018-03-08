@@ -31,9 +31,20 @@ import java.util.function.Predicate;
  */
 @JsonPropertyOrder(value = {"transform", "predicate"}, alphabetic = true)
 public class Conditional {
-
-    private Operation transform;
     private Predicate predicate;
+    private Operation transform;
+
+    public Conditional() {
+    }
+
+    public Conditional(final Predicate predicate) {
+        this.predicate = predicate;
+    }
+
+    public Conditional(final Predicate predicate, final Operation transform) {
+        this.predicate = predicate;
+        this.transform = transform;
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Operation getTransform() {

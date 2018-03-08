@@ -47,7 +47,6 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -58,7 +57,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
     private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
@@ -345,6 +343,11 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         Operation count = new Count<>();
         Operation countGroups = new CountGroups();
         Operation getElements = new GetElements();
+        If ifOp = new If.Builder<>()
+                .conditional(new Conditional(new Exists(), new GetElements()))
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
         Operation getAllElements = new GetAllElements();
         Operation limit = new Limit<>();
 
@@ -354,6 +357,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .first(getElements)
                         .then(getAllElements)
                         .build())
+                .then(ifOp)
                 .build();
 
         // When
@@ -374,7 +378,12 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .then(limit)
                         .then(validate)
                         .build())
-                .then(count)
+                .then(new If.Builder<>()
+                        .conditional(new Conditional(new Exists(), new OperationChain<>(new CountGroups(), new GetElements())))
+                        .then(new OperationChain<>(new CountGroups(), new GetElements()))
+                        .otherwise(new OperationChain<>(new GetAllElements(), new Limit<>(), new Validate()))
+                        .build())
+                .then(new Count())
                 .build();
         JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
