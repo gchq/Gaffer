@@ -35,12 +35,10 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchema;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;

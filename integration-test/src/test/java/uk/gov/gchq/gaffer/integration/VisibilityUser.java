@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
-import uk.gov.gchq.gaffer.store.StoreTrait;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

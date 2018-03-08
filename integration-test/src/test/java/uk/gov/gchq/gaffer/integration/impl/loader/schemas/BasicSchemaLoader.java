@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 
 import java.util.HashMap;
 import java.util.Map;
