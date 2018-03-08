@@ -56,7 +56,7 @@ import java.util.Map;
  */
 @Since("1.4.0")
 @JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
-public class If<I, O> implements InputOutput<I, O>, Operations {
+public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
     private I input;
     private Boolean condition;
     private Conditional conditional;
@@ -127,7 +127,7 @@ public class If<I, O> implements InputOutput<I, O>, Operations {
     }
 
     @Override
-    public void updateOperations(final Collection operations) {
+    public void updateOperations(final Collection<Operation> operations) {
         if (null == operations || 3 != operations.size()) {
             throw new IllegalArgumentException("Unable to update operations - exactly 3 operations are required. Received " + (null != operations ? operations.size() : 0) + " operations");
         }
