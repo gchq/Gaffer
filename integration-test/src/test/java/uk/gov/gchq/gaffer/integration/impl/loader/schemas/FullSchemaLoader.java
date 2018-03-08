@@ -57,7 +57,7 @@ public class FullSchemaLoader implements SchemaLoader {
                         .property(TestPropertyNames.PROP_2, 1L)
                         .property(TestPropertyNames.PROP_3, "1")
                         .property(TestPropertyNames.PROP_4, freqMap)
-                        .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
+                        .property(TestPropertyNames.PROP_5, "property")
                         .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
                         .property(TestPropertyNames.TIMESTAMP, 1L)
                         .property(TestPropertyNames.VISIBILITY, "public")
@@ -74,7 +74,7 @@ public class FullSchemaLoader implements SchemaLoader {
                         .property(TestPropertyNames.PROP_2, 1L)
                         .property(TestPropertyNames.PROP_3, "1")
                         .property(TestPropertyNames.PROP_4, freqMap)
-                        .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
+                        .property(TestPropertyNames.PROP_5, "property")
                         .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
                         .property(TestPropertyNames.TIMESTAMP, 1L)
                         .property(TestPropertyNames.VISIBILITY, "private")
@@ -92,7 +92,7 @@ public class FullSchemaLoader implements SchemaLoader {
                     .property(TestPropertyNames.PROP_2, 1L)
                     .property(TestPropertyNames.PROP_3, "1")
                     .property(TestPropertyNames.PROP_4, freqMap)
-                    .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
+                    .property(TestPropertyNames.PROP_5, "property")
                     .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
                     .property(TestPropertyNames.TIMESTAMP, 1L)
                     .property(TestPropertyNames.VISIBILITY, "public")
@@ -109,7 +109,7 @@ public class FullSchemaLoader implements SchemaLoader {
                     .property(TestPropertyNames.PROP_2, 1L)
                     .property(TestPropertyNames.PROP_3, "1")
                     .property(TestPropertyNames.PROP_4, freqMap)
-                    .property(TestPropertyNames.PROP_5, Sets.newHashSet("property"))
+                    .property(TestPropertyNames.PROP_5, "property")
                     .property(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)))
                     .property(TestPropertyNames.TIMESTAMP, 1L)
                     .property(TestPropertyNames.VISIBILITY, "private")
@@ -134,7 +134,7 @@ public class FullSchemaLoader implements SchemaLoader {
                 entity.putProperty(TestPropertyNames.PROP_2, 1L);
                 entity.putProperty(TestPropertyNames.PROP_3, "1");
                 entity.putProperty(TestPropertyNames.PROP_4, freqMap);
-                entity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
+                entity.putProperty(TestPropertyNames.PROP_5, "property");
                 entity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
                 entity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
                 entity.putProperty(TestPropertyNames.VISIBILITY, "public");
@@ -147,7 +147,7 @@ public class FullSchemaLoader implements SchemaLoader {
             secondEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             secondEntity.putProperty(TestPropertyNames.PROP_3, "1");
             secondEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            secondEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
+            secondEntity.putProperty(TestPropertyNames.PROP_5, "property");
             secondEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
             secondEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             secondEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
@@ -159,7 +159,7 @@ public class FullSchemaLoader implements SchemaLoader {
             thirdEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             thirdEntity.putProperty(TestPropertyNames.PROP_3, "1");
             thirdEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            thirdEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
+            thirdEntity.putProperty(TestPropertyNames.PROP_5, "property");
             thirdEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
             thirdEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             thirdEntity.putProperty(TestPropertyNames.VISIBILITY, "private");
@@ -171,7 +171,7 @@ public class FullSchemaLoader implements SchemaLoader {
             fourthEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             fourthEntity.putProperty(TestPropertyNames.PROP_3, "1");
             fourthEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            fourthEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
+            fourthEntity.putProperty(TestPropertyNames.PROP_5, "property");
             fourthEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
             fourthEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             fourthEntity.putProperty(TestPropertyNames.VISIBILITY, "public");
@@ -183,7 +183,7 @@ public class FullSchemaLoader implements SchemaLoader {
             fifthEntity.putProperty(TestPropertyNames.PROP_2, 1L);
             fifthEntity.putProperty(TestPropertyNames.PROP_3, "1");
             fifthEntity.putProperty(TestPropertyNames.PROP_4, freqMap);
-            fifthEntity.putProperty(TestPropertyNames.PROP_5, Sets.newHashSet("property"));
+            fifthEntity.putProperty(TestPropertyNames.PROP_5, "property");
             fifthEntity.putProperty(TestPropertyNames.DATE, Date.from(Instant.ofEpochMilli(1)));
             fifthEntity.putProperty(TestPropertyNames.TIMESTAMP, 1L);
             fifthEntity.putProperty(TestPropertyNames.VISIBILITY, "private");

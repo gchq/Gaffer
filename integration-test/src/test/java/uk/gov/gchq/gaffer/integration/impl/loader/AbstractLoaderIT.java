@@ -429,7 +429,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
         // Then
         resultTester.accept(results);
-
     }
 
     protected abstract void configure(final Iterable<? extends Element> elements) throws Exception;

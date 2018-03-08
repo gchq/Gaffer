@@ -19,17 +19,21 @@ package uk.gov.gchq.gaffer.store;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.SetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class TestTypes {
     // Type Names
@@ -75,10 +79,9 @@ public class TestTypes {
             .aggregateFunction(new FreqMapAggregator())
             .build();
 
-    public static final TypeDefinition SET_TYPE = new TypeDefinition.Builder()
-            .clazz(Set.class)
-            .serialiser(new SetSerialiser(new StringSerialiser()))
-            .aggregateFunction(new CollectionConcat<>())
+    public static final TypeDefinition SET_STRING_TYPE = new TypeDefinition.Builder()
+            .clazz(String.class)
+            .aggregateFunction(new StringDeduplicateConcat())
             .build();
 
     public static final TypeDefinition DATE_TYPE = new TypeDefinition.Builder()

@@ -31,7 +31,7 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DATE_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.FREQMAP_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.INTEGER_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.LONG_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.SET_TYPE;
+import static uk.gov.gchq.gaffer.store.TestTypes.SET_STRING_TYPE;
 import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
 
 /**
@@ -131,7 +131,7 @@ public enum TestSchema {
                     .type(TestTypes.PROP_LONG, LONG_TYPE)
                     .type(TestTypes.PROP_STRING, STRING_TYPE)
                     .type(TestTypes.PROP_MAP, FREQMAP_TYPE)
-                    .type(TestTypes.PROP_SET_STRING, SET_TYPE)
+                    .type(TestTypes.PROP_SET_STRING, SET_STRING_TYPE)
                     .type(TestTypes.PROP_DATE, DATE_TYPE)
                     .type(TestTypes.TIMESTAMP, LONG_TYPE)
                     .type(TestTypes.VISIBILITY, STRING_TYPE)

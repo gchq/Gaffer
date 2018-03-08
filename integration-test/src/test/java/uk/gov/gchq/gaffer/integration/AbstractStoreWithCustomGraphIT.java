@@ -227,6 +227,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .storeProperties(getStoreProperties())
                 .addSchema(schema)
                 .build();
+
+        validateTraits();
+        applyVisibilityUser();
     }
 
     public void createGraph(final GraphConfig config) {
@@ -236,6 +239,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(createSchema())
                 .addSchema(getStoreSchema())
                 .build();
+
+        validateTraits();
+        applyVisibilityUser();
     }
 
     public void createGraph(final Schema schema, final StoreProperties properties) {
@@ -246,6 +252,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .storeProperties(properties)
                 .addSchema(schema)
                 .build();
+
+        validateTraits();
+        applyVisibilityUser();
     }
 
     public void createGraph(final StoreProperties properties) {
@@ -257,6 +266,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(createSchema())
                 .addSchema(getStoreSchema())
                 .build();
+
+        validateTraits();
+        applyVisibilityUser();
     }
 
     protected Graph.Builder getGraphBuilder() {
