@@ -26,6 +26,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
@@ -36,6 +37,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * A {@code If} is an {@link Operation} which will execute one of two Operations,
@@ -56,24 +58,13 @@ import java.util.Map;
  * @see If.Builder
  */
 @Since("1.4.0")
-@JsonPropertyOrder(value = {"input", "condition", "predicate", "then", "otherwise", "options"}, alphabetic = true)
-public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
-    private I input;
+@JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
+public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
     private Boolean condition;
     private Conditional conditional;
     private Operation then;
     private Operation otherwise;
     private Map<String, String> options;
-
-    @Override
-    public I getInput() {
-        return input;
-    }
-
-    @Override
-    public void setInput(final I input) {
-        this.input = input;
-    }
 
     @Override
     public TypeReference<O> getOutputTypeReference() {
@@ -83,7 +74,7 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
     @Override
     public If<I, O> shallowClone() throws CloneFailedException {
         return new If.Builder<I, O>()
-                .input(input)
+                .input(getInput())
                 .condition(condition)
                 .conditional(conditional)
                 .then(then)
@@ -185,7 +176,7 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
         final If filter = (If) obj;
 
         return new EqualsBuilder()
-                .append(input, filter.input)
+                .append(getInput(), filter.getInput())
                 .append(condition, filter.condition)
                 .append(conditional, filter.conditional)
                 .append(then, filter.then)
@@ -197,7 +188,7 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(31, 83)
-                .append(input)
+                .append(getInput())
                 .append(condition)
                 .append(conditional)
                 .append(then)
@@ -209,7 +200,7 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append(input)
+                .append(getInput())
                 .append(condition)
                 .append(conditional)
                 .append(then)
@@ -241,6 +232,16 @@ public class If<I, O> implements InputOutput<I, O>, Operations<Operation> {
 
         public Builder<I, O> conditional(final Conditional conditional) {
             _getOp().setConditional(conditional);
+            return _self();
+        }
+
+        public Builder<I, O> conditional(final Predicate predicate) {
+            _getOp().setConditional(new Conditional(predicate));
+            return _self();
+        }
+
+        public Builder<I, O> conditional(final Predicate predicate, final Operation transform) {
+            _getOp().setConditional(new Conditional(predicate, transform));
             return _self();
         }
 

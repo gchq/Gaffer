@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -26,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -38,7 +41,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class IfTest extends OperationTest {
+public class IfTest extends OperationTest<If> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -71,18 +74,6 @@ public class IfTest extends OperationTest {
         // Then
         assertNotSame(ifOp, clone);
         assertEquals(input, clone.getInput());
-    }
-
-    @Override
-    protected If<Object, Object> getTestObject() {
-        return new If.Builder<>()
-                .input("testInput")
-                .condition(true)
-                .then(new GetElements.Builder()
-                        .input(new EntitySeed("A"))
-                        .build())
-                .otherwise(new GetAllElements())
-                .build();
     }
 
     @Test
@@ -223,5 +214,55 @@ public class IfTest extends OperationTest {
         assertNotNull(clone);
         assertNotSame(clone, ifOp);
         assertEquals(input, clone.getInput());
+    }
+
+    @Test
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final If op = new If.Builder<>()
+                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
+                .condition(true)
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
+
+        // When
+        final byte[] json = toJson(op);
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
+                "  \"input\" : [ {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"vertex\" : \"1\"%n" +
+                "  }, {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"vertex\" : \"2\"%n" +
+                "  } ],%n" +
+                "  \"condition\" : true,%n" +
+                "  \"then\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"%n" +
+                "  },%n" +
+                "  \"otherwise\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"%n" +
+                "  }%n" +
+                "}"), StringUtil.toString(json));
+
+        final If deserialisedObj = fromJson(json);
+
+        // Then
+        assertNotNull(deserialisedObj);
+        assertEquals(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")), Lists.newArrayList((Iterable) deserialisedObj.getInput()));
+    }
+
+    @Override
+    protected If<Object, Object> getTestObject() {
+        return new If.Builder<>()
+                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
+                .condition(true)
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
     }
 }
