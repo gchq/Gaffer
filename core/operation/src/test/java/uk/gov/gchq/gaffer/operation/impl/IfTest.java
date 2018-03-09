@@ -256,6 +256,41 @@ public class IfTest extends OperationTest<If> {
         assertEquals(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")), Lists.newArrayList((Iterable) deserialisedObj.getInput()));
     }
 
+    @Test
+    public void shouldJsonSerialiseAndDeserialiseWithSingleValue() {
+        // Given
+        final If op = new If.Builder<>()
+                .input(new EntitySeed("1"))
+                .condition(true)
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
+
+        // When
+        final byte[] json = toJson(op);
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
+                "  \"input\" :  {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"vertex\" : \"1\"%n" +
+                "  }, %n" +
+                "  \"condition\" : true,%n" +
+                "  \"then\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"%n" +
+                "  },%n" +
+                "  \"otherwise\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"%n" +
+                "  }%n" +
+                "}"), StringUtil.toString(json));
+
+        final If deserialisedObj = fromJson(json);
+
+        // Then
+        assertNotNull(deserialisedObj);
+        assertEquals(new EntitySeed("1"), deserialisedObj.getInput());
+    }
+
     @Override
     protected If<Object, Object> getTestObject() {
         return new If.Builder<>()

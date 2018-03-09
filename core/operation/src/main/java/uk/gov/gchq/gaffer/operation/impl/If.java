@@ -64,12 +64,34 @@ import java.util.function.Predicate;
  */
 @Since("1.4.0")
 @JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
-public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
+public class If<I, O> implements InputOutput<I, O>, GenericInput<I>, Operations<Operation> {
+    private I input;
+    private MultiInputWrapper multiInputWrapper;
     private Boolean condition;
     private Conditional conditional;
     private Operation then;
     private Operation otherwise;
     private Map<String, String> options;
+
+    @Override
+    public I _getInput() {
+        return input;
+    }
+
+    @Override
+    public void _setInput(final I input) {
+        this.input = input;
+    }
+
+    @Override
+    public MultiInputWrapper _getMultiInputWrapper() {
+        return multiInputWrapper;
+    }
+
+    @Override
+    public void _setMultiInputWrapper(final MultiInputWrapper multiInputWrapper) {
+        this.multiInputWrapper = multiInputWrapper;
+    }
 
     @Override
     public TypeReference<O> getOutputTypeReference() {

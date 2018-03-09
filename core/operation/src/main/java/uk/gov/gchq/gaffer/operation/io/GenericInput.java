@@ -31,68 +31,49 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Collection;
 import java.util.Iterator;
 
-public abstract class GenericInput<I> implements Input<I> {
-    private I input;
+/**
+ * A {@code GenericInput} is an {@link Input} operation that has a generic input
+ * type. This interface will help to serialise and deserialise the generic input
+ * into json, ensuring it will work with singular and multiple inputs.
+ *
+ * @param <I> the {@link Input} type.
+ */
+public interface GenericInput<I> extends Input<I> {
+    @JsonIgnore
+    I _getInput();
 
-    // This tricks jackson into using both Object input and Object[] input for serialising
-    @JsonUnwrapped
-    private MultiInputWrapper multiInputWrapper = new MultiInputWrapper();
+    @JsonIgnore
+    void _setInput(final I input);
 
-    public I getInput() {
-        return input;
+    @JsonIgnore
+    MultiInputWrapper _getMultiInputWrapper();
+
+    @JsonIgnore
+    void _setMultiInputWrapper(final MultiInputWrapper multiInputWrapper);
+
+    default I getInput() {
+        return _getInput();
     }
 
-    public void setInput(final I input) {
-        this.input = input;
-        updateInputArrayWrapper();
-    }
-
-    public void updateInputArrayWrapper() {
-        if (null == this.multiInputWrapper) {
-            this.multiInputWrapper = new MultiInputWrapper();
-        }
-        this.multiInputWrapper.setInput(input);
+    default void setInput(final I input) {
+        getMultiInputWrapper().setInput(input);
+        _setInput(input);
     }
 
     // -------- JSON getters/setters --------
 
     @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("input")
-    Object getInputForJson() {
-        if (multiInputWrapper.hasMultiInput()) {
+    default Object _getJsonInput() {
+        if (getMultiInputWrapper().hasMultiInput()) {
             return null;
         }
-        return input;
+        return _getInput();
     }
 
     @JsonTypeInfo(use = Id.NONE)
     @JsonSetter("input")
-    void setInputForJson(final I input) throws SerialisationException {
-        final byte[] wrapperJson = JSONSerialiser.serialise(new InputWrapperNoTypeInfo(input));
-        boolean isSingular = isSingular(input);
-        if (isSingular) {
-            try {
-                setInput((I) JSONSerialiser.deserialise(wrapperJson, InputWrapper.class).getInput());
-            } catch (final SerialisationException e) {
-                // Try assuming it is an multi input
-                isSingular = false;
-            }
-        }
-        if (!isSingular) {
-            try {
-                setInput((I) JSONSerialiser.deserialise(wrapperJson, MultiInputWrapper.class).getInputAsIterable());
-            } catch (final SerialisationException e2) {
-                // Just use the original input
-                setInput(input);
-            }
-        }
-    }
-
-    /**
-     * @param input input to check
-     * @return true if the input MIGHT be singular - this is not guaranteed.
-     */
-    private boolean isSingular(final I input) {
+    default void _setJsonInput(final I input) throws SerialisationException {
         // Sometimes json type info is stored in an array of size 2.
         // In that case we cannot determine if the input is multi or not.
         boolean isSingular = true;
@@ -116,33 +97,62 @@ public abstract class GenericInput<I> implements Input<I> {
                 CloseableUtil.close(itr);
             }
         }
-        return isSingular;
+
+        final byte[] wrapperJson = JSONSerialiser.serialise(new InputWrapperNoTypeInfo(input));
+        I resultInput = input;
+        if (isSingular) {
+            try {
+                resultInput = (I) JSONSerialiser.deserialise(wrapperJson, InputWrapper.class).getInput();
+            } catch (final SerialisationException e) {
+                // Try assuming it is an multi input
+                isSingular = false;
+            }
+        }
+        if (!isSingular) {
+            try {
+                resultInput = (I) JSONSerialiser.deserialise(wrapperJson, MultiInputWrapper.class).getInputAsIterable();
+            } catch (final SerialisationException e2) {
+                // Just use the original input
+            }
+        }
+
+        setInput(resultInput);
     }
 
-    MultiInputWrapper getMultiInputWrapper() {
-        return multiInputWrapper;
+    @JsonUnwrapped
+    default MultiInputWrapper getMultiInputWrapper() {
+        MultiInputWrapper multiInputMapper = _getMultiInputWrapper();
+        if (null == multiInputMapper) {
+            multiInputMapper = new MultiInputWrapper();
+            _setMultiInputWrapper(multiInputMapper);
+        }
+        return multiInputMapper;
     }
 
-    void setMultiInputWrapper(final MultiInputWrapper multiInputWrapper) {
-        this.multiInputWrapper = multiInputWrapper;
-        updateInputArrayWrapper();
+    @JsonUnwrapped
+    default void setMultiInputWrapper(final MultiInputWrapper multiInputWrapper) {
+        final MultiInputWrapper newMapper = null == multiInputWrapper ? new MultiInputWrapper() : multiInputWrapper;
+        newMapper.setInput(_getInput());
+        _setMultiInputWrapper(newMapper);
     }
 
-    public static class InputWrapper {
+    // --------------------------------------
+
+    class InputWrapper {
         private Object input;
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public Object getInput() {
             return input;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public void setInput(final Object input) {
             this.input = input;
         }
     }
 
-    public static class MultiInputWrapper {
+    class MultiInputWrapper {
         private Object[] inputArray;
         private Iterable inputIterable;
 
@@ -151,7 +161,7 @@ public abstract class GenericInput<I> implements Input<I> {
             return null != inputArray || null != inputIterable;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         @JsonGetter("input")
         public Object[] getInputAsArray() {
             if (null == inputArray && null != inputIterable) {
@@ -168,7 +178,7 @@ public abstract class GenericInput<I> implements Input<I> {
             return inputIterable;
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         @JsonSetter("input")
         public void setInputFromArray(final Object[] input) {
             this.inputArray = input;
@@ -195,7 +205,7 @@ public abstract class GenericInput<I> implements Input<I> {
         }
     }
 
-    public static class InputWrapperNoTypeInfo {
+    class InputWrapperNoTypeInfo {
         private Object input;
 
         public InputWrapperNoTypeInfo() {
