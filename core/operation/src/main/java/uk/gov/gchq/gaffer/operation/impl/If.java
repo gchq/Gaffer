@@ -40,20 +40,25 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
+ * <p>
  * A {@code If} is an {@link Operation} which will execute one of two Operations,
  * based on the result of testing an input Object against a provided {@link java.util.function.Predicate}.
+ * </p>
  * <p>
- * <p>This {@code Predicate} can also be configured with an {@link Conditional},
+ * This {@code Predicate} can also be configured with an {@link Conditional},
  * which simply wraps an {@code Operation} and a {@code Predicate}.
  * This enables pre-predicate transformation of the input,
  * which allows properties other than the input object to be passed to the predicate,
- * whilst preserving the initial input.</p>
+ * whilst preserving the initial input.
+ * </p>
  * <p>
- * <p>As an example, this allows you to build an {@link Operation}
+ * As an example, this allows you to build an {@link Operation}
  * which extracts a property from the input, passes it to the predicate,
- * then the untouched original input is passed on to the operation determined by the predicate test. </p>
+ * then the untouched original input is passed on to the operation determined by the predicate test.
+ * </p>
  * <p>
- * <p>A simple boolean, or anything that resolves to a boolean, can also be used to determine which Operation to execute. </p>
+ * A simple boolean, or anything that resolves to a boolean, can also be used to determine which Operation to execute.
+ * </p>
  *
  * @see If.Builder
  */
