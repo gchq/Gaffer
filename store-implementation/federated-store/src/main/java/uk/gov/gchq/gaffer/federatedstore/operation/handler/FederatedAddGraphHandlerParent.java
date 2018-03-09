@@ -16,19 +16,23 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * A handler for operation that addGraph to the FederatedStore.
+ * A handler for operations that addGraph to the FederatedStore.
  *
  * @see OperationHandler
  * @see FederatedStore
@@ -51,10 +55,14 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
 
         final Graph graph;
         try {
-            graph = _makeGraph(operation, store);
+            graph = GraphDelegate.createGraph(store, operation.getGraphId(),
+                    operation.getSchema(), operation.getStoreProperties(),
+                    operation.getParentSchemaIds(), operation.getParentPropertiesId());
         } catch (final Exception e) {
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
+
+        addGenericHandler((FederatedStore) store, graph);
 
         try {
             ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
@@ -66,7 +74,26 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         return null;
     }
 
-    public Graph _makeGraph(final OP operation, final Store store) {
+    protected void addGenericHandler(final FederatedStore store, final Graph graph) {
+        for (final Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
+            //some operations are not suitable for FederatedOperationGenericOutputHandler
+            if (Output.class.isAssignableFrom(supportedOperation) && !store.isSupported(supportedOperation)) {
+                Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
+
+                Class outputClass;
+                try {
+                    outputClass = supportedOutputOperation.newInstance().getOutputClass();
+                } catch (final InstantiationException | IllegalAccessException e) {
+                    continue;
+                }
+                if (CloseableIterable.class.equals(outputClass)) {
+                    store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
+                }
+            }
+        }
+    }
+
+    protected Graph _makeGraph(final OP operation, final Store store) {
         final Graph graph;
         graph = GraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -45,6 +47,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class RowIDAggregator extends WrappingIterator implements OptionDescriber {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RowIDAggregator.class);
 
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
     protected Schema schema = null;
@@ -110,20 +113,26 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema", e);
         }
+        LOGGER.debug("Initialising RowIDAggregator with schema {}", schema);
+
+        final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             elementConverter = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .forName(elementConverterClass)
                     .asSubclass(AccumuloElementConverter.class)
                     .getConstructor(Schema.class)
                     .newInstance(schema);
+            LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+            throw new AggregationException("Failed to create element converter of the class name provided ("
+                    + elementConverterClass + ")", e);
         }
 
         group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
+        LOGGER.debug("group is set to {}", group);
         aggregator = schema.getElement(group).getFullAggregator();
+        LOGGER.debug("Aggregator is set to {}", aggregator);
     }
 
     @Override

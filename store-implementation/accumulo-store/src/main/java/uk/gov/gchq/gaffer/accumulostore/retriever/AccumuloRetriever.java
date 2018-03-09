@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -41,6 +43,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
 public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements CloseableIterable<O_ITEM> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloRetriever.class);
+
     protected CloseableIterator<O_ITEM> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
@@ -115,20 +119,26 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
         final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
                 authorisations, store.getProperties().getThreadsForBatchScanner());
+        LOGGER.debug("Initialised BatchScanner on table {} with authorisations {} using {} threads",
+                store.getTableName(), authorisations, store.getProperties().getThreadsForBatchScanner());
         if (null != iteratorSettings) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
                 if (null != iteratorSetting) {
                     scanner.addScanIterator(iteratorSetting);
+                    LOGGER.debug("Added iterator to BatchScanner: {}", iteratorSetting);
                 }
             }
         }
         scanner.setRanges(ranges);
+        LOGGER.debug("Added {} ranges to BatchScanner", ranges.size());
 
         for (final String col : operation.getView().getEdgeGroups()) {
             scanner.fetchColumnFamily(new Text(col));
+            LOGGER.debug("Added {} as a column family to fetch", col);
         }
         for (final String col : operation.getView().getEntityGroups()) {
             scanner.fetchColumnFamily(new Text(col));
+            LOGGER.debug("Added {} as a column family to fetch", col);
         }
         return scanner;
     }
