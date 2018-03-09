@@ -176,48 +176,55 @@ public class AddGraph implements FederatedOperation {
         return isPublic;
     }
 
-    public static class Builder extends BaseBuilder<AddGraph, Builder> {
-        public Builder() {
-            super(new AddGraph());
+    public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+
+        protected GraphBuilder(final OP addGraph) {
+            super(addGraph);
         }
 
-        public Builder graphId(final String graphId) {
+        public B graphId(final String graphId) {
             _getOp().setGraphId(graphId);
-            return this;
+            return _self();
         }
 
-        public Builder storeProperties(final StoreProperties storeProperties) {
+        public B storeProperties(final StoreProperties storeProperties) {
             _getOp().setStoreProperties(storeProperties);
-            return this;
+            return _self();
         }
 
-        public Builder schema(final Schema schema) {
+        public B schema(final Schema schema) {
             _getOp().setSchema(schema);
             return _self();
         }
 
-        public Builder parentPropertiesId(final String parentPropertiesId) {
+        public B parentPropertiesId(final String parentPropertiesId) {
             this._getOp().setParentPropertiesId(parentPropertiesId);
             return _self();
         }
 
-        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+        public B parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }
 
-        public Builder isPublic(final boolean isPublic) {
+        public B isPublic(final boolean isPublic) {
             _getOp().setIsPublic(isPublic);
             return _self();
         }
 
-        public Builder graphAuths(final String... graphAuths) {
+        public B graphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
                 _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
             return _self();
+        }
+    }
+
+    public static class Builder extends GraphBuilder<AddGraph, Builder> {
+        public Builder() {
+            super(new AddGraph());
         }
     }
 }
