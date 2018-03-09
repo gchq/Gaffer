@@ -38,14 +38,6 @@ public class ExtractProperty extends KorypheFunction<Element, Object> {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
     @Override
     public Object apply(final Element element) {
         return null != element ? element.getProperty(name) : null;
@@ -82,5 +74,13 @@ public class ExtractProperty extends KorypheFunction<Element, Object> {
         return new ToStringBuilder(this)
                 .append("name", name)
                 .toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 }

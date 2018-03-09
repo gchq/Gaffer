@@ -40,14 +40,6 @@ public class ExtractId extends KorypheFunction<Element, Object> {
         this.id = id;
     }
 
-    public IdentifierType getId() {
-        return id;
-    }
-
-    public void setId(final IdentifierType id) {
-        this.id = id;
-    }
-
     @Override
     public Object apply(final Element element) {
         return null != element ? element.getIdentifier(id) : null;
@@ -84,5 +76,13 @@ public class ExtractId extends KorypheFunction<Element, Object> {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .toString();
+    }
+
+    public IdentifierType getId() {
+        return id;
+    }
+
+    public void setId(final IdentifierType id) {
+        this.id = id;
     }
 }
