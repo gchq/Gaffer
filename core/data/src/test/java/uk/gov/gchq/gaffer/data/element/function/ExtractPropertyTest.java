@@ -17,14 +17,20 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
+
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExtractPropertyTest {
+public class ExtractPropertyTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {
@@ -83,5 +89,32 @@ public class ExtractPropertyTest {
 
         // Then
         assertEquals(propValue, result);
+    }
+
+    @Override
+    protected ExtractProperty getInstance() {
+        return new ExtractProperty("count");
+    }
+
+    @Override
+    protected Class<? extends Function> getFunctionClass() {
+        return ExtractProperty.class;
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        // Given
+        final ExtractProperty function = getInstance();
+
+        // When
+        final byte[] json = JSONSerialiser.serialise(function);
+        final ExtractProperty deserialisedObj = JSONSerialiser.deserialise(json, ExtractProperty.class);
+
+        // Then
+        JsonAssert.assertEquals(
+                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\"name\":\"count\"}",
+                new String(json)
+        );
+        assertEquals("count", deserialisedObj.getName());
     }
 }

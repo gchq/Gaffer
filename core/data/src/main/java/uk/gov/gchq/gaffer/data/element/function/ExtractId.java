@@ -25,18 +25,18 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
- * An {@code ExtractIdentifier} is a {@link KorypheFunction} for simplifying the process of extracting
+ * An {@code ExtractId} is a {@link KorypheFunction} for simplifying the process of extracting
  * the object associated with a provided {@link IdentifierType}.
  * If the Element is null, this will return null.
  */
 @Since("1.4.0")
-public class ExtractIdentifier extends KorypheFunction<Element, Object> {
+public class ExtractId extends KorypheFunction<Element, Object> {
     private IdentifierType id;
 
-    public ExtractIdentifier() {
+    public ExtractId() {
     }
 
-    public ExtractIdentifier(final IdentifierType id) {
+    public ExtractId(final IdentifierType id) {
         this.id = id;
     }
 
@@ -63,7 +63,7 @@ public class ExtractIdentifier extends KorypheFunction<Element, Object> {
             return false;
         }
 
-        final ExtractIdentifier that = (ExtractIdentifier) obj;
+        final ExtractId that = (ExtractId) obj;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))

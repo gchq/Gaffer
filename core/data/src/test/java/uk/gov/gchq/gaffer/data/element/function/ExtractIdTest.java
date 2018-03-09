@@ -17,20 +17,24 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExtractIdentifierTest {
+public class ExtractIdTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {
         // Given
-        final ExtractIdentifier extractor = new ExtractIdentifier();
+        final ExtractId extractor = new ExtractId();
 
         // When
         final Object result = extractor.apply(null);
@@ -44,7 +48,7 @@ public class ExtractIdentifierTest {
         // Given
         final Element element = mock(Element.class);
 
-        final ExtractIdentifier extractor = new ExtractIdentifier();
+        final ExtractId extractor = new ExtractId();
 
         // When
         final Object result = extractor.apply(element);
@@ -60,7 +64,7 @@ public class ExtractIdentifierTest {
 
         final IdentifierType type = IdentifierType.VERTEX;
 
-        final ExtractIdentifier extractor = new ExtractIdentifier(type);
+        final ExtractId extractor = new ExtractId(type);
 
         // When
         final Object result = extractor.apply(element);
@@ -76,7 +80,7 @@ public class ExtractIdentifierTest {
         final IdentifierType type = IdentifierType.SOURCE;
         final String value = "testSource";
 
-        final ExtractIdentifier extractor = new ExtractIdentifier(type);
+        final ExtractId extractor = new ExtractId(type);
 
         given(element.getIdentifier(type)).willReturn(value);
 
@@ -85,5 +89,32 @@ public class ExtractIdentifierTest {
 
         // Then
         assertEquals(value, result);
+    }
+
+    @Override
+    protected ExtractId getInstance() {
+        return new ExtractId(IdentifierType.SOURCE);
+    }
+
+    @Override
+    protected Class<? extends ExtractId> getFunctionClass() {
+        return ExtractId.class;
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        // Given
+        final ExtractId function = getInstance();
+
+        // When
+        final byte[] json = JSONSerialiser.serialise(function);
+        final ExtractId deserialisedObj = JSONSerialiser.deserialise(json, ExtractId.class);
+
+        // Then
+        JsonAssert.assertEquals(
+                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractId\",\"id\":\"SOURCE\"}",
+                new String(json)
+        );
+        assertEquals(IdentifierType.SOURCE, deserialisedObj.getId());
     }
 }
