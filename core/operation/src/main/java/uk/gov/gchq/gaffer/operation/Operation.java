@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -30,7 +31,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -83,6 +86,9 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
+
+    String UK_GOV_GCHQ_GAFFER = "uk.gov.gchq.gaffer";
+
     /**
      * Operation implementations should ensure a ShallowClone method is implemented.
      * Performs a shallow clone. Creates a new instance and copies the fields across.
@@ -182,7 +188,17 @@ public interface Operation extends Closeable {
      */
     default ValidationResult validate() {
         final ValidationResult result = new ValidationResult();
-        for (final Field field : getClass().getDeclaredFields()) {
+
+        HashSet<Field> fields = Sets.<Field>newHashSet();
+        Class<?> currentClass = this.getClass();
+        String packageName;
+        do {
+            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
+            packageName = currentClass.getPackage().getName();
+        } while (packageName.startsWith(UK_GOV_GCHQ_GAFFER));
+
+        for (final Field field : fields) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
             if (null != annotations && annotations.length > 0) {
                 if (field.isAccessible()) {
