@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +50,6 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
@@ -172,7 +172,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    final public void shouldThrowExceptionNoResults() throws Exception {
+    final public void shouldReturnEmptyIterableWhenNoResults() throws Exception {
         // Given
         final OP op = getExampleOperation();
         op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, TEST_GRAPH_ID);
@@ -190,13 +190,9 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
 
         // When
-        try {
-            getFederatedHandler().doOperation(op, context, mockStore);
-            fail("Exception not thrown");
-        } catch (OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        final O results = getFederatedHandler().doOperation(op, context, mockStore);
 
+        assertEquals(0, Iterables.size((Iterable) results));
     }
 
     @Test

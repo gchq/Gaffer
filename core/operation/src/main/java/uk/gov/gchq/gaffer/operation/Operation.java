@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,12 +191,10 @@ public interface Operation extends Closeable {
 
         HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
-        String packageName;
-        do {
+        while (null!=currentClass) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
-            packageName = currentClass.getPackage().getName();
-        } while (packageName.startsWith(UK_GOV_GCHQ_GAFFER));
+        }
 
         for (final Field field : fields) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);

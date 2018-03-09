@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,6 +137,12 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
             deduplicateUndirectedEdges = true;
         }
+        LOGGER.debug("Initialised ByteEntityRangeElementPropertyFilterIterator with "
+                        + "incomingEdges = {}, outgoingEdges = {}, "
+                        + "directedEdges = {}, unDirectedEdges = {}, "
+                        + "entities = {}, edges = {}, deduplicateUndirectedEdges = {}",
+                incomingEdges, outgoingEdges, directedEdges, unDirectedEdges,
+                entities, edges, deduplicateUndirectedEdges);
     }
 
     @Override
@@ -162,11 +168,16 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
                         "Optional : Set if only directed edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY,
                         "Optional: Set if only undirected edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
-                .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.INCLUDE_EDGES, "Optional: Set if edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES,
+                        "Optional: Set if entities should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY,
+                        "Optional: Set if only incoming edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY,
+                        "Optional: Set if only outgoing edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_EDGES,
+                        "Optional: Set if edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES,
+                        "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

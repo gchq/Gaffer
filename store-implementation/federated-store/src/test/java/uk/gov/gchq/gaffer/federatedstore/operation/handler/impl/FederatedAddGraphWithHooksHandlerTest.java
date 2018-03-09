@@ -87,8 +87,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
-        federatedAddGraphHandler.doOperation(
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -104,7 +104,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .schema(expectedSchema)
@@ -137,8 +137,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertEquals(0, store.getGraphs(testUser, null).size());
 
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
-        federatedAddGraphHandler.doOperation(
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -158,7 +158,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         library.add(EXPECTED_GRAPH_ID_2, expectedSchema, storeProperties);
         store.setGraphLibrary(library);
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .build(),
@@ -191,9 +191,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -203,7 +203,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 store);
 
         try {
-            federatedAddGraphHandler.doOperation(
+            federatedAddGraphWithHooksHandler.doOperation(
                     new AddGraphWithHooks.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
@@ -228,9 +228,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -240,7 +240,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 store);
 
         try {
-            federatedAddGraphHandler.doOperation(
+            federatedAddGraphWithHooksHandler.doOperation(
                     new AddGraphWithHooks.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
@@ -263,9 +263,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -274,7 +274,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new Context(testUser),
                 store);
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -294,10 +294,10 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
-        FederatedAddGraphWithHooksHandler federatedAddGraphHandler = new FederatedAddGraphWithHooksHandler();
+        FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 
         try {
-            federatedAddGraphHandler.doOperation(
+            federatedAddGraphWithHooksHandler.doOperation(
                     new AddGraphWithHooks.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
@@ -310,7 +310,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
             assertEquals(String.format(FederatedAddGraphWithHooksHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties}"), e.getMessage());
         }
 
-        federatedAddGraphHandler.doOperation(
+        federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)

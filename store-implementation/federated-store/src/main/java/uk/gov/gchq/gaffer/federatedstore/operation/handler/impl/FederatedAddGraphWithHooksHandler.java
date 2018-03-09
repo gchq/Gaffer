@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
  */
 public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> {
     @Override
-    public Graph _makeGraph(final AddGraphWithHooks operation, final Store store) {
+    protected Graph _makeGraph(final AddGraphWithHooks operation, final Store store) {
         final Graph graph;
         graph = GraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),

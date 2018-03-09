@@ -28,9 +28,6 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 
 public class AddGraphWithHooks extends AddGraph {
     private GraphHook[] hooks;
-//    @Required
-//    private String graphId;
-
 
     @Override
     public AddGraphWithHooks shallowClone() throws CloneFailedException {
@@ -48,7 +45,7 @@ public class AddGraphWithHooks extends AddGraph {
             builder.graphAuths(getGraphAuths().toArray(new String[getGraphAuths().size()]));
         }
 
-        return (AddGraphWithHooks) builder.build();
+        return builder.build();
     }
 
     public GraphHook[] getHooks() {
@@ -65,7 +62,7 @@ public class AddGraphWithHooks extends AddGraph {
         }
 
         public Builder hooks(final GraphHook... hooks) {
-            ((AddGraphWithHooks) _getOp()).setHooks(hooks);
+            _getOp().setHooks(hooks);
             return _self();
         }
     }

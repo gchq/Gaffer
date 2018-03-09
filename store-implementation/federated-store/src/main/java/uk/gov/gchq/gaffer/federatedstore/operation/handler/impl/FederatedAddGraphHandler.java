@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
 public class FederatedAddGraphHandler extends FederatedAddGraphHandlerParent<AddGraph> {
 
     @Override
-    public Graph _makeGraph(final AddGraph operation, final Store store) {
+    protected Graph _makeGraph(final AddGraph operation, final Store store) {
         final Graph graph;
         graph = GraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),
