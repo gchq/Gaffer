@@ -36,9 +36,10 @@ public class UpdateViewHookSerialiserTest {
     @Test
     public void shouldSerialiseOpAuth() throws Exception {
 
-        UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setWithOpAuth(Sets.newHashSet(TEST_WITH_VALUE))
-                .setWithoutOpAuth(Sets.newHashSet(TEST_WITHOUT_VALUE));
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .withOpAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .withoutOpAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
+                .build();
 
         byte[] serialise = getBytes(updateViewHook);
 
@@ -59,9 +60,10 @@ public class UpdateViewHookSerialiserTest {
     @Test
     public void shouldSerialiseDataAuths() throws Exception {
 
-        UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setWithDataAuth(Sets.newHashSet(TEST_WITH_VALUE))
-                .setWithoutDataAuth(Sets.newHashSet(TEST_WITHOUT_VALUE));
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .withDataAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .withoutDataAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
+                .build();
 
         byte[] serialise = getBytes(updateViewHook);
 
@@ -73,9 +75,10 @@ public class UpdateViewHookSerialiserTest {
     @Test
     public void shouldSerialiseElementGroups() throws Exception {
 
-        UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setWhiteListElementGroups(Lists.newArrayList(TEST_WITH_VALUE))
-                .setBlackListElementGroups(Lists.newArrayList(TEST_WITHOUT_VALUE));
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .whiteListElementGroups(Lists.newArrayList(TEST_WITH_VALUE))
+                .blackListElementGroups(Lists.newArrayList(TEST_WITHOUT_VALUE))
+                .build();
 
         byte[] serialise = getBytes(updateViewHook);
 
@@ -88,8 +91,8 @@ public class UpdateViewHookSerialiserTest {
     public void shouldSerialiseViewToMerge() throws Exception {
 
         View viewToMerge = new Builder().entity(TEST_EDGE).build();
-        UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setViewToMerge(viewToMerge);
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .setViewToMerge(viewToMerge).build();
 
         byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
         String s = new String(serialise);

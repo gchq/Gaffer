@@ -70,11 +70,14 @@ public class UpdateViewHook implements GraphHook {
                         .build();
 
                 opView.expandGlobalDefinitions();
-                Map<String, ViewElementDefinition> entities = opView.getEntities();
-                entities.entrySet().removeIf(this::removeElementGroups);
+                if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
+                        || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
+                    Map<String, ViewElementDefinition> entities = opView.getEntities();
+                    entities.entrySet().removeIf(this::removeElementGroups);
 
-                Map<String, ViewElementDefinition> edges = opView.getEdges();
-                edges.entrySet().removeIf(this::removeElementGroups);
+                    Map<String, ViewElementDefinition> edges = opView.getEdges();
+                    edges.entrySet().removeIf(this::removeElementGroups);
+                }
                 operationView.setView(opView);
             }
         }
@@ -237,7 +240,7 @@ public class UpdateViewHook implements GraphHook {
     public static class Builder {
         private Set<String> withOpAuth;
         private Set<String> withoutOpAuth;
-        private Set<String> withDataAuths;
+        private Set<String> withDataAuth;
         private Set<String> withoutDataAuth;
         private List<String> whiteListElementGroups;
         private List<String> blackListElementGroups;
@@ -253,8 +256,8 @@ public class UpdateViewHook implements GraphHook {
             return this;
         }
 
-        public Builder withDataAuths(final Set<String> withDataAuths) {
-            this.withDataAuths = withDataAuths;
+        public Builder withDataAuth(final Set<String> withDataAuths) {
+            this.withDataAuth = withDataAuths;
             return this;
         }
 
@@ -287,7 +290,7 @@ public class UpdateViewHook implements GraphHook {
             return new UpdateViewHook()
                     .setWithOpAuth(withOpAuth)
                     .setWithoutOpAuth(withoutOpAuth)
-                    .setWithDataAuth(withDataAuths)
+                    .setWithDataAuth(withDataAuth)
                     .setWithoutDataAuth(withoutDataAuth)
                     .setWhiteListElementGroups(whiteListElementGroups)
                     .setBlackListElementGroups(blackListElementGroups)
