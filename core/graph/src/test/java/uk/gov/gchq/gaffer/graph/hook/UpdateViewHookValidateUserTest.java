@@ -29,117 +29,128 @@ import static org.junit.Assert.assertTrue;
 
 public class UpdateViewHookValidateUserTest {
 
-    public static final String C = "C";
     private UpdateViewHook updateViewHook;
-    public static final String A = "A";
-    public static final String B = "B";
-    private final HashSet<String> validAuths = Sets.newHashSet();
-    private HashSet<String> userAuths = Sets.newHashSet();
-    private Builder builder;
+
+    private HashSet<String> userOpAuths = Sets.newHashSet();
+    private HashSet<String> userDataAuths = Sets.newHashSet();
+    private HashSet<String> opAuths = Sets.newHashSet();
+    private HashSet<String> dataAuths = Sets.newHashSet();
+    private Builder userBuilder;
 
     @Before
     public void setUp() throws Exception {
-        userAuths.clear();
-        validAuths.clear();
+        userOpAuths.clear();
+        userDataAuths.clear();
+        opAuths.clear();
+        dataAuths.clear();
+
         updateViewHook = new UpdateViewHook();
-        builder = new Builder();
+        userBuilder = new Builder();
     }
 
     @Test
     public void shouldPassWithOnlyOps() throws Exception {
-        userAuths.add(A);
-        validAuths.add(A);
+        userOpAuths.add("oA");
+        opAuths.add("oA");
 
+        userBuilder.opAuths(opAuths);
+        updateViewHook.setWithOpAuth(opAuths);
 
-        builder.opAuths(userAuths);
-        updateViewHook.setOpAuths(validAuths);
-
-        assertTrue(updateViewHook.validateUser(builder.build()));
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
     public void shouldPassWithOnlyData() throws Exception {
-        userAuths.add(A);
-        validAuths.add(A);
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
 
-        builder.dataAuths(userAuths);
-        updateViewHook.setDataAuths(validAuths);
+        userBuilder.dataAuths(userDataAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
 
-        assertTrue(updateViewHook.validateUser(builder.build()));
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldPassWithBothOPsData() throws Exception {
-        validAuths.add(A);
-        HashSet<String> altValid = Sets.newHashSet(B);
+    public void shouldPassWithBoth() throws Exception {
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
+        userOpAuths.add("oA");
+        opAuths.add("oA");
 
-        builder.opAuths(Sets.newHashSet(A)).dataAuths(Sets.newHashSet(B));
-        updateViewHook.setOpAuths(validAuths);
-        updateViewHook.setDataAuths(altValid);
-        
-        assertTrue(updateViewHook.validateUser(builder.build()));
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
 
 
     @Test
-    public void shouldFailWithWrongOnlyOps() throws Exception {
-        userAuths.add(A);
-        validAuths.add(B);
+    public void shouldFailWithWrongOps() throws Exception {
+        userOpAuths.add("oB");
+        opAuths.add("oA");
 
-        builder.opAuths(userAuths);
-        updateViewHook.setOpAuths(validAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithOpAuth(opAuths);
 
-        assertFalse(updateViewHook.validateUser(builder.build()));
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldFailWithWrongOnlyData() throws Exception {
-        userAuths.add(A);
-        validAuths.add(B);
+    public void shouldFailWithWrongData() throws Exception {
+        userDataAuths.add("dA");
+        dataAuths.add("dB");
 
-        builder.dataAuths(userAuths);
-        updateViewHook.setDataAuths(validAuths);
+        userBuilder.dataAuths(userDataAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
 
-        assertFalse(updateViewHook.validateUser(builder.build()));
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
     public void shouldFailWithBothWrongOPsData() throws Exception {
-        userAuths.add(A);
-        HashSet<String> alt = Sets.newHashSet(B);
-        validAuths.add(C);
+        userDataAuths.add("dB");
+        dataAuths.add("dA");
+        userOpAuths.add("oB");
+        opAuths.add("oA");
 
-        builder.opAuths(userAuths).dataAuths(userAuths);
-        updateViewHook.setOpAuths(validAuths);
-        updateViewHook.setDataAuths(alt);
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
 
-        assertFalse(updateViewHook.validateUser(builder.build()));
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
     public void shouldFailWithOneWrongOPs() throws Exception {
-        userAuths.add(A);
-        validAuths.add(A);
-        HashSet<String> alt = Sets.newHashSet(B);
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
+        userOpAuths.add("oB");
+        opAuths.add("oA");
 
-        builder.opAuths(userAuths).dataAuths(userAuths);
-        updateViewHook.setOpAuths(validAuths);
-        updateViewHook.setDataAuths(alt);
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
 
-        assertFalse(updateViewHook.validateUser(builder.build()));
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
     public void shouldFailWithOneWrongData() throws Exception {
-        userAuths.add(A);
-        validAuths.add(B);
-        HashSet<String> alt = Sets.newHashSet(A);
+        userDataAuths.add("dB");
+        dataAuths.add("dA");
+        userOpAuths.add("oA");
+        opAuths.add("oA");
 
-        builder.opAuths(userAuths).dataAuths(userAuths);
-        updateViewHook.setOpAuths(validAuths);
-        updateViewHook.setDataAuths(alt);
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
 
-        assertFalse(updateViewHook.validateUser(builder.build()));
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 }

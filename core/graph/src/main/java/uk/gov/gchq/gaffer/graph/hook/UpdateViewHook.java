@@ -33,74 +33,26 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 
 public class UpdateViewHook implements GraphHook {
 
-    private Set<String> opAuths;
-    private Set<String> dataAuths;
+    private Set<String> withOpAuth;
+    private Set<String> withoutOpAuth;
+    private Set<String> withDataAuth;
+    private Set<String> withoutDataAuth;
+    private List<String> whiteListElementGroups;
+    private List<String> blackListElementGroups;
     private byte[] viewToMerge;
-    private List<String> restrictedGroups;
 
     public UpdateViewHook() {
     }
 
-    @JsonGetter("opAuths")
-    public Set<String> getOpAuths() {
-        return opAuths;
-    }
-
-    @JsonGetter("dataAuths")
-    public Set<String> getDataAuths() {
-        return dataAuths;
-    }
-
-    @JsonGetter("viewToMerge")
-    public View getViewToMerge() {
-        try {
-            return JSONSerialiser.deserialise(viewToMerge, View.class);
-        } catch (SerialisationException e) {
-            throw new RuntimeException("Could not deserialise viewToMerge", e);
-        }
-    }
-
-    @JsonGetter("restrictedGroups")
-    public List<String> getRestrictedGroups() {
-        return restrictedGroups;
-    }
-
-    @JsonSetter("opAuths")
-    public UpdateViewHook setOpAuths(final Set<String> opAuths) {
-        this.opAuths = opAuths;
-        return this;
-    }
-
-    @JsonSetter("dataAuths")
-    public UpdateViewHook setDataAuths(final Set<String> dataAuths) {
-        this.dataAuths = dataAuths;
-        return this;
-    }
-
-    @JsonSetter("viewToMerge")
-    public UpdateViewHook setViewToMerge(final View viewToMerge) {
-        try {
-            this.viewToMerge = JSONSerialiser.serialise(viewToMerge, true);
-        } catch (SerialisationException e) {
-            throw new RuntimeException("Could not serialise the viewToMerge", e);
-        }
-        return this;
-    }
-
-    @JsonSetter("restrictedGroups")
-    public UpdateViewHook setRestrictedGroups(final List<String> restrictedGroups) {
-        this.restrictedGroups = restrictedGroups;
-        return this;
-    }
-
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        if (validateUser(context.getUser())) {
+        if (applyToUser(context.getUser())) {
             updateView(opChain);
         }
     }
@@ -119,27 +71,48 @@ public class UpdateViewHook implements GraphHook {
 
                 opView.expandGlobalDefinitions();
                 Map<String, ViewElementDefinition> entities = opView.getEntities();
-                entities.entrySet().removeIf(entry -> restrictedGroups.contains(entry.getKey()));
+                entities.entrySet().removeIf(this::removeElementGroups);
+
                 Map<String, ViewElementDefinition> edges = opView.getEdges();
-                edges.entrySet().removeIf(entry -> restrictedGroups.contains(entry.getKey()));
+                edges.entrySet().removeIf(this::removeElementGroups);
                 operationView.setView(opView);
             }
         }
     }
 
-    final protected boolean validateUser(final User user) {
-        boolean dataAuthsValid = isAuthsValid(user.getDataAuths(), dataAuths);
-        boolean opAuthsValid = isAuthsValid(user.getOpAuths(), opAuths);
-        return dataAuthsValid && opAuthsValid;
+    protected boolean removeElementGroups(final Entry<String, ViewElementDefinition> entry) {
+        boolean remove;
+
+        if (null != whiteListElementGroups) {
+            remove = !whiteListElementGroups.contains(entry.getKey());
+        } else {
+            remove = false;
+        }
+
+        if (!remove) {
+            if (null != blackListElementGroups) {
+                remove = blackListElementGroups.contains(entry.getKey());
+            }
+        }
+        return remove;
     }
 
-    protected static boolean isAuthsValid(final Set<String> userAuths, final Set<String> validAuths) {
-        boolean rtn = true;
-        if (null != validAuths) {
+    final protected boolean applyToUser(final User user) {
+        boolean withDataAuth = validateAuths(user.getDataAuths(), this.withDataAuth, true);
+        boolean withOpAuth = validateAuths(user.getOpAuths(), this.withOpAuth, true);
+        boolean withoutDataAuth = validateAuths(user.getDataAuths(), this.withoutDataAuth, false);
+        boolean withoutOpAuth = validateAuths(user.getOpAuths(), this.withoutOpAuth, false);
+
+        return withDataAuth && withOpAuth && !withoutDataAuth && !withoutOpAuth;
+    }
+
+    protected static boolean validateAuths(final Set<String> userAuths, final Set<String> validAuth, final boolean ifValidAuthIsNull) {
+        boolean rtn = ifValidAuthIsNull;
+        if (null != validAuth) {
             if (null == userAuths) {
-                rtn = validAuths.isEmpty();
+                rtn = validAuth.isEmpty();
             } else {
-                HashSet<String> temp = Sets.newHashSet(validAuths);
+                HashSet<String> temp = Sets.newHashSet(validAuth);
                 temp.retainAll(userAuths);
                 rtn = !temp.isEmpty();
             }
@@ -157,39 +130,168 @@ public class UpdateViewHook implements GraphHook {
         return result;
     }
 
+    @JsonGetter("withOpAuth")
+    public Set<String> getWithOpAuth() {
+        return withOpAuth;
+    }
+
+    @JsonSetter("withOpAuth")
+    public UpdateViewHook setWithOpAuth(final Set<String> withOpAuth) {
+        this.withOpAuth = withOpAuth;
+        return this;
+    }
+
+    @JsonGetter("withoutOpAuth")
+    public Set<String> getWithoutOpAuth() {
+        return withoutOpAuth;
+    }
+
+    @JsonSetter("withoutOpAuth")
+    public UpdateViewHook setWithoutOpAuth(final Set<String> withoutOpAuth) {
+        this.withoutOpAuth = withoutOpAuth;
+        return this;
+    }
+
+    @JsonGetter("withDataAuth")
+    public Set<String> getWithDataAuth() {
+        return withDataAuth;
+    }
+
+    @JsonSetter("withDataAuth")
+    public UpdateViewHook setWithDataAuth(final Set<String> withDataAuth) {
+        this.withDataAuth = withDataAuth;
+        return this;
+    }
+
+    @JsonGetter("withoutDataAuth")
+    public Set<String> getWithoutDataAuth() {
+        return withoutDataAuth;
+    }
+
+    @JsonSetter("withoutDataAuth")
+    public UpdateViewHook setWithoutDataAuth(final Set<String> withoutDataAuth) {
+        this.withoutDataAuth = withoutDataAuth;
+        return this;
+    }
+
+    @JsonGetter("whiteListElementGroups")
+    public List<String> getWhiteListElementGroups() {
+        return whiteListElementGroups;
+    }
+
+    @JsonSetter("whiteListElementGroups")
+    public UpdateViewHook setWhiteListElementGroups(final List<String> whiteListElementGroups) {
+        this.whiteListElementGroups = whiteListElementGroups;
+        return this;
+    }
+
+    @JsonGetter("blackListElementGroups")
+    public List<String> getBlackListElementGroups() {
+        return blackListElementGroups;
+    }
+
+    @JsonSetter("blackListElementGroups")
+    public UpdateViewHook setBlackListElementGroups(final List<String> blackListElementGroups) {
+        this.blackListElementGroups = blackListElementGroups;
+        return this;
+    }
+
+
+    @JsonSetter("viewToMerge")
+    public UpdateViewHook setViewToMerge(final View viewToMerge) {
+        this.viewToMerge = getViewToMerge(viewToMerge);
+        return this;
+    }
+
+    private static byte[] getViewToMerge(final View viewToMerge) {
+        byte[] serialise = null;
+        if (null != viewToMerge) {
+            try {
+                serialise = JSONSerialiser.serialise(viewToMerge, true);
+            } catch (SerialisationException e) {
+                throw new RuntimeException("Could not serialise the viewToMerge", e);
+            }
+        }
+        return serialise;
+    }
+
+    @JsonGetter("viewToMerge")
+    public View getViewToMerge() {
+        return getViewToMerge(viewToMerge);
+    }
+
+    private static View getViewToMerge(final byte[] viewToMerge) {
+        View deserialise;
+        if (null != viewToMerge) {
+            try {
+                deserialise = JSONSerialiser.deserialise(viewToMerge, View.class);
+            } catch (SerialisationException e) {
+                throw new RuntimeException("Could not deserialise viewToMerge", e);
+            }
+        } else {
+            deserialise = null;
+        }
+        return deserialise;
+    }
+
     public static class Builder {
-        private Set<String> opAuths;
-        private Set<String> dataAuths;
-        private View viewToMerge;
-        private List<String> restrictedGroups;
+        private Set<String> withOpAuth;
+        private Set<String> withoutOpAuth;
+        private Set<String> withDataAuths;
+        private Set<String> withoutDataAuth;
+        private List<String> whiteListElementGroups;
+        private List<String> blackListElementGroups;
+        private byte[] viewToMerge;
 
-
-        public Builder restrictedGroups(final List<String> restrictedGroups) {
-            this.restrictedGroups = restrictedGroups;
+        public Builder withOpAuth(final Set<String> withOpAuth) {
+            this.withOpAuth = withOpAuth;
             return this;
         }
 
-        public Builder viewToMerge(final View viewToMerge) {
-            this.viewToMerge = viewToMerge;
+        public Builder withoutOpAuth(final Set<String> withoutOpAuth) {
+            this.withoutOpAuth = withoutOpAuth;
             return this;
         }
 
-        public Builder dataAuths(final Set<String> dataAuths) {
-            this.dataAuths = dataAuths;
+        public Builder withDataAuths(final Set<String> withDataAuths) {
+            this.withDataAuths = withDataAuths;
             return this;
         }
 
-        public Builder opAuths(final Set<String> opAuths) {
-            this.opAuths = opAuths;
+        public Builder withoutDataAuth(final Set<String> withoutDataAuth) {
+            this.withoutDataAuth = withoutDataAuth;
             return this;
+        }
+
+        public Builder whiteListElementGroups(final List<String> whiteListElementGroups) {
+            this.whiteListElementGroups = whiteListElementGroups;
+            return this;
+        }
+
+        public Builder blackListElementGroups(final List<String> blackListElementGroups) {
+            this.blackListElementGroups = blackListElementGroups;
+            return this;
+        }
+
+        public Builder setViewToMerge(final View viewToMerge) {
+            this.viewToMerge = UpdateViewHook.getViewToMerge(viewToMerge);
+            return this;
+        }
+
+        private View getViewToMerge() {
+            return UpdateViewHook.getViewToMerge(viewToMerge);
+
         }
 
         public UpdateViewHook build() {
             return new UpdateViewHook()
-                    .setOpAuths(opAuths)
-                    .setDataAuths(dataAuths)
-                    .setRestrictedGroups(restrictedGroups)
-                    .setViewToMerge(viewToMerge);
+                    .setWithOpAuth(withOpAuth)
+                    .setWithoutOpAuth(withoutOpAuth)
+                    .setWithDataAuth(withDataAuths)
+                    .setWithoutDataAuth(withoutDataAuth)
+                    .setWhiteListElementGroups(whiteListElementGroups)
+                    .setBlackListElementGroups(blackListElementGroups)
+                    .setViewToMerge(getViewToMerge());
         }
     }
 

@@ -22,55 +22,66 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertTrue;
 
 public class UpdateViewHookSerialiserTest {
 
-    public static final String TEST_VALUE = "testValue";
+    public static final String TEST_WITH_VALUE = "withTestValue";
+    public static final String TEST_WITHOUT_VALUE = "withoutTestValue";
     public static final String TEST_EDGE = "testEdge";
 
     @Test
-    public void shouldSerialiseOpAuths() throws Exception {
+    public void shouldSerialiseOpAuth() throws Exception {
 
         UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setOpAuths(Sets.newHashSet(TEST_VALUE));
+                .setWithOpAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .setWithoutOpAuth(Sets.newHashSet(TEST_WITHOUT_VALUE));
 
-        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
-        String s = new String(serialise);
-        assertTrue(s.contains(TEST_VALUE));
+        byte[] serialise = getBytes(updateViewHook);
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
-        assertTrue(deserialise.getOpAuths().contains(TEST_VALUE));
+        assertTrue(deserialise.getWithOpAuth().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getWithoutOpAuth().contains(TEST_WITHOUT_VALUE));
     }
+
+    private byte[] getBytes(final UpdateViewHook updateViewHook) throws SerialisationException {
+        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
+        String s = new String(serialise);
+        assertTrue(s.contains(TEST_WITH_VALUE));
+        assertTrue(s.contains(TEST_WITHOUT_VALUE));
+        return serialise;
+    }
+
 
     @Test
     public void shouldSerialiseDataAuths() throws Exception {
 
         UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setDataAuths(Sets.newHashSet(TEST_VALUE));
+                .setWithDataAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .setWithoutDataAuth(Sets.newHashSet(TEST_WITHOUT_VALUE));
 
-        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
-        String s = new String(serialise);
-        assertTrue(s.contains(TEST_VALUE));
+        byte[] serialise = getBytes(updateViewHook);
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
-        assertTrue(deserialise.getDataAuths().contains(TEST_VALUE));
+        assertTrue(deserialise.getWithDataAuth().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getWithoutDataAuth().contains(TEST_WITHOUT_VALUE));
     }
 
     @Test
-    public void shouldSerialiseRestrictedGroups() throws Exception {
+    public void shouldSerialiseElementGroups() throws Exception {
 
         UpdateViewHook updateViewHook = new UpdateViewHook()
-                .setRestrictedGroups(Lists.newArrayList(TEST_VALUE));
+                .setWhiteListElementGroups(Lists.newArrayList(TEST_WITH_VALUE))
+                .setBlackListElementGroups(Lists.newArrayList(TEST_WITHOUT_VALUE));
 
-        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
-        String s = new String(serialise);
-        assertTrue(s.contains(TEST_VALUE));
+        byte[] serialise = getBytes(updateViewHook);
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
-        assertTrue(deserialise.getRestrictedGroups().contains(TEST_VALUE));
+        assertTrue(deserialise.getWhiteListElementGroups().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getBlackListElementGroups().contains(TEST_WITHOUT_VALUE));
     }
 
     @Test
@@ -82,7 +93,7 @@ public class UpdateViewHookSerialiserTest {
 
         byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
         String s = new String(serialise);
-        assertTrue(s.contains(TEST_EDGE));
+        assertTrue(s,s.contains(TEST_EDGE));
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
         assertTrue(deserialise.getViewToMerge().equals(viewToMerge));
