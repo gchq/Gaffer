@@ -18,15 +18,19 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +40,7 @@ public class UpdateViewHook implements GraphHook {
 
     private Set<String> opAuths;
     private Set<String> dataAuths;
-    private View viewToMerge;
+    private byte[] viewToMerge;
     private List<String> restrictedGroups;
 
     public UpdateViewHook() {
@@ -54,7 +58,11 @@ public class UpdateViewHook implements GraphHook {
 
     @JsonGetter("viewToMerge")
     public View getViewToMerge() {
-        return viewToMerge;
+        try {
+            return JSONSerialiser.deserialise(viewToMerge, View.class);
+        } catch (SerialisationException e) {
+            throw new RuntimeException("Could not deserialise viewToMerge", e);
+        }
     }
 
     @JsonGetter("restrictedGroups")
@@ -76,7 +84,11 @@ public class UpdateViewHook implements GraphHook {
 
     @JsonSetter("viewToMerge")
     public UpdateViewHook setViewToMerge(final View viewToMerge) {
-        this.viewToMerge = viewToMerge;
+        try {
+            this.viewToMerge = JSONSerialiser.serialise(viewToMerge, true);
+        } catch (SerialisationException e) {
+            throw new RuntimeException("Could not serialise the viewToMerge", e);
+        }
         return this;
     }
 
@@ -84,13 +96,6 @@ public class UpdateViewHook implements GraphHook {
     public UpdateViewHook setRestrictedGroups(final List<String> restrictedGroups) {
         this.restrictedGroups = restrictedGroups;
         return this;
-    }
-
-    public UpdateViewHook(final Set<String> opAuths, final Set<String> dataAuths, final View viewToMerge, final List<String> restrictedGroups) {
-        this.opAuths = opAuths;
-        this.dataAuths = dataAuths;
-        this.viewToMerge = viewToMerge;
-        this.restrictedGroups = restrictedGroups;
     }
 
     @Override
@@ -105,11 +110,11 @@ public class UpdateViewHook implements GraphHook {
             if (operation instanceof OperationView) {
                 OperationView operationView = (OperationView) operation;
 
-                View viewToMerge = this.viewToMerge;
+                View viewToMerge = getViewToMerge();
 
                 View opView = new View.Builder()
                         .merge(operationView.getView())
-                        .merge(viewToMerge)
+                        .merge(viewToMerge.clone())
                         .build();
 
                 opView.expandGlobalDefinitions();
@@ -134,8 +139,9 @@ public class UpdateViewHook implements GraphHook {
             if (null == userAuths) {
                 rtn = validAuths.isEmpty();
             } else {
-                validAuths.retainAll(userAuths);
-                rtn = !validAuths.isEmpty();
+                HashSet<String> temp = Sets.newHashSet(validAuths);
+                temp.retainAll(userAuths);
+                rtn = !temp.isEmpty();
             }
         }
         return rtn;
