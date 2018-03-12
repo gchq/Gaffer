@@ -132,7 +132,6 @@ public class GetWalksIT extends AbstractStoreIT {
                         .operation(operation)
                         .times(2)
                         .build())
-//                .operations(operation, operation)
                 .build();
 
         // When
