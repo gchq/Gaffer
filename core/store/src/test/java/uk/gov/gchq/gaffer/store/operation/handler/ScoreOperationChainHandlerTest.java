@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -519,8 +519,6 @@ public class ScoreOperationChainHandlerTest {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
         final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_RESOLVERS = ScoreOperationChainHandler.getDefaultScoreResolvers();
-        final NamedOperationScoreResolver namedOpScoreResolver = new NamedOperationScoreResolver();
-
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
         expectedMap.putAll(DEFAULT_RESOLVERS);
 

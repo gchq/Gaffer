@@ -103,7 +103,7 @@ public class Repeat implements InputOutput<Object, Object>,
 
     @Override
     public Collection<Operation> getOperations() {
-        if(null == operation) {
+        if (null == operation) {
             return Collections.emptyList();
         }
 
@@ -112,9 +112,9 @@ public class Repeat implements InputOutput<Object, Object>,
 
     @Override
     public void updateOperations(final Collection<Operation> operations) {
-        if(operations.isEmpty()) {
+        if (operations.isEmpty()) {
             operation = null;
-        } else if(1 == operations.size()) {
+        } else if (1 == operations.size()) {
             operation = operations.iterator().next();
         } else {
             operation = new OperationChain(Lists.newArrayList(operations));

@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.Store;
  * executed on the store for the configured number of repeats.
  */
 public class RepeatHandler implements OutputOperationHandler<Repeat, Object> {
-    private int maxTimes = OperationConstants.MAX_REPEATS_DEFAULT;
 
     @Override
     public Object doOperation(final Repeat operation, final Context context, final Store store) throws OperationException {
@@ -41,6 +40,7 @@ public class RepeatHandler implements OutputOperationHandler<Repeat, Object> {
             throw new OperationException("Input cannot be null");
         }
 
+        final int maxTimes = OperationConstants.MAX_REPEATS_DEFAULT;
         if (maxTimes < operation.getTimes()) {
             throw new OperationException("Maximum number of allowed repeats: " + maxTimes + " exceeded: " + operation.getTimes());
         }

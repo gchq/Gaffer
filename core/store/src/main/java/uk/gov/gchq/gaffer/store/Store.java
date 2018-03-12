@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -617,7 +617,7 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
-    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+    public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
@@ -700,7 +700,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -708,11 +708,15 @@ public abstract class Store {
         }
     }
 
-    protected final <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
-        operationHandlers.put(opClass, handler);
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
-    protected final OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 
