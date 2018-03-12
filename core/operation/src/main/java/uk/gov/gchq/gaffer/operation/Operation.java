@@ -191,7 +191,7 @@ public interface Operation extends Closeable {
 
         HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
-        while (null!=currentClass) {
+        while (null != currentClass) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
         }
