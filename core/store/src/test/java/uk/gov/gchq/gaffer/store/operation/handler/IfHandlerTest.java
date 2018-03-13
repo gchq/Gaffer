@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -34,12 +33,9 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 public class IfHandlerTest {
@@ -56,7 +52,7 @@ public class IfHandlerTest {
         final GetWalks then = mock(GetWalks.class);
         final GetElements otherwise = mock(GetElements.class);
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .conditional(conditional)
                 .then(then)
@@ -86,7 +82,7 @@ public class IfHandlerTest {
         final GetWalks then = mock(GetWalks.class);
         final GetElements otherwise = mock(GetElements.class);
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .conditional(conditional)
                 .then(then)
@@ -116,7 +112,7 @@ public class IfHandlerTest {
         final GetWalks then = null;
         final GetElements otherwise = null;
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .conditional(conditional)
                 .then(then)
@@ -145,7 +141,7 @@ public class IfHandlerTest {
         final GetElements then = mock(GetElements.class);
         final GetAllElements otherwise = mock(GetAllElements.class);
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .condition(true)
                 .then(then)
@@ -171,7 +167,7 @@ public class IfHandlerTest {
         final OperationChain<Object> then = mock(OperationChain.class);
         final GetAllElements otherwise = mock(GetAllElements.class);
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .conditional(conditional)
                 .then(then)
@@ -202,7 +198,7 @@ public class IfHandlerTest {
         final GetElements then = mock(GetElements.class);
         final GetAllElements otherwise = mock(GetAllElements.class);
 
-        final If filter = new If.Builder<>()
+        final If filter = new If.Builder()
                 .input(input)
                 .conditional(conditional)
                 .then(then)

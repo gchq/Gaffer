@@ -67,7 +67,7 @@ public class IfScoreResolverTest {
         final Conditional conditional = mock(Conditional.class);
         given(conditional.getTransform()).willReturn(count);
 
-        final If operation = new If.Builder<>()
+        final If operation = new If.Builder()
                 .conditional(conditional)
                 .then(getWalks)
                 .otherwise(getAllElements)
@@ -110,7 +110,7 @@ public class IfScoreResolverTest {
         final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
         final GetAllElements getAllElements = mock(GetAllElements.class);
 
-        final If operation = new If.Builder<>()
+        final If operation = new If.Builder()
                 .conditional(conditional)
                 .then(getAdjacentIds)
                 .otherwise(getAllElements)
@@ -150,7 +150,7 @@ public class IfScoreResolverTest {
 
         final GetAllElements getAllElements = new GetAllElements();
 
-        final If operation = new If.Builder<>()
+        final If operation = new If.Builder()
                 .conditional(conditional)
                 .then(getWalks)
                 .otherwise(getAllElements)
@@ -177,7 +177,7 @@ public class IfScoreResolverTest {
         // Given
         final IfScoreResolver resolver = new IfScoreResolver();
 
-        final If operation = new If.Builder<>()
+        final If operation = new If.Builder()
                 .conditional(new Conditional())
                 .then(new GetAllElements())
                 .build();
