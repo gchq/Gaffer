@@ -38,7 +38,7 @@ public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
     private final Properties cacheProps = new Properties();
     private final Store store = mock(Store.class);
-    private final String adminRole = "admin role";
+    private final String adminAuth = "admin auth";
     private final StoreProperties properties = new StoreProperties();
 
     private AddNamedOperation add = new AddNamedOperation.Builder()
@@ -54,7 +54,7 @@ public class NamedOperationCacheIT {
 
     private User user = new User();
     private User authorisedUser = new User.Builder().userId("authorisedUser").opAuth("authorised").build();
-    private User adminRoleUser = new User.Builder().userId("adminRoleUser").opAuth(adminRole).build();
+    private User adminAuthUser = new User.Builder().userId("adminAuthUser").opAuth(adminAuth).build();
     private Context context = new Context(user);
     private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
     private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();
@@ -65,7 +65,7 @@ public class NamedOperationCacheIT {
     @Before
     public void before() throws CacheOperationException {
         cacheProps.clear();
-        properties.setAdminRole(adminRole);
+        properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
     }
 
@@ -89,9 +89,9 @@ public class NamedOperationCacheIT {
     private void runTests() throws OperationException, CacheOperationException {
         shouldAllowUpdatingOfNamedOperationsWithAllowedUsers();
         after();
-        shouldAllowReadingOfNamedOperationsUsingAdminRole();
+        shouldAllowReadingOfNamedOperationsUsingAdminAuth();
         after();
-        shouldAllowUpdatingOfNamedOperationsUsingAdminRole();
+        shouldAllowUpdatingOfNamedOperationsUsingAdminAuth();
         after();
         shouldBeAbleToAddNamedOperationToCache();
         after();
@@ -190,10 +190,10 @@ public class NamedOperationCacheIT {
         assertEquals(expected, results);
     }
 
-    private void shouldAllowReadingOfNamedOperationsUsingAdminRole() throws OperationException {
+    private void shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
         // given
         Context contextWithAuthorisedUser = new Context(authorisedUser);
-        Context contextWithAdminUser = new Context(adminRoleUser);
+        Context contextWithAdminUser = new Context(adminAuthUser);
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(add.getOperationName())
                 .operationChain(add.getOperationChainAsString())
@@ -221,10 +221,10 @@ public class NamedOperationCacheIT {
         assertEquals(expected, resultsWithAdminRole);
     }
 
-    private void shouldAllowUpdatingOfNamedOperationsUsingAdminRole() throws OperationException {
+    private void shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
         // given
         Context contextWithAuthorisedUser = new Context(authorisedUser);
-        Context contextWithAdminUser = new Context(adminRoleUser);
+        Context contextWithAdminUser = new Context(adminAuthUser);
         addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
@@ -239,7 +239,7 @@ public class NamedOperationCacheIT {
                 .operationName(update.getOperationName())
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
-                .creatorId(adminRoleUser.getUserId())
+                .creatorId(adminAuthUser.getUserId())
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)

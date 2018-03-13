@@ -56,7 +56,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
-    private static final String EMPTY_ADMIN_ROLE = "";
+    private static final String EMPTY_ADMIN_AUTH = "";
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
@@ -80,11 +80,11 @@ public class AddNamedOperationHandlerTest {
             Object[] args = invocationOnMock.getArguments();
             storedOperations.put(((NamedOperationDetail) args[0]).getOperationName(), (NamedOperationDetail) args[0]);
             return null;
-        }).when(mockCache).addNamedOperation(any(NamedOperationDetail.class), anyBoolean(), any(User.class), eq(EMPTY_ADMIN_ROLE));
+        }).when(mockCache).addNamedOperation(any(NamedOperationDetail.class), anyBoolean(), any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock ->
                 new WrappedCloseableIterable<>(storedOperations.values()))
-                .when(mockCache).getAllNamedOperations(any(User.class), eq(EMPTY_ADMIN_ROLE));
+                .when(mockCache).getAllNamedOperations(any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock -> {
             String name = (String) invocationOnMock.getArguments()[0];
@@ -93,7 +93,7 @@ public class AddNamedOperationHandlerTest {
                 throw new CacheOperationFailedException();
             }
             return result;
-        }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_ROLE));
+        }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         given(store.getProperties()).willReturn(new StoreProperties());
     }
@@ -220,14 +220,14 @@ public class AddNamedOperationHandlerTest {
 
         handler.doOperation(addNamedOperation, context, store);
 
-        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_ROLE);
+        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
 
         assert cacheContains("testOp");
         assertEquals(addNamedOperation.getScore(), result.getScore());
     }
 
     private boolean cacheContains(final String opName) {
-        Iterable<NamedOperationDetail> ops = mockCache.getAllNamedOperations(context.getUser(), EMPTY_ADMIN_ROLE);
+        Iterable<NamedOperationDetail> ops = mockCache.getAllNamedOperations(context.getUser(), EMPTY_ADMIN_AUTH);
         for (final NamedOperationDetail op : ops) {
             if (op.getOperationName().equals(opName)) {
                 return true;
