@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
@@ -63,7 +64,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 public class AddGraph implements FederatedOperation {
-    private static final boolean DEFAULT_ENABLED_BY_DEFAULT = false;
     @Required
     private String graphId;
     private StoreProperties storeProperties;
@@ -73,7 +73,7 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
-    private boolean disabledByDefault = DEFAULT_ENABLED_BY_DEFAULT;
+    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     public AddGraph() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");

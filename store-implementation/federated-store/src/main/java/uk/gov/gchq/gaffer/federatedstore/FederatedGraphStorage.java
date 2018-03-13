@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
+    public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
@@ -353,25 +354,11 @@ public class FederatedGraphStorage {
         return null != access && access.isValidToExecute(user);
     }
 
-    private Stream<Graph> getAllStream(final User user) {
-        return storage.entrySet()
-                .stream()
-                .filter(entry -> isValidToView(user, entry.getKey()))
-                .flatMap(entry -> entry.getValue().stream());
-    }
-
-    /**
-     * @param user to match visibility against
-     * @return graphs that match graphIds and the user has visibility of.
-     */
-    private Stream<Graph> getStream(final User user) {
-        return getStream(user, null);
-    }
-
     /**
      * @param user     to match visibility against.
      * @param graphIds filter on graphIds
-     * @return a stream of graphs the user has visibility for.
+     * @return a stream of graphs for the given graphIds and the user has visibility for.
+     * If graphIds is null then only enabled by default graphs are returned that the user can see.
      */
     private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
         if (null == graphIds) {
@@ -387,6 +374,25 @@ public class FederatedGraphStorage {
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .flatMap(entry -> entry.getValue().stream())
                 .filter(graph -> graphIds.contains(graph.getGraphId()));
+    }
+
+    /**
+     * @param user to match visibility against
+     * @return graphs that are enabled by default and the user has visibility of.
+     */
+    private Stream<Graph> getStream(final User user) {
+        return getStream(user, null);
+    }
+
+    /**
+     * @param user to match visibility against.
+     * @return a stream of graphs the user has visibility for.
+     */
+    private Stream<Graph> getAllStream(final User user) {
+        return storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .flatMap(entry -> entry.getValue().stream());
     }
 
     private void addToCache(final Graph newGraph, final FederatedAccess access) {
