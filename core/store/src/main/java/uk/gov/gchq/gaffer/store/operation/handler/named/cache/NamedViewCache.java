@@ -207,10 +207,12 @@ public class NamedViewCache {
             addToCache(namedViewDetail, false);
             return;
         }
-        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
-            addToCache(namedViewDetail, true);
-        } else {
-            throw new CacheOperationFailedException("User " + user.getUserId() + " does not have permission to overwrite");
+        if (user != null) {
+            if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
+                addToCache(namedViewDetail, true);
+            } else {
+                throw new CacheOperationFailedException("User " + user.getUserId() + " does not have permission to overwrite");
+            }
         }
         addToCache(namedViewDetail, true);
     }
@@ -225,11 +227,14 @@ public class NamedViewCache {
         } catch (final CacheOperationFailedException e) {
             return;
         }
-        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
-            deleteFromCache(name);
-        } else {
-            throw new CacheOperationFailedException("User " + user +
-                    " does not have permission to delete named view: " + name);
+        if (user != null) {
+            if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
+                deleteFromCache(name);
+            } else {
+                throw new CacheOperationFailedException("User " + user +
+                        " does not have permission to delete named view: " + name);
+            }
         }
+        deleteFromCache(name);
     }
 }

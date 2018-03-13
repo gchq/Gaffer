@@ -125,6 +125,12 @@ public class NamedViewCacheTest {
     }
 
     @Test
+    public void shouldRemoveNamedView() throws CacheOperationFailedException {
+        cache.addNamedView(standard, false);
+        cache.deleteNamedView(standard.getName());
+    }
+
+    @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() throws CacheOperationFailedException {
         CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews();
         assertEquals(0, Iterables.size(views));
