@@ -29,6 +29,7 @@ import java.util.Map;
  * returns the score based on a map of operation scores.
  */
 public class DefaultScoreResolver implements ScoreResolver<Operation> {
+
     public static final int DEFAULT_OPERATION_SCORE = 1;
 
     private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers;

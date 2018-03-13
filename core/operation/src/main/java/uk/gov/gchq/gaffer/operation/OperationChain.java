@@ -105,22 +105,30 @@ public class OperationChain<OUT> implements Output<OUT>,
 
     public static OperationChain<?> wrap(final Operation operation) {
         final OperationChain<?> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<?>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<?>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {
         final OperationChain<O> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<O>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<O>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }
