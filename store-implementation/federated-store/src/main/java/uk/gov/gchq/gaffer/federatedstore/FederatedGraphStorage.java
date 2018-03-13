@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -353,29 +354,40 @@ public class FederatedGraphStorage {
         return null != access && access.isValidToExecute(user);
     }
 
-    /**
-     * @param user     to match visibility against
-     * @param graphIds filter on graphIds
-     * @return graphs that match graphIds and the user has visibility of.
-     */
-    private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
-        final Stream<Graph> allStream = getAllStream(user);
-        if (null == graphIds) {
-            return allStream;
-        }
-
-        return allStream.filter(graph -> graphIds.contains(graph.getGraphId()));
-    }
-
-    /**
-     * @param user to match visibility against.
-     * @return a stream of graphs the user has visibility for.
-     */
     private Stream<Graph> getAllStream(final User user) {
         return storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .flatMap(entry -> entry.getValue().stream());
+    }
+
+    /**
+     * @param user to match visibility against
+     * @return graphs that match graphIds and the user has visibility of.
+     */
+    private Stream<Graph> getStream(final User user) {
+        return getStream(user, null);
+    }
+
+    /**
+     * @param user     to match visibility against.
+     * @param graphIds filter on graphIds
+     * @return a stream of graphs the user has visibility for.
+     */
+    private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
+        if (CollectionUtils.isEmpty(graphIds)) {
+            return storage.entrySet()
+                    .stream()
+                    .filter(entry -> isValidToView(user, entry.getKey()))
+                    .filter(entry -> entry.getKey().isEnabledByDefault())
+                    .flatMap(entry -> entry.getValue().stream());
+        }
+
+        return storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(graph -> graphIds.contains(graph.getGraphId()));
     }
 
     private void addToCache(final Graph newGraph, final FederatedAccess access) {

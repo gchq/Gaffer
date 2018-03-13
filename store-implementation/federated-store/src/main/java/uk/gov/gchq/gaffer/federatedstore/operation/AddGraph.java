@@ -63,7 +63,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 public class AddGraph implements FederatedOperation {
-
+    private static final boolean DEFAULT_ENABLED_BY_DEFAULT = false;
     @Required
     private String graphId;
     private StoreProperties storeProperties;
@@ -73,6 +73,7 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
+    private boolean enabledByDefault = DEFAULT_ENABLED_BY_DEFAULT;
 
     public AddGraph() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
@@ -102,6 +103,7 @@ public class AddGraph implements FederatedOperation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
+                .enabledByDefault(enabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic);
 
@@ -134,6 +136,14 @@ public class AddGraph implements FederatedOperation {
 
     public void setParentPropertiesId(final String parentPropertiesId) {
         this.parentPropertiesId = parentPropertiesId;
+    }
+
+    public boolean isEnabledByDefault() {
+        return enabledByDefault;
+    }
+
+    public void setEnabledByDefault(final boolean enabledByDefault) {
+        this.enabledByDefault = enabledByDefault;
     }
 
     @Override
@@ -218,6 +228,11 @@ public class AddGraph implements FederatedOperation {
             } else {
                 _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
+            return _self();
+        }
+
+        public B enabledByDefault(final boolean enabledByDefault) {
+            _getOp().setEnabledByDefault(enabledByDefault);
             return _self();
         }
     }
