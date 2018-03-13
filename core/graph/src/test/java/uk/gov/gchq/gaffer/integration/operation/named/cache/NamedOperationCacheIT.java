@@ -155,6 +155,8 @@ public class NamedOperationCacheIT {
     private void shouldAllowUpdatingOfNamedOperations() throws OperationException {
         // given
         final Store store = mock(Store.class);
+        final StoreProperties storeProps = mock(StoreProperties.class);
+        given(store.getProperties()).willReturn(storeProps);
 
         new AddNamedOperationHandler().doOperation(add, context, store);
 
@@ -207,10 +209,10 @@ public class NamedOperationCacheIT {
 
         GetAllNamedOperations get = new GetAllNamedOperations();
 
-            // when
+        // when
         new AddNamedOperationHandler().doOperation(add, context, store);
 
-            List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
