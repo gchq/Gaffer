@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -145,7 +145,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    public static class ToElementKey implements Function<Element, Element> {
+    public static class ToElementKey extends KorypheFunction<Element, Element> {
         private final Map<String, Set<String>> groupToGroupBys;
 
         public ToElementKey(final Map<String, Set<String>> groupToGroupBys) {
@@ -204,7 +204,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    public static class IsElementAggregated implements Predicate<Element> {
+    public static class IsElementAggregated extends KoryphePredicate<Element> {
         final Collection<String> aggregatedGroups;
 
         public IsElementAggregated(final Schema schema) {
