@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.hll.Union;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code HllSketchAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link HllSketch}s and merges them together using a {@link Union}.
  */
+@Since("1.0.0")
 public class HllSketchAggregator extends KorypheBinaryOperator<HllSketch> {
 
     @Override
