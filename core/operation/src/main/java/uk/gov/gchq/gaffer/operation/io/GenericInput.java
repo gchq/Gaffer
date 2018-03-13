@@ -44,31 +44,14 @@ public abstract class GenericInput implements Input<Object> {
 
     @Override
     public Object getInput() {
-        return _getInput();
+        return input;
     }
 
     @Override
     public void setInput(final Object input) {
         getMultiInputWrapper().setInput(input);
-        _setInput(input);
-    }
-
-    private Object _getInput() {
-        return input;
-    }
-
-    private void _setInput(final Object input) {
         this.input = input;
     }
-
-    private MultiInputWrapper _getMultiInputWrapper() {
-        return multiInputWrapper;
-    }
-
-    private void _setMultiInputWrapper(final MultiInputWrapper multiInputWrapper) {
-        this.multiInputWrapper = multiInputWrapper;
-    }
-
 
     // -------- JSON getters/setters --------
 
@@ -78,7 +61,7 @@ public abstract class GenericInput implements Input<Object> {
         if (getMultiInputWrapper().hasMultiInput()) {
             return null;
         }
-        return _getInput();
+        return input;
     }
 
     @JsonTypeInfo(use = Id.NONE)
@@ -112,7 +95,7 @@ public abstract class GenericInput implements Input<Object> {
         Object resultInput = input;
         if (isSingular) {
             try {
-                resultInput = (Object) JSONSerialiser.deserialise(wrapperJson, InputWrapper.class).getInput();
+                resultInput = JSONSerialiser.deserialise(wrapperJson, InputWrapper.class).getInput();
             } catch (final SerialisationException e) {
                 // Try assuming it is an multi input
                 isSingular = false;
@@ -120,7 +103,7 @@ public abstract class GenericInput implements Input<Object> {
         }
         if (!isSingular) {
             try {
-                resultInput = (Object) JSONSerialiser.deserialise(wrapperJson, MultiInputWrapper.class).getInputAsIterable();
+                resultInput = JSONSerialiser.deserialise(wrapperJson, MultiInputWrapper.class).getInputAsIterable();
             } catch (final SerialisationException e2) {
                 // Just use the original input
             }
@@ -131,19 +114,17 @@ public abstract class GenericInput implements Input<Object> {
 
     @JsonUnwrapped
     MultiInputWrapper getMultiInputWrapper() {
-        MultiInputWrapper multiInputMapper = _getMultiInputWrapper();
-        if (null == multiInputMapper) {
-            multiInputMapper = new MultiInputWrapper();
-            _setMultiInputWrapper(multiInputMapper);
+        if (null == multiInputWrapper) {
+            multiInputWrapper = new MultiInputWrapper();
         }
-        return multiInputMapper;
+        return multiInputWrapper;
     }
 
     @JsonUnwrapped
     void setMultiInputWrapper(final MultiInputWrapper multiInputWrapper) {
         final MultiInputWrapper newMapper = null == multiInputWrapper ? new MultiInputWrapper() : multiInputWrapper;
-        newMapper.setInput(_getInput());
-        _setMultiInputWrapper(newMapper);
+        newMapper.setInput(input);
+        this.multiInputWrapper = newMapper;
     }
 
     // --------------------------------------
