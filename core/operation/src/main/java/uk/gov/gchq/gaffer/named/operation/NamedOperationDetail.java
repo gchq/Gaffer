@@ -251,8 +251,16 @@ public class NamedOperationDetail implements Serializable {
                 .toString();
     }
 
+    public boolean hasReadAccess(final User user) {
+        return hasAccess(user, readAccessRoles, null);
+    }
+
     public boolean hasReadAccess(final User user, final String adminAuth) {
         return hasAccess(user, readAccessRoles, adminAuth);
+    }
+
+    public boolean hasWriteAccess(final User user) {
+        return hasAccess(user, writeAccessRoles, null);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {

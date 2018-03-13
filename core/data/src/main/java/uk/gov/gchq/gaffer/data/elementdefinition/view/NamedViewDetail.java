@@ -52,6 +52,15 @@ public class NamedViewDetail implements Serializable {
     public NamedViewDetail() {
     }
 
+    public NamedViewDetail(final String name, final String view, final String description, final Map<String, ViewParameterDetail> parameters) {
+        setName(name);
+        setView(view);
+        setDescription(description);
+        this.creatorId = null;
+        this.writeAccessRoles = new ArrayList<>();
+        setParameters(parameters);
+    }
+
     public NamedViewDetail(final String name, final String view, final String description, final String userId, final List<String> writers, final Map<String, ViewParameterDetail> parameters) {
         setName(name);
         setView(view);
