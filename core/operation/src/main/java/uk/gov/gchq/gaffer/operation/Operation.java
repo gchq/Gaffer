@@ -86,9 +86,6 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
-
-    String UK_GOV_GCHQ_GAFFER = "uk.gov.gchq.gaffer";
-
     /**
      * Operation implementations should ensure a ShallowClone method is implemented.
      * Performs a shallow clone. Creates a new instance and copies the fields across.
