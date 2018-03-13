@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import java.util.Set;
  * The results can be of any type - as long as they are json serialisable.
  */
 @JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
+@Since("1.0.0")
 public class ExportToGafferResultCache<T> implements
         ExportTo<T> {
     private String key;

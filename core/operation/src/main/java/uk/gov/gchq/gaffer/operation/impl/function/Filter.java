@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import java.util.Map;
  * {@link  uk.gov.gchq.gaffer.data.element.Edge}s or {@link uk.gov.gchq.gaffer.data.element.Entity}s.
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
+@Since("1.0.0")
 public class Filter implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

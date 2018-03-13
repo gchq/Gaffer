@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
@@ -30,6 +32,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ClassicRangeElementPropertyFilterIterator extends Filter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicRangeElementPropertyFilterIterator.class);
 
     protected boolean edges = false;
     protected boolean entities = false;
@@ -67,6 +70,8 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_EDGES)) {
             edges = true;
         }
+        LOGGER.debug("Initialising ClassicRangeElementPropertyFilterIterator with entities = {} and edges = {}",
+                entities, edges);
     }
 
     @Override

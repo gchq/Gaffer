@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityValueLoader;
@@ -51,9 +54,10 @@ import java.util.function.Predicate;
 
 /**
  * The AbstractElementFilter will filter out {@link Element}s based on the filtering
- * instructions given in the {@link Schema} or {@link View} that is passed to this iterator
+ * instructions given in the {@link Schema} or {@link View} that is passed to this iterator.
  */
 public abstract class AbstractElementFilter extends Filter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractElementFilter.class);
     protected Schema schema;
 
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in validateOptions method, which is always called first")
@@ -91,19 +95,21 @@ public abstract class AbstractElementFilter extends Filter {
                      final Map<String, String> options,
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-
         schema = Schema.fromJson(StringUtil.toBytes(options.get(AccumuloStoreConstants.SCHEMA)));
+        LOGGER.debug("Initialising AbstractElementFilter with Schema {}", schema);
 
+        final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             elementConverter = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .forName(elementConverterClass)
                     .asSubclass(AccumuloElementConverter.class)
                     .getConstructor(Schema.class)
                     .newInstance(schema);
+            LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new ElementFilterException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+            throw new ElementFilterException("Failed to create element converter of the class name provided ("
+                    + elementConverterClass + ")", e);
         }
 
         if (filterType == ElementValidator.FilterType.SCHEMA_VALIDATION) {
@@ -115,6 +121,7 @@ public abstract class AbstractElementFilter extends Filter {
                 throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
             }
             final View view = View.fromJson(StringUtil.toBytes(viewJson));
+            LOGGER.debug("Determining groups that don't need to be filtered based on view {}", view);
             if (filterType == ElementValidator.FilterType.PRE_AGGREGATION_FILTER) {
                 updateViewGroupsWithoutFilters(view, ViewElementDefinition::hasPreAggregationFilters);
                 elementPredicate = new ElementValidator(view)::validateInput;
@@ -162,6 +169,7 @@ public abstract class AbstractElementFilter extends Filter {
                 groupsWithoutFilters.add(entry.getKey());
             }
         }
+        LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }
 
     private void updateSchemaGroupsWithoutFilters() {
@@ -171,5 +179,6 @@ public abstract class AbstractElementFilter extends Filter {
                 groupsWithoutFilters.add(entry.getKey());
             }
         }
+        LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }
 }

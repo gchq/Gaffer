@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
+@Since("1.0.0")
 public class AddGraph implements FederatedOperation {
 
     @Required
@@ -174,48 +176,55 @@ public class AddGraph implements FederatedOperation {
         return isPublic;
     }
 
-    public static class Builder extends BaseBuilder<AddGraph, Builder> {
-        public Builder() {
-            super(new AddGraph());
+    public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+
+        protected GraphBuilder(final OP addGraph) {
+            super(addGraph);
         }
 
-        public Builder graphId(final String graphId) {
+        public B graphId(final String graphId) {
             _getOp().setGraphId(graphId);
-            return this;
+            return _self();
         }
 
-        public Builder storeProperties(final StoreProperties storeProperties) {
+        public B storeProperties(final StoreProperties storeProperties) {
             _getOp().setStoreProperties(storeProperties);
-            return this;
+            return _self();
         }
 
-        public Builder schema(final Schema schema) {
+        public B schema(final Schema schema) {
             _getOp().setSchema(schema);
             return _self();
         }
 
-        public Builder parentPropertiesId(final String parentPropertiesId) {
+        public B parentPropertiesId(final String parentPropertiesId) {
             this._getOp().setParentPropertiesId(parentPropertiesId);
             return _self();
         }
 
-        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+        public B parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }
 
-        public Builder isPublic(final boolean isPublic) {
+        public B isPublic(final boolean isPublic) {
             _getOp().setIsPublic(isPublic);
             return _self();
         }
 
-        public Builder graphAuths(final String... graphAuths) {
+        public B graphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
                 _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
             return _self();
+        }
+    }
+
+    public static class Builder extends GraphBuilder<AddGraph, Builder> {
+        public Builder() {
+            super(new AddGraph());
         }
     }
 }

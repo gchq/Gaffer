@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
+import uk.gov.gchq.gaffer.rest.serialisation.TextMessageBodyWriter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +52,7 @@ public abstract class ApplicationConfig extends ResourceConfig {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
         resources.add(RestJsonProvider.class);
+        resources.add(TextMessageBodyWriter.class);
     }
 
     protected void addExceptionMappers() {

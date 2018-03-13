@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
@@ -99,6 +100,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -278,6 +280,109 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldCreateNewContextInstanceWhenExecuteOperation() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final User user = mock(User.class);
+        final Context context = new Context(user);
+        final Store store = mock(Store.class);
+        given(store.createContext(user)).willReturn(context);
+        final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When
+        graph.execute(operation, context);
+
+        // Then
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(store).execute(Mockito.any(Output.class), contextCaptor.capture());
+        assertNotSame(contextCaptor.getValue(), context);
+        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+    }
+
+    @Test
+    public void shouldCreateNewContextInstanceWhenExecuteOutputOperation() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final Context context = new Context(user);
+        final Store store = mock(Store.class);
+        given(store.createContext(user)).willReturn(context);
+        final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When
+        graph.execute(opChain, context);
+
+        // Then
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(store).execute(Mockito.eq(clonedOpChain), contextCaptor.capture());
+        assertNotSame(contextCaptor.getValue(), context);
+        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+    }
+
+    @Test
+    public void shouldCreateNewContextInstanceWhenExecuteJob() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final Context context = new Context(user);
+        final Store store = mock(Store.class);
+        given(store.createContext(user)).willReturn(context);
+        final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When
+        graph.executeJob(opChain, context);
+
+        // Then
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(store).executeJob(Mockito.eq(clonedOpChain), contextCaptor.capture());
+        assertNotSame(contextCaptor.getValue(), context);
+        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+    }
+
+    @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted() throws OperationException, IOException {
         // Given
         final Operation operation = mock(Operation.class);
@@ -288,8 +393,7 @@ public class GraphTest {
 
         final Exception exception = mock(RuntimeException.class);
         final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
+        final Context context = new Context(user);
         final Store store = mock(Store.class);
         given(store.createContext(user)).willReturn(context);
         given(store.execute(clonedOpChain, context)).willThrow(exception);
@@ -994,6 +1098,33 @@ public class GraphTest {
         // Then
         assertEquals(returnedTraits, storeTraits);
 
+    }
+
+    @Test
+    public void shouldGetSchemaFromStoreIfSchemaIsEmpty() throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", String.class)
+                .build();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        final View view = mock(View.class);
+        new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .view(view)
+                        .build())
+                .addSchema(new Schema())
+                .store(store)
+                .build();
+
+        // When
+        verify(store).setOriginalSchema(schema);
     }
 
     @Test
@@ -1845,54 +1976,6 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullUserInContext() throws OperationException {
-        // Given
-        final User user = null;
-        final Context context = new Context(user);
-        final OperationChain opChain = mock(OperationChain.class);
-
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
-
-        // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("The context does not contain a user", e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullUserInContext() throws OperationException {
-        // Given
-        final User user = null;
-        final Context context = new Context(user);
-        final OperationChain opChain = mock(OperationChain.class);
-
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
-
-        // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("The context does not contain a user", e.getMessage());
-        }
-    }
-
-    @Test
     public void shouldThrowExceptionOnExecuteWithANullUser() throws OperationException {
         // Given
         final User user = null;
@@ -1911,7 +1994,7 @@ public class GraphTest {
             graph.execute(opChain, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("The context does not contain a user", e.getMessage());
+            assertEquals("User is required", e.getMessage());
         }
     }
 
@@ -1934,7 +2017,7 @@ public class GraphTest {
             graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("The context does not contain a user", e.getMessage());
+            assertEquals("User is required", e.getMessage());
         }
     }
 

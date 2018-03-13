@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import java.util.Map;
  * input seeds from the target store, and returns them inside a {@link RDD}.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiElementIdInput,

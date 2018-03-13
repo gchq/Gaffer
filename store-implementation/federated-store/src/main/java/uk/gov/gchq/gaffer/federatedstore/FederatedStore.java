@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -42,6 +44,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -295,7 +299,10 @@ public class FederatedStore extends Store {
         // Override the Operations that don't have an output
         getSupportedOperations()
                 .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
+                .filter(op -> !Output.class.isAssignableFrom(op)
+                        && !AddElements.class.equals(op)
+                        && !AddNamedOperation.class.equals(op)
+                        && !AddNamedView.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
@@ -308,6 +315,7 @@ public class FederatedStore extends Store {
 
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
+        addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());

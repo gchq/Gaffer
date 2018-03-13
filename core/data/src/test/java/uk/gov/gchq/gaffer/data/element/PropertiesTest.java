@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,6 +121,31 @@ public class PropertiesTest {
         assertEquals(2, properties.size());
         assertEquals(propertyValue1, properties.get(property1));
         assertEquals(propertyValue3, properties.get(property3));
+    }
+
+    @Test
+    public void shouldRemovePropertyIfAddedWithNullValue() {
+        // Given
+        final Properties properties = new Properties();
+        properties.put("property1", "propertyValue1");
+        properties.put("property2", "propertyValue2");
+
+        // When
+        properties.put("property1", null);
+
+        // Then
+        assertEquals(1, properties.size());
+        assertEquals(null, properties.get("property1"));
+    }
+
+    @Test
+    public void shouldNotAddPropertyIfPropertyNameIsNull() {
+        // When
+        final Properties properties = new Properties();
+        properties.put(null, "propertyValue1");
+
+        // Then
+        assertEquals(0, properties.size());
     }
 
     @Test

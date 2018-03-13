@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -112,6 +113,24 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                 ranges.addAll(accumuloStore.getKeyPackage()
                         .getRangeFactory()
                         .getRange(entityId, operation));
+            } catch (final RangeFactoryException e) {
+                throw new OperationException("Failed to add ranges to configuration", e);
+            }
+        }
+        InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
+    }
+
+    public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>>>
+    void addRangesFromPairs(final AccumuloStore accumuloStore,
+                            final Configuration conf,
+                            final INPUT_OP operation)
+            throws OperationException {
+        final List<Range> ranges = new ArrayList<>();
+        for (final Pair pair : operation.getInput()) {
+            try {
+                ranges.add(accumuloStore.getKeyPackage()
+                        .getRangeFactory()
+                        .getRangeFromPair(pair, operation));
             } catch (final RangeFactoryException e) {
                 throw new OperationException("Failed to add ranges to configuration", e);
             }

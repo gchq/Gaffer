@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
@@ -48,17 +49,60 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, new HashMap<>(), createJobId());
+        this(user, new HashMap<>());
     }
 
-    private Context(final User user, final Map<String, Object> config, final String jobId) {
+    /**
+     * Create a new {@link Context} based on the provided context.
+     * A shallow clone of the context is carried out and a new job ID is created.
+     *
+     * @param context the context to shallow clone.
+     */
+    public Context(final Context context) {
+        this(null != context ? context.user : null, null != context ? context.config : null);
+        exporters.putAll(context.exporters);
+        if (null != context.originalOpChain) {
+            originalOpChain = context.originalOpChain.shallowClone();
+        }
+    }
+
+    private Context(final User user, final Map<String, Object> config) {
+        if (null == user) {
+            throw new IllegalArgumentException("User is required");
+        }
         this.user = user;
         if (null == config) {
             this.config = new HashMap<>();
         } else {
             this.config = config;
         }
-        this.jobId = jobId;
+        this.jobId = createJobId();
+    }
+
+    /**
+     * Constructs a context with a provided job ID
+     *
+     * @param user   the user
+     * @param config the config
+     * @param jobId  the job ID
+     * @deprecated this should not be used. You should let the Context automatically set the job ID.
+     */
+    @Deprecated
+    private Context(final User user, final Map<String, Object> config, final String jobId) {
+        if (null == user) {
+            throw new IllegalArgumentException("User is required");
+        }
+        this.user = user;
+        if (null == config) {
+            this.config = new HashMap<>();
+        } else {
+            this.config = config;
+        }
+        if (null == jobId) {
+            this.jobId = createJobId();
+        } else {
+            this.jobId = jobId;
+        }
     }
 
     public User getUser() {
@@ -152,6 +196,17 @@ public class Context {
                 .toHashCode();
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("jobId", jobId)
+                .append("user", user)
+                .append("originalOpChain", originalOpChain)
+                .append("exporters", exporters)
+                .append("config", config)
+                .toString();
+    }
+
     public static String createJobId() {
         return UUID.randomUUID().toString();
     }
@@ -166,6 +221,14 @@ public class Context {
             return this;
         }
 
+        /**
+         * Sets the job ID.
+         *
+         * @param jobId the job ID to set on the context
+         * @return the Builder
+         * @deprecated this should not be used. You should let the Context automatically set the job ID.
+         */
+        @Deprecated
         public Builder jobId(final String jobId) {
             this.jobId = jobId;
             return this;

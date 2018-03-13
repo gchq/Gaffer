@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.hadoop.util.bloom.BloomFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
@@ -38,94 +40,151 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 public abstract class AbstractCoreKeyIteratorSettingsFactory implements IteratorSettingFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoreKeyIteratorSettingsFactory.class);
 
     @Override
     public IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class).bloomFilter(filter).build();
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_NAME, CoreKeyBloomFilterIterator.class)
+                .bloomFilter(filter)
+                .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}",
+                CoreKeyBloomFilterIterator.class.getName(),
+                AccumuloStoreConstants.BLOOM_FILTER_ITERATOR_PRIORITY);
+        return is;
     }
 
     @Override
     public IteratorSetting getElementPreAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
         if (!view.hasPreAggregationFilters()) {
+            LOGGER.debug("Returning null from getElementPreAggregationFilterIteratorSetting as view.hasPreAggregationFilters = {}",
+                    view.hasPreAggregationFilters());
             return null;
         }
 
-        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, ElementPreAggregationFilter.class)
                 .schema(store.getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "schema = {}, view = {}, keyConverter = {}",
+                ElementPreAggregationFilter.class.getName(),
+                AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+                store.getSchema(), view, store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     @Override
     public IteratorSetting getElementPostAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
         if (!view.hasPostAggregationFilters()) {
+            LOGGER.debug("Returning null from getElementPostAggregationFilterIteratorSetting as view.hasPostAggregationFilters = {}",
+                    view.hasPostAggregationFilters());
             return null;
         }
 
-        return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, ElementPostAggregationFilter.class)
                 .schema(store.getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "schema = {}, view = {}, keyConverter = {}",
+                ElementPostAggregationFilter.class.getName(),
+                AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
+                store.getSchema(), view, store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     @Override
     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
-        return new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
                 .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "combinerColumnFamilies = {}, schema = {}, keyConverter = {}",
+                AggregatorIterator.class.getName(),
+                AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
+                store.getSchema().getAggregatedGroups(), store.getSchema(),
+                store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
         if (!store.getSchema().isAggregationEnabled()) {
+            LOGGER.debug("Returning null from getRowIDAggregatorIteratorSetting as store.getSchema().isAggregationEnabled() = {}",
+                    store.getSchema().isAggregationEnabled());
             return null;
         }
 
-        return new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
                 .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .columnFamily(columnFamily)
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "combinerColumnFamilies = {}, columnFamily = {}, "
+                        + "schema = {}, view = {}, keyConverter = {}",
+                RowIDAggregator.class.getName(),
+                AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
+                store.getSchema().getAggregatedGroups(), columnFamily,
+                store.getSchema(), store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     @Override
     public IteratorSetting getValidatorIteratorSetting(final AccumuloStore store) {
         if (!store.getSchema().hasValidation()) {
+            LOGGER.debug("Returning null from getValidatorIteratorSetting as store.getSchema().hasValidation() = {}",
+                    store.getSchema().hasValidation());
             return null;
         }
 
-        return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "schema = {}, keyConverter = {}",
+                ValidatorFilter.class.getName(),
+                AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
+                store.getSchema(), store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     @Override
     public IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
         if (!queryTimeAggregatorRequired(view, store)) {
+            LOGGER.debug("Returning null from getQueryTimeAggregatorIteratorSetting as queryTimeAggregatorRequired(view, store) = {}",
+                    queryTimeAggregatorRequired(view, store));
             return null;
         }
-        return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
                 .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .schema(store.getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "combinerColumnFamilies = {}, schema = {}, view = {}, keyConverter = {}",
+                CoreKeyGroupByAggregatorIterator.class.getName(),
+                AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
+                store.getSchema().getAggregatedGroups(), store.getSchema(),
+                view, store.getKeyPackage().getKeyConverter());
+        return is;
     }
 
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
