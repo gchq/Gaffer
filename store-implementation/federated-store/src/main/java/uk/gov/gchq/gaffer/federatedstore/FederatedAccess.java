@@ -66,7 +66,7 @@ public class FederatedAccess implements Serializable {
     private boolean isPublic = Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
-    private boolean enabledByDefault;
+    private boolean disabledByDefault;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         setGraphAuths(graphAuths);
@@ -78,9 +78,9 @@ public class FederatedAccess implements Serializable {
         this.isPublic = isPublic;
     }
 
-    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic, final boolean enabledByDefault) {
+    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic, final boolean disabledByDefault) {
         this(graphAuths, addingUser, isPublic);
-        this.enabledByDefault = enabledByDefault;
+        this.disabledByDefault = disabledByDefault;
     }
 
     public String getAddingUserId() {
@@ -91,8 +91,8 @@ public class FederatedAccess implements Serializable {
         this.addingUserId = creatorUserId;
     }
 
-    public boolean isEnabledByDefault() {
-        return enabledByDefault;
+    public boolean isDisabledByDefault() {
+        return disabledByDefault;
     }
 
     /**
@@ -167,7 +167,7 @@ public class FederatedAccess implements Serializable {
         private Set<String> graphAuths;
         private final Builder self = this;
         private boolean isPublic = false;
-        private boolean enabledByDefault;
+        private boolean disabledByDefault;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {
@@ -207,13 +207,13 @@ public class FederatedAccess implements Serializable {
             return self;
         }
 
-        public Builder enabledByDefault(final boolean enabledByDefault) {
-            this.enabledByDefault = enabledByDefault;
+        public Builder disabledByDefault(final boolean disabledByDefault) {
+            this.disabledByDefault = disabledByDefault;
             return self;
         }
 
         public FederatedAccess build() {
-            return new FederatedAccess(graphAuths, addingUser, isPublic, enabledByDefault);
+            return new FederatedAccess(graphAuths, addingUser, isPublic, disabledByDefault);
         }
 
         public Builder makePublic() {

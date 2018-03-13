@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -375,11 +374,11 @@ public class FederatedGraphStorage {
      * @return a stream of graphs the user has visibility for.
      */
     private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
-        if (CollectionUtils.isEmpty(graphIds)) {
+        if (null == graphIds) {
             return storage.entrySet()
                     .stream()
                     .filter(entry -> isValidToView(user, entry.getKey()))
-                    .filter(entry -> entry.getKey().isEnabledByDefault())
+                    .filter(entry -> !entry.getKey().isDisabledByDefault())
                     .flatMap(entry -> entry.getValue().stream());
         }
 

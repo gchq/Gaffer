@@ -661,8 +661,8 @@ public class FederatedStoreTest {
         final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "");
 
         // Then
-        assertTrue(returnedGraphs.isEmpty());
-        assertTrue(expectedGraphs.isEmpty());
+        assertTrue(returnedGraphs.toString(), returnedGraphs.isEmpty());
+        assertTrue(expectedGraphs.toString(), expectedGraphs.isEmpty());
     }
 
     @Test

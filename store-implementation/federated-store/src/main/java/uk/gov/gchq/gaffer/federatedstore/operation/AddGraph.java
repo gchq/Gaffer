@@ -73,7 +73,7 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
-    private boolean enabledByDefault = DEFAULT_ENABLED_BY_DEFAULT;
+    private boolean disabledByDefault = DEFAULT_ENABLED_BY_DEFAULT;
 
     public AddGraph() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
@@ -103,7 +103,7 @@ public class AddGraph implements FederatedOperation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
-                .enabledByDefault(enabledByDefault)
+                .disabledByDefault(disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic);
 
@@ -138,12 +138,12 @@ public class AddGraph implements FederatedOperation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
-    public boolean isEnabledByDefault() {
-        return enabledByDefault;
+    public boolean isDisabledByDefault() {
+        return disabledByDefault;
     }
 
-    public void setEnabledByDefault(final boolean enabledByDefault) {
-        this.enabledByDefault = enabledByDefault;
+    public void setdisabledByDefault(final boolean disabledByDefault) {
+        this.disabledByDefault = disabledByDefault;
     }
 
     @Override
@@ -231,8 +231,8 @@ public class AddGraph implements FederatedOperation {
             return _self();
         }
 
-        public B enabledByDefault(final boolean enabledByDefault) {
-            _getOp().setEnabledByDefault(enabledByDefault);
+        public B disabledByDefault(final boolean disabledByDefault) {
+            _getOp().setdisabledByDefault(disabledByDefault);
             return _self();
         }
     }
