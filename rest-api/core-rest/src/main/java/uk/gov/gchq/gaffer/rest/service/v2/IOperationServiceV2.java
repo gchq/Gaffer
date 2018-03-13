@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.BAD_REQUEST;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
@@ -72,16 +73,17 @@ public interface IOperationServiceV2 {
 
     @POST
     @Path("/execute")
+    @Produces({APPLICATION_JSON, TEXT_PLAIN})
     @ApiOperation(value = "Performs the given operation on the graph",
             notes = "Attempts to execute the provided operation on the graph, and returns the result below. " +
                     "Simple examples for each operation can be added using the drop-down below.",
-            produces = APPLICATION_JSON,
+            produces = (APPLICATION_JSON + "," + TEXT_PLAIN),
             response = Object.class,
             responseHeaders = {
                     @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
                     @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
             })
-    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK, response = Object.class),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
@@ -90,11 +92,12 @@ public interface IOperationServiceV2 {
 
     @POST
     @Path("/execute/chunked")
+    @Produces({APPLICATION_JSON, TEXT_PLAIN})
     @ApiOperation(value = "Performs the given operation on the graph, returning a chunked output",
             notes = "<b>WARNING</b> - This does not work in Swagger.",
             response = Object.class,
-            produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
+            produces = (APPLICATION_JSON + "," + TEXT_PLAIN))
+    @ApiResponses(value = {@ApiResponse(code = 202, message = OK, response = Object.class),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
