@@ -64,7 +64,7 @@ import java.util.function.Predicate;
  */
 @Since("1.4.0")
 @JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
-public class If extends GenericInput implements InputOutput<Object, Object>, Operations<Operation> {
+public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
     private Boolean condition;
     private Conditional conditional;
     private Operation then;
@@ -72,13 +72,13 @@ public class If extends GenericInput implements InputOutput<Object, Object>, Ope
     private Map<String, String> options;
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<O> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
     }
 
     @Override
-    public If shallowClone() throws CloneFailedException {
-        return new If.Builder()
+    public If<I, O> shallowClone() throws CloneFailedException {
+        return new If.Builder<I, O>()
                 .input(getInput())
                 .condition(condition)
                 .conditional(conditional)
@@ -223,39 +223,39 @@ public class If extends GenericInput implements InputOutput<Object, Object>, Ope
         return null;
     }
 
-    public static final class Builder
-            extends Operation.BaseBuilder<If, Builder>
-            implements InputOutput.Builder<If, Object, Object, Builder> {
+    public static final class Builder<I, O>
+            extends Operation.BaseBuilder<If<I, O>, Builder<I, O>>
+            implements InputOutput.Builder<If<I, O>, I, O, Builder<I, O>> {
         public Builder() {
-            super(new If());
+            super(new If<>());
         }
 
-        public Builder condition(final Boolean condition) {
+        public Builder<I, O> condition(final Boolean condition) {
             _getOp().setCondition(condition);
             return _self();
         }
 
-        public Builder conditional(final Conditional conditional) {
+        public Builder<I, O> conditional(final Conditional conditional) {
             _getOp().setConditional(conditional);
             return _self();
         }
 
-        public Builder conditional(final Predicate predicate) {
+        public Builder<I, O> conditional(final Predicate predicate) {
             _getOp().setConditional(new Conditional(predicate));
             return _self();
         }
 
-        public Builder conditional(final Predicate predicate, final Operation transform) {
+        public Builder<I, O> conditional(final Predicate predicate, final Operation transform) {
             _getOp().setConditional(new Conditional(predicate, transform));
             return _self();
         }
 
-        public Builder then(final Operation op) {
+        public Builder<I, O> then(final Operation op) {
             _getOp().setThen(op);
             return _self();
         }
 
-        public Builder otherwise(final Operation op) {
+        public Builder<I, O> otherwise(final Operation op) {
             _getOp().setOtherwise(op);
             return _self();
         }

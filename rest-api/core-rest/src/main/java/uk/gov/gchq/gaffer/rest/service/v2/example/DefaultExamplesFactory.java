@@ -506,7 +506,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         } else if (hasEdges()) {
             seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
         }
-        return new If.Builder()
+        return new If.Builder<>()
                 .input(seeds)
                 .conditional(new IsLongerThan(0))
                 .then(new GetElements())

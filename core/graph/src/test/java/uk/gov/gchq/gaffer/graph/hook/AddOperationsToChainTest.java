@@ -343,7 +343,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         Operation count = new Count<>();
         Operation countGroups = new CountGroups();
         Operation getElements = new GetElements();
-        If ifOp = new If.Builder()
+        If ifOp = new If.Builder<>()
                 .conditional(new Conditional(new Exists(), new GetElements()))
                 .then(new GetElements())
                 .otherwise(new GetAllElements())
@@ -378,7 +378,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .then(limit)
                         .then(validate)
                         .build())
-                .then(new If.Builder()
+                .then(new If.Builder<>()
                         .conditional(new Conditional(new Exists(), new OperationChain<>(new CountGroups(), new GetElements())))
                         .then(new OperationChain<>(new CountGroups(), new GetElements()))
                         .otherwise(new OperationChain<>(new GetAllElements(), new Limit<>(), new Validate()))
@@ -395,7 +395,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStoreFromFile();
-        If ifOp = new If.Builder()
+        If ifOp = new If.Builder<>()
                 .then(new GetElements())
                 .build();
 
@@ -410,7 +410,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final OperationChain expectedOpChain = new OperationChain.Builder()
                 .first(discardOutput)
                 .then(splitStore)
-                .then(new If.Builder()
+                .then(new If.Builder<>()
                         .then(new OperationChain<>(new CountGroups(), new GetElements()))
                         .build())
                 .then(new Count())
@@ -469,7 +469,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final Conditional conditional = new Conditional();
         conditional.setPredicate(exists);
 
-        final If ifOp = new If.Builder()
+        final If ifOp = new If.Builder<>()
                 .conditional(conditional)
                 .then(getElements)
                 .otherwise(getAllElements)

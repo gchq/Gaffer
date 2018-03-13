@@ -32,30 +32,33 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * A {@code GenericInput} is an {@link Input} operation that has an {@link Object}
+ * A {@code GenericInput} is an {@link Input} operation that has a generic
  * input type, where the input value could be a single Object or an array of Objects.
- * Having a Object input type causes issues with JSON serialisation of Operations
+ * Having a generic input type causes issues with JSON serialisation of Operations
  * so this class is designed to help with the JSON serialisation.
- * This class should be extended for all operations that implement {@code Input<Object>}.
+ * This class should be extended for all operations that implement {@code Input<I>}
+ * and not {@code MultiInput<I>}}.
+ *
+ * @param <I> the type of input object.
  */
-public abstract class GenericInput implements Input<Object> {
-    private Object input;
+public abstract class GenericInput<I> implements Input<I> {
+    private I input;
     private MultiInputWrapper multiInputWrapper;
 
     public GenericInput() {
     }
 
-    public GenericInput(final Object input) {
+    public GenericInput(final I input) {
         setInput(input);
     }
 
     @Override
-    public Object getInput() {
+    public I getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Object input) {
+    public void setInput(final I input) {
         getMultiInputWrapper().setInput(input);
         this.input = input;
     }
@@ -64,7 +67,7 @@ public abstract class GenericInput implements Input<Object> {
 
     @JsonTypeInfo(use = Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("input")
-    Object _getJsonInput() {
+    I _getJsonInput() {
         if (getMultiInputWrapper().hasMultiInput()) {
             return null;
         }
@@ -73,7 +76,7 @@ public abstract class GenericInput implements Input<Object> {
 
     @JsonTypeInfo(use = Id.NONE)
     @JsonSetter("input")
-    void _setJsonInput(final Object input) throws SerialisationException {
+    void _setJsonInput(final I input) throws SerialisationException {
         // Sometimes json type info is stored in an array of size 2.
         // In that case we cannot determine if the input is multi or not.
         boolean isSingular = true;
@@ -116,7 +119,7 @@ public abstract class GenericInput implements Input<Object> {
             }
         }
 
-        setInput(resultInput);
+        setInput((I) resultInput);
     }
 
     @JsonUnwrapped

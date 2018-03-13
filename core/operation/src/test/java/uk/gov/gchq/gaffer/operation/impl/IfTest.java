@@ -45,7 +45,7 @@ public class IfTest extends OperationTest<If> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final If ifOp = getTestObject();
+        final If<Object, Object> ifOp = getTestObject();
 
         // Then
         assertThat(ifOp.getInput(), is(notNullValue()));
@@ -58,7 +58,7 @@ public class IfTest extends OperationTest<If> {
     public void shouldShallowCloneOperation() {
         // Given
         final Object input = "testInput";
-        final If ifOp = new If.Builder()
+        final If ifOp = new If.Builder<>()
                 .input(input)
                 .condition(true)
                 .conditional(new Conditional())
@@ -88,7 +88,7 @@ public class IfTest extends OperationTest<If> {
                 .then(new Limit<>(3))
                 .build();
 
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(true)
                 .then(getElements)
                 .otherwise(opChain)
@@ -115,7 +115,7 @@ public class IfTest extends OperationTest<If> {
                 .then(new Limit<>(3))
                 .build();
 
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(false)
                 .build();
 
@@ -134,7 +134,7 @@ public class IfTest extends OperationTest<If> {
     @Test
     public void shouldThrowErrorForTryingToUpdateOperationsWithEmptyList() {
         // Given
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(true)
                 .build();
 
@@ -156,7 +156,7 @@ public class IfTest extends OperationTest<If> {
                 .input(new EntitySeed("1"))
                 .build();
 
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .condition(false)
                 .build();
 
@@ -182,7 +182,7 @@ public class IfTest extends OperationTest<If> {
 
         final Limit limit = new Limit(5);
 
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .build();
 
         final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit, limit);
@@ -202,13 +202,13 @@ public class IfTest extends OperationTest<If> {
         final Object input = "testInput";
         final GetAllElements getAllElements = new GetAllElements();
 
-        final If ifOp = new If.Builder()
+        final If<Object, Object> ifOp = new If.Builder<>()
                 .input(input)
                 .then(getAllElements)
                 .build();
 
         // When
-        final If clone = ifOp.shallowClone();
+        final If<Object, Object> clone = ifOp.shallowClone();
 
         // Then
         assertNotNull(clone);
@@ -220,7 +220,7 @@ public class IfTest extends OperationTest<If> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final If op = new If.Builder()
+        final If op = new If.Builder<>()
                 .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
                 .condition(true)
                 .then(new GetElements())
@@ -259,7 +259,7 @@ public class IfTest extends OperationTest<If> {
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithSingleValue() {
         // Given
-        final If op = new If.Builder()
+        final If op = new If.Builder<>()
                 .input(new EntitySeed("1"))
                 .condition(true)
                 .then(new GetElements())
@@ -292,8 +292,8 @@ public class IfTest extends OperationTest<If> {
     }
 
     @Override
-    protected If getTestObject() {
-        return new If.Builder()
+    protected If<Object, Object> getTestObject() {
+        return new If.Builder<>()
                 .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
                 .condition(true)
                 .then(new GetElements())

@@ -26,11 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @JsonPropertyOrder(alphabetic = true)
-public class GenericInputImpl extends GenericInput {
-
-    private Object input;
-    private MultiInputWrapper multiInputWrapper;
-
+public class GenericInputImpl extends GenericInput<Object> {
     public GenericInputImpl() {
         super();
     }
