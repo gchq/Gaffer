@@ -113,8 +113,8 @@ public class NamedViewDetail implements Serializable {
         return writeAccessRoles;
     }
 
-    public boolean hasWriteAccess(final String userId, final Set<String> opAuths, final String adminRole) {
-        return hasAccess(userId, opAuths, writeAccessRoles, adminRole);
+    public boolean hasWriteAccess(final String userId, final Set<String> opAuths, final String adminAuth) {
+        return hasAccess(userId, opAuths, writeAccessRoles, adminAuth);
     }
 
     @JsonInclude(Include.NON_DEFAULT)
@@ -260,7 +260,7 @@ public class NamedViewDetail implements Serializable {
         return "\"${" + paramKey + "}\"";
     }
 
-    private boolean hasAccess(final String userId, final Set<String> opAuths, final List<String> roles, final String adminRole) {
+    private boolean hasAccess(final String userId, final Set<String> opAuths, final List<String> roles, final String adminAuth) {
         if (null != roles) {
             for (final String role : roles) {
                 if (opAuths.contains(role)) {
@@ -268,8 +268,8 @@ public class NamedViewDetail implements Serializable {
                 }
             }
         }
-        if (StringUtils.isNotBlank(adminRole)) {
-            if (opAuths.contains(adminRole)) {
+        if (StringUtils.isNotBlank(adminAuth)) {
+            if (opAuths.contains(adminAuth)) {
                 return true;
             }
         }

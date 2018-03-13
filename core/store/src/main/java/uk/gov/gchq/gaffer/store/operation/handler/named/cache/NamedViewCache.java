@@ -43,10 +43,10 @@ public class NamedViewCache {
      * @param namedViewDetail The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} to store
      * @param overwrite       Flag relating to whether the user is adding (false) or updating/overwriting (true).
      * @param user            The user making the request.
-     * @param adminRole       The admin role supplied for permissions.
+     * @param adminAuth       The admin auth supplied for permissions.
      * @throws CacheOperationFailedException if the add operation fails.
      */
-    public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user, final String adminRole) throws CacheOperationFailedException {
+    public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user, final String adminAuth) throws CacheOperationFailedException {
         if (null != namedViewDetail.getName()) {
             namedViewDetail.getName();
         } else {
@@ -66,7 +66,7 @@ public class NamedViewCache {
             addToCache(namedViewDetail, false);
             return;
         }
-        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminRole)) {
+        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
             addToCache(namedViewDetail, true);
         } else {
             throw new CacheOperationFailedException("User " + user.getUserId() + " does not have permission to overwrite");
@@ -79,11 +79,11 @@ public class NamedViewCache {
      *
      * @param name      {@link NamedViewDetail} name to delete
      * @param user      A {@link User} object that can optionally be used for checking permissions
-     * @param adminRole The admin role supplied for permissions.
+     * @param adminAuth The admin auth supplied for permissions.
      * @throws CacheOperationFailedException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedViewDetail
      */
-    public void deleteNamedView(final String name, final User user, final String adminRole) throws CacheOperationFailedException {
+    public void deleteNamedView(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
         if (null == name) {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
@@ -93,7 +93,7 @@ public class NamedViewCache {
         } catch (final CacheOperationFailedException e) {
             return;
         }
-        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminRole)) {
+        if (existing.hasWriteAccess(user.getUserId(), user.getOpAuths(), adminAuth)) {
             deleteFromCache(name);
         } else {
             throw new CacheOperationFailedException("User " + user +

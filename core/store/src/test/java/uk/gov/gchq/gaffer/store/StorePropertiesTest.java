@@ -195,16 +195,16 @@ public class StorePropertiesTest {
     }
 
     @Test
-    public void shouldSetAndGetAdminRole() {
+    public void shouldGetAndSetAdminAuth() {
         // Given
-        final String adminRole = "admin role";
+        final String adminAuth = "admin auth";
         final StoreProperties props = createStoreProperties();
 
         // When
-        props.setAdminRole(adminRole);
+        props.setAdminAuth(adminAuth);
 
         // Then
-        assertEquals(adminRole, props.getAdminRole());
+        assertEquals(adminAuth, props.getAdminAuth());
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {

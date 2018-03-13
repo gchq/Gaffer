@@ -74,7 +74,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);
 
             cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context
-                    .getUser(), store.getProperties().getAdminRole());
+                    .getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

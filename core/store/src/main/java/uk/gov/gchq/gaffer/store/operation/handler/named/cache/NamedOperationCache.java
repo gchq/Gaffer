@@ -48,11 +48,11 @@ public class NamedOperationCache {
      * @param namedOperation The NamedOperationDetail that the user wants to store.
      * @param overwrite      Flag relating to whether the user is adding (false) or updating/overwriting (true).
      * @param user           The user making the request.
-     * @param adminRole      The admin role supplied for permissions.
+     * @param adminAuth      The admin auth supplied for permissions.
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
-    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user, final String adminRole) throws CacheOperationFailedException {
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user, final String adminAuth) throws CacheOperationFailedException {
         String name;
         try {
             name = namedOperation.getOperationName();
@@ -67,7 +67,7 @@ public class NamedOperationCache {
             return;
         }
 
-        NamedOperationDetail existing = null;
+        NamedOperationDetail existing;
 
         try {
             existing = getFromCache(name);
@@ -75,7 +75,7 @@ public class NamedOperationCache {
             addToCache(name, namedOperation, false);
             return;
         }
-        if (existing.hasWriteAccess(user, adminRole)) {
+        if (existing.hasWriteAccess(user, adminAuth)) {
             addToCache(name, namedOperation, true);
         } else {
             throw new CacheOperationFailedException("User " + user.getUserId() + " does not have permission to overwrite");
@@ -88,16 +88,16 @@ public class NamedOperationCache {
      *
      * @param name      The name of the NamedOperationDetail a user would like to delete.
      * @param user      A {@link User} object that can optionally be used for checking permissions.
-     * @param adminRole The admin role supplied for permissions.
+     * @param adminAuth The admin auth supplied for permissions.
      * @throws CacheOperationFailedException Thrown when the NamedOperationDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedOperationDetail.
      */
-    public void deleteNamedOperation(final String name, final User user, final String adminRole) throws CacheOperationFailedException {
+    public void deleteNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
         if (null == name) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         final NamedOperationDetail existing = getFromCache(name);
-        if (existing.hasWriteAccess(user, adminRole)) {
+        if (existing.hasWriteAccess(user, adminAuth)) {
             deleteFromCache(name);
         } else {
             throw new CacheOperationFailedException("User " + user +
@@ -112,14 +112,14 @@ public class NamedOperationCache {
      *
      * @param name      The name of the NamedOperationDetail held in the cache.
      * @param user      The {@link User} object that is used for checking read permissions.
-     * @param adminRole The admin role supplied for permissions.
+     * @param adminAuth The admin auth supplied for permissions.
      * @return NamedOperationDetail.
      * @throws CacheOperationFailedException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                       to read it.
      */
-    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminRole) throws CacheOperationFailedException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
         final NamedOperationDetail op = getFromCache(name);
-        if (op.hasReadAccess(user, adminRole)) {
+        if (op.hasReadAccess(user, adminAuth)) {
             return op;
         } else {
             throw new CacheOperationFailedException("User: " + user + " does not have read access to " + name);
@@ -130,16 +130,16 @@ public class NamedOperationCache {
      * Get all the named operations held in the cache.
      *
      * @param user      The {@link User} object that is used for checking read permissions.
-     * @param adminRole The admin role supplied for permissions.
+     * @param adminAuth The admin auth supplied for permissions.
      * @return a {@link CloseableIterable} containing the named operation details
      */
-    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminRole) {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
         final Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         final Set<NamedOperationDetail> executables = new HashSet<>();
         for (final String key : keys) {
             try {
                 NamedOperationDetail op = getFromCache(key);
-                if (op.hasReadAccess(user, adminRole)) {
+                if (op.hasReadAccess(user, adminAuth)) {
                     executables.add(op);
                 }
             } catch (final CacheOperationFailedException e) {

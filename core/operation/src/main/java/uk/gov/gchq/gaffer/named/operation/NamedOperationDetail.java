@@ -251,15 +251,15 @@ public class NamedOperationDetail implements Serializable {
                 .toString();
     }
 
-    public boolean hasReadAccess(final User user, final String adminRole) {
-        return hasAccess(user, readAccessRoles, adminRole);
+    public boolean hasReadAccess(final User user, final String adminAuth) {
+        return hasAccess(user, readAccessRoles, adminAuth);
     }
 
-    public boolean hasWriteAccess(final User user, final String adminRole) {
-        return hasAccess(user, writeAccessRoles, adminRole);
+    public boolean hasWriteAccess(final User user, final String adminAuth) {
+        return hasAccess(user, writeAccessRoles, adminAuth);
     }
 
-    private boolean hasAccess(final User user, final List<String> roles, final String adminRole) {
+    private boolean hasAccess(final User user, final List<String> roles, final String adminAuth) {
         if (null != roles) {
             for (final String role : roles) {
                 if (user.getOpAuths().contains(role)) {
@@ -267,8 +267,8 @@ public class NamedOperationDetail implements Serializable {
                 }
             }
         }
-        if (StringUtils.isNotBlank(adminRole)) {
-            if (user.getOpAuths().contains(adminRole)) {
+        if (StringUtils.isNotBlank(adminAuth)) {
+            if (user.getOpAuths().contains(adminAuth)) {
                 return true;
             }
         }
