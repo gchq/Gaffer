@@ -42,6 +42,13 @@ public abstract class GenericInput implements Input<Object> {
     private Object input;
     private MultiInputWrapper multiInputWrapper;
 
+    public GenericInput() {
+    }
+
+    public GenericInput(final Object input) {
+        setInput(input);
+    }
+
     @Override
     public Object getInput() {
         return input;
