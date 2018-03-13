@@ -87,7 +87,7 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
-        cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
+        cache.addNamedView(standard, false);
         NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
 
         assertEquals(standard, namedViewFromCache);
@@ -95,9 +95,9 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationFailedException {
-        cache.addNamedView(standard, false, blankUser, EMPTY_ADMIN_AUTH);
+        cache.addNamedView(standard, false);
         try {
-            cache.addNamedView(standard, false, blankUser, EMPTY_ADMIN_AUTH);
+            cache.addNamedView(standard, false);
             fail(EXCEPTION_EXPECTED);
         } catch (OverwritingException e) {
             assertTrue(e.getMessage().equals("Cache entry already exists for key: " + STANDARD_VIEW_NAME));
@@ -107,7 +107,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException {
         try {
-            cache.deleteNamedView(null, blankUser, EMPTY_ADMIN_AUTH);
+            cache.deleteNamedView(null);
             fail(EXCEPTION_EXPECTED);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
@@ -132,8 +132,8 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldBeAbleToReturnAllNamedViewsFromCache() throws CacheOperationFailedException {
-        cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
-        cache.addNamedView(alternative, false, advancedUser, EMPTY_ADMIN_AUTH);
+        cache.addNamedView(standard, false);
+        cache.addNamedView(alternative, false);
 
         Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
 

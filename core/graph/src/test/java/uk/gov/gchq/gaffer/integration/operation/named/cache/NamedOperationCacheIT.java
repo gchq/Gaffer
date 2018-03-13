@@ -87,6 +87,8 @@ public class NamedOperationCacheIT {
     }
 
     private void runTests() throws OperationException, CacheOperationException {
+        shouldAllowUpdatingOfNamedOperations();
+        after();
         shouldAllowUpdatingOfNamedOperationsWithAllowedUsers();
         after();
         shouldAllowReadingOfNamedOperationsUsingAdminAuth();
@@ -150,6 +152,43 @@ public class NamedOperationCacheIT {
 
     }
 
+    private void shouldAllowUpdatingOfNamedOperations() throws OperationException {
+        // given
+        final Store store = mock(Store.class);
+
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        AddNamedOperation update = new AddNamedOperation.Builder()
+                .name(add.getOperationName())
+                .description("a different operation")
+                .operationChain(add.getOperationChainAsString())
+                .overwrite()
+                .score(0)
+                .build();
+
+        GetAllNamedOperations get = new GetAllNamedOperations();
+
+        // when
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
+
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(update.getOperationName())
+                .operationChain(update.getOperationChainAsString())
+                .description(update.getDescription())
+                .creatorId(user.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .score(0)
+                .build();
+
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+
+        // then
+        assertEquals(expected.size(), results.size());
+        assertEquals(expected, results);
+    }
 
     private void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
@@ -168,10 +207,10 @@ public class NamedOperationCacheIT {
 
         GetAllNamedOperations get = new GetAllNamedOperations();
 
-        // when
+            // when
         new AddNamedOperationHandler().doOperation(add, context, store);
 
-        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
+            List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())

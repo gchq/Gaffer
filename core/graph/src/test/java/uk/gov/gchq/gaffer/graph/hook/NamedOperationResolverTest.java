@@ -70,7 +70,7 @@ public class NamedOperationResolverTest {
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
@@ -108,7 +108,7 @@ public class NamedOperationResolverTest {
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(null);
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
@@ -149,7 +149,7 @@ public class NamedOperationResolverTest {
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(mock(CloseableIterable.class));
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOpChain);
 
         // When
@@ -196,7 +196,7 @@ public class NamedOperationResolverTest {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
@@ -245,7 +245,7 @@ public class NamedOperationResolverTest {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
         exception.expect(IllegalArgumentException.class);
@@ -286,7 +286,7 @@ public class NamedOperationResolverTest {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
         exception.expect(IllegalArgumentException.class);
@@ -326,7 +326,7 @@ public class NamedOperationResolverTest {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(cache.getNamedOperation(opName, user, null)).willReturn(extendedNamedOperation);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
         exception.expect(IllegalArgumentException.class);
