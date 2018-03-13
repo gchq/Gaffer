@@ -142,7 +142,7 @@ public class AddGraph implements FederatedOperation {
         return disabledByDefault;
     }
 
-    public void setdisabledByDefault(final boolean disabledByDefault) {
+    public void setDisabledByDefault(final boolean disabledByDefault) {
         this.disabledByDefault = disabledByDefault;
     }
 
@@ -232,7 +232,7 @@ public class AddGraph implements FederatedOperation {
         }
 
         public B disabledByDefault(final boolean disabledByDefault) {
-            _getOp().setdisabledByDefault(disabledByDefault);
+            _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
     }
