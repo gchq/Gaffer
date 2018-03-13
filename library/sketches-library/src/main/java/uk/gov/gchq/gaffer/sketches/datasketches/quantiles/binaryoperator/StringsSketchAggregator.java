@@ -19,12 +19,14 @@ import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsSketch;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
  * A {@code StringsSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ItemsSketch}s of {@link String}s using an {@link ItemsUnion}.
  */
+@Since("1.0.0")
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {
 
     @Override
