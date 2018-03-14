@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
-import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
+import uk.gov.gchq.gaffer.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
