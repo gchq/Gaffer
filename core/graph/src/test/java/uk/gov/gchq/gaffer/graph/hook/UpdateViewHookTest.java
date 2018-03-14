@@ -16,18 +16,24 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.user.User.Builder;
 
+import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -38,22 +44,45 @@ import static org.junit.Assert.fail;
 
 public class UpdateViewHookTest {
 
-    private User user;
-    private Context context;
+    public static final String TEST_WITH_VALUE = "withTestValue";
+    public static final String TEST_WITHOUT_VALUE = "withoutTestValue";
+    public static final String TEST_EDGE = "testEdge";
+    public static final String A = "A";
+    public static final String B = "B";
     private OperationChain opChain;
-    private UpdateViewHook updateViewHook;
     private View viewToMerge;
+    private HashSet<String> userOpAuths = Sets.newHashSet();
+    private HashSet<String> userDataAuths = Sets.newHashSet();
+    private HashSet<String> opAuths = Sets.newHashSet();
+    private HashSet<String> dataAuths = Sets.newHashSet();
+    private HashSet<String> validAuths = Sets.newHashSet();
+    private HashSet<String> userAuths = Sets.newHashSet();
+    private Builder userBuilder;
+    private UpdateViewHook updateViewHook;
 
     @Before
     public void setUp() throws Exception {
+        userAuths.clear();
+        validAuths.clear();
+
         updateViewHook = new UpdateViewHook();
         viewToMerge = new View.Builder().edge("testGroup").build();
-        updateViewHook.setViewToMerge(viewToMerge);
-        updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
+
+        userOpAuths.clear();
+        userDataAuths.clear();
+        opAuths.clear();
+        dataAuths.clear();
+
+        userBuilder = new Builder();
     }
+
+    //***** preExecute TESTS *****//
 
     @Test
     public void shouldNotMergeWithWrongUser() throws Exception {
+        updateViewHook.setViewToMerge(viewToMerge);
+        updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
+
         opChain = new OperationChain(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User()));
         Object op = opChain.getOperations().get(0);
@@ -67,6 +96,9 @@ public class UpdateViewHookTest {
 
     @Test
     public void shouldMergeWithUser() throws Exception {
+        updateViewHook.setViewToMerge(viewToMerge);
+        updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
+
         opChain = new OperationChain(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
         Object op = opChain.getOperations().get(0);
@@ -81,8 +113,8 @@ public class UpdateViewHookTest {
     @Test
     public void shouldApplyWhiteAndBlackLists() throws Exception {
         opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("wrong1").entity("white1").entity("white2").build()).build());
-        updateViewHook.setWhiteListElementGroups(Lists.newArrayList("white2", "white1"));
-        updateViewHook.setBlackListElementGroups(Lists.newArrayList("white1"));
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1"));
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
@@ -98,7 +130,7 @@ public class UpdateViewHookTest {
     @Test
     public void shouldApplyWhiteLists() throws Exception {
         opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("wrong1").entity("white1").entity("white2").build()).build());
-        updateViewHook.setWhiteListElementGroups(Lists.newArrayList("white2", "white1"));
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
@@ -116,7 +148,7 @@ public class UpdateViewHookTest {
     @Test
     public void shouldApplyBlackLists() throws Exception {
         opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("white1").entity("white2").build()).build());
-        updateViewHook.setBlackListElementGroups(Lists.newArrayList("white1"));
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
@@ -154,4 +186,302 @@ public class UpdateViewHookTest {
         assertEquals(testString, updateViewHook.onFailure(testString, null, null, null));
 
     }
+
+    //***** ApplyToUserTests *****
+
+    @Test
+    public void shouldPassWithOnlyOps() throws Exception {
+        userOpAuths.add("oA");
+        opAuths.add("oA");
+
+        userBuilder.opAuths(opAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldPassWithOnlyData() throws Exception {
+        updateViewHook.setWithOpAuth(null);
+
+        assertTrue("updateViewHook.getWithOpAuth() needs to be empty for this test",
+                updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty());
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
+
+        userBuilder.dataAuths(userDataAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldPassWithBoth() throws Exception {
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
+        userOpAuths.add("oA");
+        opAuths.add("oA");
+
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertTrue(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+
+    @Test
+    public void shouldFailWithWrongOps() throws Exception {
+        userOpAuths.add("oB");
+        opAuths.add("oA");
+
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldFailWithWrongData() throws Exception {
+        userDataAuths.add("dA");
+        dataAuths.add("dB");
+
+        userBuilder.dataAuths(userDataAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldFailWithBothWrongOPsData() throws Exception {
+        userDataAuths.add("dB");
+        dataAuths.add("dA");
+        userOpAuths.add("oB");
+        opAuths.add("oA");
+
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldFailWithOneWrongOPs() throws Exception {
+        userDataAuths.add("dA");
+        dataAuths.add("dA");
+        userOpAuths.add("oB");
+        opAuths.add("oA");
+
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    @Test
+    public void shouldFailWithOneWrongData() throws Exception {
+        userDataAuths.add("dB");
+        dataAuths.add("dA");
+        userOpAuths.add("oA");
+        opAuths.add("oA");
+
+        userBuilder.dataAuths(userDataAuths);
+        userBuilder.opAuths(userOpAuths);
+        updateViewHook.setWithDataAuth(dataAuths);
+        updateViewHook.setWithOpAuth(opAuths);
+
+        assertFalse(updateViewHook.applyToUser(userBuilder.build()));
+    }
+
+    //***** Serialise Tests *****
+
+    @Test
+    public void shouldSerialiseOpAuth() throws Exception {
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .withOpAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .withoutOpAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
+                .build();
+
+        byte[] serialise = getBytes(updateViewHook);
+
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        assertTrue(deserialise.getWithOpAuth().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getWithoutOpAuth().contains(TEST_WITHOUT_VALUE));
+    }
+
+    private byte[] getBytes(final UpdateViewHook updateViewHook) throws SerialisationException {
+        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
+        String s = new String(serialise);
+        assertTrue(s.contains(TEST_WITH_VALUE));
+        assertTrue(s.contains(TEST_WITHOUT_VALUE));
+        return serialise;
+    }
+
+
+    @Test
+    public void shouldSerialiseDataAuths() throws Exception {
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .withDataAuth(Sets.newHashSet(TEST_WITH_VALUE))
+                .withoutDataAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
+                .build();
+
+        byte[] serialise = getBytes(updateViewHook);
+
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        assertTrue(deserialise.getWithDataAuth().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getWithoutDataAuth().contains(TEST_WITHOUT_VALUE));
+    }
+
+    @Test
+    public void shouldSerialiseElementGroups() throws Exception {
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .whiteListElementGroups(Sets.newHashSet(TEST_WITH_VALUE))
+                .blackListElementGroups(Sets.newHashSet(TEST_WITHOUT_VALUE))
+                .build();
+
+        byte[] serialise = getBytes(updateViewHook);
+
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        assertTrue(deserialise.getWhiteListElementGroups().contains(TEST_WITH_VALUE));
+        assertTrue(deserialise.getBlackListElementGroups().contains(TEST_WITHOUT_VALUE));
+    }
+
+    @Test
+    public void shouldSerialiseViewToMerge() throws Exception {
+
+        View viewToMerge = new View.Builder().entity(TEST_EDGE).build();
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .setViewToMerge(viewToMerge).build();
+
+        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
+        String s = new String(serialise);
+        assertTrue(s, s.contains(TEST_EDGE));
+
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        assertTrue(deserialise.getViewToMerge().equals(viewToMerge));
+    }
+
+    public static final String TEST_KEY = "testKey";
+    public static final String OTHER = "other";
+
+    @Test
+    public void shouldRemoveBlackList() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
+
+        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+    }
+
+    @Test
+    public void shouldKeepWhiteList() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
+
+        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+    }
+
+
+    @Test
+    public void shouldRemoveInBothLists() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
+
+        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+    }
+
+    @Test
+    public void shouldKeepWhiteList2() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet(OTHER));
+
+        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+    }
+
+    @Test
+    public void shouldRemoveBlackList2() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet(OTHER));
+        updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
+
+        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+    }
+
+
+    private Entry<String, ViewElementDefinition> getEntry() {
+        return new Entry<String, ViewElementDefinition>() {
+            @Override
+            public String getKey() {
+                return TEST_KEY;
+            }
+
+            @Override
+            public ViewElementDefinition getValue() {
+                throw new UnsupportedOperationException("Not yet implemented.");
+            }
+
+            @Override
+            public ViewElementDefinition setValue(final ViewElementDefinition value) {
+                throw new UnsupportedOperationException("Not yet implemented.");
+            }
+        };
+    }
+
+    //***** VALIDATE AUTHS TESTS *****
+
+    @Test
+    public void shouldPassExcessAuth() throws Exception {
+        userAuths.add(A);
+        userAuths.add(B);
+        validAuths.add(A);
+
+        assertTrue(updateViewHook.validateAuths(userAuths, validAuths, true));
+    }
+
+    @Test
+    public void shouldPassSubsetAuth() throws Exception {
+        userAuths.add(A);
+        validAuths.add(A);
+        validAuths.add(B);
+
+        assertTrue(updateViewHook.validateAuths(userAuths, validAuths, true));
+    }
+
+    @Test
+    public void shouldFailMissingAuth() throws Exception {
+        userAuths.add(B);
+        validAuths.add(A);
+
+        assertFalse(updateViewHook.validateAuths(userAuths, validAuths, true));
+    }
+
+    @Test
+    public void shouldFailEmptyUserAuths() throws Exception {
+        validAuths.add(A);
+
+        assertFalse(updateViewHook.validateAuths(userAuths, validAuths, true));
+    }
+
+    @Test
+    public void shouldFailNullUserAuths() throws Exception {
+        validAuths.add(A);
+
+        assertFalse(updateViewHook.validateAuths(null, validAuths, true));
+    }
+
+    @Test
+    public void shouldPassNullValid() throws Exception {
+
+        assertTrue(updateViewHook.validateAuths(userAuths, null, true));
+    }
+
 }

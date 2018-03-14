@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -31,8 +31,6 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,7 +38,23 @@ import java.util.Set;
 
 /**
  * This is a hook to update the View for an operation, that correctly implements {@link OperationView}.
- * This hook will have no effect with operations that do not correctly implement {@link OperationView} therefore <b>THIS CLASS SHOULD NOT BE USED TO ENFORCE POLICY</b>.
+ * This hook will have no effect with operations that do not correctly implement {@link OperationView} therefore <b>THIS CLASS SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING</b>.
+ * Instead please make use of the visibility property ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
+ * <p>
+ * All fields are Optional:
+ * <ul>
+ * <li>withOpAuth = Apply this hook to Users with <b>any</b> of these OpAuths</li>
+ * <li>withoutOpAuth = Apply this hook to Users <b>without any</b> of these OpAuths, overrides withOpAuth</li>
+ * <li>withDataAuth = Apply this hook to Users with <b>any</b> of these DataAuths</li>
+ * <li>withoutDataAuth = Apply this hook to Users <b>without any</b> of these DataAuths, overrides withDataAuth</li>
+ * <li>whiteListElementGroups = When this hook is applied, only allow View Element Groups from this list, overrides viewToMerge</li>
+ * <li>blackListElementGroups = When this hook is applied, remove all View Element Groups from this list, overrides whiteListElementGroups and viewToMerge</li>
+ * <li>viewToMerge = the view to be merged into the current view.</li>
+ * </ul>
+ *
+ * @see GraphHook
+ * @see uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty
+ *
  */
 public class UpdateViewHook implements GraphHook {
 
@@ -48,8 +62,8 @@ public class UpdateViewHook implements GraphHook {
     private Set<String> withoutOpAuth;
     private Set<String> withDataAuth;
     private Set<String> withoutDataAuth;
-    private List<String> whiteListElementGroups;
-    private List<String> blackListElementGroups;
+    private Set<String> whiteListElementGroups;
+    private Set<String> blackListElementGroups;
     private byte[] viewToMerge;
 
     @Override
@@ -59,7 +73,7 @@ public class UpdateViewHook implements GraphHook {
         }
     }
 
-    public void updateView(final OperationChain<?> opChain) {
+    private void updateView(final OperationChain<?> opChain) {
         for (final Operation operation : opChain.flatten()) {
             if (operation instanceof OperationView) {
                 OperationView operationView = (OperationView) operation;
@@ -117,12 +131,26 @@ public class UpdateViewHook implements GraphHook {
     }
 
     protected final boolean applyToUser(final User user) {
-        boolean userHasWithDataAuth = validateAuths(user.getDataAuths(), this.withDataAuth, true);
-        boolean userHasWithOpAuth = validateAuths(user.getOpAuths(), this.withOpAuth, true);
-        boolean userHasWithoutDataAuth = validateAuths(user.getDataAuths(), this.withoutDataAuth, false);
-        boolean userHasWithoutOpAuth = validateAuths(user.getOpAuths(), this.withoutOpAuth, false);
+        return userContainsWithDataAuth(user)
+                && userContainsWithOpAuth(user)
+                && userNotContainsWithoutDataAuth(user)
+                && userNotContainsWithoutOpAuth(user);
+    }
 
-        return userHasWithDataAuth && userHasWithOpAuth && !userHasWithoutDataAuth && !userHasWithoutOpAuth;
+    private boolean userNotContainsWithoutOpAuth(final User user) {
+        return !validateAuths(user.getOpAuths(), this.withoutOpAuth, false);
+    }
+
+    private boolean userNotContainsWithoutDataAuth(final User user) {
+        return !validateAuths(user.getDataAuths(), this.withoutDataAuth, false);
+    }
+
+    private boolean userContainsWithOpAuth(final User user) {
+        return validateAuths(user.getOpAuths(), this.withOpAuth, true);
+    }
+
+    private boolean userContainsWithDataAuth(final User user) {
+        return validateAuths(user.getDataAuths(), this.withDataAuth, true);
     }
 
     protected final boolean validateAuths(final Set<String> userAuths, final Set<String> validAuth, final boolean ifValidAuthIsNull) {
@@ -131,9 +159,7 @@ public class UpdateViewHook implements GraphHook {
             if (null == userAuths) {
                 rtn = validAuth.isEmpty();
             } else {
-                HashSet<String> temp = Sets.newHashSet(validAuth);
-                temp.retainAll(userAuths);
-                rtn = !temp.isEmpty();
+                rtn = CollectionUtils.containsAny(userAuths, validAuth);
             }
         }
         return rtn;
@@ -194,23 +220,23 @@ public class UpdateViewHook implements GraphHook {
     }
 
     @JsonGetter("whiteListElementGroups")
-    public List<String> getWhiteListElementGroups() {
+    public Set<String> getWhiteListElementGroups() {
         return whiteListElementGroups;
     }
 
     @JsonSetter("whiteListElementGroups")
-    public UpdateViewHook setWhiteListElementGroups(final List<String> whiteListElementGroups) {
+    public UpdateViewHook setWhiteListElementGroups(final Set<String> whiteListElementGroups) {
         this.whiteListElementGroups = whiteListElementGroups;
         return this;
     }
 
     @JsonGetter("blackListElementGroups")
-    public List<String> getBlackListElementGroups() {
+    public Set<String> getBlackListElementGroups() {
         return blackListElementGroups;
     }
 
     @JsonSetter("blackListElementGroups")
-    public UpdateViewHook setBlackListElementGroups(final List<String> blackListElementGroups) {
+    public UpdateViewHook setBlackListElementGroups(final Set<String> blackListElementGroups) {
         this.blackListElementGroups = blackListElementGroups;
         return this;
     }
@@ -258,8 +284,8 @@ public class UpdateViewHook implements GraphHook {
         private Set<String> withoutOpAuth;
         private Set<String> withDataAuth;
         private Set<String> withoutDataAuth;
-        private List<String> whiteListElementGroups;
-        private List<String> blackListElementGroups;
+        private Set<String> whiteListElementGroups;
+        private Set<String> blackListElementGroups;
         private byte[] viewToMerge;
 
         public Builder withOpAuth(final Set<String> withOpAuth) {
@@ -282,12 +308,12 @@ public class UpdateViewHook implements GraphHook {
             return this;
         }
 
-        public Builder whiteListElementGroups(final List<String> whiteListElementGroups) {
+        public Builder whiteListElementGroups(final Set<String> whiteListElementGroups) {
             this.whiteListElementGroups = whiteListElementGroups;
             return this;
         }
 
-        public Builder blackListElementGroups(final List<String> blackListElementGroups) {
+        public Builder blackListElementGroups(final Set<String> blackListElementGroups) {
             this.blackListElementGroups = blackListElementGroups;
             return this;
         }
