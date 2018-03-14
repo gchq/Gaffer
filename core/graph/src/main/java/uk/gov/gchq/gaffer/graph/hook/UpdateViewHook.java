@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -58,32 +59,46 @@ public class UpdateViewHook implements GraphHook {
     }
 
     public void updateView(final OperationChain<?> opChain) {
-        for (Operation operation : opChain.flatten()) {
+        for (final Operation operation : opChain.flatten()) {
             if (operation instanceof OperationView) {
                 OperationView operationView = (OperationView) operation;
 
-                View viewToMerge = getViewToMerge();
+                View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
 
-                View opView = new View.Builder()
-                        .merge(operationView.getView())
-                        .merge(viewToMerge.clone())
-                        .build();
+                View originalView = operationView.getView();
+                if (null != originalView) {
+                    originalView.expandGlobalDefinitions();
+                    if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
+                            || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
 
-                opView.expandGlobalDefinitions();
-                if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
-                        || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
-                    Map<String, ViewElementDefinition> entities = opView.getEntities();
-                    entities.entrySet().removeIf(this::removeElementGroups);
+                        Map<String, ViewElementDefinition> entities = Maps.newHashMap(originalView.getEntities());
+                        Set<Entry<String, ViewElementDefinition>> entitiesEntrySet = entities.entrySet();
+                        entitiesEntrySet.removeIf(this::removeElementGroups);
+                        viewBuilder.entities(entities);
 
-                    Map<String, ViewElementDefinition> edges = opView.getEdges();
-                    edges.entrySet().removeIf(this::removeElementGroups);
+                        Map<String, ViewElementDefinition> edges = Maps.newHashMap(originalView.getEdges());
+                        Set<Entry<String, ViewElementDefinition>> edgesEntrySet = edges.entrySet();
+                        edgesEntrySet.removeIf(this::removeElementGroups);
+                        viewBuilder.edges(edges);
+                    }
                 }
-                operationView.setView(opView);
+                operationView.setView(viewBuilder.build());
             }
         }
     }
 
-    protected boolean removeElementGroups(final Entry<String, ViewElementDefinition> entry) {
+    protected final View.Builder mergeView(final OperationView operationView, final View viewToMerge) {
+        View.Builder viewBuilder = new View.Builder()
+                .merge(operationView.getView());
+
+        if (null != viewToMerge) {
+            viewBuilder.merge(viewToMerge.clone());
+        }
+
+        return viewBuilder;
+    }
+
+    protected final boolean removeElementGroups(final Entry<String, ViewElementDefinition> entry) {
         boolean remove;
 
         if (null != whiteListElementGroups) {
@@ -100,16 +115,16 @@ public class UpdateViewHook implements GraphHook {
         return remove;
     }
 
-    final protected boolean applyToUser(final User user) {
-        boolean withDataAuth = validateAuths(user.getDataAuths(), this.withDataAuth, true);
-        boolean withOpAuth = validateAuths(user.getOpAuths(), this.withOpAuth, true);
-        boolean withoutDataAuth = validateAuths(user.getDataAuths(), this.withoutDataAuth, false);
-        boolean withoutOpAuth = validateAuths(user.getOpAuths(), this.withoutOpAuth, false);
+    protected final boolean applyToUser(final User user) {
+        boolean userHasWithDataAuth = validateAuths(user.getDataAuths(), this.withDataAuth, true);
+        boolean userHasWithOpAuth = validateAuths(user.getOpAuths(), this.withOpAuth, true);
+        boolean userHasWithoutDataAuth = validateAuths(user.getDataAuths(), this.withoutDataAuth, false);
+        boolean userHasWithoutOpAuth = validateAuths(user.getOpAuths(), this.withoutOpAuth, false);
 
-        return withDataAuth && withOpAuth && !withoutDataAuth && !withoutOpAuth;
+        return userHasWithDataAuth && userHasWithOpAuth && !userHasWithoutDataAuth && !userHasWithoutOpAuth;
     }
 
-    protected static boolean validateAuths(final Set<String> userAuths, final Set<String> validAuth, final boolean ifValidAuthIsNull) {
+    protected final boolean validateAuths(final Set<String> userAuths, final Set<String> validAuth, final boolean ifValidAuthIsNull) {
         boolean rtn = ifValidAuthIsNull;
         if (null != validAuth) {
             if (null == userAuths) {
@@ -211,7 +226,7 @@ public class UpdateViewHook implements GraphHook {
         if (null != viewToMerge) {
             try {
                 serialise = JSONSerialiser.serialise(viewToMerge, true);
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException("Could not serialise the viewToMerge", e);
             }
         }
@@ -228,7 +243,7 @@ public class UpdateViewHook implements GraphHook {
         if (null != viewToMerge) {
             try {
                 deserialise = JSONSerialiser.deserialise(viewToMerge, View.class);
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException("Could not deserialise viewToMerge", e);
             }
         } else {
