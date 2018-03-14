@@ -150,6 +150,7 @@ public class FederatedAccess implements Serializable {
                 .append(isPublic, that.isPublic)
                 .append(graphAuths, that.graphAuths)
                 .append(addingUserId, that.addingUserId)
+                .append(disabledByDefault, that.disabledByDefault)
                 .isEquals();
     }
 
@@ -159,6 +160,7 @@ public class FederatedAccess implements Serializable {
                 .append(isPublic)
                 .append(graphAuths)
                 .append(addingUserId)
+                .append(disabledByDefault)
                 .toHashCode();
     }
 

@@ -61,6 +61,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -636,7 +637,6 @@ public class FederatedStoreTest {
     @Test
     public void shouldReturnSpecificGraphsFromCSVString() throws Exception {
         // Given
-
         final List<Collection<Graph>> graphLists = populateGraphs(1, 2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
         final Collection<Graph> unexpectedGraphs = graphLists.get(1);
@@ -648,6 +648,32 @@ public class FederatedStoreTest {
         assertTrue(returnedGraphs.size() == 3);
         assertTrue(returnedGraphs.containsAll(expectedGraphs));
         assertFalse(checkUnexpected(unexpectedGraphs, returnedGraphs));
+    }
+
+    @Test
+    public void shouldReturnEnabledByDefaultGraphsForNullString() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, null);
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId2", "mockGraphId4"), graphIds);
+    }
+
+    @Test
+    public void shouldReturnNotReturnEnabledOrDisabledGraphsWhenNotInCsv() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId0,mockGraphId1");
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId1"), graphIds);
     }
 
     @Test
@@ -1042,10 +1068,10 @@ public class FederatedStoreTest {
         return false;
     }
 
-    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws Exception {
+    private List<Collection<Graph>> populateGraphs(final int... expectedIds) throws Exception {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Graph tempGraph = new Graph.Builder()
                     .config(new GraphConfig.Builder()
                             .graphId("mockGraphId" + i)
@@ -1053,7 +1079,9 @@ public class FederatedStoreTest {
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES_ALT))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();
-            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, tempGraph);
+            // Odd ids are disabled by default
+            final boolean disabledByDefault = 1 == Math.floorMod(i, 2);
+            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, disabledByDefault, tempGraph);
             for (final int j : expectedIds) {
                 if (i == j) {
                     expectedGraphs.add(tempGraph);
