@@ -27,13 +27,14 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- *  Wrapper around the {@link CacheServiceLoader} to provide an interface for
+ * Wrapper around the {@link CacheServiceLoader} to provide an interface for
  * handling cache where the value is a {@link Pair}.
  *
+ * @param <K>  key
  * @param <V1> first item of value pair
  * @param <V2> second item of value pair
  */
-public abstract class PairCache<V1, V2> {
+public abstract class PairCache<K, V1, V2> {
     protected final String CACHE_SERVICE_NAME = getCacheServiceName();
 
     protected abstract String getCacheServiceName();
@@ -50,7 +51,7 @@ public abstract class PairCache<V1, V2> {
         return CacheServiceLoader.getService() != null;
     }
 
-    protected <K> Pair<V1, V2> getFromCache(final String cacheName, final K key) {
+    protected Pair<V1, V2> getFromCache(final String cacheName, final K key) {
         return CacheServiceLoader.getService().getFromCache(cacheName, key);
     }
 
@@ -58,23 +59,23 @@ public abstract class PairCache<V1, V2> {
         CacheServiceLoader.getService().initialise(properties);
     }
 
-    protected <K> Set<K> getAllKeysFromCache(final String cacheName) {
+    protected Set<K> getAllKeysFromCache(final String cacheName) {
         return CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
     }
 
-    protected <K> void putInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
+    protected void putInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
         CacheServiceLoader.getService().putInCache(cacheName, key, value);
     }
 
-    protected <K> ICache<K, Pair<V1, V2>> getCache(final String cacheName) {
+    protected ICache<K, Pair<V1, V2>> getCache(final String cacheName) {
         return CacheServiceLoader.getService().getCache(cacheName);
     }
 
-    protected <K> void putSafeInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
+    protected void putSafeInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
         CacheServiceLoader.getService().putSafeInCache(cacheName, key, value);
     }
 
-    protected <K> void removeFromCache(final String cacheName, final K key) {
+    protected void removeFromCache(final String cacheName, final K key) {
         CacheServiceLoader.getService().removeFromCache(cacheName, key);
     }
 

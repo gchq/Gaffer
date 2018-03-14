@@ -30,7 +30,7 @@ import java.util.Set;
  * Wrapper around the {@link CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache extends PairCache<GraphSerialisable, FederatedAccess> {
+public class FederatedStoreCache extends PairCache<String, GraphSerialisable, FederatedAccess> {
 
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
