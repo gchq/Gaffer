@@ -282,7 +282,7 @@ public class NamedViewDetail implements Serializable {
                 return true;
             }
         }
-        return userId.equals(creatorId);
+        return null == creatorId || userId.equals(creatorId);
     }
 
     public static final class Builder {

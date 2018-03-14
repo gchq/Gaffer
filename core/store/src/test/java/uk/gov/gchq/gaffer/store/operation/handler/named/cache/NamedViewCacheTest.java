@@ -196,6 +196,20 @@ public class NamedViewCacheTest {
     }
 
     @Test
+    public void shouldAllowUserToDeleteViewWithNoPermissionsSet() throws CacheOperationFailedException {
+        // Given
+        NamedViewDetail namedViewDetailWithUsersAllowedToWrite = new NamedViewDetail.Builder()
+                .name(ALTERNATIVE_VIEW_NAME)
+                .description("alternative View")
+                .view(alternativeView)
+                .build();
+        cache.addNamedView(namedViewDetailWithUsersAllowedToWrite, false);
+
+        // When / Then - no exceptions
+        cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH);
+    }
+
+    @Test
     public void shouldAllowUserToDeleteViewWithPermission() throws CacheOperationFailedException {
         // Given
         NamedViewDetail namedViewDetailWithUsersAllowedToWrite = new NamedViewDetail.Builder()
