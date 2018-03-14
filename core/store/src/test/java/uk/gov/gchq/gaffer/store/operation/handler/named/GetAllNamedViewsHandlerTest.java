@@ -83,8 +83,16 @@ public class GetAllNamedViewsHandlerTest {
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
-        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder().name(testNamedViewName).view(view).build();
-        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder().name(testNamedViewName + 2).view(view2).build();
+        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
+                .name(testNamedViewName)
+                .view(view)
+                .creatorId(context.getUser().getUserId())
+                .build();
+        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
+                .name(testNamedViewName + 2)
+                .view(view2)
+                .creatorId(context.getUser().getUserId())
+                .build();
         addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
         GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
@@ -95,8 +103,6 @@ public class GetAllNamedViewsHandlerTest {
 
         // Then
         assertEquals(2, Iterables.size(namedViewList));
-        System.out.println(namedViewAsDetail);
-        System.out.println(namedViewList);
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
     }
