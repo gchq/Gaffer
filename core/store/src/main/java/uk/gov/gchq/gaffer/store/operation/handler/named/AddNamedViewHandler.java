@@ -65,6 +65,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
                 .name(operation.getName())
                 .view(operation.getViewAsString())
                 .description(operation.getDescription())
+                .creatorId(context.getUser().getUserId())
                 .writers(operation.getWriteAccessRoles())
                 .parameters(operation.getParameters())
                 .build();
