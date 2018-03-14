@@ -99,7 +99,7 @@ public class AddNamedViewHandlerTest {
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
-
+        assertEquals(context.getUser().getUserId(), result.getCreatorId());
     }
 
     @Test
