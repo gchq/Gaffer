@@ -17,12 +17,15 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
@@ -63,7 +66,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 public class AddGraph implements FederatedOperation {
-
     @Required
     private String graphId;
     private StoreProperties storeProperties;
@@ -73,6 +75,7 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
+    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     public AddGraph() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
@@ -102,6 +105,7 @@ public class AddGraph implements FederatedOperation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
+                .disabledByDefault(disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic);
 
@@ -134,6 +138,15 @@ public class AddGraph implements FederatedOperation {
 
     public void setParentPropertiesId(final String parentPropertiesId) {
         this.parentPropertiesId = parentPropertiesId;
+    }
+
+    @JsonInclude(Include.NON_DEFAULT)
+    public boolean isDisabledByDefault() {
+        return disabledByDefault;
+    }
+
+    public void setDisabledByDefault(final boolean disabledByDefault) {
+        this.disabledByDefault = disabledByDefault;
     }
 
     @Override
@@ -218,6 +231,11 @@ public class AddGraph implements FederatedOperation {
             } else {
                 _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
+            return _self();
+        }
+
+        public B disabledByDefault(final boolean disabledByDefault) {
+            _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
     }

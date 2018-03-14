@@ -63,7 +63,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         addGenericHandler((FederatedStore) store, graph);
 
         try {
-            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
+            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), operation.isDisabledByDefault(), graph);
         } catch (final StorageException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (final Exception e) {
