@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -31,10 +30,13 @@ import java.util.Set;
  * Wrapper around the {@link CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache {
+public class FederatedStoreCache extends PairCache<String, GraphSerialisable, FederatedAccess> {
 
-    private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
+
+    private Pair<GraphSerialisable, FederatedAccess> getFromCache(final String graphId) {
+        return getFromCache(CACHE_SERVICE_NAME, graphId);
+    }
 
     /**
      * Get the cache for the FederatedStore.
@@ -42,8 +44,8 @@ public class FederatedStoreCache {
      * @return the FederatedStore cache
      */
     public ICache getCache() {
-        if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(CACHE_SERVICE_NAME);
+        if (isServiceNull()) {
+            return getCache(CACHE_SERVICE_NAME);
         } else {
             return null;
         }
@@ -55,7 +57,7 @@ public class FederatedStoreCache {
      * @return all the Graph ID's within the cache as unmodifiable set.
      */
     public Set<String> getAllGraphIds() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME);
+        final Set<String> allKeysFromCache = getAllKeysFromCache(CACHE_SERVICE_NAME);
         return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
@@ -69,12 +71,11 @@ public class FederatedStoreCache {
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
-        final ICacheService service = CacheServiceLoader.getService();
         try {
             if (overwrite) {
-                service.putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+                putInCache(graph, pair);
             } else {
-                service.putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+                putSafeInCache(graph, pair);
             }
         } catch (final CacheOperationException e) {
             throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graph.getGraphId()), e);
@@ -88,7 +89,7 @@ public class FederatedStoreCache {
      * @return the {@link Graph} related to the specified ID
      */
     public Graph getGraphFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
         final GraphSerialisable graphSerialisable = (null == fromCache) ? null : fromCache.getFirst();
         return (null == graphSerialisable) ? null : graphSerialisable.getGraph();
     }
@@ -101,12 +102,12 @@ public class FederatedStoreCache {
      */
 
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
         return (null == fromCache) ? null : fromCache.getFirst();
     }
 
     public FederatedAccess getAccessFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
         return fromCache.getSecond();
     }
 
@@ -116,7 +117,7 @@ public class FederatedStoreCache {
      * @param graphId the ID of the {@link Graph} to be deleted
      */
     public void deleteFromCache(final String graphId) {
-        CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);
+        removeFromCache(CACHE_SERVICE_NAME, graphId);
     }
 
     /**
@@ -125,10 +126,15 @@ public class FederatedStoreCache {
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(CACHE_SERVICE_NAME);
+        clearCache(CACHE_SERVICE_NAME);
     }
 
     public boolean contains(final String graphId) {
         return getAllGraphIds().contains(graphId);
+    }
+
+    @Override
+    protected String getCacheServiceName() {
+        return  "federatedStoreGraphs";
     }
 }
