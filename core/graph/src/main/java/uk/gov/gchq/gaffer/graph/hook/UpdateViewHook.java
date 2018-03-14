@@ -38,6 +38,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 
+/**
+ * This is a hook to update the View for an operation, that correctly implements {@link OperationView}.
+ * This hook will have no effect with operations that do not correctly implement {@link OperationView} therefore <b>THIS CLASS SHOULD NOT BE USED TO ENFORCE POLICY</b>.
+ */
 public class UpdateViewHook implements GraphHook {
 
     private Set<String> withOpAuth;
@@ -47,9 +51,6 @@ public class UpdateViewHook implements GraphHook {
     private List<String> whiteListElementGroups;
     private List<String> blackListElementGroups;
     private byte[] viewToMerge;
-
-    public UpdateViewHook() {
-    }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
