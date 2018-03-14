@@ -123,6 +123,33 @@ public class FederatedAddGraphHandlerTest {
     }
 
     @Test
+    public void shouldAddDisabledByDefaultGraph() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        Schema expectedSchema = new Schema.Builder().build();
+
+        assertEquals(0, store.getGraphs(testUser, null).size());
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .disabledByDefault(true)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<Graph> enabledGraphs = store.getGraphs(testUser, null);
+        assertEquals(0, enabledGraphs.size());
+
+
+        Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID);
+        assertEquals(1, expectedGraphs.size());
+        assertEquals(EXPECTED_GRAPH_ID, expectedGraphs.iterator().next().getGraphId());
+    }
+
+    @Test
     public void shouldAddGraphUsingLibrary() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
