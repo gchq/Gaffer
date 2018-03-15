@@ -29,12 +29,14 @@ import java.util.Set;
  * Wrapper around the {@link PairCache} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache extends PairCache<String, GraphSerialisable, FederatedAccess> {
+public class FederatedStoreCache {
+
+    PairCache<String, GraphSerialisable, FederatedAccess> cache = new PairCache<>("federatedStoreGraphs");
 
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
     private Pair<GraphSerialisable, FederatedAccess> getFromCache(final String graphId) {
-        return getFromCache(cacheServiceName, graphId);
+        return cache.getFromCache(graphId);
     }
 
     /**
@@ -43,8 +45,8 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @return the FederatedStore cache
      */
     public ICache getCache() {
-        if (isServiceNull()) {
-            return getCache(cacheServiceName);
+        if (cache.isServiceNull()) {
+            return cache.getCache();
         } else {
             return null;
         }
@@ -56,7 +58,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @return all the Graph ID's within the cache as unmodifiable set.
      */
     public Set<String> getAllGraphIds() {
-        final Set<String> allKeysFromCache = getAllKeysFromCache(cacheServiceName);
+        final Set<String> allKeysFromCache = cache.getAllKeysFromCache();
         return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
@@ -72,9 +74,9 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
         try {
             if (overwrite) {
-                putInCache(graph, pair);
+                cache.putInCache(graph, pair);
             } else {
-                putSafeInCache(graph, pair);
+                cache.putSafeInCache(graph, pair);
             }
         } catch (final CacheOperationException e) {
             throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graph.getGraphId()), e);
@@ -116,7 +118,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @param graphId the ID of the {@link Graph} to be deleted
      */
     public void deleteFromCache(final String graphId) {
-        removeFromCache(cacheServiceName, graphId);
+        cache.removeFromCache(graphId);
     }
 
     /**
@@ -125,15 +127,11 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        clearCache(cacheServiceName);
+        cache.clearCache();
     }
 
     public boolean contains(final String graphId) {
         return getAllGraphIds().contains(graphId);
     }
 
-    @Override
-    protected String getCacheServiceName() {
-        return  "federatedStoreGraphs";
-    }
 }

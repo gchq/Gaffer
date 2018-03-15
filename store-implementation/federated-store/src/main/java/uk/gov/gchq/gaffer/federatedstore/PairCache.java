@@ -34,64 +34,66 @@ import java.util.Set;
  * @param <V1> first item of value pair
  * @param <V2> second item of value pair
  */
-public abstract class PairCache<K, V1, V2> {
-    protected final String cacheServiceName = getCacheServiceName();
+public class PairCache<K, V1, V2> {
+    private final String cacheServiceName;
 
-    protected abstract String getCacheServiceName();
+    public PairCache(final String cacheServiceName) {
+        this.cacheServiceName = cacheServiceName;
+    }
 
-    protected void putSafeInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
+    public void putSafeInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
         CacheServiceLoader.getService().putSafeInCache(this.cacheServiceName, graph.getGraphId(), pair);
     }
 
-    protected void putInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
+    public void putInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
         CacheServiceLoader.getService().putInCache(this.cacheServiceName, graph.getGraphId(), pair);
     }
 
-    protected boolean isServiceNull() {
+    public boolean isServiceNull() {
         return CacheServiceLoader.getService() != null;
     }
 
-    protected Pair<V1, V2> getFromCache(final String cacheName, final K key) {
-        return CacheServiceLoader.getService().getFromCache(cacheName, key);
+    public Pair<V1, V2> getFromCache(final K key) {
+        return CacheServiceLoader.getService().getFromCache(cacheServiceName, key);
     }
 
-    protected void initialise(final Properties properties) {
+    public void initialise(final Properties properties) {
         CacheServiceLoader.getService().initialise(properties);
     }
 
-    protected Set<K> getAllKeysFromCache(final String cacheName) {
-        return CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+    public Set<K> getAllKeysFromCache() {
+        return CacheServiceLoader.getService().getAllKeysFromCache(cacheServiceName);
     }
 
-    protected void putInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
-        CacheServiceLoader.getService().putInCache(cacheName, key, value);
+    public void putInCache(final K key, final Pair<V1, V2> value) throws CacheOperationException {
+        CacheServiceLoader.getService().putInCache(cacheServiceName, key, value);
     }
 
-    protected ICache<K, Pair<V1, V2>> getCache(final String cacheName) {
-        return CacheServiceLoader.getService().getCache(cacheName);
+    public ICache<K, Pair<V1, V2>> getCache() {
+        return CacheServiceLoader.getService().getCache(cacheServiceName);
     }
 
-    protected void putSafeInCache(final String cacheName, final K key, final Pair<V1, V2> value) throws CacheOperationException {
-        CacheServiceLoader.getService().putSafeInCache(cacheName, key, value);
+    public void putSafeInCache(final K key, final Pair<V1, V2> value) throws CacheOperationException {
+        CacheServiceLoader.getService().putSafeInCache(cacheServiceName, key, value);
     }
 
-    protected void removeFromCache(final String cacheName, final K key) {
-        CacheServiceLoader.getService().removeFromCache(cacheName, key);
+    public void removeFromCache(final K key) {
+        CacheServiceLoader.getService().removeFromCache(cacheServiceName, key);
     }
 
-    protected Collection<Pair<V1, V2>> getAllValuesFromCache(final String cacheName) {
-        return CacheServiceLoader.getService().getAllValuesFromCache(cacheName);
+    public Collection<Pair<V1, V2>> getAllValuesFromCache() {
+        return CacheServiceLoader.getService().getAllValuesFromCache(cacheServiceName);
     }
 
-    protected void clearCache(final String cacheName) throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(cacheName);
+    public void clearCache() throws CacheOperationException {
+        CacheServiceLoader.getService().clearCache(cacheServiceName);
     }
 
-    protected int sizeOfCache(final String cacheName) {
-        return CacheServiceLoader.getService().sizeOfCache(cacheName);
+    public int sizeOfCache() {
+        return CacheServiceLoader.getService().sizeOfCache(cacheServiceName);
     }
 
-    protected void shutdown() {
+    public void shutdown() {
         CacheServiceLoader.getService().shutdown();
     }
 
