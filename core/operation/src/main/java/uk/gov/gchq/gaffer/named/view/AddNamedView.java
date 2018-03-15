@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.named.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -113,6 +115,7 @@ public class AddNamedView implements Operation {
         this.description = description;
     }
 
+    @JsonInclude(Include.NON_EMPTY)
     public List<String> getWriteAccessRoles() {
         return writeAccessRoles;
     }
