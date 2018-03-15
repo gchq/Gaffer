@@ -146,13 +146,13 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                         converter.getValueFromElement(element)
                 );
 
-                // Check the actually exist.
+                // Check the element exists.
                 final Scanner scanner = getRow(accStore, expectedElement.getKey().getRow());
                 assertEquals(Collections.singletonList(expectedElement), Lists.newArrayList(scanner));
 
                 delete(accStore, scanner);
 
-                // Check it is actually deleted.
+                // Check the element has been deleted.
                 assertEquals(0, Iterables.size(scanner));
             }
         }
@@ -160,12 +160,10 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
 
     private void delete(final AccumuloStore accStore, final Scanner scanner) throws TableNotFoundException, StoreException, MutationsRejectedException {
         Mutation deleter = null;
-        // iterate through the keys
-        for (Entry<Key, Value> entry : scanner) {
-            // create a mutation for the row
-            if (deleter == null)
+        for (final Entry<Key, Value> entry : scanner) {
+            if (deleter == null) {
                 deleter = new Mutation(entry.getKey().getRow());
-            // the remove function adds the key with the delete flag set to true
+            }
             deleter.putDelete(entry.getKey().getColumnFamily(), entry.getKey().getColumnQualifier());
         }
         final BatchWriter batchWriter = accStore.getConnection().createBatchWriter(accStore.getTableName(), new BatchWriterConfig());
