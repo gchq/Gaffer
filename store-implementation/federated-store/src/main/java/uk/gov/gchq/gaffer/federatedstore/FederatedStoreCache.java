@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -27,7 +26,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * Wrapper around the {@link CacheServiceLoader} to provide an interface for
+ * Wrapper around the {@link PairCache} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
 public class FederatedStoreCache extends PairCache<String, GraphSerialisable, FederatedAccess> {
@@ -35,7 +34,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
     private Pair<GraphSerialisable, FederatedAccess> getFromCache(final String graphId) {
-        return getFromCache(CACHE_SERVICE_NAME, graphId);
+        return getFromCache(cacheServiceName, graphId);
     }
 
     /**
@@ -45,7 +44,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      */
     public ICache getCache() {
         if (isServiceNull()) {
-            return getCache(CACHE_SERVICE_NAME);
+            return getCache(cacheServiceName);
         } else {
             return null;
         }
@@ -57,7 +56,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @return all the Graph ID's within the cache as unmodifiable set.
      */
     public Set<String> getAllGraphIds() {
-        final Set<String> allKeysFromCache = getAllKeysFromCache(CACHE_SERVICE_NAME);
+        final Set<String> allKeysFromCache = getAllKeysFromCache(cacheServiceName);
         return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
@@ -117,7 +116,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @param graphId the ID of the {@link Graph} to be deleted
      */
     public void deleteFromCache(final String graphId) {
-        removeFromCache(CACHE_SERVICE_NAME, graphId);
+        removeFromCache(cacheServiceName, graphId);
     }
 
     /**
@@ -126,7 +125,7 @@ public class FederatedStoreCache extends PairCache<String, GraphSerialisable, Fe
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        clearCache(CACHE_SERVICE_NAME);
+        clearCache(cacheServiceName);
     }
 
     public boolean contains(final String graphId) {

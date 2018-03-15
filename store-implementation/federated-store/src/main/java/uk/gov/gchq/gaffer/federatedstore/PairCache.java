@@ -35,16 +35,16 @@ import java.util.Set;
  * @param <V2> second item of value pair
  */
 public abstract class PairCache<K, V1, V2> {
-    protected final String CACHE_SERVICE_NAME = getCacheServiceName();
+    protected final String cacheServiceName = getCacheServiceName();
 
     protected abstract String getCacheServiceName();
 
     protected void putSafeInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
-        CacheServiceLoader.getService().putSafeInCache(this.CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+        CacheServiceLoader.getService().putSafeInCache(this.cacheServiceName, graph.getGraphId(), pair);
     }
 
     protected void putInCache(final Graph graph, final Pair<V1, V2> pair) throws CacheOperationException {
-        CacheServiceLoader.getService().putInCache(this.CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+        CacheServiceLoader.getService().putInCache(this.cacheServiceName, graph.getGraphId(), pair);
     }
 
     protected boolean isServiceNull() {
