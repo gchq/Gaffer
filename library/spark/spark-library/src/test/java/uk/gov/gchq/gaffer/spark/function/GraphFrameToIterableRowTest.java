@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.spark.function;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -24,7 +23,6 @@ import org.graphframes.GraphFrame;
 import org.graphframes.examples.Graphs$;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 
 import java.util.List;

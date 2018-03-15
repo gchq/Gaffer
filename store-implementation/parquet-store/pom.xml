@@ -42,6 +42,8 @@
             <artifactId>spark-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test</artifactId>
@@ -52,6 +54,13 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>store</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

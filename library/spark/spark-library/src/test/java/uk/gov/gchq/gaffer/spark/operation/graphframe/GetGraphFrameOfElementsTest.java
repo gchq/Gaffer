@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
-import org.hamcrest.core.StringContains;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,7 +32,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
