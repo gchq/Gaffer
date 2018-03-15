@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -89,6 +90,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
@@ -615,7 +617,7 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
-    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+    public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
@@ -698,7 +700,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -706,11 +708,15 @@ public abstract class Store {
         }
     }
 
-    protected final <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
-        operationHandlers.put(opClass, handler);
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
-    protected final OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 
@@ -840,6 +846,7 @@ public abstract class Store {
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
         addOperationHandler(GetSchema.class, new GetSchemaHandler());
         addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
+        addOperationHandler(If.class, new IfHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

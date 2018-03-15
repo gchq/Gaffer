@@ -26,10 +26,12 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.IfScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
@@ -52,7 +54,10 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
     private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers = new HashMap<>();
-    private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(Collections.unmodifiableMap(opScores));
+
+    private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(
+            Collections.unmodifiableMap(opScores), Collections.unmodifiableMap(scoreResolvers)
+    );
 
     private static final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_SCORE_RESOLVERS = addDefaultScoreResolvers();
 
@@ -67,37 +72,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      */
     @Override
     public Integer doOperation(final ScoreOperationChain operation, final Context context, final Store store) throws OperationException {
+        return getChainScore(operation.getOperationChain(), context.getUser());
 
-        if (null != operation.getOperationChain()) {
-            return getChainScore(operation.getOperationChain(), context.getUser());
-        } else {
-            return 0;
-        }
     }
 
     public int getChainScore(final Operations<?> operations, final User user) {
-        int chainScore = 0;
-
-        if (null != operations.getOperations()) {
-            for (final Operation operation : operations.getOperations()) {
-                if (operation instanceof Operations) {
-                    chainScore += getChainScore((Operations) operation, user);
-                } else {
-                    ScoreResolver resolver = scoreResolvers.get(operation.getClass());
-                    if (null == resolver) {
-                        resolver = defaultScoreResolver;
-                    }
-
-                    Integer opScore = resolver.getScore(operation, defaultScoreResolver);
-                    if (null == opScore) {
-                        opScore = defaultScoreResolver.getScore(operation, defaultScoreResolver);
-                    }
-
-                    chainScore += opScore;
-                }
-            }
-        }
-        return chainScore;
+        return defaultScoreResolver.getScore((Operation) operations, defaultScoreResolver);
     }
 
     /**
@@ -202,6 +182,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
 
         defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+        defaultResolvers.put(If.class, new IfScoreResolver());
 
         return Collections.unmodifiableMap(defaultResolvers);
     }

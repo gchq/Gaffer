@@ -61,6 +61,7 @@ public class ApplicationConfigV2 extends ApplicationConfig {
 
         beanConfig.setResourcePackage("uk.gov.gchq.gaffer.rest.service.v2");
         beanConfig.setScan(true);
+
     }
 
     @Override

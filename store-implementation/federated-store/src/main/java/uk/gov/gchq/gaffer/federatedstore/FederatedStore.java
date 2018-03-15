@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -171,8 +173,28 @@ public class FederatedStore extends Store {
      * @throws StorageException if unable to put graph into storage
      */
     public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StorageException {
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
+        addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
+    }
 
+    /**
+     * Adds graphs to the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should add
+     * graphs via the {@link AddGraph} operation.
+     * public access will be ignored if the FederatedStore denies this action
+     * at initialisation, will default to usual access with addingUserId and
+     * graphAuths
+     * </p>
+     *
+     * @param addingUserId      the adding userId
+     * @param graphs            the graph to add
+     * @param isPublic          if this class should have public access.
+     * @param disabledByDefault true if the graph should be disabled by default - requiring the graphId to be provided in queries
+     * @param graphAuths        the access auths for the graph being added
+     * @throws StorageException if unable to put graph into storage
+     */
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault, final Graph... graphs) throws StorageException {
+        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault);
         addGraphs(access, graphs);
     }
 
@@ -313,6 +335,7 @@ public class FederatedStore extends Store {
 
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
+        addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());

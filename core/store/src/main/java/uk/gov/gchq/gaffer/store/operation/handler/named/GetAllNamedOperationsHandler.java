@@ -53,6 +53,6 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      */
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        return cache.getAllNamedOperations(context.getUser());
+        return cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
     }
 }

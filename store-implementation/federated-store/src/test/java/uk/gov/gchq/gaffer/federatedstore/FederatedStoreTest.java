@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -60,6 +61,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -70,7 +72,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
@@ -622,22 +623,20 @@ public class FederatedStoreTest {
         // Then
         assertFalse(elements.iterator().hasNext());
 
-        try {
-            store.execute(new GetAllElements(),
-                    new Context(new User.Builder()
-                            .userId(blankUser.getUserId())
-                            .opAuths("x")
-                            .build()));
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        // When - user cannot see any graphs
+        final CloseableIterable<? extends Element> elements2 = store.execute(new GetAllElements(),
+                new Context(new User.Builder()
+                        .userId(blankUser.getUserId())
+                        .opAuths("x")
+                        .build()));
+
+        // Then
+        assertEquals(0, Iterables.size(elements2));
     }
 
     @Test
     public void shouldReturnSpecificGraphsFromCSVString() throws Exception {
         // Given
-
         final List<Collection<Graph>> graphLists = populateGraphs(1, 2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
         final Collection<Graph> unexpectedGraphs = graphLists.get(1);
@@ -652,6 +651,32 @@ public class FederatedStoreTest {
     }
 
     @Test
+    public void shouldReturnEnabledByDefaultGraphsForNullString() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, null);
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId2", "mockGraphId4"), graphIds);
+    }
+
+    @Test
+    public void shouldReturnNotReturnEnabledOrDisabledGraphsWhenNotInCsv() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId0,mockGraphId1");
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId1"), graphIds);
+    }
+
+    @Test
     public void shouldReturnNoGraphsFromEmptyString() throws Exception {
         // Given
 
@@ -662,8 +687,8 @@ public class FederatedStoreTest {
         final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "");
 
         // Then
-        assertTrue(returnedGraphs.isEmpty());
-        assertTrue(expectedGraphs.isEmpty());
+        assertTrue(returnedGraphs.toString(), returnedGraphs.isEmpty());
+        assertTrue(expectedGraphs.toString(), expectedGraphs.isEmpty());
     }
 
     @Test
@@ -736,17 +761,13 @@ public class FederatedStoreTest {
                         .opAuth("auth")
                         .build());
 
-        try {
-            fedGraph.execute(
-                    new GetAllElements(),
-                    new User.Builder()
-                            .userId(USER_ID + "Other")
-                            .opAuths("x")
-                            .build());
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+
+        final CloseableIterable<? extends Element> elements2 = fedGraph.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID + "Other")
+                        .opAuths("x")
+                        .build());
+        assertEquals(0, Iterables.size(elements2));
 
         // Then
         assertEquals(0, before);
@@ -1047,10 +1068,10 @@ public class FederatedStoreTest {
         return false;
     }
 
-    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws Exception {
+    private List<Collection<Graph>> populateGraphs(final int... expectedIds) throws Exception {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Graph tempGraph = new Graph.Builder()
                     .config(new GraphConfig.Builder()
                             .graphId("mockGraphId" + i)
@@ -1058,7 +1079,9 @@ public class FederatedStoreTest {
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES_ALT))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();
-            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, tempGraph);
+            // Odd ids are disabled by default
+            final boolean disabledByDefault = 1 == Math.floorMod(i, 2);
+            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, disabledByDefault, tempGraph);
             for (final int j : expectedIds) {
                 if (i == j) {
                     expectedGraphs.add(tempGraph);

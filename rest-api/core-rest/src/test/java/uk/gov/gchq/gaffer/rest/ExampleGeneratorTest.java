@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.rest.service.v2.example.DefaultExamplesFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,10 +65,8 @@ public class ExampleGeneratorTest {
         final Set<Class<? extends Operation>> clazzes = reflections.getSubTypesOf(Operation.class);
 
         return clazzes.stream()
-                .filter(clazz -> !clazz.isInterface())
-                .map(clazz -> {
-                    return new Object[]{clazz};
-                })
+                .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
+                .map(clazz -> new Object[]{clazz})
                 .collect(Collectors.toList());
     }
 

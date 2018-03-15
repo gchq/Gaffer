@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.operation.function;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the input is not an {@link ElementId} then it is wrapped in an {@link EntitySeed}.
  * If the input is already an {@link ElementId} is not modified.
  */
+@Since("1.3.0")
 public class ToElementId extends KorypheFunction<Object, ElementId> {
     @Override
     public ElementId apply(final Object obj) {

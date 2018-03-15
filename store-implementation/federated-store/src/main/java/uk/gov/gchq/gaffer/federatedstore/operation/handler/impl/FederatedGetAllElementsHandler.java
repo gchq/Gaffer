@@ -16,16 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-
-import java.util.List;
 
 /**
  * A handler for GetAllElements operation for the FederatedStore.
@@ -34,14 +27,5 @@ import java.util.List;
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAllElements
  */
-public class FederatedGetAllElementsHandler extends FederatedOperationOutputHandler<GetAllElements, CloseableIterable<? extends Element>> {
-    @Override
-    protected CloseableIterable<? extends Element> mergeResults(final List<CloseableIterable<? extends Element>> results, final GetAllElements operation, final Context context, final Store store) {
-        // Concatenate all the results into 1 iterable
-        if (results.isEmpty()) {
-            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
-        }
-        return new ChainedIterable<>(CollectionUtil.toIterableArray(results));
-    }
-
+public class FederatedGetAllElementsHandler extends FederatedOperationIterableHandler<GetAllElements, CloseableIterable<? extends Element>> {
 }
