@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     @Override
@@ -48,6 +52,23 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
         assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void shouldReturnClonedView() throws Exception {
+        // Given
+        final String graphId = "graphId";
+        final View view = new View.Builder().entity(TestGroups.ENTITY).build();
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId)
+                .view(view)
+                .build();
+
+        // Then
+        assertEquals(view, config.getView());
+        assertNotSame(view, config.getView());
     }
 
     @Override

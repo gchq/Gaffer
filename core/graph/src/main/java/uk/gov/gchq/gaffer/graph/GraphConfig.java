@@ -52,7 +52,9 @@ import java.util.List;
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
     private String graphId;
-    private View view;
+    // Keeping the view as json enforces a new instance of View is created
+    // every time it is used.
+    private byte[] view;
     private GraphLibrary library;
     private String description;
     private List<GraphHook> hooks = new ArrayList<>();
@@ -73,11 +75,11 @@ public final class GraphConfig {
     }
 
     public View getView() {
-        return view;
+        return null != view ? View.fromJson(view) : null;
     }
 
     public void setView(final View view) {
-        this.view = view;
+        this.view = null != view ? view.toCompactJson() : null;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -113,7 +115,7 @@ public final class GraphConfig {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("graphId", graphId)
-                .append("view", view)
+                .append("view", getView())
                 .append("library", library)
                 .append("hooks", hooks)
                 .toString();
