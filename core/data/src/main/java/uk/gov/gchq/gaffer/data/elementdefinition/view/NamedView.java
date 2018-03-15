@@ -106,6 +106,12 @@ public class NamedView extends View {
         return true;
     }
 
+    @Override
+    public void expandGlobalDefinitions() {
+        // As it is a named view - we should not expand the global definitions.
+        // It should only be expanded after the named view is resolved.
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
 
         public BaseBuilder() {

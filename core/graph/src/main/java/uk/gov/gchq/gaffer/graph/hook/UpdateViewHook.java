@@ -23,8 +23,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -37,24 +35,32 @@ import java.util.Set;
 
 
 /**
- * This is a hook to update the View for an operation, that correctly implements {@link OperationView}.
- * This hook will have no effect with operations that do not correctly implement {@link OperationView} therefore <b>THIS CLASS SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING</b>.
+ * This is a hook to update all operation views in a chain before it is executed.
+ * This hook can be configured to add additional view configurations such as extra filters
+ * and it can also be used to remove element groups out of a view.
+ * This hook will have no effect with operations that do not correctly implement {@link OperationView}
+ * therefore <b>THIS HOOK SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING OF ELEMENTS</b>.
  * Instead please make use of the visibility property ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
  * <p>
  * All fields are Optional:
  * <ul>
- * <li>withOpAuth = Apply this hook to Users with <b>any</b> of these OpAuths</li>
- * <li>withoutOpAuth = Apply this hook to Users <b>without any</b> of these OpAuths, overrides withOpAuth</li>
- * <li>withDataAuth = Apply this hook to Users with <b>any</b> of these DataAuths</li>
- * <li>withoutDataAuth = Apply this hook to Users <b>without any</b> of these DataAuths, overrides withDataAuth</li>
+ * <li>withOpAuth = Apply this hook to Users with <b>any</b> of these operation authorisations</li>
+ * <li>withoutOpAuth = Apply this hook to Users <b>without any</b> of these operation authorisations, overrides withOpAuth</li>
+ * <li>withDataAuth = Apply this hook to Users with <b>any</b> of these data authorisations</li>
+ * <li>withoutDataAuth = Apply this hook to Users <b>without any</b> of these data authorisations, overrides withDataAuth</li>
  * <li>whiteListElementGroups = When this hook is applied, only allow View Element Groups from this list, overrides viewToMerge</li>
  * <li>blackListElementGroups = When this hook is applied, remove all View Element Groups from this list, overrides whiteListElementGroups and viewToMerge</li>
  * <li>viewToMerge = the view to be merged into the current view.</li>
  * </ul>
+ * If the user matches the opAuth or dataAuth criteria the following is applied:
+ * <ul>
+ * <li>First the viewToMerge is merged into the user provided operation view.</li>
+ * <li>Then the white list of element groups is applied.</li>
+ * <li>Then the black list of element groups is applied.</li>
+ * </ul>
  *
  * @see GraphHook
  * @see uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty
- *
  */
 public class UpdateViewHook implements GraphHook {
 
@@ -115,13 +121,11 @@ public class UpdateViewHook implements GraphHook {
 
     protected final boolean removeElementGroups(final Entry<String, ViewElementDefinition> entry) {
         boolean remove;
-
         if (null != whiteListElementGroups) {
             remove = !whiteListElementGroups.contains(entry.getKey());
         } else {
             remove = false;
         }
-
         if (!remove) {
             if (null != blackListElementGroups) {
                 remove = blackListElementGroups.contains(entry.getKey());
@@ -241,42 +245,15 @@ public class UpdateViewHook implements GraphHook {
         return this;
     }
 
-
     @JsonSetter("viewToMerge")
     public UpdateViewHook setViewToMerge(final View viewToMerge) {
-        this.viewToMerge = getViewToMerge(viewToMerge);
+        this.viewToMerge = null != viewToMerge ? viewToMerge.toCompactJson() : null;
         return this;
-    }
-
-    private static byte[] getViewToMerge(final View viewToMerge) {
-        byte[] serialise = null;
-        if (null != viewToMerge) {
-            try {
-                serialise = JSONSerialiser.serialise(viewToMerge, true);
-            } catch (final SerialisationException e) {
-                throw new RuntimeException("Could not serialise the viewToMerge", e);
-            }
-        }
-        return serialise;
     }
 
     @JsonGetter("viewToMerge")
     public View getViewToMerge() {
-        return getViewToMerge(viewToMerge);
-    }
-
-    private static View getViewToMerge(final byte[] viewToMerge) {
-        View deserialise;
-        if (null != viewToMerge) {
-            try {
-                deserialise = JSONSerialiser.deserialise(viewToMerge, View.class);
-            } catch (final SerialisationException e) {
-                throw new RuntimeException("Could not deserialise viewToMerge", e);
-            }
-        } else {
-            deserialise = null;
-        }
-        return deserialise;
+        return null != viewToMerge ? View.fromJson(viewToMerge) : null;
     }
 
     public static class Builder {
@@ -286,7 +263,7 @@ public class UpdateViewHook implements GraphHook {
         private Set<String> withoutDataAuth;
         private Set<String> whiteListElementGroups;
         private Set<String> blackListElementGroups;
-        private byte[] viewToMerge;
+        private View viewToMerge;
 
         public Builder withOpAuth(final Set<String> withOpAuth) {
             this.withOpAuth = withOpAuth;
@@ -319,13 +296,8 @@ public class UpdateViewHook implements GraphHook {
         }
 
         public Builder setViewToMerge(final View viewToMerge) {
-            this.viewToMerge = UpdateViewHook.getViewToMerge(viewToMerge);
+            this.viewToMerge = viewToMerge;
             return this;
-        }
-
-        private View getViewToMerge() {
-            return UpdateViewHook.getViewToMerge(viewToMerge);
-
         }
 
         public UpdateViewHook build() {
@@ -336,7 +308,7 @@ public class UpdateViewHook implements GraphHook {
                     .setWithoutDataAuth(withoutDataAuth)
                     .setWhiteListElementGroups(whiteListElementGroups)
                     .setBlackListElementGroups(blackListElementGroups)
-                    .setViewToMerge(getViewToMerge());
+                    .setViewToMerge(viewToMerge);
         }
     }
 

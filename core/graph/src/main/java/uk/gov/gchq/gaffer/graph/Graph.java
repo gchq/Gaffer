@@ -242,23 +242,17 @@ public final class Graph {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
-                final OperationView operationView = (OperationView) operation;
-                if (!(operationView.getView() instanceof NamedView)) {
-                    final View opView;
-                    if (null == operationView.getView()) {
-                        opView = config.getView();
-                    } else if (!operationView.getView().hasGroups()) {
-                        opView = new View.Builder()
-                                .merge(config.getView())
-                                .merge(operationView.getView())
-                                .build();
-                    } else {
-                        opView = operationView.getView();
-                    }
-
-                    opView.expandGlobalDefinitions();
-                    operationView.setView(opView);
+                View opView = ((OperationView) operation).getView();
+                if (null == opView) {
+                    opView = config.getView();
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(config.getView())
+                            .merge(opView)
+                            .build();
                 }
+                opView.expandGlobalDefinitions();
+                ((OperationView) operation).setView(opView);
             }
         }
     }
