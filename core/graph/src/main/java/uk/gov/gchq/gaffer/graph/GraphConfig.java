@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -144,7 +145,7 @@ public final class GraphConfig {
 
         public Builder json(final InputStream stream) {
             try {
-                json(null != stream ? sun.misc.IOUtils.readFully(stream, stream.available(), true) : null);
+                json(null != stream ? IOUtils.toByteArray(stream) : null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to read graph config from input stream", e);
             }

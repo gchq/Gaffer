@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import sun.misc.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -219,7 +219,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         // Given
         final byte[] bytes;
         try (final InputStream inputStream = StreamUtil.openStream(getClass(), ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH)) {
-            bytes = IOUtils.readFully(inputStream, inputStream.available(), true);
+            bytes = IOUtils.toByteArray(inputStream);
         }
         final AddOperationsToChain hook = fromJson(bytes);
 

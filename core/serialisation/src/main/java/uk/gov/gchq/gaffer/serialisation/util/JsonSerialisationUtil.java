@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
@@ -30,7 +29,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -133,10 +134,10 @@ public final class JsonSerialisationUtil {
                 if (null == genericType) {
                     propClass = Object.class.getName();
                 } else {
-                    if (genericType instanceof TypeVariableImpl
-                            && null != ((TypeVariableImpl) genericType).getBounds()
-                            && 1 == ((TypeVariableImpl) genericType).getBounds().length) {
-                        propClass = ((TypeVariableImpl) genericType).getBounds()[0].getTypeName();
+                    if (genericType instanceof TypeVariable
+                            && null != ((TypeVariable) genericType).getBounds()
+                            && 1 == ((TypeVariable) genericType).getBounds().length) {
+                        propClass = ((ParameterizedType) ((TypeVariable) genericType).getBounds()[0]).getRawType().getTypeName();
                     } else {
                         propClass = genericType.getTypeName();
                     }
