@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -29,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -82,27 +80,14 @@ public class UpdateViewHook implements GraphHook {
     private void updateView(final OperationChain<?> opChain) {
         for (final Operation operation : opChain.flatten()) {
             if (operation instanceof OperationView) {
-                OperationView operationView = (OperationView) operation;
-
-                View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
-
-                View originalView = operationView.getView();
-                if (null != originalView) {
-                    originalView.expandGlobalDefinitions();
-                    if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
-                            || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
-
-                        Map<String, ViewElementDefinition> entities = Maps.newHashMap(originalView.getEntities());
-                        Set<Entry<String, ViewElementDefinition>> entitiesEntrySet = entities.entrySet();
-                        entitiesEntrySet.removeIf(this::removeElementGroups);
-                        viewBuilder.entities(entities);
-
-                        Map<String, ViewElementDefinition> edges = Maps.newHashMap(originalView.getEdges());
-                        Set<Entry<String, ViewElementDefinition>> edgesEntrySet = edges.entrySet();
-                        edgesEntrySet.removeIf(this::removeElementGroups);
-                        viewBuilder.edges(edges);
-                    }
+                final OperationView operationView = (OperationView) operation;
+                final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
+                if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
+                        || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
+                    viewBuilder.removeEntities(this::removeElementGroups);
+                    viewBuilder.removeEdges(this::removeElementGroups);
                 }
+                viewBuilder.expandGlobalDefinitions();
                 operationView.setView(viewBuilder.build());
             }
         }

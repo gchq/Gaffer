@@ -472,6 +472,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS expandGlobalDefinitions() {
+            getThisView().expandGlobalDefinitions();
+            return self();
+        }
+
         @Override
         public View build() {
             return super.build();

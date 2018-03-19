@@ -21,6 +21,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,6 +33,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -66,7 +71,20 @@ public class UpdateViewHookTest {
         validAuths.clear();
 
         updateViewHook = new UpdateViewHook();
-        viewToMerge = new View.Builder().edge("testGroup").build();
+        viewToMerge = new View.Builder()
+                .entity("white1", new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select("prop1")
+                                .execute(new IsIn("value1", "value2"))
+                                .build())
+                        .build())
+                .edge("testGroup", new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select("count")
+                                .execute(new IsMoreThan(10))
+                                .build())
+                        .build())
+                .build();
 
         userOpAuths.clear();
         userDataAuths.clear();
@@ -83,7 +101,7 @@ public class UpdateViewHookTest {
         updateViewHook.setViewToMerge(viewToMerge);
         updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
 
-        opChain = new OperationChain(new GetAllElements());
+        opChain = new OperationChain<>(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User()));
         Object op = opChain.getOperations().get(0);
         if (op instanceof OperationView) {
@@ -111,8 +129,63 @@ public class UpdateViewHookTest {
     }
 
     @Test
+    public void shouldMergeAndApplyWhiteList() throws Exception {
+        updateViewHook.setViewToMerge(viewToMerge);
+        updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
+        updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1", "testGroup"));
+
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("wrong1")
+                                .entity("white1")
+                                .entity("white2")
+                                .edge("testGroup", new ViewElementDefinition.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
+                                                .select("prop1")
+                                                .execute(new Exists())
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
+        GetAllElements op = (GetAllElements) opChain.getOperations().get(0);
+        JsonAssert.assertEquals(
+                new View.Builder()
+                        .entity("white1", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop1")
+                                        .execute(new IsIn("value1", "value2"))
+                                        .build())
+                                .build())
+                        .entity("white2")
+                        .edge("testGroup", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop1")
+                                        .execute(new Exists())
+                                        .select("count")
+                                        .execute(new IsMoreThan(10))
+                                        .build())
+                                .build())
+                        .build().toJson(true),
+                op.getView().toJson(true)
+        );
+        assertTrue(op.getView().getGroups().contains("testGroup"));
+    }
+
+    @Test
     public void shouldApplyWhiteAndBlackLists() throws Exception {
-        opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("wrong1").entity("white1").entity("white2").build()).build());
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("wrong1")
+                                .entity("white1")
+                                .entity("white2")
+                                .build())
+                        .build())
+                .build();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1"));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
@@ -129,7 +202,15 @@ public class UpdateViewHookTest {
 
     @Test
     public void shouldApplyWhiteLists() throws Exception {
-        opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("wrong1").entity("white1").entity("white2").build()).build());
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("wrong1")
+                                .entity("white1")
+                                .entity("white2")
+                                .build())
+                        .build())
+                .build();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
@@ -147,7 +228,14 @@ public class UpdateViewHookTest {
 
     @Test
     public void shouldApplyBlackLists() throws Exception {
-        opChain = new OperationChain(new GetAllElements.Builder().view(new View.Builder().entity("white1").entity("white2").build()).build());
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("white1")
+                                .entity("white2")
+                                .build())
+                        .build())
+                .build();
         updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
