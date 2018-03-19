@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -680,7 +681,7 @@ public final class Graph {
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
-                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                    addSchema(IOUtils.toByteArray(schemaStream));
                 } catch (final IOException e) {
                     throw new SchemaException("Unable to read schema from input stream", e);
                 } finally {
