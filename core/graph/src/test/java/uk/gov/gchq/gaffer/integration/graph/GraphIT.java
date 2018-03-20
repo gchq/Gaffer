@@ -146,7 +146,7 @@ public class GraphIT {
             given(mock.read()).willReturn(-1);
             given(mock.read(any(byte[].class))).willReturn(-1);
             given(mock.read(any(byte[].class), anyInt(), anyInt())).willReturn(-1);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 
