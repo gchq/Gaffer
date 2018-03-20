@@ -28,6 +28,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AuthorisedGraphForExportDelegate extends GraphDelegate {
 
@@ -86,9 +87,16 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
     protected void validate(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         ValidationResult result = super.validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
 
+        Set<String> errors = result.getErrors();
+
         result.getErrors().removeIf(s -> s.equals(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_SCHEMA_IDS))
                 || s.equals(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, SCHEMA_STRING))
                 || s.equals(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, STORE_PROPERTIES_STRING)));
+
+        result = new ValidationResult();
+        for (final String error : errors) {
+            result.addError(error);
+        }
 
         if (null == store.getGraphLibrary()) {
             // GraphLibrary is required as only a graphId, a parentStorePropertiesId or a parentSchemaId can be given

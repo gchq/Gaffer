@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -36,7 +35,7 @@ import java.util.List;
  * <li>schema and/or parentSchemaIds</li>
  * </ul>
  *
- * @see ExportToOtherGraphHandler
+ * @see uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler
  */
 public class GraphDelegate implements GraphDelegateInterface {
 
