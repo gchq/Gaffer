@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -43,6 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -91,7 +95,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -111,8 +117,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
@@ -130,6 +139,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,7 +239,7 @@ public abstract class Store {
         this.schema = schema;
         setProperties(properties);
 
-        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
+        updateJsonSerialiser();
 
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker();
@@ -238,6 +248,18 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
+    }
+
+    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
+        if (null != storeProperties) {
+            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(), storeProperties.getJsonSerialiserModules());
+        } else {
+            JSONSerialiser.update();
+        }
+    }
+
+    public void updateJsonSerialiser() {
+        updateJsonSerialiser(getProperties());
     }
 
     /**
@@ -461,6 +483,9 @@ public abstract class Store {
         } else {
             this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
         }
+
+        ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+        updateJsonSerialiser();
     }
 
     public GraphLibrary getGraphLibrary() {
@@ -597,7 +622,7 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
-    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+    public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
@@ -680,7 +705,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -688,11 +713,15 @@ public abstract class Store {
         }
     }
 
-    protected final <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
-        operationHandlers.put(opClass, handler);
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
-    protected final OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 
@@ -771,9 +800,11 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
-        addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-        addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        if (null != getJobTracker()) {
+            addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+            addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        }
 
         // Output
         addOperationHandler(ToArray.class, new ToArrayHandler<>());
@@ -785,12 +816,17 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        // Named operation
         if (null != CacheServiceLoader.getService()) {
+            // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
             addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
             addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+
+            // Named view
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
+            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
         }
 
         // ElementComparison
@@ -814,6 +850,8 @@ public abstract class Store {
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
         addOperationHandler(GetSchema.class, new GetSchemaHandler());
+        addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
+        addOperationHandler(If.class, new IfHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

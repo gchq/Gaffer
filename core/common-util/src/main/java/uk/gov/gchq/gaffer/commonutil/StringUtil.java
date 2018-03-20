@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.commons.lang3.StringUtils;
+
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
@@ -139,24 +141,24 @@ public final class StringUtil {
     /**
      * Convert a byte array containing a CSV entry of class names into a {@link Set}
      * of {@link Class} objects.
-     *
+     * <p>
      * All the {@link Class} objects created are then cast to a subclass of the
      * type {@code T}.
      *
      * @param bytes the CSV entry
      * @param clazz the {@link Class} instance to cast to
-     * @param <T> the base type to cast all of the {@link Class} instances to a
-     *           subtype of
+     * @param <T>   the base type to cast all of the {@link Class} instances to a
+     *              subtype of
      * @return a set of {@link Class} instances
      */
     public static <T> Set<Class<? extends T>> csvToClasses(final byte[] bytes, final Class<? extends T> clazz) {
         final String[] classNames = toString(bytes).split(",");
         final Set<Class<? extends T>> classes = new HashSet<>(classNames.length);
-        for (final String processorClassName : classNames) {
+        for (final String className : classNames) {
             try {
-                classes.add(Class.forName(processorClassName).asSubclass(clazz));
+                classes.add(Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(clazz));
             } catch (final ClassNotFoundException e) {
-                throw new RuntimeException("Invalid class: " + processorClassName
+                throw new RuntimeException("Invalid class: " + className
                         + ". Should be an implementation of " + clazz.getName(), e);
             }
         }

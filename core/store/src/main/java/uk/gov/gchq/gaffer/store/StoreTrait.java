@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,14 @@ public enum StoreTrait {
      * Stores with this trait support user-defined visibility settings to prevent authorised access to records
      * which a user does not have permissions to see.
      */
-    VISIBILITY;
+    VISIBILITY,
+
+    /**
+     * Stores with this trait will set the matchedVertex field on
+     * {@link uk.gov.gchq.gaffer.data.element.Edge}s
+     * for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} operations.
+     */
+    MATCHED_VERTEX;
 
     public static final Set<StoreTrait> ALL_TRAITS = Collections.unmodifiableSet(Sets.newHashSet(StoreTrait.values()));
 }

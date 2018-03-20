@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -32,6 +33,8 @@ import java.util.Map;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.PROPERTY_NOT_FOUND;
@@ -47,17 +50,30 @@ public interface IPropertiesServiceV2 {
 
     @GET
     @Path("/")
-    @ApiOperation(value = "Gets all available properties", response = Map.class, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets all available properties",
+            notes = "Retrieves all properties associated with the application, " +
+                    "eg. the app title, or the logo hyperlink.",
+            response = Map.class,
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK), @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getProperties();
 
     @GET
     @Path("/{propertyName}")
-    @Produces(TEXT_PLAIN)
-    @ApiOperation(value = "Gets the property value for the specified property name.", response = String.class, produces = TEXT_PLAIN)
+    @Produces({TEXT_PLAIN, APPLICATION_JSON})
+    @ApiOperation(value = "Gets the property value for the specified property name",
+            notes = "Retrieves the value of the provided system property.",
+            response = String.class,
+            produces = TEXT_PLAIN,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = PROPERTY_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response getProperty(@ApiParam(value = "the property name") @PathParam("propertyName") final String propertyName);
+    Response getProperty(@ApiParam(value = "The property name for which the value should be retrieved") @PathParam("propertyName") final String propertyName);
 
 }

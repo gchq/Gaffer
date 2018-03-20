@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,6 @@ public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     @Override
     public void loadIdentifiers(final Element edge) {
         final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, includeMatchedVertex);
-        ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
+        ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected(), edgeId.getMatchedVertex());
     }
 }

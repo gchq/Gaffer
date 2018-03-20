@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package uk.gov.gchq.gaffer.time;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -56,6 +56,7 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
  * the epoch.
  * </p>
  */
+@JsonPropertyOrder(alphabetic = true)
 @JsonDeserialize(builder = RBMBackedTimestampSet.Builder.class)
 public class RBMBackedTimestampSet implements TimestampSet {
     private static final Instant MIN_TIME = Instant.ofEpochMilli(0L);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,46 +17,34 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.mapreduce.Reducer;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.hdfs.operation.reducer.GafferReducer;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-
-import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory.SCHEMA;
 
 /**
+ * <p>
  * Reducer for use in bulk import of data into Accumulo. It merges all values
  * associated to the gaffer.accumulostore.key by converting them into
  * {@link uk.gov.gchq.gaffer.data.element.Properties} and then merges those, and then
  * converts them back to an Accumulo value.
+ * </p>
  * <p>
  * It contains an optimisation so that if there is only one value, we simply
  * output it rather than incurring the cost of deserialising them and then
  * reserialising them.
+ * </p>
  */
-public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
+public class AccumuloKeyValueReducer extends GafferReducer<Key, Value> {
     private AccumuloElementConverter elementConverter;
-    private Schema schema;
 
     @Override
     protected void setup(final Context context) {
-        try {
-            schema = Schema.fromJson(context.getConfiguration()
-                    .get(SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise schema from JSON", e);
-        }
+        super.setup(context);
 
         try {
             elementConverter = Class
@@ -72,46 +60,17 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
     }
 
     @Override
-    protected void reduce(final Key key, final Iterable<Value> values, final Context context)
-            throws IOException, InterruptedException {
-        final Iterator<Value> iter = values.iterator();
-        final Value firstValue = iter.next();
-        final boolean isMulti = iter.hasNext();
-
-        context.write(key, reduceValue(key, isMulti, iter, firstValue));
-        context.getCounter("Bulk import", getCounterId(isMulti)).increment(1L);
+    protected String getGroup(final Key key, final Value firstValue) {
+        return elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
     }
 
-    private Value reduceValue(final Key key, final boolean isMulti, final Iterator<Value> iter,
-                              final Value firstValue) {
-        return isMulti ? reduceMultiValue(key, iter, firstValue) : firstValue;
+    @Override
+    protected Properties getValueProperties(final Key key, final Value firstValue, final String group) {
+        return elementConverter.getPropertiesFromValue(group, firstValue);
     }
 
-    private Value reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue) {
-        final String group;
-        try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        Properties state;
-        try {
-            final ElementAggregator aggregator = schema.getElement(group).getIngestAggregator();
-            state = elementConverter.getPropertiesFromValue(group, firstValue);
-            while (iter.hasNext()) {
-                state = aggregator.apply(state, elementConverter.getPropertiesFromValue(group, iter.next()));
-            }
-        } catch (final AccumuloElementConversionException e) {
-            throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
-        }
-        try {
-            return elementConverter.getValueFromProperties(group, state);
-        } catch (final AccumuloElementConversionException e) {
-            throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
-        }
-    }
-
-    private String getCounterId(final boolean isMulti) {
-        return isMulti ? ">1 value" : "Only 1 value";
+    @Override
+    protected Value createValue(final Key key, final Value firstValue, final Properties state, final String group) {
+        return elementConverter.getValueFromProperties(group, state);
     }
 }

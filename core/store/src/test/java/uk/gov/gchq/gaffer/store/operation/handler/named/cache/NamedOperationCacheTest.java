@@ -37,9 +37,12 @@ public class NamedOperationCacheTest {
     private static NamedOperationCache cache;
     private static final String GAFFER_USER = "gaffer user";
     private static final String ADVANCED_GAFFER_USER = "advanced gaffer user";
+    private static final String ADMIN_AUTH = "admin auth";
+    private static final String EMPTY_ADMIN_AUTH = "";
     private List<String> readers = Collections.singletonList(GAFFER_USER);
     private List<String> writers = Collections.singletonList(ADVANCED_GAFFER_USER);
     private User standardUser = new User.Builder().opAuths(GAFFER_USER).userId("123").build();
+    private User userWithAdminAuth = new User.Builder().opAuths(ADMIN_AUTH).userId("adminUser").build();
     private User advancedUser = new User.Builder().opAuths(GAFFER_USER, ADVANCED_GAFFER_USER).userId("456").build();
     private OperationChain standardOpChain = new OperationChain.Builder().first(new AddElements()).build();
     private OperationChain alternativeOpChain = new OperationChain.Builder()
@@ -245,5 +248,18 @@ public class NamedOperationCacheTest {
         assert (actual.contains(standard));
         assert (actual.contains(alt));
         assert (actual.size() == 2);
+    }
+
+    @Test
+    public void shouldAllowAddingWhenUserHasAdminAuth() throws CacheOperationFailedException {
+        cache.addNamedOperation(alternative, false, advancedUser, EMPTY_ADMIN_AUTH);
+        NamedOperationDetail alt = new NamedOperationDetail.Builder()
+                .operationName(alternative.getOperationName())
+                .description("alt")
+                .creatorId(standardUser.getUserId())
+                .operationChain(alternativeOpChain)
+                .build();
+
+        cache.addNamedOperation(alt, true, userWithAdminAuth, ADMIN_AUTH);
     }
 }

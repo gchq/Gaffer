@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,18 @@
  */
 package uk.gov.gchq.gaffer;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Provides a common interface for testing classes that should be JSON serialisable.
+ *
  * @param <T> Object of type T that is to be tested
  */
 public abstract class JSONSerialisationTest<T> {
@@ -40,11 +43,25 @@ public abstract class JSONSerialisationTest<T> {
         assertNotNull(deserialisedObj);
     }
 
+    @Test
+    public void shouldHaveJsonPropertyAnnotation() throws Exception {
+        // Given
+        final T op = getTestObject();
+
+        // When
+        final JsonPropertyOrder annotation = op.getClass().getAnnotation(JsonPropertyOrder.class);
+
+        // Then
+        assumeTrue("Missing JsonPropertyOrder annotation on class. It should de defined and set to alphabetical." + op.getClass().getName(),
+                null != annotation && annotation.alphabetic());
+    }
+
     /**
      * This method should be used to generate an instance of the object under test,
      * eg. return new foo();
      * The object can be no arg, or as complex as is necessary for the test(s),
      * eg. return new bar(arg1, arg2, ...);
+     *
      * @return an instance of the object under test of type T
      */
     protected abstract T getTestObject();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +26,11 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
+import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -46,6 +49,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,19 +123,23 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        execute(OperationChain.wrap(operation), user);
+        _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        _execute(store::execute, OperationChain.wrap(operation), new Context(context));
     }
 
     /**
@@ -145,21 +153,25 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(operation, store.createContext(user));
+        return _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the output operation to be executed.
-     * @param context   the user context for the execution of the operation
+     * @param context   the user context for the execution of the operation.
      * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return _execute(store::execute, OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        return _execute(store::execute, OperationChain.wrap(operation), new Context(context));
     }
 
     /**
@@ -172,12 +184,13 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
-        return executeJob(operation, store.createContext(user));
+        return _execute(store::executeJob, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given operation job on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
@@ -185,7 +198,10 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-        return _execute(store::executeJob, OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        return _execute(store::executeJob, OperationChain.wrap(operation), new Context(context));
     }
 
     private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
@@ -193,13 +209,7 @@ public final class Graph {
             throw new IllegalArgumentException("operationChain is required");
         }
 
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
-
-        if (null == context.getUser()) {
-            throw new IllegalArgumentException("The context does not contain a user");
-        }
+        context.setOriginalOpChain(operationChain);
 
         final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
@@ -233,21 +243,17 @@ public final class Graph {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
-                final OperationView operationView = (OperationView) operation;
-                final View opView;
-                if (null == operationView.getView()) {
+                View opView = ((OperationView) operation).getView();
+                if (null == opView) {
                     opView = config.getView();
-                } else if (!operationView.getView().hasGroups()) {
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
                     opView = new View.Builder()
                             .merge(config.getView())
-                            .merge(operationView.getView())
+                            .merge(opView)
                             .build();
-                } else {
-                    opView = operationView.getView();
                 }
-
                 opView.expandGlobalDefinitions();
-                operationView.setView(opView);
+                ((OperationView) operation).setView(opView);
             }
         }
     }
@@ -504,6 +510,7 @@ public final class Graph {
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
+                ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
                 JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
             }
             return this;
@@ -674,7 +681,7 @@ public final class Graph {
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
-                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                    addSchema(IOUtils.toByteArray(schemaStream));
                 } catch (final IOException e) {
                     throw new SchemaException("Unable to read schema from input stream", e);
                 } finally {
@@ -846,15 +853,21 @@ public final class Graph {
         }
 
         private void updateGraphHooks(final GraphConfig config) {
-            if (store.isSupported(NamedOperation.class)) {
-                boolean hasNamedOpHook = false;
-                for (final GraphHook graphHook : config.getHooks()) {
-                    if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
-                        hasNamedOpHook = true;
-                        break;
-                    }
+            boolean hasNamedOpHook = false;
+            boolean hasNamedViewHook = false;
+            for (final GraphHook graphHook : config.getHooks()) {
+                if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                    hasNamedOpHook = true;
                 }
-                if (!hasNamedOpHook) {
+                if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
+                    hasNamedViewHook = true;
+                }
+            }
+            if (!hasNamedViewHook) {
+                config.getHooks().add(0, new NamedViewResolver());
+            }
+            if (!hasNamedOpHook) {
+                if (store.isSupported(NamedOperation.class)) {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
             }
@@ -930,7 +943,7 @@ public final class Graph {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema) {
+                if (null == schema || schema.getGroups().isEmpty()) {
                     schema = store.getSchema();
                 }
 
@@ -947,7 +960,7 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema) {
+            if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
             }
         }

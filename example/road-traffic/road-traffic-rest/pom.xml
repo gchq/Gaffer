@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2016-2018 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>1.1.0-RC2-SNAPSHOT</version>
+        <version>1.4.0-RC4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -151,7 +151,9 @@
                 <configuration>
                     <systemPropertyVariables>
                         <store.type>${store.type}</store.type>
-                        <roadTraffic.dataLoader.dataPath>${project.parent.basedir}/road-traffic-demo/src/main/resources/roadTrafficSampleData.csv</roadTraffic.dataLoader.dataPath>
+                        <roadTraffic.dataLoader.dataPath>
+                            ${project.parent.basedir}/road-traffic-demo/src/main/resources/roadTrafficSampleData.csv
+                        </roadTraffic.dataLoader.dataPath>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

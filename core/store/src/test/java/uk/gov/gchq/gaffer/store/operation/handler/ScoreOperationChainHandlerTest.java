@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -39,6 +40,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.IfScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
@@ -53,6 +56,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -468,23 +472,6 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldSetAndGetNamedOpScores() {
-        // Given
-        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
-        final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
-        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = new NamedOperation<>();
-
-        namedOpScoreResolvers.put(namedOp.getClass(), new NamedOperationScoreResolver());
-        handler.setScoreResolvers(namedOpScoreResolvers);
-
-        // When
-        final Map<Class<? extends Operation>, ScoreResolver> results = handler.getScoreResolvers();
-
-        // Then
-        assertEquals(namedOpScoreResolvers, results);
-    }
-
-    @Test
     public void shouldPassValidationOfOperationScores() throws ClassNotFoundException {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
@@ -515,5 +502,43 @@ public class ScoreOperationChainHandlerTest {
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
         }
+    }
+
+    @Test
+    public void shouldAddDefaultScoreResolvers() {
+        // Given
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers();
+
+        // When / Then
+        assertTrue(defaultResolvers.keySet().contains(NamedOperation.class));
+        assertNotNull(defaultResolvers.get(NamedOperation.class));
+        assertTrue(defaultResolvers.get(NamedOperation.class) instanceof NamedOperationScoreResolver);
+
+    }
+
+    @Test
+    public void shouldReAddDefaultScoreResolversWhenCallingSetMethod() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_RESOLVERS = ScoreOperationChainHandler.getDefaultScoreResolvers();
+
+        final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
+        expectedMap.putAll(DEFAULT_RESOLVERS);
+
+        final Map<Class<? extends Operation>, ScoreResolver> inputMap = new HashMap<>();
+        inputMap.put(GetElements.class, new DefaultScoreResolver(null));
+        inputMap.put(GetAllElements.class, new DefaultScoreResolver(null));
+
+        expectedMap.putAll(inputMap);
+
+        // When
+        handler.setScoreResolvers(inputMap);
+        final Map<Class<? extends Operation>, ScoreResolver> results = handler.getScoreResolvers();
+
+        // Then
+        assertEquals(expectedMap.keySet(), results.keySet());
+        assertTrue(results.get(NamedOperation.class) instanceof NamedOperationScoreResolver);
+        assertTrue(results.get(If.class) instanceof IfScoreResolver);
+        assertEquals(expectedMap.size(), results.size());
     }
 }

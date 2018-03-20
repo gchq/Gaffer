@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
+    private static final String THERE_ARE_NO_RESULTS_FOR_THIS_QUERY = "There are no results for this query";
     private final View view;
     private final DirectedType directedType;
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
@@ -82,10 +83,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
-        if (null == graphIndex) {
-            throw new OperationException("Can not perform a Get operation when there is no index set, which is " +
-                    "indicative of there being no data or the data ingest failed.");
-        }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.properties = store.getProperties();
         this.user = user;
@@ -117,17 +114,22 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final Schema gafferSchema,
                                   final User user) {
             try {
-                parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
-                final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
-                LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
-                if (!pathToFilterMap.isEmpty()) {
-                    queue = new ConcurrentLinkedQueue<>();
-                    executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
-                    final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
-                    tasks.addAll(pathToFilterMap.entrySet().stream().map(entry -> new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, parquetFilterUtils.needsValidatorsAndFiltersApplying(), properties.getSkipValidation(), view, user)).collect(Collectors.toList()));
-                    runningTasks = executorServicePool.invokeAll(tasks);
+                if (null != graphIndex) {
+                    parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
+                    final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
+                    LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
+                    if (!pathToFilterMap.isEmpty()) {
+                        queue = new ConcurrentLinkedQueue<>();
+                        executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
+                        final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
+                        tasks.addAll(pathToFilterMap.entrySet().stream().map(entry -> new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, parquetFilterUtils.needsValidatorsAndFiltersApplying(), properties.getSkipValidation(), view, user)).collect(Collectors.toList()));
+                        runningTasks = executorServicePool.invokeAll(tasks);
+                    } else {
+                        LOGGER.debug(THERE_ARE_NO_RESULTS_FOR_THIS_QUERY);
+                    }
                 } else {
-                    LOGGER.debug("There are no results for this query");
+                    LOGGER.debug("Can not perform a Get operation when there is no index set, which is " +
+                            "indicative of there being no data or the data ingest failed.");
                 }
             } catch (final OperationException | SerialisationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());

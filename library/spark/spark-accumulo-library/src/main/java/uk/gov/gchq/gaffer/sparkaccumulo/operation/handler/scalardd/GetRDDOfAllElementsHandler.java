@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,9 @@ import static uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants.ELE
  * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
  * of obtaining data via the tablet servers is used.
+ * <p>
+ * <p>When reading data via the tablet servers, read performance may be improved by setting the
+ * {@code gaffer.accumulo.spark.rdd.use_batch_scanner} option to true.
  */
 public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAllElements, RDD<Element>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRDDOfAllElementsHandler.class);
@@ -105,6 +108,10 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             throws OperationException {
         final Configuration conf = getConfiguration(operation);
         addIterators(accumuloStore, conf, context.getUser(), operation);
+        final String useBatchScannerRDD = operation.getOption(USE_BATCH_SCANNER_RDD);
+        if (Boolean.parseBoolean(useBatchScannerRDD)) {
+            InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
+        }
         final RDD<Tuple2<Element, NullWritable>> pairRDD = SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext().newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,

@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ This store implements the following Gaffer features:
 
 
 This Gaffer store implementation is very similar to the Accumulo Store. 
-One main difference is that due to constraints with HBase's column families the Gaffer group is store at the beginning of the column qualifier - this means filtering on groups is not as efficient as in HBase.
+One main difference is that due to constraints with HBase's column families the Gaffer group is store at the beginning of the column qualifier - this means filtering on groups is not as efficient in HBase.
 Please note that currently this store does not implement some of the advanced operations provided in the Accumulo store.
 
 - Scalability to large volumes of data;
@@ -98,7 +98,7 @@ hbase.hdfs.jars.path=[path to jar folder]/hbase-store-[version]-deploy.jar
 Schema
 -----------------------------------------------
 
-See [Getting started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -110,6 +110,8 @@ Graph graph = new Graph.Builder()
       .build();
 ```
 
+### Important note
+If you choose to set the timestampProperty please read the [timestamp](#timestamp) information below.
 
 Inserting data
 -----------------------------------------------
@@ -138,34 +140,7 @@ If your schema does not have aggregation then elements with the same key (group,
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of HBase key-value pairs that are pre-sorted to match the distribution of data in HBase. Once these files are created, HBase moves them from their current location in HDFS to the correct directory within HBase's data directory. The data in them is then available for query immediately.
 
 Gaffer provides code to make this as simple as possible. The `AddElementsFromHdfs` operation is used to bulk import data.
-
-Create the `AddElementsFromHdfs`operation using:
-
-```java
-AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs.Builder()
-        .inputPaths(inputDirs)
-        .outputPath(outputDir)
-        .failurePath(failureDir)
-        .mapperGenerator(myMapperGeneratorClass)
-        .jobInitialiser(jobInitialiser)
-        .build();
-```
-
-where:
-
-- `inputDirs` is a `List` of strings specifying the directory in HDFS containing your data;
-- `outputDir` is a string specifying the directory in HDFS where output from the MapReduce job will temporarily be stored (this directory does not need to exist);
-- `failureDir` is a string specifying the directory in HDFS which HBase will use to store files that were not successfully imported;
-- `myMapperGeneratorClass` is a `Class` that implements the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files;
-- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided.
-
-The operation can then be executed as normal using:
-
-```java
-graph.execute(addElementsFromHdfs, new User());
-```
-
-However, note you will need to create a Java jar file with dependencies that contains a main method that executes the addElementsFromHdfs. This jar must then be executed using the `hadoop` command to ensure that the Hadoop configuration is available.
+See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/getting-started/operations/addelementsfromhdfs.html).
 
 
 Queries
@@ -180,12 +155,19 @@ Gaffer can take advantage of HBase's built-in fine-grained security to ensure th
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html#aggregation) in the [user guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html) for an example of how properties can be aggregated over different visibilities at query time.
+See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/user-guide/aggregation.html) in the [user guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html) for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
 
-HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property. If this is not specified then the time when the conversion to an HBase Cell happens is used.
+HBase keys have a timestamp field. The user can specify which property is used for this by adding a config setting in the schema, key = "timestampProperty", value = `name of the property`, however we strongly recommend you do not use it with this store.
+If the timestamp is not set then it will be populated automatically to a time based random value.
+
+### Important note
+If you choose to set the timestampProperty in the schema and populate the timestamps yourself then you must ensure the timestamps are unique. 
+If it is not unique then elements will be deduplicated and deleted, even if some properties are different.
+If you don't set the timestamp values then HBase will create a random time based value from a combination of the current time and a randomly generated number.
+The chances of this not being unique are negligible.
 
 Validation and age-off of data
 -----------------------------------------------

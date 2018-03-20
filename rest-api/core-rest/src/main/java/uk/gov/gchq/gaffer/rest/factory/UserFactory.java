@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public interface UserFactory {
     /**
      * Create a new {@link Context} object.
      *
-     * @return a new user
+     * @return a new context containing a User object
      */
     default Context createContext() {
         return new Context(createUser());

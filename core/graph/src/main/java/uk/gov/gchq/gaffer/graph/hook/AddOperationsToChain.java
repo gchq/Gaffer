@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package uk.gov.gchq.gaffer.graph.hook;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -33,6 +35,7 @@ import java.util.Map;
  * A user can also specify authorised Operations to add, and if the user has
  * the opAuths, the additional Operations will be added to the chain.
  */
+@JsonPropertyOrder(value = {"class", "start", "before", "after", "end", "authorisedOps"}, alphabetic = true)
 public class AddOperationsToChain implements GraphHook {
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
     private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
@@ -71,8 +74,7 @@ public class AddOperationsToChain implements GraphHook {
         }
 
         try {
-            opChain.getOperations().clear();
-            opChain.getOperations().addAll(newOpList);
+            opChain.updateOperations(newOpList);
         } catch (final Exception e) {
             // ignore exception - this would be caused by the operation list not allowing modifications
         }
@@ -145,8 +147,7 @@ public class AddOperationsToChain implements GraphHook {
                 if (originalOp instanceof Operations) {
                     final List<Operation> nestedOpList = addOperationsToChain((Operations) originalOp, additionalOperations);
                     try {
-                        ((Operations) originalOp).getOperations().clear();
-                        ((Operations) originalOp).getOperations().addAll(nestedOpList);
+                        ((Operations) originalOp).updateOperations(nestedOpList);
                     } catch (final Exception e) {
                         // ignore exception - this would be caused by the operation list not allowing modifications
                     }

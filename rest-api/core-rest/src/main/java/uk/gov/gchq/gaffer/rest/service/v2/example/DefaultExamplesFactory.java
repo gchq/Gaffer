@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,16 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -53,6 +56,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 
 import javax.inject.Inject;
 
@@ -69,8 +73,8 @@ import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * Default implementation of the {@link uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory}
- * interface. Required to be registered with HK2 to allow the correct {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}
- * object to be injected.
+ * interface. Required to be registered with HK2 to allow the correct {@link
+ * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
  */
 public class DefaultExamplesFactory implements ExamplesFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExamplesFactory.class);
@@ -114,6 +118,10 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             return toMap();
         } else if (operation instanceof GetWalks) {
             return getWalks();
+        } else if (operation instanceof AddNamedView) {
+            return addNamedView();
+        } else if (operation instanceof If) {
+            return ifOperation();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -467,17 +475,45 @@ public class DefaultExamplesFactory implements ExamplesFactory {
 
         return new GetWalks.Builder()
                 .input(entityId)
-                .operation(new GetElements.Builder()
-                        .view(new View.Builder()
-                                .edge(edges.get(0))
-                                .build())
-                        .build())
-                .operation(new GetElements.Builder()
+                .operations(new GetElements.Builder()
                         .view(new View.Builder()
                                 .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
                                 .build())
                         .build())
                 .resultsLimit(10000)
+                .build();
+    }
+
+    @Override
+    public AddNamedView addNamedView() {
+        return new AddNamedView.Builder()
+                .name("summarise")
+                .description("Summarises all elements")
+                .overwrite(true)
+                .view(new View.Builder()
+                        .globalElements(new GlobalViewElementDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public If ifOperation() {
+        final List<ElementId> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntityId(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
+        }
+        return new If.Builder<>()
+                .input(seeds)
+                .conditional(new IsLongerThan(0))
+                .then(new GetElements())
+                .otherwise(new OperationChain.Builder()
+                        .first(new GetAllElements())
+                        .then(new Limit<>(10))
+                        .build())
                 .build();
     }
 

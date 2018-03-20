@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
+import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -33,16 +36,18 @@ import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_COLOUR;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_DESCRIPTION;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_DEFAULT;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_URL;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_URL_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DOCUMENTATION_URL;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DOCUMENTATION_URL_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE_DEFAULT;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.FAVICON_LARGE_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.FAVICON_SMALL_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_IMAGE_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_IMAGE_URL_DEFAULT;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK_DEFAULT;
 
 /**
  * An implementation of {@link IPropertiesServiceV2} that gets the configured system properties
@@ -57,9 +62,11 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
         map.put(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT);
         map.put(APP_BANNER_DESCRIPTION, "");
         map.put(APP_BANNER_COLOUR, "");
-        map.put(APP_CONTACT, APP_CONTACT_DEFAULT);
-        map.put(APP_CONTACT_URL, APP_CONTACT_URL_DEFAULT);
         map.put(APP_DOCUMENTATION_URL, APP_DOCUMENTATION_URL_DEFAULT);
+        map.put(LOGO_LINK, LOGO_LINK_DEFAULT);
+        map.put(LOGO_IMAGE_URL, LOGO_IMAGE_URL_DEFAULT);
+        map.put(FAVICON_SMALL_URL, LOGO_IMAGE_URL_DEFAULT);
+        map.put(FAVICON_LARGE_URL, LOGO_IMAGE_URL_DEFAULT);
         return Collections.unmodifiableMap(map);
     }
 
@@ -105,7 +112,15 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
             prop = null;
         }
 
-        final ResponseBuilder builder = null == prop ? Response.status(404) : Response.ok(prop);
+        final ResponseBuilder builder = null == prop ? Response.status(404)
+                .entity(new Error.ErrorBuilder()
+                        .status(Status.NOT_FOUND)
+                        .statusCode(404)
+                        .simpleMessage("Property: " + propertyName + " could not be found.")
+                        .build())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                : Response.ok(prop)
+                .type(MediaType.TEXT_PLAIN_TYPE);
         return builder.header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
     }
 }

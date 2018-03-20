@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,8 +146,8 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = client.executeOperation(new AddElements.Builder()
-                        .input(new Entity("wrong_group", "object"))
-                        .build());
+                .input(new Entity("wrong_group", "object"))
+                .build());
 
         assertEquals(500, response.getStatus());
     }
@@ -168,7 +168,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
         try {
             // Sleep for a short amount of time to ensure that all results are collected
-            Thread.sleep(2500);
+            Thread.sleep(5000);
         } catch (final InterruptedException e) {
             fail("Issue while waiting for chunked response.");
         }
@@ -184,7 +184,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                                         .get(TestGroups.ENTITY));
+                .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
@@ -157,7 +158,7 @@ public class GafferResultCacheExporter implements Exporter {
 
             final Class<?> resultClass;
             try {
-                resultClass = Class.forName(resultClassName);
+                resultClass = Class.forName(SimpleClassNameIdResolver.getClassName(resultClassName));
             } catch (final ClassNotFoundException e) {
                 LOGGER.error("Result class name was not found: {}", resultClassName, e);
                 throw new RuntimeException(e);

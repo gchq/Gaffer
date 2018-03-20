@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -34,6 +36,8 @@ import java.util.Map;
  *
  * @see ToCsv.Builder
  */
+@JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
+@Since("1.0.0")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {

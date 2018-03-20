@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ You need to provide a View to override the groupBy fields for all the element gr
 #### My queries are returning duplicate results - why and how can I deduplicate them?
 For example, if you have a Graph containing the Edge A-B and you do a GetElements with a large number of seeds, with the first seed A and the last seed B, then you will get the Edge A-B back twice. This is because Gaffer stores lazily return the results for your query to avoid loading all the results into memory so it will not realise the A-B has been queried for twice.
 
-You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#toset-example) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
+You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
 
 e.g: 
 
@@ -264,11 +264,11 @@ Some stores (like Accumulo) store the properties in different columns and lazily
 deserialise a column as properties in that column are requested. So if you limit
 your filters to just 1 column then less data needs to be deserialised. For 
 Accumulo and HBase the columns are split up depending on whether the property is 
-a groupBy property, the timestampProperty, the visibilityProperty and the remaining. 
+a groupBy property, the visibilityProperty and the remaining. 
 So if you want to execute a time window query and your timestamp is a groupBy 
-property or the special timestampProperty then depending on the store you are
+property then depending on the store you are
 running against this may be optimised. On Accumulo this will be fast as it 
-doesn't need to deserialise the entire Value, just the column qualifier or timestamp column
+doesn't need to deserialise the entire Value, just the column qualifier
 containing your timestamp property.
 
 Also, when defining the order of Predicates in a Filter, the order is important.
@@ -292,8 +292,8 @@ You can do most of the validation you require in your ElementGenerator class whe
 you generate your elements. The validation you provide in the schema should be 
 just the validation that you actually have to have, because this may be run A LOT.
 On Accumulo - it is run in major/minor compactions and for every query. 
-If you can, just validate properties that are in the groupBy or just the 
-timestampProperty, this will mean that the store may not need to deserialise 
+If you can, just validate properties that are in the groupBy,
+this will mean that the store may not need to deserialise 
 all of the other properties just to perform the validation.
 
 
@@ -315,7 +315,7 @@ points for your AddElementsFromHdfs operation.
 
 #### I want to filter the results of my query based on the destination of the result Edges
 OK, there are several ways of doing this and you will need to chose the most appropriate
-way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#getelements-example).
+way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operations/getelements.html).
 
 If you are querying with just a single EntitySeed with a vertex value of X and require
 the destination to be Y then you should change your query to use an EdgeSeed 
@@ -326,12 +326,16 @@ EdgeSeed as described above.
  
 If you require your destination to match a provided regex than you will need to use
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
-See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicate-examples.html).
+See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicates/contents.html).
 The predicate can then be used in you Operation View to filter out elements that
-don't match the regex. 
+don't match the regex.
 
-So, assuming your edge 'yourEdge' is directed and you provide a seed 'X' that is the source of the edge then you would apply the filter (e.g a simple regex [yY]) to the DESTINATION value.
-Alternatively if your seed is the destination then your filter should be applied to the SOURCE value.
+When the query is run and a seed matches an edge vertex, your seed may match the source or the destination vertex. 
+So, you need to tell the filter to apply to the opposite end of the edge.
+If you are running against a store that implements the MATCHED_VERTEX trait (e.g Accumulo) then it is easy. 
+The edges returned from the store will have a matchedVertex field so you know which end of the edge your seed matched.
+This means you can select the vertex at the other end of the edge using the keyword ADJACENT_MATCHED_VERTEX.
+For example:
 
 ```java
 GetElements results = new GetElements.Builder()
@@ -340,7 +344,7 @@ GetElements results = new GetElements.Builder()
         .edge("yourEdge", new ViewElementDefinition.Builder()
             .preAggregationFilter(
                 new ElementFilter.Builder()
-                    .select(IdentifierType.DESTINATION.name())
+                    .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
                     .execute(new Regex("[yY]"))
                     .build())
             .build())
@@ -348,8 +352,15 @@ GetElements results = new GetElements.Builder()
     .build();
 ```
 
-Finally, if your edge is undirected or the seed could be either the source or the
-destination, then you will need to provide a filter that checks the SOURCE or the DESTINATION matches the regex. 
+
+Without the matchedVertex field it is a bit more difficult.
+If you are using directed edges and you know what you seed will always match
+the source then you can select the 'DESTINATION' in the filter. 
+
+Otherwise, you will need to provide a filter that checks the SOURCE or the DESTINATION matches the regex.
+For example:
+
+```java
 GetElements results = new GetElements.Builder()
     .input(new EntitySeed("X"))
     .view(new View.Builder()
@@ -367,5 +378,6 @@ GetElements results = new GetElements.Builder()
             .build())
         .build())
     .build();
+```
 
-
+For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/getting-started/user-guide/filtering.html).

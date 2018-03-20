@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,10 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
@@ -34,9 +37,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -611,7 +616,7 @@ public class FilterHandlerTest {
     @Test
     public void shouldFailValidationWhenTypeArgumentOfPredicateIsIncorrect() {
         // Given
-        final Schema schema  = new Schema.Builder()
+        final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("junctionA")
                         .destination("junctionB")
@@ -648,15 +653,149 @@ public class FilterHandlerTest {
                 .input(input)
                 .globalEdges(new ElementFilter.Builder()
                         .select(TestPropertyNames.COUNT)
-                        .execute(new IsMoreThan(0D))
+                        .execute(new IsMoreThan("abcd"))
                         .build())
                 .build();
 
         try {
             final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
             fail("Exception expected");
-        } catch (final OperationException e){
+        } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("is not compatible with the input type:"));
         }
+    }
+
+    @Test
+    public void shouldFilterBasedOnMatchedVertex() throws OperationException {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .property(TestPropertyNames.COUNT, "count.long")
+                        .build())
+                .type("vertex", new TypeDefinition(String.class))
+                .type("count.long", new TypeDefinition(Long.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        final Filter filter = new Filter.Builder()
+                .input(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal2")
+                                .dest("destVal2")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal4")
+                                .dest("destVal4")
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .build()
+                )
+                .edge(TestGroups.EDGE, new ElementFilter.Builder()
+                        .select(IdentifierType.MATCHED_VERTEX.name())
+                        .execute(new IsIn("srcVal1", "destVal3"))
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build()),
+                results);
+    }
+
+    @Test
+    public void shouldFilterBasedOnAdjacentMatchedVertex() throws OperationException {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .property(TestPropertyNames.COUNT, "count.long")
+                        .build())
+                .type("vertex", new TypeDefinition(String.class))
+                .type("count.long", new TypeDefinition(Long.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        final Filter filter = new Filter.Builder()
+                .input(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal2")
+                                .dest("destVal2")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal4")
+                                .dest("destVal4")
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .build()
+                )
+                .edge(TestGroups.EDGE, new ElementFilter.Builder()
+                        .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
+                        .execute(new IsIn("destVal1", "srcVal3"))
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build()),
+                results);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,13 @@ public final class TypeReferenceSparkImpl {
     public static class RDDElement extends TypeReference<RDD<Element>> {
     }
 
+    public static class GraphFrame extends TypeReference<org.graphframes.GraphFrame> {
+    }
+
     private TypeReferenceSparkImpl() {
         // Private constructor to prevent instantiation.
+    }
+
+    public static class IterableRowT extends TypeReference<Iterable<? extends Row>> {
     }
 }

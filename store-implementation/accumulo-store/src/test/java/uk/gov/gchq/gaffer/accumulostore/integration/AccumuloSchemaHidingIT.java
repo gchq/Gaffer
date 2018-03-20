@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -36,12 +37,21 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
 
     @Override
     protected void cleanUp() {
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+
+        final AccumuloStore store;
+        try {
+            store = Class.forName(storeProps.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
+        }
+
         try {
             store.preInitialise(
                     "graphId",
                     createFullSchema(),
-                    AccumuloProperties.loadStoreProperties(storePropertiesPath));
+                    storeProps
+            );
             store.getConnection().tableOperations().delete(store.getTableName());
         } catch (final Exception e) {
             // ignore exceptions

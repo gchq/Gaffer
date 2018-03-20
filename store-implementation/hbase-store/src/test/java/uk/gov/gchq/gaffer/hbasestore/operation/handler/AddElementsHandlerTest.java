@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import com.google.common.collect.Lists;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.hamcrest.core.IsCollectionContaining;
@@ -124,7 +125,7 @@ public class AddElementsHandlerTest {
             .build();
 
     @Test
-    public void shouldAddDistinctElements() throws OperationException, StoreException, IOException {
+    public void shouldAddElements() throws OperationException, StoreException, IOException {
         // Given
         final AddElementsHandler handler = new AddElementsHandler();
         final List<Element> elements = createElements();
@@ -137,10 +138,12 @@ public class AddElementsHandlerTest {
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 
-        final Table table = mock(Table.class);
+        final HTable table = mock(HTable.class);
         given(store.getTable()).willReturn(table);
 
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final int writeBufferSize = 5;
+        properties.setWriteBufferSize(writeBufferSize);
         given(store.getProperties()).willReturn(properties);
 
         given(store.getSchema()).willReturn(SCHEMA);
@@ -149,9 +152,14 @@ public class AddElementsHandlerTest {
         handler.doOperation(addElements, context, store);
 
         // Then
-        final ArgumentCaptor<List> putsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(table).put(putsCaptor.capture());
-        final List<Put> puts = putsCaptor.getValue();
+        final ArgumentCaptor<List<Put>> putsCaptor = (ArgumentCaptor) ArgumentCaptor.forClass(List.class);
+        verify(table, times(2)).put(putsCaptor.capture());
+        verify(table, times(2)).flushCommits();
+        final List<List<Put>> allPuts = putsCaptor.getAllValues();
+        assertEquals(2, allPuts.size());
+        final List<Put> combinedPuts = new ArrayList<>();
+        combinedPuts.addAll(allPuts.get(0));
+        combinedPuts.addAll(allPuts.get(1));
 
         final List<Element> expectedElements = new ArrayList<>();
         for (final Element element : elements) {
@@ -161,104 +169,7 @@ public class AddElementsHandlerTest {
             }
         }
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
-        assertEquals(expectedElements.size(), elementsAdded.size());
-        assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
-    }
-
-    @Test
-    public void shouldAddDuplicateElementsWithNoAggregation() throws OperationException, StoreException, IOException {
-        // Given
-        final AddElementsHandler handler = new AddElementsHandler();
-        final List<Element> distinctElements = createElements();
-        final List<Element> elements = new ArrayList<>();
-        elements.addAll(distinctElements);
-        elements.addAll(distinctElements);
-
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
-        final Context context = mock(Context.class);
-        final HBaseStore store = mock(HBaseStore.class);
-
-        final Table table = mock(Table.class);
-        given(store.getTable()).willReturn(table);
-
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        given(store.getProperties()).willReturn(properties);
-
-        given(store.getSchema()).willReturn(SCHEMA);
-
-        // When
-        handler.doOperation(addElements, context, store);
-
-        // Then
-        final List<Element> expectedElements = new ArrayList<>();
-        for (final Element element : distinctElements) {
-            expectedElements.add(element);
-            if (element instanceof Edge && !((Edge) element).getSource().equals(((Edge) element).getDestination())) {
-                expectedElements.add(element);
-            }
-        }
-        final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final ArgumentCaptor<List> putsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(table, times(2)).put(putsCaptor.capture());
-        final List<Put> puts1 = putsCaptor.getAllValues().get(0);
-        final List<Put> puts2 = putsCaptor.getAllValues().get(1);
-
-        final List<Element> elementsAdded1 = CellUtil.getElements(puts1, new ElementSerialisation(SCHEMA), false);
-        assertEquals(expectedElements.size(), elementsAdded1.size());
-        assertThat(elementsAdded1, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA), false);
-        assertEquals(expectedElements.size(), elementsAdded2.size());
-        assertThat(elementsAdded2, IsCollectionContaining.hasItems(expectedElementsArr));
-    }
-
-    @Test
-    public void shouldAddAggregatedElements() throws OperationException, StoreException, IOException {
-        // Given
-        final List<Element> distinctElements = createElements();
-        final List<Element> elements = new ArrayList<>();
-        elements.addAll(distinctElements);
-        elements.addAll(distinctElements);
-
-        final AddElementsHandler handler = new AddElementsHandler();
-
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
-        final Context context = mock(Context.class);
-        final HBaseStore store = mock(HBaseStore.class);
-
-        final Table table = mock(Table.class);
-        given(store.getTable()).willReturn(table);
-
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        given(store.getProperties()).willReturn(properties);
-
-        given(store.getSchema()).willReturn(SCHEMA_WITH_AGGREGATION);
-
-        // When
-        handler.doOperation(addElements, context, store);
-
-        // Then
-        final ArgumentCaptor<List> putsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(table).put(putsCaptor.capture());
-        final List<Put> puts = putsCaptor.getValue();
-
-        final List<Element> expectedElements = new ArrayList<>();
-        for (final Element element : distinctElements) {
-            element.putProperty("count", 2);
-            element.putProperty("prop1", "a");
-            element.putProperty("visibility", "public");
-            expectedElements.add(element);
-            if (element instanceof Edge && !((Edge) element).getSource().equals(((Edge) element).getDestination())) {
-                expectedElements.add(element);
-            }
-        }
-        final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
+        final List<Element> elementsAdded = CellUtil.getElements(combinedPuts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
     }

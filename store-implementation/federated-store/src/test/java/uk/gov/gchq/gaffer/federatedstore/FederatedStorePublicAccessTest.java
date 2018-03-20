@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -55,9 +56,10 @@ public class FederatedStorePublicAccessTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        MapStoreProperties mapStoreProperties = new MapStoreProperties();
+        AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
-        library.addProperties(PROP_1, mapStoreProperties);
+        library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
         blankUserContext = new Context(StoreUser.blankUser());

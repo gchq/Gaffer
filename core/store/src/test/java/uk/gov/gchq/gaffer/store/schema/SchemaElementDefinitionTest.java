@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -822,8 +822,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                         .aggregateFunction(new ExampleAggregateFunction())
                         .validateFunctions(new Exists())
                         .build())
-                .visibilityProperty("visibility")
-                .timestampProperty("timestamp");
+                .visibilityProperty("visibility");
         if (elementDef instanceof SchemaEdgeDefinition) {
             schemaBuilder.edge(TestGroups.EDGE, (SchemaEdgeDefinition) elementDef);
         } else {

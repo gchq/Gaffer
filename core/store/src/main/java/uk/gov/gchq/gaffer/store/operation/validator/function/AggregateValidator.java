@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.binaryoperator.AdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.signature.Signature;
@@ -47,19 +45,16 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
         final Map<String, ?> edges = null != operation.getEdges() ? operation.getEdges() : new HashMap<>();
 
-        final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
-        final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
-
         for (final Map.Entry<String, ?> entry : edges.entrySet()) {
             result.add(validateEdge(entry, schema));
             result.add(validateElementAggregator(entry, schema));
-            result.add(validateAggregatePropertyClasses(schemaEdges, (AggregatePair) entry.getValue()));
+            result.add(validateAggregatePropertyClasses(schema.getEdge(entry.getKey()), (AggregatePair) entry.getValue()));
         }
 
         for (final Map.Entry<String, ?> entry : entities.entrySet()) {
             result.add(validateEntity(entry, schema));
             result.add(validateElementAggregator(entry, schema));
-            result.add(validateAggregatePropertyClasses(schemaEntities, (AggregatePair) entry.getValue()));
+            result.add(validateAggregatePropertyClasses(schema.getEntity(entry.getKey()), (AggregatePair) entry.getValue()));
         }
 
         return result;
@@ -101,20 +96,21 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
 
     /**
      * Validates that the binary operators to be executed are assignable to the corresponding non-transient properties
-     * @param elements  Map of element group to SchemaElementDefinition
-     * @param pair      AggregatePair, containing a String array of groupBy properties, and an ElementAggregator
-     * @return          ValidationResult of the validation
+     *
+     * @param elementDef The SchemaElementDefinition to validate against
+     * @param pair       AggregatePair, containing a String array of groupBy properties, and an ElementAggregator
+     * @return ValidationResult of the validation
      */
-    private ValidationResult validateAggregatePropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final AggregatePair pair) {
+    private ValidationResult validateAggregatePropertyClasses(final SchemaElementDefinition elementDef, final AggregatePair pair) {
         final ValidationResult result = new ValidationResult();
 
-        final ElementAggregator aggregator = pair.getElementAggregator();
-        if (null != aggregator) {
-            final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+        if (null != elementDef) {
+            final ElementAggregator aggregator = pair.getElementAggregator();
+            if (null != aggregator) {
+                final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-            for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
-                final String[] selection = component.getSelection();
-                for (final SchemaElementDefinition elementDef : elements.values()) {
+                for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
+                    final String[] selection = component.getSelection();
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
 
@@ -133,7 +129,6 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
                 }
             }
         }
-
         return result;
     }
 }

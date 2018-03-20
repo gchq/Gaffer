@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.store.operation.validator.function;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -25,7 +27,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,36 +42,36 @@ public class FilterValidator extends FunctionValidator<Filter> {
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
         final Map<String, ?> edges = null != operation.getEdges() ? operation.getEdges() : new HashMap<>();
 
-        final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
-        final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
-
         for (final Map.Entry<String, ?> entry : edges.entrySet()) {
             result.add(validateEdge(entry, schema));
             result.add(validateElementFilter((ElementFilter) entry.getValue()));
-            result.add(validateFilterPropertyClasses(schemaEdges, (ElementFilter) entry.getValue()));
+            result.add(validateFilterPropertyClasses(schema.getEdge(entry.getKey()), (ElementFilter) entry.getValue()));
         }
 
         for (final Map.Entry<String, ?> entry : entities.entrySet()) {
             result.add(validateEntity(entry, schema));
             result.add(validateElementFilter((ElementFilter) entry.getValue()));
-            result.add(validateFilterPropertyClasses(schemaEntities, (ElementFilter) entry.getValue()));
+            result.add(validateFilterPropertyClasses(schema.getEntity(entry.getKey()), (ElementFilter) entry.getValue()));
         }
 
-        final ElementFilter globalElements = operation.getGlobalElements();
-        final ElementFilter globalEdges = operation.getGlobalEdges();
-        final ElementFilter globalEntities = operation.getGlobalEntities();
-
-        if (null != globalElements) {
-            result.add(validateFilterPropertyClasses(schemaEdges, globalElements));
-            result.add(validateFilterPropertyClasses(schemaEntities, globalElements));
+        if (null != operation.getGlobalElements()) {
+            for (final SchemaEdgeDefinition edgeDefinition : schema.getEdges().values()) {
+                result.add(validateFilterPropertyClasses(edgeDefinition, operation.getGlobalElements()));
+            }
+            for (final SchemaEntityDefinition entityDefinition : schema.getEntities().values()) {
+                result.add(validateFilterPropertyClasses(entityDefinition, operation.getGlobalElements()));
+            }
         }
-        if (null != globalEdges) {
-            result.add(validateFilterPropertyClasses(schemaEdges, globalEdges));
+        if (null != operation.getGlobalEdges()) {
+            for (final SchemaEdgeDefinition edgeDefinition : schema.getEdges().values()) {
+                result.add(validateFilterPropertyClasses(edgeDefinition, operation.getGlobalEdges()));
+            }
         }
-        if (null != globalEntities) {
-            result.add(validateFilterPropertyClasses(schemaEntities, globalEntities));
+        if (null != operation.getGlobalEntities()) {
+            for (final SchemaEntityDefinition entityDefinition : schema.getEntities().values()) {
+                result.add(validateFilterPropertyClasses(entityDefinition, operation.getGlobalEntities()));
+            }
         }
-
 
         return result;
     }
@@ -89,26 +90,27 @@ public class FilterValidator extends FunctionValidator<Filter> {
 
     /**
      * Validates that the predicates to be executed are assignable to the corresponding properties
-     * @param elements  Map of element group to SchemaElementDefinition
-     * @param filter    The ElementFilter to be validated against
-     * @return          ValidationResult of the validation
+     *
+     * @param elementDef The SchemaElementDefinition to validate against
+     * @param filter     The ElementFilter to be validated against
+     * @return ValidationResult of the validation
      */
-    private ValidationResult validateFilterPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementFilter filter) {
+    private ValidationResult validateFilterPropertyClasses(final SchemaElementDefinition elementDef, final ElementFilter filter) {
         final ValidationResult result = new ValidationResult();
 
-        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
-        for (final TupleAdaptedPredicate<String, ?> component : components) {
-            final String[] selection = component.getSelection();
-
-            for (final SchemaElementDefinition elementDef : elements.values()) {
-                final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+        if (null != elementDef) {
+            final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
+            for (final TupleAdaptedPredicate<String, ?> component : components) {
                 final Map<String, String> properties = elementDef.getPropertyMap();
                 if (!properties.isEmpty()) {
                     if (null == component.getPredicate()) {
                         result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                     } else {
-                        final Signature inputSig = Signature.getInputSignature(component.getPredicate());
-                        result.add(inputSig.assignable(selectionClasses));
+                        final Class[] selectionClasses = getTypeClasses(component.getSelection(), elementDef);
+                        if (!ArrayUtils.contains(selectionClasses, null)) {
+                            final Signature inputSig = Signature.getInputSignature(component.getPredicate());
+                            result.add(inputSig.assignable(selectionClasses));
+                        }
                     }
                 }
             }

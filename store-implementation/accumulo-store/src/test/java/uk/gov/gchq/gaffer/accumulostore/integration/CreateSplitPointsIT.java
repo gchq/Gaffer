@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -104,7 +104,7 @@ public class CreateSplitPointsIT {
                         .splitsFilePath(splitsFile)
                         .compressionCodec(null)
                         .build())
-                .then(new SplitStore.Builder()
+                .then(new SplitStoreFromFile.Builder()
                         .inputPath(splitsFile)
                         .build())
                 .build(), new User());

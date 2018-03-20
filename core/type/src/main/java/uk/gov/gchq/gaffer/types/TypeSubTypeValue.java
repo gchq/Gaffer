@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import java.util.Comparator;
  * A {@code TypeSubTypeValue} is used to store information relating to types,
  * sub-types and associated values.
  */
+@JsonSimpleClassName
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator

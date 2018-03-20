@@ -1,0 +1,16 @@
+{
+  "types": {
+    "int": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean"
+    }
+  }
+}

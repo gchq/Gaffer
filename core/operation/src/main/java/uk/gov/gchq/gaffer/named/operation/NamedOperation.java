@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -41,6 +43,8 @@ import java.util.Map;
  * @param <I_ITEM> the input iterable item type
  * @param <O>      the output type
  */
+@JsonPropertyOrder(value = {"class", "input", "operationName"}, alphabetic = true)
+@Since("1.0.0")
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
         MultiInput<I_ITEM> {

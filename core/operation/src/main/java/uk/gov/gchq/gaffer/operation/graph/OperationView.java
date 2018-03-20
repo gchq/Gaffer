@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,19 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
+
+import java.util.List;
 
 /**
  * An {@code OperationView} operation contains a {@link View} and can carry out
  * additional validation based on the view contents.
  */
 public interface OperationView {
+
     /**
      * @return the {@link View} for the operation.
      * @see View
@@ -119,6 +123,33 @@ public interface OperationView {
         }
         final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
         return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().test(element));
+    }
+
+    /**
+     * Merges a list of {@link View}s, including the current if set, and sets the {@link OperationView} to the new merged {@link View}.
+     *
+     * @param views the list of views to merge
+     */
+    default void setViews(final List<View> views) {
+        if (null != views) {
+            boolean isNamedView = null != getView() && getView() instanceof NamedView;
+            if (!isNamedView) {
+                for (final View view : views) {
+                    if (null != view && view instanceof NamedView) {
+                        isNamedView = true;
+                        break;
+                    }
+                }
+            }
+            final View.BaseBuilder builder = isNamedView ? new NamedView.Builder() : new View.Builder();
+
+            if (null != getView()) {
+                builder.merge(getView());
+            }
+            views.forEach(view -> builder.merge(view));
+
+            setView(builder.build());
+        }
     }
 
     interface Builder<OP extends OperationView, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +73,13 @@ public class StoreProperties implements Cloneable {
 
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
+
+    public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
+
+    /**
+     * CSV of extra packages to be included in the reflection scanning.
+     */
+    public static final String REFLECTION_PACKAGES = "gaffer.store.reflection.packages";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
@@ -384,6 +394,15 @@ public class StoreProperties implements Cloneable {
         set(OPERATION_DECLARATIONS, paths);
     }
 
+    public String getReflectionPackages() {
+        return get(REFLECTION_PACKAGES);
+    }
+
+    public void setReflectionPackages(final String packages) {
+        set(REFLECTION_PACKAGES, packages);
+        ReflectionUtil.addReflectionPackages(packages);
+    }
+
     public Integer getJobExecutorThreadCount() {
         return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
@@ -427,6 +446,14 @@ public class StoreProperties implements Cloneable {
 
     public void setJsonSerialiserModules(final String modules) {
         set(JSON_SERIALISER_MODULES, modules);
+    }
+
+    public String getAdminAuth() {
+        return get(ADMIN_AUTH, "");
+    }
+
+    public void setAdminAuth(final String adminAuth) {
+        set(ADMIN_AUTH, adminAuth);
     }
 
     public Properties getProperties() {
@@ -482,6 +509,18 @@ public class StoreProperties implements Cloneable {
         } else if (!requiredClass.isAssignableFrom(storePropertiesClass)) {
             throw new IllegalArgumentException("The given properties is not of type " + requiredClass.getName() + " actual: " + storePropertiesClass.getName());
         }
+    }
+
+    @Override
+    public String toString() {
+        if (DebugUtil.checkDebugMode()) {
+            return new ToStringBuilder(this)
+                    .append("properties", getProperties())
+                    .toString();
+        }
+
+        // If we are not in debug mode then don't return the property values in case we leak sensitive properties.
+        return super.toString();
     }
 
     private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, final StoreProperties properties) {

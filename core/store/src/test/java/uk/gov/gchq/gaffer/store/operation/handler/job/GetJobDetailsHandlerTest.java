@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,6 @@ public class GetJobDetailsHandlerTest {
     @Test
     public void shouldGetJobDetailsByDelegatingToJobTrackerWithContextJobId() throws OperationException {
         // Given
-        final String jobId = "jobId";
         final GetJobDetailsHandler handler = new GetJobDetailsHandler();
         final GetJobDetails operation = new GetJobDetails();
         final Store store = mock(Store.class);
@@ -89,8 +88,8 @@ public class GetJobDetailsHandlerTest {
         final JobDetail jobsDetail = mock(JobDetail.class);
         final Context context = new Context.Builder()
                 .user(user)
-                .jobId(jobId)
                 .build();
+        final String jobId = context.getJobId();
 
         given(store.getJobTracker()).willReturn(jobTracker);
         given(jobTracker.getJob(jobId, user)).willReturn(jobsDetail);

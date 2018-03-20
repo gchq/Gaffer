@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.GroupUtil;
@@ -34,12 +33,14 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,8 +68,8 @@ import java.util.Set;
  * @see ElementDefinitions
  */
 @JsonDeserialize(builder = Schema.Builder.class)
+@JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -91,7 +92,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     private String visibilityProperty;
 
+    /**
+     * @deprecated use a store property specific to your chosen store instead.
+     */
+    @Deprecated
     private String timestampProperty;
+
+    private Map<String, String> config;
 
     public Schema() {
         this(new LinkedHashMap<>());
@@ -262,7 +269,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return null;
         }
 
-        return vertexSerialiser.getClass().getName();
+        return SimpleClassNameIdResolver.getSimpleClassName(vertexSerialiser.getClass());
     }
 
     @Override
@@ -274,8 +281,28 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return visibilityProperty;
     }
 
+    /**
+     * @return the timestamp property
+     * @deprecated use a store property specific to your chosen store instead.
+     */
+    @Deprecated
     public String getTimestampProperty() {
         return timestampProperty;
+    }
+
+    public Map<String, String> getConfig() {
+        return config;
+    }
+
+    public String getConfig(final String key) {
+        return null != config ? config.get(key) : null;
+    }
+
+    public void addConfig(final String key, final String value) {
+        if (null == config) {
+            config = new HashMap<>();
+        }
+        config.put(key, value);
     }
 
     @Override
@@ -339,7 +366,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             } else {
                 Class<? extends Serialiser> serialiserClass;
                 try {
-                    serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialiser.class);
+                    serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(vertexSerialiserClass)).asSubclass(Serialiser.class);
                 } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
@@ -375,8 +402,24 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return self();
         }
 
+        /**
+         * @param timestampProperty the timestamp property
+         * @return the builder
+         * @deprecated This is an advanced feature - if you use it then make sure you really understand it. To continue using it you should add a Schema config setting with key "timestampProperty".
+         */
+        @Deprecated
         public CHILD_CLASS timestampProperty(final String timestampProperty) {
             getThisSchema().timestampProperty = timestampProperty;
+            return self();
+        }
+
+        public CHILD_CLASS config(final Map<String, String> config) {
+            getThisSchema().config = config;
+            return self();
+        }
+
+        public CHILD_CLASS config(final String key, final String value) {
+            getThisSchema().addConfig(key, value);
             return self();
         }
 
@@ -464,6 +507,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         }
                     }
                 }
+
+                if (null == getThisSchema().config) {
+                    getThisSchema().config = schema.config;
+                } else if (null != schema.config) {
+                    getThisSchema().config.putAll(schema.config);
+                }
             }
 
             return self();
@@ -500,6 +549,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             getThisSchema().types = Collections.unmodifiableMap(getThisSchema().types);
 
+            if (null != getThisSchema().timestampProperty) {
+                getThisSchema().addConfig("timestampProperty", getThisSchema().timestampProperty);
+            }
             return super.build();
         }
 

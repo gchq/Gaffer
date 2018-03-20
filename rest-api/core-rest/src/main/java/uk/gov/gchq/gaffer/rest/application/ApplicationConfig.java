@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,14 @@ import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
+import uk.gov.gchq.gaffer.rest.serialisation.TextMessageBodyWriter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An {@code ApplicationConfig} sets up the application resources.
+ * An {@code ApplicationConfig} sets up the application resources,
+ * and any other application-specific configuration.
  */
 public abstract class ApplicationConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();
@@ -50,6 +52,7 @@ public abstract class ApplicationConfig extends ResourceConfig {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
         resources.add(RestJsonProvider.class);
+        resources.add(TextMessageBodyWriter.class);
     }
 
     protected void addExceptionMappers() {
@@ -60,8 +63,14 @@ public abstract class ApplicationConfig extends ResourceConfig {
         resources.add(GenericExceptionMapper.class);
     }
 
+    /**
+     * Should add version-specific classes to the collection of resources.
+     */
     protected abstract void addServices();
 
+    /**
+     * Should set various properties for Swagger's initialization.
+     */
     protected abstract void setupBeanConfig();
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 
@@ -28,6 +29,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
@@ -41,7 +44,12 @@ public interface IStatusServiceV2 {
 
     @GET
     @ApiOperation(value = "Returns the status of the service",
-            response = SystemStatus.class, produces = APPLICATION_JSON)
+            notes = "A simple way to check the current status of the application/service.",
+            response = SystemStatus.class,
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 503, message = "The service is not available")})

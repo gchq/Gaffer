@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,48 @@ public class NamedOperationResolverTest {
 
         // Then
         assertEquals(namedOperationOpChain.getOperations(), opChain.getOperations());
+
+        verify(op1).setInput((Iterable) input);
+        verify(op2, never()).setInput((Iterable) input);
+    }
+
+    @Test
+    public void shouldResolveNestedNamedOperation() throws OperationException, CacheOperationFailedException {
+        // Given
+        final String opName = "opName";
+        final NamedOperationCache cache = mock(NamedOperationCache.class);
+        final NamedOperationResolver resolver = new NamedOperationResolver(cache);
+
+        final User user = mock(User.class);
+        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
+
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
+        final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
+        final Iterable<?> input = mock(CloseableIterable.class);
+
+        final Map<String, Object> params = null;
+
+        given(op1.getInput()).willReturn(null);
+        given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
+        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
+
+        final OperationChain<Object> opChain = new OperationChain.Builder()
+                .first(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .input(input)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        resolver.preExecute(opChain, new Context(user));
+
+        // Then
+        assertEquals(1, opChain.getOperations().size());
+        final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
+        assertEquals(namedOperationOpChain.getOperations(), nestedOpChain.getOperations());
 
         verify(op1).setInput((Iterable) input);
         verify(op2, never()).setInput((Iterable) input);

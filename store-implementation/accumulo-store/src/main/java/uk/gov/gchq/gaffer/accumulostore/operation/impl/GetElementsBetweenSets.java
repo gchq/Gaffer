@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.accumulostore.operation.MultiInputB;
+import uk.gov.gchq.gaffer.accumulostore.operation.MultiEntityIdInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,8 +31,9 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.IOException;
 import java.util.Map;
@@ -43,10 +45,12 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
+@JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
-        MultiInput<EntityId>,
-        MultiInputB<EntityId>,
+        MultiEntityIdInput,
+        MultiEntityIdInputB,
         SeededGraphFilters,
         SeedMatching {
     private SeedMatchingType seedMatching;
@@ -114,14 +118,8 @@ public class GetElementsBetweenSets implements
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
-    public Object[] createInputArray() {
-        return MultiInput.super.createInputArray();
-    }
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @Override
     public Object[] createInputBArray() {
-        return MultiInputB.super.createInputBArray();
+        return MultiEntityIdInputB.super.createInputBArray();
     }
 
     @Override
@@ -151,7 +149,7 @@ public class GetElementsBetweenSets implements
 
     @Override
     public void close() throws IOException {
-        MultiInput.super.close();
+        MultiEntityIdInput.super.close();
         CloseableUtil.close(inputB);
     }
 
@@ -170,8 +168,8 @@ public class GetElementsBetweenSets implements
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
             implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<GetElementsBetweenSets, EntityId, Builder>,
-            MultiInputB.Builder<GetElementsBetweenSets, EntityId, Builder>,
+            MultiEntityIdInput.Builder<GetElementsBetweenSets, Builder>,
+            MultiEntityIdInputB.Builder<GetElementsBetweenSets, Builder>,
             SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
             SeedMatching.Builder<GetElementsBetweenSets, Builder> {
         public Builder() {

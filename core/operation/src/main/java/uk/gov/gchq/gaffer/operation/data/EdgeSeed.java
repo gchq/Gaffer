@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -30,8 +31,9 @@ import java.util.Comparator;
 /**
  * An {@code EdgeSeed} contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
- * It is used as a mainly used as a seed for queries.
+ * It is mainly used as a seed for queries.
  */
+@JsonPropertyOrder(value = {"class", "source", "destination", "directed", "matchedVertex"}, alphabetic = true)
 public class EdgeSeed extends ElementSeed implements EdgeId {
     private static final long serialVersionUID = -8137886975649690000L;
     private static final Comparator<Object> VERTEX_COMPARATOR = new ComparableOrToStringComparator();
@@ -73,7 +75,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     @JsonCreator
-    public EdgeSeed(@JsonProperty("source")  final Object source,
+    public EdgeSeed(@JsonProperty("source") final Object source,
                     @JsonProperty("destination") final Object destination,
                     @JsonProperty("directed") final Boolean directed,
                     @JsonProperty("directedType") final DirectedType directedType,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An <code>Operations</code> will hold a list of {@link Operation}s, which are often dealt with recursively.
@@ -34,6 +36,22 @@ public interface Operations<T extends Operation> {
     Collection<T> getOperations();
 
     /**
+     * Updates the operations using the provided collection.
+     * By default this will just clear the current operations collection
+     * and add all the new operations.
+     *
+     * @param operations the new operations.
+     */
+    default void updateOperations(final Collection<T> operations) {
+        try {
+            getOperations().clear();
+            getOperations().addAll(operations);
+        } catch (final Exception e) {
+            throw new RuntimeException("Unable to update operations from: " + getOperations() + " to " + operations, e);
+        }
+    }
+
+    /**
      * The class of the operations. By default this will return the
      * {@link Operation} class.
      *
@@ -42,5 +60,24 @@ public interface Operations<T extends Operation> {
     @JsonIgnore
     default Class<T> getOperationsClass() {
         return (Class) Operation.class;
+    }
+
+    /**
+     * Recursively flattens nested operations.
+     *
+     * @return a list of flattened operations.
+     */
+    default List<Operation> flatten() {
+        final List<Operation> tmp = new ArrayList<>(1);
+
+        for (final Operation operation : getOperations()) {
+            if (operation instanceof Operations) {
+                tmp.addAll(((Operations) operation).flatten());
+            } else {
+                tmp.add(operation);
+            }
+        }
+
+        return tmp;
     }
 }

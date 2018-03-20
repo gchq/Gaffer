@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,6 +36,7 @@ interface GraphDelegateInterface {
         protected Store store;
         protected String graphId;
         protected Schema schema;
+        protected GraphHook[] hooks;
         protected StoreProperties storeProperties;
         protected List<String> parentSchemaIds;
         protected String parentStorePropertiesId;
@@ -61,6 +63,11 @@ interface GraphDelegateInterface {
 
         public BUILDER graphId(final String graphId) {
             this.graphId = graphId;
+            return _self();
+        }
+
+        public BUILDER hooks(final GraphHook[] hooks) {
+            this.hooks = hooks;
             return _self();
         }
 

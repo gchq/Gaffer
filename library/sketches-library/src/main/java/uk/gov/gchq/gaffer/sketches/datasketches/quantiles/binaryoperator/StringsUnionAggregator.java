@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.quantiles.ItemsUnion;
 
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -24,6 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * of {@link String}s. It does this by extracting a {@link com.yahoo.sketches.quantiles.ItemsSketch} from each
  * {@link ItemsUnion} and merges that using {@link ItemsUnion#update(com.yahoo.sketches.quantiles.ItemsSketch)}.
  */
+@Since("1.0.0")
 public class StringsUnionAggregator extends KorypheBinaryOperator<ItemsUnion<String>> {
 
     @Override

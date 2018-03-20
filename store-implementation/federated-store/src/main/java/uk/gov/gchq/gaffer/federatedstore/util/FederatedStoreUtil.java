@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,19 +102,19 @@ public final class FederatedStoreUtil {
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = operation;
-        if (operation instanceof OperationChain) {
-            final OperationChain<?> opChain = (OperationChain) operation;
-            resultOp = (OP) opChain.shallowClone();
-            final OperationChain<?> resultOpChain = (OperationChain<?>) resultOp;
-            resultOpChain.getOperations().clear();
-            for (final Operation nestedOp : opChain.getOperations()) {
+        if (operation instanceof Operations) {
+            resultOp = (OP) operation.shallowClone();
+            final Operations<Operation> operations = (Operations) resultOp;
+            final List<Operation> resultOperations = new ArrayList<>();
+            for (final Operation nestedOp : operations.getOperations()) {
                 final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
                 if (null == updatedNestedOp) {
                     resultOp = null;
                     break;
                 }
-                resultOpChain.getOperations().add(updatedNestedOp);
+                resultOperations.add(updatedNestedOp);
             }
+            operations.updateOperations(resultOperations);
         } else if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {

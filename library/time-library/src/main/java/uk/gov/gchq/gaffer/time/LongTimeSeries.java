@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.time;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -51,6 +52,7 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.YEAR;
  * is added then the seconds are removed so that the value is associated to
  * 12:34.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class LongTimeSeries implements TimeSeries<Long> {
     private static final Set<TimeBucket> VALID_TIME_BUCKETS = Sets.newHashSet(
             MILLISECOND,

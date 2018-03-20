@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -112,12 +113,12 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
 
     @JsonGetter("keySerialiser")
     public String getKeySerialiserClassString() {
-        return null != keySerialiser ? keySerialiser.getClass().getName() : null;
+        return null != keySerialiser ? SimpleClassNameIdResolver.getSimpleClassName(keySerialiser.getClass()) : null;
     }
 
     @JsonSetter("keySerialiser")
     public void setKeySerialiserClassString(final String classType) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        this.keySerialiser = null != classType ? Class.forName(classType).asSubclass(ToBytesSerialiser.class).newInstance() : null;
+        this.keySerialiser = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)).asSubclass(ToBytesSerialiser.class).newInstance() : null;
     }
 
     @JsonIgnore
@@ -132,22 +133,22 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
 
     @JsonGetter("valueSerialiser")
     public String getValueSerialiserClassString() {
-        return null != valueSerialiser ? valueSerialiser.getClass().getName() : null;
+        return null != valueSerialiser ? SimpleClassNameIdResolver.getSimpleClassName(valueSerialiser.getClass()) : null;
     }
 
     @JsonSetter("valueSerialiser")
     public void setValueSerialiserClassString(final String classType) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        this.valueSerialiser = null != classType ? Class.forName(classType).asSubclass(ToBytesSerialiser.class).newInstance() : null;
+        this.valueSerialiser = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)).asSubclass(ToBytesSerialiser.class).newInstance() : null;
     }
 
     @JsonGetter("mapClass")
     public String getMapClassString() {
-        return null != mapClass ? mapClass.getName() : null;
+        return null != mapClass ? SimpleClassNameIdResolver.getSimpleClassName(mapClass) : null;
     }
 
     @JsonSetter("mapClass")
     public void setMapClassString(final String classType) throws ClassNotFoundException {
-        this.mapClass = null != classType ? Class.forName(classType).asSubclass(Map.class) : null;
+        this.mapClass = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)).asSubclass(Map.class) : null;
     }
 
     @JsonIgnore

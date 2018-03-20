@@ -5,7 +5,7 @@
   "edges": {
     "BasicEdge": {
       "transientProperties": {
-        "concatProperty": "java.lang.String"
+        "concatProperty": "String"
       },
       "transformFunctions": [
         {
@@ -17,7 +17,7 @@
             "transientProperty1"
           ],
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.ExampleTransformFunction"
+            "class": "ExampleTransformFunction"
           }
         }
       ],
@@ -27,7 +27,7 @@
             "transientProperty1"
           ],
           "predicate": {
-            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+            "class": "ExampleFilterFunction"
           }
         }
       ]

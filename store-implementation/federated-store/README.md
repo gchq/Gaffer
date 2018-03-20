@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,4 +21,4 @@ This store is experimental, the API is unstable and may require breaking changes
 The `FederatedStore` is simply a Gaffer store which forwards operations to a
 collection of sub-graphs and returns a single response as though it was a single graph.
 
-Please see [FederatedStore Walkthrough](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#federatedstore) for more details on how to set up and use this store.
+Please see [FederatedStore Walkthrough](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/federatedstore.html) for more details on how to set up and use this store.

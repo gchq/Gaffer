@@ -1,4 +1,4 @@
-Copyright 2016 Crown Copyright
+Copyright 2016-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -91,4 +91,6 @@ gaffer.properties.app.title=Road Traffic Example
 gaffer.properties.app.description=Example using road traffic data
 gaffer.properties.app.banner.description=DEMO
 gaffer.properties.app.banner.colour=#1b75bb
+gaffer.properties.app.logo.link=https://github.com/gchq/Gaffer
+gaffer.properties.app.logo.src=images/iconCircle.png
 ```

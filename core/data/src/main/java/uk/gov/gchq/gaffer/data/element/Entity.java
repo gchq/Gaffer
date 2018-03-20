@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.element;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
  *
  * @see uk.gov.gchq.gaffer.data.element.Entity.Builder
  */
+@JsonPropertyOrder(value = {"class", "group", "vertex", "properties"}, alphabetic = true)
 public class Entity extends Element implements EntityId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
     private static final long serialVersionUID = 2863628004463113755L;

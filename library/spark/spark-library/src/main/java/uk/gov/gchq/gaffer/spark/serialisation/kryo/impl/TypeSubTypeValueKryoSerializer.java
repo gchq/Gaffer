@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import com.esotericsoftware.kryo.io.Output;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 /**
- * A Kryo {@link Serializer} for a {@link TypeSubTypeValue}
+ * A {@code TypeSubTypeValueKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link TypeSubTypeValue}
  */
 public class TypeSubTypeValueKryoSerializer extends Serializer<TypeSubTypeValue> {
     @Override

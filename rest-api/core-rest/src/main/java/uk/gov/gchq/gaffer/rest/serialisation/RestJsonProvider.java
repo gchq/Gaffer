@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
@@ -31,6 +32,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
     public RestJsonProvider() {
+        SimpleClassNameCache.initialise();
         JSONSerialiser.update();
     }
 

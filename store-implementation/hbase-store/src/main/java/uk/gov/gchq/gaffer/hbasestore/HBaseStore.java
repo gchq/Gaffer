@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -36,11 +34,17 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleElementsForSplitPointsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -65,6 +69,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -75,13 +80,16 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
+ * <p>
  * An HBase implementation of a Gaffer {@link Store}
+ * </p>
  * <p>
  * The key detail of the HBase implementation is that any Edge inserted by a
  * user is inserted into the hbase table twice, once with the source object
  * being put first in the rowId and once with the destination bring put first in
  * the rowId. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
+ * </p>
  */
 public class HBaseStore extends Store {
     public static final Set<StoreTrait> TRAITS =
@@ -94,9 +102,9 @@ public class HBaseStore extends Store {
                     TRANSFORMATION,
                     INGEST_AGGREGATION,
                     QUERY_AGGREGATION,
-                    STORE_VALIDATION
+                    STORE_VALIDATION,
+                    MATCHED_VERTEX
             ));
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     private Connection connection;
 
     @Override
@@ -239,10 +247,9 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
-        }
+        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
+        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
     }
 }

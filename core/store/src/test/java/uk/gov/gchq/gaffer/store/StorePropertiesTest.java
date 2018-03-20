@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.databind.Module;
 import com.google.common.collect.Sets;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -30,6 +33,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class StorePropertiesTest {
+
+    @Before
+    @After
+    public void cleanUp() {
+        ReflectionUtil.resetReflectionPackages();
+    }
 
     @Test
     public void shouldMergeProperties() {
@@ -135,6 +144,22 @@ public class StorePropertiesTest {
     }
 
     @Test
+    public void shouldAddReflectionPackagesToKorypheReflectionUtil() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+
+        // When
+        props.setReflectionPackages("package1,package2");
+
+        // Then
+        assertEquals("package1,package2", props.getReflectionPackages());
+        final Set<String> expectedPackages = Sets.newHashSet(ReflectionUtil.DEFAULT_PACKAGES);
+        expectedPackages.add("package1");
+        expectedPackages.add("package2");
+        assertEquals(expectedPackages, ReflectionUtil.getReflectionPackages());
+    }
+
+    @Test
     public void shouldGetUnknownPropertyWithDefaultValue() {
         // Given
         final StoreProperties props = createStoreProperties();
@@ -167,6 +192,19 @@ public class StorePropertiesTest {
                 TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
                 props.getJsonSerialiserModules()
         );
+    }
+
+    @Test
+    public void shouldGetAndSetAdminAuth() {
+        // Given
+        final String adminAuth = "admin auth";
+        final StoreProperties props = createStoreProperties();
+
+        // When
+        props.setAdminAuth(adminAuth);
+
+        // Then
+        assertEquals(adminAuth, props.getAdminAuth());
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {

@@ -41,6 +41,8 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.handler.graphframe.GetGraphFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -173,7 +175,7 @@ public class ParquetStore extends Store {
         addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
         addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
-
+        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());
     }
 
     @Override

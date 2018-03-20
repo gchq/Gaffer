@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class SimpleMapFactory implements MapFactory {
     public void initialise(final Schema schema, final MapStoreProperties properties) {
         final String mapClassName = properties.get(MAP_CLASS, MAP_CLASS_DEFAULT);
         try {
-            mapClass = Class.forName(mapClassName).asSubclass(Map.class);
+            mapClass = Class.forName(SimpleClassNameIdResolver.getClassName(mapClassName)).asSubclass(Map.class);
         } catch (final ClassNotFoundException | ClassCastException e) {
             throw new IllegalArgumentException("Map Class is invalid: " + mapClassName, e);
         }

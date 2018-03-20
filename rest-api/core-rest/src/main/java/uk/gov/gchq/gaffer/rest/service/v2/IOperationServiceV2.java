@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 import org.glassfish.jersey.server.ChunkedOutput;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -36,9 +37,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.BAD_REQUEST;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
@@ -54,59 +60,99 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED
 public interface IOperationServiceV2 {
 
     @GET
-    @ApiOperation(value = "Gets all operations supported by the store.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets all operations supported by the store",
+            notes = "This endpoint returns a list of the fully qualified classpaths, for all operations supported by the store.",
+            produces = APPLICATION_JSON,
+            response = String.class,
+            responseContainer = "list",
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK)})
     Response getOperations();
 
     @POST
     @Path("/execute")
-    @ApiOperation(value = "Performs the given operation on the graph", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+    @Produces({APPLICATION_JSON, TEXT_PLAIN})
+    @ApiOperation(value = "Performs the given operation on the graph",
+            notes = "Attempts to execute the provided operation on the graph, and returns the result below. " +
+                    "Simple examples for each operation can be added using the drop-down below.",
+            produces = (APPLICATION_JSON + "," + TEXT_PLAIN),
+            response = Object.class,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK, response = Object.class),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    Response execute(final Operation operation);
+    Response execute(@ApiParam(value = "The operation to be performed on the graph") final Operation operation);
 
     @POST
     @Path("/execute/chunked")
-    @ApiOperation(value = "Performs the given operation on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
+    @Produces({APPLICATION_JSON, TEXT_PLAIN})
+    @ApiOperation(value = "Performs the given operation on the graph, returning a chunked output",
+            notes = "<b>WARNING</b> - This does not work in Swagger.",
+            response = Object.class,
+            produces = (APPLICATION_JSON + "," + TEXT_PLAIN))
+    @ApiResponses(value = {@ApiResponse(code = 202, message = OK, response = Object.class),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    ChunkedOutput<String> executeChunked(final Operation operation);
+    ChunkedOutput<String> executeChunked(@ApiParam(value = "The operation to be performed, returning a chunked output") final Operation operation);
 
     @SuppressFBWarnings
-    ChunkedOutput<String> executeChunkedChain(final OperationChain opChain);
+    ChunkedOutput<String> executeChunkedChain(@ApiParam(value = "The operation chain to be performed, returning a chunked output") final OperationChain opChain);
 
     @GET
     @Path("/{className}")
-    @ApiOperation(value = "Gets details about the specified operation class.", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets details about the specified operation class",
+            notes = "This endpoint exposes the fields (and whether or not they are required); " +
+                    "a list of all possible Operations that could follow it; " +
+                    "and a small example in JSON, which includes the queried Operation class.",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response operationDetails(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
+    Response operationDetails(@ApiParam(value = "The fully qualified class name, for which details should be returned") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @GET
     @Path("/{className}/example")
-    @ApiOperation(value = "Gets example JSON for the specified operation class.", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets example JSON for the specified operation class",
+            notes = "Returns a fully justified and formatted JSON example of the given Operation, " +
+                    "containing a few Operations for demonstration and usage purposes.",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response operationExample(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
+    Response operationExample(@ApiParam(value = "The fully qualified class name, for which a formatted JSON example should be returned") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @GET
     @Path("/{className}/next")
-    @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
-            response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets all the compatible operations which could follow the provided operation",
+            notes = "Returns a complete list of all possible compatible operations, " +
+                    "that could follow the queried Operation in an OperationChain.",
+            produces = APPLICATION_JSON,
+            response = String.class,
+            responseContainer = "list",
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
-    Response nextOperations(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className);
+    Response nextOperations(@ApiParam(value = "The fully qualified class name, for which all possible compatible follow-up operations should be returned") @PathParam("className") final String className);
 
 }
 

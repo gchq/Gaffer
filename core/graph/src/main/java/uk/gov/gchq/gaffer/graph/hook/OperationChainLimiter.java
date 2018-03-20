@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -37,14 +38,13 @@ import java.util.Map;
  * And then gaffer.operation.impl.add = 1
  * The add elements will have a score of 1 not 8.
  * So make sure to write your properties file in class hierarchical order.
- *
  * This class also requires a map of authorisation scores,
  * this is the score value someone with that auth can have, the maximum score value of a users auths is used.
- *
  * The class delegates the logic to {@link ScoreOperationChainHandler}. If you
  * wish to use the {@link uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain} operation and this graph hook,
  * then both need to have the same score configuration.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class OperationChainLimiter implements GraphHook {
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
@@ -54,7 +54,7 @@ public class OperationChainLimiter implements GraphHook {
      * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param context    the Context containing the user to authorise.
+     * @param context the Context containing the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
@@ -107,6 +107,7 @@ public class OperationChainLimiter implements GraphHook {
     public void setAuthScores(final Map<String, Integer> authScores) {
         scorer.setAuthScores(authScores);
     }
+
     public Map<Class<? extends Operation>, ScoreResolver> getScoreResolvers() {
         return scorer.getScoreResolvers();
     }

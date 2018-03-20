@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,21 +39,19 @@ import java.io.IOException;
 public class GafferCoprocessor extends BaseRegionObserver {
     private Schema schema;
     private ElementSerialisation serialisation;
-    private boolean includeMatchedVertex;
 
     @Override
     public void start(final CoprocessorEnvironment e) throws IOException {
         final String schemaJson = StringUtil.unescapeComma(e.getConfiguration().get(HBaseStoreConstants.SCHEMA));
         schema = Schema.fromJson(Bytes.toBytes(schemaJson));
         serialisation = new ElementSerialisation(schema);
-        includeMatchedVertex = e.getConfiguration().getBoolean(HBaseStoreConstants.INCLUDE_MATCHED_VERTEX, false);
     }
 
     @Override
     public InternalScanner preFlush(final ObserverContext<RegionCoprocessorEnvironment> e,
                                     final Store store,
                                     final InternalScanner scanner) throws IOException {
-        return new StoreScanner(scanner, schema, serialisation, includeMatchedVertex);
+        return new StoreScanner(scanner, schema, serialisation);
     }
 
     @Override
@@ -62,7 +60,7 @@ public class GafferCoprocessor extends BaseRegionObserver {
                                       final InternalScanner scanner,
                                       final ScanType scanType,
                                       final CompactionRequest request) throws IOException {
-        return new StoreScanner(scanner, schema, serialisation, includeMatchedVertex);
+        return new StoreScanner(scanner, schema, serialisation);
     }
 
     @Override
@@ -70,11 +68,11 @@ public class GafferCoprocessor extends BaseRegionObserver {
                                       final Store store,
                                       final InternalScanner scanner,
                                       final ScanType scanType) throws IOException {
-        return new StoreScanner(scanner, schema, serialisation, includeMatchedVertex);
+        return new StoreScanner(scanner, schema, serialisation);
     }
 
     @Override
     public RegionScanner postScannerOpen(final ObserverContext<RegionCoprocessorEnvironment> e, final Scan scan, final RegionScanner scanner) throws IOException {
-        return new QueryScanner(scanner, scan, schema, serialisation, includeMatchedVertex);
+        return new QueryScanner(scanner, scan, schema, serialisation);
     }
 }
