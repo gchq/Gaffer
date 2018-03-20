@@ -279,7 +279,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
             createGraph(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             assertTrue(e.getMessage().contains("parentSchemaId must be specified with parentStorePropertiesId"));
         }
     }
