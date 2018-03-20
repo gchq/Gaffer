@@ -17,21 +17,28 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.While;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
-import uk.gov.gchq.gaffer.operation.util.OperationConstants;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.function.Predicate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -42,17 +49,35 @@ import static org.mockito.Mockito.verify;
 public class WhileHandlerTest {
 
     @Test
+    public void shouldSetAndGetMaxRepeats() {
+        // Given
+        final WhileHandler handler = new WhileHandler();
+
+        // When
+        handler.setMaxRepeats(10);
+
+        // Then
+        assertEquals(10, handler.getMaxRepeats());
+
+        // When 2
+        handler.setMaxRepeats(25);
+
+        // Then 2
+        assertEquals(25, handler.getMaxRepeats());
+    }
+
+    @Test
     public void shouldRepeatDelegateOperationUntilMaxRepeatsReached() throws OperationException {
         // Given
         final EntitySeed input = mock(EntitySeed.class);
-        final int repeats = 5;
+        final int maxRepeats = 5;
         final Operation delegate = mock(GetAdjacentIds.class);
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
         final While operation = new While.Builder()
                 .input(input)
-                .repeats(repeats)
+                .maxRepeats(maxRepeats)
                 .operation(delegate)
                 .build();
 
@@ -62,7 +87,7 @@ public class WhileHandlerTest {
         handler.doOperation(operation, context, store);
 
         // Then
-        verify(store, times(repeats)).execute((Output) delegate, context);
+        verify(store, times(maxRepeats)).execute((Output) delegate, context);
     }
 
     @Test
@@ -70,7 +95,7 @@ public class WhileHandlerTest {
         // Given
         final EntitySeed input = mock(EntitySeed.class);
         final boolean condition = true;
-        final int repeats = 10;
+        final int maxRepeats = 10;
         final Operation delegate = mock(GetElements.class);
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -78,7 +103,7 @@ public class WhileHandlerTest {
         final While operation = new While.Builder()
                 .input(input)
                 .condition(condition)
-                .repeats(repeats)
+                .maxRepeats(maxRepeats)
                 .operation(delegate)
                 .build();
 
@@ -88,38 +113,14 @@ public class WhileHandlerTest {
         handler.doOperation(operation, context, store);
 
         // Then
-        verify(store, times(repeats)).execute((Output) delegate, context);
-    }
-
-    @Test
-    public void shouldRepeatOnceIfRepeatsNotSet() throws OperationException {
-        // Given
-        final EntitySeed input = mock(EntitySeed.class);
-        final boolean condition = true;
-        final Operation delegate = mock(GetAdjacentIds.class);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
-
-        final While operation = new While.Builder()
-                .input(input)
-                .condition(condition)
-                .operation(delegate)
-                .build();
-
-        final WhileHandler handler = new WhileHandler();
-
-        // When
-        handler.doOperation(operation, context, store);
-
-        // Then
-        verify(store, times(OperationConstants.TIMES_DEFAULT)).execute((Output) delegate, context);
+        verify(store, times(maxRepeats)).execute((Output) delegate, context);
     }
 
     @Test
     public void shouldNotRepeatWhileConditionIsFalse() throws OperationException {
         // Given
         final EntitySeed input = mock(EntitySeed.class);
-        final int repeats = 3;
+        final int maxRepeats = 3;
         final boolean condition = false;
         final Operation delegate = mock(GetElements.class);
         final Context context = mock(Context.class);
@@ -127,7 +128,7 @@ public class WhileHandlerTest {
 
         final While operation = new While.Builder()
                 .input(input)
-                .repeats(repeats)
+                .maxRepeats(maxRepeats)
                 .condition(condition)
                 .operation(delegate)
                 .build();
@@ -142,27 +143,30 @@ public class WhileHandlerTest {
     }
 
     @Test
-    public void shouldNotExceedMaxConfiguredNumberOfRepeats() throws OperationException {
+    public void shouldThrowExceptionWhenMaxConfiguredNumberOfRepeatsExceeded() throws OperationException {
         // Given
         final EntitySeed input = mock(EntitySeed.class);
-        final int repeats = 250;
+        final int maxRepeats = 2500;
         final Operation delegate = mock(GetElements.class);
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
         final While operation = new While.Builder()
                 .input(input)
-                .repeats(repeats)
+                .maxRepeats(maxRepeats)
                 .operation(delegate)
                 .build();
 
         final WhileHandler handler = new WhileHandler();
 
-        // When
-        handler.doOperation(operation, context, store);
-
-        // When
-        verify(store, times(OperationConstants.MAX_REPEATS_DEFAULT)).execute((Output) delegate, context);
+        // When / Then
+        try {
+            handler.doOperation(operation, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Max repeats of the While operation is too large: "
+                    + maxRepeats + " > " + While.MAX_REPEATS));
+        }
     }
 
     @Test
@@ -190,6 +194,105 @@ public class WhileHandlerTest {
             assertTrue(e.getMessage().contains("The predicate '" + predicate.getClass().getSimpleName() +
             "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
         }
+    }
 
+    @Test
+    public void shouldUpdateTransformInputAndTestAgainstPredicate() throws OperationException {
+        final Edge input = new Edge.Builder()
+                .group("testEdge")
+                .source("src")
+                .dest("dest")
+                .directed(true)
+                .property("count", 3)
+                .build();
+
+        final Map<Element, Object> transform = new Map.Builder<Element>()
+                .first(new ExtractProperty("count"))
+                .build();
+
+        final Predicate predicate = new IsMoreThan(2);
+        final Conditional conditional = new Conditional(predicate, transform);
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+
+        final GetElements getElements = mock(GetElements.class);
+
+        final While operation = new While.Builder()
+                .input(input)
+                .maxRepeats(1)
+                .conditional(conditional)
+                .operation(getElements)
+                .build();
+
+        final WhileHandler handler = new WhileHandler();
+
+        // When
+        handler.doOperation(operation, context, store);
+
+        // Then
+        assertNotNull(transform.getInput());
+        assertEquals(input, transform.getInput());
+    }
+
+    @Test
+    public void shouldFailPredicateTestAndNotExecuteDelegateOperation() throws OperationException {
+        // Given
+        final Edge input = new Edge.Builder()
+                .group("testEdge")
+                .source("src")
+                .dest("dest")
+                .directed(true)
+                .property("count", 3)
+                .build();
+
+        final Map<Element, Object> transform = new Map.Builder<Element>()
+                .first(new ExtractProperty("count"))
+                .build();
+
+        final Predicate predicate = new IsMoreThan(5);
+        final Conditional conditional = new Conditional(predicate, transform);
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+
+        final GetElements getElements = mock(GetElements.class);
+
+        final While operation = new While.Builder()
+                .input(input)
+                .maxRepeats(1)
+                .conditional(conditional)
+                .operation(getElements)
+                .build();
+
+        final WhileHandler handler = new WhileHandler();
+
+        // When
+        handler.doOperation(operation, context, store);
+
+        // Then
+        verify(store, never()).execute((Output) getElements, context);
+    }
+
+    @Test
+    public void shouldExecuteNonOutputOperation() throws OperationException {
+        // Given
+        final AddElements addElements = new AddElements();
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+
+        final While operation = new While.Builder()
+                .input(new Edge.Builder()
+                .build())
+                .operation(addElements)
+                .condition(true)
+                .maxRepeats(3)
+                .build();
+
+        final WhileHandler handler = new WhileHandler();
+
+        // When
+        handler.doOperation(operation, context, store);
+
+        // Then
+        verify(store, times(3)).execute(addElements, context);
     }
 }

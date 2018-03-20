@@ -52,7 +52,7 @@ public class WhileScoreResolverTest {
         final int score = resolver.getScore(operation, defaultResolver);
 
         // Then
-        assertEquals(1, score);
+        assertEquals(0, score);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class WhileScoreResolverTest {
         final While operation = new While.Builder()
                 .input(input)
                 .conditional(conditional)
-                .repeats(repeats)
+                .maxRepeats(repeats)
                 .operation(getElements)
                 .build();
 
@@ -108,7 +108,7 @@ public class WhileScoreResolverTest {
 
         final While operation = new While.Builder()
                 .input(input)
-                .repeats(repeats)
+                .maxRepeats(repeats)
                 .conditional(conditional)
                 .operation(getElements)
                 .build();

@@ -19,14 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.impl.While;
-import uk.gov.gchq.gaffer.operation.util.OperationConstants;
-
-import static uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver.DEFAULT_OPERATION_SCORE;
 
 /**
  * An {@code WhileScoreResolver} is an implementation of {@link ScoreResolver}
  * for the {@link While} operation.
- *
  * <p>The score will be the maximum of the transform operation and the delegate operation,
  * multiplied by the minimum of the configured number of max repeats vs the global maximum
  * number of allowed repeats.</p>
@@ -45,19 +41,18 @@ public class WhileScoreResolver implements ScoreResolver<While> {
     @Override
     public Integer getScore(final While operation, final ScoreResolver defaultScoreResolver) {
         if (null != operation) {
-            Integer opScore = DEFAULT_OPERATION_SCORE;
+            Integer opScore = 0;
 
             if (null != operation.getConditional() && null != operation.getConditional().getTransform()) {
-                opScore = Integer.max(defaultScoreResolver.getScore(
-                        operation.getConditional().getTransform()), opScore);
+                opScore = defaultScoreResolver.getScore(operation.getConditional().getTransform());
             }
 
             opScore += defaultScoreResolver.getScore(operation.getOperation());
 
-            return opScore * (Integer.min(OperationConstants.MAX_REPEATS_DEFAULT, operation.getRepeats()));
+            return opScore * operation.getMaxRepeats();
         }
 
         LOGGER.warn("Cannot score a null operation");
-        return DEFAULT_OPERATION_SCORE;
+        return null;
     }
 }

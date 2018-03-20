@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.store.Store;
 
 public final class OperationHandlerUtil {
 
+    private OperationHandlerUtil() {
+
+    }
+
     public static void updateOperationInput(final Operation operation, final Object input) {
         if (operation instanceof OperationChain) {
             if (!((OperationChain) operation).getOperations().isEmpty()) {

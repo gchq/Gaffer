@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.operation.util.OperationConstants;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -28,36 +27,48 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 
 /**
  * An operation handler for {@link While} operations.
- *
  */
 public class WhileHandler implements OutputOperationHandler<While, Object> {
+
+    private int maxRepeats = While.MAX_REPEATS;
 
     @Override
     public Object doOperation(final While operation, final Context context, final Store store) throws OperationException {
         Object input = operation.getInput();
         final Operation delegate = operation.getOperation();
 
-        final int maxRepeats = Integer.min(OperationConstants.MAX_REPEATS_DEFAULT,
-                operation.getRepeats());
+        if (operation.getMaxRepeats() > maxRepeats) {
+            throw new OperationException("Max repeats of the While operation is too large: "
+                    + operation.getMaxRepeats() + " > " + maxRepeats);
+        } else {
+            maxRepeats = operation.getMaxRepeats();
+        }
 
-        boolean satisfied = null == operation.isCondition() ? true : operation.isCondition();
+        boolean satisfied = null == operation.isCondition() || operation.isCondition();
         int repeatCount = 0;
 
         while (satisfied && repeatCount < maxRepeats) {
             if (null != operation.getConditional()) {
-                final Operation transform = operation.getConditional().getTransform();
-                if (null != transform) {
+                final Object intermediate;
+                if (null == operation.getConditional().getTransform()) {
+                    intermediate = input;
+                } else {
+                    final Operation transform = operation.getConditional().getTransform();
                     updateOperationInput(transform, input);
-                    input = getResultsOrNull(transform, context, store);
+                    intermediate = getResultsOrNull(transform, context, store);
                 }
 
                 try {
-                    satisfied = operation.getConditional().getPredicate().test(input);
+                    satisfied = operation.getConditional().getPredicate().test(intermediate);
                 } catch (final ClassCastException e) {
                     final String inputType = null != input ? input.getClass().getSimpleName() : "null";
                     throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
                             + "' cannot accept an input of type '" + inputType + "'");
                 }
+            }
+
+            if (!satisfied) {
+                break;
             }
 
             if (delegate instanceof Output) {
@@ -69,5 +80,13 @@ public class WhileHandler implements OutputOperationHandler<While, Object> {
         }
 
         return input;
+    }
+
+    public int getMaxRepeats() {
+        return maxRepeats;
+    }
+
+    public void setMaxRepeats(final int maxRepeats) {
+        this.maxRepeats = maxRepeats;
     }
 }

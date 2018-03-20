@@ -36,18 +36,16 @@ public class WhileTest extends OperationTest<While> {
         // Given
         final While operation = new While.Builder()
                 .input(new EntitySeed(1))
-                .repeats(10)
+                .maxRepeats(10)
                 .condition(true)
-                .conditional(new Exists())
                 .operation(new GetAdjacentIds())
                 .build();
 
         // When / Then
         assertThat(operation.getInput(), is(notNullValue()));
         assertTrue(operation.getOperation() instanceof GetAdjacentIds);
-        assertTrue(operation.getConditional().getPredicate() instanceof Exists);
         assertTrue(operation.isCondition());
-        assertEquals(10, operation.getRepeats());
+        assertEquals(10, operation.getMaxRepeats());
     }
 
     @Override
@@ -56,11 +54,11 @@ public class WhileTest extends OperationTest<While> {
         final EntitySeed input = new EntitySeed("E");
         final Predicate predicate = new Exists();
         final Operation delegate = new GetAdjacentIds();
-        final int repeats = 5;
+        final int maxRepeats = 5;
 
         final While operation = new While.Builder()
                 .input(input)
-                .repeats(repeats)
+                .maxRepeats(maxRepeats)
                 .conditional(predicate)
                 .operation(delegate)
                 .build();
@@ -71,14 +69,13 @@ public class WhileTest extends OperationTest<While> {
         // Then
         assertNotSame(operation, clone);
         assertEquals(input, clone.getInput());
-        assertEquals(repeats, clone.getRepeats());
+        assertEquals(maxRepeats, clone.getMaxRepeats());
     }
 
     @Override
     protected While getTestObject() {
         return new While.Builder()
                 .input(new EntitySeed(2))
-                .repeats(12)
                 .conditional(new Exists())
                 .operation(new GetAdjacentIds())
                 .build();

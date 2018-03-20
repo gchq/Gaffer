@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
+
 /**
  * <p>
  * A {@code If} is an {@link Operation} which will execute one of two Operations,
@@ -214,14 +216,7 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
                 .toString();
     }
 
-    private Operation extractNextOp(final Iterator<Operation> itr) {
-        final Operation nextOp = itr.next();
-        if (!(nextOp instanceof Operations) || !((Operations) nextOp).getOperations().isEmpty()) {
-            return nextOp;
-        }
 
-        return null;
-    }
 
     public static final class Builder<I, O>
             extends Operation.BaseBuilder<If<I, O>, Builder<I, O>>
