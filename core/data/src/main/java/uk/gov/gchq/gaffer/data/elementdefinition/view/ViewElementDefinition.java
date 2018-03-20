@@ -99,6 +99,7 @@ public class ViewElementDefinition implements ElementDefinition {
      */
     protected Map<String, Class<?>> transientProperties = new LinkedHashMap<>();
 
+    @JsonIgnore
     public boolean isEmpty() {
         return null == preAggregationFilter
                 && null == postAggregationFilter

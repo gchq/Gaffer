@@ -18,13 +18,9 @@ package uk.gov.gchq.gaffer.operation.function.migration;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ToString extends KorypheFunction<Object, String> {
+public class ToNull extends KorypheFunction<Object, Object> {
     @Override
-    public String apply(final Object value) {
-        if (null == value) {
-            return null;
-        }
-
-        return value.toString();
+    public Object apply(final Object value) {
+        return null;
     }
 }
