@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
@@ -261,6 +262,16 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
+        public CHILD_CLASS removeEdges(final Predicate<Map.Entry<String, EDGE_DEF>> filter) {
+            elementDefs.getEdges().entrySet().removeIf(filter);
+            return self();
+        }
+
+
+        public CHILD_CLASS removeEntities(final Predicate<Map.Entry<String, ENTITY_DEF>> filter) {
+            elementDefs.getEntities().entrySet().removeIf(filter);
+            return self();
+        }
 
         public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Path... filePaths) throws SchemaException {
             return json(clazz, (Object[]) filePaths);
