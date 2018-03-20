@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
-import java.util.Set;
 
 public class GraphForExportDelegate extends GraphDelegate {
 
@@ -53,15 +52,8 @@ public class GraphForExportDelegate extends GraphDelegate {
     protected void validate(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         ValidationResult result = super.validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
 
-        Set<String> errors = result.getErrors();
-
-        errors.removeIf(s -> s.equals(String.format(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS))
+        result.getErrors().removeIf(s -> s.equals(String.format(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS))
                 || s.equals(String.format(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID)));
-
-        result = new ValidationResult();
-        for (String error : errors) {
-            result.addError(error);
-        }
 
         if (graphId.equals(store.getGraphId())) {
             result.addError(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));

@@ -46,9 +46,16 @@ public class GraphDelegate implements GraphDelegateInterface {
     public static final String STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "StoreProperties could not be found in the graphLibrary with id: %s";
     public static final String S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY = " %s cannot be used without a GraphLibrary";
     public static final String CANNOT_EXPORT_TO_THE_SAME_GRAPH_S = "Cannot export to the same Graph: %s";
+    public static final String STORE_GRAPH_LIBRARY_IS_NULL = "Store GraphLibrary is null";
+    public static final String USER_IS_NOT_AUTHORISED_TO_EXPORT_USING_S_S = "User is not authorised to export using %s: %s";
     public static final String GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD = "Graph: %s already exists so you cannot use a different %s. Do not set the %s field";
+    public static final String GRAPH_LIBRARY_CANNOT_BE_FOUND_WITH_GRAPHID_S = "GraphLibrary cannot be found with graphId: %s";
+    public static final String S_MUST_BE_SPECIFIED_WITH_S = "%s must be specified with %s";
     public static final String PARENT_SCHEMA_IDS = "parentSchemaIds";
     public static final String PARENT_STORE_PROPERTIES_ID = "parentStorePropertiesId";
+    public static final String STORE_PROPERTIES_ID = "storePropertiesId";
+    public static final String SCHEMA_ID = "schemaId";
+    public static final String GRAPH_ID = "graphId";
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
     protected Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {

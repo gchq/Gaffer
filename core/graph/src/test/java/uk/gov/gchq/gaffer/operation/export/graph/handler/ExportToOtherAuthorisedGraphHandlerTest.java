@@ -24,9 +24,9 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -80,21 +80,32 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
         given(store.getGraphLibrary()).willReturn(graphLibrary);
-        List<String> graphIdAuths = new ArrayList<>();
-        graphIdAuths.add("auth1");
-        idAuths.put(GRAPH_ID, graphIdAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
             createGraph(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("same Graph"));
+            assertTrue(e.getMessage().contains("Cannot export to the same Graph"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithNullGraphLibrary() {
+        // Given
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
+                .graphId(GRAPH_ID)
+                .build();
+
+        // When / Then
+        try {
+            createGraph(export);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Store GraphLibrary is null"));
         }
     }
 
@@ -109,8 +120,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When
         Graph graph = createGraph(export);
@@ -137,8 +146,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When
         Graph graph = createGraph(export);
@@ -164,8 +171,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
@@ -191,8 +196,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
@@ -218,8 +221,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
@@ -244,8 +245,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID_1)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
@@ -271,15 +270,13 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .graphId(GRAPH_ID + 2)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
             createGraph(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("parentSchemaId must be specified with parentStorePropertiesId"));
+            assertTrue(e.getMessage().contains("parentSchemaIds must be specified with parentStorePropertiesId"));
         }
     }
 
@@ -294,8 +291,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
-        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
