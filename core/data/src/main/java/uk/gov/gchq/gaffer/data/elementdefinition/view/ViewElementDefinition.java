@@ -99,6 +99,18 @@ public class ViewElementDefinition implements ElementDefinition {
      */
     protected Map<String, Class<?>> transientProperties = new LinkedHashMap<>();
 
+    public boolean isEmpty() {
+        return null == preAggregationFilter
+                && null == postAggregationFilter
+                && null == aggregator
+                && null == transformer
+                && null == postTransformFilter
+                && null == groupBy
+                && null == properties
+                && null == excludeProperties
+                && null == transientProperties;
+    }
+
     public Set<String> getGroupBy() {
         return groupBy;
     }
@@ -118,6 +130,10 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonIgnore
     public boolean isAllProperties() {
         return null == properties && (null == excludeProperties || excludeProperties.isEmpty());
+    }
+
+    public boolean hasProperty(String property) {
+        return properties.contains(property);
     }
 
     public Class<?> getTransientPropertyClass(final String propertyName) {
