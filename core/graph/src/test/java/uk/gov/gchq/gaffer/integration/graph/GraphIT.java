@@ -12,6 +12,9 @@ import java.io.InputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -20,11 +23,11 @@ public class GraphIT {
     @Test
     public void shouldCloseStreamsIfExceptionThrownWithStoreProperties() throws IOException {
         // Given
-        final InputStream storePropertiesStream = mock(InputStream.class);
-        final InputStream elementsSchemaStream = mock(InputStream.class);
-        final InputStream typesSchemaStream = mock(InputStream.class);
-        final InputStream aggregationSchemaStream = mock(InputStream.class);
-        final InputStream validationSchemaStream = mock(InputStream.class);
+        final InputStream storePropertiesStream = createMockStream();
+        final InputStream elementsSchemaStream = createMockStream();
+        final InputStream typesSchemaStream = createMockStream();
+        final InputStream aggregationSchemaStream = createMockStream();
+        final InputStream validationSchemaStream = createMockStream();
 
         // When
         try {
@@ -51,10 +54,10 @@ public class GraphIT {
     public void shouldCloseStreamsIfExceptionThrownWithElementSchema() throws IOException {
         // Given
         final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
-        final InputStream elementSchemaStream = mock(InputStream.class);
-        final InputStream typesSchemaStream = mock(InputStream.class);
-        final InputStream serialisationSchemaStream = mock(InputStream.class);
-        final InputStream aggregationSchemaStream = mock(InputStream.class);
+        final InputStream elementSchemaStream = createMockStream();
+        final InputStream typesSchemaStream = createMockStream();
+        final InputStream serialisationSchemaStream = createMockStream();
+        final InputStream aggregationSchemaStream = createMockStream();
 
         // When
         try {
@@ -84,9 +87,9 @@ public class GraphIT {
         // Given
         final InputStream storePropertiesStream = StreamUtil.storeProps(getClass());
         final InputStream elementSchemaStream = StreamUtil.elementsSchema(getClass());
-        final InputStream typesSchemaStream = mock(InputStream.class);
-        final InputStream aggregationSchemaStream = mock(InputStream.class);
-        final InputStream serialisationSchemaStream = mock(InputStream.class);
+        final InputStream typesSchemaStream = createMockStream();
+        final InputStream aggregationSchemaStream = createMockStream();
+        final InputStream serialisationSchemaStream = createMockStream();
 
         // When
         try {
@@ -135,5 +138,18 @@ public class GraphIT {
         } catch (final IOException e) {
             assertEquals("Stream closed", e.getMessage());
         }
+    }
+
+    private InputStream createMockStream() {
+        final InputStream mock = mock(InputStream.class);
+        try {
+            given(mock.read()).willReturn(-1);
+            given(mock.read(any(byte[].class))).willReturn(-1);
+            given(mock.read(any(byte[].class), anyInt(), anyInt())).willReturn(-1);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return mock;
     }
 }
