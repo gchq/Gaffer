@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
-import uk.gov.gchq.gaffer.graph.AuthorisedGraphForExportDelegate;
+import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
