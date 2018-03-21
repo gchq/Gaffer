@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph;
+package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;

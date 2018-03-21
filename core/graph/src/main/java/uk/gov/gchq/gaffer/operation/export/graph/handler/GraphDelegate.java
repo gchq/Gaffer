@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph;
+package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -58,11 +60,11 @@ public class GraphDelegate implements GraphDelegateInterface {
     public static final String GRAPH_ID = "graphId";
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
-    protected Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    protected Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
