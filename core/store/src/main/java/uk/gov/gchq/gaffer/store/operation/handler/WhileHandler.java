@@ -71,6 +71,8 @@ public class WhileHandler implements OutputOperationHandler<While, Object> {
                 break;
             }
 
+            updateOperationInput(delegate, input);
+
             if (delegate instanceof Output) {
                 input = store.execute((Output) delegate, context);
             } else {

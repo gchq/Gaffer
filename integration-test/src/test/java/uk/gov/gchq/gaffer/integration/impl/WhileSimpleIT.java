@@ -16,16 +16,30 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,12 +56,12 @@ public class WhileSimpleIT extends AbstractStoreIT {
         // Given
         final While operation = new While.Builder()
                 .operation(new AddElements.Builder()
-                        .input(new Edge.Builder()
-                                .group("testEdge")
-                                .source("src")
-                                .dest("dest")
-                                .directed(true)
-                                .property("count", 2)
+                        .input(new Entity.Builder()
+                                .group(TestGroups.ENTITY)
+                                .vertex("1")
+                                .property(TestPropertyNames.COUNT, 2L)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(""))
                                 .build())
                         .build())
                 .condition(true)
@@ -57,9 +71,14 @@ public class WhileSimpleIT extends AbstractStoreIT {
         // When
         graph.execute(operation, getUser());
 
-        final Iterable<? extends Element> results = graph.execute(new GetAllElements(), getUser());
+        final List<? extends Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
+                .input("1")
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build(), getUser()));
 
-        // Then
-        assertEquals(5, Iterables.size(results));
+        assertEquals(1, results.size());
+        assertEquals(10L, results.get(0).getProperty(TestPropertyNames.COUNT));
     }
 }
