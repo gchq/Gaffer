@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.util.Collections;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
@@ -69,7 +70,7 @@ public class WhileHandlerTest {
     @Test
     public void shouldRepeatDelegateOperationUntilMaxRepeatsReached() throws OperationException {
         // Given
-        final EntitySeed input = mock(EntitySeed.class);
+        final Object input = Collections.singletonList(mock(EntitySeed.class));
         final int maxRepeats = 5;
         final Operation delegate = mock(GetAdjacentIds.class);
         final Context context = mock(Context.class);
@@ -93,7 +94,7 @@ public class WhileHandlerTest {
     @Test
     public void shouldRepeatWhileConditionIsTrue() throws OperationException {
         // Given
-        final EntitySeed input = mock(EntitySeed.class);
+        final Object input = Collections.singletonList(mock(EntitySeed.class));
         final boolean condition = true;
         final int maxRepeats = 10;
         final Operation delegate = mock(GetElements.class);
@@ -192,7 +193,7 @@ public class WhileHandlerTest {
             fail("Exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("The predicate '" + predicate.getClass().getSimpleName() +
-            "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
+                    "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
         }
     }
 
@@ -275,13 +276,14 @@ public class WhileHandlerTest {
     @Test
     public void shouldExecuteNonOutputOperation() throws OperationException {
         // Given
+        final Object input = Collections.singletonList(new Edge.Builder()
+                .build());
         final AddElements addElements = new AddElements();
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
         final While operation = new While.Builder()
-                .input(new Edge.Builder()
-                .build())
+                .input(input)
                 .operation(addElements)
                 .condition(true)
                 .maxRepeats(3)

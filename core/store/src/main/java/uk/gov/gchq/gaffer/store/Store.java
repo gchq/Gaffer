@@ -851,6 +851,7 @@ public abstract class Store {
         addOperationHandler(If.class, new IfHandler());
         addOperationHandler(While.class, new WhileHandler());
 
+
         // Function
         addOperationHandler(Filter.class, new FilterHandler());
         addOperationHandler(Transform.class, new TransformHandler());
