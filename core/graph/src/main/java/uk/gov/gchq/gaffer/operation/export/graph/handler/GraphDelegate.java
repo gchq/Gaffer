@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @see uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler
  */
-public class GraphDelegate implements GraphDelegateInterface {
+public class GraphDelegate {
 
     public static final String SCHEMA_STRING = Schema.class.getSimpleName();
     public static final String STORE_PROPERTIES_STRING = StoreProperties.class.getSimpleName();
@@ -60,11 +60,15 @@ public class GraphDelegate implements GraphDelegateInterface {
     public static final String GRAPH_ID = "graphId";
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
-    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+        return createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
+    }
+
+    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -85,7 +89,28 @@ public class GraphDelegate implements GraphDelegateInterface {
                 .build();
     }
 
-    protected StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+        final GraphLibrary graphLibrary = store.getGraphLibrary();
+        final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
+
+        validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
+
+        final Schema resolvedSchema = resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
+        final StoreProperties resolvedStoreProperties = resolveStorePropertiesForGraph(store, storeProperties, parentStorePropertiesId, existingGraphPair);
+
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(graphLibrary)
+                        .addHooks(hooks)
+                        .build())
+                .addSchema(resolvedSchema)
+                .storeProperties(resolvedStoreProperties)
+                .addToLibrary(false)
+                .build();
+    }
+
+    private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         StoreProperties resultProps;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided properties and just use the existing properties
@@ -97,7 +122,19 @@ public class GraphDelegate implements GraphDelegateInterface {
         return resultProps;
     }
 
-    protected Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
+    protected StoreProperties resolveStorePropertiesForGraph(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+        StoreProperties resultProps;
+        if (null != existingGraphPair) {
+            // If there is an existing graph then ignore any user provided properties and just use the existing properties
+            resultProps = existingGraphPair.getSecond();
+        } else {
+            final GraphLibrary graphLibrary = store.getGraphLibrary();
+            resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
+        }
+        return resultProps;
+    }
+
+    private static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
         Schema resultSchema;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided schemas and just use the existing schema
@@ -109,9 +146,21 @@ public class GraphDelegate implements GraphDelegateInterface {
         return resultSchema;
     }
 
-    public void validate(final Store store, final String graphId,
-                         final Schema schema, final StoreProperties storeProperties,
-                         final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    protected Schema resolveSchemaForGraph(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
+        Schema resultSchema;
+        if (null != existingGraphPair) {
+            // If there is an existing graph then ignore any user provided schemas and just use the existing schema
+            resultSchema = existingGraphPair.getFirst();
+        } else {
+            final GraphLibrary graphLibrary = store.getGraphLibrary();
+            resultSchema = (null == graphLibrary) ? schema : graphLibrary.resolveSchema(schema, parentSchemaIds);
+        }
+        return resultSchema;
+    }
+
+    public static void validate(final Store store, final String graphId,
+                                final Schema schema, final StoreProperties storeProperties,
+                                final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
         if (null == store.getGraphLibrary()) {
             existingGraphPair = null;
@@ -122,20 +171,43 @@ public class GraphDelegate implements GraphDelegateInterface {
         validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
     }
 
-    protected void validate(final Store store, final String graphId,
-                            final Schema schema, final StoreProperties storeProperties,
-                            final List<String> parentSchemaIds, final String parentStorePropertiesId,
-                            final Pair<Schema, StoreProperties> existingGraphPair) {
+    public void validateGraph(final Store store, final String graphId,
+                              final Schema schema, final StoreProperties storeProperties,
+                              final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+        final Pair<Schema, StoreProperties> existingGraphPair;
+        if (null == store.getGraphLibrary()) {
+            existingGraphPair = null;
+        } else {
+            existingGraphPair = store.getGraphLibrary().get(graphId);
+        }
+
+        validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
+    }
+
+    public static void validate(final Store store, final String graphId,
+                                final Schema schema, final StoreProperties storeProperties,
+                                final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                                final Pair<Schema, StoreProperties> existingGraphPair) {
         ValidationResult result = validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
         if (!result.isValid()) {
             throw new IllegalArgumentException(result.getErrorString());
         }
     }
 
-    protected ValidationResult validate(final Store store, final String graphId,
-                                        final Schema schema, final StoreProperties storeProperties,
-                                        final List<String> parentSchemaIds, final String parentStorePropertiesId,
-                                        final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
+    public void validateGraph(final Store store, final String graphId,
+                              final Schema schema, final StoreProperties storeProperties,
+                              final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                              final Pair<Schema, StoreProperties> existingGraphPair) {
+        ValidationResult result = validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        if (!result.isValid()) {
+            throw new IllegalArgumentException(result.getErrorString());
+        }
+    }
+
+    protected static ValidationResult validate(final Store store, final String graphId,
+                                               final Schema schema, final StoreProperties storeProperties,
+                                               final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                                               final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
 
         if (null == graphLibrary) {
@@ -203,10 +275,50 @@ public class GraphDelegate implements GraphDelegateInterface {
         return result;
     }
 
-    public static class Builder extends BaseBuilder<GraphDelegate, Builder> {
-        @Override
+    public static abstract class Builder<T extends GraphDelegate> {
+        protected Store store;
+        protected String graphId;
+        protected Schema schema;
+        protected StoreProperties storeProperties;
+        protected List<String> parentSchemaIds;
+        protected String parentStorePropertiesId;
+
+        public Builder<T> store(final Store store) {
+            this.store = store;
+            return this;
+        }
+
+        public Builder<T> graphId(final String graphId) {
+            this.graphId = graphId;
+            return this;
+        }
+
+        public Builder<T> schema(final Schema schema) {
+            this.schema = schema;
+            return this;
+        }
+
+        public Builder<T> storeProperties(final StoreProperties storeProperties) {
+            this.storeProperties = storeProperties;
+            return this;
+        }
+
+        public Builder<T> parentSchemaIds(final List<String> parentSchemaIds) {
+            this.parentSchemaIds = parentSchemaIds;
+            return this;
+        }
+
+        public Builder<T> parentStorePropertiesId(final String parentStorePropertiesId) {
+            this.parentStorePropertiesId = parentStorePropertiesId;
+            return this;
+        }
+
         public Graph createGraph() {
             return new GraphDelegate().createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
+        }
+
+        public Graph build() {
+            return this.createGraph();
         }
     }
 
