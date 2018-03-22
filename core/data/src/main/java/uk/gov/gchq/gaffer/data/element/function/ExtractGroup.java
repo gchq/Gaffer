@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
- * An {@code ExtractGroup} is a {@link KorypheFunction} for simplifying the process of
- * extracting a group from an {@link Element}. If the Element is null, this function will return null.
+ * An {@code ExtractGroup} is a {@link KorypheFunction} for
+ * extracting a group from an {@link Element}.
+ * If the Element is null, this function will return null.
  */
 @Since("1.4.0")
 public class ExtractGroup extends KorypheFunction<Element, String> {
