@@ -48,11 +48,11 @@ import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.DEFAULT_TIMESTAMP;
 
 public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
 
@@ -377,17 +377,18 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
     }
 
     @Test
-    public void shouldReturnDefaultTimestampWhenPropertyIsNull() throws Exception {
+    public void shouldReturnRandomTimestampWhenPropertyIsNull() throws Exception {
         // Given
         final Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         properties.put(AccumuloPropertyNames.PROP_1, 2);
 
         // When
-        final long timestamp = converter.buildTimestamp(TestGroups.EDGE, properties);
+        final long timestamp1 = converter.buildTimestamp(TestGroups.EDGE, properties);
+        final long timestamp2 = converter.buildTimestamp(TestGroups.EDGE, properties);
 
         // Then
-        assertEquals(DEFAULT_TIMESTAMP, timestamp);
+        assertNotEquals(timestamp1, timestamp2);
     }
 
     @Test
