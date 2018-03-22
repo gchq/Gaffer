@@ -136,26 +136,13 @@ public class OperationChain<OUT> implements Output<OUT>,
     @JsonIgnore
     @Override
     public TypeReference<OUT> getOutputTypeReference() {
-        if (!operations.isEmpty()) {
-            return Lists.reverse(operations)
-                    .stream()
-                    .filter(op -> op instanceof Output)
-                    .map(op -> ((Output) op).getOutputTypeReference())
-                    .findFirst()
-                    .get();
-        }
-
-//        if (!operations.isEmpty()) {
-//            final Operation lastOp = operations.get(operations.size() - 1);
-//            if (lastOp instanceof Output) {
-//                if (((Output) lastOp).getOutputTypeReference() instanceof TypeReferenceImpl.IterableObj) {
-//                    return operations.get(operations.size() -2) instanceof Output ?
-//                            ((Output) operations.get(operations.size() - 2)).getOutputTypeReference() :
-//                            ((Output) lastOp).getOutputTypeReference();
-//                }
-//            }
-//        }
-        return (TypeReference<OUT>) new TypeReferenceImpl.Void();
+        return Lists.reverse(operations)
+                .stream()
+                .filter(op -> op instanceof Output)
+                .map(op -> ((Output) op).getOutputTypeReference())
+                .filter(tr -> !(tr instanceof TypeReferenceImpl.IterableObj))   // IterableObj provides no nested type information
+                .findFirst()
+                .orElse(new TypeReferenceImpl.Void());
     }
 
     @Override
