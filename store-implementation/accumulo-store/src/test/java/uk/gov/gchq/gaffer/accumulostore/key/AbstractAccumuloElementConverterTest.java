@@ -53,6 +53,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.DEFAULT_TIMESTAMP;
 
 public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
 
@@ -377,15 +378,29 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
     }
 
     @Test
-    public void shouldReturnRandomTimestampWhenPropertyIsNull() throws Exception {
+    public void shouldReturnDefaultTimestampForAggGroupWhenPropertyIsNull() throws Exception {
         // Given
         final Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         properties.put(AccumuloPropertyNames.PROP_1, 2);
 
         // When
-        final long timestamp1 = converter.buildTimestamp(TestGroups.EDGE, properties);
-        final long timestamp2 = converter.buildTimestamp(TestGroups.EDGE, properties);
+        final long timestamp = converter.buildTimestamp(TestGroups.EDGE, properties);
+
+        // Then
+        assertEquals(DEFAULT_TIMESTAMP, timestamp);
+    }
+
+    @Test
+    public void shouldReturnRandomTimestampForNonAggGroupWhenPropertyIsNull() throws Exception {
+        // Given
+        final Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(AccumuloPropertyNames.PROP_1, 2);
+
+        // When
+        final long timestamp1 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
+        final long timestamp2 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
 
         // Then
         assertNotEquals(timestamp1, timestamp2);
