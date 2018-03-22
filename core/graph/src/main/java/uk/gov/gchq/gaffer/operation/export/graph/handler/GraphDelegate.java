@@ -93,7 +93,7 @@ public class GraphDelegate {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
-        validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
+        validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
 
         final Schema resolvedSchema = resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
         final StoreProperties resolvedStoreProperties = resolveStorePropertiesForGraph(store, storeProperties, parentStorePropertiesId, existingGraphPair);
@@ -198,7 +198,7 @@ public class GraphDelegate {
                               final Schema schema, final StoreProperties storeProperties,
                               final List<String> parentSchemaIds, final String parentStorePropertiesId,
                               final Pair<Schema, StoreProperties> existingGraphPair) {
-        ValidationResult result = validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        ValidationResult result = validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
         if (!result.isValid()) {
             throw new IllegalArgumentException(result.getErrorString());
         }
@@ -275,7 +275,78 @@ public class GraphDelegate {
         return result;
     }
 
-    public static abstract class Builder<T extends GraphDelegate> {
+    protected ValidationResult validateGraph(final Store store, final String graphId,
+                                             final Schema schema, final StoreProperties storeProperties,
+                                             final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                                             final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
+        final GraphLibrary graphLibrary = store.getGraphLibrary();
+
+        if (null == graphLibrary) {
+            // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
+            if (null != parentSchemaIds) {
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_SCHEMA_IDS));
+            } else if (null == schema) {
+                result.addError(String.format(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS));
+            }
+
+            if (null != parentStorePropertiesId) {
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_STORE_PROPERTIES_ID));
+            } else if (null == storeProperties) {
+                result.addError(String.format(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
+            }
+        } else if (null != existingGraphPair) {
+            if (null != parentSchemaIds) {
+                Schema.Builder idFromLibrary = new Schema.Builder();
+                for (final String parentSchemaId : parentSchemaIds) {
+                    Schema tempSchema = graphLibrary.getSchema(parentSchemaId);
+                    if (null != tempSchema) {
+                        idFromLibrary.merge(tempSchema);
+                    }
+                }
+                Schema fromLibrary = existingGraphPair.getFirst();
+                if (!fromLibrary.toString().equals(idFromLibrary.build().toString())) {
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, PARENT_SCHEMA_IDS));
+                }
+            }
+
+            if (null != parentStorePropertiesId) {
+                StoreProperties fromLibrary = existingGraphPair.getSecond();
+                if (!fromLibrary.equals(graphLibrary.getProperties(parentStorePropertiesId))) {
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
+                }
+            }
+
+            if (null != schema && !schema.toString().equals(existingGraphPair.getFirst().toString())) {
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, SCHEMA_STRING));
+            }
+
+            if (null != storeProperties && !existingGraphPair.getSecond().equals(storeProperties)) {
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, STORE_PROPERTIES_STRING));
+            }
+        } else {
+            if (null != parentSchemaIds) {
+                for (final String exportParentSchemaId : parentSchemaIds) {
+                    if (null == graphLibrary.getSchema(exportParentSchemaId)) {
+                        result.addError(String.format(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentSchemaIds));
+                    }
+                }
+            } else if (null == schema) {
+                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, SCHEMA_STRING));
+            }
+
+            if (null != parentStorePropertiesId) {
+                if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
+                    result.addError(String.format(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentStorePropertiesId));
+                }
+            } else if (null == storeProperties) {
+                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, STORE_PROPERTIES_STRING));
+            }
+        }
+
+        return result;
+    }
+
+    public abstract static class BaseBuilder<BUILDER extends BaseBuilder> {
         protected Store store;
         protected String graphId;
         protected Schema schema;
@@ -283,42 +354,58 @@ public class GraphDelegate {
         protected List<String> parentSchemaIds;
         protected String parentStorePropertiesId;
 
-        public Builder<T> store(final Store store) {
+        public BUILDER _self() {
+            return (BUILDER) this;
+        }
+
+        public BUILDER store(final Store store) {
             this.store = store;
-            return this;
+            return _self();
         }
 
-        public Builder<T> graphId(final String graphId) {
+        public BUILDER graphId(final String graphId) {
             this.graphId = graphId;
-            return this;
+            return _self();
         }
 
-        public Builder<T> schema(final Schema schema) {
+        public BUILDER schema(final Schema schema) {
             this.schema = schema;
-            return this;
+            return _self();
         }
 
-        public Builder<T> storeProperties(final StoreProperties storeProperties) {
+        public BUILDER storeProperties(final StoreProperties storeProperties) {
             this.storeProperties = storeProperties;
-            return this;
+            return _self();
         }
 
-        public Builder<T> parentSchemaIds(final List<String> parentSchemaIds) {
+        public BUILDER parentSchemaIds(final List<String> parentSchemaIds) {
             this.parentSchemaIds = parentSchemaIds;
-            return this;
+            return _self();
         }
 
-        public Builder<T> parentStorePropertiesId(final String parentStorePropertiesId) {
+        public BUILDER parentStorePropertiesId(final String parentStorePropertiesId) {
             this.parentStorePropertiesId = parentStorePropertiesId;
-            return this;
+            return _self();
         }
 
         public Graph createGraph() {
-            return new GraphDelegate().createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
+            return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
         }
 
         public Graph build() {
-            return this.createGraph();
+            return _self().createGraph();
+        }
+    }
+
+    public static class Builder extends BaseBuilder<Builder> {
+        @Override
+        public Builder _self() {
+            return this;
+        }
+
+        @Override
+        public Graph createGraph() {
+            return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
         }
     }
 

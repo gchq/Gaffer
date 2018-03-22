@@ -84,7 +84,7 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
 
     @Override
     public void validateGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
-        ValidationResult result = super.validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        ValidationResult result = super.validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
 
         Set<String> errors = result.getErrors();
 
@@ -160,17 +160,22 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
         return false;
     }
 
-    public static class Builder extends GraphDelegate.Builder {
+    public static class Builder extends BaseBuilder<Builder> {
         private Map<String, List<String>> idAuths;
         private User user;
 
         public Builder idAuths(final Map<String, List<String>> idAuths) {
             this.idAuths = idAuths;
-            return this;
+            return _self();
         }
 
         public Builder user(final User user) {
             this.user = user;
+            return _self();
+        }
+
+        @Override
+        public Builder _self() {
             return this;
         }
 

@@ -646,7 +646,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private void validate(final ExportToOtherGraph export) {
-        new GraphForExportDelegate().validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+        new GraphForExportDelegate().validateGraph(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
                 export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 }
