@@ -198,7 +198,7 @@ public class GraphDelegate {
                               final Schema schema, final StoreProperties storeProperties,
                               final List<String> parentSchemaIds, final String parentStorePropertiesId,
                               final Pair<Schema, StoreProperties> existingGraphPair) {
-        ValidationResult result = validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        ValidationResult result = validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
         if (!result.isValid()) {
             throw new IllegalArgumentException(result.getErrorString());
         }
@@ -208,77 +208,6 @@ public class GraphDelegate {
                                                final Schema schema, final StoreProperties storeProperties,
                                                final List<String> parentSchemaIds, final String parentStorePropertiesId,
                                                final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
-
-        if (null == graphLibrary) {
-            // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
-            if (null != parentSchemaIds) {
-                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_SCHEMA_IDS));
-            } else if (null == schema) {
-                result.addError(String.format(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS));
-            }
-
-            if (null != parentStorePropertiesId) {
-                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_STORE_PROPERTIES_ID));
-            } else if (null == storeProperties) {
-                result.addError(String.format(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
-            }
-        } else if (null != existingGraphPair) {
-            if (null != parentSchemaIds) {
-                Schema.Builder idFromLibrary = new Schema.Builder();
-                for (final String parentSchemaId : parentSchemaIds) {
-                    Schema tempSchema = graphLibrary.getSchema(parentSchemaId);
-                    if (null != tempSchema) {
-                        idFromLibrary.merge(tempSchema);
-                    }
-                }
-                Schema fromLibrary = existingGraphPair.getFirst();
-                if (!fromLibrary.toString().equals(idFromLibrary.build().toString())) {
-                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, PARENT_SCHEMA_IDS));
-                }
-            }
-
-            if (null != parentStorePropertiesId) {
-                StoreProperties fromLibrary = existingGraphPair.getSecond();
-                if (!fromLibrary.equals(graphLibrary.getProperties(parentStorePropertiesId))) {
-                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
-                }
-            }
-
-            if (null != schema && !schema.toString().equals(existingGraphPair.getFirst().toString())) {
-                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, SCHEMA_STRING));
-            }
-
-            if (null != storeProperties && !existingGraphPair.getSecond().equals(storeProperties)) {
-                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, STORE_PROPERTIES_STRING));
-            }
-        } else {
-            if (null != parentSchemaIds) {
-                for (final String exportParentSchemaId : parentSchemaIds) {
-                    if (null == graphLibrary.getSchema(exportParentSchemaId)) {
-                        result.addError(String.format(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentSchemaIds));
-                    }
-                }
-            } else if (null == schema) {
-                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, SCHEMA_STRING));
-            }
-
-            if (null != parentStorePropertiesId) {
-                if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
-                    result.addError(String.format(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentStorePropertiesId));
-                }
-            } else if (null == storeProperties) {
-                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, STORE_PROPERTIES_STRING));
-            }
-        }
-
-        return result;
-    }
-
-    protected ValidationResult validateGraph(final Store store, final String graphId,
-                                             final Schema schema, final StoreProperties storeProperties,
-                                             final List<String> parentSchemaIds, final String parentStorePropertiesId,
-                                             final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
 
         if (null == graphLibrary) {

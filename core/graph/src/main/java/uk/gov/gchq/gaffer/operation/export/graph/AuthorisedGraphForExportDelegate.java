@@ -84,7 +84,7 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
 
     @Override
     public void validateGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
-        ValidationResult result = super.validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        ValidationResult result = super.validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
 
         Set<String> errors = result.getErrors();
 
