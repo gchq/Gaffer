@@ -106,7 +106,6 @@ public class JSONSerialiser {
      * add your custom configuration.
      *
      * @param mapper a custom serialiser object mapper
-     * @param mapper a custom deserialiser object mapper
      */
     protected JSONSerialiser(final ObjectMapper mapper) {
         this(mapper, null);
