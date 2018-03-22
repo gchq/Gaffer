@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -26,6 +28,8 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
+
+import java.util.Map;
 
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
@@ -43,7 +47,7 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveViewsInOperations(opChain);
+        resolveViews(opChain);
     }
 
     @Override
@@ -56,48 +60,63 @@ public class NamedViewResolver implements GraphHook {
         return result;
     }
 
-    private void resolveViewsInOperations(final Operations<?> operations) {
+    private void resolveViews(final Operations<?> operations) {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
-                if (((OperationView) operation).getView() instanceof NamedView) {
-                    final View resolvedView = resolveViewInOperation((NamedView) ((OperationView) operation).getView());
-                    ((NamedView) resolvedView).setName(null);
-                    ((NamedView) ((OperationView) operation).getView()).setName(null);
-                    final View viewMergedWithOriginalView = new View.Builder()
-                            .merge(resolvedView)
-                            .merge(((OperationView) operation).getView())
-                            .build();
-
-                    ((OperationView) operation).setView(viewMergedWithOriginalView);
+                final OperationView opView = ((OperationView) operation);
+                if (opView.getView() instanceof NamedView) {
+                    opView.setView(resolveView((NamedView) opView.getView()));
                 }
-            } else {
-                if (operation instanceof Operations) {
-                    resolveViewsInOperations((Operations<?>) operation);
-                }
+            } else if (operation instanceof Operations) {
+                resolveViews((Operations<?>) operation);
             }
         }
     }
 
-    private NamedView resolveViewInOperation(final NamedView namedView) {
-        NamedView.Builder newNamedView;
-        try {
-            NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
-            View resolvedCachedView = cachedNamedView.getView(namedView.getParameters());
-            newNamedView = new NamedView.Builder()
-                    .name(namedView.getName())
-                    .merge(resolvedCachedView);
-
-            if (resolvedCachedView instanceof NamedView && null != ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                for (final String name : ((NamedView) resolvedCachedView).getMergedNamedViewNames()) {
-                    final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
-                    final NamedView resolvedNestedCacheNamedView = new NamedView.Builder().name(null).merge(nestedCachedNamedView.getView(namedView.getParameters())).build();
-                    newNamedView.merge(resolvedNestedCacheNamedView);
-                }
+    private View resolveView(final NamedView namedView) {
+        View resolvedView = resolveView(namedView.getName(), namedView.getParameters());
+        if (CollectionUtils.isNotEmpty(namedView.getMergedNamedViewNames())) {
+            final View.Builder viewBuilder = new View.Builder();
+            viewBuilder.merge(resolvedView);
+            for (final String name : namedView.getMergedNamedViewNames()) {
+                viewBuilder.merge(resolveView(name, namedView.getParameters()));
             }
+            resolvedView = viewBuilder.build();
+        }
+
+        namedView.setName(null);
+        return new View.Builder()
+                .merge(resolvedView)
+                .merge(namedView)
+                .build();
+    }
+
+    private View resolveView(final String namedViewName, final Map<String, Object> parameters) {
+        final NamedViewDetail cachedNamedView;
+        try {
+            cachedNamedView = cache.getNamedView(namedViewName);
         } catch (final CacheOperationFailedException e) {
-            // failed to find the namedView in the cache
             throw new RuntimeException(e);
         }
-        return newNamedView.build();
+
+        View resolvedView;
+        if (null == cachedNamedView) {
+            resolvedView = new View();
+        } else {
+            resolvedView = cachedNamedView.getView(parameters);
+            if (resolvedView instanceof NamedView) {
+                ((NamedView) resolvedView).setName(null);
+                if (CollectionUtils.isNotEmpty(((NamedView) resolvedView).getMergedNamedViewNames())) {
+                    final View.Builder viewBuilder = new View.Builder();
+                    viewBuilder.merge(resolvedView);
+                    for (final String name : ((NamedView) resolvedView).getMergedNamedViewNames()) {
+                        viewBuilder.merge(resolveView(name, parameters));
+                    }
+                    resolvedView = viewBuilder.build();
+                }
+            }
+        }
+
+        return resolvedView;
     }
 }

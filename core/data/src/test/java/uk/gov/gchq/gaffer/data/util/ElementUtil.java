@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,42 @@ package uk.gov.gchq.gaffer.data.util;
 
 import com.google.common.collect.Lists;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ElementUtil {
-    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result) {
+    public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
         assertElementEquals(expected, result, false);
     }
 
-    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result, final boolean ignoreDuplicates) {
-        final List<Element> expectedCache = Lists.newArrayList(expected);
-        final List<Element> resultCache = Lists.newArrayList(result);
+    public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        final List<ElementId> expectedCache = Lists.newArrayList(expected);
+        final List<ElementId> resultCache = Lists.newArrayList(result);
         try {
             assertEquals(expectedCache, resultCache);
         } catch (final AssertionError err) {
-            final List<Element> expectedList = Lists.newArrayList(expectedCache);
-            final List<Element> resultList = Lists.newArrayList(resultCache);
+            final List<ElementId> expectedList = Lists.newArrayList(expectedCache);
+            final List<ElementId> resultList = Lists.newArrayList(resultCache);
             if (ignoreDuplicates) {
                 expectedList.removeAll(resultCache);
                 resultList.removeAll(expectedCache);
             } else {
-                for (final Element element : resultCache) {
+                for (final ElementId element : resultCache) {
                     expectedList.remove(element);
                 }
-                for (final Element element : expectedCache) {
+                for (final ElementId element : expectedCache) {
                     resultList.remove(element);
                 }
             }
 
-            final ElementComparator elementComparator = (element1, element2) -> {
+            final Comparator<ElementId> elementComparator = (element1, element2) -> {
                 final String elementStr1 = null == element1 ? "" : element1.toString();
                 final String elementStr2 = null == element2 ? "" : element2.toString();
                 return elementStr1.compareTo(elementStr2);
@@ -61,20 +61,20 @@ public class ElementUtil {
             expectedList.sort(elementComparator);
             resultList.sort(elementComparator);
 
-            final List<Element> missingEntities = new ArrayList<>();
-            final List<Element> missingEdges = new ArrayList<>();
-            for (final Element element : expectedList) {
-                if (element instanceof Entity) {
+            final List<ElementId> missingEntities = new ArrayList<>();
+            final List<ElementId> missingEdges = new ArrayList<>();
+            for (final ElementId element : expectedList) {
+                if (element instanceof EntityId) {
                     missingEntities.add(element);
                 } else {
                     missingEdges.add(element);
                 }
             }
 
-            final List<Element> incorrectEntities = new ArrayList<>();
-            final List<Element> incorrectEdges = new ArrayList<>();
-            for (final Element element : resultList) {
-                if (element instanceof Entity) {
+            final List<ElementId> incorrectEntities = new ArrayList<>();
+            final List<ElementId> incorrectEdges = new ArrayList<>();
+            for (final ElementId element : resultList) {
+                if (element instanceof EntityId) {
                     incorrectEntities.add(element);
                 } else {
                     incorrectEdges.add(element);

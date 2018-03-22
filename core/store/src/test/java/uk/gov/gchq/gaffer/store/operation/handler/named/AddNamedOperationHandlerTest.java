@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -46,13 +47,16 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
+    private static final String EMPTY_ADMIN_AUTH = "";
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
@@ -76,11 +80,11 @@ public class AddNamedOperationHandlerTest {
             Object[] args = invocationOnMock.getArguments();
             storedOperations.put(((NamedOperationDetail) args[0]).getOperationName(), (NamedOperationDetail) args[0]);
             return null;
-        }).when(mockCache).addNamedOperation(any(NamedOperationDetail.class), anyBoolean(), any(User.class));
+        }).when(mockCache).addNamedOperation(any(NamedOperationDetail.class), anyBoolean(), any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock ->
                 new WrappedCloseableIterable<>(storedOperations.values()))
-                .when(mockCache).getAllNamedOperations(any(User.class));
+                .when(mockCache).getAllNamedOperations(any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock -> {
             String name = (String) invocationOnMock.getArguments()[0];
@@ -89,7 +93,9 @@ public class AddNamedOperationHandlerTest {
                 throw new CacheOperationFailedException();
             }
             return result;
-        }).when(mockCache).getNamedOperation(anyString(), any(User.class));
+        }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_AUTH));
+
+        given(store.getProperties()).willReturn(new StoreProperties());
     }
 
     @Rule
@@ -214,14 +220,14 @@ public class AddNamedOperationHandlerTest {
 
         handler.doOperation(addNamedOperation, context, store);
 
-        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User());
+        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
 
         assert cacheContains("testOp");
         assertEquals(addNamedOperation.getScore(), result.getScore());
     }
 
     private boolean cacheContains(final String opName) {
-        Iterable<NamedOperationDetail> ops = mockCache.getAllNamedOperations(context.getUser());
+        Iterable<NamedOperationDetail> ops = mockCache.getAllNamedOperations(context.getUser(), EMPTY_ADMIN_AUTH);
         for (final NamedOperationDetail op : ops) {
             if (op.getOperationName().equals(opName)) {
                 return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -52,7 +53,9 @@ import java.util.List;
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
     private String graphId;
-    private View view;
+    // Keeping the view as json enforces a new instance of View is created
+    // every time it is used.
+    private byte[] view;
     private GraphLibrary library;
     private String description;
     private List<GraphHook> hooks = new ArrayList<>();
@@ -73,11 +76,11 @@ public final class GraphConfig {
     }
 
     public View getView() {
-        return view;
+        return null != view ? View.fromJson(view) : null;
     }
 
     public void setView(final View view) {
-        this.view = view;
+        this.view = null != view ? view.toCompactJson() : null;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -113,7 +116,7 @@ public final class GraphConfig {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("graphId", graphId)
-                .append("view", view)
+                .append("view", getView())
                 .append("library", library)
                 .append("hooks", hooks)
                 .toString();
@@ -142,7 +145,7 @@ public final class GraphConfig {
 
         public Builder json(final InputStream stream) {
             try {
-                json(null != stream ? sun.misc.IOUtils.readFully(stream, stream.available(), true) : null);
+                json(null != stream ? IOUtils.toByteArray(stream) : null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to read graph config from input stream", e);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -24,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,9 +89,11 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
     @Override
     protected AddNamedView getTestObject() {
-        return new AddNamedView.Builder()
-                .name(TEST_NAMED_VIEW_NAME)
-                .view(VIEW)
-                .build();
+        return new AddNamedView();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("name", "view");
     }
 }

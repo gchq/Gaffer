@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,20 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +45,8 @@ public class NamedViewDetail implements Serializable {
     private String name;
     private String view;
     private String description;
+    private String creatorId;
+    private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
 
     public NamedViewDetail() {
@@ -51,6 +56,17 @@ public class NamedViewDetail implements Serializable {
         setName(name);
         setView(view);
         setDescription(description);
+        this.creatorId = null;
+        this.writeAccessRoles = new ArrayList<>();
+        setParameters(parameters);
+    }
+
+    public NamedViewDetail(final String name, final String view, final String description, final String userId, final List<String> writers, final Map<String, ViewParameterDetail> parameters) {
+        setName(name);
+        setView(view);
+        setDescription(description);
+        this.creatorId = userId;
+        this.writeAccessRoles = writers;
         setParameters(parameters);
     }
 
@@ -98,6 +114,18 @@ public class NamedViewDetail implements Serializable {
         this.description = description;
     }
 
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public List<String> getWriteAccessRoles() {
+        return writeAccessRoles;
+    }
+
+    public boolean hasWriteAccess(final String userId, final Set<String> opAuths, final String adminAuth) {
+        return hasWriteAccess(userId, opAuths, writeAccessRoles, adminAuth);
+    }
+
     @JsonInclude(Include.NON_DEFAULT)
     public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
@@ -114,6 +142,39 @@ public class NamedViewDetail implements Serializable {
     }
 
     /**
+     * Gets the View after adding in default values for any parameters. If a parameter
+     * does not have a default, null is inserted.
+     *
+     * @return The {@link View}
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
+    public View getViewWithDefaultParams() {
+        String viewStringWithDefaults = view;
+
+        if (null != parameters) {
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    viewStringWithDefaults = viewStringWithDefaults.replace(buildParamNameString(paramKey),
+                            StringUtil.toString(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue())));
+                } catch (final SerialisationException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        View view;
+
+        try {
+            view = JSONSerialiser.deserialise(StringUtil.toBytes(viewStringWithDefaults), View.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return view;
+    }
+
+    /**
      * Gets the View after adding in the parameters specified.  If a parameter does
      * not have a default and none is set an Exception will be thrown.
      *
@@ -122,26 +183,26 @@ public class NamedViewDetail implements Serializable {
      * @throws IllegalArgumentException if substituting the parameters fails
      */
     public View getView(final Map<String, Object> executionParams) {
-        String thisViewString = view;
+        String viewString = view;
 
-        Set<String> paramKeys = parameters.keySet();
+        for (final Map.Entry<String, ViewParameterDetail> entry : parameters.entrySet()) {
+            final String paramKey = entry.getKey();
+            final ViewParameterDetail paramDetail = entry.getValue();
 
-        for (final String paramKey : paramKeys) {
-            Object paramValueObj;
-
+            final Object paramValueObj;
             if (null != executionParams && executionParams.keySet().contains(paramKey)) {
                 paramValueObj = executionParams.get(paramKey);
             } else {
-                if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
-                    paramValueObj = parameters.get(paramKey).getDefaultValue();
+                if (null != paramDetail.getDefaultValue() && !paramDetail.isRequired()) {
+                    paramValueObj = paramDetail.getDefaultValue();
                 } else {
                     throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                 }
             }
             try {
-                thisViewString = thisViewString.replace(buildParamNameString(paramKey),
-                        new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
-            } catch (final SerialisationException | UnsupportedEncodingException e) {
+                viewString = viewString.replace(buildParamNameString(paramKey),
+                        StringUtil.toString(JSONSerialiser.serialise(paramValueObj)));
+            } catch (final SerialisationException e) {
                 throw new IllegalArgumentException(e.getMessage());
             }
         }
@@ -149,11 +210,7 @@ public class NamedViewDetail implements Serializable {
         View view;
 
         try {
-            if (thisViewString.contains("uk.gov.gchq.gaffer.elementdefinition.view.NamedView")) {
-                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
-            } else {
-                view = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), View.class);
-            }
+            view = JSONSerialiser.deserialise(StringUtil.toBytes(viewString), View.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -176,6 +233,8 @@ public class NamedViewDetail implements Serializable {
                 .append(name, op.name)
                 .append(view, op.view)
                 .append(description, op.description)
+                .append(creatorId, op.creatorId)
+                .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .isEquals();
     }
@@ -186,6 +245,8 @@ public class NamedViewDetail implements Serializable {
                 .append(name)
                 .append(view)
                 .append(description)
+                .append(creatorId)
+                .append(writeAccessRoles)
                 .append(parameters)
                 .hashCode();
     }
@@ -197,6 +258,8 @@ public class NamedViewDetail implements Serializable {
                 .append("name", name)
                 .append("view", view)
                 .append("description", description)
+                .append("creatorId", creatorId)
+                .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .toString();
     }
@@ -206,10 +269,28 @@ public class NamedViewDetail implements Serializable {
         return "\"${" + paramKey + "}\"";
     }
 
+    private boolean hasWriteAccess(final String userId, final Set<String> opAuths, final List<String> roles, final String adminAuth) {
+        if (null != roles) {
+            for (final String role : roles) {
+                if (opAuths.contains(role)) {
+                    return true;
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(adminAuth)) {
+            if (opAuths.contains(adminAuth)) {
+                return true;
+            }
+        }
+        return null == creatorId || userId.equals(creatorId);
+    }
+
     public static final class Builder {
         private String name;
         private String view;
         private String description;
+        private String creatorId;
+        private List<String> writers = new ArrayList<>();
         private Map<String, ViewParameterDetail> parameters;
 
         public Builder name(final String name) {
@@ -244,13 +325,23 @@ public class NamedViewDetail implements Serializable {
             return this;
         }
 
+        public Builder creatorId(final String creatorId) {
+            this.creatorId = creatorId;
+            return this;
+        }
+
+        public Builder writers(final List<String> writers) {
+            this.writers = writers;
+            return this;
+        }
+
         public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             this.parameters = parameters;
             return this;
         }
 
         public NamedViewDetail build() {
-            return new NamedViewDetail(name, view, description, parameters);
+            return new NamedViewDetail(name, view, description, creatorId, writers, parameters);
         }
     }
 }

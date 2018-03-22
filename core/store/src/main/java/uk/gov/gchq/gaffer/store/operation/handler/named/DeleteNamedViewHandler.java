@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
     @Override
     public Void doOperation(final DeleteNamedView namedViewOp, final Context context, final Store store) throws OperationException {
         try {
-            cache.deleteNamedView(namedViewOp.getViewName());
+            cache.deleteNamedView(namedViewOp.getName(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

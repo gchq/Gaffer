@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,19 +123,23 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        execute(OperationChain.wrap(operation), user);
+        _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        _execute(store::execute, OperationChain.wrap(operation), new Context(context));
     }
 
     /**
@@ -148,21 +153,25 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(operation, store.createContext(user));
+        return _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the output operation to be executed.
-     * @param context   the user context for the execution of the operation
+     * @param context   the user context for the execution of the operation.
      * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return _execute(store::execute, OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        return _execute(store::execute, OperationChain.wrap(operation), new Context(context));
     }
 
     /**
@@ -175,12 +184,13 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
-        return executeJob(operation, store.createContext(user));
+        return _execute(store::executeJob, OperationChain.wrap(operation), store.createContext(user));
     }
 
     /**
      * Performs the given operation job on the store.
      * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
@@ -188,20 +198,15 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-        return _execute(store::executeJob, OperationChain.wrap(operation), context);
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+        return _execute(store::executeJob, OperationChain.wrap(operation), new Context(context));
     }
 
     private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
-        }
-
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
-
-        if (null == context.getUser()) {
-            throw new IllegalArgumentException("The context does not contain a user");
         }
 
         context.setOriginalOpChain(operationChain);
@@ -238,23 +243,17 @@ public final class Graph {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
-                final OperationView operationView = (OperationView) operation;
-                if (!(operationView.getView() instanceof NamedView)) {
-                    final View opView;
-                    if (null == operationView.getView()) {
-                        opView = config.getView();
-                    } else if (!operationView.getView().hasGroups()) {
-                        opView = new View.Builder()
-                                .merge(config.getView())
-                                .merge(operationView.getView())
-                                .build();
-                    } else {
-                        opView = operationView.getView();
-                    }
-
-                    opView.expandGlobalDefinitions();
-                    operationView.setView(opView);
+                View opView = ((OperationView) operation).getView();
+                if (null == opView) {
+                    opView = config.getView();
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(config.getView())
+                            .merge(opView)
+                            .build();
                 }
+                opView.expandGlobalDefinitions();
+                ((OperationView) operation).setView(opView);
             }
         }
     }
@@ -682,7 +681,7 @@ public final class Graph {
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
-                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                    addSchema(IOUtils.toByteArray(schemaStream));
                 } catch (final IOException e) {
                     throw new SchemaException("Unable to read schema from input stream", e);
                 } finally {
@@ -944,7 +943,7 @@ public final class Graph {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema) {
+                if (null == schema || schema.getGroups().isEmpty()) {
                     schema = store.getSchema();
                 }
 
@@ -961,7 +960,7 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema) {
+            if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
             }
         }

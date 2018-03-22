@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ public class FederatedAccess implements Serializable {
     private boolean isPublic = Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
+    private boolean disabledByDefault;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         setGraphAuths(graphAuths);
@@ -77,12 +78,21 @@ public class FederatedAccess implements Serializable {
         this.isPublic = isPublic;
     }
 
+    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic, final boolean disabledByDefault) {
+        this(graphAuths, addingUser, isPublic);
+        this.disabledByDefault = disabledByDefault;
+    }
+
     public String getAddingUserId() {
         return addingUserId;
     }
 
     public void setAddingUserId(final String creatorUserId) {
         this.addingUserId = creatorUserId;
+    }
+
+    public boolean isDisabledByDefault() {
+        return disabledByDefault;
     }
 
     /**
@@ -140,6 +150,7 @@ public class FederatedAccess implements Serializable {
                 .append(isPublic, that.isPublic)
                 .append(graphAuths, that.graphAuths)
                 .append(addingUserId, that.addingUserId)
+                .append(disabledByDefault, that.disabledByDefault)
                 .isEquals();
     }
 
@@ -149,6 +160,7 @@ public class FederatedAccess implements Serializable {
                 .append(isPublic)
                 .append(graphAuths)
                 .append(addingUserId)
+                .append(disabledByDefault)
                 .toHashCode();
     }
 
@@ -157,6 +169,7 @@ public class FederatedAccess implements Serializable {
         private Set<String> graphAuths;
         private final Builder self = this;
         private boolean isPublic = false;
+        private boolean disabledByDefault;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {
@@ -196,8 +209,13 @@ public class FederatedAccess implements Serializable {
             return self;
         }
 
+        public Builder disabledByDefault(final boolean disabledByDefault) {
+            this.disabledByDefault = disabledByDefault;
+            return self;
+        }
+
         public FederatedAccess build() {
-            return new FederatedAccess(graphAuths, addingUser, isPublic);
+            return new FederatedAccess(graphAuths, addingUser, isPublic, disabledByDefault);
         }
 
         public Builder makePublic() {

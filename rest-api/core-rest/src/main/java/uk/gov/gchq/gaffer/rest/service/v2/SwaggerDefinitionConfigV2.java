@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @SwaggerDefinition(
         info = @Info(
                 version = "v2",
-                title = ""
+                title = "",
+                description = "A number of configured properties can be retrieved from the \"config\" endpoints. " +
+                        "If enabled, the \"job\" endpoints allow the retrieval of job details, as well as submitting a new job. " +
+                        "\"Operation\" endpoints include information on available ops, individual ops, and execution of ops. " +
+                        "\"Properties\" endpoints expose the application-specific properties. " +
+                        "The \"status\" endpoint returns information regarding the current status of the service."
         ),
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},

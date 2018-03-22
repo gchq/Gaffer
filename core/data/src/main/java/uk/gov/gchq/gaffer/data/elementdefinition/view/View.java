@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -64,6 +65,7 @@ import java.util.function.Function;
 @JsonDeserialize(builder = View.Builder.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = View.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities"}, alphabetic = true)
+@JsonSimpleClassName(includeSubtypes = true)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
@@ -149,7 +151,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 || hasEdgeFilters(ViewElementDefinition::hasPostTransformFilters)
                 || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);
     }
-
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
@@ -468,6 +469,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 }
             }
 
+            return self();
+        }
+
+        public CHILD_CLASS expandGlobalDefinitions() {
+            getThisView().expandGlobalDefinitions();
             return self();
         }
 

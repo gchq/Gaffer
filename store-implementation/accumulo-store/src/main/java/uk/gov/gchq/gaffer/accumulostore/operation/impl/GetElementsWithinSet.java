@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -28,8 +27,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -39,9 +39,10 @@ import java.util.Map;
  * set.
  **/
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
+@Since("1.0.0")
 public class GetElementsWithinSet implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
-        MultiInput<EntityId>,
+        MultiEntityIdInput,
         GraphFilters {
     private View view;
     private DirectedType directedType;
@@ -78,12 +79,6 @@ public class GetElementsWithinSet implements
         this.input = input;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @Override
-    public Object[] createInputArray() {
-        return MultiInput.super.createInputArray();
-    }
-
     @Override
     public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
@@ -111,7 +106,7 @@ public class GetElementsWithinSet implements
 
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
             implements InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<GetElementsWithinSet, EntityId, Builder>,
+            MultiEntityIdInput.Builder<GetElementsWithinSet, Builder>,
             GraphFilters.Builder<GetElementsWithinSet, Builder> {
         public Builder() {
             super(new GetElementsWithinSet());

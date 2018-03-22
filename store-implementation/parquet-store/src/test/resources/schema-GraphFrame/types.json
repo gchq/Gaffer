@@ -1,0 +1,61 @@
+{
+  "types": {
+    "string": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "int": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "float": {
+      "class": "java.lang.Float",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "double": {
+      "class": "java.lang.Double",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "long": {
+      "class": "java.lang.Long",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.First"
+      }
+    },
+    "freqMapProperty": {
+      "class": "uk.gov.gchq.gaffer.types.FreqMap"
+    },
+    "hyperLogLogPlus": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    },
+    "myProperty": {
+      "class": "uk.gov.gchq.gaffer.parquetstore.testutils.MyProperty",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.parquetstore.testutils.MyPropertySerialiser"
+      }
+    }
+  }
+}

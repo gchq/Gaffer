@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ public interface IStatusServiceV2 {
 
     @GET
     @ApiOperation(value = "Returns the status of the service",
+            notes = "A simple way to check the current status of the application/service.",
             response = SystemStatus.class,
             produces = APPLICATION_JSON,
             responseHeaders = {

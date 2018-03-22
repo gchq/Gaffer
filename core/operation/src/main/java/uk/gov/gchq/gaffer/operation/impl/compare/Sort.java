@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
+@Since("1.0.0")
 public class Sort implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element>,
@@ -62,7 +65,7 @@ public class Sort implements
     private Map<String, String> options;
 
     @Override
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class", defaultImpl = ElementPropertyComparator.class)
     public List<Comparator<Element>> getComparators() {
         return comparators;
     }

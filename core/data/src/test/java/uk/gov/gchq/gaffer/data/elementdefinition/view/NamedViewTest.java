@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class NamedViewTest {
     private static final String TEST_VIEW_NAME = "testViewName";
@@ -87,6 +88,23 @@ public class NamedViewTest {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Name must be set"));
         }
+    }
+
+    @Test
+    public void shouldNotExpandGlobalDefinitions() {
+        // Given
+        final GlobalViewElementDefinition globalDef = mock(GlobalViewElementDefinition.class);
+        final NamedView view = new NamedView.Builder()
+                .name("name")
+                .globalElements(globalDef)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(1, view.getGlobalElements().size());
+        assertSame(globalDef, view.getGlobalElements().get(0));
     }
 
     @Test

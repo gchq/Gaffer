@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
 import org.apache.accumulo.core.client.IteratorSetting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -27,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicIteratorSettingsFactory.class);
     private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
             .getName();
     private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ClassicRangeElementPropertyFilterIterator.class
@@ -49,10 +52,13 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 && includeEdges
                 && (DirectedType.isEither(directedType))
                 && !deduplicateUndirectedEdges) {
+            LOGGER.debug("Returning null from getEdgeEntityDirectionFilterIteratorSetting ("
+                            + "inOutType = {}, includeEdges = {}, directedType = {}, deduplicateUndirectedEdges = {})",
+                    inOutType, includeEdges, directedType, deduplicateUndirectedEdges);
             return null;
         }
 
-        return new IteratorSettingBuilder(
+        final IteratorSetting is = new IteratorSettingBuilder(
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
                 EDGE_DIRECTED_UNDIRECTED_FILTER)
@@ -62,20 +68,37 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 .includeEntities(includeEntities)
                 .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with "
+                + "priority = {}, includeIncomingOutgoing = {}, directedType = {}, "
+                + "includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
+                EDGE_DIRECTED_UNDIRECTED_FILTER, AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
+                inOutType, directedType, includeEdges, includeEntities,
+                deduplicateUndirectedEdges);
+        return is;
     }
 
     @Override
     public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation) {
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
-        if (includeEdges && includeEntities) {
+        if (includeEntities && includeEdges) {
+            LOGGER.debug("Returning null from getElementPropertyRangeQueryFilter as includeEntities = {} and includeEdges = {}",
+                    includeEntities, includeEdges);
             return null;
         }
-        return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+
+        final IteratorSetting is = new IteratorSettingBuilder(
+                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
                 .includeEdges(includeEdges)
                 .includeEntities(includeEntities)
                 .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                + "includeEdges = {}, includeEntities = {}",
+                RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR,
+                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                includeEdges, includeEntities);
+        return is;
     }
 
 }

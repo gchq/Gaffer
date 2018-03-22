@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,13 +54,13 @@ import java.util.Set;
  * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}s.
  */
 @JsonPropertyOrder(value = {
-        "preAggregationFilter",
+        "preAggregationFilterFunctions",
         "groupBy",
         "aggregator",
-        "postAggregationFilter",
+        "postAggregationFilterFunctions",
         "transientProperties",
-        "transformer",
-        "postTransformFilter",
+        "transformFunctions",
+        "postTransformFilterFunctions",
         "properties",
         "excludeProperties"
 }, alphabetic = true)

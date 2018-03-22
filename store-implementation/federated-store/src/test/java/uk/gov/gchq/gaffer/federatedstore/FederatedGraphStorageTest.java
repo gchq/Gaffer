@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,12 +69,12 @@ public class FederatedGraphStorageTest {
     private User testUser;
     private User authUser;
     private User blankUser;
-    private Context nullUserContext;
     private Context testUserContext;
     private Context authUserContext;
     private Context blankUserContext;
     private FederatedAccess access;
     private FederatedAccess altAccess;
+    private FederatedAccess disabledByDefaultAccess;
     private SchemaEntityDefinition e1;
     private SchemaEntityDefinition e2;
     private static final String UNUSUAL_TYPE = "unusualType";
@@ -117,13 +117,14 @@ public class FederatedGraphStorageTest {
         testUser = testUser();
         authUser = authUser();
         blankUser = blankUser();
-        nullUserContext = new Context(nullUser);
         testUserContext = new Context(testUser);
         authUserContext = new Context(authUser);
         blankUserContext = new Context(blankUser);
 
         access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
         altAccess = new FederatedAccess(Sets.newHashSet(AUTH_2), TEST_USER);
+
+        disabledByDefaultAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, true);
     }
 
     @Test
@@ -136,6 +137,14 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetIdForAddingUser() throws Exception {
         graphStorage.put(a, access);
+        final Collection<String> allIds = graphStorage.getAllIds(testUser);
+        assertEquals(1, allIds.size());
+        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+    }
+
+    @Test
+    public void shouldGetIdForDisabledGraphs() throws Exception {
+        graphStorage.put(a, disabledByDefaultAccess);
         final Collection<String> allIds = graphStorage.getAllIds(testUser);
         assertEquals(1, allIds.size());
         assertEquals(GRAPH_ID_A, allIds.iterator().next());
@@ -174,6 +183,14 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
+    public void shouldGetDisabledGraphWhenGetAll() throws Exception {
+        graphStorage.put(a, disabledByDefaultAccess);
+        final Collection<Graph> allGraphs = graphStorage.getAll(authUser);
+        assertEquals(1, allGraphs.size());
+        assertEquals(a, allGraphs.iterator().next());
+    }
+
+    @Test
     public void shouldNotGetGraphForBlankUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(blankUser);
@@ -195,6 +212,21 @@ public class FederatedGraphStorageTest {
         final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
         assertEquals(a, allGraphs.iterator().next());
+    }
+
+    @Test
+    public void shouldGetDisabledGraphForAuthUserWithCorrectId() throws Exception {
+        graphStorage.put(a, disabledByDefaultAccess);
+        final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
+        assertEquals(1, allGraphs.size());
+        assertEquals(a, allGraphs.iterator().next());
+    }
+
+    @Test
+    public void shouldNotGetDisabledGraphForAuthUserWhenNoIdsProvided() throws Exception {
+        graphStorage.put(a, disabledByDefaultAccess);
+        final Collection<Graph> allGraphs = graphStorage.get(authUser, null);
+        assertEquals(0, allGraphs.size());
     }
 
     @Test

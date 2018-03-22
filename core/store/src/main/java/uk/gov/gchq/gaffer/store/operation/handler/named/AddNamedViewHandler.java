@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -33,7 +35,6 @@ import java.util.Map;
  */
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
-
 
     public AddNamedViewHandler() {
         this(new NamedViewCache());
@@ -60,24 +61,30 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
             throw new IllegalArgumentException("NamedView name must be set and not empty");
         }
 
-        final NamedViewDetail namedView = new NamedViewDetail.Builder()
+        final NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
                 .name(operation.getName())
                 .view(operation.getViewAsString())
                 .description(operation.getDescription())
+                .creatorId(context.getUser().getUserId())
+                .writers(operation.getWriteAccessRoles())
                 .parameters(operation.getParameters())
                 .build();
 
-        validate(namedView);
+        validate(namedViewDetail.getViewWithDefaultParams(), namedViewDetail);
 
         try {
-            cache.addNamedView(namedView, operation.isOverwriteFlag());
+            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
     }
 
-    private void validate(final NamedViewDetail namedViewDetail) throws OperationException {
+    private void validate(final View namedViewWithDefaultParams, final NamedViewDetail namedViewDetail) throws OperationException {
+        if (namedViewWithDefaultParams instanceof NamedView) {
+            throw new OperationException("NamedView can not be nested within NamedView");
+        }
+
         if (null != namedViewDetail.getParameters()) {
             String viewString = namedViewDetail.getView();
             for (final Map.Entry<String, ViewParameterDetail> parameterDetail : namedViewDetail.getParameters().entrySet()) {

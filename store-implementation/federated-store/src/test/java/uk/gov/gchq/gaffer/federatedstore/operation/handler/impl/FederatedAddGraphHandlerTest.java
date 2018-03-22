@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -121,6 +123,33 @@ public class FederatedAddGraphHandlerTest {
     }
 
     @Test
+    public void shouldAddDisabledByDefaultGraph() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        Schema expectedSchema = new Schema.Builder().build();
+
+        assertEquals(0, store.getGraphs(testUser, null).size());
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .disabledByDefault(true)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<Graph> enabledGraphs = store.getGraphs(testUser, null);
+        assertEquals(0, enabledGraphs.size());
+
+
+        Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID);
+        assertEquals(1, expectedGraphs.size());
+        assertEquals(EXPECTED_GRAPH_ID, expectedGraphs.iterator().next().getGraphId());
+    }
+
+    @Test
     public void shouldAddGraphUsingLibrary() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
@@ -175,7 +204,12 @@ public class FederatedAddGraphHandlerTest {
 
     @Test
     public void shouldThrowWhenOverwriteGraphIsDifferent() throws Exception {
-        Schema expectedSchema = new Schema.Builder().build();
+        Schema expectedSchema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", String.class)
+                .build();
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 

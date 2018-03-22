@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,6 +104,12 @@ public class NamedView extends View {
             }
         }
         return true;
+    }
+
+    @Override
+    public void expandGlobalDefinitions() {
+        // As it is a named view - we should not expand the global definitions.
+        // It should only be expanded after the named view is resolved.
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {

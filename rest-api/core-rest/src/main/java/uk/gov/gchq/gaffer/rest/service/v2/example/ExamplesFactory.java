@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -39,42 +40,42 @@ public interface ExamplesFactory {
     /**
      * Generates an example for the {@link GetAdjacentIds} operation.
      *
-     * @return the example class
+     * @return the example class for GetAdjacentIds
      */
     GetAdjacentIds getAdjacentIds();
 
     /**
      * Generates an example for the {@link GetAllElements} operation.
      *
-     * @return the example class
+     * @return the example class for GetAllElements
      */
     GetAllElements getAllElements();
 
     /**
      * Generates an example for the {@link GetElements} operation.
      *
-     * @return the example class
+     * @return the example class for GetElements
      */
     GetElements getElements();
 
     /**
      * Generates an example for the {@link AddElements} operation.
      *
-     * @return the example class
+     * @return the example class for AddElements
      */
     AddElements addElements();
 
     /**
      * Generates an example for the {@link GenerateObjects} operation.
      *
-     * @return the example class
+     * @return the example class for GenerateObjects
      */
     GenerateObjects generateObjects();
 
     /**
      * Generates an example for the {@link GenerateElements} operation.
      *
-     * @return the example class
+     * @return the example class for GenerateElements
      */
     GenerateElements generateElements();
 
@@ -91,35 +92,35 @@ public interface ExamplesFactory {
     /**
      * Generates an example for the {@link Sort} operation.
      *
-     * @return the example class
+     * @return the example class for Sorts
      */
     Sort sort();
 
     /**
      * Generates an example for the {@link Max} operation.
      *
-     * @return the example class
+     * @return the example class for Max
      */
     Max max();
 
     /**
      * Generates an example for the {@link Min} operation.
      *
-     * @return the example class
+     * @return the example class for Min
      */
     Min min();
 
     /**
      * Generates an example for the {@link ToMap} operation.
      *
-     * @return the example class
+     * @return the example class for ToMap
      */
     ToMap toMap();
 
     /**
      * Generates an example for the {@link GetWalks} operation.
      *
-     * @return the example class
+     * @return the example class for GetWalks
      */
     GetWalks getWalks();
 
@@ -129,4 +130,11 @@ public interface ExamplesFactory {
      * @return the example class
      */
     AddNamedView addNamedView();
+
+    /**
+     * Generates an example for the {@link If} operation.
+     *
+     * @return the example class
+     */
+    If ifOperation();
 }

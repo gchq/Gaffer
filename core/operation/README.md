@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -328,10 +328,14 @@ If you require your destination to match a provided regex than you will need to 
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
 See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicates/contents.html).
 The predicate can then be used in you Operation View to filter out elements that
-don't match the regex. 
+don't match the regex.
 
-So, assuming your edge 'yourEdge' is directed and you provide a seed 'X' that is the source of the edge then you would apply the filter (e.g a simple regex [yY]) to the DESTINATION value.
-Alternatively if your seed is the destination then your filter should be applied to the SOURCE value.
+When the query is run and a seed matches an edge vertex, your seed may match the source or the destination vertex. 
+So, you need to tell the filter to apply to the opposite end of the edge.
+If you are running against a store that implements the MATCHED_VERTEX trait (e.g Accumulo) then it is easy. 
+The edges returned from the store will have a matchedVertex field so you know which end of the edge your seed matched.
+This means you can select the vertex at the other end of the edge using the keyword ADJACENT_MATCHED_VERTEX.
+For example:
 
 ```java
 GetElements results = new GetElements.Builder()
@@ -340,7 +344,7 @@ GetElements results = new GetElements.Builder()
         .edge("yourEdge", new ViewElementDefinition.Builder()
             .preAggregationFilter(
                 new ElementFilter.Builder()
-                    .select(IdentifierType.DESTINATION.name())
+                    .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
                     .execute(new Regex("[yY]"))
                     .build())
             .build())
@@ -348,8 +352,15 @@ GetElements results = new GetElements.Builder()
     .build();
 ```
 
-Finally, if your edge is undirected or the seed could be either the source or the
-destination, then you will need to provide a filter that checks the SOURCE or the DESTINATION matches the regex. 
+
+Without the matchedVertex field it is a bit more difficult.
+If you are using directed edges and you know what you seed will always match
+the source then you can select the 'DESTINATION' in the filter. 
+
+Otherwise, you will need to provide a filter that checks the SOURCE or the DESTINATION matches the regex.
+For example:
+
+```java
 GetElements results = new GetElements.Builder()
     .input(new EntitySeed("X"))
     .view(new View.Builder()
@@ -367,5 +378,6 @@ GetElements results = new GetElements.Builder()
             .build())
         .build())
     .build();
+```
 
-
+For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/getting-started/user-guide/filtering.html).

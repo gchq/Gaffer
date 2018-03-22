@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import java.util.Arrays;
-
 /**
  * Utility methods for bytes
  */
@@ -33,8 +31,8 @@ public final class ByteUtil {
      * @param bytes1 the first byte array
      * @param bytes2 the second byte array
      * @return a negative integer, zero, or a positive integer as the
-     *         first argument is less than, equal to, or greater than the
-     *         second.
+     * first argument is less than, equal to, or greater than the
+     * second.
      */
     public static int compareSortedBytes(final byte[] bytes1, final byte[] bytes2) {
         final int minLength = Math.min(bytes1.length, bytes2.length);
@@ -55,7 +53,7 @@ public final class ByteUtil {
      * @return true if the provided bytes are equal
      */
     public static boolean areSortedBytesEqual(final byte[] bytes1, final byte[] bytes2) {
-        if (Arrays.equals(bytes1, bytes2)) {
+        if (bytes1 == bytes2) {
             return true;
         }
 

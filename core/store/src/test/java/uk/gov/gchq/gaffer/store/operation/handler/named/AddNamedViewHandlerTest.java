@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewHandlerTest {
@@ -80,6 +82,7 @@ public class AddNamedViewHandlerTest {
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
+        given(store.getProperties()).willReturn(new StoreProperties());
     }
 
     @AfterClass
@@ -96,7 +99,7 @@ public class AddNamedViewHandlerTest {
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
-
+        assertEquals(context.getUser().getUserId(), result.getCreatorId());
     }
 
     @Test
@@ -107,6 +110,26 @@ public class AddNamedViewHandlerTest {
             handler.doOperation(addNamedView, context, store);
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
+        }
+    }
+
+    @Test
+    public void shouldNotAddNestedNamedView() throws OperationException {
+        final NamedView nestedNamedView = new NamedView.Builder()
+                .name(testNamedViewName + 1)
+                .edge(TestGroups.EDGE)
+                .build();
+
+        addNamedView = new AddNamedView.Builder()
+                .name(testNamedViewName)
+                .view(nestedNamedView)
+                .overwrite(false)
+                .build();
+
+        try {
+            handler.doOperation(addNamedView, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("NamedView can not be nested within NamedView"));
         }
     }
 

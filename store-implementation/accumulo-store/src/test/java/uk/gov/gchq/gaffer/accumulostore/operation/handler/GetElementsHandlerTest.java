@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,22 @@ public class GetElementsHandlerTest {
 
     @Test
     public void shouldFailIfOperationInputIsUndefined() {
+        // Given
+        final GetElementsHandler handler = new GetElementsHandler();
+        final GetElements op = new GetElements.Builder()
+                .build();
+
+        // When / Then
+        try {
+            handler.doOperation(op, new Context(), null);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
+        }
+    }
+
+    @Test
+    public void shouldNotReturnDeletedElements() {
         // Given
         final GetElementsHandler handler = new GetElementsHandler();
         final GetElements op = new GetElements.Builder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToArray.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.0.0")
 public class ToArray<T> implements
         InputOutput<Iterable<? extends T>, T[]>,
         MultiInput<T> {

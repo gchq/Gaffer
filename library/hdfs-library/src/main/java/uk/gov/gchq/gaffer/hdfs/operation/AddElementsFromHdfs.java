@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -45,6 +46,7 @@ import java.util.Map;
  * @see Builder
  */
 @JsonPropertyOrder(value = {"class", "failurePath", "workingPath"}, alphabetic = true)
+@Since("1.0.0")
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce {

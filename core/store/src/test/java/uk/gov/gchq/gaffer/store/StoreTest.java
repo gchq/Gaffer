@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -525,6 +526,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 Map.class,
+                If.class,
 
                 // Function
                 Filter.class,
@@ -618,6 +620,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 Map.class,
+                If.class,
 
                 // Function
                 Filter.class,

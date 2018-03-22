@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,14 +308,6 @@ public class JSONSerialiser {
      * @throws SerialisationException if the json fails to deserialise
      */
     public static <T> T deserialise(final String json, final Class<T> clazz) throws SerialisationException {
-        if (null != getInstance().mapperWithTyping) {
-            try {
-                return getInstance().mapperWithTyping.readValue(json, clazz);
-            } catch (final IOException e) {
-                // ignore error
-            }
-        }
-
         try {
             return getInstance().mapper.readValue(json, clazz);
         } catch (final IOException e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetAllNamedViewsHandlerTest {
@@ -78,11 +79,20 @@ public class GetAllNamedViewsHandlerTest {
     @Test
     public void shouldGetAllNamedViewsFromCache() throws OperationException {
         // Given
+        given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
-        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder().name(testNamedViewName).view(view).build();
-        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder().name(testNamedViewName + 2).view(view2).build();
+        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
+                .name(testNamedViewName)
+                .view(view)
+                .creatorId(context.getUser().getUserId())
+                .build();
+        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
+                .name(testNamedViewName + 2)
+                .view(view2)
+                .creatorId(context.getUser().getUserId())
+                .build();
         addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
         GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
