@@ -204,7 +204,11 @@ Timestamp
 -----------------------------------------------
 
 Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
-If the timestamp is not set then it will be populated automatically to a random number. 
+If the timestamp is not set then it will be populated automatically:
+
+- Constant value - aggregated groups
+- Random number - non-aggregated groups
+
 Setting the timestamp yourself is an advanced feature and is not recommended
 as it can cause significant issues if it is not populated correctly.
 
