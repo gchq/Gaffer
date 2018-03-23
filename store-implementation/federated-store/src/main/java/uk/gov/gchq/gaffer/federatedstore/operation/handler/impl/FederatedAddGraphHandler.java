@@ -31,7 +31,6 @@ public class FederatedAddGraphHandler extends FederatedAddGraphHandlerParent<Add
 
     @Override
     protected Graph _makeGraph(final AddGraph operation, final Store store) {
-        
         return new GraphDelegate.Builder()
                 .store(store)
                 .graphId(operation.getGraphId())

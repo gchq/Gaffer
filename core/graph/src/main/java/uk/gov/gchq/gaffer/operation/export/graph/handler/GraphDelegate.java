@@ -329,10 +329,11 @@ public class GraphDelegate {
     public static class Builder extends BaseBuilder<Builder> {
         private GraphHook[] hooks = null;
 
-        public Builder hooks(GraphHook[] hooks){
+        public Builder hooks(final GraphHook[] hooks) {
             this.hooks = hooks;
             return _self();
         }
+
         @Override
         public Builder _self() {
             return this;
