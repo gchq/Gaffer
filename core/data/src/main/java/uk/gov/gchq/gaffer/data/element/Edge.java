@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -42,6 +43,8 @@ import java.util.Comparator;
  *
  * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
+@JsonPropertyOrder(value = {"class", "group", "source", "destination",
+        "directed", "matchedVertex", "properties"}, alphabetic = true)
 public class Edge extends Element implements EdgeId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
     private static final long serialVersionUID = -5596452468277807842L;

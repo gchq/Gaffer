@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,5 +30,5 @@ You will then need to register the SketchesJsonModules using the store or system
 property: gaffer.serialiser.json.modules. This property takes a CSV of classes
 so you can use multiple json modules.
 ```
-gaffer.serialiser.json.modules=uk.gov.gchq.gaffer.bitmap.serialisation.json.SketchesJsonModules
+gaffer.serialiser.json.modules=uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules
 ```

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package uk.gov.gchq.gaffer.commonutil;
+
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,7 +64,7 @@ public final class CollectionUtil {
     public static <K, V> void toMapWithClassKeys(final Map<String, V> mapAsStrings, final Map<Class<? extends K>, V> map) throws ClassNotFoundException {
         for (final Map.Entry<String, V> entry : mapAsStrings.entrySet()) {
             map.put(
-                    (Class) Class.forName(entry.getKey()),
+                    (Class) Class.forName(SimpleClassNameIdResolver.getClassName(entry.getKey())),
                     entry.getValue()
             );
         }
@@ -125,7 +127,7 @@ public final class CollectionUtil {
      * Determine whether all of the items in the given {@link Collection} are unique.
      *
      * @param collection the collection to check
-     * @param <T> the type of object contained in the collection
+     * @param <T>        the type of object contained in the collection
      * @return {@code true} if all the items in the Collection are unique (as determined
      * by {@link Object#equals(Object)}, otherwise {@code false}
      */

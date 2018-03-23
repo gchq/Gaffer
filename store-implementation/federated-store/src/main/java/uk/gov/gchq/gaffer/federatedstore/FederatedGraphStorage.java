@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,13 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
+    public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
+    public static final String ERROR_SERIALISING_GRAPH = "Error serialising Graph";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
@@ -98,35 +100,35 @@ public class FederatedGraphStorage {
      * @throws StorageException if unable to put arguments into storage
      */
     public void put(final Graph graph, final FederatedAccess access) throws StorageException {
-        String graphId = graph.getGraphId();
-        try {
-            if (null == access) {
-                throw new IllegalArgumentException(ACCESS_IS_NULL);
-            }
-            if (!exists(graph, access)) {
-                if (isCacheEnabled()) {
-                    addToCache(graph, access);
-                }
-
-                Set<Graph> existingGraphs = storage.get(access);
-                if (null == existingGraphs) {
-                    existingGraphs = Sets.newHashSet(graph);
-                    storage.put(access, existingGraphs);
-                } else {
-                    existingGraphs.add(graph);
+        if (graph != null) {
+            String graphId = graph.getGraphId();
+            try {
+                if (null == access) {
+                    throw new IllegalArgumentException(ACCESS_IS_NULL);
                 }
 
                 if (null != graphLibrary) {
-                    try {
-                        graphLibrary.add(graphId, graph.getSchema(), graph.getStoreProperties());
-                    } catch (final Exception e) {
-                        remove(graphId, new User(access.getAddingUserId()));
-                        throw e;
+                    graphLibrary.checkExisting(graphId, graph.getSchema(), graph.getStoreProperties());
+                }
+
+                if (!exists(graph, access)) {
+                    if (isCacheEnabled()) {
+                        addToCache(graph, access);
+                    }
+
+                    Set<Graph> existingGraphs = storage.get(access);
+                    if (null == existingGraphs) {
+                        existingGraphs = Sets.newHashSet(graph);
+                        storage.put(access, existingGraphs);
+                    } else {
+                        existingGraphs.add(graph);
                     }
                 }
+            } catch (final Exception e) {
+                throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
             }
-        } catch (final Exception e) {
-            throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
+        } else {
+            throw new StorageException("Graph cannot be null");
         }
     }
 
@@ -369,7 +371,7 @@ public class FederatedGraphStorage {
                 graphJson = JSONSerialiser.serialise(graph);
                 existJson = JSONSerialiser.serialise(found);
             } catch (final SerialisationException e) {
-                throw new StorageException(e);
+                throw new StorageException(ERROR_SERIALISING_GRAPH);
             }
             if (JsonUtil.equals(graphJson, existJson)) {
                 rtn = true;
@@ -408,17 +410,33 @@ public class FederatedGraphStorage {
     }
 
     /**
-     * @param user     to match visibility against
+     * @param user     to match visibility against.
      * @param graphIds filter on graphIds
-     * @return graphs that match graphIds and the user has visibility of.
+     * @return a stream of graphs for the given graphIds and the user has visibility for.
+     * If graphIds is null then only enabled by default graphs are returned that the user can see.
      */
     private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
-        final Stream<Graph> allStream = getAllStream(user);
         if (null == graphIds) {
-            return allStream;
+            return storage.entrySet()
+                    .stream()
+                    .filter(entry -> isValidToView(user, entry.getKey()))
+                    .filter(entry -> !entry.getKey().isDisabledByDefault())
+                    .flatMap(entry -> entry.getValue().stream());
         }
 
-        return allStream.filter(graph -> graphIds.contains(graph.getGraphId()));
+        return storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(graph -> graphIds.contains(graph.getGraphId()));
+    }
+
+    /**
+     * @param user to match visibility against
+     * @return graphs that are enabled by default and the user has visibility of.
+     */
+    private Stream<Graph> getStream(final User user) {
+        return getStream(user, null);
     }
 
     /**

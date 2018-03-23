@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -29,6 +31,8 @@ import java.util.Map;
  * A {@code GetJobResults} operation is used to retrieve the results of executing
  * a job on a Gaffer graph.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class GetJobResults extends GetGafferResultCacheExport {
     private Map<String, String> options;
 

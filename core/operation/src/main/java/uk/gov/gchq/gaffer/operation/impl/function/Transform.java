@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.function;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,8 @@ import java.util.Map;
  * For multiple groups, a {@link Map} of {@link uk.gov.gchq.gaffer.data.element.Edge}s, or {@link uk.gov.gchq.gaffer.data.element.Entity}s
  * to their relevant {@link ElementTransformer}s can be provided.
  */
+@JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
+@Since("1.0.0")
 public class Transform implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
@@ -68,7 +72,7 @@ public class Transform implements Function,
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public Transform shallowClone() throws CloneFailedException {
         return new Transform.Builder()
                 .input(input)
                 .options(options)

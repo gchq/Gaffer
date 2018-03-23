@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,14 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class EntityKryoSerializerTest extends KryoSerializerTest<Entity> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final Entity obj, final Entity deserialised) {
+        assertEquals(obj, deserialised);
+    }
 
     @Override
     protected Class<Entity> getTestClass() {

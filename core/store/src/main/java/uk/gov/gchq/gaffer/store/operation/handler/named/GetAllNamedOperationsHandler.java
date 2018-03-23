@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,6 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      */
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        return cache.getAllNamedOperations(context.getUser());
+        return cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@ public class QueryScannerTest {
     public void shouldDelegateMethodsToInternalScanner() throws IOException {
         final RegionScanner scanner = mock(RegionScanner.class);
         final Scan scan = mock(Scan.class);
-        final QueryScanner queryScanner = new QueryScanner(scanner, scan, SCHEMA, serialisation, false);
+        final QueryScanner queryScanner = new QueryScanner(scanner, scan, SCHEMA, serialisation);
 
         assertSame(scanner, queryScanner.getScanner());
 

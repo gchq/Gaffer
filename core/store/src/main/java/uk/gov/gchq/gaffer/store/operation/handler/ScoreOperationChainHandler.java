@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.IfScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -50,7 +54,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
     private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers = new HashMap<>();
-    private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(Collections.unmodifiableMap(opScores));
+
+    private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(
+            Collections.unmodifiableMap(opScores), Collections.unmodifiableMap(scoreResolvers)
+    );
+
+    private static final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_SCORE_RESOLVERS = addDefaultScoreResolvers();
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -63,38 +72,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      */
     @Override
     public Integer doOperation(final ScoreOperationChain operation, final Context context, final Store store) throws OperationException {
+        return getChainScore(operation.getOperationChain(), context.getUser());
 
-        if (null != operation.getOperationChain()) {
-            return getChainScore(operation.getOperationChain(), context.getUser());
-        } else {
-            return 0;
-        }
     }
 
     public int getChainScore(final Operations<?> operations, final User user) {
-        int chainScore = 0;
-
-        if (null != operations.getOperations()) {
-            for (final Operation operation : operations.getOperations()) {
-                if (operation instanceof Operations) {
-                    chainScore += getChainScore((Operations) operation, user);
-                } else {
-                    ScoreResolver resolver = scoreResolvers.get(operation.getClass());
-                    if (null == resolver) {
-                        resolver = defaultScoreResolver;
-                    }
-
-                    Integer opScore = resolver.getScore(operation, defaultScoreResolver);
-                    if (null == opScore) {
-                        opScore = defaultScoreResolver.getScore(operation, defaultScoreResolver);
-                    }
-
-                    chainScore += opScore;
-
-                }
-            }
-        }
-        return chainScore;
+        return defaultScoreResolver.getScore((Operation) operations, defaultScoreResolver);
     }
 
     /**
@@ -164,6 +147,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
         this.scoreResolvers.clear();
+        scoreResolvers.putAll(DEFAULT_SCORE_RESOLVERS);
         if (null != resolvers) {
             this.scoreResolvers.putAll(resolvers);
         }
@@ -186,6 +170,25 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             }
             i++;
         }
+    }
+
+    /**
+     * Adds Gaffer's native {@link ScoreResolver} implementations to the list of available <code>ScoreResolver</code>s.
+     * Any new implementations should be added to the map in this method, along with their respective class.
+     *
+     * @return a map of Operation class to ScoreResolver implementation
+     */
+    private static Map<Class<? extends Operation>, ScoreResolver> addDefaultScoreResolvers() {
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = new HashMap<>();
+
+        defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+        defaultResolvers.put(If.class, new IfScoreResolver());
+
+        return Collections.unmodifiableMap(defaultResolvers);
+    }
+
+    public static Map<Class<? extends Operation>, ScoreResolver> getDefaultScoreResolvers() {
+        return Collections.unmodifiableMap(DEFAULT_SCORE_RESOLVERS);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public final class GetElementsUtil {
         Predicate<Element> isFiltered = e -> !groups.contains(e.getGroup());
 
         if (elementId instanceof EntityId) {
-            final Collection<Element> elements = mapImpl.lookup((EntityId) elementId);
+            final Collection<Element> elements = mapImpl.lookup(new EntitySeed(((EntityId) elementId).getVertex()));
             if (elements.isEmpty()) {
                 return Collections.emptySet();
             }

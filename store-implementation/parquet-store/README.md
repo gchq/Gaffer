@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ Note that apart from the first two lines which are required by Gaffer so it know
 
 ## Schema
 
-See the [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See the [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```
 Graph graph = new Graph.Builder()
@@ -101,7 +101,8 @@ Graph graph = new Graph.Builder()
       .storeProperties(storeProperties)
       .build();
 ```
-Note that the `ParquetStore` currently does not make use of the `timestampProperty`. Also to get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
+
+To get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
 
 ## Inserting data
 
@@ -129,7 +130,7 @@ Inserting the data via the `ImportRDDOfElements` operation will generally be the
 
 ## Queries
 
-The `ParquetStore` currently supports most of the [standard Gaffer queries](https://gchq.github.io/gaffer-doc/getting-started/spark-operation-examples.html).
+The `ParquetStore` currently supports most of the [standard Gaffer queries](https://gchq.github.io/gaffer-doc/getting-started/spark-operations/contents.html).
 
 The operations that are not currently supported are:
 - `GetAdjacentEntitySeeds`
@@ -138,7 +139,7 @@ The operations that are not currently supported are:
 - `GetRDDOfAllElements`
 - `GetRDDOfElements`
 
-The current limitations on the queries are based on the Gaffer View's that you can set, see [Getting started guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html#filtering).
+The current limitations on the queries are based on the Gaffer View's that you can set, see [Getting started guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide/filtering.html).
 Currently those limitations are:
 - Query time aggregation is not supported;
 - Transformations are not supported;

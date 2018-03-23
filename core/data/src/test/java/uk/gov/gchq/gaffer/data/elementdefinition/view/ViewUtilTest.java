@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -807,6 +807,71 @@ public class ViewUtilTest {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldRemoveGroupFromView() {
+        // Given
+        View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // Then
+        assertEquals(2, view.getGroups().size());
+
+        // When
+        view = ViewUtil.removeGroups(view, TestGroups.EDGE);
+
+        // Then
+        assertFalse(view.getGroups().contains(TestGroups.EDGE));
+        assertEquals(1, view.getGroups().size());
+
+        // When
+        view = ViewUtil.removeGroups(view, TestGroups.ENTITY);
+
+        // Then
+        assertFalse(view.getGroups().contains(TestGroups.ENTITY));
+        assertEquals(0, view.getGroups().size());
+    }
+
+    @Test
+    public void shouldIgnoreRemovingGroupFromViewWhenNotSet() {
+        // Given
+        View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        View viewAfterRemove = ViewUtil.removeGroups(view, TestGroups.ENTITY);
+
+        // Then - views identical
+        JsonAssert.assertEquals(view.toJson(false), viewAfterRemove.toJson(false));
+    }
+
+    @Test
+    public void shouldThrowExceptionOnRemovalOfNullGroups() {
+        // Given
+        View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When / Then
+        try {
+            ViewUtil.removeGroups(view, null);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().equals("Specified group(s) to remove is null"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnWhenRemovingGroupFromNullView() {
+        // When / Then
+        try {
+            ViewUtil.removeGroups(null, TestGroups.EDGE);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().equals("View cannot be null"));
+        }
     }
 
     private View createView() {

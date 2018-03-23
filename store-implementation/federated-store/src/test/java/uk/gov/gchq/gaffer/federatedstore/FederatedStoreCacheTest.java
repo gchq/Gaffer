@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class FederatedStoreCacheTest {
-    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";

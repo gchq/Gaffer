@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +33,7 @@ import java.util.Map;
  * Used by the {@link AddOperationsToChain} operation to store details around which
  * operations to add to the chain.
  */
+@JsonPropertyOrder(value = {"class", "start", "before", "after", "end"}, alphabetic = true)
 public class AdditionalOperations {
     private List<byte[]> start;
     private List<byte[]> end;
@@ -82,7 +86,7 @@ public class AdditionalOperations {
 
         final Map<String, List<byte[]>> serialisedOps = new HashMap<>(ops.size());
         for (final Map.Entry<String, List<Operation>> entry : ops.entrySet()) {
-            serialisedOps.put(entry.getKey(), serialiseOperations(entry.getValue()));
+            serialisedOps.put(SimpleClassNameIdResolver.getClassName(entry.getKey()), serialiseOperations(entry.getValue()));
         }
 
         return serialisedOps;
@@ -95,7 +99,7 @@ public class AdditionalOperations {
 
         final Map<String, List<Operation>> ops = new HashMap<>(serialisedOps.size());
         for (final Map.Entry<String, List<byte[]>> entry : serialisedOps.entrySet()) {
-            ops.put(entry.getKey(), deserialiseOperations(entry.getValue()));
+            ops.put(SimpleClassNameIdResolver.getClassName(entry.getKey()), deserialiseOperations(entry.getValue()));
         }
 
         return ops;

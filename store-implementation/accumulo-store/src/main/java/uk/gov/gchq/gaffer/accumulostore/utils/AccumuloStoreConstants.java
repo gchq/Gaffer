@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,18 @@ public final class AccumuloStoreConstants {
     // Converter class to be used in iterators must be on classpath of all
     // iterators
     public static final String ACCUMULO_ELEMENT_CONVERTER_CLASS = "accumulostore.key.element_converter";
+
+    /**
+     * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
+     * This is an advanced feature - if you use it then make sure you really understand it.
+     */
+    // The value must match the key used in Schema class: "timestampProperty"
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
+
+    /**
+     * The default timestamp value to use if it has not been populated.
+     */
+    public static final long DEFAULT_TIMESTAMP = 1L;
 
     // Iterator options
     public static final String VIEW = "View";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ public class MapStoreTest {
                 StoreTrait.PRE_AGGREGATION_FILTERING,
                 StoreTrait.POST_AGGREGATION_FILTERING,
                 StoreTrait.TRANSFORMATION,
-                StoreTrait.POST_TRANSFORMATION_FILTERING));
+                StoreTrait.POST_TRANSFORMATION_FILTERING,
+                StoreTrait.MATCHED_VERTEX));
         assertEquals(expectedTraits, mapStore.getTraits());
     }
 }

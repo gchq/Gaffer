@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,29 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
+import javax.ws.rs.core.Response;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
+
 public class OperationServiceV2IT extends OperationServiceIT {
+
+    @Test
+    public void shouldReturnJobIdHeader() throws IOException {
+        // When
+        final Response response = client.executeOperation(new GetAllElements());
+
+        // Then
+        assertNotNull(response.getHeaderString(ServiceConstants.JOB_ID_HEADER));
+    }
 
     @Override
     protected RestApiTestClient getClient() {

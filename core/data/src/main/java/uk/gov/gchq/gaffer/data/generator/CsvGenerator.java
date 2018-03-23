@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,37 +21,51 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
 
 /**
- * Generates a CSV string for each element, based on the fields and constants provided.
+ * Generates a CSV string for each {@link Element}, based on the fields and constants provided.
  * <p>
- * For example, if you provide fields=[prop1, SOURCE, DESTINATION, prop2, GROUP] and constants=["constant1", "constant2"]
- * The output will be:
- * prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
- * </p>
+ * For example, if you provide:<pre>
+ *  fields=[prop1, SOURCE, DESTINATION, prop2, GROUP] and constants=["constant1", "constant2"]
+ * </pre>
+ * The output will be:<pre>
+ *  prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
+ * </pre>
  */
+@Since("1.0.0")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";
     public static final String COMMA = ",";
+    private static final Pattern COMMA_PATTERN = Pattern.compile(COMMA);
+    private static final String COMMA_REPLACEMENT_DEFAULT = " ";
+
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+
     private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
     /**
-     * When set to true each value in the csv will be wrapped in quotes.
+     * When set to true, each value in the csv will be wrapped in quotes.
      */
     private boolean quoted = false;
 
     /**
      * Replaces commas with this string. If null then no replacement is done.
      */
-    private String commaReplacement = " ";
+    private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
 
-    private Pattern commaReplacementPattern = Pattern.compile(commaReplacement);
-
+    /**
+     * Attempts to find the value of a field from a given {@link Element},
+     * corresponding to a provided key, where the key is the name of the field.
+     *
+     * @param element the Element from which to retrieve a field value
+     * @param key     the name of the field to be retrieved
+     * @return the value of the field
+     */
     private Object getFieldValue(final Element element, final String key) {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Object value;
@@ -115,6 +129,11 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return strBuilder.substring(0, strBuilder.length() - 1);
     }
 
+    /**
+     * Generates a CSV String from, if present, the fields and constants
+     *
+     * @return a CSV String of all fields, or constants, or both.
+     */
     @JsonIgnore
     public String getHeader() {
         if (fields.isEmpty()) {
@@ -143,8 +162,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             value = s.toString();
         }
 
-        if (null != commaReplacementPattern) {
-            value = commaReplacementPattern.matcher(value).replaceAll(commaReplacement);
+        if (null != commaReplacement) {
+            value = COMMA_PATTERN.matcher(value).replaceAll(commaReplacement);
         }
 
         if (quoted) {
@@ -169,71 +188,141 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
     public void setCommaReplacement(final String commaReplacement) {
         this.commaReplacement = commaReplacement;
-        if (null == this.commaReplacement) {
-            commaReplacementPattern = null;
-        } else {
-            commaReplacementPattern = Pattern.compile(this.commaReplacement);
-        }
     }
 
     public static class Builder {
         private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
         private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
-        private String commaReplacement;
-        private boolean quoted;
+        private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
+        private Boolean quoted;
 
-        public CsvGenerator.Builder group(final String columnHeader) {
+        /**
+         * Stores the group of an {@link Element}.
+         *
+         * @param columnHeader the group of the {@code Element}
+         * @return a new {@link Builder}
+         */
+        public Builder group(final String columnHeader) {
             fields.put(GROUP, columnHeader);
             return this;
         }
 
-        public CsvGenerator.Builder property(final String propertyName, final String columnHeader) {
+        /**
+         * Stores any additional properties of an {@link Element}.<br>
+         * For example: property("count", "3").<br>
+         * This would add the "count" property with a value of "3"
+         *
+         * @param propertyName the name of the property
+         * @param columnHeader the value of the property
+         * @return a new {@link Builder}
+         */
+        public Builder property(final String propertyName, final String columnHeader) {
             fields.put(propertyName, columnHeader);
             return this;
         }
 
-        public CsvGenerator.Builder vertex(final String columnHeader) {
+        /**
+         * Stores the Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
+         *
+         * @param columnHeader the vertex contained within the {@code Entity}
+         * @return a new {@link Builder}
+         */
+        public Builder vertex(final String columnHeader) {
             return identifier(IdentifierType.VERTEX, columnHeader);
         }
 
-        public CsvGenerator.Builder source(final String columnHeader) {
+        /**
+         * Stores the Source Vertex of an {@link uk.gov.gchq.gaffer.data.element.Edge}.
+         *
+         * @param columnHeader the source vertex
+         * @return a new {@link Builder}
+         */
+        public Builder source(final String columnHeader) {
             return identifier(IdentifierType.SOURCE, columnHeader);
         }
 
-        public CsvGenerator.Builder destination(final String columnHeader) {
+        /**
+         * Stores the Destination Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
+         *
+         * @param columnHeader the destination vertex
+         * @return a new {@link Builder}
+         */
+        public Builder destination(final String columnHeader) {
             return identifier(IdentifierType.DESTINATION, columnHeader);
         }
 
-        public CsvGenerator.Builder direction(final String columnHeader) {
+        /**
+         * Stores the Direction flag, indicating whether or not the {@link uk.gov.gchq.gaffer.data.element.Edge}
+         * is directed.
+         *
+         * @param columnHeader true or false for if the {@code Edge} is directed or not
+         * @return a new {@link Builder}
+         */
+        public Builder direction(final String columnHeader) {
             return identifier(IdentifierType.DIRECTED, columnHeader);
         }
 
-        public CsvGenerator.Builder identifier(final IdentifierType identifierType, final String columnHeader) {
+        /**
+         * Allows an {@link IdentifierType} of an {@link Element} to be stored, such as
+         * an {@link uk.gov.gchq.gaffer.data.element.Edge}'s {@link IdentifierType#MATCHED_VERTEX}.
+         *
+         * @param identifierType the {@code IdentifierType} of the {@code Element}
+         * @param columnHeader   the value for the corresponding field
+         * @return a new {@link Builder}
+         */
+        public Builder identifier(final IdentifierType identifierType, final String columnHeader) {
             fields.put(identifierType.name(), columnHeader);
             return this;
         }
 
-        public CsvGenerator.Builder constant(final String key, final String value) {
+        /**
+         * Stores any constants specific to a given {@link Element}.
+         *
+         * @param key   the name of the constant
+         * @param value the value of the constant
+         * @return a new {@link Builder}
+         */
+        public Builder constant(final String key, final String value) {
             constants.put(key, value);
             return this;
         }
 
+        /**
+         * Stores the String with which any encountered commas will be replaced.
+         *
+         * @param commaReplacement the replacement String
+         * @return a new {@link Builder}
+         */
         public Builder commaReplacement(final String commaReplacement) {
             this.commaReplacement = commaReplacement;
             return this;
         }
 
+        /**
+         * Stores the flag for whether or not each distinct value should be wrapped in quotation marks.
+         *
+         * @param quoted true or false
+         * @return a new {@link Builder}
+         */
         public Builder quoted(final boolean quoted) {
             this.quoted = quoted;
             return this;
         }
 
+        /**
+         * Passes all of the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
+         * including the comma replacement String, and the flag for whether values should be quoted.
+         *
+         * @return a new {@code CsvGenerator}, containing all configured information
+         */
         public CsvGenerator build() {
             final CsvGenerator generator = new CsvGenerator();
             generator.setFields(fields);
             generator.setConstants(constants);
             generator.setCommaReplacement(commaReplacement);
-            generator.setQuoted(quoted);
+            if (null != quoted) {
+                generator.setQuoted(quoted);
+            }
 
             return generator;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -30,6 +31,7 @@ import java.util.Set;
  * A {@code SchemaEntityDefinition} is the representation of a single entity in a
  * {@link Schema}.
  */
+@JsonPropertyOrder(value = {"description", "vertex", "properties", "groupBy"}, alphabetic = true)
 @JsonDeserialize(builder = SchemaEntityDefinition.Builder.class)
 public class SchemaEntityDefinition extends SchemaElementDefinition {
     public String getVertex() {

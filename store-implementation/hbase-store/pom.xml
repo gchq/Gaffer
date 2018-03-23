@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2017 Crown Copyright
+  ~ Copyright 2016-2018 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.1.0-RC2-SNAPSHOT</version>
+        <version>1.4.0-RC4-SNAPSHOT</version>
     </parent>
 
     <artifactId>hbase-store</artifactId>
@@ -119,6 +119,7 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-hdfs</artifactId>
@@ -181,6 +182,13 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>hdfs-library</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -210,6 +218,9 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
+                                    <include>com.google.code.gson*</include>
+                                    <include>org.reflections*</include>
+                                    <include>org.javassist*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

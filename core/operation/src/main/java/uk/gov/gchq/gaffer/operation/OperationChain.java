@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -31,13 +32,14 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -57,6 +59,8 @@ import java.util.Map;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
+@JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
+@Since("1.0.0")
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
@@ -101,22 +105,30 @@ public class OperationChain<OUT> implements Output<OUT>,
 
     public static OperationChain<?> wrap(final Operation operation) {
         final OperationChain<?> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<?>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<?>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {
         final OperationChain<O> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<O>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<O>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }
@@ -179,6 +191,15 @@ public class OperationChain<OUT> implements Output<OUT>,
                 .build();
     }
 
+    public String toOverviewString() {
+        final String opStrings = operations.stream()
+                .filter(o -> null != o)
+                .map(o -> o.getClass().getSimpleName())
+                .collect(Collectors.joining("->"));
+
+        return getClass().getSimpleName() + "[" + opStrings + "]";
+    }
+
     @Override
     public void close() throws IOException {
         for (final Operation operation : operations) {
@@ -206,20 +227,6 @@ public class OperationChain<OUT> implements Output<OUT>,
                 .append(operations)
                 .append(options)
                 .toHashCode();
-    }
-
-    public List<Operation> flatten() {
-        final List<Operation> tmp = new ArrayList<>(1);
-
-        for (final Operation operation : getOperations()) {
-            if (operation instanceof OperationChain) {
-                tmp.addAll(((OperationChain) operation).flatten());
-            } else {
-                tmp.add(operation);
-            }
-        }
-
-        return Collections.unmodifiableList(tmp);
     }
 
     /**
@@ -327,6 +334,11 @@ public class OperationChain<OUT> implements Output<OUT>,
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final InputOutput<? super OUT, NEXT_OUT> op) {
             ops.add(op);
             return new OutputBuilder<>(ops, options);
+        }
+
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final OperationChain<NEXT_OUT> op) {
+            ops.add(op);
+            return new OutputBuilder(ops, options);
         }
 
         /**

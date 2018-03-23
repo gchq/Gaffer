@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,31 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A {@code GetWalks} class is used to retrieve all of the walks in a graph
@@ -45,12 +51,15 @@ import java.util.Map;
  * GetElements} operations. These are executed sequentially, with the output of
  * one operation providing the input {@link EntityId}s for the next.
  */
+@JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
+@Since("1.1.0")
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
-        MultiInput<EntityId>,
-        Operations<GetElements> {
+        MultiEntityIdInput,
+        Operations<OperationChain<Iterable<Element>>> {
 
-    private List<GetElements> operations;
+    public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
+    private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
     private Integer resultsLimit = 1000000;
@@ -66,46 +75,80 @@ public class GetWalks implements
     }
 
     @Override
-    public List<GetElements> getOperations() {
+    public List<OperationChain<Iterable<Element>>> getOperations() {
         return operations;
     }
 
-    public void setOperations(final List<GetElements> operations) {
-        this.operations = operations;
+    public void setOperations(final List<Output<Iterable<Element>>> operations) {
+        this.operations.clear();
+        addOperations(operations);
     }
 
-    public void addOperation(final GetElements operation) {
-        if (null == this.operations) {
-            this.operations = new ArrayList<>();
-        }
-
-        this.operations.add(operation);
-    }
-
-    @Override
-    public Class<GetElements> getOperationsClass() {
-        return GetElements.class;
+    public void addOperations(final List<Output<Iterable<Element>>> operations) {
+        operations.forEach(op -> this.operations.add(OperationChain.wrap(op)));
     }
 
     @Override
     public ValidationResult validate() {
         final ValidationResult result = InputOutput.super.validate();
 
-        // Validate the View objects
-        if (null != operations) {
-            for (final ListIterator<GetElements> it = operations.listIterator(); it.hasNext();) {
-                final GetElements op = it.next();
+        final int getEdgeOperations = getNumberOfGetEdgeOperations();
 
-                // Validate that the input is set correctly
-                if (null != op.getInput()) {
-                    result.addError("The input for all the nested operations must be null.");
-                }
-            }
+        if (getEdgeOperations < 1) {
+            result.addError("No hops were provided. " + HOP_DEFINITION);
+        } else if (getEdgeOperations > operations.size()) {
+            result.addError("One or more operation chains contains multiple hops. " +
+                    "Each hop should be defined in a separate operation chain object");
         } else {
-            result.addError("No GetElements operations were provided.");
+            int i = 0;
+            for (final OperationChain<Iterable<Element>> operation : operations) {
+                if (operation.getOperations().isEmpty()) {
+                    result.addError("Operation chain " + i + " contains no operations");
+                } else {
+                    final Operation firstOp = operation.getOperations().get(0);
+                    if (firstOp instanceof Input) {
+                        if (null != ((Input) firstOp).getInput()) {
+                            result.addError("The input for operations must be null.");
+                        }
+                    } else {
+                        result.addError("The first operation in operation chain " + i + ": " + firstOp.getClass().getName() + " is not be able to accept the input seeds. It must implement " + Input.class.getName());
+                    }
+                }
+
+                if (getNumberOfGetEdgeOperations(operation) < 1 && i < (operations.size() - 1)) {
+                    // An operation does not contain a hop
+                    result.addError("All operations must contain a single hop. Operation " + i + " does not contain a hop. The only exception is the last operation, which is allowed to just fetch Entities. " + HOP_DEFINITION);
+                }
+
+                i++;
+            }
         }
 
         return result;
+    }
+
+    @JsonIgnore
+    public int getNumberOfGetEdgeOperations() {
+        return getNumberOfGetEdgeOperations(operations);
+    }
+
+    private int getNumberOfGetEdgeOperations(final Operation op) {
+        int hops = 0;
+        if (op instanceof Operations) {
+            hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
+        } else if (op instanceof GetElements) {
+            final GetElements getElements = (GetElements) op;
+            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+                hops += 1;
+            }
+        }
+        return hops;
+    }
+
+    private int getNumberOfGetEdgeOperations(final Iterable<? extends Operation> ops) {
+        return Streams.toStream(ops)
+                .mapToInt(this::getNumberOfGetEdgeOperations)
+                .sum();
     }
 
     @Override
@@ -114,17 +157,13 @@ public class GetWalks implements
     }
 
     @Override
-    public GetWalks shallowClone() throws CloneFailedException {
-        final GetWalks.Builder builder = new GetWalks.Builder();
-
-        builder.input(input);
-        builder.options(options);
-
-        for (final GetElements op : operations) {
-            builder.operation(op.shallowClone());
-        }
-
-        return builder.build();
+    public GetWalks shallowClone() {
+        List clonedOps = operations.stream().map(Output::shallowClone).collect(Collectors.toList());
+        return new GetWalks.Builder()
+                .input(input)
+                .operations(clonedOps)
+                .options(options)
+                .build();
     }
 
     @Override
@@ -148,26 +187,49 @@ public class GetWalks implements
     public static final class Builder
             extends Operation.BaseBuilder<GetWalks, Builder>
             implements InputOutput.Builder<GetWalks, Iterable<? extends EntityId>, Iterable<Walk>, Builder>,
-            MultiInput.Builder<GetWalks, EntityId, Builder> {
+            MultiEntityIdInput.Builder<GetWalks, Builder> {
 
         public Builder() {
             super(new GetWalks());
         }
 
-        public Builder operations(final Iterable<GetElements> operations) {
+        public Builder operations(final Output... operations) {
             if (null != operations) {
                 _getOp().setOperations(Lists.newArrayList(operations));
             }
             return _self();
         }
 
-        public Builder operations(final GetElements... operations) {
-            _getOp().setOperations(Arrays.asList(operations));
+        public Builder operations(final List<Output<Iterable<Element>>> operations) {
+            if (null != operations) {
+                _getOp().setOperations(operations);
+            }
             return _self();
         }
 
-        public Builder operation(final GetElements operation) {
-            _getOp().addOperation(operation);
+        /**
+         * Adds an operation.
+         *
+         * @param operation the operation to add
+         * @return the Builder
+         * @deprecated use addOperations instead
+         */
+        @Deprecated
+        public Builder operation(final Output operation) {
+            return addOperations(operation);
+        }
+
+        public Builder addOperations(final Output... operations) {
+            if (null != operations) {
+                _getOp().addOperations(Lists.newArrayList(operations));
+            }
+            return _self();
+        }
+
+        public Builder addOperations(final List<Output<Iterable<Element>>> operations) {
+            if (null != operations) {
+                _getOp().addOperations(operations);
+            }
             return _self();
         }
 

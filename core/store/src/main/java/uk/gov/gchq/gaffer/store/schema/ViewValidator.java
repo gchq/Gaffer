@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,8 +174,11 @@ public class ViewValidator {
                 if (null == adaptedFunction.getBinaryOperator()) {
                     result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getBinaryOperator());
-                    result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef)));
+                    final Class[] inputTypeClasses = getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef);
+                    if (!ArrayUtils.contains(inputTypeClasses, null)) {
+                        final Signature inputSig = Signature.getInputSignature(adaptedFunction.getBinaryOperator());
+                        result.add(inputSig.assignable(inputTypeClasses));
+                    }
                 }
             }
         }
@@ -191,8 +195,11 @@ public class ViewValidator {
                 if (null == adaptedPredicate.getPredicate()) {
                     result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
-                    result.add(inputSig.assignable(getTypeClasses(adaptedPredicate.getSelection(), viewElDef, schemaElDef)));
+                    final Class[] inputTypeClasses = getTypeClasses(adaptedPredicate.getSelection(), viewElDef, schemaElDef);
+                    if (!ArrayUtils.contains(inputTypeClasses, null)) {
+                        final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
+                        result.add(inputSig.assignable(inputTypeClasses));
+                    }
                 }
             }
         }
@@ -209,11 +216,17 @@ public class ViewValidator {
                 if (null == adaptedFunction.getFunction()) {
                     result.addError(transformer.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getFunction());
-                    result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef)));
+                    final Class[] inputTypeClasses = getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef);
+                    if (!ArrayUtils.contains(inputTypeClasses, null)) {
+                        final Signature inputSig = Signature.getInputSignature(adaptedFunction.getFunction());
+                        result.add(inputSig.assignable(inputTypeClasses));
+                    }
 
-                    final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getFunction());
-                    result.add(outputSig.assignable(getTypeClasses(adaptedFunction.getProjection(), viewElDef, schemaElDef)));
+                    final Class[] outputTypeClasses = getTypeClasses(adaptedFunction.getProjection(), viewElDef, schemaElDef);
+                    if (!ArrayUtils.contains(outputTypeClasses, null)) {
+                        final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getFunction());
+                        result.add(outputSig.assignable(outputTypeClasses));
+                    }
                 }
             }
         }
@@ -235,7 +248,16 @@ public class ViewValidator {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Class<?> clazz;
         if (null != idType) {
-            clazz = schemaElDef.getIdentifierClass(idType);
+            if (IdentifierType.MATCHED_VERTEX == idType || IdentifierType.ADJACENT_MATCHED_VERTEX == idType) {
+                final Class<?> sourceClass = schemaElDef.getIdentifierClass(IdentifierType.SOURCE);
+                if (sourceClass.equals(schemaElDef.getIdentifierClass(IdentifierType.DESTINATION))) {
+                    clazz = sourceClass;
+                } else {
+                    clazz = null;
+                }
+            } else {
+                clazz = schemaElDef.getIdentifierClass(idType);
+            }
         } else {
             final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
             if (null != schemaClazz) {

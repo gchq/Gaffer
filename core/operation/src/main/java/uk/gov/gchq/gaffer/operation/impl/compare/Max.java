@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Comparator;
 import java.util.List;
@@ -46,6 +48,8 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.compare.Max.Builder
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
+@JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
+@Since("1.0.0")
 public class Max implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,

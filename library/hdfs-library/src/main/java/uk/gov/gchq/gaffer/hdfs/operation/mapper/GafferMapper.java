@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -62,7 +63,7 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
 
         final String generatorClass = context.getConfiguration().get(MAPPER_GENERATOR);
         try {
-            mapperGenerator = Class.forName(generatorClass).asSubclass(MapperGenerator.class).newInstance();
+            mapperGenerator = Class.forName(SimpleClassNameIdResolver.getClassName(generatorClass)).asSubclass(MapperGenerator.class).newInstance();
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException("Element generator could be created: " + generatorClass, e);
         }

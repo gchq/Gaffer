@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,13 @@ public final class HBaseStoreConstants {
     public static byte[] getColFam() {
         return Bytes.copy(COL_FAM);
     }
+
+    /**
+     * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
+     * This is an advanced feature - if you use it then make sure you really understand it.
+     */
+    // The value must match the key used in Schema class: "timestampProperty"
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
 
     // Coprocessor options
     public static final String VIEW = "View";

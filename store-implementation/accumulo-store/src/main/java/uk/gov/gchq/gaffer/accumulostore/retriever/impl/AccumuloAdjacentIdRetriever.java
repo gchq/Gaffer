@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
     @Override
     public CloseableIterator<EntityId> iterator() {
         CloseableUtil.close(iterator);
+
+        if (!operation.getView().hasEdges()) {
+            return new EmptyCloseableIterator<>();
+        }
 
         final Iterator<? extends ElementId> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
         if (!idIterator.hasNext()) {

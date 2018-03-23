@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package uk.gov.gchq.gaffer.operation.util;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
+@JsonPropertyOrder(value = {"elementAggregator", "groupBy"}, alphabetic = true)
 public class AggregatePair {
     private String[] groupBy = null;
     private ElementAggregator elementAggregator = null;

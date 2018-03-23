@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 
 public class FederatedOperationChainHandlerTest {
 
-    public static final String GRAPH_IDS = PredefinedFederatedStore.MAP_GRAPH + "," + PredefinedFederatedStore.ACCUMULO_GRAPH;
+    public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + "," + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
     private Element[] elements = new Element[]{
             new Entity.Builder()
                     .group(TestGroups.ENTITY)

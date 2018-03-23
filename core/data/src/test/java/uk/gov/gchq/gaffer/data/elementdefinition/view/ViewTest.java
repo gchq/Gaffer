@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -26,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
@@ -40,7 +43,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class ViewTest {
+public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldCreateEmptyViewWithBasicConstructor() {
@@ -102,6 +105,26 @@ public class ViewTest {
         assertEquals(2, view.getEntities().size());
         assertSame(entityDef1, view.getEntity(TestGroups.ENTITY));
         assertSame(entityDef2, view.getEntity(TestGroups.ENTITY_2));
+    }
+
+    @Test
+    public void shouldSerialiseTfoJsonSkippingEmptyElementMaps() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        // When
+        final byte[] json = toJson(view);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{" +
+                "  \"globalEdges\" : [ {%n" +
+                "    \"groupBy\" : [ ]%n" +
+                "  } ]%n" +
+                "}"), new String(json));
     }
 
     @Test
@@ -209,6 +232,11 @@ public class ViewTest {
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
         assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
+    }
+
+    @Override
+    protected View getTestObject() {
+        return new View();
     }
 
     @Test
@@ -679,6 +707,765 @@ public class ViewTest {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldAddGlobalPropertiesToEntityGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldSetEmptyEntitiesPropertiesGivenEmptyGlobalProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideEmptyGlobalPropertiesAndIncludeEntityGroupProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().
+                        properties(TestPropertyNames.PROP_1)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalPropertiesWhenSpecificEntityGroupPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalExcludePropertiesToEntityGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalExcludePropertiesWhenSpecificEntityGroupExcludePropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalTransformToEntityGroup() {
+        // Given
+        final ElementTransformer elementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_3)
+                .execute(new Identity())
+                .project(TestPropertyNames.PROP_1)
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .transformer(elementTransformer)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGlobalExcludePropertiesAndEntityPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        try {
+            view.expandGlobalDefinitions();
+        } catch (IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddGlobalPropertiesToEdgeGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+    }
+
+    @Test
+    public void shouldSetEmptyEdgePropertiesGivenEmptyGlobalProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .properties()
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideEmptyGlobalPropertiesAndIncludeEdgeGroupProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .properties()
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().
+                        properties(TestPropertyNames.PROP_1)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalPropertiesWhenSpecificEdgeGroupPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalExcludePropertiesToEdgeGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalExcludePropertiesWhenSpecificEdgeGroupExcludePropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalTransformToEdgeGroup() {
+        // Given
+        final ElementTransformer elementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_3)
+                .execute(new Identity())
+                .project(TestPropertyNames.PROP_1)
+                .build();
+
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .transformer(elementTransformer)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
+                view.getEdge(TestGroups.EDGE).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEdge(TestGroups.EDGE).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGlobalExcludePropertiesAndEdgePropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.EDGE)
+                        .excludeProperties(TestPropertyNames.PROP_2)
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        try {
+            view.expandGlobalDefinitions();
+        } catch (IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddGlobalElementPropertiesToGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldSetEmptyPropertiesGivenEmptyGlobalElementProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideEmptyGlobalElementPropertiesAndIncludeEntityGroupProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().
+                        properties(TestPropertyNames.PROP_1)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalElementPropertiesWhenSpecificEntityGroupPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalExcludeElementPropertiesToEntityGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalExcludeElementPropertiesWhenSpecificEntityGroupExcludePropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalElementTransformToEntityGroupFromBuilder() {
+        // Given
+        final ElementTransformer elementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_3)
+                .execute(new Identity())
+                .project(TestPropertyNames.PROP_1)
+                .build();
+
+        // When
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .transformer(elementTransformer)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .expandGlobalDefinitions()
+                .build();
+
+        // Then
+        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalElementTransformToEntityGroup() {
+        // Given
+        final ElementTransformer elementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_3)
+                .execute(new Identity())
+                .project(TestPropertyNames.PROP_1)
+                .build();
+
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .transformer(elementTransformer)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGlobalExcludeElementPropertiesAndEntityPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        try {
+            view.expandGlobalDefinitions();
+        } catch (IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddGlobalPreAggFiltersToGroup() {
+        // Given
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .preAggregationFilter(filter)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPreAggregationFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldConcatGlobalPreAggFiltersWhenSpecificGroupPreAggFiltersSet() {
+        // Given
+        final ElementFilter globalFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final ElementFilter groupFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new ExampleFilterFunction())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .preAggregationFilter(globalFilter)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(groupFilter)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPreAggregationFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(1).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldAddGlobalPostAggFiltersToGroup() {
+        // Given
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .postAggregationFilter(filter)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPostAggregationFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldConcatGlobalPostAggFiltersWhenSpecificGroupPostAggFiltersSet() {
+        // Given
+        final ElementFilter globalFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final ElementFilter groupFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new ExampleFilterFunction())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .postAggregationFilter(globalFilter)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(groupFilter)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPostAggregationFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostAggregationFilter()
+                        .getComponents().get(1).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldAddGlobalPostTransformFiltersToGroup() {
+        // Given
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .postTransformFilter(filter)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPostTransformFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldConcatGlobalPostTransformFiltersWhenSpecificGroupPostTransformFiltersSet() {
+        // Given
+        final ElementFilter globalFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final ElementFilter groupFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new ExampleFilterFunction())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .postTransformFilter(globalFilter)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .postTransformFilter(groupFilter)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPostTransformFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
+                        .getComponents().get(1).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldFilterEntitiesInBuilder() {
+        // When
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .removeEntities(e -> e.getKey().equals(TestGroups.ENTITY))
+                .build();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestGroups.ENTITY_2), view.getEntityGroups());
+    }
+
+    @Test
+    public void shouldFilterEdgesInBuilder() {
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2)
+                .removeEdges(e -> e.getKey().equals(TestGroups.EDGE))
+                .build();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestGroups.EDGE_2), view.getEdgeGroups());
     }
 
     private View createView() {

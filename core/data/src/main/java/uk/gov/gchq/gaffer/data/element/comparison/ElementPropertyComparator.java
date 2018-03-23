@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -48,6 +49,7 @@ import java.util.Set;
  * There is a reversed option to allow you to flip the comparison value.
  * </p>
  */
+@JsonPropertyOrder(value = {"class", "property", "comparator", "groups"}, alphabetic = true)
 @SuppressFBWarnings(value = "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE",
         justification = "This class should not be serialised")
 public class ElementPropertyComparator implements ElementComparator {

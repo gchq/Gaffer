@@ -59,7 +59,7 @@ public class GraphForExportDelegate extends GraphDelegate {
                 || s.equals(String.format(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID)));
 
         result = new ValidationResult();
-        for (String error : errors) {
+        for (final String error : errors) {
             result.addError(error);
         }
 

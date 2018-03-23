@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,10 +48,12 @@ import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.DEFAULT_TIMESTAMP;
 
 public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
 
@@ -348,7 +350,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
     }
 
     @Test
-    public void shouldBuildTimestampFromProperty() {
+    public void shouldBuildTimestampFromProperty() throws Exception {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder()
@@ -359,71 +361,49 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long propertyTimestamp = 10L;
-        final Properties properties = new Properties() {
-            {
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                put(AccumuloPropertyNames.PROP_1, 2);
-                put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(AccumuloPropertyNames.PROP_1, 2);
+        properties.put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
 
         // When
-        final long timestamp = converter.buildTimestamp(properties);
+        final long timestamp = converter.buildTimestamp(TestGroups.EDGE, properties);
 
         // Then
         assertEquals(propertyTimestamp, timestamp);
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() {
+    public void shouldReturnDefaultTimestampForAggGroupWhenPropertyIsNull() throws Exception {
         // Given
-        // add extra timestamp property to schema
-        final Schema schema = new Schema.Builder()
-                .json(StreamUtil.schemas(getClass()))
-                .build();
-        converter = createConverter(new Schema.Builder(schema)
-                .type("timestamp", Long.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
-                        .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
-                .build());
-
-        final Long propertyTimestamp = null;
-        final Properties properties = new Properties() {
-            {
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                put(AccumuloPropertyNames.PROP_1, 2);
-                put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(AccumuloPropertyNames.PROP_1, 2);
 
         // When
-        final long timestamp = converter.buildTimestamp(properties);
+        final long timestamp = converter.buildTimestamp(TestGroups.EDGE, properties);
 
         // Then
-        assertNotNull(timestamp);
+        assertEquals(DEFAULT_TIMESTAMP, timestamp);
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTime() {
+    public void shouldReturnRandomTimestampForNonAggGroupWhenPropertyIsNull() throws Exception {
         // Given
-        final Properties properties = new Properties() {
-            {
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                put(AccumuloPropertyNames.PROP_1, 2);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(AccumuloPropertyNames.PROP_1, 2);
 
         // When
-        final long timestamp = converter.buildTimestamp(properties);
+        final long timestamp1 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
+        final long timestamp2 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
 
         // Then
-        assertNotNull(timestamp);
+        assertNotEquals(timestamp1, timestamp2);
     }
 
     @Test
@@ -438,7 +418,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -460,7 +440,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .json(StreamUtil.schemas(getClass()))
                 .build();
         converter = createConverter(new Schema.Builder(schema)
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -507,10 +487,10 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(TestPropertyNames.PROP_1, "map")
-                        .property(TestPropertyNames.PROP_2, "map")
-                        .build()
+                                .vertex("string")
+                                .property(TestPropertyNames.PROP_1, "map")
+                                .property(TestPropertyNames.PROP_2, "map")
+                                .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()

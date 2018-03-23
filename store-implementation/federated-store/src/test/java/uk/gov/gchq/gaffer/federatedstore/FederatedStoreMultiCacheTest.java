@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -42,8 +42,8 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 public class FederatedStoreMultiCacheTest {
 
     public static final String FEDERATED_STORE_ID = "testFederatedStoreId";
-    public static final String MAP_ID_1 = "mockMapGraphId1";
-    public static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
+    public static final String ACC_ID_1 = "mockAccGraphId1";
+    public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
     public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     public static User authUser = authUser();
@@ -64,10 +64,10 @@ public class FederatedStoreMultiCacheTest {
         store = new FederatedStore();
         store.initialise(FEDERATED_STORE_ID, null, federatedStoreProperties);
         store.execute(new AddGraph.Builder()
-                .graphId(MAP_ID_1)
+                .graphId(ACC_ID_1)
                 .graphAuths(AUTH_1)
                 .isPublic(false)
-                .storeProperties(MapStoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES))
+                .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
                 .build(), new Context.Builder()
                 .user(testUser)
@@ -124,9 +124,9 @@ public class FederatedStoreMultiCacheTest {
     @Test
     public void shouldInitialiseByCacheToContainSamePublicGraphsForBlankUser() throws Exception {
         store.execute(new AddGraph.Builder()
-                .graphId(MAP_ID_1 + 1)
+                .graphId(ACC_ID_1 + 1)
                 .isPublic(true)
-                .storeProperties(MapStoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES))
+                .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
                 .build(), new Context.Builder()
                 .user(testUser)

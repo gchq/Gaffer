@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,14 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class EdgeKryoSerializerTest extends KryoSerializerTest<Edge> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final Edge obj, final Edge deserialised) {
+        assertEquals(obj, deserialised);
+    }
 
     public Class<Edge> getTestClass() {
         return Edge.class;

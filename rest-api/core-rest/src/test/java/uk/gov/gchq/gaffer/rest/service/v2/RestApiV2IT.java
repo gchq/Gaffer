@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class RestApiV2IT extends AbstractRestApiIT {
     @Test
     public void shouldReturnOkStatusMessage() {
         // When
-        final SystemStatus status= client.target("http://localhost:8080/rest/v2")
+        final SystemStatus status = client.target("http://localhost:8080/rest/v2")
                 .path("graph/status")
                 .request()
                 .get(SystemStatus.class);
@@ -59,7 +59,6 @@ public class RestApiV2IT extends AbstractRestApiIT {
         // Then
         assertNotNull(schema);
     }
-
 
     @Override
     protected RestApiTestClient getClient() {

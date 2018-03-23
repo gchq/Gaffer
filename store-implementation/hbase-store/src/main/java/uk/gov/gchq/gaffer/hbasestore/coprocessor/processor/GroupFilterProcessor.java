@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
+import uk.gov.gchq.koryphe.Since;
 
+@Since("1.0.0")
 public class GroupFilterProcessor extends FilterProcessor {
     private final View view;
 

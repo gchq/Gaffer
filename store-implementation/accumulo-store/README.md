@@ -1,4 +1,4 @@
-Copyright 2016-2017 Crown Copyright
+Copyright 2016-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ Accumulo Store
 12. [Trouble shooting](#trouble-shooting)
 13. [Implementation details](#implementation-details)
 14. [Tests](#tests)
-15. [Accumulo 1.8.0 Support](#accumulo-1.8.0-support)
 16. [Migration](#migration)
 
 
@@ -102,7 +101,7 @@ Other properties can be specified in this file. For details see [Advanced Proper
 Schema
 -----------------------------------------------
 
-See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -152,10 +151,19 @@ where:
 To apply these split points to the table, run:
 
 ```java
-SplitStore splitTable = new SplitStore.Builder()
+SplitStoreFromFile splitStore = new SplitStoreFromFile.Builder()
         .inputPath(splitsFilePath)
         .build();
-graph.execute(splitTable, new User());
+graph.execute(splitStore, new User());
+```
+
+or from an Iterable:
+
+```java
+SplitStoreFromIterable splitStore = new SplitStoreFromIterable.Builder()
+        .input(splits) // Base64 encoded strings
+        .build();
+graph.execute(splitStore, new User());
 ```
 
 **Continuous load**
@@ -176,45 +184,12 @@ Note that here `elements` could be a never-ending stream of `Element`s and the a
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of Accumulo key-value pairs that are pre-sorted to match the distribution of data in Accumulo. Once these files are created, Accumulo moves them from their current location in HDFS to the correct directory within Accumulo's data directory. The data in them is then available for query immediately.
 
 Gaffer provides code to make this as simple as possible. The `AddElementsFromHdfs` operation is used to bulk import data.
-
-
-Create the `AddElementsFromHdfs`operation using:
-
-```java
-AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs.Builder()
-        .inputPaths(inputDirs)
-        .outputPath(outputDir)
-        .failurePath(failureDir)
-        .mapperGenerator(myMapperGeneratorClass)
-        .jobInitialiser(jobInitialiser)
-        .build();
-```
-
-where:
-
-- `inputDirs` is a `List` of strings specifying the directory in HDFS containing your data;
-- `outputDir` is a string specifying the directory in HDFS where output from the MapReduce job will temporarily be stored (this directory does not need to exist);
-- `failureDir` is a string specifying the directory in HDFS which Accumulo will use to store files that were not successfully imported;
-- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files;
-- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided.
-
-The operation can then be executed as normal using:
-
-```java
-graph.execute(addElementsFromHdfs, new User());
-```
-
-However, note that the Java jar file that contains this code must be executed using the `hadoop` command to ensure that the Hadoop configuration is available.
-
-By default the number of reducers used in the MapReduce job that converts data into the correct form is the same as the number of tablets. There are at least two scenarios where this is not ideal. First, if a large amount of data is being added into a table with a small number of tablets, then the number of reducers will be too small (i.e. each reducer will have a very large amount of work to do). Second, if a small amount of data is being added into a table with a large number of tablets, then the number of reducers will be too great, and there will be a large amount of unnecessary task creation. There are two options on the `AddElementsFromHdfs` operation that can be used to set the minimum and maximum number of reducers that are used in the MapReduce job:
-
-- `AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS` specifies the minimum number of reducers to use.
-- `AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS` specifies the maximum number of reducers to use.
+See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/getting-started/operations/addelementsfromhdfs.html).
 
 Queries
 -----------------------------------------------
 
-The Accumulo store supports all the standard queries. See the [Operation Examples](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html) for more details.
+The Accumulo store supports all the standard queries. See [Operations](https://gchq.github.io/gaffer-doc/getting-started/operations/contents.html) for more details.
 
 Visibility
 -----------------------------------------------
@@ -223,12 +198,21 @@ Gaffer can take advantage of Accumulo's built-in fine-grained security to ensure
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the visibility example](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#visibilities) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html) guide for an example of how properties can be aggregated over different visibilities at query time.
+See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/visibilities.html) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/contents.html) guide for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
 
-Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property. If this is not specified then the time when the conversion to a key-value happens is used.
+Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
+If the timestamp is not set then it will be populated automatically:
+
+- Constant value - aggregated groups
+- Random number - non-aggregated groups
+
+Setting the timestamp yourself is an advanced feature and is not recommended
+as it can cause significant issues if it is not populated correctly.
+
+If you choose to set timestampProperty, the property will be aggregated with 'Max' - you cannot override this.
 
 Validation and age-off of data
 -----------------------------------------------
@@ -301,6 +285,12 @@ If all the above fails, try inserting a small amount of data using `AddElements`
 **Queries result in no data**
 
 Check that you have the correct authorisations to see the data you inserted. Check with the administrator of your Accumulo cluster.
+
+**Spark operations are slow**
+
+Try using a batch scanner to read the data from the tablet server. To enable this for the `GetRDDOfAllElements` or `GetJavaRDDOfAllElements` operation, set the `gaffer.accumulo.spark.rdd.use_batch_scanner` option to true. `GetRDDOfElements` and `GetJavaRDDOfElements` use a batch scanner by default.
+
+If you still don't see a significant improvement, try increasing the value of the `table.scan.max.memory` setting in Accumulo for your table.
 
 Implementation details
 -----------------------------------------------
@@ -529,14 +519,6 @@ Run the integration tests:
 
 ```
 mvn verify
-```
-
-## Accumulo 1.8.0 Support
-
-Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven repository of any Gaffer artifacts and compile Gaffer with the Accumulo-1.8 profile:
-
-```
-mvn clean install -Paccumulo-1.8
 ```
 
 ## Migration

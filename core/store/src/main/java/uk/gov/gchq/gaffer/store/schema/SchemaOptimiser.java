@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ public class SchemaOptimiser {
                 if (null == typeDef.getSerialiser()) {
                     typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered, true));
                 } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
-                    LOGGER.info("{} serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.", typeDef.getSerialiser().getClass().getName());
+                    LOGGER.info("{} serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes. See https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html#serialisers.", typeDef.getSerialiser().getClass().getName());
                 }
             }
         }
@@ -180,7 +180,7 @@ public class SchemaOptimiser {
             }
 
             if (isStoreOrdered && !serialiser.preservesObjectOrdering()) {
-                LOGGER.info("{} serialiser is used for vertex serialisation in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.",
+                LOGGER.info("{} serialiser is used for vertex serialisation in an ordered store and it does not preserve the order of bytes. See https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html#serialisers.",
                         serialiser.getClass().getName());
             }
 

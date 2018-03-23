@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,12 +186,12 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(filters, ','));
         Output<RDD<Element>> operation = new FiltersToOperationConverter(view, store.getSchema(), filters)
                 .getOperation();
-        operation.setOptions(options);
         if (null == operation) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
             // and there is no group X in the schema).
             return sqlContext().emptyDataFrame().rdd();
         }
+        operation.setOptions(options);
         try {
             final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),

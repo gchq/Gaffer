@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.data.element.Element;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -42,11 +42,12 @@ public class GafferOutputTest {
         // Given
         final GafferAdder adder = mock(GafferAdder.class);
         final GafferOutput output = new GafferOutput(adder);
+        final Element element = mock(Element.class);
 
         // When
-        output.writeRecord(FlinkTest.EXPECTED_ELEMENTS);
+        output.writeRecord(element);
 
         // Then
-        verify(adder).add(FlinkTest.EXPECTED_ELEMENTS);
+        verify(adder).add(element);
     }
 }

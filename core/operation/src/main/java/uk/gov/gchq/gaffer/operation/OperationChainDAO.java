@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import uk.gov.gchq.koryphe.Since;
+
 import java.util.List;
 
 /**
@@ -30,6 +32,7 @@ import java.util.List;
  *              in the chain.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+@Since("1.0.0")
 public class OperationChainDAO<OUT> extends OperationChain<OUT> {
 
     public OperationChainDAO() {
@@ -67,7 +70,9 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
     public void setClassName(final String className) {
         if (null != className
                 && !OperationChain.class.getName().equals(className)
-                && !OperationChainDAO.class.getName().equals(className)) {
+                && !OperationChainDAO.class.getName().equals(className)
+                && !OperationChain.class.getSimpleName().equals(className)
+                && !OperationChainDAO.class.getSimpleName().equals(className)) {
             throw new IllegalArgumentException("Class name should be " + OperationChain.class.getName() + " or null");
         }
     }

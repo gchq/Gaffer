@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Sets;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -36,6 +36,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -158,8 +160,7 @@ public class FederatedOperationHandlerTest {
 
         Store mockStoreInner = getMockStore(unusedSchema, storeProperties);
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
-        given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException(message));
-
+        given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
 
         FederatedStore mockStore = mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
@@ -168,7 +169,7 @@ public class FederatedOperationHandlerTest {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
             fail("Exception Not thrown");
         } catch (OperationException e) {
-            Assert.assertEquals(message, e.getCause().getMessage());
+            assertEquals(message, e.getCause().getMessage());
         }
 
     }
@@ -206,8 +207,15 @@ public class FederatedOperationHandlerTest {
         }
 
         //Then
-        verify(mockStore1, atLeastOnce()).execute(any(OperationChain.class), eq(context));
-        verify(mockStore2, atLeastOnce()).execute(any(OperationChain.class), eq(context));
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore1, atLeastOnce()).execute(any(OperationChain.class), contextCaptor1.capture());
+        assertEquals(context.getUser(), contextCaptor1.getValue().getUser());
+        assertNotEquals(context.getJobId(), contextCaptor1.getValue().getJobId());
+
+        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore2, atLeastOnce()).execute(any(OperationChain.class), contextCaptor2.capture());
+        assertEquals(context.getUser(), contextCaptor2.getValue().getUser());
+        assertNotEquals(context.getJobId(), contextCaptor2.getValue().getJobId());
     }
 
 

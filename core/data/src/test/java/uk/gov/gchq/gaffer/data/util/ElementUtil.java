@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,43 @@
 package uk.gov.gchq.gaffer.data.util;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ElementUtil {
-    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result) {
-        final Set<Element> expectedSet = Sets.newHashSet(expected);
-        final Set<Element> resultSet = Sets.newHashSet(result);
-        try {
-            assertEquals(expectedSet, resultSet);
-        } catch (final AssertionError err) {
-            final List<Element> expectedList = Lists.newArrayList(expectedSet);
-            final List<Element> resultList = Lists.newArrayList(resultSet);
-            expectedList.removeAll(resultSet);
-            resultList.removeAll(expectedSet);
+    public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
+        assertElementEquals(expected, result, false);
+    }
 
-            final ElementComparator elementComparator = (element1, element2) -> {
+    public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result, final boolean ignoreDuplicates) {
+        final List<ElementId> expectedCache = Lists.newArrayList(expected);
+        final List<ElementId> resultCache = Lists.newArrayList(result);
+        try {
+            assertEquals(expectedCache, resultCache);
+        } catch (final AssertionError err) {
+            final List<ElementId> expectedList = Lists.newArrayList(expectedCache);
+            final List<ElementId> resultList = Lists.newArrayList(resultCache);
+            if (ignoreDuplicates) {
+                expectedList.removeAll(resultCache);
+                resultList.removeAll(expectedCache);
+            } else {
+                for (final ElementId element : resultCache) {
+                    expectedList.remove(element);
+                }
+                for (final ElementId element : expectedCache) {
+                    resultList.remove(element);
+                }
+            }
+
+            final Comparator<ElementId> elementComparator = (element1, element2) -> {
                 final String elementStr1 = null == element1 ? "" : element1.toString();
                 final String elementStr2 = null == element2 ? "" : element2.toString();
                 return elementStr1.compareTo(elementStr2);
@@ -49,31 +61,32 @@ public class ElementUtil {
             expectedList.sort(elementComparator);
             resultList.sort(elementComparator);
 
-            final List<Element> missingEntities = new ArrayList<>();
-            final List<Element> missingEdges = new ArrayList<>();
-            for (final Element element : expectedList) {
-                if (element instanceof Entity) {
+            final List<ElementId> missingEntities = new ArrayList<>();
+            final List<ElementId> missingEdges = new ArrayList<>();
+            for (final ElementId element : expectedList) {
+                if (element instanceof EntityId) {
                     missingEntities.add(element);
                 } else {
                     missingEdges.add(element);
                 }
             }
 
-            final List<Element> incorrectEntities = new ArrayList<>();
-            final List<Element> incorrectEdges = new ArrayList<>();
-            for (final Element element : resultList) {
-                if (element instanceof Entity) {
+            final List<ElementId> incorrectEntities = new ArrayList<>();
+            final List<ElementId> incorrectEdges = new ArrayList<>();
+            for (final ElementId element : resultList) {
+                if (element instanceof EntityId) {
                     incorrectEntities.add(element);
                 } else {
                     incorrectEdges.add(element);
                 }
             }
 
-            assertEquals("\nMissing entities:\n" + missingEntities.toString()
+            assertTrue("\nMissing entities:\n" + missingEntities.toString()
                             + "\nUnexpected entities:\n" + incorrectEntities.toString()
                             + "\nMissing edges:\n" + missingEdges.toString()
                             + "\nUnexpected edges:\n" + incorrectEdges.toString(),
-                    expectedSet, resultSet);
+                    missingEntities.isEmpty() && incorrectEntities.isEmpty()
+                            && missingEdges.isEmpty() && incorrectEdges.isEmpty());
         }
     }
 }

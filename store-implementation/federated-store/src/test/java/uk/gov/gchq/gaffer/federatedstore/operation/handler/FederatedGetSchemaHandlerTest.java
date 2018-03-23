@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,6 +127,63 @@ public class FederatedGetSchemaHandlerTest {
         // Then
         assertNotNull(result);
         JsonAssert.assertEquals(edgeSchema.toJson(true), result.toJson(true));
+    }
+
+    @Test
+    public void shouldReturnSchemaOnlyForEnabledGraphs() throws OperationException {
+        library.addProperties(ACC_PROP_ID, accProperties);
+        fStore.setGraphLibrary(library);
+
+        final Schema edgeSchema1 = new Schema.Builder()
+                .edge("edge", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .property("prop1", "string")
+                        .build())
+                .vertexSerialiser(new StringSerialiser())
+                .merge(STRING_SCHEMA)
+                .build();
+
+        library.addSchema("edgeSchema1", edgeSchema1);
+
+        final Schema edgeSchema2 = new Schema.Builder()
+                .edge("edge", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .property("prop2", "string")
+                        .build())
+                .vertexSerialiser(new StringSerialiser())
+                .merge(STRING_SCHEMA)
+                .build();
+
+        library.addSchema("edgeSchema2", edgeSchema2);
+
+        fStore.execute(Operation.asOperationChain(
+                new AddGraph.Builder()
+                        .graphId("schemaEnabled")
+                        .parentPropertiesId(ACC_PROP_ID)
+                        .parentSchemaIds(Lists.newArrayList("edgeSchema1"))
+                        .disabledByDefault(false)
+                        .build()), context);
+
+        fStore.execute(Operation.asOperationChain(
+                new AddGraph.Builder()
+                        .graphId("schemaDisabled")
+                        .parentPropertiesId(ACC_PROP_ID)
+                        .parentSchemaIds(Lists.newArrayList("edgeSchema2"))
+                        .disabledByDefault(true)
+                        .build()), context);
+
+        final GetSchema operation = new GetSchema.Builder()
+                .compact(true)
+                .build();
+
+        // When
+        final Schema result = handler.doOperation(operation, context, fStore);
+
+        // Then
+        assertNotNull(result);
+        JsonAssert.assertEquals(edgeSchema1.toJson(true), result.toJson(true));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class FederatedOperationChainHandler<O_ITEM> implements OutputOperationHa
             if (null != updatedOp) {
                 Object result = null;
                 try {
-                    result = graph.execute(updatedOp, context.getUser());
+                    result = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);

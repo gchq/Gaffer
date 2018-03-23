@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -29,6 +31,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.0.0")
 public class GetAllGraphIds implements
         FederatedOperation,
         Output<Iterable<? extends String>> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
@@ -26,6 +28,10 @@ import org.apache.accumulo.core.iterators.IteratorUtil;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
+import org.apache.accumulo.core.iterators.conf.ColumnSet;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -52,13 +58,17 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
+ * <p>
  * A copy of Accumulo {@link org.apache.accumulo.core.iterators.Combiner} but
  * combining values with identical rowKey and column family.
- * <p>
+ * </p>
  * Users extending this class must specify a reduce() method.
  */
 public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         implements OptionDescriber {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreKeyGroupByCombiner.class);
+
+    private static final String COLUMNS_OPTION = "columns";
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
     protected Schema schema;
 
@@ -70,6 +80,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     private Key topKey;
     private Value topValue;
+    private ColumnSet aggregatedGroups;
 
     /**
      * A Java Iterator that iterates over the properties for a given row Key
@@ -169,7 +180,6 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
         /**
          * unsupported
-         *
          */
         @Override
         public void remove() {
@@ -252,6 +262,10 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 return;
             }
 
+            if (null != aggregatedGroups && !aggregatedGroups.contains(workKey)) {
+                return;
+            }
+
             final byte[] columnFamily = workKey.getColumnFamilyData().getBackingArray();
             final String group;
             try {
@@ -259,6 +273,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
+
 
             final ViewElementDefinition elementDef = view.getElement(group);
             Set<String> groupBy = elementDef.getGroupBy();
@@ -278,7 +293,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 topKey = new Key(workKey.getRowData().getBackingArray(), columnFamily,
                         elementConverter.buildColumnQualifier(group, properties),
                         elementConverter.buildColumnVisibility(group, properties),
-                        elementConverter.buildTimestamp(properties));
+                        elementConverter.buildTimestamp(group, properties));
             } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
@@ -348,22 +363,32 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema", e);
         }
+        LOGGER.debug("Initialising CoreKeyGroupByCombiner with schema {}", schema);
         try {
             view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the view", e);
         }
+        LOGGER.debug("Initialising CoreKeyGroupByCombiner with view {}", view);
 
+        final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             elementConverter = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .forName(elementConverterClass)
                     .asSubclass(AccumuloElementConverter.class)
                     .getConstructor(Schema.class)
                     .newInstance(schema);
+            LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+            throw new AggregationException("Failed to create element converter of the class name provided ("
+                    + elementConverterClass + ")", e);
+        }
+
+        final String encodedColumns = options.get(COLUMNS_OPTION);
+        if (StringUtils.isNotEmpty(encodedColumns)) {
+            aggregatedGroups = new ColumnSet(Lists.newArrayList(Splitter.on(",").split(encodedColumns)));
+            LOGGER.debug("Setting aggregatedGroups to {}", aggregatedGroups);
         }
     }
 

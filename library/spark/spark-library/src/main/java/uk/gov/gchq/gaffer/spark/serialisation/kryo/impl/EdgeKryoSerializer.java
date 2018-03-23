@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
 
 /**
- * A Kryo {@link Serializer} for an {@link Edge}.
+ * An {@code EdgeKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a Gaffer {@link Edge}
  */
 public class EdgeKryoSerializer extends Serializer<Edge> {
 

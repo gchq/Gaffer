@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,13 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
+import com.yahoo.sketches.frequencies.ItemsSketch;
+import com.yahoo.sketches.frequencies.LongsSketch;
+import com.yahoo.sketches.hll.HllSketch;
+import com.yahoo.sketches.hll.Union;
+import com.yahoo.sketches.quantiles.ItemsUnion;
+import com.yahoo.sketches.sampling.ReservoirLongsSketch;
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.spark.serializer.KryoRegistrator;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -28,13 +35,21 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.FreqMapKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeSubTypeValueKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeValueKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality.HllSketchKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality.HllUnionKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies.LongsSketchKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies.StringsSketchKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles.StringsUnionKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling.ReservoirLongsSketchKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling.ReservoirLongsUnionKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 /**
- * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s. NB: It
- * is not necessary to implement one for Elements as that is an abstract class.
+ * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s,
+ * as well as some of the DataSketches library.
+ * NB: It is not necessary to implement one for Elements as that is an abstract class.
  */
 public class Registrator implements KryoRegistrator {
 
@@ -45,6 +60,14 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Properties.class);
         kryo.register(FreqMap.class, new FreqMapKryoSerializer());
         kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
+        kryo.register(HllSketch.class, new HllSketchKryoSerializer());
+        kryo.register(Union.class, new HllUnionKryoSerializer());
+        kryo.register(LongsSketch.class, new LongsSketchKryoSerializer());
+        kryo.register(ItemsSketch.class, new StringsSketchKryoSerializer());
+        kryo.register(com.yahoo.sketches.quantiles.ItemsSketch.class, new uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles.StringsSketchKryoSerializer());
+        kryo.register(ItemsUnion.class, new StringsUnionKryoSerializer());
+        kryo.register(ReservoirLongsSketch.class, new ReservoirLongsSketchKryoSerializer());
+        kryo.register(ReservoirLongsUnion.class, new ReservoirLongsUnionKryoSerializer());
         kryo.register(TypeValue.class, new TypeValueKryoSerializer());
         kryo.register(TypeSubTypeValue.class, new TypeSubTypeValueKryoSerializer());
     }

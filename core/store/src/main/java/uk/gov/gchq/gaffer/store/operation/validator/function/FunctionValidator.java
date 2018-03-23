@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package uk.gov.gchq.gaffer.store.operation.validator.function;
 
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.operation.impl.function.Function;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -25,7 +27,8 @@ import java.util.Map;
 
 /**
  * A <code>FunctionValidator</code> is a superclass of Validators for Gaffer functions.
- * @param <T>   The function type under validation, eg. Aggregate
+ *
+ * @param <T> The function type under validation, eg. Aggregate
  */
 public abstract class FunctionValidator<T extends Function> {
 
@@ -45,9 +48,10 @@ public abstract class FunctionValidator<T extends Function> {
 
     /**
      * Should validate the entities and edges, the Element Function, and the Property Classes
+     *
      * @param operation The operation to be validated
      * @param schema    The schema to validate with
-     * @return          Validation Result of all subsequent validation
+     * @return Validation Result of all subsequent validation
      */
     protected abstract ValidationResult validateOperation(final T operation, final Schema schema);
 
@@ -73,5 +77,35 @@ public abstract class FunctionValidator<T extends Function> {
             }
         }
         return result;
+    }
+
+    protected Class[] getTypeClasses(final String[] keys, final SchemaElementDefinition schemaElDef) {
+        final Class[] selectionClasses = new Class[keys.length];
+        int i = 0;
+        for (final String key : keys) {
+            selectionClasses[i] = getTypeClass(key, schemaElDef);
+            i++;
+        }
+        return selectionClasses;
+    }
+
+    protected Class<?> getTypeClass(final String key, final SchemaElementDefinition schemaElDef) {
+        final IdentifierType idType = IdentifierType.fromName(key);
+        final Class<?> clazz;
+        if (null != idType) {
+            if (IdentifierType.MATCHED_VERTEX == idType || IdentifierType.ADJACENT_MATCHED_VERTEX == idType) {
+                final Class<?> sourceClass = schemaElDef.getIdentifierClass(IdentifierType.SOURCE);
+                if (sourceClass.equals(schemaElDef.getIdentifierClass(IdentifierType.DESTINATION))) {
+                    clazz = sourceClass;
+                } else {
+                    clazz = null;
+                }
+            } else {
+                clazz = schemaElDef.getIdentifierClass(idType);
+            }
+        } else {
+            clazz = schemaElDef.getPropertyClass(key);
+        }
+        return clazz;
     }
 }

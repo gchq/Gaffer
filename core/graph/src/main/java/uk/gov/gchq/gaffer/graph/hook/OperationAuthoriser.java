@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -41,6 +42,7 @@ import java.util.Set;
  * user is authorised to execute an operation chain. This class requires a map
  * of operation authorisations.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class OperationAuthoriser implements GraphHook {
     private final Set<String> allAuths = new HashSet<>();
     private final Map<Class<?>, Set<String>> auths = new HashMap<>();

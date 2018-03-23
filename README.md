@@ -1,4 +1,4 @@
-Copyright 2016-2017 Crown Copyright
+Copyright 2016-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html).
+We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html).
 
 Related repositories
 --------------------

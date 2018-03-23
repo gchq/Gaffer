@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler;
+import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -35,7 +35,7 @@ import java.util.List;
  * <li>schema and/or parentSchemaIds</li>
  * </ul>
  *
- * @see ExportToOtherGraphHandler
+ * @see uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler
  */
 public class GraphDelegate implements GraphDelegateInterface {
 
@@ -51,7 +51,12 @@ public class GraphDelegate implements GraphDelegateInterface {
     public static final String PARENT_STORE_PROPERTIES_ID = "parentStorePropertiesId";
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
-    protected Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+
+    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+        return createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
+    }
+
+    public Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -64,6 +69,7 @@ public class GraphDelegate implements GraphDelegateInterface {
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
                         .library(graphLibrary)
+                        .addHooks(hooks)
                         .build())
                 .addSchema(resolvedSchema)
                 .storeProperties(resolvedStoreProperties)
@@ -190,9 +196,17 @@ public class GraphDelegate implements GraphDelegateInterface {
     }
 
     public static class Builder extends BaseBuilder<GraphDelegate, Builder> {
+
+        private GraphHook[] hooks;
+
+        public Builder hooks(final GraphHook[] hooks) {
+            this.hooks = hooks;
+            return this;
+        }
+
         @Override
         public Graph createGraph() {
-            return new GraphDelegate().createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
+            return new GraphDelegate().createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks);
         }
     }
 

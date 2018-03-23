@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,9 @@ import java.util.Map;
  * The graphs that are available to be exported to are limited to predefined set.
  * This is a more restricted version of {@link ExportToOtherGraph}.
  */
+@JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
+
+@Since("1.0.0")
 public class ExportToOtherAuthorisedGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

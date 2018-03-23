@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class OperationChainValidatorTest {
         ValidationResult validationResult = new ValidationResult();
 
         // When
-        validator.validateComparables(max, validationResult, schema, store);
+        validator.validateComparables(max, null, store, validationResult);
 
         // Then
         assertEquals(false, validationResult.isValid());

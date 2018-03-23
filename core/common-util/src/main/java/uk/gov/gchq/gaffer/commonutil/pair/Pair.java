@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 
@@ -30,6 +31,7 @@ import java.io.Serializable;
  * @param <F> type of first item in the pair
  * @param <S> type of second item in the pair
  */
+@JsonSimpleClassName
 public class Pair<F, S> implements Serializable {
     private static final long serialVersionUID = 4769405415756562347L;
 

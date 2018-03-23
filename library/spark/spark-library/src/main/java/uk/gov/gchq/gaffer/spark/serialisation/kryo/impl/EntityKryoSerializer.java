@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 
 /**
- * A Kryo {@link Serializer} for an {@link Entity}.
+ * An {@code EntityKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a Gaffer {@link Entity}
  */
 public class EntityKryoSerializer extends Serializer<Entity> {
 

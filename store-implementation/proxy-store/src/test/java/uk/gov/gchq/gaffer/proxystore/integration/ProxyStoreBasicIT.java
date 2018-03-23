@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -40,10 +43,12 @@ import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -58,6 +63,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class ProxyStoreBasicIT {
     private Graph graph;
@@ -188,6 +194,29 @@ public class ProxyStoreBasicIT {
         assertEquals(2, Iterables.size(results));
         assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
         assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
+    }
+
+    @Test
+    public void shouldCatchAndThrowUsefulErrorMessages() throws Exception {
+        // Given
+        addDefaultElements();
+
+        // When / Then
+        try {
+            graph.execute(
+                    new OperationChain.Builder()
+                            .first(new GetAllElements())
+                            .then(new Limit<>(1, false))
+                            .then(new ToList<>())
+                            .build()
+                    , USER);
+            fail("Exception expected");
+        } catch (final GafferWrappedErrorRuntimeException e) {
+            assertEquals(new Error.ErrorBuilder()
+                    .simpleMessage("Limit of 1 exceeded.")
+                    .status(Status.INTERNAL_SERVER_ERROR)
+                    .build(), e.getError());
+        }
     }
 
     @Test

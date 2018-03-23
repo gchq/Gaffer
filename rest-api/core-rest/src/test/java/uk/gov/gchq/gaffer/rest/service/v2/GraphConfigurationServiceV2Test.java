@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import com.google.common.collect.Sets;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +24,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
@@ -42,7 +47,9 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -155,6 +162,58 @@ public class GraphConfigurationServiceV2Test {
     }
 
     @Test
+    public void shouldGetSerialisedFieldsForGetElementsClass() {
+        // When
+        final Set<String> fields = (Set<String>) service.getSerialisedFields(GetElements.class.getName()).getEntity();
+
+        final Set<String> expectedFields = new HashSet<>();
+        expectedFields.add("input");
+        expectedFields.add("view");
+        expectedFields.add("includeIncomingOutGoing");
+        expectedFields.add("seedMatching");
+        expectedFields.add("options");
+        expectedFields.add("directedType");
+        expectedFields.add("views");
+
+        // Then
+        assertEquals(expectedFields, fields);
+    }
+
+    @Test
+    public void shouldGetCorrectSerialisedFieldsForEdgeClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(Edge.class.getName()).getEntity();
+
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("class", Class.class.getName());
+        expectedFields.put("source", Object.class.getName());
+        expectedFields.put("destination", Object.class.getName());
+        expectedFields.put("matchedVertex", String.class.getName());
+        expectedFields.put("group", String.class.getName());
+        expectedFields.put("properties", Properties.class.getName());
+        expectedFields.put("directed", Boolean.class.getName());
+        expectedFields.put("directedType", String.class.getName());
+
+        // Then
+        assertEquals(expectedFields, fields);
+    }
+
+    @Test
+    public void shouldGetCorrectSerialisedFieldsForGetWalksClass() {
+        // When
+        final Map<String, String> fields = (Map<String, String>) service.getSerialisedFieldClasses(GetWalks.class.getName()).getEntity();
+
+        final Map<String, String> expectedFields = new HashMap<>();
+        expectedFields.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
+        expectedFields.put("input", "java.lang.Object[]");
+        expectedFields.put("options", "java.util.Map<java.lang.String,java.lang.String>");
+        expectedFields.put("resultsLimit", Integer.class.getName());
+
+        // Then
+        assertEquals(expectedFields, fields);
+    }
+
+    @Test
     public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() {
         // When / Then
         try {
@@ -213,16 +272,17 @@ public class GraphConfigurationServiceV2Test {
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws SerialisationException {
         // When
         byte[] bytes = JSONSerialiser.serialise(service.getStoreTraits().getEntity());
-        final Set<StoreTrait> traits = JSONSerialiser.deserialise(bytes, Set.class);
+        final Set<String> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
-        assertNotNull(traits);
-        assertEquals("Collection size should be 6", 6, traits.size());
-        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION.name()));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING.name()));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING.name()));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING.name()));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION.name()));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION.name()));
+        assertEquals(Sets.newHashSet(
+                        INGEST_AGGREGATION.name(),
+                        PRE_AGGREGATION_FILTERING.name(),
+                        POST_AGGREGATION_FILTERING.name(),
+                        POST_TRANSFORMATION_FILTERING.name(),
+                        TRANSFORMATION.name(),
+                        STORE_VALIDATION.name()
+                ),
+                traits);
     }
 }

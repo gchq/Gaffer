@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -119,23 +120,23 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
 
     @JsonGetter("objectSerialiser")
     public String getObjectSerialiserClassString() {
-        return null != objectSerialiser ? objectSerialiser.getClass().getName() : null;
+        return null != objectSerialiser ? SimpleClassNameIdResolver.getSimpleClassName(objectSerialiser.getClass()) : null;
     }
 
     @JsonSetter("objectSerialiser")
     public void setObjectSerialiserClassString(final String classType) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        this.objectSerialiser = null != classType ? Class.forName(classType).asSubclass(ToBytesSerialiser.class).newInstance() : null;
+        this.objectSerialiser = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)).asSubclass(ToBytesSerialiser.class).newInstance() : null;
     }
 
 
     @JsonGetter("setClass")
     public String getSetClassString() {
-        return null != setClass ? setClass.getName() : null;
+        return null != setClass ? SimpleClassNameIdResolver.getSimpleClassName(setClass) : null;
     }
 
     @JsonSetter("setClass")
     public void setSetClassString(final String classType) throws ClassNotFoundException {
-        this.setClass = null != classType ? Class.forName(classType).asSubclass(Set.class) : null;
+        this.setClass = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)).asSubclass(Set.class) : null;
     }
 
     @JsonIgnore

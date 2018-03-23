@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class GetAdjacentIdsHandlerTest {
         final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
         final GetAdjacentIdsHandler handler = new GetAdjacentIdsHandler();
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
-                .input(ids)
+                .inputIds(ids)
                 .option("option1", "optionValue")
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .directedType(DirectedType.DIRECTED)

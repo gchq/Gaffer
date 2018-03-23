@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ In order to make use of the flink libraries you will need to include this librar
 </dependency>
 ```
 
-You will then need to register the flink operations and their handlers with your store.
+You will then need to register the Flink operations and their handlers with your store.
 You just need to add the following to your store properties file.
 ```
 gaffer.store.operation.declarations=FlinkOperationDeclarations.json

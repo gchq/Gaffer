@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,7 @@ public class TransformationIT extends AbstractStoreIT {
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.STRING)
+                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.SET)
                                         .execute(new Concat())
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
@@ -156,7 +156,7 @@ public class TransformationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(1, results.size());
         for (final Element result : results) {
-            assertEquals("A1,3", result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertEquals("A1,[3]", result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
 
@@ -189,16 +189,16 @@ public class TransformationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.TRANSFORMATION)
-    public void shouldTransformExistingProperty() throws OperationException {
+    public void shouldTransformVertex() throws OperationException {
         // Given
         final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.STRING)
+                                        .select(IdentifierType.VERTEX.name(), TestPropertyNames.SET)
                                         .execute(new Concat())
-                                        .project(TestPropertyNames.STRING)
+                                        .project(IdentifierType.VERTEX.name())
                                         .build())
                                 .build())
                         .build())
@@ -211,7 +211,7 @@ public class TransformationIT extends AbstractStoreIT {
         assertNotNull(results);
         assertEquals(1, results.size());
         for (final Element result : results) {
-            assertEquals("A1,3", result.getProperty(TestPropertyNames.STRING));
+            assertEquals("A1,[3]", ((Entity) result).getVertex());
         }
     }
 }

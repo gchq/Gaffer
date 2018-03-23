@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,10 @@ public class OneOrMore<T> implements Iterable<T> {
             if (null == singleItem) {
                 singleItem = item;
                 return true;
+            }
+
+            if (deduplicate && singleItem.equals(item)) {
+                return false;
             }
 
             collection = newCollection.apply(singleItem);

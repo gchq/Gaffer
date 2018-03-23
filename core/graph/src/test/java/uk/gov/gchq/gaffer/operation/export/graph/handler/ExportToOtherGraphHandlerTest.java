@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -86,6 +87,7 @@ public class ExportToOtherGraphHandlerTest {
     @Before
     public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());

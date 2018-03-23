@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Combiner;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -46,6 +48,8 @@ import java.util.Map;
  * therefore what the resulting {@link Value} will be.
  */
 public class AggregatorIterator extends Combiner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AggregatorIterator.class);
+
     private Schema schema;
     private AccumuloElementConverter elementConverter;
 
@@ -57,13 +61,7 @@ public class AggregatorIterator extends Combiner {
         if (!iter.hasNext()) {
             return value;
         }
-        final String group;
-        try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AggregationException("Failed to recreate a graph element from a key and value", e);
-        }
-
+        final String group = elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
         Properties properties;
         final ElementAggregator aggregator = schema.getElement(group).getIngestAggregator();
         try {
@@ -97,17 +95,20 @@ public class AggregatorIterator extends Combiner {
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise the schema from json", e);
         }
+        LOGGER.debug("Initialising AggregatorIterator with schema {}", schema);
 
+        final String elementConverterClass = options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
             elementConverter = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .forName(elementConverterClass)
                     .asSubclass(AccumuloElementConverter.class)
                     .getConstructor(Schema.class)
                     .newInstance(schema);
+            LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+            throw new AggregationException("Failed to create element converter of the class name provided ("
+                    + elementConverterClass + ")", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
@@ -81,6 +82,20 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, clone.getInput().iterator().next());
         assertEquals(view, clone.getView());
+    }
+
+    @Test
+    public void shouldCreateInputFromVertices() {
+        // When
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1.getVertex())
+                .build();
+
+        // Then
+        assertEquals(
+                Lists.newArrayList(AccumuloTestData.SEED_B, AccumuloTestData.SEED_B1),
+                Lists.newArrayList(op.getInput())
+        );
     }
 
     @Override

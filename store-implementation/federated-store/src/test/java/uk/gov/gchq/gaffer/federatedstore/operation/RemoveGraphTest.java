@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
         RemoveGraph op = new Builder()
-                .setGraphId(EXPECTED_GRAPH_ID)
+                .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
         byte[] serialise = toJson(op);
@@ -52,7 +52,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
-                .setGraphId(EXPECTED_GRAPH_ID)
+                .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
         Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 /**
- * A Kryo {@link Serializer} for a {@link FreqMap}.
+ * A {@code FreqMapKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer}
+ * for a Gaffer {@link FreqMap}
  */
 public class FreqMapKryoSerializer extends Serializer<FreqMap> {
     private FreqMapSerialiser serialiser;

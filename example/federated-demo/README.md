@@ -1,4 +1,4 @@
-Copyright 2017 Crown Copyright
+Copyright 2017-2018 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,132 +23,125 @@ Assuming you have Java 8, Maven and Git installed, you can build and run the lat
 git clone --depth 1 --branch master https://github.com/gchq/Gaffer.git
 cd Gaffer
 
-# This will download several maven dependencies such as tomcat.
-# Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
-# The -Pfederated-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
-mvn install -Pquick -Pfederated-demo -pl :federated-demo
+# Run the start script. This will download several maven dependencies such as tomcat.
+# If you have a snapshot version and want to build all dependencies first then add -am as a script argument
+./example/federated-demo/scripts/start.sh
 ```
-
-If you wish to build all of Gaffer first then just remove the "-pl :federated-demo" part.
 
 The rest api will be deployed to localhost:8080/rest.
 
-To add a Map graph, execute this operation:
+To add a Map graph, execute this operation (or run addMapEdgesGraph.sh):
 
 ```json
 {
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
-    "graphId": "mapGraph",
+    "graphId": "mapEdges",
     "storeProperties": {
-        "gaffer.store.class": "uk.gov.gchq.gaffer.mapstore.MapStore",
-        "gaffer.store.mapstore.static": true
+      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore",
+      "gaffer.store.mapstore.static":true
     },
     "schema": {
-        "edges": {
-            "BasicEdge": {
-                "source": "vertex",
-                "destination": "vertex",
-                "directed": "true",
-                "properties": {
-                    "count": "count"
-                }
-            }
-        },
-        "types": {
-            "vertex": {
-                "class": "java.lang.String"
-            },
-            "count": {
-                "class": "java.lang.Integer",
-                "aggregateFunction": {
-                    "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-                }
-            },
-            "true": {
-                "description": "A simple boolean that must always be true.",
-                "class": "java.lang.Boolean",
-                "validateFunctions": [
-                    {
-                        "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
-                    }
-                ]
-            }
-        }
+         "edges": {
+             "BasicEdge": {
+               "source": "vertex",
+               "destination": "vertex",
+               "directed": "true",
+               "properties": {
+                 "count": "count"
+               }
+             }
+           },
+
+       "types": {
+         "vertex": {
+           "class": "java.lang.String"
+         },
+         "count": {
+           "class": "java.lang.Integer",
+           "aggregateFunction": {
+             "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+           }
+         },
+         "true": {
+           "description": "A simple boolean that must always be true.",
+           "class": "java.lang.Boolean",
+           "validateFunctions": [
+             {
+               "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+             }
+           ]
+         }
+       }
+     }
     },
     "isPublic": true
 }
 ```
 
-And to add an Accumulo graph execute this:
+And to add an Accumulo graph execute this (or run addAccumuloEntitiesGraph.sh):
 
 ```json
 {
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
-    "graphId": "accumuloGraph",
+    "graphId": "accEntities",
     "storeProperties": {
-        "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
-        "accumulo.instance": "someInstanceName",
-        "accumulo.zookeepers": "aZookeeper",
-        "accumulo.user": "user01",
-        "accumulo.password": "password"
+         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+         "accumulo.instance":"someInstanceName",
+         "accumulo.zookeepers":"aZookeeper",
+         "accumulo.user":"user01",
+         "accumulo.password":"password"
     },
     "schema": {
-        "entities": {
-            "BasicEntity": {
-                "vertex": "vertex",
-                "properties": {
-                    "count": "count"
-                }
-            }
-        },
-        "types": {
-            "vertex": {
-                "class": "java.lang.String"
-            },
-            "count": {
-                "class": "java.lang.Integer",
-                "aggregateFunction": {
-                    "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-                }
-            },
-            "true": {
-                "description": "A simple boolean that must always be true.",
-                "class": "java.lang.Boolean",
-                "validateFunctions": [
-                    {
-                        "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
-                    }
-                ]
-            }
-        }
+       "entities": {
+         "BasicEntity": {
+           "vertex": "vertex",
+           "properties": {
+             "count": "count"
+           }
+         }
+       },
+       "types": {
+         "vertex": {
+           "class": "java.lang.String"
+         },
+         "count": {
+           "class": "java.lang.Integer",
+           "aggregateFunction": {
+             "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+           }
+         }
+       }
     },
     "isPublic": true
 }
 ```
 
 
-To add some example data execute this json in /graph/operations/execute:
+To add some example data execute this json in /graph/operations/execute (or run addElements.sh):
 
 ```json
 {
-  "class" : "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
-  "input" : [ {
-    "group" : "BasicEntity",
-    "vertex" : "1",
-    "properties" : {
-      "count" : 1
-    },
-    "class" : "uk.gov.gchq.gaffer.data.element.Entity"
-  }, {
-    "group" : "BasicEdge",
-    "source" : "1",
-    "destination" : "2",
-    "directed" : true,
-    "properties" : {
-      "count" : 1
-    },
-    "class" : "uk.gov.gchq.gaffer.data.element.Edge"
-  } ]
+    "class" : "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
+    "input" : [ {
+     "group" : "BasicEntity",
+     "vertex" : "1",
+     "properties" : {
+       "count" : 1
+     },
+     "class" : "uk.gov.gchq.gaffer.data.element.Entity"
+    }, {
+     "group" : "BasicEdge",
+     "source" : "1",
+     "destination" : "2",
+     "directed" : true,
+     "properties" : {
+       "count" : 1
+     },
+     "class" : "uk.gov.gchq.gaffer.data.element.Edge"
+    } ],
+     "options": {
+      "gaffer.federatedstore.operation.graphIds": "accEntities,mapEdges"
+      }
 }
 ```
 
@@ -197,7 +190,7 @@ To fetch just a the schema for the mapGraph you can add an option:
     "class": "uk.gov.gchq.gaffer.store.operation.GetSchema",
     "compact": false,
     "options": {
-        "gaffer.federatedstore.operation.graphIds": "mapGraph"
+        "gaffer.federatedstore.operation.graphIds": "mapEdges"
     }
 }
 ```

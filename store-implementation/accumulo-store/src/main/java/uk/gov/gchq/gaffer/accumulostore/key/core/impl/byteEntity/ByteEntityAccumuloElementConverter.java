@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,28 +35,21 @@ import java.util.Arrays;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
- * Keys And Values
+ * Keys and Values.
  * <p>
  * The way keys are created can be summarised as the following. For Edges the
  * resulting key will be: Source Value + Delimiter + Flag + Delimiter +
- * Destination Value + Delimiter + Flag (And a second edge of Destination Value
- * + Delimiter + Flag + Delimiter + Source Value + Delimiter + Flag for
- * searching)
+ * Destination Value + Delimiter + Flag, and a second edge of Destination Value
+ * + Delimiter + Flag + Delimiter + Source Value + Delimiter + Flag).
  * <p>
  * For entities the resulting key will be: Identifier Value + Delimiter + Flag
  * <p>
  * Note that the Delimiter referenced in the above example is the byte
  * representation of the number 0 for this implementation and the values are
- * appropriately escaped. And the Flag is a byte value that changes depending on
- * whether it being used on an entity, an undirected edge and a directed edge
- * input as the user specified or as the one input inverted for searching. The
- * flag values are as follows: Entity = 1 Undirected Edge = 4 Directed Edge = 2
- * Inverted Directed Edge = 3
- * <p>
- * Values are constructed by placing all the properties in a map of Property
- * Name : Byte Value
- * <p>
- * And then serialising the entire map to bytes.
+ * appropriately escaped. The Flag is a byte value that changes depending on
+ * whether it being used on an entity, an undirected edge or a directed edge
+ * input as the user specified or reversed. The flag values are as follows:
+ * Entity = 1, Undirected Edge = 4, Directed Edge = 2, Reversed Directed Edge = 3.
  */
 public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
 

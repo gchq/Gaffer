@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -30,6 +32,8 @@ import java.util.Map;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
+@JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
+@Since("1.0.0")
 public class ExportToSet<T> implements
         ExportTo<T> {
     private String key;

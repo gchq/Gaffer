@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -33,6 +35,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -47,6 +50,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -78,8 +82,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        return Response.ok(_execute(operation))
+        final Pair<Object, String> resultAndJobId = _execute(operation);
+        return Response.ok(resultAndJobId.getFirst())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .header(JOB_ID_HEADER, resultAndJobId.getSecond())
                 .build();
     }
 
@@ -97,7 +103,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         // write chunks to the chunked output object
         new Thread(() -> {
             try {
-                final Object result = _execute(opChain);
+                final Object result = _execute(opChain).getFirst();
                 chunkResult(result, output);
             } finally {
                 CloseableUtil.close(output);
@@ -111,12 +117,33 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationDetails(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(new OperationDetail(getOperationClass(className)))
-                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                    .build();
+            final Class<? extends Operation> operationClass = getOperationClass(className);
+
+            if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
+                return Response.ok(new OperationDetail(getOperationClass(className)))
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            } else {
+                LOGGER.info("Class: {} was found on the classpath, but is not supported by the current store.", className);
+                return Response.status(NOT_FOUND)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.NOT_FOUND)
+                                .statusCode(404)
+                                .simpleMessage("Class: " + className + " is not supported by the current store.")
+                                .detailMessage("Class: " + className + " was found on the classpath," +
+                                        "but is not supported by the current store.")
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
         } catch (final ClassNotFoundException e) {
             LOGGER.info("Class: {} was not found on the classpath.", className, e);
             return Response.status(NOT_FOUND)
+                    .entity(new Error.ErrorBuilder()
+                            .status(Status.NOT_FOUND)
+                            .statusCode(404)
+                            .simpleMessage("Class: " + className + " was not found on the classpath.")
+                            .build())
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         }
@@ -164,7 +191,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> O _execute(final Operation operation) {
+    protected <O> Pair<O, String> _execute(final Operation operation) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
@@ -190,7 +217,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
         }
 
-        return result;
+        return new Pair<>(result, context.getJobId());
     }
 
     protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
@@ -224,7 +251,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
-        return Class.forName(className).asSubclass(Operation.class);
+        return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
     /**

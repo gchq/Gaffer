@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,8 @@ import java.util.List;
 public class StoreScanner extends GafferScanner {
     public StoreScanner(final InternalScanner scanner,
                         final Schema schema,
-                        final ElementSerialisation serialisation,
-                        final boolean includeMatchedVertex) {
-        super(scanner, serialisation, createProcessors(schema, serialisation), includeMatchedVertex);
+                        final ElementSerialisation serialisation) {
+        super(scanner, serialisation, createProcessors(schema, serialisation), false);
     }
 
     protected static List<GafferScannerProcessor> createProcessors(final Schema schema, final ElementSerialisation serialisation) {

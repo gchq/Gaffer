@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -43,6 +45,8 @@ import java.util.Map;
  * @see MapReduce
  * @see Builder
  */
+@JsonPropertyOrder(value = {"class", "failurePath", "workingPath"}, alphabetic = true)
+@Since("1.0.0")
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce {
@@ -74,7 +78,14 @@ public class AddElementsFromHdfs implements
     private Integer minMapTasks;
     private Integer maxMapTasks;
 
+    /**
+     * @deprecated the number of reduce tasks should not be set.  By default the number of reduce tasks should
+     * match the number of tablets.  Use minimum and maximum reduce tasks to specify boundaries for the number
+     * of reduce tasks.
+     */
+    @Deprecated
     private Integer numReduceTasks;
+
     private Integer minReduceTasks;
     private Integer maxReduceTasks;
 
