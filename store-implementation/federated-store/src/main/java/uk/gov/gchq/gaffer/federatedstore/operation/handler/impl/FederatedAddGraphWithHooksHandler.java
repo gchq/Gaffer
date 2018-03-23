@@ -36,9 +36,9 @@ public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerP
                 .graphId(operation.getGraphId())
                 .schema(operation.getSchema())
                 .storeProperties(operation.getStoreProperties())
+                .hooks(operation.getHooks())
                 .parentSchemaIds(operation.getParentSchemaIds())
                 .parentStorePropertiesId(operation.getParentPropertiesId())
-                .hooks(operation.getHooks())
                 .build();
     }
 }
