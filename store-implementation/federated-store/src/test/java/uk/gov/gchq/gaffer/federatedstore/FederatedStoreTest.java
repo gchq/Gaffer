@@ -75,9 +75,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -211,15 +211,18 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldNotThrowErrorForNoSchema() throws Exception {
-        //When
-        store.execute(new AddGraph.Builder()
-                .graphId(ACC_ID_2)
-                .isPublic(true)
-                .parentPropertiesId(ID_PROPS_ACC_2)
-                .build(), userContext);
-
-        // Then - no exception
+    public void shouldThrowErrorForMissingSchema() throws Exception {
+        //When / Then
+        try {
+            store.execute(new AddGraph.Builder()
+                    .graphId(ACC_ID_2)
+                    .isPublic(true)
+                    .parentPropertiesId(ID_PROPS_ACC_2)
+                    .build(), userContext);
+            fail("a graph was created without a defined schema");
+        } catch (final Exception e) {
+            assertContains(e.getCause(), GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, ACC_ID_2, "Schema");
+        }
     }
 
     @Test

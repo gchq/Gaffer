@@ -58,15 +58,15 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.PARENT_STORE_PROPERTIES_ID;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_STRING;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_STRING;
-import static uk.gov.gchq.gaffer.graph.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.PARENT_STORE_PROPERTIES_ID;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_STRING;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_STRING;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
 
 public class ExportToOtherGraphHandlerTest {
 
@@ -646,7 +646,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private void validate(final ExportToOtherGraph export) {
-        new GraphForExportDelegate().validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+        new GraphForExportDelegate().validateGraph(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
                 export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 }
