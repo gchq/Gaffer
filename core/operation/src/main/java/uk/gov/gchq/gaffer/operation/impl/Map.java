@@ -103,6 +103,7 @@ public class Map<I, O> implements InputOutput<I, O> {
         this.functions = funcs;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public void setFunction(final Function function) {
         this.functions = new ArrayList<>();
         functions.add(function);

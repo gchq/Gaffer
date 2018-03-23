@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -55,7 +54,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -147,8 +145,8 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                 );
 
                 // Check the element exists.
-                final Scanner scanner = getRow(accStore, expectedElement.getKey().getRow());
-                assertEquals(Collections.singletonList(expectedElement), Lists.newArrayList(scanner));
+                Scanner scanner = getRow(accStore, expectedElement.getKey().getRow());
+                assertEquals(1, Iterables.size(scanner));
 
                 delete(accStore, scanner);
 
@@ -164,7 +162,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
             if (deleter == null) {
                 deleter = new Mutation(entry.getKey().getRow());
             }
-            deleter.putDelete(entry.getKey().getColumnFamily(), entry.getKey().getColumnQualifier());
+            deleter.putDelete(entry.getKey().getColumnFamily(), entry.getKey().getColumnQualifier(), entry.getKey().getTimestamp());
         }
         final BatchWriter batchWriter = accStore.getConnection().createBatchWriter(accStore.getTableName(), new BatchWriterConfig());
         batchWriter.addMutation(deleter);
