@@ -327,6 +327,12 @@ public class GraphDelegate {
     }
 
     public static class Builder extends BaseBuilder<Builder> {
+        private GraphHook[] hooks = null;
+
+        public Builder hooks(GraphHook[] hooks){
+            this.hooks = hooks;
+            return _self();
+        }
         @Override
         public Builder _self() {
             return this;
@@ -334,7 +340,7 @@ public class GraphDelegate {
 
         @Override
         public Graph createGraph() {
-            return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
+            return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks);
         }
     }
 
