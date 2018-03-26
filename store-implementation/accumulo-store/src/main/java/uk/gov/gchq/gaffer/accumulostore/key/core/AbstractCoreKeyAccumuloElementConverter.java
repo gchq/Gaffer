@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -46,16 +47,20 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
     private final String timestampProperty;
+    private final Set<String> aggregatedGroups;
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;
         this.timestampProperty = null != schema ? schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY) : null;
+        this.aggregatedGroups = null != schema ? Sets.newHashSet(schema.getAggregatedGroups()) : Collections.emptySet();
     }
 
     @Override
@@ -360,7 +365,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
 
         if (null == timestamp) {
-            timestamp = LongUtil.getTimeBasedRandom();
+            if (aggregatedGroups.contains(group)) {
+                timestamp = AccumuloStoreConstants.DEFAULT_TIMESTAMP;
+            } else {
+                timestamp = LongUtil.getTimeBasedRandom();
+            }
         }
 
         return timestamp;
