@@ -78,7 +78,7 @@ public class EdgeCasesTest {
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("addElementsToExistingFolderTest")
                         .build())
@@ -108,7 +108,7 @@ public class EdgeCasesTest {
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1, ""));
 
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
         parquetStoreProperties.setSampleRate(1);
         final Graph graph = new Graph.Builder()
@@ -202,10 +202,10 @@ public class EdgeCasesTest {
     @Test
     public void deduplicateEdgeWhenSrcAndDstAreEqual() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("deduplicateEdgeWhenSrcAndDstAreEqual")
                         .build())
@@ -238,9 +238,9 @@ public class EdgeCasesTest {
     @Test
     public void changingNumberOfFilesOutput() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(4);
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("changingNumberOfFilesOutput")
                         .build())
@@ -262,6 +262,46 @@ public class EdgeCasesTest {
         data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data, 3);
         data.close();
+    }
+
+    @Test
+    public void shouldFailWhenAddingElementsIfStorePropertiesDoNotContainDataDir() throws OperationException {
+        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final ParquetStoreProperties parquetStoreProperties = new ParquetStoreProperties();
+        parquetStoreProperties.setTempFilesDir("test");
+        try {
+            final Graph graph = new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .graphId("StorePropertiesDoNotContainDataDir")
+                            .build())
+                    .addSchemas(gafferSchema)
+                    .storeProperties(parquetStoreProperties)
+                    .build();
+        } catch (final IllegalArgumentException e) {
+            // Expected
+            assertTrue(e.getCause().getMessage()
+                    .contains("The ParquetStoreProperties must contain a non-null data directory"));
+        }
+    }
+
+    @Test
+    public void shouldFailWhenAddingElementsIfStorePropertiesDoNotContainTempDir() throws OperationException {
+        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final ParquetStoreProperties parquetStoreProperties = new ParquetStoreProperties();
+        parquetStoreProperties.setDataDir("test");
+        try {
+            final Graph graph = new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .graphId("StorePropertiesDoNotContainDataDir")
+                            .build())
+                    .addSchemas(gafferSchema)
+                    .storeProperties(parquetStoreProperties)
+                    .build();
+        } catch (final IllegalArgumentException e) {
+            // Expected
+            assertTrue(e.getCause().getMessage()
+                    .contains("The ParquetStoreProperties must contain a non-null temporary data directory"));
+        }
     }
 
     private void checkData(final CloseableIterable<? extends Element> data, final int iteration) {

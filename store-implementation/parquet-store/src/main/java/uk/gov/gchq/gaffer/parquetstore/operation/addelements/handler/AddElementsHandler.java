@@ -87,7 +87,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 LOGGER.warn("Temp data directory '{}' has been deleted.", tempDirString);
             }
             // Write the data out
-            LOGGER.debug("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
+            LOGGER.info("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
             final ExecutorService pool = createThreadPool(spark, parquetStoreProperties);
             final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
