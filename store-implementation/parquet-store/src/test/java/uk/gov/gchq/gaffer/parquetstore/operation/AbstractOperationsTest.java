@@ -29,11 +29,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
@@ -53,19 +56,29 @@ public abstract class AbstractOperationsTest {
     protected List<ElementSeed> seedsList;
     protected View view;
 
-    abstract void setupSeeds();
+    protected abstract Schema getSchema();
 
-    abstract void setupView();
+    protected abstract void setupSeeds();
 
-    abstract ParquetStoreProperties getParquetStoreProperties() throws IOException;
+    protected abstract void setupView();
 
-    abstract void checkData(Graph graph, CloseableIterable<? extends Element> data) throws IOException, OperationException;
+    protected abstract void checkData(Graph graph, CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    abstract void checkGetSeededElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
+    protected abstract void checkGetSeededElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    abstract void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
+    protected abstract void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    abstract void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
+    protected abstract void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
+
+    protected Graph getGraph() throws IOException {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getSchema())
+                .storeProperties(TestUtils.getParquetStoreProperties(testFolder))
+                .build();
+    }
 
     @Test
     public void getAllElementsTest() throws IOException, OperationException {

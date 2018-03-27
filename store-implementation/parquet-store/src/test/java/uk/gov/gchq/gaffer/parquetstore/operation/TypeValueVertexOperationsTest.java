@@ -59,25 +59,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
-    }
-
-    private Graph getGraph() throws IOException {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("TypeValueVertexOperationsTest")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(getParquetStoreProperties())
-                .build();
-    }
-
-    protected static Schema getSchema() {
+    protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
@@ -86,7 +68,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupSeeds() {
+    protected void setupSeeds() {
         seedsList = new ArrayList<>(4);
         seedsList.add(new EntitySeed(new TypeValue("type0", "vrt10")));
         seedsList.add(new EntitySeed(new TypeValue("type2", "src17")));
@@ -95,7 +77,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupView() {
+    protected void setupView() {
         view = new View.Builder()
                 .edge(TestGroups.EDGE,
                         new ViewElementDefinition.Builder()
@@ -151,7 +133,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(9);
         final List<Element> actual = new ArrayList<>(9);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -173,7 +155,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(21);
         final List<Element> actual = new ArrayList<>(21);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -207,7 +189,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(1);
         final List<Element> actual = new ArrayList<>(1);
         final Iterator<? extends Element> dataIter = data.iterator();

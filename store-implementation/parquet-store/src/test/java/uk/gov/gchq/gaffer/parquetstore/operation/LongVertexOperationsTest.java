@@ -60,25 +60,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
-    }
-
-    private Graph getGraph() throws IOException {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("LongVertexOperationsTest")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(getParquetStoreProperties())
-                .build();
-    }
-
-    protected static Schema getSchema() {
+    protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
@@ -87,7 +69,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupSeeds() {
+    protected void setupSeeds() {
         seedsList = new ArrayList<>(5);
         seedsList.add(new EntitySeed(5L));
         seedsList.add(new EntitySeed(15L));
@@ -97,7 +79,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupView() {
+    protected void setupView() {
         view = new View.Builder()
                 .edge(TestGroups.EDGE,
                         new ViewElementDefinition.Builder()
@@ -161,7 +143,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
+    protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
         graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
         final List<Element> expected = new ArrayList<>(48);
@@ -229,7 +211,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
+    protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
         graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
         final List<Element> expected = new ArrayList<>(48);
@@ -250,7 +232,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
+    protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
         graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
         final List<Element> expected = new ArrayList<>(48);

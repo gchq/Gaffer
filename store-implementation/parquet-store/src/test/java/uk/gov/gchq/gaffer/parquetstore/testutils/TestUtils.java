@@ -19,6 +19,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +47,14 @@ public class TestUtils {
     public static FreqMap MERGED_FREQMAP = getMergedFreqMap();
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
+
+    public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        final String folder = temporaryFolder.newFolder().getAbsolutePath();
+        properties.setDataDir(folder + "/data");
+        properties.setTempFilesDir(folder + "/tmpdata");
+        return properties;
+    }
 
     public static SparkSession getSparkSession(final String sparkMaster) {
         final SparkSession spark = SparkSession.builder()

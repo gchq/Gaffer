@@ -51,17 +51,15 @@ public abstract class AbstractSparkOperationsTest {
 
     static User USER = new User.Builder().dataAuth("A").build();
 
-    abstract ParquetStoreProperties getParquetStoreProperties() throws IOException;
+    protected abstract void checkGetDataFrameOfElements(Dataset<Row> data, boolean withVisibilities);
 
-    abstract void checkGetDataFrameOfElements(Dataset<Row> data, boolean withVisibilities);
+    protected abstract Graph genData(final boolean withVisibilities) throws OperationException, StoreException, IOException;
 
-    abstract Graph genData(final boolean withVisibilities) throws OperationException, StoreException, IOException;
+    protected abstract Schema getSchema();
 
-    abstract Schema getSchema();
+    protected abstract JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities);
 
-    abstract JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities);
-
-    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
+    protected static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graphID)

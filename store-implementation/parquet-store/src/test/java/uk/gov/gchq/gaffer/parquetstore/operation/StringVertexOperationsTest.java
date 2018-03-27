@@ -58,25 +58,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
-    }
-
-    private Graph getGraph() throws IOException {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("StringVertexOperationsTest")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(getParquetStoreProperties())
-                .build();
-    }
-
-    protected static Schema getSchema() {
+    protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
@@ -85,7 +67,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupSeeds() {
+    protected void setupSeeds() {
         seedsList = new ArrayList<>(6);
         seedsList.add(new EntitySeed("src5"));
         seedsList.add(new EntitySeed("dst15"));
@@ -96,7 +78,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    public void setupView() {
+    protected void setupView() {
         view = new View.Builder()
                 .edge(TestGroups.EDGE,
                         new ViewElementDefinition.Builder()
@@ -141,7 +123,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(20);
         final List<Element> actual = new ArrayList<>(20);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -174,7 +156,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(41);
         final List<Element> actual = new ArrayList<>(41);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -228,7 +210,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
+    protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(7);
         final List<Element> actual = new ArrayList<>(7);
         final Iterator<? extends Element> dataIter = data.iterator();

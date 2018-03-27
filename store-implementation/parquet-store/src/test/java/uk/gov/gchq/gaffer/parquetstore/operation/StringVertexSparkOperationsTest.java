@@ -44,8 +44,8 @@ import static org.junit.Assert.assertThat;
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Override
-    public Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+    protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(properties.getSparkMaster()), withVisibilities))
@@ -54,26 +54,17 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     }
 
     @Override
-    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
-    }
-
-    @Override
     protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
     @Override
-    public JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities) {
+    protected JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities) {
         return DataGen.generate300StringElementsWithNullPropertiesRDD(spark, withVisibilities);
     }
 
     @Override
-    void checkGetDataFrameOfElements(final Dataset<Row> data, final boolean withVisibilities) {
+    protected void checkGetDataFrameOfElements(final Dataset<Row> data, final boolean withVisibilities) {
         // check all columns are present
         final String[] actualColumns = data.columns();
         final List<String> expectedColumns = new ArrayList<>(14);
