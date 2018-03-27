@@ -19,6 +19,7 @@ import com.yahoo.sketches.hll.Union;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -68,8 +69,8 @@ public class HllUnionAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
-        JsonUtil.equals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.HllUnionAggregator\"%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator.HllUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

@@ -20,6 +20,7 @@ import com.yahoo.sketches.quantiles.ItemsSketch;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -74,8 +75,8 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
-        JsonUtil.equals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.StringsSketchAggregator\"%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.StringsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
