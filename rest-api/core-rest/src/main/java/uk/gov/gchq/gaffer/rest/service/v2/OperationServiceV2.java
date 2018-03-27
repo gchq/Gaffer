@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
@@ -24,17 +25,27 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
@@ -42,7 +53,10 @@ import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -178,6 +192,47 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
 
         return Response.ok(getNextOperations(opClass))
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response namedOperationInput(final String opName) {
+        final Optional<NamedOperationDetail> namedOpDetail = Streams.toStream(
+                (CloseableIterable<NamedOperationDetail>) _execute(new GetAllNamedOperations()).getFirst())
+                .filter(detail -> detail.getOperationName().equals(opName))
+                .findFirst();
+
+        final NamedOperationDetail namedOp;
+
+        if (namedOpDetail.isPresent()) {
+            namedOp = namedOpDetail.get();
+        } else {
+            throw new IllegalArgumentException("Could not find NamedOperation '" + opName + "'");
+        }
+
+        final String inputType;
+        try {
+            final List<Operation> opList = JSONSerialiser.deserialise(namedOp.getOperations(), OperationChain.class).getOperations();
+            final Optional<String> inputClassName = opList.stream()
+                    .filter(op -> op instanceof Input)
+                    .map(op -> op.getClass().getName())
+                    .findFirst();
+
+            if (inputClassName.isPresent()) {
+                inputType = JsonSerialisationUtil.getSerialisedFieldClasses(inputClassName.get()).get("input");
+            } else {
+                throw new IllegalArgumentException("NamedOperation '" + opName + "' contains no implementations of Input");
+            }
+
+        } catch (SerialisationException e) {
+            throw new IllegalArgumentException("Failed to deserialise operations for NamedOperation: " + opName, e);
+        }
+
+        final Map<String, String> result = new HashMap<>();
+        result.put("Input type for NamedOperation '" + opName + "'", inputType);
+
+        return Response.ok(result)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }

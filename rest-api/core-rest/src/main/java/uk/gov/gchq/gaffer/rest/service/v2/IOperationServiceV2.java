@@ -27,6 +27,7 @@ import org.glassfish.jersey.server.ChunkedOutput;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -154,5 +155,22 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response nextOperations(@ApiParam(value = "The fully qualified class name, for which all possible compatible follow-up operations should be returned") @PathParam("className") final String className);
 
+    @GET
+    @Path("/namedOperation/{opName}/inputType")
+    @ApiOperation(value = "Gets the input type for a given named operation",
+    notes = "Attempts to retrieve the input type for a given named operation",
+    produces = APPLICATION_JSON,
+    response = String.class,
+    responseContainer = "map",
+    responseHeaders = {
+            @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)
+    })
+    Response namedOperationInput(@ApiParam(value = "The name of the NamedOperation for which the input type should be retrieved") @PathParam("opName") final String opName);
 }
 
