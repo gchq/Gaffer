@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package uk.gov.gchq.gaffer.parquetstore.operation;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;

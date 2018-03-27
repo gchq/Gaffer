@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.operation.handler.graphframes;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.graphframes;
 
 import org.junit.Before;
 import org.junit.Rule;

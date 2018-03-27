@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package uk.gov.gchq.gaffer.parquetstore.operation;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -41,12 +41,12 @@ import java.util.List;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
-public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
+public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
-        final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
+        final Graph graph = getGraph(getSchema(), properties, "LongVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(properties.getSparkMaster()), withVisibilities))
                 .build(), USER);
@@ -55,17 +55,17 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @Override
     protected Schema getSchema() {
-        return TestUtils.gafferSchema("schemaUsingStringVertexType");
+        return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
     @Override
     protected JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities) {
-        return DataGen.generate300StringElementsWithNullPropertiesRDD(spark, withVisibilities);
+        return DataGen.generate300LongElementsRDD(spark, withVisibilities);
     }
 
     @Override
     protected void checkGetDataFrameOfElements(final Dataset<Row> data, final boolean withVisibilities) {
-        // check all columns are present
+        // Check all columns are present
         final String[] actualColumns = data.columns();
         final List<String> expectedColumns = new ArrayList<>(14);
         expectedColumns.add(ParquetStoreConstants.GROUP);
@@ -91,20 +91,20 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
             visibility = "A";
         }
 
-        //check returned elements are correct
+        // Check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
-        final List<Element> actual = TestUtils.convertStringRowsToElements(data);
-        for (long i = 0; i < 25; i++) {
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, visibility));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, visibility));
+        final List<Element> actual = TestUtils.convertLongRowsToElements(data);
+        for (long x = 0; x < 25; x++) {
+            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, visibility));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, visibility));
 
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, visibility));
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, visibility));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, visibility));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, x, x + 1, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2, visibility));
 
-            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2, visibility));
-            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2, visibility));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, x, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, visibility));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, x, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, visibility));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
-
 }

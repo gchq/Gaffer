@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package uk.gov.gchq.gaffer.parquetstore.operation;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
 import org.junit.Rule;
 import org.junit.Test;
