@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import org.apache.spark.sql.Row;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -32,6 +34,7 @@ import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,16 +44,22 @@ import static org.junit.Assert.assertThat;
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Override
-    public void setup() throws StoreException {
-        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest");
+    public Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
+        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
+        graph.execute(new ImportJavaRDDOfElements.Builder()
+                .input(getElements(TestUtils.getJavaSparkContext(properties.getSparkMaster()), withVisibilities))
+                .build(), USER);
+        return graph;
     }
 
     @Override
-    public void genData(final boolean withVisibilities) throws OperationException, StoreException {
-        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
-                .execute(new ImportJavaRDDOfElements.Builder()
-                        .input(getElements(javaSparkContext, withVisibilities))
-                        .build(), USER);
+    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        final String folder = testFolder.newFolder().getAbsolutePath();
+        properties.setDataDir(folder + "/data");
+        properties.setTempFilesDir(folder + "/tmpdata");
+        return properties;
     }
 
     @Override

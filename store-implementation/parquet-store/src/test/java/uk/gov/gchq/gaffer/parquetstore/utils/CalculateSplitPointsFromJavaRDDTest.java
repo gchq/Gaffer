@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,34 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.CalculateSplitPointsFromJavaRDD;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CalculateSplitPointsFromJavaRDDTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before
     public void setUp() throws StoreException {
@@ -43,20 +50,24 @@ public class CalculateSplitPointsFromJavaRDDTest {
     }
 
     @Test
-    public void calculateSplitsFromEmptyJavaRDD() {
-        final JavaRDD<Element> emptyJavaRDD = TestUtils.javaSparkContext.emptyRDD();
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(2, 2, emptyJavaRDD, TestGroups.ENTITY, true).call()._2;
+    public void calculateSplitsFromEmptyJavaRDD() throws IOException {
+        final JavaRDD<Element> emptyJavaRDD = TestUtils
+                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster()).emptyRDD();
+        final Map<Object, Integer> splitPoints =
+                new CalculateSplitPointsFromJavaRDD(2, 2, emptyJavaRDD, TestGroups.ENTITY, true).call()._2;
         Assert.assertTrue(splitPoints.isEmpty());
     }
 
     @Test
-    public void calculateSplitsFromJavaRDDUsingEntities() {
+    public void calculateSplitsFromJavaRDDUsingEntities() throws IOException {
+        final JavaSparkContext javaSparkContext = TestUtils
+                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster());
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
             data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
             data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
-        final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
+        final JavaRDD<Element> dataRDD = javaSparkContext.parallelize(data);
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2, dataRDD, TestGroups.ENTITY, true).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
@@ -65,17 +76,27 @@ public class CalculateSplitPointsFromJavaRDDTest {
     }
 
     @Test
-    public void calculateSplitsFromJavaRDDUsingEdges() {
+    public void calculateSplitsFromJavaRDDUsingEdges() throws IOException {
+        final JavaSparkContext javaSparkContext = TestUtils
+                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster());
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
             data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
             data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
-        final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
+        final JavaRDD<Element> dataRDD = javaSparkContext.parallelize(data);
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2, dataRDD, TestGroups.EDGE, false).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
         Assert.assertEquals(expected, splitPoints);
+    }
+
+    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        final String folder = testFolder.newFolder().getAbsolutePath();
+        properties.setDataDir(folder + "/data");
+        properties.setTempFilesDir(folder + "/tmpdata");
+        return properties;
     }
 }

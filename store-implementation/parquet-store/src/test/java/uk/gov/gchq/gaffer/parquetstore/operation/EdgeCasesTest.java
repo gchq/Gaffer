@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
 import com.google.common.collect.Iterables;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -61,29 +60,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class EdgeCasesTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static User USER = new User();
 
-    @AfterClass
-    public static void cleanUp() throws IOException {
-        try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
-            deleteFolder(parquetStoreProperties.getDataDir(), fs);
-        }
-    }
-
-    private static void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        Path dataDir = new Path(path);
-        if (fs.exists(dataDir)) {
-            fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
-        }
-    }
-
-    private static ParquetStoreProperties getParquetStoreProperties() {
-        return TestUtils.getParquetStoreProperties();
+    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        final String folder = testFolder.newFolder().getAbsolutePath();
+        properties.setDataDir(folder + "/data");
+        properties.setTempFilesDir(folder + "/tmpdata");
+        return properties;
     }
 
     @Test
@@ -178,7 +164,7 @@ public class EdgeCasesTest {
     }
 
     @Test
-    public void shouldReturnEmptyIteratorWithEmptyParquetStore() throws OperationException {
+    public void shouldReturnEmptyIteratorWithEmptyParquetStore() throws IOException, OperationException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
@@ -196,7 +182,7 @@ public class EdgeCasesTest {
     }
 
     @Test
-    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws OperationException {
+    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws IOException, OperationException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
@@ -214,7 +200,7 @@ public class EdgeCasesTest {
     }
 
     @Test
-    public void deduplicateEdgeWhenSrcAndDstAreEqual() throws OperationException {
+    public void deduplicateEdgeWhenSrcAndDstAreEqual() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
         ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setSampleRate(1);
@@ -250,7 +236,7 @@ public class EdgeCasesTest {
     }
 
     @Test
-    public void changingNumberOfFilesOutput() throws OperationException {
+    public void changingNumberOfFilesOutput() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
         ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(4);

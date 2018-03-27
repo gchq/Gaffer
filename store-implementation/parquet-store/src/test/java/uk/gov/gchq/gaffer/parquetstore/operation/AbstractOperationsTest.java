@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -35,7 +34,6 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
@@ -47,77 +45,68 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public abstract class AbstractOperationsTest {
-    static User USER = new User();
-    Graph graph;
-    List<ElementSeed> seedsList;
-    View view;
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    protected static User USER = new User();
+    protected Graph graph;
+    protected List<ElementSeed> seedsList;
+    protected View view;
 
     abstract void setupSeeds();
 
     abstract void setupView();
 
-    abstract void checkData(CloseableIterable<? extends Element> data);
+    abstract ParquetStoreProperties getParquetStoreProperties() throws IOException;
 
-    abstract void checkGetSeededElementsData(CloseableIterable<? extends Element> data);
+    abstract void checkData(Graph graph, CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    abstract void checkGetFilteredElementsData(CloseableIterable<? extends Element> data);
+    abstract void checkGetSeededElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    abstract void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data);
+    abstract void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
-    @AfterClass
-    public static void cleanUpData() throws IOException {
-        try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
-            deleteFolder(props.getDataDir(), fs);
-        }
-    }
-
-    private static void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        Path dataDir = new Path(path);
-        if (fs.exists(dataDir)) {
-            fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
-        }
-    }
+    abstract void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) throws IOException, OperationException;
 
     @Test
-    public void getAllElementsTest() throws OperationException {
-        final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
-        checkData(data);
+    public void getAllElementsTest() throws IOException, OperationException {
+        final CloseableIterable<? extends Element> data = graph
+                .execute(new GetAllElements.Builder().build(), USER);
+        checkData(graph, data);
         data.close();
     }
 
     @Test
     public void getElementsTest() throws OperationException {
-        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), USER);
+        final CloseableIterable<? extends Element> data = graph
+                .execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), USER);
         assertFalse(data.iterator().hasNext());
         data.close();
     }
 
     @Test
-    public void getSeededElementsTest() throws OperationException {
+    public void getSeededElementsTest() throws IOException, OperationException {
         setupSeeds();
-        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).build(), USER);
+        final CloseableIterable<? extends Element> data = graph
+                .execute(new GetElements.Builder().input(seedsList).build(), USER);
         checkGetSeededElementsData(data);
         data.close();
     }
 
     @Test
-    public void getFilteredElementsTest() throws OperationException {
+    public void getFilteredElementsTest() throws IOException, OperationException {
         setupView();
-        final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().view(view).build(), USER);
+        final CloseableIterable<? extends Element> data = graph
+                .execute(new GetAllElements.Builder().view(view).build(), USER);
         checkGetFilteredElementsData(data);
         data.close();
     }
 
     @Test
-    public void getSeededAndFilteredElementsTest() throws OperationException {
+    public void getSeededAndFilteredElementsTest() throws IOException, OperationException {
         setupSeeds();
         setupView();
-        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).view(view).build(), USER);
+        final CloseableIterable<? extends Element> data = graph
+                .execute(new GetElements.Builder().input(seedsList).view(view).build(), USER);
         checkGetSeededAndFilteredElementsData(data);
         data.close();
     }

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2018 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.api.java.JavaSparkContext;
@@ -5,7 +20,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -32,19 +46,26 @@ public class TestUtils {
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
 
-    public static SparkSession spark = SparkSession.builder()
-            .appName("Parquet Gaffer Store tests")
-            .master(getParquetStoreProperties().getSparkMaster())
-            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-            .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-            .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-            .getOrCreate();
-    public static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
+    public static SparkSession getSparkSession(final String sparkMaster) {
+        final SparkSession spark = SparkSession.builder()
+                .appName("Parquet Gaffer Store tests")
+                .master(sparkMaster)
+                .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
+                .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .getOrCreate();
+        return spark;
+    }
 
-    public static ParquetStoreProperties getParquetStoreProperties() {
+    public static JavaSparkContext getJavaSparkContext(final String sparkMaster) {
+        return JavaSparkContext.fromSparkContext(getSparkSession(sparkMaster).sparkContext());
+    }
+
+    public static ParquetStoreProperties getParquetStoreProperties(final String directory) {
         final ParquetStoreProperties parquetStoreProperties = ParquetStoreProperties.loadStoreProperties(
                 AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
-        parquetStoreProperties.setTempFilesDir(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+        parquetStoreProperties.setDataDir(directory + "/data");
+        parquetStoreProperties.setTempFilesDir(directory + "/tmpdata");
         return parquetStoreProperties;
     }
 

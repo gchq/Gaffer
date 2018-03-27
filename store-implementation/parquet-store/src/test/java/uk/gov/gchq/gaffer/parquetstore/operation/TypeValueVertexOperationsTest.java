@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -31,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,23 +52,28 @@ import static org.junit.Assert.assertTrue;
 
 public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
-    @BeforeClass
-    public static void genData() throws OperationException {
-        getGraph().execute(new AddElements.Builder().input(getElements()).build(), USER);
-    }
-
     @Before
-    public void setup() {
+    public void setup() throws IOException, OperationException {
         graph = getGraph();
+        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
     }
 
-    private static Graph getGraph() {
+    @Override
+    public ParquetStoreProperties getParquetStoreProperties() throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        final String folder = testFolder.newFolder().getAbsolutePath();
+        properties.setDataDir(folder + "/data");
+        properties.setTempFilesDir(folder + "/tmpdata");
+        return properties;
+    }
+
+    private Graph getGraph() throws IOException {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("TypeValueVertexOperationsTest")
                         .build())
                 .addSchema(getSchema())
-                .storeProperties(TestUtils.getParquetStoreProperties())
+                .storeProperties(getParquetStoreProperties())
                 .build();
     }
 
@@ -118,7 +124,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    protected void checkData(final CloseableIterable<? extends Element> data) {
+    protected void checkData(final Graph graph, final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = new ArrayList<>(175);
         final Iterator<? extends Element> dataIter = data.iterator();

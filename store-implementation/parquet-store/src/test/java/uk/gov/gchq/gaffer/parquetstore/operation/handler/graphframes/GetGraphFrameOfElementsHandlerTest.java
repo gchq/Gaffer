@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.graphframes;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,20 +32,25 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class GetGraphFrameOfElementsHandlerTest {
-
     private static final int NUM_ELEMENTS = 10;
+
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before
     public void before() {
@@ -50,9 +58,10 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void shouldGetCorrectElementsInGraphFrame() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrame() throws OperationException, IOException {
         // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
+        final Graph graph = getGraph("shouldGetCorrectElementsInGraphFrame",
+                "/schema-GraphFrame/elements.json", getSimpleElements());
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetGraphFrameOfElements())
                 .then(new Map.Builder<>()
@@ -69,9 +78,10 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void shouldGetCorrectElementsInGraphFrameWithMultipleEdgesBetweenVertices() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithMultipleEdgesBetweenVertices() throws OperationException, IOException {
         // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elementsComplex.json", getElements());
+        final Graph graph = getGraph("shouldGetCorrectElementsInGraphFrameWithMultipleEdgesBetweenVertices",
+                "/schema-GraphFrame/elementsComplex.json", getElements());
         final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE_2)
                 .source("1")
                 .dest("B")
@@ -118,9 +128,10 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void shouldGetCorrectElementsInGraphFrameWithLoops() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithLoops() throws OperationException, IOException {
         // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elementsComplex.json", getElements());
+        final Graph graph = getGraph("shouldGetCorrectElementsInGraphFrameWithLoops",
+                "/schema-GraphFrame/elementsComplex.json", getElements());
         final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
                 .source("B")
                 .dest("1")
@@ -166,9 +177,11 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void shouldGetCorrectElementsInGraphFrameWithRepeatedElements() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithRepeatedElements() throws OperationException, IOException {
         // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
+        final Graph graph = getGraph("shouldGetCorrectElementsInGraphFrameWithRepeatedElements",
+                "/schema-GraphFrame/elements.json",
+                getSimpleElements());
         graph.execute(new AddElements.Builder().input(getSimpleElements()).build(), new User());
 
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
@@ -186,14 +199,19 @@ public class GetGraphFrameOfElementsHandlerTest {
         assertElementEquals(getSimpleElements(), results);
     }
 
-    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
+    private Graph getGraph(final String graphId,
+                           final String elementsSchema,
+                           final List<Element> elements) throws OperationException, IOException {
+        final String folder = testFolder.newFolder().getAbsolutePath();
+        final ParquetStoreProperties properties = TestUtils
+                .getParquetStoreProperties(folder);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("graphId")
+                        .graphId(graphId)
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(properties)
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;
