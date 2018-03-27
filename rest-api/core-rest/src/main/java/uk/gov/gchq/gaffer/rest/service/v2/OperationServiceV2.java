@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -45,7 +43,6 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
@@ -225,7 +222,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                 throw new IllegalArgumentException("NamedOperation '" + opName + "' contains no implementations of Input");
             }
 
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Failed to deserialise operations for NamedOperation: " + opName, e);
         }
 
