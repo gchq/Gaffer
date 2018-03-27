@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.SortGroupSplit;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.SortGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
