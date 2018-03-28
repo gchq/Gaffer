@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.SortGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class SortDataTest {
         final ParquetStore store = new ParquetStore();
         store.initialise("SortDataTest",
                 TestUtils.gafferSchema("schemaUsingLongVertexType"), properties);
-        final SparkSession sparkSession = TestUtils.getSparkSession(properties.getSparkMaster());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store,
                 sparkSession, 0).call();
         new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store,

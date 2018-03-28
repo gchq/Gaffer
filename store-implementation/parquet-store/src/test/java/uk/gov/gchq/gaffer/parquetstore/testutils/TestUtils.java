@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
@@ -56,19 +57,8 @@ public class TestUtils {
         return properties;
     }
 
-    public static SparkSession getSparkSession(final String sparkMaster) {
-        final SparkSession spark = SparkSession.builder()
-                .appName("Parquet Gaffer Store tests")
-                .master(sparkMaster)
-                .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-                .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .getOrCreate();
-        return spark;
-    }
-
-    public static JavaSparkContext getJavaSparkContext(final String sparkMaster) {
-        return JavaSparkContext.fromSparkContext(getSparkSession(sparkMaster).sparkContext());
+    public static JavaSparkContext getJavaSparkContext() {
+        return JavaSparkContext.fromSparkContext(SparkSessionProvider.getSparkSession().sparkContext());
     }
 
     public static ParquetStoreProperties getParquetStoreProperties(final String directory) {

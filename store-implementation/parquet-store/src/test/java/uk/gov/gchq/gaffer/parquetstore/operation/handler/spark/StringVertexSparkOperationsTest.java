@@ -48,7 +48,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
-                .input(getElements(TestUtils.getJavaSparkContext(properties.getSparkMaster()), withVisibilities))
+                .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
                 .build(), USER);
         return graph;
     }

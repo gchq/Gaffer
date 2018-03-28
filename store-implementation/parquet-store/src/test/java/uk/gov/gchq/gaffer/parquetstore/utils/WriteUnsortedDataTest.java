@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculateSpli
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.WriteUnsortedData;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -87,7 +89,7 @@ public class WriteUnsortedDataTest {
         Assert.assertTrue(fs.exists(new Path(entity1Split1)));
         Assert.assertTrue(fs.exists(new Path(entity2Split0)));
         Assert.assertTrue(fs.exists(new Path(entity2Split1)));
-        final SparkSession sparkSession = TestUtils.getSparkSession(properties.getSparkMaster());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         Row[] results = (Row[]) sparkSession.read().parquet(entity1Split0).select(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i, results[i].get(0));
@@ -141,7 +143,7 @@ public class WriteUnsortedDataTest {
         Assert.assertTrue(fs.exists(new Path(edge1Split1)));
         Assert.assertTrue(fs.exists(new Path(edge2Split0)));
         Assert.assertTrue(fs.exists(new Path(edge2Split1)));
-        final SparkSession sparkSession = TestUtils.getSparkSession(properties.getSparkMaster());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         Row[] results = (Row[]) sparkSession.read().parquet(edge1Split0).select(ParquetStoreConstants.SOURCE).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i, results[i].get(0));

@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class AggregateDataTest {
         generatePreAggregatedData(properties);
         final ParquetStore store = new ParquetStore();
         store.initialise("AggregateDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), properties);
-        final SparkSession sparkSession = TestUtils.getSparkSession(properties.getSparkMaster());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         new AggregateGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, sparkSession, 0).call();
 
         final FileSystem fs = FileSystem.get(new Configuration());

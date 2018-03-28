@@ -51,8 +51,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
 
     @Test
     public void calculateSplitsFromEmptyJavaRDD() throws IOException {
-        final JavaRDD<Element> emptyJavaRDD = TestUtils
-                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster()).emptyRDD();
+        final JavaRDD<Element> emptyJavaRDD = TestUtils.getJavaSparkContext().emptyRDD();
         final Map<Object, Integer> splitPoints =
                 new CalculateSplitPointsFromJavaRDD(2, 2, emptyJavaRDD, TestGroups.ENTITY, true).call()._2;
         Assert.assertTrue(splitPoints.isEmpty());
@@ -60,8 +59,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
 
     @Test
     public void calculateSplitsFromJavaRDDUsingEntities() throws IOException {
-        final JavaSparkContext javaSparkContext = TestUtils
-                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster());
+        final JavaSparkContext javaSparkContext = TestUtils.getJavaSparkContext();
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
             data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
@@ -77,8 +75,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
 
     @Test
     public void calculateSplitsFromJavaRDDUsingEdges() throws IOException {
-        final JavaSparkContext javaSparkContext = TestUtils
-                .getJavaSparkContext(getParquetStoreProperties().getSparkMaster());
+        final JavaSparkContext javaSparkContext = TestUtils.getJavaSparkContext();
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
             data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
