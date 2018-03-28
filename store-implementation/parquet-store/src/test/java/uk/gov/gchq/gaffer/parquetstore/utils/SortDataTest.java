@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -47,7 +48,7 @@ public class SortDataTest {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private ParquetStoreProperties generatePreAggregatedData() throws IOException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
 
         ParquetWriter<Element> writer = new ParquetElementWriter
@@ -116,13 +117,5 @@ public class SortDataTest {
             Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
         }
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }

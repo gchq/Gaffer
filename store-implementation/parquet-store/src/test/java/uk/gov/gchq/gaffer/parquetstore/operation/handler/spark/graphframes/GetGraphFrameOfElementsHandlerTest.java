@@ -203,8 +203,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                            final String elementsSchema,
                            final List<Element> elements) throws OperationException, IOException {
         final String folder = testFolder.newFolder().getAbsolutePath();
-        final ParquetStoreProperties properties = TestUtils
-                .getParquetStoreProperties(folder);
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(folder);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)

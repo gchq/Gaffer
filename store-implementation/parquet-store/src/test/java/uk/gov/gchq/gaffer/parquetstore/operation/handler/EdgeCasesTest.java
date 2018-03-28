@@ -64,18 +64,10 @@ public class EdgeCasesTest {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static User USER = new User();
 
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
-    }
-
     @Test
     public void addElementsToExistingFolderTest() throws StoreException, OperationException, IOException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
@@ -108,7 +100,7 @@ public class EdgeCasesTest {
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1, ""));
 
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
         parquetStoreProperties.setSampleRate(1);
         final Graph graph = new Graph.Builder()
@@ -131,7 +123,7 @@ public class EdgeCasesTest {
     @Test
     public void indexOutOfRangeTest() throws IOException, StoreException, OperationException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -166,7 +158,7 @@ public class EdgeCasesTest {
     @Test
     public void shouldReturnEmptyIteratorWithEmptyParquetStore() throws IOException, OperationException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -184,7 +176,7 @@ public class EdgeCasesTest {
     @Test
     public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws IOException, OperationException {
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -202,7 +194,7 @@ public class EdgeCasesTest {
     @Test
     public void deduplicateEdgeWhenSrcAndDstAreEqual() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
@@ -238,7 +230,7 @@ public class EdgeCasesTest {
     @Test
     public void changingNumberOfFilesOutput() throws IOException, OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(4);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.fs.Path;
@@ -71,7 +72,7 @@ public class ConvertViewToFilterTest {
     @Before
     public void setUp() throws IOException, StoreException {
         final Schema schema = TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final ParquetStore store = new ParquetStore();
         store.initialise("ConvertViewToFilterTest", schema, properties);
         filterUtils = new ParquetFilterUtils(store);
@@ -149,13 +150,5 @@ public class ConvertViewToFilterTest {
         final FilterPredicate expected = eq(binaryColumn("freqMap.type_value.key"), Binary.fromString("test"));
         assertEquals(expected, filter);
         assertThat(expectedPaths, containsInAnyOrder(groupFilterWithPaths.getSecond().toArray()));
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }

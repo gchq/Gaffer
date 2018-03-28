@@ -59,8 +59,8 @@ public class ParquetFilterUtilsTest {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
-    public void buildPathToFilterMap() throws IOException, OperationException, SerialisationException, StoreException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+    public void buildPathToFilterMap() throws IOException, OperationException, StoreException {
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final ParquetStore store = new ParquetStore();
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         store.initialise("buildPathToFilterMap", gafferSchema, properties);
@@ -119,13 +119,5 @@ public class ParquetFilterUtilsTest {
         expectedPaths.add("srcFileE");
         final Object[] actualPaths = pathToFilterMap.keySet().stream().map(Path::getName).toArray();
         assertThat(expectedPaths, containsInAnyOrder(actualPaths));
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }

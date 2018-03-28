@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.log4j.Level;
@@ -63,7 +64,7 @@ public class CalculateSplitPointsFromIndexTest {
 
     @Test
     public void calculateSplitsFromEmptyIndex() throws IOException, OperationException, SerialisationException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex emptyIndex = new GraphIndex();
         final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex
@@ -75,7 +76,7 @@ public class CalculateSplitPointsFromIndexTest {
 
     @Test
     public void calculateSplitsFromIndexUsingEntities() throws IOException, OperationException, SerialisationException, StoreException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex index = new GraphIndex();
         final GroupIndex entityGroupIndex = new GroupIndex();
@@ -100,7 +101,7 @@ public class CalculateSplitPointsFromIndexTest {
 
     @Test
     public void calculateSplitsFromIndexUsingEdges() throws IOException, OperationException, SerialisationException, StoreException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex index = new GraphIndex();
         final GroupIndex entityGroupIndex = new GroupIndex();
@@ -121,13 +122,5 @@ public class CalculateSplitPointsFromIndexTest {
                 Assert.assertFalse(splitPoints.containsKey(group));
             }
         }
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }

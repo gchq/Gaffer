@@ -58,7 +58,7 @@ public class WriteUnsortedDataTest {
 
     @Test
     public void writeIterableOfEntities() throws OperationException, IOException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final FileSystem fs = FileSystem.get(new Configuration());
         final List<Element> data = new ArrayList<>();
@@ -110,7 +110,7 @@ public class WriteUnsortedDataTest {
 
     @Test
     public void writeIterableOfEdges() throws OperationException, IOException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final FileSystem fs = FileSystem.get(new Configuration());
         final List<Element> data = new ArrayList<>();
@@ -160,13 +160,5 @@ public class WriteUnsortedDataTest {
         for (int i = 6; i < 12; i++) {
             Assert.assertEquals((long) i + 5, results[i - 6].get(0));
         }
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }

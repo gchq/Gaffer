@@ -66,7 +66,7 @@ public class AggregateDataTest {
 
     @Test
     public void aggregateSplit() throws StoreException, IOException {
-        final ParquetStoreProperties properties = getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         generatePreAggregatedData(properties);
         final ParquetStore store = new ParquetStore();
         store.initialise("AggregateDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), properties);
@@ -90,13 +90,5 @@ public class AggregateDataTest {
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
             Assert.assertEquals("A", results[i].getAs(TestTypes.VISIBILITY));
         }
-    }
-
-    private ParquetStoreProperties getParquetStoreProperties() throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = testFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
-        return properties;
     }
 }
