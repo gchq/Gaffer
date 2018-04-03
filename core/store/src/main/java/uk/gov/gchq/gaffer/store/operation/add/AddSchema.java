@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.Since;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,7 @@ import java.util.Map;
  *
  * @see Schema
  */
+@Since("1.5.0")
 public class AddSchema implements Operation {
 
     @Required
@@ -89,6 +92,10 @@ public class AddSchema implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
+    public void setParentSchemaIds(final String... parentSchemaIds) {
+        this.parentSchemaIds = Arrays.asList(parentSchemaIds);
+    }
+
     public static class Builder extends BaseBuilder<AddSchema, Builder> {
         public Builder() {
             super(new AddSchema());
@@ -100,6 +107,11 @@ public class AddSchema implements Operation {
         }
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+            _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
+        public Builder parentSchemaIds(final String... parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }
