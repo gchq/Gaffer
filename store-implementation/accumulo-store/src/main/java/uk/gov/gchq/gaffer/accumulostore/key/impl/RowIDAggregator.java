@@ -129,7 +129,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                     + elementConverterClass + ")", e);
         }
 
-        group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
+        group = options.get(AccumuloStoreConstants.GROUP);
         LOGGER.debug("group is set to {}", group);
         aggregator = schema.getElement(group).getFullAggregator();
         LOGGER.debug("Aggregator is set to {}", aggregator);

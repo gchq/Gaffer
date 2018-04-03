@@ -58,6 +58,7 @@ public final class AccumuloStoreConstants {
     public static final String BLOOM_FILTER = "Bloom_Filter";
     public static final String BLOOM_FILTER_CHARSET = "ISO-8859-1";
     public static final String COLUMN_FAMILY = "columnFamily";
+    public static final String GROUP = "group";
 
     // Iterator priorities
     // Applied during major compactions, minor compactions  and scans.
