@@ -111,7 +111,7 @@ public class AddSchema implements Operation {
             return _self();
         }
 
-        public Builder parentSchemaIds(String... parentSchemaIds) {
+        public Builder parentSchemaIds(final String... parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }
