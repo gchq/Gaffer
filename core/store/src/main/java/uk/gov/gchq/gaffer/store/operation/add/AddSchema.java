@@ -92,10 +92,6 @@ public class AddSchema implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
-    public void setParentSchemaIds(final String... parentSchemaIds) {
-        this.parentSchemaIds = Arrays.asList(parentSchemaIds);
-    }
-
     public static class Builder extends BaseBuilder<AddSchema, Builder> {
         public Builder() {
             super(new AddSchema());
@@ -107,12 +103,16 @@ public class AddSchema implements Operation {
         }
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
-            _getOp().setParentSchemaIds(parentSchemaIds);
+            if (null == _getOp().getParentSchemaIds()) {
+                _getOp().setParentSchemaIds(parentSchemaIds);
+            } else {
+                _getOp().getParentSchemaIds().addAll(parentSchemaIds);
+            }
             return _self();
         }
 
         public Builder parentSchemaIds(final String... parentSchemaIds) {
-            _getOp().setParentSchemaIds(parentSchemaIds);
+            parentSchemaIds(Arrays.asList(parentSchemaIds));
             return _self();
         }
 
