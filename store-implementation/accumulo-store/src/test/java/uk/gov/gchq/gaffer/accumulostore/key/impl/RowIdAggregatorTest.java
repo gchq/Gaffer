@@ -104,15 +104,26 @@ public class RowIdAggregatorTest {
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, RangeFactoryException {
-        testAggregatingMultiplePropertySetsAcrossRowIDRange(byteEntityStore, byteEntityElementConverter);
+        testAggregatingMultiplePropertySetsAcrossRowIDRange(byteEntityStore, byteEntityElementConverter, "BasicEdge2", null);
     }
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInGafferOneStore() throws StoreException, RangeFactoryException {
-        testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter);
+        testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter, "BasicEdge2", null);
     }
 
-    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, RangeFactoryException {
+    @Test
+    public void testMultiplePropertySetsAggregateAcrossRowIdInGafferOneStoreWhenColumnFamilyAndGroupAreDifferent() throws StoreException, RangeFactoryException {
+        testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter, "BasicEdge", "BasicEdge2");
+    }
+
+    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter, final String columnFamily, final String group) throws StoreException, RangeFactoryException {
+        final String elementGroup;
+        if (null == group) {
+            elementGroup = columnFamily;
+        } else {
+            elementGroup = group;
+        }
         String visibilityString = "public";
         try {
             // Create table
@@ -166,7 +177,7 @@ public class RowIdAggregatorTest {
                     .build();
 
             final Edge edge6 = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("1")
                     .dest("5")
                     .directed(true)
@@ -178,7 +189,7 @@ public class RowIdAggregatorTest {
                     .build();
 
             final Edge edge7 = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("2")
                     .dest("6")
                     .directed(true)
@@ -190,7 +201,7 @@ public class RowIdAggregatorTest {
                     .build();
 
             final Edge edge8 = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("4")
                     .dest("8")
                     .directed(true)
@@ -202,7 +213,7 @@ public class RowIdAggregatorTest {
                     .build();
 
             final Edge edge9 = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("5")
                     .dest("9")
                     .directed(true)
@@ -270,14 +281,18 @@ public class RowIdAggregatorTest {
             final Authorizations authorizations = new Authorizations(visibilityString);
             final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(), authorizations, 1000);
             try {
-                scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
+                if (columnFamily != elementGroup) {
+                    scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, columnFamily, elementGroup));
+                } else {
+                    scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, columnFamily));
+                }
             } catch (final IteratorSettingException e) {
                 fail(e.getMessage());
             }
             final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
             final SummariseGroupOverRanges summariseGroupOverRanges = new SummariseGroupOverRanges.Builder()
                     .view(new View.Builder()
-                            .edge("BasicEdge2")
+                            .edge(elementGroup)
                             .entity("BasicEntity")
                             .build())
                     .build();
@@ -289,7 +304,7 @@ public class RowIdAggregatorTest {
             Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
 
             Edge expectedEdge = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("4")
                     .dest("8")
                     .directed(true)
@@ -305,7 +320,7 @@ public class RowIdAggregatorTest {
             entry = it.next();
             readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             expectedEdge = new Edge.Builder()
-                    .group("BasicEdge2")
+                    .group(elementGroup)
                     .source("5")
                     .dest("9")
                     .directed(true)

@@ -70,6 +70,11 @@ public class IteratorSettingBuilder {
         return this;
     }
 
+    public IteratorSettingBuilder group(final String group) {
+        setting.addOption(AccumuloStoreConstants.GROUP, group);
+        return this;
+    }
+
     public IteratorSettingBuilder combinerColumnFamilies(final List<String> columnFamilies) {
         Combiner.setColumns(setting, Lists.transform(columnFamilies, IteratorSetting.Column::new));
         return this;
