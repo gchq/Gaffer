@@ -365,7 +365,6 @@ public class ExportToOtherGraphHandlerTest {
             validate(export);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             assertEquals("Validation errors: \n" +
                     String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"), e.getMessage());
         }

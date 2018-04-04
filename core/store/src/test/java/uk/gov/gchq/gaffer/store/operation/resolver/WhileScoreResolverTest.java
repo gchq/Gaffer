@@ -65,7 +65,7 @@ public class WhileScoreResolverTest {
         final Conditional conditional = mock(Conditional.class);
         given(conditional.getTransform()).willReturn(count);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .conditional(conditional)
                 .maxRepeats(repeats)
@@ -106,7 +106,7 @@ public class WhileScoreResolverTest {
 
         given(conditional.getTransform()).willReturn(transformChain);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(repeats)
                 .conditional(conditional)
@@ -134,7 +134,7 @@ public class WhileScoreResolverTest {
         // Given
         final WhileScoreResolver resolver = new WhileScoreResolver();
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .conditional(new Conditional())
                 .operation(new GetAllElements())
                 .build();

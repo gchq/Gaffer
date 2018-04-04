@@ -35,7 +35,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class WhileSimpleIT extends AbstractStoreIT {
+public class WhileIT extends AbstractStoreIT {
 
     @Override
     @Before
@@ -46,7 +46,7 @@ public class WhileSimpleIT extends AbstractStoreIT {
     @Test
     public void shouldRepeatedlyAddElements() throws OperationException {
         // Given
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .operation(new AddElements.Builder()
                         .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)

@@ -718,7 +718,7 @@ public abstract class Store {
         }
     }
 
-    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 

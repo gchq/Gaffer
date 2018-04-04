@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -122,6 +123,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             return addNamedView();
         } else if (operation instanceof If) {
             return ifOperation();
+        } else if (operation instanceof While) {
+            return whileOperation();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -514,6 +517,22 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                         .first(new GetAllElements())
                         .then(new Limit<>(10))
                         .build())
+                .build();
+    }
+
+    @Override
+    public While whileOperation() {
+        final List<ElementId> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntityId(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
+        }
+        return new While.Builder<>()
+                .input(seeds)
+                .conditional(new IsLongerThan(0))
+                .operation(new GetAdjacentIds())
+                .maxRepeats(10)
                 .build();
     }
 

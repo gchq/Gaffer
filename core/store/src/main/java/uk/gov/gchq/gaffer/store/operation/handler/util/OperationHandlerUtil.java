@@ -23,12 +23,30 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * Utilities for Operation Handlers.
+ */
 public final class OperationHandlerUtil {
-
     private OperationHandlerUtil() {
-
     }
 
+    /**
+     * <p>
+     * Updates the input of an operation if the operation is an OperationChain
+     * or an Input.
+     * </p>
+     * <p>
+     * If the operation is an operation chain then the input will be set on
+     * the first operation if it is an Input operation with a null input.
+     * </p>
+     * <p>
+     * If the operation is an Input operation then the input will be set
+     * if the current input is null.
+     * </p>
+     *
+     * @param operation the operation to update
+     * @param input     the new input to set on the operation.
+     */
     public static void updateOperationInput(final Operation operation, final Object input) {
         if (operation instanceof OperationChain) {
             if (!((OperationChain) operation).getOperations().isEmpty()) {
@@ -48,6 +66,15 @@ public final class OperationHandlerUtil {
         }
     }
 
+    /**
+     * Executes and operation on the store and returns the results or null.
+     *
+     * @param op      the operation to execute
+     * @param context the user context
+     * @param store   the store to execute the operation on
+     * @return the results or null
+     * @throws OperationException if the store fails to execute the operation.
+     */
     public static Object getResultsOrNull(final Operation op, final Context context, final Store store) throws OperationException {
         if (op instanceof Output) {
             return store.execute((Output) op, context);

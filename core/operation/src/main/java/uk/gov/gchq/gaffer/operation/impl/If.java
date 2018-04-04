@@ -80,14 +80,25 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
 
     @Override
     public If<I, O> shallowClone() throws CloneFailedException {
-        return new If.Builder<I, O>()
+        If.Builder<I, O> builder = new If.Builder<I, O>()
                 .input(getInput())
                 .condition(condition)
                 .conditional(conditional)
                 .then(then)
                 .otherwise(otherwise)
-                .options(options)
-                .build();
+                .options(options);
+
+        if (null != conditional) {
+            builder = builder.conditional(conditional.shallowClone());
+        }
+        if (null != then) {
+            builder = builder.then(then.shallowClone());
+        }
+        if (null != otherwise) {
+            builder = builder.then(otherwise.shallowClone());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -180,15 +191,15 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
             return false;
         }
 
-        final If filter = (If) obj;
+        final If ifOp = (If) obj;
 
         return new EqualsBuilder()
-                .append(getInput(), filter.getInput())
-                .append(condition, filter.condition)
-                .append(conditional, filter.conditional)
-                .append(then, filter.then)
-                .append(otherwise, filter.otherwise)
-                .append(options, filter.options)
+                .append(getInput(), ifOp.getInput())
+                .append(condition, ifOp.condition)
+                .append(conditional, ifOp.conditional)
+                .append(then, ifOp.then)
+                .append(otherwise, ifOp.otherwise)
+                .append(options, ifOp.options)
                 .isEquals();
     }
 
@@ -215,7 +226,6 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
                 .append(options)
                 .toString();
     }
-
 
 
     public static final class Builder<I, O>

@@ -20,6 +20,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -76,7 +78,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .operation(delegate)
@@ -101,7 +103,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .condition(condition)
                 .maxRepeats(maxRepeats)
@@ -127,7 +129,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .condition(condition)
@@ -152,7 +154,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .operation(delegate)
@@ -179,7 +181,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .conditional(conditional)
                 .operation(new GetElements())
@@ -218,7 +220,7 @@ public class WhileHandlerTest {
 
         final GetElements getElements = mock(GetElements.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(1)
                 .conditional(conditional)
@@ -257,7 +259,7 @@ public class WhileHandlerTest {
 
         final GetElements getElements = mock(GetElements.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(1)
                 .conditional(conditional)
@@ -282,7 +284,7 @@ public class WhileHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .operation(addElements)
                 .condition(true)
@@ -296,5 +298,19 @@ public class WhileHandlerTest {
 
         // Then
         verify(store, times(3)).execute(addElements, context);
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        // Given
+        final WhileHandler handler = new WhileHandler();
+        handler.setMaxRepeats(5);
+
+        // When
+        final byte[] json = JSONSerialiser.serialise(handler);
+        final WhileHandler deserialisedHandler = JSONSerialiser.deserialise(json, WhileHandler.class);
+
+        // Then
+        assertEquals(5, deserialisedHandler.getMaxRepeats());
     }
 }

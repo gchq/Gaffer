@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.impl.While;
  * therefore a "worst"-case scenario is considered.</p>
  */
 public class WhileScoreResolver implements ScoreResolver<While> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WhileScoreResolver.class);
 
     @Override
@@ -44,7 +43,7 @@ public class WhileScoreResolver implements ScoreResolver<While> {
             Integer opScore = 0;
 
             if (null != operation.getConditional() && null != operation.getConditional().getTransform()) {
-                opScore = defaultScoreResolver.getScore(operation.getConditional().getTransform());
+                opScore += defaultScoreResolver.getScore(operation.getConditional().getTransform());
             }
 
             opScore += defaultScoreResolver.getScore(operation.getOperation());

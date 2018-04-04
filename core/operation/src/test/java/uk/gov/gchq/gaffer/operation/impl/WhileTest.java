@@ -15,10 +15,13 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.Test;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.function.Predicate;
@@ -34,7 +37,7 @@ public class WhileTest extends OperationTest<While> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(new EntitySeed(1))
                 .maxRepeats(10)
                 .condition(true)
@@ -48,6 +51,19 @@ public class WhileTest extends OperationTest<While> {
         assertEquals(10, operation.getMaxRepeats());
     }
 
+    @Test
+    public void shouldThrowExceptionIfBothConditionalAndConditionUsedInBuilder() {
+        // When / Then
+        try {
+            new While.Builder<>()
+                    .condition(true)
+                    .conditional(new Conditional())
+                    .build();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Tried to set conditional when condition has already been configured.", e.getMessage());
+        }
+    }
+
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -56,7 +72,7 @@ public class WhileTest extends OperationTest<While> {
         final Operation delegate = new GetAdjacentIds();
         final int maxRepeats = 5;
 
-        final While operation = new While.Builder()
+        final While operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .conditional(predicate)
@@ -74,7 +90,7 @@ public class WhileTest extends OperationTest<While> {
 
     @Override
     protected While getTestObject() {
-        return new While.Builder()
+        return new While.Builder<>()
                 .input(new EntitySeed(2))
                 .conditional(new Exists())
                 .operation(new GetAdjacentIds())

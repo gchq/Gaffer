@@ -59,10 +59,12 @@ public class GetWalks implements
         Operations<OperationChain<Iterable<Element>>> {
 
     public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
+    public static final int DEFAULT_RESULTS_LIMIT = 1000000;
+
     private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
-    private Integer resultsLimit = 1000000;
+    private Integer resultsLimit = DEFAULT_RESULTS_LIMIT;
 
     @Override
     public Iterable<? extends EntityId> getInput() {

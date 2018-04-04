@@ -22,11 +22,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
@@ -56,13 +56,12 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
  * which will need altering using {@link While#setMaxRepeats(int)}.</p>
  */
 @Since("1.5.0")
-@JsonPropertyOrder(value = {"class", "input", "conditional", "operation", "options"}, alphabetic = true)
-public class While implements InputOutput<Object, Object>,
+@JsonPropertyOrder(value = {"class", "input", "conditional", "operation", "maxRepeats", "options"}, alphabetic = true)
+public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         Operations<Operation> {
 
     public static final int MAX_REPEATS = 1000;
 
-    private Object input;
     private Operation operation;
     private int maxRepeats = MAX_REPEATS;
 
@@ -79,120 +78,28 @@ public class While implements InputOutput<Object, Object>,
     private Conditional conditional;
     private Map<String, String> options;
 
+
     @Override
-    public Object getInput() {
-        return input;
+    public TypeReference<O> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
     }
 
     @Override
-    public void setInput(final Object input) {
-        this.input = input;
-    }
-
-    @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
-    }
-
-    @Override
-    public While shallowClone() throws CloneFailedException {
-        return new While.Builder()
-                .input(input)
+    public While<I, O> shallowClone() {
+        While.Builder<I, O> builder = new Builder<I, O>()
+                .input(getInput())
                 .maxRepeats(maxRepeats)
                 .condition(condition)
-                .conditional(conditional)
-                .operation(operation)
-                .options(options)
-                .build();
-    }
+                .options(options);
 
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options = options;
-    }
-
-    public void setOperation(final Operation op) {
-        this.operation = op;
-    }
-
-    public void setConditional(final Conditional conditional) {
-        this.conditional = conditional;
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public Conditional getConditional() {
-        return conditional;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    public int getMaxRepeats() {
-        return maxRepeats;
-    }
-
-    public void setMaxRepeats(final int maxRepeats) {
-        this.maxRepeats = maxRepeats;
-    }
-
-    public Boolean isCondition() {
-        return condition;
-    }
-
-    public void setCondition(final Boolean condition) {
-        this.condition = condition;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(37, 83)
-                .append(input)
-                .append(maxRepeats)
-                .append(condition)
-                .append(conditional)
-                .append(operation)
-                .append(options)
-                .toHashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
+        if (null != conditional) {
+            builder = builder.conditional(conditional.shallowClone());
+        }
+        if (null != operation) {
+            builder = builder.operation(operation.shallowClone());
         }
 
-        if (null == obj || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        final While filter = (While) obj;
-
-        return new EqualsBuilder()
-                .append(input, filter.getInput())
-                .append(condition, filter.isCondition())
-                .append(conditional, filter.conditional)
-                .append(operation, filter.operation)
-                .append(maxRepeats, filter.maxRepeats)
-                .append(options, filter.options)
-                .isEquals();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append(input)
-                .append(maxRepeats)
-                .append(condition)
-                .append(conditional)
-                .append(operation)
-                .append(options)
-                .toString();
+        return builder.build();
     }
 
     @JsonIgnore
@@ -244,25 +151,114 @@ public class While implements InputOutput<Object, Object>,
         return result;
     }
 
-    public static final class Builder
-            extends Operation.BaseBuilder<While, Builder>
-            implements InputOutput.Builder<While, Object, Object, Builder> {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
 
-        public Builder() {
-            super(new While());
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public void setOperation(final Operation op) {
+        this.operation = op;
+    }
+
+    public void setConditional(final Conditional conditional) {
+        this.conditional = conditional;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public Conditional getConditional() {
+        return conditional;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public int getMaxRepeats() {
+        return maxRepeats;
+    }
+
+    public void setMaxRepeats(final int maxRepeats) {
+        this.maxRepeats = maxRepeats;
+    }
+
+    public Boolean isCondition() {
+        return condition;
+    }
+
+    public void setCondition(final Boolean condition) {
+        this.condition = condition;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(37, 83)
+                .append(getInput())
+                .append(maxRepeats)
+                .append(condition)
+                .append(conditional)
+                .append(operation)
+                .append(options)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
 
-        public Builder operation(final Operation op) {
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final While whileOp = (While) obj;
+
+        return new EqualsBuilder()
+                .append(getInput(), whileOp.getInput())
+                .append(condition, whileOp.isCondition())
+                .append(conditional, whileOp.conditional)
+                .append(operation, whileOp.operation)
+                .append(maxRepeats, whileOp.maxRepeats)
+                .append(options, whileOp.options)
+                .isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append(getInput())
+                .append(maxRepeats)
+                .append(condition)
+                .append(conditional)
+                .append(operation)
+                .append(options)
+                .toString();
+    }
+
+    public static final class Builder<I, O>
+            extends Operation.BaseBuilder<While<I, O>, Builder<I, O>>
+            implements InputOutput.Builder<While<I, O>, I, O, Builder<I, O>> {
+
+        public Builder() {
+            super(new While<>());
+        }
+
+        public Builder<I, O> operation(final Operation op) {
             _getOp().setOperation(op);
             return _self();
         }
 
-        public Builder maxRepeats(final Integer repeats) {
+        public Builder<I, O> maxRepeats(final Integer repeats) {
             _getOp().setMaxRepeats(repeats);
             return _self();
         }
 
-        public Builder condition(final Boolean condition) {
+        public Builder<I, O> condition(final Boolean condition) {
             if (null != condition && null != _getOp().getConditional()) {
                 throw new IllegalArgumentException("Tried to set condition when conditional has already been configured.");
             }
@@ -271,7 +267,7 @@ public class While implements InputOutput<Object, Object>,
             return _self();
         }
 
-        public Builder conditional(final Conditional conditional) {
+        public Builder<I, O> conditional(final Conditional conditional) {
             if (null != conditional && null != _getOp().isCondition()) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
@@ -280,7 +276,7 @@ public class While implements InputOutput<Object, Object>,
             return _self();
         }
 
-        public Builder conditional(final Predicate predicate) {
+        public Builder<I, O> conditional(final Predicate predicate) {
             if (null != predicate && null != _getOp().isCondition()) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
@@ -289,7 +285,7 @@ public class While implements InputOutput<Object, Object>,
             return _self();
         }
 
-        public Builder conditional(final Predicate predicate, final Operation transform) {
+        public Builder<I, O> conditional(final Predicate predicate, final Operation transform) {
             if ((null != predicate || null != transform) && null != _getOp().isCondition()) {
                 throw new IllegalArgumentException("Tried to set conditional when condition has already been configured.");
             }
