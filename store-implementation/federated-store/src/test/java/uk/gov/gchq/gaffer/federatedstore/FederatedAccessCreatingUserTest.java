@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 /**
  * The user that created the graph should still have visibility/access of the
