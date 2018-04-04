@@ -20,16 +20,16 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchema;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-public class AddSchemaHandler implements OperationHandler<AddSchema> {
+public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLibrary> {
 
     public static final String ERROR_ADDING_SCHEMA_TO_STORE_S = "Error adding schema to Store,%s";
     public static final String THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY = " the store doesn't have a graphLibrary";
 
     @Override
-    public Void doOperation(final AddSchema operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final AddSchemaToLibrary operation, final Context context, final Store store) throws OperationException {
         GraphLibrary graphLibrary = store.getGraphLibrary();
         if (null == graphLibrary) {
             throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));

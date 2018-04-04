@@ -16,62 +16,63 @@
 
 package uk.gov.gchq.gaffer.store.operation.add;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties.Builder;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
+public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
 
-    public static final String VALUE_1 = "value1";
     public static final String TEST_ID = "testId";
-    private AddStoreProperties op;
-    private StoreProperties storeProperties;
+    private Schema schema;
+    private ArrayList<String> parentSchemaIds;
+    private AddSchemaToLibrary op;
 
     @Before
     public void setUp() throws Exception {
-
-        storeProperties = new StoreProperties();
-
+        schema = new Schema.Builder()
+                .id("schemaID")
+                .build();
+        parentSchemaIds = Lists.newArrayList("value1");
         op = new Builder()
-                .storeProperties(storeProperties)
-                .parentPropertiesId(VALUE_1)
+                .parentSchemaIds(parentSchemaIds)
+                .schema(schema)
                 .id(TEST_ID)
                 .build();
     }
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("storeProperties", "id");
+        return Sets.newHashSet("schema", "id");
     }
 
     @Override
-    protected AddStoreProperties getTestObject() {
-        return new AddStoreProperties();
+    protected AddSchemaToLibrary getTestObject() {
+        return new AddSchemaToLibrary();
     }
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        //then
-        assertEquals(storeProperties, op.getStoreProperties());
-        assertEquals(VALUE_1, op.getParentPropertiesId());
+        assertEquals(schema, op.getSchema());
+        assertEquals(parentSchemaIds, op.getParentSchemaIds());
         assertEquals(TEST_ID, op.getId());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         //when
-        AddStoreProperties clone = op.shallowClone();
-
+        AddSchemaToLibrary clone = op.shallowClone();
         //then
-        assertEquals(op.getStoreProperties(), clone.getStoreProperties());
-        assertEquals(op.getParentPropertiesId(), clone.getParentPropertiesId());
+        assertEquals(op.getSchema(), clone.getSchema());
+        assertEquals(op.getParentSchemaIds(), clone.getParentSchemaIds());
         assertEquals(op.getId(), clone.getId());
     }
 }

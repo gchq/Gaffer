@@ -33,7 +33,7 @@ import java.util.Map;
  * @see Schema
  */
 @Since("1.5.0")
-public class AddSchema implements Operation {
+public class AddSchemaToLibrary implements Operation {
 
     @Required
     private Schema schema;
@@ -65,7 +65,7 @@ public class AddSchema implements Operation {
     }
 
     @Override
-    public AddSchema shallowClone() throws CloneFailedException {
+    public AddSchemaToLibrary shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
                 .parentSchemaIds(parentSchemaIds)
@@ -92,9 +92,9 @@ public class AddSchema implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
-    public static class Builder extends BaseBuilder<AddSchema, Builder> {
+    public static class Builder extends BaseBuilder<AddSchemaToLibrary, Builder> {
         public Builder() {
-            super(new AddSchema());
+            super(new AddSchemaToLibrary());
         }
 
         public Builder schema(final Schema schema) {
