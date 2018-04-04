@@ -121,7 +121,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
      * @param store        the accumulo store
      * @param columnFamily the columnFamily that will be summarised
      * @return the {@link IteratorSetting}
-     * @throws IteratorSettingException
+     * @throws IteratorSettingException if an iterator setting could not be created
      * @deprecated use getRowIdAggregatorIteratorSetting(store, columnFamily, group) instead.
      */
     @Override
