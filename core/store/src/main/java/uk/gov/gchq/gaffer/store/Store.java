@@ -81,11 +81,16 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.handler.AddSchemaToLibraryHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.AddStorePropertiesToLibraryHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -856,6 +861,12 @@ public abstract class Store {
         addOperationHandler(Filter.class, new FilterHandler());
         addOperationHandler(Transform.class, new TransformHandler());
         addOperationHandler(Aggregate.class, new AggregateHandler());
+
+        // GraphLibrary Adds
+        if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
+            addOperationHandler(AddSchemaToLibrary.class, new AddSchemaToLibraryHandler());
+            addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
+        }
     }
 
     private void addConfiguredOperationHandlers() {
