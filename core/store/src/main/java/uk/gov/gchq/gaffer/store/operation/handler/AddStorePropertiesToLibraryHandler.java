@@ -21,16 +21,16 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties;
+import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 
 
-public class AddStorePropertiesHandler implements OperationHandler<AddStoreProperties> {
+public class AddStorePropertiesToLibraryHandler implements OperationHandler<AddStorePropertiesToLibrary> {
 
     public static final String ERROR_ADDING_STORE_TO_STORE_S = "Error adding storeProperties to Store.%s";
     public static final String THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY = " the store doesn't have a graphLibrary";
 
     @Override
-    public Void doOperation(final AddStoreProperties operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final AddStorePropertiesToLibrary operation, final Context context, final Store store) throws OperationException {
         GraphLibrary graphLibrary = store.getGraphLibrary();
         if (null == graphLibrary) {
             throw new OperationException(String.format(ERROR_ADDING_STORE_TO_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));

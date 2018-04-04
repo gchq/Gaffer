@@ -34,7 +34,7 @@ import java.util.Properties;
  * @see StoreProperties
  */
 @Since("1.5.0")
-public class AddStoreProperties implements Operation {
+public class AddStorePropertiesToLibrary implements Operation {
 
     @Required
     private StoreProperties storeProperties;
@@ -58,7 +58,7 @@ public class AddStoreProperties implements Operation {
     }
 
     @Override
-    public AddStoreProperties shallowClone() throws CloneFailedException {
+    public AddStorePropertiesToLibrary shallowClone() throws CloneFailedException {
         return new Builder()
                 .storeProperties(storeProperties)
                 .parentPropertiesId(parentPropertiesId)
@@ -107,9 +107,9 @@ public class AddStoreProperties implements Operation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
-    public static class Builder extends BaseBuilder<AddStoreProperties, Builder> {
+    public static class Builder extends BaseBuilder<AddStorePropertiesToLibrary, Builder> {
         public Builder() {
-            super(new AddStoreProperties());
+            super(new AddStorePropertiesToLibrary());
         }
 
         public Builder storeProperties(final StoreProperties storeProperties) {
