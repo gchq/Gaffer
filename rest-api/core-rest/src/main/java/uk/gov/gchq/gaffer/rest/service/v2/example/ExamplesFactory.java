@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -82,12 +83,32 @@ public interface ExamplesFactory {
     /**
      * Generates an example for any {@link Operation} class.
      *
+     * @return the example class
+     * @throws IllegalAccessException if the operation could not be created
+     * @throws InstantiationException if the operation could not be created
+     */
+    void generateExamples();
+
+    /**
+     * @param opClass the operation to create an example for
+     * @return the example class
+     * @throws IllegalAccessException if the operation could not be created
+     * @throws InstantiationException if the operation could not be created
+     * @deprecated user getExample instead
+     * <p>
+     * Generates an example for any {@link Operation} class.
+     */
+    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
+
+    /**
+     * gets an example for any {@link Operation} class.
+     *
      * @param opClass the operation to create an example for
      * @return the example class
      * @throws IllegalAccessException if the operation could not be created
      * @throws InstantiationException if the operation could not be created
      */
-    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
+    Operation getExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
 
     /**
      * Generates an example for the {@link Sort} operation.
@@ -137,4 +158,11 @@ public interface ExamplesFactory {
      * @return the example class
      */
     If ifOperation();
+
+    /**
+     * Generates an example of an {@link uk.gov.gchq.gaffer.operation.OperationChain}
+     *
+     * @return the example class
+     */
+    OperationChain operationChain();
 }

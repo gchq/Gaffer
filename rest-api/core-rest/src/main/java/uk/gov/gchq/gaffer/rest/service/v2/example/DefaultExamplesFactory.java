@@ -66,6 +66,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -82,8 +83,49 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     @Inject
     private GraphFactory graphFactory;
 
+    private Map<Class<? extends Operation>, Operation> examplesMap;
+
     public DefaultExamplesFactory() {
         // public constructor required by HK2
+    }
+
+    @Override
+    public Operation getExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+        if (examplesMap.containsKey(opClass)) {
+            return examplesMap.get(opClass);
+        } else {
+            final Operation operation = opClass.newInstance();
+            final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
+
+            for (final Field field : fields) {
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                if (!isStatic(field.getModifiers())) {
+                    field.set(operation, getExampleValue(field.getType(), ThreadLocalRandom
+                            .current().nextInt(0, 11)));
+                }
+            }
+            return operation;
+        }
+    }
+
+    @Override
+    public void generateExamples() {
+        examplesMap.put(GetAllElements.class, getAllElements());
+        examplesMap.put(GetElements.class, getElements());
+        examplesMap.put(GetAdjacentIds.class, getAdjacentIds());
+        examplesMap.put(AddElements.class, addElements());
+        examplesMap.put(GenerateObjects.class, generateObjects());
+        examplesMap.put(GenerateElements.class, generateElements());
+        examplesMap.put(OperationChain.class, operationChain());
+        examplesMap.put(Sort.class, sort());
+        examplesMap.put(Max.class, max());
+        examplesMap.put(Min.class, min());
+        examplesMap.put(ToMap.class, toMap());
+        examplesMap.put(GetWalks.class, getWalks());
+        examplesMap.put(AddNamedView.class, addNamedView());
+        examplesMap.put(If.class, ifOperation());
     }
 
     @Override
@@ -514,6 +556,14 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                         .first(new GetAllElements())
                         .then(new Limit<>(10))
                         .build())
+                .build();
+    }
+
+    @Override
+    public OperationChain operationChain() {
+        return new OperationChain.Builder()
+                .first(getAllElements())
+                .then(new Limit<>(1))
                 .build();
     }
 

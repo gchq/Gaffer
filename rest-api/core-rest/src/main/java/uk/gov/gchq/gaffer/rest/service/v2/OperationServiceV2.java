@@ -243,7 +243,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
             IllegalAccessException, InstantiationException {
-        return examplesFactory.generateExample(opClass);
+        return examplesFactory.getExample(opClass);
     }
 
     private Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
