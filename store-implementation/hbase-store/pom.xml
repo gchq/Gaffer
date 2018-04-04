@@ -221,6 +221,7 @@
                                     <include>com.google.code.gson*</include>
                                     <include>org.reflections*</include>
                                     <include>org.javassist*</include>
+                                    <include>io.github.lukehutch*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
