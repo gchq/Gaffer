@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import java.lang.reflect.Field;
@@ -84,14 +85,39 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     @Inject
     private GraphFactory graphFactory;
 
-    private Map<Class<? extends Operation>, Operation> examplesMap = new HashMap<>();
+    private Map<Class<? extends Operation>, Operation> examplesMap;
 
     public DefaultExamplesFactory() {
         // public constructor required by HK2
     }
 
     @Override
-    public Operation getExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+    @PostConstruct
+    public void generateExamples() {
+        examplesMap = new HashMap<>();
+
+        examplesMap.putIfAbsent(GetAllElements.class, getAllElements());
+        examplesMap.putIfAbsent(GetElements.class, getElements());
+        examplesMap.putIfAbsent(GetAdjacentIds.class, getAdjacentIds());
+        examplesMap.putIfAbsent(AddElements.class, addElements());
+        examplesMap.putIfAbsent(GenerateObjects.class, generateObjects());
+        examplesMap.putIfAbsent(GenerateElements.class, generateElements());
+        examplesMap.putIfAbsent(OperationChain.class, operationChain());
+        examplesMap.putIfAbsent(Sort.class, sort());
+        examplesMap.putIfAbsent(Max.class, max());
+        examplesMap.putIfAbsent(Min.class, min());
+        examplesMap.putIfAbsent(ToMap.class, toMap());
+        examplesMap.putIfAbsent(GetWalks.class, getWalks());
+        examplesMap.putIfAbsent(AddNamedView.class, addNamedView());
+        examplesMap.putIfAbsent(If.class, ifOperation());
+    }
+
+    @Override
+    public Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+        if (null == examplesMap) {
+            generateExamples();
+        }
+
         if (examplesMap.containsKey(opClass)) {
             return examplesMap.get(opClass);
         } else {
@@ -107,78 +133,6 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                             .current().nextInt(0, 11)));
                 }
             }
-            return operation;
-        }
-    }
-
-    @Override
-    public void generateExamples() {
-        examplesMap.put(GetAllElements.class, getAllElements());
-        examplesMap.put(GetElements.class, getElements());
-        examplesMap.put(GetAdjacentIds.class, getAdjacentIds());
-        examplesMap.put(AddElements.class, addElements());
-        examplesMap.put(GenerateObjects.class, generateObjects());
-        examplesMap.put(GenerateElements.class, generateElements());
-        examplesMap.put(OperationChain.class, operationChain());
-        examplesMap.put(Sort.class, sort());
-        examplesMap.put(Max.class, max());
-        examplesMap.put(Min.class, min());
-        examplesMap.put(ToMap.class, toMap());
-        examplesMap.put(GetWalks.class, getWalks());
-        examplesMap.put(AddNamedView.class, addNamedView());
-        examplesMap.put(If.class, ifOperation());
-    }
-
-    @Override
-    public Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
-        final Operation operation = opClass.newInstance();
-
-        // Provide specific implementations for certain operations
-        if (operation instanceof GetAllElements) {
-            return getAllElements();
-        } else if (operation instanceof GetElements) {
-            return getElements();
-        } else if (operation instanceof GetAdjacentIds) {
-            return getAdjacentIds();
-        } else if (operation instanceof AddElements) {
-            return addElements();
-        } else if (operation instanceof GenerateObjects) {
-            return generateObjects();
-        } else if (operation instanceof GenerateElements) {
-            return generateElements();
-        } else if (operation instanceof OperationChain) {
-            return new OperationChain.Builder()
-                    .first(getAllElements())
-                    .then(new Limit<>(1))
-                    .build();
-        } else if (operation instanceof Sort) {
-            return sort();
-        } else if (operation instanceof Max) {
-            return max();
-        } else if (operation instanceof Min) {
-            return min();
-        } else if (operation instanceof ToMap) {
-            return toMap();
-        } else if (operation instanceof GetWalks) {
-            return getWalks();
-        } else if (operation instanceof AddNamedView) {
-            return addNamedView();
-        } else if (operation instanceof If) {
-            return ifOperation();
-        } else {
-
-            final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
-
-            for (final Field field : fields) {
-                if (!field.isAccessible()) {
-                    field.setAccessible(true);
-                }
-                if (!isStatic(field.getModifiers())) {
-                    field.set(operation, getExampleValue(field.getType(), ThreadLocalRandom
-                            .current().nextInt(0, 11)));
-                }
-            }
-
             return operation;
         }
     }

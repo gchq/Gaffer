@@ -84,31 +84,18 @@ public interface ExamplesFactory {
      * Generates an example for any {@link Operation} class.
      *
      * @return the example class
-     * @throws IllegalAccessException if the operation could not be created
-     * @throws InstantiationException if the operation could not be created
      */
     void generateExamples();
 
     /**
-     * @param opClass the operation to create an example for
-     * @return the example class
-     * @throws IllegalAccessException if the operation could not be created
-     * @throws InstantiationException if the operation could not be created
-     * @deprecated user getExample instead
-     * <p>
      * Generates an example for any {@link Operation} class.
-     */
-    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
-
-    /**
-     * gets an example for any {@link Operation} class.
      *
      * @param opClass the operation to create an example for
      * @return the example class
      * @throws IllegalAccessException if the operation could not be created
      * @throws InstantiationException if the operation could not be created
      */
-    Operation getExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
+    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
 
     /**
      * Generates an example for the {@link Sort} operation.
