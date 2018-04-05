@@ -33,6 +33,12 @@ import java.util.Set;
 public class GetTraits implements Operation, Output<Set<StoreTrait>> {
     public static final boolean DEFAULT_CURRENT_TRAITS = true;
 
+    /**
+     * The currentTraits holds a boolean value, which if false
+     * will return a list of all supported traits from the store.
+     * If true, it will return a list of current traits.
+     * By default it will return a list of current traits.
+     */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
     private Map<String, String> options;
 
