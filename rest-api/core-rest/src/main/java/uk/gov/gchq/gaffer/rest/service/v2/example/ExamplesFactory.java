@@ -83,13 +83,6 @@ public interface ExamplesFactory {
     /**
      * Generates an example for any {@link Operation} class.
      *
-     * @return the example class
-     */
-    void generateExamples();
-
-    /**
-     * Generates an example for any {@link Operation} class.
-     *
      * @param opClass the operation to create an example for
      * @return the example class
      * @throws IllegalAccessException if the operation could not be created
