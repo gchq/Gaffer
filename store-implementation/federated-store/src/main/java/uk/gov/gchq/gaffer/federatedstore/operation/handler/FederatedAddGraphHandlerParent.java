@@ -92,10 +92,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
     }
 
     protected Graph _makeGraph(final OP operation, final Store store) {
-        final Graph graph;
-        graph = GraphDelegate.createGraph(store, operation.getGraphId(),
-                operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId());
-        return graph;
+        return new GraphDelegate.Builder()
+                .store(store)
+                .graphId(operation.getGraphId())
+                .schema(operation.getSchema())
+                .storeProperties(operation.getStoreProperties())
+                .parentSchemaIds(operation.getParentSchemaIds())
+                .parentStorePropertiesId(operation.getParentPropertiesId())
+                .build();
     }
 }
