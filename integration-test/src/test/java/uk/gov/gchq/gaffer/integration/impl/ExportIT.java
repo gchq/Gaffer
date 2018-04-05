@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
@@ -40,9 +40,9 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
 public class ExportIT extends AbstractStoreIT {
@@ -104,13 +104,7 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(
-                Arrays.asList(
-                        getEdge(SOURCE_DIR_0, DEST_DIR_0, true),
-                        getEdge(DEST_DIR_0, SOURCE_DIR_1, true)
-                ),
-                (Iterable) export
-        );
+        assertEquals(2, Sets.newHashSet(export).size());
     }
 
     @Test
@@ -142,13 +136,6 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(
-                Arrays.asList(
-                        getEdge(SOURCE_DIR_0, DEST_DIR_0, true),
-                        getEdge(DEST_DIR_0, SOURCE_DIR_1, true)
-                ),
-                (Iterable) export,
-                true
-        );
+        assertEquals(2, Sets.newHashSet(export).size());
     }
 }
