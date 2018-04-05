@@ -4,7 +4,7 @@ set -e
 
 currentYear=$(date +%Y)
 
-for f in $(find . -type f -name '*.txt' -o -name '*.xml' -o -name '*.java' -o -name '*.js' -o -name '*.html' -o -name '*.sh' -o -name '*.cs' -o -name '*.py' -o -name '*.yml' -o -name '*.md' -o -name '*.yaml');
+for f in $(find . -type f -name '*.txt' -o -name '*.xml' -o -name '*.java' -o -name '*.js' -o -name '*.html' -o -name '*.sh' -o -name '*.cs' -o -name '*.py' -o -name '*.yml' -o -name '*.md' -o -name '*.yaml' -o -name '*.properties');
 do
     echo ${f}
     for startYear in `seq 2016 1 $((currentYear - 1))`;
