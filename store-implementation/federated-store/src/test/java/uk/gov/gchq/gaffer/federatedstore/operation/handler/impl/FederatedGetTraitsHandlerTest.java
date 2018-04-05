@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -132,6 +133,7 @@ public class FederatedGetTraitsHandlerTest {
         assertEquals(
                 Sets.newHashSet(
                         TRANSFORMATION,
+                        MATCHED_VERTEX,
                         PRE_AGGREGATION_FILTERING,
                         POST_AGGREGATION_FILTERING,
                         POST_TRANSFORMATION_FILTERING
@@ -170,6 +172,7 @@ public class FederatedGetTraitsHandlerTest {
         assertEquals(
                 Sets.newHashSet(
                         TRANSFORMATION,
+                        MATCHED_VERTEX,
                         PRE_AGGREGATION_FILTERING,
                         POST_AGGREGATION_FILTERING,
                         POST_TRANSFORMATION_FILTERING
