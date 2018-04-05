@@ -78,6 +78,7 @@ import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -376,13 +377,15 @@ public class FederatedStoreTest {
                 PRE_AGGREGATION_FILTERING,
                 POST_AGGREGATION_FILTERING,
                 POST_TRANSFORMATION_FILTERING,
-                ORDERED
+                ORDERED,
+                MATCHED_VERTEX
         ), afterAcc);
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
                 POST_AGGREGATION_FILTERING,
-                POST_TRANSFORMATION_FILTERING
+                POST_TRANSFORMATION_FILTERING,
+                MATCHED_VERTEX
         ), afterMap);
     }
 
