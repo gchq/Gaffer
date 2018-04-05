@@ -91,25 +91,24 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         // public constructor required by HK2
     }
 
-    @Override
     @PostConstruct
     public void generateExamples() {
         examplesMap = new HashMap<>();
 
-        examplesMap.putIfAbsent(GetAllElements.class, getAllElements());
-        examplesMap.putIfAbsent(GetElements.class, getElements());
-        examplesMap.putIfAbsent(GetAdjacentIds.class, getAdjacentIds());
-        examplesMap.putIfAbsent(AddElements.class, addElements());
-        examplesMap.putIfAbsent(GenerateObjects.class, generateObjects());
-        examplesMap.putIfAbsent(GenerateElements.class, generateElements());
-        examplesMap.putIfAbsent(OperationChain.class, operationChain());
-        examplesMap.putIfAbsent(Sort.class, sort());
-        examplesMap.putIfAbsent(Max.class, max());
-        examplesMap.putIfAbsent(Min.class, min());
-        examplesMap.putIfAbsent(ToMap.class, toMap());
-        examplesMap.putIfAbsent(GetWalks.class, getWalks());
-        examplesMap.putIfAbsent(AddNamedView.class, addNamedView());
-        examplesMap.putIfAbsent(If.class, ifOperation());
+        examplesMap.put(GetAllElements.class, getAllElements());
+        examplesMap.put(GetElements.class, getElements());
+        examplesMap.put(GetAdjacentIds.class, getAdjacentIds());
+        examplesMap.put(AddElements.class, addElements());
+        examplesMap.put(GenerateObjects.class, generateObjects());
+        examplesMap.put(GenerateElements.class, generateElements());
+        examplesMap.put(OperationChain.class, operationChain());
+        examplesMap.put(Sort.class, sort());
+        examplesMap.put(Max.class, max());
+        examplesMap.put(Min.class, min());
+        examplesMap.put(ToMap.class, toMap());
+        examplesMap.put(GetWalks.class, getWalks());
+        examplesMap.put(AddNamedView.class, addNamedView());
+        examplesMap.put(If.class, ifOperation());
     }
 
     @Override
@@ -514,7 +513,6 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                 .build();
     }
 
-    @Override
     public OperationChain operationChain() {
         return new OperationChain.Builder()
                 .first(getAllElements())

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -138,11 +137,4 @@ public interface ExamplesFactory {
      * @return the example class
      */
     If ifOperation();
-
-    /**
-     * Generates an example of an {@link uk.gov.gchq.gaffer.operation.OperationChain}
-     *
-     * @return the example class
-     */
-    OperationChain operationChain();
 }
