@@ -64,6 +64,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     @Inject
     private GraphFactory graphFactory;
 
-    private Map<Class<? extends Operation>, Operation> examplesMap;
+    private Map<Class<? extends Operation>, Operation> examplesMap = new HashMap<>();
 
     public DefaultExamplesFactory() {
         // public constructor required by HK2
