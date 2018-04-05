@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
@@ -32,15 +32,18 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 public class ExportIT extends AbstractStoreIT {
 
@@ -101,6 +104,51 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(2, Lists.newArrayList(export).size());
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        getEdge(SOURCE_DIR_0, DEST_DIR_0, true),
+                        getEdge(DEST_DIR_0, SOURCE_DIR_1, true)
+                ),
+                (Iterable) export
+        );
+    }
+
+    @Test
+    public void shouldExportResultsToGafferCache() throws OperationException, IOException {
+        assumeTrue("Gaffer result cache has not been enabled for this store.", graph.isSupported(ExportToGafferResultCache.class));
+
+        // Given
+        final View edgesView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+        final OperationChain<? extends Iterable<?>> exportOpChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_DIR_0))
+                        .view(edgesView)
+                        .build())
+                .then(new ExportToGafferResultCache<>())
+                .then(new GenerateObjects.Builder<EntityId>()
+                        .generator(new EntityIdExtractor())
+                        .build())
+                .then(new GetElements.Builder()
+                        .view(edgesView)
+                        .build())
+                .then(new ExportToGafferResultCache<>())
+                .then(new DiscardOutput())
+                .then(new GetGafferResultCacheExport())
+                .build();
+
+        // When
+        final Iterable<?> export = graph.execute(exportOpChain, getUser());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        getEdge(SOURCE_DIR_0, DEST_DIR_0, true),
+                        getEdge(DEST_DIR_0, SOURCE_DIR_1, true)
+                ),
+                (Iterable) export,
+                true
+        );
     }
 }
