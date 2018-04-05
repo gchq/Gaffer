@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore;
+package uk.gov.gchq.gaffer.user;
 
-import uk.gov.gchq.gaffer.user.User;
-
-public class FederatedStoreUser {
+public class StoreUser {
 
     public static final String ALL_USERS = "allUsers";
     public static final String TEST_USER = "testUser";
