@@ -117,6 +117,13 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return is;
     }
 
+    /**
+     * @param store        the accumulo store
+     * @param columnFamily the columnFamily that will be summarised
+     * @return the {@link IteratorSetting}
+     * @throws IteratorSettingException if an iterator setting could not be created
+     * @deprecated use getRowIdAggregatorIteratorSetting(store, columnFamily, group) instead.
+     */
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
         if (!store.getSchema().isAggregationEnabled()) {
@@ -129,15 +136,42 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
                 .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .columnFamily(columnFamily)
+                .group(columnFamily)
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
-                        + "combinerColumnFamilies = {}, columnFamily = {}, "
+                        + "combinerColumnFamilies = {}, columnFamily = {}, group = {}"
                         + "schema = {}, view = {}, keyConverter = {}",
                 RowIDAggregator.class.getName(),
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
-                store.getSchema().getAggregatedGroups(), columnFamily,
+                store.getSchema().getAggregatedGroups(), columnFamily, columnFamily,
+                store.getSchema(), store.getKeyPackage().getKeyConverter());
+        return is;
+    }
+
+    @Override
+    public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily, final String group) throws IteratorSettingException {
+        if (!store.getSchema().isAggregationEnabled()) {
+            LOGGER.debug("Returning null from getRowIDAggregatorIteratorSetting as store.getSchema().isAggregationEnabled() = {}",
+                    store.getSchema().isAggregationEnabled());
+            return null;
+        }
+
+        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
+                AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
+                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
+                .columnFamily(columnFamily)
+                .group(group)
+                .schema(store.getSchema())
+                .keyConverter(store.getKeyPackage().getKeyConverter())
+                .build();
+        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
+                        + "combinerColumnFamilies = {}, columnFamily = {}, group = {} "
+                        + "schema = {}, view = {}, keyConverter = {}",
+                RowIDAggregator.class.getName(),
+                AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
+                store.getSchema().getAggregatedGroups(), columnFamily, group,
                 store.getSchema(), store.getKeyPackage().getKeyConverter());
         return is;
     }
