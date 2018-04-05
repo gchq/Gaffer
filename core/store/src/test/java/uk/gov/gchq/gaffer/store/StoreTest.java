@@ -528,6 +528,7 @@ public class StoreTest {
                 GetSchema.class,
                 Map.class,
                 If.class,
+                GetTraits.class,
 
                 // Function
                 Filter.class,

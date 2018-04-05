@@ -330,7 +330,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
+        assertEquals(10, traits.size());
     }
 
     @Test
@@ -339,7 +339,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
+        assertEquals(10, traits.size());
     }
 
     @Test
