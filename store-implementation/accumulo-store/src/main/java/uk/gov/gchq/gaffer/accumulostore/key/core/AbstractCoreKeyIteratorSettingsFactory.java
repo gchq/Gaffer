@@ -117,13 +117,6 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         return is;
     }
 
-    /**
-     * @param store        the accumulo store
-     * @param columnFamily the columnFamily that will be summarised
-     * @return the {@link IteratorSetting}
-     * @throws IteratorSettingException if an iterator setting could not be created
-     * @deprecated use getRowIdAggregatorIteratorSetting(store, columnFamily, group) instead.
-     */
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
         if (!store.getSchema().isAggregationEnabled()) {

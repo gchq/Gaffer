@@ -122,6 +122,7 @@ public interface IteratorSettingFactory {
      * @param columnFamily the columnFamily that will be summarised
      * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
+     * @deprecated use getRowIdAggregatorIteratorSetting(store, columnFamily, group) instead.
      */
     IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException;
 
