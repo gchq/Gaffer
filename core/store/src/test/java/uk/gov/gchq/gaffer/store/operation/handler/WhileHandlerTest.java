@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
@@ -38,12 +39,14 @@ import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -72,11 +75,23 @@ public class WhileHandlerTest {
     @Test
     public void shouldRepeatDelegateOperationUntilMaxRepeatsReached() throws OperationException {
         // Given
-        final Object input = Collections.singletonList(mock(EntitySeed.class));
-        final int maxRepeats = 5;
-        final Operation delegate = mock(GetAdjacentIds.class);
+        final List<EntitySeed> input = Collections.singletonList(mock(EntitySeed.class));
+        final int maxRepeats = 3;
+        final GetAdjacentIds delegate = mock(GetAdjacentIds.class);
+        final GetAdjacentIds delegateClone1 = mock(GetAdjacentIds.class);
+        final GetAdjacentIds delegateClone2 = mock(GetAdjacentIds.class);
+        final GetAdjacentIds delegateClone3 = mock(GetAdjacentIds.class);
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
+
+        given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
+
+        final CloseableIterable result1 = mock(CloseableIterable.class);
+        final CloseableIterable result2 = mock(CloseableIterable.class);
+        final CloseableIterable result3 = mock(CloseableIterable.class);
+        given(store.execute(delegateClone1, context)).willReturn(result1);
+        given(store.execute(delegateClone2, context)).willReturn(result2);
+        given(store.execute(delegateClone3, context)).willReturn(result3);
 
         final While operation = new While.Builder<>()
                 .input(input)
@@ -87,21 +102,39 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When
-        handler.doOperation(operation, context, store);
+        final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(store, times(maxRepeats)).execute((Output) delegate, context);
+        verify(delegateClone1).setInput(input);
+        verify(delegateClone2).setInput(result1);
+        verify(delegateClone3).setInput(result2);
+        verify(store).execute((Output) delegateClone1, context);
+        verify(store).execute((Output) delegateClone2, context);
+        verify(store).execute((Output) delegateClone3, context);
+        assertSame(result3, result);
     }
 
     @Test
     public void shouldRepeatWhileConditionIsTrue() throws OperationException {
         // Given
-        final Object input = Collections.singletonList(mock(EntitySeed.class));
+        final List<EntitySeed> input = Collections.singletonList(mock(EntitySeed.class));
         final boolean condition = true;
-        final int maxRepeats = 10;
-        final Operation delegate = mock(GetElements.class);
+        final int maxRepeats = 3;
+        final GetElements delegate = mock(GetElements.class);
+        final GetElements delegateClone1 = mock(GetElements.class);
+        final GetElements delegateClone2 = mock(GetElements.class);
+        final GetElements delegateClone3 = mock(GetElements.class);
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
+
+        given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
+
+        final CloseableIterable result1 = mock(CloseableIterable.class);
+        final CloseableIterable result2 = mock(CloseableIterable.class);
+        final CloseableIterable result3 = mock(CloseableIterable.class);
+        given(store.execute(delegateClone1, context)).willReturn(result1);
+        given(store.execute(delegateClone2, context)).willReturn(result2);
+        given(store.execute(delegateClone3, context)).willReturn(result3);
 
         final While operation = new While.Builder<>()
                 .input(input)
@@ -113,10 +146,16 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When
-        handler.doOperation(operation, context, store);
+        final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(store, times(maxRepeats)).execute((Output) delegate, context);
+        verify(delegateClone1).setInput(input);
+        verify(delegateClone2).setInput(result1);
+        verify(delegateClone3).setInput(result2);
+        verify(store).execute((Output) delegateClone1, context);
+        verify(store).execute((Output) delegateClone2, context);
+        verify(store).execute((Output) delegateClone3, context);
+        assertSame(result3, result);
     }
 
     @Test
@@ -209,9 +248,9 @@ public class WhileHandlerTest {
                 .property("count", 3)
                 .build();
 
-        final Map<Element, Object> transform = new Map.Builder<Element>()
-                .first(new ExtractProperty("count"))
-                .build();
+        final Map<Element, Object> transform = mock(Map.class);
+        final Map<Element, Object> transformClone = mock(Map.class);
+        given(transform.shallowClone()).willReturn(transformClone);
 
         final Predicate predicate = new IsMoreThan(2);
         final Conditional conditional = new Conditional(predicate, transform);
@@ -233,8 +272,8 @@ public class WhileHandlerTest {
         handler.doOperation(operation, context, store);
 
         // Then
-        assertNotNull(transform.getInput());
-        assertEquals(input, transform.getInput());
+        verify(transformClone).setInput(input);
+        verify(store).execute(transformClone, context);
     }
 
     @Test
@@ -278,14 +317,13 @@ public class WhileHandlerTest {
     @Test
     public void shouldExecuteNonOutputOperation() throws OperationException {
         // Given
-        final Object input = Collections.singletonList(new Edge.Builder()
-                .build());
-        final AddElements addElements = new AddElements();
+        final AddElements addElements = new AddElements.Builder()
+                .input(new Edge.Builder().build())
+                .build();
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 
         final While operation = new While.Builder<>()
-                .input(input)
                 .operation(addElements)
                 .condition(true)
                 .maxRepeats(3)
