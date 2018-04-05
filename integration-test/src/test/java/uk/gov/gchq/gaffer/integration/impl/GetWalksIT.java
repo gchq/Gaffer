@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -171,14 +172,7 @@ public class GetWalksIT extends AbstractStoreIT {
                                 new Conditional(
                                         new Exists(), // This will always be true
                                         new Map.Builder<>()
-                                                .first(t -> {
-                                                    // Check the vertices have been extracted correctly.
-                                                    assertTrue(t instanceof Iterable);
-                                                    for (final Object item : (Iterable) t) {
-                                                        assertFalse(item instanceof EntityId);
-                                                    }
-                                                    return t;
-                                                })
+                                                .first(new AssertEntityIdsUnwrapped())
                                                 .build()
                                 )
                         )
@@ -192,6 +186,18 @@ public class GetWalksIT extends AbstractStoreIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
+        @Override
+        public Object apply(final Object obj) {
+            // Check the vertices have been extracted correctly.
+            assertTrue(obj instanceof Iterable);
+            for (final Object item : (Iterable) obj) {
+                assertFalse(item instanceof EntityId);
+            }
+            return obj;
+        }
     }
 
     @Test

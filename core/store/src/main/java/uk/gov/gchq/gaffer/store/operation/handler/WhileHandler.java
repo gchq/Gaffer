@@ -76,10 +76,9 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
         }
     }
 
-    public Object doDelegateOperation(Object input, final Operation delegate, final Context context, final Store store) throws OperationException {
+    public Object doDelegateOperation(final Object input, final Operation delegate, final Context context, final Store store) throws OperationException {
         updateOperationInput(delegate, input);
-        input = getResultsOrNull(delegate, context, store);
-        return input;
+        return getResultsOrNull(delegate, context, store);
     }
 
     public boolean isSatisfied(final Object input,
