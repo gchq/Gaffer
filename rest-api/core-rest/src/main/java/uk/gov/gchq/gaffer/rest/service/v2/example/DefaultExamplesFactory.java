@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -80,8 +77,6 @@ import static java.lang.reflect.Modifier.isStatic;
  * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
  */
 public class DefaultExamplesFactory implements ExamplesFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExamplesFactory.class);
-
     @Inject
     private GraphFactory graphFactory;
 
@@ -93,22 +88,23 @@ public class DefaultExamplesFactory implements ExamplesFactory {
 
     @PostConstruct
     public void generateExamples() {
-        examplesMap = new HashMap<>();
+        final Map<Class<? extends Operation>, Operation> map = new HashMap<>();
+        map.put(GetAllElements.class, getAllElements());
+        map.put(GetElements.class, getElements());
+        map.put(GetAdjacentIds.class, getAdjacentIds());
+        map.put(AddElements.class, addElements());
+        map.put(GenerateObjects.class, generateObjects());
+        map.put(GenerateElements.class, generateElements());
+        map.put(OperationChain.class, operationChain());
+        map.put(Sort.class, sort());
+        map.put(Max.class, max());
+        map.put(Min.class, min());
+        map.put(ToMap.class, toMap());
+        map.put(GetWalks.class, getWalks());
+        map.put(AddNamedView.class, addNamedView());
+        map.put(If.class, ifOperation());
 
-        examplesMap.put(GetAllElements.class, getAllElements());
-        examplesMap.put(GetElements.class, getElements());
-        examplesMap.put(GetAdjacentIds.class, getAdjacentIds());
-        examplesMap.put(AddElements.class, addElements());
-        examplesMap.put(GenerateObjects.class, generateObjects());
-        examplesMap.put(GenerateElements.class, generateElements());
-        examplesMap.put(OperationChain.class, operationChain());
-        examplesMap.put(Sort.class, sort());
-        examplesMap.put(Max.class, max());
-        examplesMap.put(Min.class, min());
-        examplesMap.put(ToMap.class, toMap());
-        examplesMap.put(GetWalks.class, getWalks());
-        examplesMap.put(AddNamedView.class, addNamedView());
-        examplesMap.put(If.class, ifOperation());
+        examplesMap = map;
     }
 
     @Override
