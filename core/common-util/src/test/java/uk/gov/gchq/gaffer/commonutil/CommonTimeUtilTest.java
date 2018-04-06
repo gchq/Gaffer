@@ -39,6 +39,9 @@ public class CommonTimeUtilTest {
         final OffsetDateTime offsetDateTime = OffsetDateTime.parse("2000-01-01T12:34:56.789Z");
         final long time = offsetDateTime.toInstant().toEpochMilli();
 
+        final OffsetDateTime yearOffsetDateTime = OffsetDateTime.parse("2000-01-01T12:34:56.789Z");
+        final long yearTime = yearOffsetDateTime.toInstant().toEpochMilli();
+
         assertEquals(parse("2000-01-01T12:34:56.789Z").toInstant().toEpochMilli(), timeToBucket(time, MILLISECOND));
         assertEquals(parse("2000-01-01T12:34:56.000Z").toInstant().toEpochMilli(), timeToBucket(time, SECOND));
         assertEquals(parse("2000-01-01T12:34:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, MINUTE));
@@ -46,7 +49,7 @@ public class CommonTimeUtilTest {
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, DAY));
         assertEquals(parse("1999-12-27T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, WEEK));
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, MONTH));
-        assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, YEAR));
+        assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(yearTime, YEAR));
     }
 
 }
