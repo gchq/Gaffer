@@ -31,11 +31,14 @@ import uk.gov.gchq.gaffer.store.Store;
 public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> {
     @Override
     protected Graph _makeGraph(final AddGraphWithHooks operation, final Store store) {
-        final Graph graph;
-        graph = GraphDelegate.createGraph(store, operation.getGraphId(),
-                operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId(),
-                operation.getHooks());
-        return graph;
+        return new GraphDelegate.Builder()
+                .store(store)
+                .graphId(operation.getGraphId())
+                .schema(operation.getSchema())
+                .storeProperties(operation.getStoreProperties())
+                .hooks(operation.getHooks())
+                .parentSchemaIds(operation.getParentSchemaIds())
+                .parentStorePropertiesId(operation.getParentPropertiesId())
+                .build();
     }
 }
