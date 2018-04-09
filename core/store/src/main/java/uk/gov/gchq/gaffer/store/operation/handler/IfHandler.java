@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.If;
-import uk.gov.gchq.gaffer.operation.io.Input;
-import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
  * An operation handler for {@link If} operations.
@@ -53,7 +53,7 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
                 } catch (final ClassCastException e) {
                     final String inputType = null != intermediate ? intermediate.getClass().getSimpleName() : "null";
                     throw new OperationException("The predicate '" + operation.getConditional().getPredicate().getClass().getSimpleName()
-                            + "' cannot accept an input of type '" + inputType);
+                            + "' cannot accept an input of type '" + inputType + "'");
                 }
             }
         } else {
@@ -66,34 +66,6 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
         } else {
             updateOperationInput(nextOp, input);
             return getResultsOrNull(nextOp, context, store);
-        }
-    }
-
-    private void updateOperationInput(final Operation operation, final Object input) {
-        if (operation instanceof OperationChain) {
-            if (!((OperationChain) operation).getOperations().isEmpty()) {
-                final Operation firstOp = (Operation) ((OperationChain) operation).getOperations().get(0);
-                if (firstOp instanceof Input) {
-                    setOperationInput(firstOp, input);
-                }
-            }
-        } else if (operation instanceof Input) {
-            setOperationInput(operation, input);
-        }
-    }
-
-    private void setOperationInput(final Operation operation, final Object input) {
-        if (null == ((Input) operation).getInput()) {
-            ((Input) operation).setInput(input);
-        }
-    }
-
-    private Object getResultsOrNull(final Operation op, final Context context, final Store store) throws OperationException {
-        if (op instanceof Output) {
-            return store.execute((Output) op, context);
-        } else {
-            store.execute(op, context);
-            return null;
         }
     }
 }
