@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
@@ -41,9 +42,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks.Builder;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -51,10 +56,12 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
@@ -70,6 +77,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class GetWalksIT extends AbstractStoreIT {
@@ -107,6 +115,89 @@ public class GetWalksIT extends AbstractStoreIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldGetPathsWithWhileRepeat() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(new While.Builder<>()
+                        .operation(operation)
+                        .maxRepeats(2)
+                        .build())
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldGetPathsWithWhile() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new Builder()
+                .input(seed)
+                .operations(new While.Builder<>()
+                        .conditional(
+                                new Conditional(
+                                        new Exists(), // This will always be true
+                                        new Map.Builder<>()
+                                                .first(new AssertEntityIdsUnwrapped())
+                                                .build()
+                                )
+                        )
+                        .operation(operation)
+                        .maxRepeats(2)
+                        .build())
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
+        @Override
+        public Object apply(final Object obj) {
+            // Check the vertices have been extracted correctly.
+            assertTrue(obj instanceof Iterable);
+            for (final Object item : (Iterable) obj) {
+                assertFalse(item instanceof EntityId);
+            }
+            return obj;
+        }
     }
 
     @Test

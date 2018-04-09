@@ -34,6 +34,9 @@ public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeed
             return null;
         }
 
-        return new StreamMapIterable<>(operation.getInput(), EntitySeed::new);
+        return new StreamMapIterable<>(
+                operation.getInput(),
+                seed -> seed instanceof EntitySeed ? ((EntitySeed) seed) : new EntitySeed(seed)
+        );
     }
 }
