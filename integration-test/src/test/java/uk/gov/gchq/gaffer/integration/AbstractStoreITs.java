@@ -15,12 +15,15 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.reflections.Reflections;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs.StoreTestSuite;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -41,6 +44,9 @@ import java.util.function.Consumer;
  */
 @RunWith(StoreTestSuite.class)
 public abstract class AbstractStoreITs {
+    @Rule
+    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     private final StoreProperties storeProperties;
     private final Schema schema;
     private final Collection<Class<? extends AbstractStoreIT>> extraTests;
