@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,11 @@ public class Conditional {
     public Conditional(final Predicate predicate, final Operation transform) {
         this.predicate = predicate;
         this.transform = transform;
+    }
+
+    public Conditional shallowClone() {
+        final Operation transformClone = null != transform ? transform.shallowClone() : null;
+        return new Conditional(predicate, transformClone);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

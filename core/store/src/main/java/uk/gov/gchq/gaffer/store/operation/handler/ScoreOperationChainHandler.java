@@ -28,11 +28,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.IfScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.WhileScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -183,6 +185,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
         defaultResolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
         defaultResolvers.put(If.class, new IfScoreResolver());
+        defaultResolvers.put(While.class, new WhileScoreResolver());
 
         return Collections.unmodifiableMap(defaultResolvers);
     }

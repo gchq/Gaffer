@@ -21,10 +21,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Date;
 import java.util.Map;
 
+@Since("1.0.0")
 @JsonPropertyOrder(alphabetic = true)
 public class OperationImpl implements Operation {
     @Required

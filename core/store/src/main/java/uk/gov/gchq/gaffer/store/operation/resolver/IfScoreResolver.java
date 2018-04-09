@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.impl.If;
 
+import static uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver.DEFAULT_OPERATION_SCORE;
+
 /**
  * An {@code IfScoreResolver} is an implementation of {@link ScoreResolver}
  * for the {@link If} operation.
@@ -28,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.impl.If;
  * regardless of which of the two possibilities are executed.</p>
  */
 public class IfScoreResolver implements ScoreResolver<If> {
-    public static final int DEFAULT_OPERATION_SCORE = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(IfScoreResolver.class);
 
     @Override
