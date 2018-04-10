@@ -17,12 +17,10 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -33,8 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
-import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -51,6 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -79,19 +77,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class GetWalksIT extends AbstractStoreIT {
-
-    @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-        addDefaultElements();
-    }
+public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
 
     @Test
     public void shouldGetPaths() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -203,7 +196,11 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithPruning() throws Exception {
         // Given
-        withPruning();
+        final StoreProperties properties = getStoreProperties();
+        properties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
+        createGraph(properties);
+        addDefaultElements();
+
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -232,6 +229,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldReturnNoResultsWhenNoEntityResults() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -269,6 +267,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithEntities() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -308,6 +307,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldThrowExceptionIfGetPathsWithHopContainingNoEdges() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
         final EntitySeed seed = new EntitySeed("A");
 
@@ -343,6 +343,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleSeeds() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed1 = new EntitySeed("A");
@@ -372,6 +373,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleEdgeTypes() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -403,6 +405,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithMultipleSeedsAndMultipleEdgeTypes() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed1 = new EntitySeed("A");
@@ -435,6 +438,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -466,6 +470,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops_2() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -497,6 +502,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithLoops_3() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -526,6 +532,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithPreFiltering_1() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -572,6 +579,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -617,6 +625,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldGetPathsWithModifiedViews() throws OperationException {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -652,7 +661,10 @@ public class GetWalksIT extends AbstractStoreIT {
         final AddOperationsToChain graphHook = new AddOperationsToChain();
         graphHook.setEnd(Lists.newArrayList(new Limit.Builder<>().resultLimit(1).build()));
 
-        withGraphHook(graphHook);
+        final GraphConfig config = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
+        createGraph(config);
+
+        addDefaultElements();
 
         final User user = new User();
 
@@ -687,7 +699,10 @@ public class GetWalksIT extends AbstractStoreIT {
         graphHookConfig.put(GetElements.class.getName(), Lists.newArrayList(new Limit.Builder<>().resultLimit(1).build()));
         graphHook.setAfter(graphHookConfig);
 
-        withGraphHook(graphHook);
+        final GraphConfig config = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
+        createGraph(config);
+
+        addDefaultElements();
 
         final User user = new User();
 
@@ -942,18 +957,13 @@ public class GetWalksIT extends AbstractStoreIT {
         return sb.toString();
     }
 
-    public void withPruning() throws OperationException {
-        final StoreProperties storeProperties = getStoreProperties();
-        storeProperties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
-        addStoreProperties(storeProperties);
-
-        addDefaultElements();
-    }
-
-    public void withGraphHook(final GraphHook graphHook) throws OperationException {
-        final GraphConfig graphConfig = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
-        addGraphConfig(graphConfig);
-
-        addDefaultElements();
+    @Override
+    protected void createDefaultGraph() {
+        super.createDefaultGraph();
+        try {
+            addDefaultElements();
+        } catch (final OperationException ex) {
+            fail("Error while adding elements to the graph: " + ex.getMessage());
+        }
     }
 }
