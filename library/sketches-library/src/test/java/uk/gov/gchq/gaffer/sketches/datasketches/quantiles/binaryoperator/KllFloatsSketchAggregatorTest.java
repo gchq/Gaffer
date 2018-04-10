@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
+package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
-import com.yahoo.sketches.theta.Sketch;
-import com.yahoo.sketches.theta.UpdateSketch;
+import com.yahoo.sketches.kll.KllFloatsSketch;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,63 +30,69 @@ import java.util.function.BinaryOperator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class SketchAggregatorTest extends BinaryOperatorTest {
+public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
     private static final double DELTA = 0.01D;
-    private UpdateSketch sketch1;
-    private UpdateSketch sketch2;
+    private KllFloatsSketch sketch1;
+    private KllFloatsSketch sketch2;
 
     @Before
     public void setup() {
-        sketch1 = UpdateSketch.builder().build();
-        sketch1.update("A");
-        sketch1.update("B");
+        sketch1 = new KllFloatsSketch();
+        sketch1.update(1.0F);
+        sketch1.update(2.0F);
+        sketch1.update(3.0F);
 
-        sketch2 = UpdateSketch.builder().build();
-        sketch2.update("C");
-        sketch2.update("D");
+        sketch2 = new KllFloatsSketch();
+        sketch2.update(4.0F);
+        sketch2.update(5.0F);
+        sketch2.update(6.0F);
+        sketch2.update(7.0F);
     }
 
     @Test
     public void testAggregate() {
-        final SketchAggregator unionAggregator = new SketchAggregator();
-        Sketch currentState = sketch1;
-        assertEquals(2.0D, currentState.getEstimate(), DELTA);
-        currentState = unionAggregator.apply(currentState, sketch2);
-        assertEquals(4.0D, currentState.getEstimate(), DELTA);
+        final KllFloatsSketchAggregator sketchAggregator = new KllFloatsSketchAggregator();
+        KllFloatsSketch currentState = sketch1;
+        assertEquals(3L, currentState.getN());
+        assertEquals(2.0D, currentState.getQuantile(0.5D), DELTA);
+
+        currentState = sketchAggregator.apply(currentState, sketch2);
+        assertEquals(7L, currentState.getN());
+        assertEquals(4.0D, currentState.getQuantile(0.5D), DELTA);
     }
 
     @Test
     public void testEquals() {
-        assertEquals(new SketchAggregator(), new SketchAggregator());
+        assertEquals(new KllFloatsSketchAggregator(), new KllFloatsSketchAggregator());
     }
 
     @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final SketchAggregator aggregator = new SketchAggregator();
+        final KllFloatsSketchAggregator aggregator = new KllFloatsSketchAggregator();
 
         // When 1
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.SketchAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.KllFloatsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final SketchAggregator deserialisedAggregator = JSONSerialiser
-                .deserialise(json.getBytes(), SketchAggregator.class);
+        final KllFloatsSketchAggregator deserialisedAggregator = JSONSerialiser
+                .deserialise(json.getBytes(), KllFloatsSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
 
     @Override
     protected Class<? extends BinaryOperator> getFunctionClass() {
-        return SketchAggregator.class;
+        return KllFloatsSketchAggregator.class;
     }
 
     @Override
-    protected SketchAggregator getInstance() {
-        return new SketchAggregator();
+    protected KllFloatsSketchAggregator getInstance() {
+        return new KllFloatsSketchAggregator();
     }
 }
