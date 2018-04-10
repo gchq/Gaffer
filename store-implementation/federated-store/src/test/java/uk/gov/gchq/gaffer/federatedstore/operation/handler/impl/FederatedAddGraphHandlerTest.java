@@ -48,8 +48,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAddGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -120,6 +120,33 @@ public class FederatedAddGraphHandlerTest {
         }
         assertTrue(set.contains(EXPECTED_GRAPH_ID));
         assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+    }
+
+    @Test
+    public void shouldAddDisabledByDefaultGraph() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        Schema expectedSchema = new Schema.Builder().build();
+
+        assertEquals(0, store.getGraphs(testUser, null).size());
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .disabledByDefault(true)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<Graph> enabledGraphs = store.getGraphs(testUser, null);
+        assertEquals(0, enabledGraphs.size());
+
+
+        Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID);
+        assertEquals(1, expectedGraphs.size());
+        assertEquals(EXPECTED_GRAPH_ID, expectedGraphs.iterator().next().getGraphId());
     }
 
     @Test

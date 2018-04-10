@@ -21,12 +21,14 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
  * An {@code HyperLogLogPlus} is a {@link java.util.function.Predicate} that simply checks that the input
  * {@link HyperLogLogPlus} cardinality is less than a control value.
  */
+@Since("1.0.0")
 public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus> {
     private long controlValue;
     private boolean orEqualTo;

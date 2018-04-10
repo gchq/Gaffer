@@ -83,7 +83,7 @@ public class OperationChainValidatorTest {
         ValidationResult validationResult = new ValidationResult();
 
         // When
-        validator.validateComparables(max, validationResult, schema, store);
+        validator.validateComparables(max, null, store, validationResult);
 
         // Then
         assertEquals(false, validationResult.isValid());

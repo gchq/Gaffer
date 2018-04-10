@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
+import uk.gov.gchq.koryphe.Since;
 
+@Since("1.0.0")
 public class ElementDedupeFilterProcessor extends FilterProcessor {
     // This element serialisation does not have the schema so not all methods can be used.
     private final ElementSerialisation elementSerialisation = new ElementSerialisation(null);

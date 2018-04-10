@@ -1683,8 +1683,8 @@ public class GraphTest {
         final GraphLibrary library1 = mock(GraphLibrary.class);
         final GraphLibrary library2 = mock(GraphLibrary.class);
 
-        final View view1 = mock(View.class);
-        final View view2 = mock(View.class);
+        final View view1 = new View.Builder().entity(TestGroups.ENTITY).build();
+        final View view2 = new View.Builder().edge(TestGroups.EDGE).build();
 
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -1729,8 +1729,8 @@ public class GraphTest {
         final GraphLibrary library1 = mock(GraphLibrary.class);
         final GraphLibrary library2 = mock(GraphLibrary.class);
 
-        final View view1 = mock(View.class);
-        final View view2 = mock(View.class);
+        final View view1 = new View.Builder().entity(TestGroups.ENTITY).build();
+        final View view2 = new View.Builder().edge(TestGroups.EDGE).build();
 
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -1761,6 +1761,34 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldReturnClonedViewFromConfig() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        final String graphId = "graphId";
+
+        final View view = new View.Builder().entity(TestGroups.ENTITY).build();
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId)
+                .view(view)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .config(config)
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // Then
+        assertEquals(graphId, graph.getGraphId());
+        assertEquals(view, graph.getView());
+        assertNotSame(view, graph.getView());
     }
 
     @Test
