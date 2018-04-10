@@ -51,8 +51,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAddGraphWithHooksHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";

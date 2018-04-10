@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -32,7 +33,7 @@ public class FederatedAccessNullEmptyTest {
 
     @Before
     public void setUp() throws Exception {
-        user = FederatedStoreUser.blankUser();
+        user = StoreUser.blankUser();
     }
 
     @Test
