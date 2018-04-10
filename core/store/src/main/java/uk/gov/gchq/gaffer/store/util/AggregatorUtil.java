@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.util;
 
+
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -24,6 +25,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,9 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -123,6 +125,7 @@ public final class AggregatorUtil {
      * the Group-by values in the {@link Schema}, the Identifiers and the Group. These act as a key and can be used in a
      * Collector to do ingest aggregation.
      */
+    @Since("1.0.0")
     public static class ToIngestElementKey extends ToElementKey {
         public ToIngestElementKey(final Schema schema) {
             super(getIngestGroupBys(schema));
@@ -134,13 +137,15 @@ public final class AggregatorUtil {
      * the Group-by values in the {@link View}, the Identifiers and the Group. These act as a key and can be used in a
      * Collector to do query aggregation.
      */
+    @Since("1.0.0")
     public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
             super(getQueryGroupBys(schema, view));
         }
     }
 
-    public static class ToElementKey implements Function<Element, Element> {
+    @Since("1.0.0")
+    public static class ToElementKey extends KorypheFunction<Element, Element> {
         private final Map<String, Set<String>> groupToGroupBys;
 
         public ToElementKey(final Map<String, Set<String>> groupToGroupBys) {
@@ -164,12 +169,14 @@ public final class AggregatorUtil {
         }
     }
 
+    @Since("1.0.0")
     public static class IngestElementBinaryOperator extends ElementBinaryOperator {
         public IngestElementBinaryOperator(final Schema schema) {
             super(schema, null);
         }
     }
 
+    @Since("1.0.0")
     public static class QueryElementBinaryOperator extends ElementBinaryOperator {
         public QueryElementBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
@@ -179,12 +186,14 @@ public final class AggregatorUtil {
         }
     }
 
+    @Since("1.0.0")
     public static class IngestPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public IngestPropertiesBinaryOperator(final Schema schema) {
             super(schema, null);
         }
     }
 
+    @Since("1.0.0")
     public static class QueryPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public QueryPropertiesBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
@@ -194,7 +203,8 @@ public final class AggregatorUtil {
         }
     }
 
-    public static class IsElementAggregated implements Predicate<Element> {
+    @Since("1.0.0")
+    public static class IsElementAggregated extends KoryphePredicate<Element> {
         final Collection<String> aggregatedGroups;
 
         public IsElementAggregated(final Schema schema) {
@@ -217,7 +227,7 @@ public final class AggregatorUtil {
         }
     }
 
-    protected static class ElementBinaryOperator implements BinaryOperator<Element> {
+    protected static class ElementBinaryOperator extends KorypheBinaryOperator<Element> {
         private final Schema schema;
         private final View view;
 
@@ -230,13 +240,7 @@ public final class AggregatorUtil {
         }
 
         @Override
-        public Element apply(final Element a, final Element b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
+        public Element _apply(final Element a, final Element b) {
             final String group = a.getGroup();
             if (null == view) {
                 return schema.getElement(group).getIngestAggregator().apply(a, b);
@@ -246,7 +250,7 @@ public final class AggregatorUtil {
         }
     }
 
-    protected static class PropertiesBinaryOperator implements BinaryOperator<GroupedProperties> {
+    protected static class PropertiesBinaryOperator extends KorypheBinaryOperator<GroupedProperties> {
         private final Schema schema;
         private final View view;
 
@@ -259,14 +263,7 @@ public final class AggregatorUtil {
         }
 
         @Override
-        public GroupedProperties apply(final GroupedProperties a, final GroupedProperties b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
-
+        public GroupedProperties _apply(final GroupedProperties a, final GroupedProperties b) {
             final String group = a.getGroup();
             if (null == view) {
                 schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);

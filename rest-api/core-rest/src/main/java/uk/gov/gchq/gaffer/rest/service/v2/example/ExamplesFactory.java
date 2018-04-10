@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -129,4 +131,18 @@ public interface ExamplesFactory {
      * @return the example class
      */
     AddNamedView addNamedView();
+
+    /**
+     * Generates an example for the {@link If} operation.
+     *
+     * @return the example class
+     */
+    If ifOperation();
+
+    /**
+     * Generates an example for the {@link While} operation.
+     *
+     * @return the example class
+     */
+    While whileOperation();
 }

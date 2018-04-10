@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import java.util.Map;
  * {@link NamedOperation} from a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "operationName"}, alphabetic = true)
+@Since("1.0.0")
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;

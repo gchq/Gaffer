@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,23 +243,17 @@ public final class Graph {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
             } else if (operation instanceof OperationView) {
-                final OperationView operationView = (OperationView) operation;
-                if (!(operationView.getView() instanceof NamedView)) {
-                    final View opView;
-                    if (null == operationView.getView()) {
-                        opView = config.getView();
-                    } else if (!operationView.getView().hasGroups()) {
-                        opView = new View.Builder()
-                                .merge(config.getView())
-                                .merge(operationView.getView())
-                                .build();
-                    } else {
-                        opView = operationView.getView();
-                    }
-
-                    opView.expandGlobalDefinitions();
-                    operationView.setView(opView);
+                View opView = ((OperationView) operation).getView();
+                if (null == opView) {
+                    opView = config.getView();
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(config.getView())
+                            .merge(opView)
+                            .build();
                 }
+                opView.expandGlobalDefinitions();
+                ((OperationView) operation).setView(opView);
             }
         }
     }
@@ -686,7 +681,7 @@ public final class Graph {
         public Builder addSchema(final InputStream schemaStream) {
             if (null != schemaStream) {
                 try {
-                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                    addSchema(IOUtils.toByteArray(schemaStream));
                 } catch (final IOException e) {
                     throw new SchemaException("Unable to read schema from input stream", e);
                 } finally {
@@ -948,7 +943,7 @@ public final class Graph {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
-                if (null == schema) {
+                if (null == schema || schema.getGroups().isEmpty()) {
                     schema = store.getSchema();
                 }
 
@@ -965,7 +960,7 @@ public final class Graph {
 
             store.setGraphLibrary(config.getLibrary());
 
-            if (null == schema) {
+            if (null == schema || schema.getGroups().isEmpty()) {
                 schema = store.getSchema();
             }
         }

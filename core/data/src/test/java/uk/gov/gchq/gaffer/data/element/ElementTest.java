@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,6 +154,23 @@ public abstract class ElementTest {
         // Then
         assertEquals(1, element1.getProperties().size());
         assertEquals("propertyValue1", element1.getProperty("property1"));
+    }
+
+    @Test
+    public void shouldRemoveProperty() {
+        // Given
+        final Element element1 = newElement("group");
+        element1.putProperty("property1", "propertyValue1");
+        element1.putProperty("property2", "propertyValue2");
+
+        // When
+        element1.removeProperty("property1");
+
+        // Then
+        assertEquals(1, element1.getProperties().size());
+        assertEquals(null, element1.getProperty("property1"));
+        assertEquals("propertyValue2", element1.getProperty("property2"));
+
     }
 
     @Test

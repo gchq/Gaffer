@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -107,6 +108,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         final CountGroups countGroups = mock(CountGroups.class);
         final ExportToSet<GroupCounts> exportToSet = mock(ExportToSet.class);
         final ExportToGafferResultCache<CloseableIterable<? extends Element>> exportToGafferCache = mock(ExportToGafferResultCache.class);
+        final If<Iterable<? extends EntityId>, Iterable<? extends EntityId>> ifOp = mock(If.class);
 
         // When
         final OperationChain<JobDetail> opChain = new Builder()
@@ -116,6 +118,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 .then(getElements1)
                 .then(generateEntitySeeds)
                 .then(getAdj3)
+                .then(ifOp)
                 .then(getElements2)
                 .then(deduplicate)
                 .then(limit)
@@ -136,6 +139,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                         getElements1,
                         generateEntitySeeds,
                         getAdj3,
+                        ifOp,
                         getElements2,
                         deduplicate,
                         limit,

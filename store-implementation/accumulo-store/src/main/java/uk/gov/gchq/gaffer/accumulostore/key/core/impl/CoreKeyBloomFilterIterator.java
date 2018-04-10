@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -37,10 +39,11 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * The BloomFilterIterator should filter out Edges based on their non searched for vertex's membership
- * of the provided bloomFilter.
+ * The CoreKeyBloomFilterIterator filters out Edges based on their non searched
+ * for vertex's membership of the provided {@link BloomFilter}.
  */
 public class CoreKeyBloomFilterIterator extends Filter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreKeyBloomFilterIterator.class);
 
     protected BloomFilter filter;
 
@@ -59,7 +62,6 @@ public class CoreKeyBloomFilterIterator extends Filter {
         }
         return filter.membershipTest(new org.apache.hadoop.util.bloom.Key(Arrays.copyOfRange(vertices, pos + 1, vertices.length - 2)));
     }
-
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
@@ -80,6 +82,7 @@ public class CoreKeyBloomFilterIterator extends Filter {
         } catch (final IOException e) {
             throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
         }
+        LOGGER.debug("Initialised CoreKeyBloomFilterIterator");
     }
 
     @Override

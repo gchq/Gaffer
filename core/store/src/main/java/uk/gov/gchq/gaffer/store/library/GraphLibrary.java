@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -344,4 +345,47 @@ public abstract class GraphLibrary {
             }
         }
     }
+
+
+    public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
+        Schema resultSchema = null;
+        if (null != parentSchemaIds) {
+            if (1 == parentSchemaIds.size()) {
+                resultSchema = this.getSchema(parentSchemaIds.get(0));
+            } else {
+                final Schema.Builder schemaBuilder = new Schema.Builder();
+                for (final String id : parentSchemaIds) {
+                    schemaBuilder.merge(this.getSchema(id));
+                }
+                resultSchema = schemaBuilder.build();
+            }
+        }
+        if (null != schema) {
+            if (null == resultSchema) {
+                resultSchema = schema;
+            } else {
+                resultSchema = new Schema.Builder()
+                        .merge(resultSchema)
+                        .merge(schema)
+                        .build();
+            }
+        }
+        return resultSchema;
+    }
+
+    public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
+        StoreProperties resultProps = null;
+        if (null != parentStorePropertiesId) {
+            resultProps = this.getProperties(parentStorePropertiesId);
+        }
+        if (null != properties) {
+            if (null == resultProps) {
+                resultProps = properties;
+            } else {
+                resultProps.merge(properties);
+            }
+        }
+        return resultProps;
+    }
+
 }

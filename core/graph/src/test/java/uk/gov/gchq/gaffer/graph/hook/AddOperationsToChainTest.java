@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import sun.misc.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -31,19 +31,25 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -213,7 +219,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         // Given
         final byte[] bytes;
         try (final InputStream inputStream = StreamUtil.openStream(getClass(), ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH)) {
-            bytes = IOUtils.readFully(inputStream, inputStream.available(), true);
+            bytes = IOUtils.toByteArray(inputStream);
         }
         final AddOperationsToChain hook = fromJson(bytes);
 
@@ -337,6 +343,11 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         Operation count = new Count<>();
         Operation countGroups = new CountGroups();
         Operation getElements = new GetElements();
+        If ifOp = new If.Builder<>()
+                .conditional(new Conditional(new Exists(), new GetElements()))
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
         Operation getAllElements = new GetAllElements();
         Operation limit = new Limit<>();
 
@@ -346,6 +357,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .first(getElements)
                         .then(getAllElements)
                         .build())
+                .then(ifOp)
                 .build();
 
         // When
@@ -366,7 +378,42 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .then(limit)
                         .then(validate)
                         .build())
-                .then(count)
+                .then(new If.Builder<>()
+                        .conditional(new Conditional(new Exists(), new OperationChain<>(new CountGroups(), new GetElements())))
+                        .then(new OperationChain<>(new CountGroups(), new GetElements()))
+                        .otherwise(new OperationChain<>(new GetAllElements(), new Limit<>(), new Validate()))
+                        .build())
+                .then(new Count())
+                .build();
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+    }
+
+    @Test
+    public void shouldHandleIfOperationWithNoConditionalOrOtherwise() throws SerialisationException {
+        // Given
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStoreFromFile();
+        If ifOp = new If.Builder<>()
+                .then(new GetElements())
+                .build();
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(ifOp)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context(new User()));
+
+        // Then
+        final OperationChain expectedOpChain = new OperationChain.Builder()
+                .first(discardOutput)
+                .then(splitStore)
+                .then(new If.Builder<>()
+                        .then(new OperationChain<>(new CountGroups(), new GetElements()))
+                        .build())
+                .then(new Count())
                 .build();
         JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
@@ -405,6 +452,60 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(count)
                 .build();
         JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+    }
+
+    @Test
+    public void shouldAddIfOperation() throws SerialisationException {
+        // Given
+        final GetWalks getWalks = new GetWalks();
+        final uk.gov.gchq.gaffer.operation.impl.Map map = new uk.gov.gchq.gaffer.operation.impl.Map();
+        final ToVertices toVertices = new ToVertices();
+        final ToSet toSet = new ToSet();
+        final Exists exists = new Exists();
+        final Limit limit = new Limit();
+        final GetAllElements getAllElements = new GetAllElements();
+        final GetElements getElements = new GetElements();
+
+        final Conditional conditional = new Conditional();
+        conditional.setPredicate(exists);
+
+        final If ifOp = new If.Builder<>()
+                .conditional(conditional)
+                .then(getElements)
+                .otherwise(getAllElements)
+                .build();
+
+        final AddOperationsToChain hook = new AddOperationsToChain();
+
+        final Map<String, List<Operation>> after = new HashMap<>();
+        final List<Operation> afterOps = new LinkedList<>();
+        afterOps.add(ifOp);
+        afterOps.add(limit);
+        after.put("uk.gov.gchq.gaffer.operation.impl.output.ToSet", afterOps);
+        hook.setAfter(after);
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getWalks)
+                .then(map)
+                .then(toVertices)
+                .then(toSet)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context());
+
+        // Then
+        final OperationChain expectedOpChain = new OperationChain.Builder()
+                .first(getWalks)
+                .then(map)
+                .then(toVertices)
+                .then(toSet)
+                .then(ifOp)
+                .then(limit)
+                .build();
+
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain),
+                JSONSerialiser.serialise(opChain));
     }
 
     @Test

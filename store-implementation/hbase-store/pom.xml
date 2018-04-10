@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2017 Crown Copyright
+  ~ Copyright 2016-2018 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.3.1-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>hbase-store</artifactId>
@@ -221,6 +221,7 @@
                                     <include>com.google.code.gson*</include>
                                     <include>org.reflections*</include>
                                     <include>org.javassist*</include>
+                                    <include>io.github.lukehutch*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

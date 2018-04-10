@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -23,6 +24,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link BoundedTimestampSet}s and aggregates the second one into the first. The {@link BoundedTimestampSet}s can
  * only be aggregated if they have the same time bucket and maximum size.
  */
+@Since("1.0.0")
 public class BoundedTimestampSetAggregator extends KorypheBinaryOperator<BoundedTimestampSet> {
 
     @Override

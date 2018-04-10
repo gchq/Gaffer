@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -367,7 +367,7 @@ public abstract class AbstractGraphLibraryTest {
             graphLibrary.add(TEST_GRAPH_ID, null, storeProperties);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName(), TEST_GRAPH_ID));
+            assertEquals(String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName(), TEST_GRAPH_ID), e.getMessage());
         }
     }
 
@@ -377,7 +377,7 @@ public abstract class AbstractGraphLibraryTest {
             graphLibrary.add(TEST_GRAPH_ID, schema, null);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), TEST_GRAPH_ID));
+            assertEquals(String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), TEST_GRAPH_ID), e.getMessage());
         }
     }
 
@@ -387,7 +387,7 @@ public abstract class AbstractGraphLibraryTest {
             graphLibrary.add(TEST_GRAPH_ID, null, null);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName() + " and " + StoreProperties.class.getSimpleName(), TEST_GRAPH_ID));
+            assertEquals(String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName() + " and " + StoreProperties.class.getSimpleName(), TEST_GRAPH_ID), e.getMessage());
         }
     }
 }

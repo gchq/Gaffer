@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.time.Instant;
@@ -27,13 +28,14 @@ import java.util.Map;
  * time series contain a value for the same timestamp then the two timestamps
  * are summed.
  */
+@Since("1.1.0")
 public class LongTimeSeriesAggregator extends KorypheBinaryOperator<LongTimeSeries> {
 
     @Override
     protected LongTimeSeries _apply(final LongTimeSeries a, final LongTimeSeries b) {
         if (!b.getTimeBucket().equals(a.getTimeBucket())) {
             throw new RuntimeException("Can't aggregate two LongTimeSeries with different time buckets: "
-            + "a had bucket " + a.getTimeBucket() + ", b had bucket " + b.getTimeBucket());
+                    + "a had bucket " + a.getTimeBucket() + ", b had bucket " + b.getTimeBucket());
         }
         for (final Map.Entry<Instant, Long> entry : b.getTimeSeries().entrySet()) {
             a.upsert(entry.getKey(), entry.getValue());

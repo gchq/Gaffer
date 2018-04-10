@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,11 @@ import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class DeleteNamedViewHandlerTest {
+    private static final String WRITE_ACCESS_ROLE = "writeRole";
     private final NamedViewCache namedViewCache = new NamedViewCache();
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final DeleteNamedViewHandler deleteNamedViewHandler = new DeleteNamedViewHandler(namedViewCache);
@@ -54,6 +56,7 @@ public class DeleteNamedViewHandlerTest {
     private final StoreProperties properties = new StoreProperties();
     private final Context context = new Context(new User.Builder()
             .userId(testUserId)
+            .opAuth(WRITE_ACCESS_ROLE)
             .build());
     private final Store store = mock(Store.class);
     private View view;
@@ -64,6 +67,8 @@ public class DeleteNamedViewHandlerTest {
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
 
+        given(store.getProperties()).willReturn(new StoreProperties());
+
         testParameters.put("testParam", mock(ViewParameterDetail.class));
 
         view = new View.Builder()
@@ -73,6 +78,7 @@ public class DeleteNamedViewHandlerTest {
         addNamedView = new AddNamedView.Builder()
                 .name(testNamedViewName)
                 .view(view)
+                .writeAccessRoles(WRITE_ACCESS_ROLE)
                 .overwrite(false)
                 .build();
 

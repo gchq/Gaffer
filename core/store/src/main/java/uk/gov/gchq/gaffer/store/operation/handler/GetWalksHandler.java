@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.GraphWindow;
 import uk.gov.gchq.gaffer.data.graph.Walk;
@@ -37,11 +38,13 @@ import uk.gov.gchq.gaffer.data.graph.entity.SimpleEntityMaps;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
-import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -88,7 +91,6 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     @Override
     public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
-
         // Check input
         if (null == getWalks.getInput()) {
             return null;
@@ -101,6 +103,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         final Integer resultLimit = getWalks.getResultsLimit();
         final int hops = getWalks.getNumberOfGetEdgeOperations();
+
 
         final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false);
         final List<EntityId> originalInput = Lists.newArrayList(limitedInputItr);
@@ -115,34 +118,21 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final AdjacencyMaps adjacencyMaps = prune ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
         final EntityMaps entityMaps = new SimpleEntityMaps();
 
-        List<Object> seeds = null;
+        List<?> seeds = originalInput;
 
         // Execute the operations
-        for (final Output<Iterable<Element>> operation : getWalks.getOperations()) {
-            final Iterable<Element> results = executeOperation(operation, originalInput, seeds, resultLimit, context, store);
-
-            final AdjacencyMap adjacencyMap = new AdjacencyMap();
-            final EntityMap entityMap = new EntityMap();
-
-            final List<Object> nextSeeds = new ArrayList<>();
-            for (final Element e : results) {
-                if (e instanceof Edge) {
-                    final Edge edge = (Edge) e;
-                    final Object nextSeed = edge.getAdjacentMatchedVertexValue();
-                    nextSeeds.add(nextSeed);
-                    adjacencyMap.putEdge(edge.getMatchedVertexValue(), nextSeed, edge);
-                } else {
-                    final Entity entity = (Entity) e;
-                    entityMap.putEntity(entity.getVertex(), entity);
-                }
+        for (final OperationChain<Iterable<Element>> operation : getWalks.getOperations()) {
+            if (isWhileOperation(operation)) {
+                seeds = executeWhileOperation(
+                        operation, seeds, resultLimit,
+                        context, store, hops, adjacencyMaps, entityMaps
+                );
+            } else {
+                seeds = executeOperation(
+                        operation, seeds, resultLimit,
+                        context, store, hops, adjacencyMaps, entityMaps
+                );
             }
-
-            if (hops > adjacencyMaps.size()) {
-                adjacencyMaps.add(adjacencyMap);
-            }
-            entityMaps.add(entityMap);
-
-            seeds = nextSeeds;
         }
 
         // Must add an empty entity map at the end if one has not been explicitly
@@ -175,30 +165,107 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         this.prune = prune;
     }
 
+    private boolean isWhileOperation(final OperationChain<Iterable<Element>> operation) {
+        return 1 == operation.getOperations().size()
+                && operation.getOperations().get(0) instanceof While;
+    }
+
+    private List<?> executeWhileOperation(final OperationChain<Iterable<Element>> operation,
+                                          final List<?> seeds,
+                                          final Integer resultLimit,
+                                          final Context context,
+                                          final Store store,
+                                          final int hops,
+                                          final AdjacencyMaps adjacencyMaps,
+                                          final EntityMaps entityMaps) throws OperationException {
+        List<?> resultSeeds = seeds;
+        final While whileOp = (While) operation.getOperations().get(0);
+        if (null != whileOp.getOperation()) {
+            validateWhileOperation(whileOp);
+            final OperationHandler opHandler = store.getOperationHandler(While.class);
+            if (null == opHandler) {
+                throw new UnsupportedOperationException("While operations are not supported by this store");
+            }
+            if (!(opHandler instanceof WhileHandler)) {
+                throw new UnsupportedOperationException("To use While operations within GetWalks, the While handler must be a " + WhileHandler.class.getName());
+            }
+
+            final WhileHandler whileHandler = (WhileHandler) opHandler;
+            whileHandler.validateMaxRepeats(whileOp);
+
+            // Change the transform to unwrap entity ids first.
+            if (null != whileOp.getConditional() && null != whileOp.getConditional().getTransform()) {
+                whileOp.getConditional().setTransform(new OperationChain<>(
+                        new Map.Builder<>()
+                                .first(new IterableFunction.Builder<>()
+                                        .first(new UnwrapEntityId())
+                                        .build())
+                                .build(),
+                        whileOp.getConditional().getTransform()));
+            }
+
+            for (int repeatCount = 0; repeatCount < whileOp.getMaxRepeats(); repeatCount++) {
+                final While whileOpClone = whileOp.shallowClone();
+                if (!whileHandler.isSatisfied(resultSeeds, whileOpClone, context, store)) {
+                    break;
+                }
+                resultSeeds = executeOperation(
+                        (Output) whileOpClone.getOperation(),
+                        resultSeeds, resultLimit,
+                        context, store, hops, adjacencyMaps, entityMaps
+                );
+            }
+        }
+
+        return resultSeeds;
+    }
+
+    private List<?> executeOperation(final Output<Iterable<Element>> operation,
+                                     final List<?> seeds,
+                                     final Integer resultLimit,
+                                     final Context context,
+                                     final Store store,
+                                     final int hops,
+                                     final AdjacencyMaps adjacencyMaps,
+                                     final EntityMaps entityMaps) throws OperationException {
+        final Iterable<Element> results = executeOperation(operation, seeds, resultLimit, context, store);
+
+        final AdjacencyMap adjacencyMap = new AdjacencyMap();
+        final EntityMap entityMap = new EntityMap();
+
+        final List<Object> nextSeeds = new ArrayList<>();
+        for (final Element e : results) {
+            if (e instanceof Edge) {
+                final Edge edge = (Edge) e;
+                final Object nextSeed = edge.getAdjacentMatchedVertexValue();
+                nextSeeds.add(nextSeed);
+                adjacencyMap.putEdge(edge.getMatchedVertexValue(), nextSeed, edge);
+            } else {
+                final Entity entity = (Entity) e;
+                entityMap.putEntity(entity.getVertex(), entity);
+            }
+        }
+
+        if (hops > adjacencyMaps.size()) {
+            adjacencyMaps.add(adjacencyMap);
+        }
+        entityMaps.add(entityMap);
+
+        return nextSeeds;
+    }
+
     private Iterable<Element> executeOperation(final Output<Iterable<Element>> operation,
-                                               final Iterable<? extends EntityId> originalSeeds,
-                                               final List<Object> seeds,
+                                               final List<?> seeds,
                                                final Integer resultLimit,
                                                final Context context,
                                                final Store store) throws OperationException {
 
-        final Output<Iterable<Element>> convertedOp;
-
-        if (null == seeds) {
-            if (operation instanceof OperationChain) {
-                ((Input) ((OperationChain) operation).getOperations().get(0)).setInput(originalSeeds);
-            } else {
-                ((Input) operation).setInput(originalSeeds);
-            }
-            convertedOp = operation;
-        } else {
-            convertedOp = new OperationChain.Builder()
-                    .first(new ToEntitySeeds.Builder()
-                            .input(seeds)
-                            .build())
-                    .then(OperationChain.wrap(operation))
-                    .build();
-        }
+        final Output<Iterable<Element>> convertedOp = new OperationChain.Builder()
+                .first(new ToEntitySeeds.Builder()
+                        .input(seeds)
+                        .build())
+                .then(OperationChain.wrap(operation))
+                .build();
 
         // Execute an the operation chain on the supplied store and cache
         // the seeds in memory using an ArrayList.
@@ -250,5 +317,15 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         }
 
         return builder.build();
+    }
+
+    private void validateWhileOperation(final While whileOp) {
+        if (!(whileOp.getOperation() instanceof Output)
+                || !Iterable.class.isAssignableFrom(((Output) whileOp.getOperation()).getOutputClass())) {
+            throw new IllegalArgumentException(
+                    "The While Operation delegate must be an operation that returns an Iterable of Elements. "
+                            + whileOp.getOperation().getClass().getName() + " does not satisfy this."
+            );
+        }
     }
 }

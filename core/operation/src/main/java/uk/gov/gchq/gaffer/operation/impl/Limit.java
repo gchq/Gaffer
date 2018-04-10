@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import java.util.Map;
  * @see Limit.Builder
  */
 @JsonPropertyOrder(value = {"class", "input", "resultsLimit"}, alphabetic = true)
+@Since("1.0.0")
 public class Limit<T> implements
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {

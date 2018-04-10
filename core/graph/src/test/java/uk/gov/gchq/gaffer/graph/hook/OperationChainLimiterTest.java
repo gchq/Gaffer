@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,20 +244,5 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // Then
         assertEquals(opScores, result);
-    }
-
-    @Test
-    public void shouldSetAndGetScoreResolvers() {
-        // Given
-        final OperationChainLimiter hook = new OperationChainLimiter();
-        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
-        resolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
-
-        // When
-        hook.setScoreResolvers(resolvers);
-        final Map<Class<? extends Operation>, ScoreResolver> result = hook.getScoreResolvers();
-
-        // Then
-        assertEquals(resolvers, result);
     }
 }

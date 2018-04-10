@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.util.Map.Entry;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
  * An {@code FreqMapAggregator} is a {@link KorypheBinaryOperator} that takes in
  * {@link FreqMap}s and merges the frequencies together.
  */
+@Since("1.0.0")
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
     @Override
     protected FreqMap _apply(final FreqMap a, final FreqMap b) {

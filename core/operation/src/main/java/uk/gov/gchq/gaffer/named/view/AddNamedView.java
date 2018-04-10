@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.named.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,9 +32,13 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +46,7 @@ import java.util.Map;
  * to a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "name", "description", "view"}, alphabetic = true)
+@Since("1.3.0")
 public class AddNamedView implements Operation {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     @Required
@@ -48,6 +55,7 @@ public class AddNamedView implements Operation {
     private String view;
 
     private String description;
+    private List<String> writeAccessRoles = new ArrayList<>();
     private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
@@ -107,6 +115,15 @@ public class AddNamedView implements Operation {
         this.description = description;
     }
 
+    @JsonInclude(Include.NON_EMPTY)
+    public List<String> getWriteAccessRoles() {
+        return writeAccessRoles;
+    }
+
+    public void setWriteAccessRoles(final List<String> writeAccessRoles) {
+        this.writeAccessRoles = writeAccessRoles;
+    }
+
     public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         this.parameters = parameters;
     }
@@ -139,6 +156,7 @@ public class AddNamedView implements Operation {
                 .name(name)
                 .view(view)
                 .description(description)
+                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
                 .options(options)
@@ -167,6 +185,11 @@ public class AddNamedView implements Operation {
 
         public Builder description(final String description) {
             _getOp().setDescription(description);
+            return _self();
+        }
+
+        public Builder writeAccessRoles(final String... roles) {
+            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
             return _self();
         }
 

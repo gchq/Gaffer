@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
+import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -31,9 +31,14 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-        final Graph graph = GraphDelegate.createGraph(store, export.getGraphId(),
-                export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
-                export.getParentStorePropertiesId());
-        return new OtherGraphExporter(context, graph);
+        return new OtherGraphExporter(context, new GraphForExportDelegate.Builder()
+                .store(store)
+                .graphId(export.getGraphId())
+                .schema(export.getSchema())
+                .storeProperties(export.getStoreProperties())
+                .parentSchemaIds(export.getParentSchemaIds())
+                .parentStorePropertiesId(export.getParentStorePropertiesId())
+                .build());
     }
+
 }
