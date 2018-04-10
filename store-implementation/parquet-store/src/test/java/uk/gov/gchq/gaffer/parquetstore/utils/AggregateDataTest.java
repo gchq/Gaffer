@@ -28,7 +28,6 @@ import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
@@ -37,6 +36,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateGroup
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.TestTypes;
 
 import java.io.IOException;
 

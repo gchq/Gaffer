@@ -52,7 +52,7 @@ public abstract class StandaloneIT {
         return new User();
     }
 
-    public  StoreProperties createStoreProperties() {
+    public StoreProperties createStoreProperties() {
         return StoreProperties.loadStoreProperties("store.properties");
     }
 }
