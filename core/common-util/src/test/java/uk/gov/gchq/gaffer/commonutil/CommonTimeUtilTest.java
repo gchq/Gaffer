@@ -39,7 +39,7 @@ public class CommonTimeUtilTest {
         final OffsetDateTime offsetDateTime = OffsetDateTime.parse("2000-01-01T12:34:56.789Z");
         final long time = offsetDateTime.toInstant().toEpochMilli();
 
-        final OffsetDateTime yearOffsetDateTime = OffsetDateTime.parse("2000-01-01T12:34:56.789Z");
+        final OffsetDateTime yearOffsetDateTime = OffsetDateTime.parse("2000-02-03T12:34:56.789Z");
         final long yearTime = yearOffsetDateTime.toInstant().toEpochMilli();
 
         assertEquals(parse("2000-01-01T12:34:56.789Z").toInstant().toEpochMilli(), timeToBucket(time, MILLISECOND));
