@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -377,7 +378,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
     }
 
     @Test
-    public void shouldReturnDefaultTimestampWhenPropertyIsNull() throws Exception {
+    public void shouldReturnDefaultTimestampForAggGroupWhenPropertyIsNull() throws Exception {
         // Given
         final Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
@@ -388,6 +389,21 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
         // Then
         assertEquals(DEFAULT_TIMESTAMP, timestamp);
+    }
+
+    @Test
+    public void shouldReturnRandomTimestampForNonAggGroupWhenPropertyIsNull() throws Exception {
+        // Given
+        final Properties properties = new Properties();
+        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(AccumuloPropertyNames.PROP_1, 2);
+
+        // When
+        final long timestamp1 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
+        final long timestamp2 = converter.buildTimestamp(TestGroups.EDGE_3, properties);
+
+        // Then
+        assertNotEquals(timestamp1, timestamp2);
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ public class StorePropertiesTest {
     public void shouldRemovePropertyWhenPropertyValueIsNull() {
         // Given
         final StoreProperties props = createStoreProperties();
-        System.out.println(props.getProperties());
 
         // When
         props.set("testKey", null);
@@ -192,6 +191,19 @@ public class StorePropertiesTest {
                 TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
                 props.getJsonSerialiserModules()
         );
+    }
+
+    @Test
+    public void shouldGetAndSetAdminAuth() {
+        // Given
+        final String adminAuth = "admin auth";
+        final StoreProperties props = createStoreProperties();
+
+        // When
+        props.setAdminAuth(adminAuth);
+
+        // Then
+        assertEquals(adminAuth, props.getAdminAuth());
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {

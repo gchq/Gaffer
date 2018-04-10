@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreMultiCacheTest {
 
@@ -42,8 +46,8 @@ public class FederatedStoreMultiCacheTest {
     public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
     public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    public static User authUser = FederatedStoreUser.authUser();
-    public static User testUser = FederatedStoreUser.testUser();
+    public static User authUser = authUser();
+    public static User testUser = testUser();
     public FederatedStore store;
     public FederatedStoreProperties federatedStoreProperties;
     public Collection<String> originalStoreIds;
@@ -61,7 +65,7 @@ public class FederatedStoreMultiCacheTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedStoreProperties);
         store.execute(new AddGraph.Builder()
                 .graphId(ACC_ID_1)
-                .graphAuths(FederatedStoreUser.AUTH_1)
+                .graphAuths(AUTH_1)
                 .isPublic(false)
                 .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
@@ -72,7 +76,7 @@ public class FederatedStoreMultiCacheTest {
 
         store2 = new FederatedStore();
         store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);
-        blankUser = FederatedStoreUser.blankUser();
+        blankUser = blankUser();
     }
 
     @After

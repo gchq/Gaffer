@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1101,6 +1101,33 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldGetSchemaFromStoreIfSchemaIsEmpty() throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", String.class)
+                .build();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        final View view = mock(View.class);
+        new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .view(view)
+                        .build())
+                .addSchema(new Schema())
+                .store(store)
+                .build();
+
+        // When
+        verify(store).setOriginalSchema(schema);
+    }
+
+    @Test
     public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore()
             throws OperationException {
         // Given
@@ -1656,8 +1683,8 @@ public class GraphTest {
         final GraphLibrary library1 = mock(GraphLibrary.class);
         final GraphLibrary library2 = mock(GraphLibrary.class);
 
-        final View view1 = mock(View.class);
-        final View view2 = mock(View.class);
+        final View view1 = new View.Builder().entity(TestGroups.ENTITY).build();
+        final View view2 = new View.Builder().edge(TestGroups.EDGE).build();
 
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -1702,8 +1729,8 @@ public class GraphTest {
         final GraphLibrary library1 = mock(GraphLibrary.class);
         final GraphLibrary library2 = mock(GraphLibrary.class);
 
-        final View view1 = mock(View.class);
-        final View view2 = mock(View.class);
+        final View view1 = new View.Builder().entity(TestGroups.ENTITY).build();
+        final View view2 = new View.Builder().edge(TestGroups.EDGE).build();
 
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -1734,6 +1761,34 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldReturnClonedViewFromConfig() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        final String graphId = "graphId";
+
+        final View view = new View.Builder().entity(TestGroups.ENTITY).build();
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId)
+                .view(view)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .config(config)
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // Then
+        assertEquals(graphId, graph.getGraphId());
+        assertEquals(view, graph.getView());
+        assertNotSame(view, graph.getView());
     }
 
     @Test

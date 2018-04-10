@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1170,6 +1170,34 @@ public class ViewTest extends JSONSerialisationTest<View> {
     }
 
     @Test
+    public void shouldAddGlobalElementTransformToEntityGroupFromBuilder() {
+        // Given
+        final ElementTransformer elementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_3)
+                .execute(new Identity())
+                .project(TestPropertyNames.PROP_1)
+                .build();
+
+        // When
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .transformer(elementTransformer)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .expandGlobalDefinitions()
+                .build();
+
+        // Then
+        assertEquals(elementTransformer.getComponents().get(0).getFunction().getClass().getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getTransformer().getComponents().get(0).getFunction().getClass().getSimpleName());
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
     public void shouldAddGlobalElementTransformToEntityGroup() {
         // Given
         final ElementTransformer elementTransformer = new ElementTransformer.Builder()
@@ -1412,6 +1440,32 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 view.getEntity(TestGroups.ENTITY).getPostTransformFilter()
                         .getComponents().get(1).getPredicate()
                         .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldFilterEntitiesInBuilder() {
+        // When
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .removeEntities(e -> e.getKey().equals(TestGroups.ENTITY))
+                .build();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestGroups.ENTITY_2), view.getEntityGroups());
+    }
+
+    @Test
+    public void shouldFilterEdgesInBuilder() {
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2)
+                .removeEdges(e -> e.getKey().equals(TestGroups.EDGE))
+                .build();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestGroups.EDGE_2), view.getEdgeGroups());
     }
 
     private View createView() {

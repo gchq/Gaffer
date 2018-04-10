@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -469,6 +469,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 }
             }
 
+            return self();
+        }
+
+        public CHILD_CLASS expandGlobalDefinitions() {
+            getThisView().expandGlobalDefinitions();
             return self();
         }
 

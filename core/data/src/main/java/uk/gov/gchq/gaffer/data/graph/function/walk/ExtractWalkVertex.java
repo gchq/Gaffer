@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
  * An {@code ExtractWalkVertex} is a utility {@link KorypheFunction},
  * for simplifying the extraction of the starting Vertex from a {@link Walk} object.
  */
+@Since("1.3.0")
 public class ExtractWalkVertex extends KorypheFunction<Walk, Object> {
     @Override
     public Object apply(final Walk walk) {

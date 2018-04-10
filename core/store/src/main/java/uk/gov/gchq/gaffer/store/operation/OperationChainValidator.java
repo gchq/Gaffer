@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -54,24 +53,28 @@ public class OperationChainValidator {
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
         } else {
-            final Schema schema = store.getSchema();
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
-                validationResult.add(op.validate());
-                output = validateInputOutputTypes(op, validationResult, store, output);
-                validateViews(op, validationResult, schema, store);
-                validateComparables(op, validationResult, schema, store);
+                output = validate(op, user, store, validationResult, output);
             }
         }
 
         return validationResult;
     }
 
-    protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final Store store, final Class<? extends Output> output) {
-        Class<? extends Output> newOutput = output;
-        if (null == output) {
+    protected Class<? extends Output> validate(final Operation operation, final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
+        validationResult.add(operation.validate());
+        final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
+        validateViews(operation, user, store, validationResult);
+        validateComparables(operation, user, store, validationResult);
+        return output;
+    }
+
+    protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final Store store, final Class<? extends Output> input) {
+        Class<? extends Output> output = input;
+        if (null == input) {
             if (operation instanceof Output) {
-                newOutput = ((Output) operation).getClass();
+                output = ((Output) operation).getClass();
             }
         } else {
             final Operation firstOp;
@@ -81,27 +84,40 @@ public class OperationChainValidator {
                 firstOp = operation;
             }
             if (firstOp instanceof Input) {
-                final Class<?> outputType = OperationUtil.getOutputType(output);
+                final Class<?> outputType = OperationUtil.getOutputType(input);
                 final Class<?> inputType = OperationUtil.getInputType(((Input) firstOp));
 
                 validationResult.add(OperationUtil.isValid(outputType, inputType));
             } else {
                 validationResult.addError("Invalid combination of operations: "
-                        + output.getName() + " -> " + firstOp.getClass().getName()
-                        + ". " + output.getClass().getSimpleName() + " has an output but "
+                        + input.getName() + " -> " + firstOp.getClass().getName()
+                        + ". " + input.getClass().getSimpleName() + " has an output but "
                         + firstOp.getClass().getSimpleName() + " does not take an input.");
             }
             if (operation instanceof Output) {
-                newOutput = ((Output) operation).getClass();
+                output = ((Output) operation).getClass();
             } else {
-                newOutput = null;
+                output = null;
             }
         }
-        return newOutput;
+        return output;
     }
 
-    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schema, final Store store) {
+    /**
+     * @param op               the operation
+     * @param validationResult the validation result
+     * @param schemaNotUsed    the unused schema
+     * @param store            the store
+     * @deprecated use {@link #validateComparables(Operation, User, Store, ValidationResult)} instead
+     */
+    @Deprecated
+    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
+        validateComparables(op, null, store, validationResult);
+    }
+
+    protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof ElementComparison) {
+            final Schema schema = getSchema(op, user, store);
             for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
                 final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
                 if (null == elementDef) {
@@ -121,20 +137,32 @@ public class OperationChainValidator {
         }
     }
 
-    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schema, final Store store) {
-        final View opView;
-        if (op instanceof GraphFilters) {
-            opView = ((GraphFilters) op).getView();
-        } else {
-            opView = null;
-        }
+    /**
+     * @param op               the operation
+     * @param validationResult the validation result
+     * @param schemaNotUsed    the unused schema
+     * @param store            the store
+     * @deprecated use {@link #validateViews(Operation, User, Store, ValidationResult)} instead
+     */
+    @Deprecated
+    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
+        validateViews(op, null, store, validationResult);
+    }
 
-        final ValidationResult viewValidationResult = viewValidator.validate(opView, schema, store.getTraits());
-        if (!viewValidationResult.isValid()) {
-            validationResult.addError("View for operation "
-                    + op.getClass().getName()
-                    + " is not valid. ");
-            validationResult.add(viewValidationResult);
+    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
+        if (op instanceof GraphFilters) {
+            final Schema schema = getSchema(op, user, store);
+            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, store.getTraits());
+            if (!viewValidationResult.isValid()) {
+                validationResult.addError("View for operation "
+                        + op.getClass().getName()
+                        + " is not valid. ");
+                validationResult.add(viewValidationResult);
+            }
         }
+    }
+
+    protected Schema getSchema(final Operation operation, final User user, final Store store) {
+        return store.getSchema();
     }
 }

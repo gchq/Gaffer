@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.Assert.assertEquals;
 
@@ -61,8 +62,8 @@ public class FederatedStorePublicAccessTest {
         library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
-        blankUserContext = new Context(FederatedStoreUser.blankUser());
-        testUserContext = new Context(FederatedStoreUser.testUser());
+        blankUserContext = new Context(StoreUser.blankUser());
+        testUserContext = new Context(StoreUser.testUser());
     }
 
     @Test

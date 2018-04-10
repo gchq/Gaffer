@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,7 +203,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("One or more operation chains contains multiple hops."));
+        assertTrue(result.getErrorString(), result.getErrorString().contains("All operations must contain a single hop. Operation ") && result.getErrorString().contains(" contains multiple hops"));
     }
 
     @Override

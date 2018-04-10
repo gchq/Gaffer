@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
 @JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
+@Since("1.0.0")
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
@@ -103,22 +105,30 @@ public class OperationChain<OUT> implements Output<OUT>,
 
     public static OperationChain<?> wrap(final Operation operation) {
         final OperationChain<?> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<?>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<?>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {
         final OperationChain<O> opChain;
-        if (operation instanceof OperationChain) {
-            opChain = ((OperationChain<O>) operation);
+        if (null == operation) {
+            opChain = new OperationChain<>();
         } else {
-            opChain = new OperationChain<>(operation);
-            opChain.setOptions(operation.getOptions());
+            if (operation instanceof OperationChain) {
+                opChain = ((OperationChain<O>) operation);
+            } else {
+                opChain = new OperationChain<>(operation);
+                opChain.setOptions(operation.getOptions());
+            }
         }
         return opChain;
     }

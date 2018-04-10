@@ -16,12 +16,14 @@
 package uk.gov.gchq.gaffer.operation.function;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 
 /**
  * A {@code FromEntityId} takes an {@link EntityId} and unwraps the vertex.
  */
+@Since("1.3.0")
 public class FromEntityId extends KorypheFunction<EntityId, Object> {
     @Override
     public Object apply(final EntityId e) {

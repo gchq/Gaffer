@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,14 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.koryphe.Since;
 
 /**
  * Generates {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s from and {@link uk.gov.gchq.gaffer.data.element.Element}s.
  * getObject(Element) is not supported with {@link uk.gov.gchq.gaffer.data.element.Entity}s - an
  * {@link java.lang.IllegalArgumentException} will be thrown if this is attempted.
  */
+@Since("1.0.0")
 public class EntityIdExtractor implements OneToOneObjectGenerator<EntityId> {
     private IdentifierType edgeIdentifierToExtract;
 

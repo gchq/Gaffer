@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -52,6 +53,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -60,6 +62,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -68,12 +71,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
@@ -91,10 +93,10 @@ public class FederatedStoreTest {
     private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
-    private static final String USER_ID = "blankUser";
     public static final String UNUSUAL_KEY = "unusualKey";
+    //public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_MAP + " it should not be there";
+    private static final String ALL_USERS = StoreUser.ALL_USERS;
     public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_ACC_2 + " it should not be there";
-    private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
@@ -625,22 +627,20 @@ public class FederatedStoreTest {
         // Then
         assertFalse(elements.iterator().hasNext());
 
-        try {
-            store.execute(new GetAllElements(),
-                    new Context(new User.Builder()
-                            .userId(blankUser.getUserId())
-                            .opAuths("x")
-                            .build()));
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        // When - user cannot see any graphs
+        final CloseableIterable<? extends Element> elements2 = store.execute(new GetAllElements(),
+                new Context(new User.Builder()
+                        .userId(blankUser.getUserId())
+                        .opAuths("x")
+                        .build()));
+
+        // Then
+        assertEquals(0, Iterables.size(elements2));
     }
 
     @Test
     public void shouldReturnSpecificGraphsFromCSVString() throws Exception {
         // Given
-
         final List<Collection<Graph>> graphLists = populateGraphs(1, 2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
         final Collection<Graph> unexpectedGraphs = graphLists.get(1);
@@ -655,6 +655,32 @@ public class FederatedStoreTest {
     }
 
     @Test
+    public void shouldReturnEnabledByDefaultGraphsForNullString() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, null);
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId2", "mockGraphId4"), graphIds);
+    }
+
+    @Test
+    public void shouldReturnNotReturnEnabledOrDisabledGraphsWhenNotInCsv() throws Exception {
+        // Given
+        populateGraphs();
+
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId0,mockGraphId1");
+
+        // Then
+        final Set<String> graphIds = returnedGraphs.stream().map(Graph::getGraphId).collect(Collectors.toSet());
+        assertEquals(Sets.newHashSet("mockGraphId0", "mockGraphId1"), graphIds);
+    }
+
+    @Test
     public void shouldReturnNoGraphsFromEmptyString() throws Exception {
         // Given
 
@@ -665,8 +691,8 @@ public class FederatedStoreTest {
         final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "");
 
         // Then
-        assertTrue(returnedGraphs.isEmpty());
-        assertTrue(expectedGraphs.isEmpty());
+        assertTrue(returnedGraphs.toString(), returnedGraphs.isEmpty());
+        assertTrue(expectedGraphs.toString(), expectedGraphs.isEmpty());
     }
 
     @Test
@@ -735,21 +761,16 @@ public class FederatedStoreTest {
         final CloseableIterable<? extends Element> elements = fedGraph.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID + "Other")
+                        .userId(TEST_USER + "Other")
                         .opAuth("auth")
                         .build());
 
-        try {
-            fedGraph.execute(
-                    new GetAllElements(),
-                    new User.Builder()
-                            .userId(USER_ID + "Other")
-                            .opAuths("x")
-                            .build());
-            fail("expected exception");
-        } catch (final OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        final CloseableIterable<? extends Element> elements2 = fedGraph.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(TEST_USER + "Other")
+                        .opAuths("x")
+                        .build());
+        assertEquals(0, Iterables.size(elements2));
 
         // Then
         assertEquals(0, before);
@@ -854,7 +875,7 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         //check the store and the cache
         assertEquals(1, store.getAllGraphIds(blankUser).size());
@@ -895,7 +916,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, TEST_USER, false, graphToAdd);
+            store.addGraphs(null, StoreUser.TEST_USER, false, graphToAdd);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -928,7 +949,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         // Then
         assertEquals(1, store.getGraphs(blankUser, ACC_ID_1).size());
@@ -964,7 +985,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        store.addGraphs(null, TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
+        store.addGraphs(null, StoreUser.TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {
@@ -1050,10 +1071,10 @@ public class FederatedStoreTest {
         return false;
     }
 
-    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws Exception {
+    private List<Collection<Graph>> populateGraphs(final int... expectedIds) throws Exception {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             Graph tempGraph = new Graph.Builder()
                     .config(new GraphConfig.Builder()
                             .graphId("mockGraphId" + i)
@@ -1061,7 +1082,9 @@ public class FederatedStoreTest {
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES_ALT))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();
-            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, tempGraph);
+            // Odd ids are disabled by default
+            final boolean disabledByDefault = 1 == Math.floorMod(i, 2);
+            store.addGraphs(Sets.newHashSet(ALL_USERS), null, true, disabledByDefault, tempGraph);
             for (final int j : expectedIds) {
                 if (i == j) {
                     expectedGraphs.add(tempGraph);

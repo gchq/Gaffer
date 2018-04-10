@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,14 +62,15 @@ public class RowToElementGenerator implements OneToOneElementGenerator<Row> {
             final boolean directed = row.getAs(SchemaToStructTypeConverter.DIRECTED_COL_NAME);
             final MatchedVertex matchedVertex;
             if (ArrayUtils.contains(row.schema().fieldNames(), SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME)) {
-            final String matchedVertexStr = row.getAs(SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME);
+                final String matchedVertexStr = row.getAs(SchemaToStructTypeConverter.MATCHED_VERTEX_COL_NAME);
                 matchedVertex = null != matchedVertexStr ? MatchedVertex.valueOf(matchedVertexStr) : null;
             } else {
                 matchedVertex = null;
             }
             element = new Edge(group, source, destination, directed, matchedVertex, null);
         } else {
-            element = new Entity(group, row.getAs(SchemaToStructTypeConverter.ID));
+            final Object vertex = ArrayUtils.contains(row.schema().fieldNames(), SchemaToStructTypeConverter.VERTEX_COL_NAME) ? row.getAs(SchemaToStructTypeConverter.VERTEX_COL_NAME) : row.getAs(SchemaToStructTypeConverter.ID);
+            element = new Entity(group, vertex);
         }
 
         getPropertyNames(row).forEach(n -> {

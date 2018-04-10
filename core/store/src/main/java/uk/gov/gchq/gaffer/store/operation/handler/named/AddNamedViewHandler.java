@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import java.util.Map;
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
 
-
     public AddNamedViewHandler() {
         this(new NamedViewCache());
     }
@@ -66,13 +65,15 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
                 .name(operation.getName())
                 .view(operation.getViewAsString())
                 .description(operation.getDescription())
+                .creatorId(context.getUser().getUserId())
+                .writers(operation.getWriteAccessRoles())
                 .parameters(operation.getParameters())
                 .build();
 
         validate(namedViewDetail.getViewWithDefaultParams(), namedViewDetail);
 
         try {
-            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag());
+            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

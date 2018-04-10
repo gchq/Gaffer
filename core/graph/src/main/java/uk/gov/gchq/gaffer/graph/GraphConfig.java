@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,19 @@ package uk.gov.gchq.gaffer.graph;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,13 +49,17 @@ import java.util.List;
  * a graph {@link View} and {@link GraphHook}s.
  * To create an instance of GraphConfig you can either use the {@link uk.gov.gchq.gaffer.graph.GraphConfig.Builder}
  * or a json file.
+ * If you wish to write a GraphHook in a separate json file and include it, you
+ * can do it by using the {@link GraphHookPath} GraphHook and setting the path field within.
  *
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
 public final class GraphConfig {
     private String graphId;
-    private View view;
+    // Keeping the view as json enforces a new instance of View is created
+    // every time it is used.
+    private byte[] view;
     private GraphLibrary library;
     private String description;
     private List<GraphHook> hooks = new ArrayList<>();
@@ -73,11 +80,11 @@ public final class GraphConfig {
     }
 
     public View getView() {
-        return view;
+        return null != view ? View.fromJson(view) : null;
     }
 
     public void setView(final View view) {
-        this.view = view;
+        this.view = null != view ? view.toCompactJson() : null;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -105,7 +112,26 @@ public final class GraphConfig {
         if (null == hooks) {
             this.hooks.clear();
         } else {
-            this.hooks = hooks;
+            hooks.forEach(this::addHook);
+        }
+    }
+
+    public void addHook(final GraphHook hook) {
+        if (null != hook) {
+            if (hook instanceof GraphHookPath) {
+                final String path = ((GraphHookPath) hook).getPath();
+                final File file = new File(path);
+                if (!file.exists()) {
+                    throw new IllegalArgumentException("Unable to find graph hook file: " + path);
+                }
+                try {
+                    hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
+                } catch (final IOException e) {
+                    throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + path, e);
+                }
+            } else {
+                hooks.add(hook);
+            }
         }
     }
 
@@ -113,7 +139,7 @@ public final class GraphConfig {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("graphId", graphId)
-                .append("view", view)
+                .append("view", getView())
                 .append("library", library)
                 .append("hooks", hooks)
                 .toString();
@@ -142,7 +168,7 @@ public final class GraphConfig {
 
         public Builder json(final InputStream stream) {
             try {
-                json(null != stream ? sun.misc.IOUtils.readFully(stream, stream.available(), true) : null);
+                json(null != stream ? IOUtils.toByteArray(stream) : null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to read graph config from input stream", e);
             }
@@ -250,7 +276,7 @@ public final class GraphConfig {
 
         public Builder addHook(final GraphHook graphHook) {
             if (null != graphHook) {
-                this.config.getHooks().add(graphHook);
+                this.config.addHook(graphHook);
             }
             return this;
         }

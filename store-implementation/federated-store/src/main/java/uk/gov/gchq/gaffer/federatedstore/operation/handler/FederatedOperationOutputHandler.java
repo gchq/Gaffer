@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipF
  * @see uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler
  */
 public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> implements OutputOperationHandler<OP, O> {
-    public static final String NO_RESULTS_TO_MERGE_ERROR = "The federated operation received no results to merge. A common cause to this is that the operation was performed against no graphs due to visibility and access.";
 
     @Override
     public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
@@ -51,7 +50,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
             if (null != updatedOp) {
                 O execute = null;
                 try {
-                    execute = graph.execute(updatedOp, context.getUser());
+                    execute = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);

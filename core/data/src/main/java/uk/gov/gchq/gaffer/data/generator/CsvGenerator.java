@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.koryphe.Since;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
  *  prop1Value,sourceValue,destinationValue,prop2,groupValue,constant1,constant2
  * </pre>
  */
+@Since("1.0.0")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";
     public static final String COMMA = ",";

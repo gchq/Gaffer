@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -38,6 +40,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -46,8 +49,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
@@ -154,7 +156,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Store mockStoreInner = Mockito.mock(Store.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
         given(mockStoreInner.getProperties()).willReturn(storeProperties);
-        given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException(message));
+        given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
@@ -167,11 +169,10 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         } catch (OperationException e) {
             assertEquals(message, e.getCause().getMessage());
         }
-
     }
 
     @Test
-    final public void shouldThrowExceptionNoResults() throws Exception {
+    final public void shouldReturnEmptyIterableWhenNoResults() throws Exception {
         // Given
         final OP op = getExampleOperation();
         op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, TEST_GRAPH_ID);
@@ -189,13 +190,9 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
 
         // When
-        try {
-            getFederatedHandler().doOperation(op, context, mockStore);
-            fail("Exception not thrown");
-        } catch (OperationException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
-        }
+        final O results = getFederatedHandler().doOperation(op, context, mockStore);
 
+        assertEquals(0, Iterables.size((Iterable) results));
     }
 
     @Test
@@ -234,12 +231,16 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
         //Then
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1);
-        verify(mockStore1).execute(any(OperationChain.class), eq(context));
-        verify(mockStore2, never()).execute(any(OperationChain.class), eq(context));
-        verify(mockStore3).execute(any(OperationChain.class), eq(context));
-        verify(mockStore4, never()).execute(any(OperationChain.class), eq(context));
-        // When
-
+        ArgumentCaptor<Context> context1Captor = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore1).execute(any(OperationChain.class), context1Captor.capture());
+        assertNotEquals(context.getJobId(), context1Captor.getValue().getJobId());
+        assertEquals(context.getUser(), context1Captor.getValue().getUser());
+        verify(mockStore2, never()).execute(any(OperationChain.class), any(Context.class));
+        ArgumentCaptor<Context> context3Captor = ArgumentCaptor.forClass(Context.class);
+        verify(mockStore3).execute(any(OperationChain.class), context3Captor.capture());
+        assertNotEquals(context.getJobId(), context3Captor.getValue().getJobId());
+        assertEquals(context.getUser(), context3Captor.getValue().getUser());
+        verify(mockStore4, never()).execute(any(OperationChain.class), any(Context.class));
     }
 
     protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);

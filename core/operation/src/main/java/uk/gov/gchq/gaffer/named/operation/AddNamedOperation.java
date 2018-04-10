@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
+import uk.gov.gchq.koryphe.Since;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.Map;
  * and adding it to a Gaffer graph.
  */
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
+@Since("1.0.0")
 public class AddNamedOperation implements Operation {
     @Required
     private String operations;

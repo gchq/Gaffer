@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -251,19 +252,32 @@ public class NamedOperationDetail implements Serializable {
     }
 
     public boolean hasReadAccess(final User user) {
-        return hasAccess(user, readAccessRoles);
+        return hasAccess(user, readAccessRoles, null);
+    }
+
+    public boolean hasReadAccess(final User user, final String adminAuth) {
+        return hasAccess(user, readAccessRoles, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user) {
-        return hasAccess(user, writeAccessRoles);
+        return hasAccess(user, writeAccessRoles, null);
     }
 
-    private boolean hasAccess(final User user, final List<String> roles) {
+    public boolean hasWriteAccess(final User user, final String adminAuth) {
+        return hasAccess(user, writeAccessRoles, adminAuth);
+    }
+
+    private boolean hasAccess(final User user, final List<String> roles, final String adminAuth) {
         if (null != roles) {
             for (final String role : roles) {
                 if (user.getOpAuths().contains(role)) {
                     return true;
                 }
+            }
+        }
+        if (StringUtils.isNotBlank(adminAuth)) {
+            if (user.getOpAuths().contains(adminAuth)) {
+                return true;
             }
         }
         return user.getUserId().equals(creatorId);

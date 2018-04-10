@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -443,7 +443,7 @@ public class TransformHandlerTest {
             final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
             fail("Exception expected");
         } catch (final OperationException e) {
-            System.out.println(e.getMessage());
+            assertTrue(e.getMessage(), e.getMessage().contains("Incompatible number of types"));
         }
     }
 
