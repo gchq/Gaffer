@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
  */
 @RunWith(StoreTestSuite.class)
 public abstract class AbstractStoreITs {
-    @Rule
+    @ClassRule
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private final StoreProperties storeProperties;
