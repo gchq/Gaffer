@@ -20,6 +20,7 @@ import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -29,6 +30,7 @@ import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
     private static final double DELTA = 0.01D;
@@ -75,8 +77,8 @@ public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
-        JsonUtil.equals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.DoublesSketchAggregator\"%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2

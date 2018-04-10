@@ -66,7 +66,7 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
-    protected static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
+    protected static final long AGE_OFF_TIME = 30L * 1000; // 30 seconds;
 
     // Identifier prefixes
     public static final String SOURCE = "1-Source";
