@@ -28,6 +28,7 @@ import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     private HyperLogLogPlus hyperLogLogPlus1;
