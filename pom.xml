@@ -67,7 +67,7 @@
         <jackson.version>${jackson.compile.version}</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
-        <datasketches.version>0.10.0</datasketches.version>
+        <datasketches.version>0.11.0</datasketches.version>
         <commons-codec.version>1.6</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.4</commons-io.version>
