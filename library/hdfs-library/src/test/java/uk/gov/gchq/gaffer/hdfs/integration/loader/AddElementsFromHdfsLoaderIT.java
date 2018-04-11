@@ -101,7 +101,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
                         .source(VERTEX_ID_PREFIX + i)
                         .dest(VERTEX_ID_PREFIX + (i + 1))
                         .directed(true)
@@ -136,7 +137,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
                         .vertex(VERTEX_ID_PREFIX + i)
                         .property(TestPropertyNames.COUNT, 2L)
                         .build();
@@ -151,7 +153,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
                         .vertex(VERTEX_ID_PREFIX + i)
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
@@ -175,10 +178,10 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
             // Add backwards to ensure the store is capable of ordering the elements if required
             for (int i = (end - 1); i >= start; i--) {
                 for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",2\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",2\n");
+                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
+                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
+                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
+                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
                 }
             }
         }
@@ -204,19 +207,19 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
             if (3 == parts.length) {
-                return new Entity.Builder()
+                return new Edge.Builder()
                         .group(parts[0])
-                        .vertex(parts[1])
-                        .property(TestPropertyNames.COUNT, 1L)
+                        .source(parts[1])
+                        .dest(parts[2])
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
                         .build();
             }
 
-            return new Edge.Builder()
+            return new Entity.Builder()
                     .group(parts[0])
-                    .source(parts[1])
-                    .dest(parts[2])
-                    .directed(true)
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .vertex(parts[1])
+                    .property(TestPropertyNames.COUNT, 2L)
                     .property(TestPropertyNames.PROP_3, "String")
                     .property(TestPropertyNames.PROP_4, new FreqMap())
                     .property(TestPropertyNames.PROP_5, new HashSet<>())
