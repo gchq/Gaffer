@@ -16,14 +16,12 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.loader;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;

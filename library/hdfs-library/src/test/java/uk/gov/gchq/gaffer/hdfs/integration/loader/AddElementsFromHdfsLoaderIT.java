@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hdfs.integration.loader;
 
-import com.google.common.collect.Iterables;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,6 +31,8 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -43,9 +44,9 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 
 public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromHdfs> {
 
@@ -96,25 +97,72 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
     }
 
     @Override
-    protected Iterable<? extends Element> getInputElements() {
-        final List<Edge> edges = new ArrayList<>();
-        final List<Entity> entities = new ArrayList<>();
-
+    protected Map<EdgeId, Edge> createBasicSchemaEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                entities.add(new Entity.Builder().group(TestGroups.ENTITY)
+                final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                        .source(VERTEX_ID_PREFIX + i)
+                        .dest(VERTEX_ID_PREFIX + (i + 1))
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .build();
+                addToMap(edge, edges);
+            }
+        }
+        return edges;
+    }
+
+    @Override
+    protected Map<EdgeId, Edge> createFullSchemaEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_ID_PREFIX + i)
+                        .dest(VERTEX_ID_PREFIX + (i + 1))
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .build();
+                addToMap(edge, edges);
+            }
+        }
+        return edges;
+    }
+
+    @Override
+    protected Map<EntityId, Entity> createBasicSchemaEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                        .vertex(VERTEX_ID_PREFIX + i)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .build();
+                addToMap(entity, entities);
+            }
+        }
+        return entities;
+    }
+
+    @Override
+    protected Map<EntityId, Entity> createFullSchemaEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
                         .vertex(VERTEX_ID_PREFIX + i)
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
                         .property(TestPropertyNames.PROP_5, new HashSet<>())
                         .property(TestPropertyNames.VISIBILITY, "all")
-                        .build());
-                edges.add(new Edge.Builder().group(TestGroups.EDGE).source(VERTEX_ID_PREFIX + i).dest(VERTEX_ID_PREFIX + (i + 1)).directed(true).property(TestPropertyNames.COUNT, 2L).build());
+                        .build();
+                addToMap(entity, entities);
             }
         }
-
-        return Iterables.concat(edges, entities);
+        return entities;
     }
 
     private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
