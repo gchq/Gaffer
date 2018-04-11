@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -58,10 +59,10 @@ public class FederatedRemoveGraphHandlerTest {
         AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
-        store.addGraphs(testUser.getOpAuths(), null, false, new Graph.Builder()
+        store.addGraphs(testUser.getOpAuths(), null, false, new GraphSerialisable.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))
-                .addSchema(new Schema.Builder().build())
-                .storeProperties(storeProperties)
+                .schema(new Schema.Builder().build())
+                .properties(storeProperties)
                 .build());
 
         assertEquals(1, store.getGraphs(testUser, null).size());
