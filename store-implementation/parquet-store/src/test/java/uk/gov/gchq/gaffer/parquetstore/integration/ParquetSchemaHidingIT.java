@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.parquetstore.integration;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.Store;
@@ -24,6 +28,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 
 public class ParquetSchemaHidingIT extends SchemaHidingIT {
+    @Rule
+    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static ParquetStoreProperties parquetStoreProperties;
 
     public ParquetSchemaHidingIT() {
@@ -39,7 +45,8 @@ public class ParquetSchemaHidingIT extends SchemaHidingIT {
         if (null == parquetStoreProperties) {
             parquetStoreProperties = ParquetStoreProperties
                     .loadStoreProperties(storePropertiesPath);
-            final String path = SchemaHidingIT.testFolder.newFolder().getAbsolutePath();
+            testFolder.create();
+            final String path = testFolder.newFolder().getAbsolutePath();
             parquetStoreProperties.setDataDir(path + "/data");
             parquetStoreProperties.setTempFilesDir(path + "/tmpdata");
         }

@@ -64,9 +64,6 @@ import java.util.List;
  * completely hide group 2 and never read any group 2 data from the store.
  */
 public abstract class SchemaHidingIT {
-    @ClassRule
-    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     private static final User USER = new User.Builder()
             .dataAuth("public")
             .build();
