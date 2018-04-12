@@ -45,7 +45,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromHdfs> {
@@ -125,6 +124,10 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .dest(VERTEX_ID_PREFIX + (i + 1))
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
                         .build();
                 addToMap(edge, edges);
             }
@@ -159,7 +162,7 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
-                        .property(TestPropertyNames.PROP_5, new HashSet<>())
+                        .property(TestPropertyNames.PROP_5, new String())
                         .property(TestPropertyNames.VISIBILITY, "all")
                         .build();
                 addToMap(entity, entities);
@@ -179,8 +182,6 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
             for (int i = (end - 1); i >= start; i--) {
                 for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
                     writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
                     writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
                 }
             }
@@ -213,6 +214,10 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .dest(parts[2])
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
                         .build();
             }
 
@@ -222,7 +227,7 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                     .property(TestPropertyNames.COUNT, 2L)
                     .property(TestPropertyNames.PROP_3, "String")
                     .property(TestPropertyNames.PROP_4, new FreqMap())
-                    .property(TestPropertyNames.PROP_5, new HashSet<>())
+                    .property(TestPropertyNames.PROP_5, new String())
                     .property(TestPropertyNames.VISIBILITY, "all")
                     .build();
         }

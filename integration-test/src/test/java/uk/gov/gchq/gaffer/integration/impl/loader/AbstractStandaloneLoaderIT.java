@@ -68,7 +68,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
 
     @Override
     protected Schema createSchema() {
-        return BASIC_SCHEMA.getSchema();
+        return FULL_SCHEMA.getSchema();
     }
 
     @Override
