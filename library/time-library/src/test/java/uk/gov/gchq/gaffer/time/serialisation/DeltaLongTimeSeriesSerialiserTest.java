@@ -134,7 +134,7 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
                 new Pair(getExampleValueMonth(),
                         new byte[]{5,3,1,0,30,-117,1,-49,124,88,0,60,-117,17,-56,117,-80,0,-114,3,-114}),
                 new Pair(getExampleValueYear(),
-                        new byte[]{6,3,1,-118,57,93,24,39,-64,0,-114,7,-48,-117,7,87,-79,44,0,0,-117,117,123,18,-64,0,0})
+                        new byte[]{6,3,1,-118,57,88,37,75,88,0,-114,7,-48,-117,7,92,-41,-120,0,0,-117,117,-113,-84,48,0,0})
         };
     }
 
