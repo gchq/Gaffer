@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -149,42 +150,20 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
                         .group(TestGroups.EDGE)
                         .source(VERTEX_PREFIXES[0] + i)
                         .dest(VERTEX_PREFIXES[j] + i)
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                         .directed(false)
                         .property(TestPropertyNames.COUNT, 1L)
                         .build();
                 addToMap(edge, edges);
-
-                final Edge edgeDir = new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .directed(true)
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .build();
-                addToMap(edgeDir, edges);
             }
 
             final Edge edge = new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source(SOURCE + i)
                     .dest(DEST + i)
-                    .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                     .directed(false)
                     .property(TestPropertyNames.COUNT, 1L)
                     .build();
             addToMap(edge, edges);
-
-            final Edge edgeDir = new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(SOURCE_DIR + i)
-                    .dest(DEST_DIR + i)
-                    .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                    .directed(true)
-                    .build();
-            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(edgeDir, edges);
         }
 
         return edges;
@@ -200,19 +179,13 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
                         .dest(VERTEX_PREFIXES[j] + i)
                         .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                         .directed(false)
-                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
                         .build();
                 addToMap(edge, edges);
-
-                final Edge edgeDir = new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .directed(true)
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .build();
-                addToMap(edgeDir, edges);
             }
 
             final Edge edge = new Edge.Builder()
@@ -221,19 +194,13 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
                     .dest(DEST + i)
                     .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                     .directed(false)
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.COUNT, 2L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
                     .build();
             addToMap(edge, edges);
-
-            final Edge edgeDir = new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(SOURCE_DIR + i)
-                    .dest(DEST_DIR + i)
-                    .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                    .directed(true)
-                    .build();
-            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(edgeDir, edges);
         }
 
         return edges;
@@ -243,25 +210,40 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_PREFIXES[j] + i)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(entity, entities);
             }
 
-            final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
-            secondEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity secondEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(secondEntity, entities);
 
-            final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
-            thirdEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity thirdEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(thirdEntity, entities);
 
-            final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
-            fourthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fourthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(fourthEntity, entities);
 
-            final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
-            fifthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fifthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(fifthEntity, entities);
         }
 
@@ -272,25 +254,60 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_PREFIXES[j] + i)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
+                        .build();
                 addToMap(entity, entities);
             }
 
-            final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
-            secondEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity secondEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
             addToMap(secondEntity, entities);
 
-            final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
-            thirdEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity thirdEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
             addToMap(thirdEntity, entities);
 
-            final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
-            fourthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fourthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
             addToMap(fourthEntity, entities);
 
-            final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
-            fifthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fifthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
             addToMap(fifthEntity, entities);
         }
 
