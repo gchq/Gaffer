@@ -34,7 +34,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
-import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.io.GenericInput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 
@@ -48,11 +49,13 @@ import java.util.Map;
  * be executed in one go on the federated graphs.
  * </p>
  *
+ * @param <I>      the input type of the {@code FederatedOperationChain}.
  * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
  **/
-@JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operationChain", "options"}, alphabetic = true)
 @Since("1.1.0")
-public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
+public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
+        implements InputOutput<I, CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {
     @Required
     private OperationChain operationChain;
@@ -71,8 +74,10 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
     }
 
     @JsonCreator
-    public FederatedOperationChain(@JsonProperty("operationChain") final OperationChainDAO operationChain) {
-        this((OperationChain) operationChain);
+    public FederatedOperationChain(@JsonProperty("operationChain") final OperationChainDAO operationChain,
+                                   @JsonProperty("options") final Map<String, String> options) {
+        this(operationChain);
+        setOptions(options);
     }
 
     @Override
@@ -99,10 +104,11 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
         return Lists.newArrayList(operationChain);
     }
 
-    public FederatedOperationChain<O_ITEM> shallowClone() throws CloneFailedException {
-        return new FederatedOperationChain.Builder<O_ITEM>()
+    public FederatedOperationChain<I, O_ITEM> shallowClone() throws CloneFailedException {
+        return new FederatedOperationChain.Builder<I, O_ITEM>()
                 .operationChain(operationChain.shallowClone())
                 .options(options)
+                .input(getInput())
                 .build();
     }
 
@@ -126,7 +132,9 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("input", getInput())
                 .append("operationChain", operationChain)
+                .append("options", options)
                 .build();
     }
 
@@ -145,11 +153,12 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
             return false;
         }
 
-        final FederatedOperationChain<?> federatedOperationChain = (FederatedOperationChain<?>) obj;
+        final FederatedOperationChain<?, ?> federatedOperationChain = (FederatedOperationChain<?, ?>) obj;
 
         return new EqualsBuilder()
                 .append(operationChain, federatedOperationChain.operationChain)
                 .append(options, federatedOperationChain.options)
+                .append(getInput(), federatedOperationChain.getInput())
                 .isEquals();
     }
 
@@ -158,17 +167,18 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
         return new HashCodeBuilder(13, 23)
                 .append(operationChain)
                 .append(options)
+                .append(getInput())
                 .toHashCode();
     }
 
-    public static class Builder<O_ITEM> extends
-            Operation.BaseBuilder<FederatedOperationChain<O_ITEM>, Builder<O_ITEM>>
-            implements Output.Builder<FederatedOperationChain<O_ITEM>, CloseableIterable<O_ITEM>, Builder<O_ITEM>> {
+    public static class Builder<I, O_ITEM> extends
+            Operation.BaseBuilder<FederatedOperationChain<I, O_ITEM>, Builder<I, O_ITEM>>
+            implements InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, CloseableIterable<O_ITEM>, Builder<I, O_ITEM>> {
         public Builder() {
             super(new FederatedOperationChain<>(new OperationChain()));
         }
 
-        public Builder<O_ITEM> operationChain(final OperationChain operationChain) {
+        public Builder<I, O_ITEM> operationChain(final OperationChain operationChain) {
             _getOp().setOperationChain(operationChain);
             return this;
         }
