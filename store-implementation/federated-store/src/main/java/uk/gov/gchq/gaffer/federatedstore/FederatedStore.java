@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -172,7 +173,7 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
     }
 
@@ -193,19 +194,19 @@ public class FederatedStore extends Store {
      * @param graphAuths        the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault, final Graph... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault, final GraphSerialisable... graphs) throws StorageException {
         final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault);
         addGraphs(access, graphs);
     }
 
-    public void addGraphs(final FederatedAccess access, final Graph... graphs) throws StorageException {
-        for (final Graph graph : graphs) {
+    public void addGraphs(final FederatedAccess access, final GraphSerialisable... graphs) throws StorageException {
+        for (final GraphSerialisable graph : graphs) {
             _add(graph, access);
         }
     }
 
     @Deprecated
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final GraphSerialisable... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
@@ -392,7 +393,7 @@ public class FederatedStore extends Store {
         return (Strings.isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
-    private void _add(final Graph newGraph, final FederatedAccess access) throws StorageException {
+    private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {
         graphStorage.put(newGraph, access);
     }
 }

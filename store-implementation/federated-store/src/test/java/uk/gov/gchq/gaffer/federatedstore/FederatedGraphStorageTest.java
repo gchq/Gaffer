@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -63,8 +63,8 @@ public class FederatedGraphStorageTest {
     public static final String X = "x";
     private FederatedGraphStorage graphStorage;
     private AccumuloProperties accumuloProperties;
-    private Graph a;
-    private Graph b;
+    private GraphSerialisable a;
+    private GraphSerialisable b;
     private User nullUser;
     private User testUser;
     private User authUser;
@@ -91,10 +91,10 @@ public class FederatedGraphStorageTest {
                 .vertex("string")
                 .build();
 
-        a = new Builder()
+        a = new GraphSerialisable.Builder()
                 .config(new GraphConfig(GRAPH_ID_A))
-                .storeProperties(accumuloProperties)
-                .addSchema(new Schema.Builder()
+                .properties(accumuloProperties)
+                .schema(new Schema.Builder()
                         .entity("e1", e1)
                         .type("string", String.class)
                         .build())
@@ -104,10 +104,10 @@ public class FederatedGraphStorageTest {
                 .vertex("string2")
                 .build();
 
-        b = new Builder()
+        b = new GraphSerialisable.Builder()
                 .config(new GraphConfig(GRAPH_ID_B))
-                .storeProperties(accumuloProperties)
-                .addSchema(new Schema.Builder()
+                .properties(accumuloProperties)
+                .schema(new Schema.Builder()
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
@@ -171,7 +171,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(testUser);
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -179,7 +179,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(authUser);
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -187,7 +187,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<Graph> allGraphs = graphStorage.getAll(authUser);
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -203,7 +203,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -219,7 +219,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
-        assertEquals(a, allGraphs.iterator().next());
+        assertEquals(a.getGraph(), allGraphs.iterator().next());
     }
 
     @Test
@@ -347,8 +347,8 @@ public class FederatedGraphStorageTest {
     public void shouldGetGraphsInOrder() throws Exception {
         // Given
         graphStorage.put(Lists.newArrayList(a, b), access);
-        final List<String> configAB = Arrays.asList(a.getGraphId(), b.getGraphId());
-        final List<String> configBA = Arrays.asList(b.getGraphId(), a.getGraphId());
+        final List<String> configAB = Arrays.asList(a.getDeserialisedConfig().getGraphId(), b.getDeserialisedConfig().getGraphId());
+        final List<String> configBA = Arrays.asList(b.getDeserialisedConfig().getGraphId(), a.getDeserialisedConfig().getGraphId());
 
         // When
         final Collection<Graph> graphsAB = graphStorage.get(authUser, configAB);
@@ -357,13 +357,13 @@ public class FederatedGraphStorageTest {
         // Then
         // A B
         final Iterator<Graph> itrAB = graphsAB.iterator();
-        assertSame(a, itrAB.next());
-        assertSame(b, itrAB.next());
+        assertSame(a.getGraph(), itrAB.next());
+        assertSame(b.getGraph(), itrAB.next());
         assertFalse(itrAB.hasNext());
         // B A
         final Iterator<Graph> itrBA = graphsBA.iterator();
-        assertSame(b, itrBA.next());
-        assertSame(a, itrBA.next());
+        assertSame(b.getGraph(), itrBA.next());
+        assertSame(a.getGraph(), itrBA.next());
         assertFalse(itrBA.hasNext());
     }
 
@@ -372,10 +372,10 @@ public class FederatedGraphStorageTest {
         //given
         GraphLibrary mock = Mockito.mock(GraphLibrary.class);
         String testMockException = "testMockException";
-        String graphId = a.getGraphId();
+        String graphId = a.getDeserialisedConfig().getGraphId();
         Mockito.doThrow(new RuntimeException(testMockException))
                 .when(mock)
-                .checkExisting(graphId, a.getSchema(), a.getStoreProperties());
+                .checkExisting(graphId, a.getDeserialisedSchema(), a.getDeserialisedProperties());
         graphStorage.setGraphLibrary(mock);
         try {
             graphStorage.put(a, access);
@@ -397,7 +397,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldThrowExceptionWhenAddingNullSchema() {
         // Given
-        Graph nullGraph = null;
+        GraphSerialisable nullGraph = null;
 
         // When / Then
         try {
@@ -425,20 +425,20 @@ public class FederatedGraphStorageTest {
                         .build())
                 .build();
 
-        final Graph graph1 = new Graph.Builder()
+        final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .storeProperties(accumuloProperties)
-                .addSchema(schemaNotToBeExposed)
+                .properties(accumuloProperties)
+                .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
-        final Graph graph2 = new Graph.Builder()
+        final GraphSerialisable graph2 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .addSchema(new Schema.Builder()
+                .schema(new Schema.Builder()
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
-                .storeProperties(accumuloProperties)
+                .properties(accumuloProperties)
                 .build();
 
         // When / Then
@@ -473,10 +473,10 @@ public class FederatedGraphStorageTest {
                 .build();
 
 
-        final Graph graph1 = new Graph.Builder()
+        final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .storeProperties(accumuloProperties)
-                .addSchema(schemaNotToBeExposed)
+                .properties(accumuloProperties)
+                .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
@@ -506,21 +506,21 @@ public class FederatedGraphStorageTest {
                         .build())
                 .build();
 
-        final Graph graph1 = new Graph.Builder()
+        final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .storeProperties(accumuloProperties)
-                .addSchema(schemaNotToBeExposed)
+                .properties(accumuloProperties)
+                .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
-        final Graph graph2 = new Graph.Builder()
+        final GraphSerialisable graph2 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_B).build())
-                .addSchema(new Schema.Builder()
+                .schema(new Schema.Builder()
                         .merge(schemaNotToBeExposed)
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
-                .storeProperties(accumuloProperties)
+                .properties(accumuloProperties)
                 .build();
         graphStorage.put(graph2, altAccess);
 
