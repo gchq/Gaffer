@@ -30,6 +30,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
@@ -52,12 +56,12 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
                 .hooks(log4jLogger)
                 .build();
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
-        Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
-        Assert.assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
-        Assert.assertEquals(1, op.getHooks().length);
-        Assert.assertEquals(log4jLogger, op.getHooks()[0]);
+        assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertEquals(expectedSchema, op.getSchema());
+        assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
+        assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
+        assertEquals(1, op.getHooks().length);
+        assertEquals(log4jLogger, op.getHooks()[0]);
     }
 
     @Override
@@ -71,15 +75,17 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
                 .graphAuths("testAuth")
                 .storeProperties(new StoreProperties())
                 .hooks(new Log4jLogger())
+                .disabledByDefault(true)
                 .build();
 
         final AddGraphWithHooks b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
         Assert.assertArrayEquals(a.getHooks(), b.getHooks());
+        assertTrue(b.isDisabledByDefault());
     }
 
     @Test
@@ -95,10 +101,10 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
 
         final AddGraphWithHooks b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
     }
 
     @Override
