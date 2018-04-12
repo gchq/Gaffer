@@ -30,7 +30,7 @@ import java.io.IOException;
 
 public class ParquetStoreITs extends AbstractStoreITs {
     @Rule
-    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static final ParquetStoreProperties STORE_PROPERTIES =
             ParquetStoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
 

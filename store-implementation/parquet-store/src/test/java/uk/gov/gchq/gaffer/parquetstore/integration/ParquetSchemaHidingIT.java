@@ -29,7 +29,7 @@ import java.io.IOException;
 
 public class ParquetSchemaHidingIT extends SchemaHidingIT {
     @Rule
-    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static ParquetStoreProperties parquetStoreProperties;
 
     public ParquetSchemaHidingIT() {
