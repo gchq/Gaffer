@@ -280,35 +280,6 @@ public class FederatedAddGraphHandlerTest {
     }
 
     @Test
-    public void shouldNotThrowWhenOverwriteGraphIsSame() throws Exception {
-        Schema expectedSchema = new Schema.Builder().build();
-
-        assertEquals(0, store.getGraphs(testUser, null).size());
-
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
-
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
-
-        federatedAddGraphHandler.doOperation(
-                new AddGraph.Builder()
-                        .graphId(EXPECTED_GRAPH_ID)
-                        .schema(expectedSchema)
-                        .storeProperties(storeProperties)
-                        .build(),
-                new Context(testUser),
-                store);
-
-        federatedAddGraphHandler.doOperation(
-                new AddGraph.Builder()
-                        .graphId(EXPECTED_GRAPH_ID)
-                        .schema(expectedSchema)
-                        .storeProperties(storeProperties)
-                        .build(),
-                new Context(testUser),
-                store);
-    }
-
-    @Test
     public void shouldAddGraphIDOnlyWithAuths() throws Exception {
 
         federatedStoreProperties.setCustomPropertyAuths("auth1,auth2");
