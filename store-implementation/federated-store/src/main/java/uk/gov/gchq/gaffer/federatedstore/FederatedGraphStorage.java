@@ -298,9 +298,7 @@ public class FederatedGraphStorage {
         if (null != op && op.isCurrentTraits()) {
             final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
             final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
-            final GetTraits getTraits = new GetTraits.Builder()
-                    .currentTraits(op.isCurrentTraits())
-                    .build();
+            final GetTraits getTraits = op.shallowClone();
             graphs.forEach(g -> {
                 try {
                     traits.retainAll(g.execute(getTraits, context));

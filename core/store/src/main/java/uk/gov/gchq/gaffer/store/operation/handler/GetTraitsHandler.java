@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
@@ -40,7 +41,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
         }
 
         if (null == currentTraits) {
-            currentTraits = createCurrentTraits(store);
+            currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
         }
         return currentTraits;
     }
