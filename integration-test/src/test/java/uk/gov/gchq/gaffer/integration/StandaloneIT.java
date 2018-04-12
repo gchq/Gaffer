@@ -49,7 +49,10 @@ public abstract class StandaloneIT {
     protected abstract Schema createSchema();
 
     protected User getUser() {
-        return new User();
+        return new User.Builder()
+                .userId("user01")
+                .dataAuth("public")
+                .build();
     }
 
     public StoreProperties createStoreProperties() {

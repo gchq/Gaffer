@@ -79,13 +79,35 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
 
     @Override
     protected void configure(final Iterable<? extends Element> elements) throws Exception {
-        createInputFile(inputDir, 0, NUM_ELEMENTS);
     }
 
     @Override
-    protected AddElementsFromHdfs createOperation(final Iterable<? extends Element> elements) {
+    protected AddElementsFromHdfs createBasicOperation(final Iterable<? extends Element> elements) {
+        try {
+            createInputFile(elements);
+        } catch (final IOException | StoreException e) {
+            throw new RuntimeException("Unable to create input file", e);
+        }
         return new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), BasicTextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir)
+                .failurePath(failureDir)
+                .jobInitialiser(new TextJobInitialiser())
+                .useProvidedSplits(false)
+                .splitsFilePath(splitsFile)
+                .workingPath(workingDir)
+                .build();
+    }
+
+    @Override
+    protected AddElementsFromHdfs createFullOperation(final Iterable<? extends Element> elements) {
+        try {
+            createInputFile(elements);
+        } catch (final IOException | StoreException e) {
+            throw new RuntimeException("Unable to create input file", e);
+        }
+        return new AddElementsFromHdfs.Builder()
+                .addInputMapperPair(new Path(inputDir).toString(), FullTextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -126,8 +148,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
-                        .property(TestPropertyNames.PROP_5, new String())
-                        .property(TestPropertyNames.VISIBILITY, "all")
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
                 addToMap(edge, edges);
             }
@@ -162,8 +184,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
-                        .property(TestPropertyNames.PROP_5, new String())
-                        .property(TestPropertyNames.VISIBILITY, "all")
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
                 addToMap(entity, entities);
             }
@@ -171,18 +193,24 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         return entities;
     }
 
-    private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
+    private void createInputFile(final Iterable<? extends Element> elements) throws IOException, StoreException {
         final Path inputPath = new Path(inputDir);
         final Path inputFilePath = new Path(inputDir + "/file.txt");
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(inputPath);
 
+        if (fs.exists(inputFilePath)) {
+            fs.delete(inputFilePath, false);
+        }
+
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
             // Add backwards to ensure the store is capable of ordering the elements if required
-            for (int i = (end - 1); i >= start; i--) {
-                for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
+            for (final Element element : elements) {
+                if (element instanceof Entity) {
+                    writer.write(element.getGroup() + "," + ((Entity) element).getVertex() + "\n");
+                }
+                if (element instanceof Edge) {
+                    writer.write(element.getGroup() + "," + ((Edge) element).getSource() + "," + ((Edge) element).getDestination() + "\n");
                 }
             }
         }
@@ -197,13 +225,13 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         return conf;
     }
 
-    public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
-        public TextMapperGeneratorImpl() {
-            super(new ExampleGenerator());
+    public static final class BasicTextMapperGeneratorImpl extends TextMapperGenerator {
+        public BasicTextMapperGeneratorImpl() {
+            super(new BasicExampleGenerator());
         }
     }
 
-    public static final class ExampleGenerator implements OneToOneElementGenerator<String> {
+    public static final class BasicExampleGenerator implements OneToOneElementGenerator<String> {
         @Override
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
@@ -216,8 +244,8 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
-                        .property(TestPropertyNames.PROP_5, new String())
-                        .property(TestPropertyNames.VISIBILITY, "all")
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
             }
 
@@ -227,8 +255,44 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
                     .property(TestPropertyNames.COUNT, 2L)
                     .property(TestPropertyNames.PROP_3, "String")
                     .property(TestPropertyNames.PROP_4, new FreqMap())
-                    .property(TestPropertyNames.PROP_5, new String())
-                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .property(TestPropertyNames.PROP_5, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
+                    .build();
+        }
+    }
+
+    public static final class FullTextMapperGeneratorImpl extends TextMapperGenerator {
+        public FullTextMapperGeneratorImpl() {
+            super(new FullExampleGenerator());
+        }
+    }
+
+    public static final class FullExampleGenerator implements OneToOneElementGenerator<String> {
+        @Override
+        public Element _apply(final String domainObject) {
+            final String[] parts = domainObject.split(",");
+            if (3 == parts.length) {
+                return new Edge.Builder()
+                        .group(parts[0])
+                        .source(parts[1])
+                        .dest(parts[2])
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
+                        .build();
+            }
+
+            return new Entity.Builder()
+                    .group(parts[0])
+                    .vertex(parts[1])
+                    .property(TestPropertyNames.COUNT, 2L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
                     .build();
         }
     }

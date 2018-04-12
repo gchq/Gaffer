@@ -88,7 +88,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Graph graph = createGraph(BASIC_SCHEMA.getSchema());
 
         // When
-        addElements(graph, basicSchemaInput);
+        addBasicElements(graph, basicSchemaInput);
         final Iterable<? extends Element> result = getAllElements(graph);
 
         // Then
@@ -101,7 +101,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Graph graph = createGraph(FULL_SCHEMA.getSchema());
 
         // When
-        addElements(graph, fullSchemaInput);
+        addBasicElements(graph, fullSchemaInput);
         final Iterable<? extends Element> result = getAllElements(graph);
 
         // Then
@@ -120,8 +120,12 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         // testLoaderWithSchema(TestSchemas.getVisibilitySchema());
     }
 
-    protected void addElements(final Graph graph, final Iterable<? extends Element> elements) throws Exception {
-        graph.execute(createOperation(elements), getUser());
+    protected void addBasicElements(final Graph graph, final Iterable<? extends Element> elements) throws Exception {
+        graph.execute(createBasicOperation(elements), getUser());
+    }
+
+    protected void addFullElements(final Graph graph, final Iterable<? extends Element> elements) throws Exception {
+        graph.execute(createFullOperation(elements), getUser());
     }
 
     private Iterable<? extends Element> getAllElements(final Graph graph) throws Exception {
@@ -340,5 +344,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
 
     protected abstract void configure(final Iterable<? extends Element> elements) throws Exception;
 
-    protected abstract T createOperation(final Iterable<? extends Element> elements);
+    protected abstract T createBasicOperation(final Iterable<? extends Element> elements);
+
+    protected abstract T createFullOperation(final Iterable<? extends Element> elements);
 }
