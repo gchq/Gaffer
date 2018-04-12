@@ -49,6 +49,7 @@ import java.util.Map;
  * be executed in one go on the federated graphs.
  * </p>
  *
+ * @param <I>      the input type of the {@code FederatedOperationChain}.
  * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
  **/
 @JsonPropertyOrder(value = {"class", "operationChain", "options"}, alphabetic = true)
