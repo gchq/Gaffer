@@ -15,6 +15,6 @@
  */
 
 /**
- * Operations and handlers for the Parquet store.
+ * Utilities used to implement the core operations for the Parquet store.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities;

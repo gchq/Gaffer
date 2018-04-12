@@ -15,6 +15,6 @@
  */
 
 /**
- * Operations and handlers for the Parquet store.
+ * Handlers and related classes for the Parquet store core operations.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation;
+package uk.gov.gchq.gaffer.parquetstore.operation.handler;
