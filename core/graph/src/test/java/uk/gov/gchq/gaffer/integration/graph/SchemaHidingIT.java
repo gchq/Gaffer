@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.integration.graph;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -30,6 +33,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -49,6 +53,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,7 +79,6 @@ public abstract class SchemaHidingIT {
         cleanUp();
     }
 
-
     @After
     public void after() {
         cleanUp();
@@ -82,15 +86,18 @@ public abstract class SchemaHidingIT {
 
     protected abstract void cleanUp();
 
+    protected Store createStore(final Schema schema) throws IOException {
+        return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
-        final Store fullStore = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        final Store fullStore = createStore(createFullSchema());
         final Graph fullGraph = new Builder()
                 .store(fullStore)
                 .build();
-
 
         final Edge edge1a = new Edge.Builder()
                 .source("source1a")
@@ -128,9 +135,8 @@ public abstract class SchemaHidingIT {
                         .build(),
                 USER);
 
-
-        // Create a graph a hidden group backed by the same accumulo instance
-        final Store filteredStore = Store.createStore("graphId", createFilteredSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        // Create a graph with a hidden group backed by the same store
+        final Store filteredStore = createStore(createFilteredSchema());
         final Graph filteredGraph = new Builder()
                 .store(filteredStore)
                 .build();
@@ -139,11 +145,14 @@ public abstract class SchemaHidingIT {
         final List<Edge> filteredExpectedResults = Arrays.asList(edge1a, edge1b);
 
         // Run operations and check the hidden group is hidden when the operation is run on the filtered graph
-
         testOperations(fullGraph, filteredGraph, fullExpectedResults, filteredExpectedResults);
     }
 
-    protected void testOperations(final Graph fullGraph, final Graph filteredGraph, final List<Edge> fullExpectedResults, final List<Edge> filteredExpectedResults) throws uk.gov.gchq.gaffer.operation.OperationException {
+    protected void testOperations(final Graph fullGraph,
+                                  final Graph filteredGraph,
+                                  final List<Edge> fullExpectedResults,
+                                  final List<Edge> filteredExpectedResults)
+            throws OperationException {
         testOperation(fullGraph, filteredGraph, new GetAllElements(), fullExpectedResults, filteredExpectedResults);
 
         final GetElements getElements = new GetElements.Builder()
@@ -155,11 +164,12 @@ public abstract class SchemaHidingIT {
         testOperation(fullGraph, filteredGraph, getElements, fullExpectedResults, filteredExpectedResults);
     }
 
-    protected void testOperation(final Graph fullGraph, final Graph filteredGraph,
+    protected void testOperation(final Graph fullGraph,
+                                 final Graph filteredGraph,
                                  final Output<CloseableIterable<? extends Element>> operation,
                                  final List<Edge> fullExpectedResults,
                                  final List<Edge> filteredExpectedResults)
-            throws uk.gov.gchq.gaffer.operation.OperationException {
+            throws OperationException {
 
         // When
         final Iterable<? extends Element> fullResults = fullGraph.execute(operation, USER);
