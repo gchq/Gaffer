@@ -39,11 +39,10 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandlerTest;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -364,13 +363,19 @@ public class FederatedStoreTest {
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(MAP_ID_1)
-                .storeProperties(new MapStoreProperties())
+                .storeProperties(new FederatedGetTraitsHandlerTest.TestStorePropertiesImpl())
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
 
         //Then
-        assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
+        assertNotEquals(SingleUseAccumuloStore.TRAITS, new HashSet<>(Arrays.asList(
+                StoreTrait.INGEST_AGGREGATION,
+                StoreTrait.PRE_AGGREGATION_FILTERING,
+                StoreTrait.POST_AGGREGATION_FILTERING,
+                StoreTrait.TRANSFORMATION,
+                StoreTrait.POST_TRANSFORMATION_FILTERING,
+                StoreTrait.MATCHED_VERTEX)));
         assertEquals(StoreTrait.ALL_TRAITS, before);
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,

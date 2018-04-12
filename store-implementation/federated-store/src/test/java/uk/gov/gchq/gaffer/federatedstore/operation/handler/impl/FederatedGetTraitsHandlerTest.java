@@ -21,18 +21,30 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -44,7 +56,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetTraitsHandlerTest {
-    public static final String MAP_STORE = "mapStore";
+    public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
     private FederatedStore federatedStore;
@@ -90,13 +102,13 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldGetAllTraitsWhenContainsMapStore() throws Exception {
+    public void shouldGetAllTraitsWhenContainsStoreWithOtherTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
-                .graphId(MAP_STORE)
-                .storeProperties(new MapStoreProperties())
+                .graphId(ALT_STORE)
+                .storeProperties(new TestStorePropertiesImpl())
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -112,13 +124,13 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldGetCurrentTraitsWhenContainsMapStore() throws Exception {
+    public void shouldGetCurrentTraitsWhenContainsStoreWithOtherTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
-                .graphId(MAP_STORE)
-                .storeProperties(new MapStoreProperties())
+                .graphId(ALT_STORE)
+                .storeProperties(new TestStorePropertiesImpl())
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -142,14 +154,14 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldGetCurrentTraitsWhenContainsMapStoreWithOptions() throws Exception {
+    public void shouldGetCurrentTraitsWhenContainsStoreWithOtherTraitsWithOptions() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
-                .graphId(MAP_STORE)
-                .storeProperties(new MapStoreProperties())
+                .graphId(ALT_STORE)
+                .storeProperties(new TestStorePropertiesImpl())
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -163,7 +175,7 @@ public class FederatedGetTraitsHandlerTest {
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
                 new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, MAP_STORE)
+                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
                         .currentTraits(true)
                         .build(),
                 new Context(testUser()));
@@ -181,14 +193,14 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldGetAllTraitsWhenContainsMapStoreWithOptions() throws Exception {
+    public void shouldGetAllTraitsWhenContainsStoreWithOtherTraitsWithOptions() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
-                .graphId(MAP_STORE)
-                .storeProperties(new MapStoreProperties())
+                .graphId(ALT_STORE)
+                .storeProperties(new TestStorePropertiesImpl())
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -202,7 +214,7 @@ public class FederatedGetTraitsHandlerTest {
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
                 new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, MAP_STORE)
+                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
                         .currentTraits(false)
                         .build(),
                 new Context(testUser()));
@@ -211,4 +223,53 @@ public class FederatedGetTraitsHandlerTest {
         assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
+    public static class TestStorePropertiesImpl extends StoreProperties {
+        public TestStorePropertiesImpl() {
+            super(TestStoreImpl.class);
+        }
+    }
+
+    public static class TestStoreImpl extends Store {
+
+        @Override
+        public Set<StoreTrait> getTraits() {
+            return new HashSet<>(Arrays.asList(
+                    StoreTrait.INGEST_AGGREGATION,
+                    StoreTrait.PRE_AGGREGATION_FILTERING,
+                    StoreTrait.POST_AGGREGATION_FILTERING,
+                    StoreTrait.TRANSFORMATION,
+                    StoreTrait.POST_TRANSFORMATION_FILTERING,
+                    StoreTrait.MATCHED_VERTEX));
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return null;
+        }
+    }
 }
