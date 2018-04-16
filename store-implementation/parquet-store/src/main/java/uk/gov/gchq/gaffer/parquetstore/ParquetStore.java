@@ -30,13 +30,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportJavaRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAdjacentIdsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAllElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.GetDataframeOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -92,7 +92,19 @@ public class ParquetStore extends Store {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        super.initialise(graphId, schema, properties);
+        if (!(properties instanceof ParquetStoreProperties)) {
+            throw new StoreException("ParquetStore must be initialised with properties of class ParquetStoreProperties");
+        }
+        final ParquetStoreProperties parquetStoreProperties = (ParquetStoreProperties) properties;
+        if (null == parquetStoreProperties.getDataDir()) {
+            throw new StoreException("The ParquetStoreProperties must contain a non-null data directory ("
+                    + ParquetStoreProperties.DATA_DIR + ")");
+        }
+        if (null == parquetStoreProperties.getTempFilesDir()) {
+            throw new StoreException("The ParquetStoreProperties must contain a non-null temporary data directory ("
+                    + ParquetStoreProperties.TEMP_FILES_DIR + ")");
+        }
+        super.initialise(graphId, schema, parquetStoreProperties);
         try {
             fs = FileSystem.get(new Configuration());
         } catch (final IOException e) {

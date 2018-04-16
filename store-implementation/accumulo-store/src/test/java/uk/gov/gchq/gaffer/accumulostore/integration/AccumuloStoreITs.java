@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.flink.integration.loader.AddElementsFromFileLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
 

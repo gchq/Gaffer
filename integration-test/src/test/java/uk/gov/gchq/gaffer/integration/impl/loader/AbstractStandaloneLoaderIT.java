@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,14 +57,19 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
     public static final String D = "D";
     public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
-    protected final Map<EntityId, Entity> entities = createEntities();
-    protected final Map<EdgeId, Edge> edges = createEdges();
+    protected final Map<EntityId, Entity> basicSchemaEntities = createBasicSchemaEntities();
+    protected final Map<EdgeId, Edge> basicSchemaEdges = createBasicSchemaEdges();
 
-    protected final Iterable<? extends Element> input = getInputElements();
+    protected final Map<EntityId, Entity> fullSchemaEntities = createFullSchemaEntities();
+    protected final Map<EdgeId, Edge> fullSchemaEdges = createFullSchemaEdges();
+
+    protected final Iterable<? extends Element> basicSchemaInput = getBasicSchemaInputElements();
+
+    protected final Iterable<? extends Element> fullSchemaInput = getFullSchemaInputElements();
 
     @Override
     protected Schema createSchema() {
-        return BASIC_SCHEMA.getSchema();
+        return FULL_SCHEMA.getSchema();
     }
 
     @Override
@@ -73,7 +79,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
 
     @Before
     public void setup() throws Exception {
-        configure(input);
+        configure(fullSchemaInput);
     }
 
     @Test
@@ -82,12 +88,11 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Graph graph = createGraph(BASIC_SCHEMA.getSchema());
 
         // When
-        addElements(graph);
+        addBasicElements(graph, basicSchemaInput);
         final Iterable<? extends Element> result = getAllElements(graph);
 
         // Then
-//        assertEquals(Iterables.size(input), Iterables.size(result));
-        assertElementEquals(getInputElements(), result);
+        assertElementEquals(basicSchemaInput, result);
     }
 
     @Test
@@ -96,12 +101,11 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         final Graph graph = createGraph(FULL_SCHEMA.getSchema());
 
         // When
-        addElements(graph);
+        addBasicElements(graph, fullSchemaInput);
         final Iterable<? extends Element> result = getAllElements(graph);
 
         // Then
-//        assertEquals(Iterables.size(input), Iterables.size(result));
-        assertElementEquals(getInputElements(), result);
+        assertElementEquals(fullSchemaInput, result);
     }
 
     @Test
@@ -116,22 +120,60 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
         // testLoaderWithSchema(TestSchemas.getVisibilitySchema());
     }
 
-    protected void addElements(final Graph graph) throws Exception {
-        graph.execute(createOperation(input), getUser());
+    protected void addBasicElements(final Graph graph, final Iterable<? extends Element> elements) throws Exception {
+        graph.execute(createBasicOperation(elements), getUser());
+    }
+
+    protected void addFullElements(final Graph graph, final Iterable<? extends Element> elements) throws Exception {
+        graph.execute(createFullOperation(elements), getUser());
     }
 
     private Iterable<? extends Element> getAllElements(final Graph graph) throws Exception {
         return graph.execute(new GetAllElements(), getUser());
     }
 
-    protected Iterable<? extends Element> getInputElements() {
-        final Iterable<? extends Element> edges = getEdges().values();
-        final Iterable<? extends Element> entities = getEntities().values();
+    protected Iterable<? extends Element> getBasicSchemaInputElements() {
+        final Iterable<? extends Edge> edges = getBasicSchemaEdges().values();
+        final Iterable<? extends Entity> entities = getBasicSchemaEntities().values();
 
         return Iterables.concat(edges, entities);
     }
 
-    protected Map<EdgeId, Edge> createEdges() {
+    protected Iterable<? extends Element> getFullSchemaInputElements() {
+        final Iterable<? extends Edge> edges = getFullSchemaEdges().values();
+        final Iterable<? extends Entity> entities = getFullSchemaEntities().values();
+
+        return Iterables.concat(edges, entities);
+    }
+
+    protected Map<EdgeId, Edge> createBasicSchemaEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
+        for (int i = 0; i <= 10; i++) {
+            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_PREFIXES[0] + i)
+                        .dest(VERTEX_PREFIXES[j] + i)
+                        .directed(false)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
+                addToMap(edge, edges);
+            }
+
+            final Edge edge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(SOURCE + i)
+                    .dest(DEST + i)
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
+            addToMap(edge, edges);
+        }
+
+        return edges;
+    }
+
+    protected Map<EdgeId, Edge> createFullSchemaEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
@@ -141,19 +183,13 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
                         .dest(VERTEX_PREFIXES[j] + i)
                         .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                         .directed(false)
-                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
                         .build();
                 addToMap(edge, edges);
-
-                final Edge edgeDir = new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .directed(true)
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .build();
-                addToMap(edgeDir, edges);
             }
 
             final Edge edge = new Edge.Builder()
@@ -162,59 +198,140 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
                     .dest(DEST + i)
                     .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                     .directed(false)
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.COUNT, 2L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
                     .build();
             addToMap(edge, edges);
-
-            final Edge edgeDir = new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(SOURCE_DIR + i)
-                    .dest(DEST_DIR + i)
-                    .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                    .directed(true)
-                    .build();
-            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(edgeDir, edges);
         }
 
         return edges;
     }
 
-    protected Map<EntityId, Entity> createEntities() {
+    protected Map<EntityId, Entity> createBasicSchemaEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_PREFIXES[j] + i)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(entity, entities);
             }
 
-            final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
-            secondEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity secondEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(secondEntity, entities);
 
-            final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
-            thirdEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity thirdEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(thirdEntity, entities);
 
-            final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
-            fourthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fourthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(fourthEntity, entities);
 
-            final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
-            fifthEntity.putProperty(TestPropertyNames.COUNT, 1L);
+            final Entity fifthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(fifthEntity, entities);
         }
 
         return entities;
     }
 
-    public Map<EntityId, Entity> getEntities() {
+    protected Map<EntityId, Entity> createFullSchemaEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = 0; i <= 10; i++) {
+            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_PREFIXES[j] + i)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, new String())
+                        .property(TestPropertyNames.VISIBILITY, "all")
+                        .build();
+                addToMap(entity, entities);
+            }
+
+            final Entity secondEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
+            addToMap(secondEntity, entities);
+
+            final Entity thirdEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
+            addToMap(thirdEntity, entities);
+
+            final Entity fourthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
+            addToMap(fourthEntity, entities);
+
+            final Entity fifthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, new String())
+                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .build();
+            addToMap(fifthEntity, entities);
+        }
+
         return entities;
     }
 
-    public Map<EdgeId, Edge> getEdges() {
-        return edges;
+    public Map<EntityId, Entity> getBasicSchemaEntities() {
+        return basicSchemaEntities;
+    }
+
+    public Map<EdgeId, Edge> getBasicSchemaEdges() {
+        return basicSchemaEdges;
+    }
+
+    public Map<EntityId, Entity> getFullSchemaEntities() {
+        return fullSchemaEntities;
+    }
+
+    public Map<EdgeId, Edge> getFullSchemaEdges() {
+        return fullSchemaEdges;
     }
 
     protected static void addToMap(final Edge element, final Map<EdgeId, Edge> edges) {
@@ -227,5 +344,7 @@ public abstract class AbstractStandaloneLoaderIT<T extends Operation> extends St
 
     protected abstract void configure(final Iterable<? extends Element> elements) throws Exception;
 
-    protected abstract T createOperation(final Iterable<? extends Element> elements);
+    protected abstract T createBasicOperation(final Iterable<? extends Element> elements);
+
+    protected abstract T createFullOperation(final Iterable<? extends Element> elements);
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hdfs.integration.loader;
 
-import com.google.common.collect.Iterables;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,6 +31,8 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -43,9 +44,8 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromHdfs> {
 
@@ -79,13 +79,17 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
 
     @Override
     protected void configure(final Iterable<? extends Element> elements) throws Exception {
-        createInputFile(inputDir, 0, NUM_ELEMENTS);
     }
 
     @Override
-    protected AddElementsFromHdfs createOperation(final Iterable<? extends Element> elements) {
+    protected AddElementsFromHdfs createBasicOperation(final Iterable<? extends Element> elements) {
+        try {
+            createInputFile(elements);
+        } catch (final IOException | StoreException e) {
+            throw new RuntimeException("Unable to create input file", e);
+        }
         return new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), BasicTextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -96,41 +100,117 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
     }
 
     @Override
-    protected Iterable<? extends Element> getInputElements() {
-        final List<Edge> edges = new ArrayList<>();
-        final List<Entity> entities = new ArrayList<>();
+    protected AddElementsFromHdfs createFullOperation(final Iterable<? extends Element> elements) {
+        try {
+            createInputFile(elements);
+        } catch (final IOException | StoreException e) {
+            throw new RuntimeException("Unable to create input file", e);
+        }
+        return new AddElementsFromHdfs.Builder()
+                .addInputMapperPair(new Path(inputDir).toString(), FullTextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir)
+                .failurePath(failureDir)
+                .jobInitialiser(new TextJobInitialiser())
+                .useProvidedSplits(false)
+                .splitsFilePath(splitsFile)
+                .workingPath(workingDir)
+                .build();
+    }
 
+    @Override
+    protected Map<EdgeId, Edge> createBasicSchemaEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                entities.add(new Entity.Builder().group(TestGroups.ENTITY)
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_ID_PREFIX + i)
+                        .dest(VERTEX_ID_PREFIX + (i + 1))
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .build();
+                addToMap(edge, edges);
+            }
+        }
+        return edges;
+    }
+
+    @Override
+    protected Map<EdgeId, Edge> createFullSchemaEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_ID_PREFIX + i)
+                        .dest(VERTEX_ID_PREFIX + (i + 1))
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
+                        .build();
+                addToMap(edge, edges);
+            }
+        }
+        return edges;
+    }
+
+    @Override
+    protected Map<EntityId, Entity> createBasicSchemaEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_ID_PREFIX + i)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .build();
+                addToMap(entity, entities);
+            }
+        }
+        return entities;
+    }
+
+    @Override
+    protected Map<EntityId, Entity> createFullSchemaEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
+        for (int i = (NUM_ELEMENTS - 1); i >= 0; i--) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
                         .vertex(VERTEX_ID_PREFIX + i)
                         .property(TestPropertyNames.COUNT, 2L)
                         .property(TestPropertyNames.PROP_3, "String")
                         .property(TestPropertyNames.PROP_4, new FreqMap())
-                        .property(TestPropertyNames.PROP_5, new HashSet<>())
-                        .property(TestPropertyNames.VISIBILITY, "all")
-                        .build());
-                edges.add(new Edge.Builder().group(TestGroups.EDGE).source(VERTEX_ID_PREFIX + i).dest(VERTEX_ID_PREFIX + (i + 1)).directed(true).property(TestPropertyNames.COUNT, 2L).build());
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
+                        .build();
+                addToMap(entity, entities);
             }
         }
-
-        return Iterables.concat(edges, entities);
+        return entities;
     }
 
-    private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
+    private void createInputFile(final Iterable<? extends Element> elements) throws IOException, StoreException {
         final Path inputPath = new Path(inputDir);
         final Path inputFilePath = new Path(inputDir + "/file.txt");
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(inputPath);
 
+        if (fs.exists(inputFilePath)) {
+            fs.delete(inputFilePath, false);
+        }
+
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
             // Add backwards to ensure the store is capable of ordering the elements if required
-            for (int i = (end - 1); i >= start; i--) {
-                for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
-                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",2\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
-                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",2\n");
+            for (final Element element : elements) {
+                if (element instanceof Entity) {
+                    writer.write(element.getGroup() + "," + ((Entity) element).getVertex() + "\n");
+                }
+                if (element instanceof Edge) {
+                    writer.write(element.getGroup() + "," + ((Edge) element).getSource() + "," + ((Edge) element).getDestination() + "\n");
                 }
             }
         }
@@ -145,34 +225,74 @@ public abstract class AddElementsFromHdfsLoaderIT extends AbstractStandaloneLoad
         return conf;
     }
 
-    public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
-        public TextMapperGeneratorImpl() {
-            super(new ExampleGenerator());
+    public static final class BasicTextMapperGeneratorImpl extends TextMapperGenerator {
+        public BasicTextMapperGeneratorImpl() {
+            super(new BasicExampleGenerator());
         }
     }
 
-    public static final class ExampleGenerator implements OneToOneElementGenerator<String> {
+    public static final class BasicExampleGenerator implements OneToOneElementGenerator<String> {
         @Override
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
             if (3 == parts.length) {
-                return new Entity.Builder()
+                return new Edge.Builder()
                         .group(parts[0])
-                        .vertex(parts[1])
-                        .property(TestPropertyNames.COUNT, 1L)
+                        .source(parts[1])
+                        .dest(parts[2])
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
                         .build();
             }
 
-            return new Edge.Builder()
+            return new Entity.Builder()
                     .group(parts[0])
-                    .source(parts[1])
-                    .dest(parts[2])
-                    .directed(true)
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .vertex(parts[1])
+                    .property(TestPropertyNames.COUNT, 2L)
                     .property(TestPropertyNames.PROP_3, "String")
                     .property(TestPropertyNames.PROP_4, new FreqMap())
-                    .property(TestPropertyNames.PROP_5, new HashSet<>())
-                    .property(TestPropertyNames.VISIBILITY, "all")
+                    .property(TestPropertyNames.PROP_5, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
+                    .build();
+        }
+    }
+
+    public static final class FullTextMapperGeneratorImpl extends TextMapperGenerator {
+        public FullTextMapperGeneratorImpl() {
+            super(new FullExampleGenerator());
+        }
+    }
+
+    public static final class FullExampleGenerator implements OneToOneElementGenerator<String> {
+        @Override
+        public Element _apply(final String domainObject) {
+            final String[] parts = domainObject.split(",");
+            if (3 == parts.length) {
+                return new Edge.Builder()
+                        .group(parts[0])
+                        .source(parts[1])
+                        .dest(parts[2])
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 2L)
+                        .property(TestPropertyNames.PROP_3, "String")
+                        .property(TestPropertyNames.PROP_4, new FreqMap())
+                        .property(TestPropertyNames.PROP_5, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
+                        .build();
+            }
+
+            return new Entity.Builder()
+                    .group(parts[0])
+                    .vertex(parts[1])
+                    .property(TestPropertyNames.COUNT, 2L)
+                    .property(TestPropertyNames.PROP_3, "String")
+                    .property(TestPropertyNames.PROP_4, new FreqMap())
+                    .property(TestPropertyNames.PROP_5, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
                     .build();
         }
     }

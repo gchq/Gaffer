@@ -113,6 +113,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithWhileRepeat() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -144,6 +145,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithWhile() throws Exception {
         // Given
+        createDefaultGraph();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");

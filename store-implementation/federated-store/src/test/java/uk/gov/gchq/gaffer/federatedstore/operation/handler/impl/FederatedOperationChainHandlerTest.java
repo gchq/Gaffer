@@ -121,7 +121,7 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        final FederatedOperationChain<Element> opChain = new FederatedOperationChain.Builder<Element>()
+        final FederatedOperationChain<Void, Element> opChain = new FederatedOperationChain.Builder<Void, Element>()
                 .operationChain(
                         new OperationChain.Builder()
                                 .first(new GetAllElements())
@@ -144,7 +144,7 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
 
-        final FederatedOperationChain<Void> opChain = new FederatedOperationChain.Builder<Void>()
+        final FederatedOperationChain<Object, Void> opChain = new FederatedOperationChain.Builder<Object, Void>()
                 .operationChain(
                         new OperationChain.Builder()
                                 .first(new AddElements.Builder()
@@ -170,7 +170,7 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
 
-        final FederatedOperationChain<Long> opChain = new FederatedOperationChain.Builder<Long>()
+        final FederatedOperationChain<Void, Long> opChain = new FederatedOperationChain.Builder<Void, Long>()
                 .operationChain(
                         new OperationChain.Builder()
                                 .first(new GetAllElements())
@@ -192,7 +192,7 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
         final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
-                .first(new FederatedOperationChain.Builder<Element>()
+                .first(new FederatedOperationChain.Builder<Void, Element>()
                         .operationChain(new OperationChain.Builder()
                                 .first(new GetAllElements())
                                 .then(new Limit<>(1))
@@ -215,7 +215,7 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(new FederatedOperationChain.Builder<Element>()
+                .first(new FederatedOperationChain.Builder<Void, Element>()
                         .operationChain(new OperationChain.Builder()
                                 .first(new GetAllElements())
                                 .then(new Limit<>(1))
