@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -40,6 +41,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -320,6 +322,32 @@ public class FederatedGraphStorageTest {
         final Schema schema = graphStorage.getSchema((Map<String, String>) null, blankUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
+    }
+
+    @Test
+    public void shouldGetTraitsForAddingUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertEquals(10, traits.size());
+    }
+
+    @Test
+    public void shouldGetTraitsForAuthUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertEquals(10, traits.size());
+    }
+
+    @Test
+    public void shouldNotGetTraitsForBlankUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
+        assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
     @Test
