@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.tools.nsc.doc.base.comment.Summary;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -281,12 +282,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationDetail {
         private final String name;
+        private final String summary;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
+            this.summary = getSummary(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -324,6 +327,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                         return new OperationField(f.getName(), required);
                     })
                     .collect(Collectors.toList());
+        }
+
+        private String getSummary(final Class<? extends Operation> opClass) {
+            return opClass.getAnnotation(Summary.class) != null ? opClass.getAnnotation(Summary.class) : "";
         }
     }
 }
