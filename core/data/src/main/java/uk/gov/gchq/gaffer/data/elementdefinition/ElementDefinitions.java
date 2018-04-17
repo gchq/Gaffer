@@ -116,20 +116,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         return null != entities ? entities.keySet() : Collections.emptySet();
     }
 
-    @JsonIgnore
-    public Set<String> getElementGroups() {
-        Set<String> elementGroups = new HashSet<>();
-
-        if (null != edges) {
-            elementGroups.addAll(edges.keySet());
-        }
-        if (null != entities) {
-            elementGroups.addAll(entities.keySet());
-        }
-
-        return elementGroups;
-    }
-
     /**
      * Returns a new hash set with all entity and edge groups.
      *

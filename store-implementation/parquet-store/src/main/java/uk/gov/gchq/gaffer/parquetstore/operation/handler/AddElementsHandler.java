@@ -167,10 +167,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private void checkAddingElementGroupInSchema(final Schema schema, final  Iterable<? extends Element> addingElements) {
+    private void checkAddingElementGroupInSchema(final Schema schema, final Iterable<? extends Element> addingElements) {
         boolean isGroupInSchema = false;
         for (Element e : addingElements) {
-            if (schema.getElementGroups().contains(e.getGroup())) {
+            if (schema.getGroups().contains(e.getGroup())) {
                 isGroupInSchema = true;
             }
         }
