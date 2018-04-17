@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.integration;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 
 public class ParquetSchemaHidingIT extends SchemaHidingIT {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static ParquetStoreProperties parquetStoreProperties;
+
     public ParquetSchemaHidingIT() {
         super("parquetStore.properties");
     }
 
     @Override
     protected void cleanUp() {
-        final Store store = Store.createStore("graphId", createFullSchema(), ParquetStoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
-        String dataDir = "";
-        try {
-            dataDir = ((ParquetStore) store).getDataDir();
-            deleteFolder(dataDir, ((ParquetStore) store).getFS());
-        } catch (final IOException e) {
-            throw new RuntimeException("Exception deleting folder: " + dataDir, e);
-        }
     }
 
-    private void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        Path dataDir = new Path(path);
-        if (fs.exists(dataDir)) {
-            fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
+    @Override
+    protected Store createStore(final Schema schema) throws IOException {
+        if (null == parquetStoreProperties) {
+            parquetStoreProperties = ParquetStoreProperties
+                    .loadStoreProperties(storePropertiesPath);
+            testFolder.create();
+            final String path = testFolder.newFolder().getAbsolutePath();
+            parquetStoreProperties.setDataDir(path + "/data");
+            parquetStoreProperties.setTempFilesDir(path + "/tmpdata");
         }
+        return Store.createStore("graphId", schema, parquetStoreProperties);
     }
 }

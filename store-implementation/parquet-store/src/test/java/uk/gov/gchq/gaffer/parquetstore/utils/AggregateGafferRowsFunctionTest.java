@@ -26,7 +26,7 @@ import scala.collection.JavaConversions$;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateGafferRowsFunction;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;

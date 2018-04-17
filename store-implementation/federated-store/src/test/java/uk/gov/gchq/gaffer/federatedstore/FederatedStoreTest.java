@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandlerTest;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -52,6 +54,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
@@ -75,8 +78,16 @@ import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.values;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
@@ -88,6 +99,7 @@ public class FederatedStoreTest {
     private static final String FEDERATED_STORE_ID = "testFederatedStoreId";
     private static final String ACC_ID_1 = "mockAccGraphId1";
     private static final String ACC_ID_2 = "mockAccGraphId2";
+    private static final String MAP_ID_1 = "mockMapGraphId1";
     private static final String PATH_ACC_STORE_PROPERTIES_1 = "properties/singleUseMockAccStore.properties";
     private static final String PATH_ACC_STORE_PROPERTIES_2 = "properties/singleUseMockAccStore.properties";
     private static final String PATH_ACC_STORE_PROPERTIES_ALT = "properties/singleUseMockAccStoreAlt.properties";
@@ -95,9 +107,8 @@ public class FederatedStoreTest {
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     public static final String UNUSUAL_KEY = "unusualKey";
-    //public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_MAP + " it should not be there";
-    private static final String ALL_USERS = StoreUser.ALL_USERS;
     public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_ACC_2 + " it should not be there";
+    private static final String ALL_USERS = StoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
@@ -255,8 +266,8 @@ public class FederatedStoreTest {
         addGraphWithPaths(ACC_ID_2, PATH_ACC_STORE_PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
 
         Set<StoreTrait> after = store.getTraits();
-        assertEquals(StoreTrait.values().length, before.size());
-        assertEquals(StoreTrait.values().length, after.size());
+        assertEquals(values().length, before.size());
+        assertEquals(values().length, after.size());
         assertEquals(before, after);
     }
 
@@ -327,6 +338,61 @@ public class FederatedStoreTest {
         // Then
         assertEquals(0, sizeBefore);
         assertEquals(2, sizeAfter);
+    }
+
+    @Test
+    public void shouldCombineTraitsToMin() throws Exception {
+        //Given
+        final GetTraits getTraits = new GetTraits.Builder()
+                .currentTraits(true)
+                .build();
+
+        //When
+        final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(ACC_ID_1)
+                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .build(), new Context(testUser()));
+
+        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(MAP_ID_1)
+                .storeProperties(new FederatedGetTraitsHandlerTest.TestStorePropertiesImpl())
+                .build(), new Context(testUser()));
+
+        final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
+
+        //Then
+        assertNotEquals(SingleUseAccumuloStore.TRAITS, new HashSet<>(Arrays.asList(
+                StoreTrait.INGEST_AGGREGATION,
+                StoreTrait.PRE_AGGREGATION_FILTERING,
+                StoreTrait.POST_AGGREGATION_FILTERING,
+                StoreTrait.TRANSFORMATION,
+                StoreTrait.POST_TRANSFORMATION_FILTERING,
+                StoreTrait.MATCHED_VERTEX)));
+        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING,
+                ORDERED,
+                MATCHED_VERTEX
+        ), afterAcc);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING,
+                MATCHED_VERTEX
+        ), afterMap);
     }
 
     @Test

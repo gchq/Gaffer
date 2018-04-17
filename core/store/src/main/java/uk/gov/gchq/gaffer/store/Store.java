@@ -83,6 +83,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
@@ -95,6 +96,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
@@ -172,6 +174,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
      * to be stored and how to aggregate the elements.
@@ -867,6 +870,8 @@ public abstract class Store {
             addOperationHandler(AddSchemaToLibrary.class, new AddSchemaToLibraryHandler());
             addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
         }
+
+        addOperationHandler(GetTraits.class, new GetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {
