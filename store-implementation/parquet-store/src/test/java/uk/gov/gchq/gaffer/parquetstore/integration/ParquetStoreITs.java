@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
 import uk.gov.gchq.gaffer.integration.impl.PartAggregationIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 
 import java.io.IOException;

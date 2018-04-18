@@ -169,7 +169,7 @@ public final class ParquetFilterUtils {
         this.pathToFilterMap.clear();
         this.needsValidatorsAndFiltersApplying = false;
 
-        if (null == seeds && (null == view || schemaUtils.getEmptyView().equals(view))) {
+        if (null == seeds && null == view) {
             // get all elements
             for (final String group : entityGroups) {
                 pathToFilterMap.put(new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, dataDir)), null);
