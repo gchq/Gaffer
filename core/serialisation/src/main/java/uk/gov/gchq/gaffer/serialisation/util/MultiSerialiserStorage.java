@@ -29,13 +29,23 @@ public class MultiSerialiserStorage {
     private Map<Class, Class<? extends ToBytesSerialiser>> classMap = new HashMap<>();
     private boolean consistent = true;
     private boolean preservesObjectOrdering = true;
-    private byte savedKey = 0;
+    private byte savedKey = ((byte) 0);
 
     public void put(Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) throws GafferCheckedException {
         put(getKey(), serialiserClass, supportedClass);
     }
 
     public void put(byte key, Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) throws GafferCheckedException {
+        ToBytesSerialiser toBytesSerialiser = getSerialiser(serialiserClass, supportedClass);
+
+        consistent = continuesToBeConsistant(toBytesSerialiser);
+        preservesObjectOrdering = continuesToPreserveOrdering(toBytesSerialiser);
+
+        keyMap.put(key, serialiserClass);
+        classMap.put(supportedClass, serialiserClass);
+    }
+
+    private ToBytesSerialiser getSerialiser(final Class<? extends ToBytesSerialiser> serialiserClass, final Class supportedClass) throws GafferCheckedException {
         ToBytesSerialiser toBytesSerialiser;
         try {
             toBytesSerialiser = serialiserClass.newInstance();
@@ -45,12 +55,7 @@ public class MultiSerialiserStorage {
         if (!toBytesSerialiser.canHandle(supportedClass)) {
             throw new GafferCheckedException(String.format("%s does not handle %s", toBytesSerialiser.getClass(), supportedClass));
         }
-
-        consistent = continuesToBeConsistant(toBytesSerialiser);
-        preservesObjectOrdering = continuesToPreserveOrdering(toBytesSerialiser);
-
-        keyMap.put(key, serialiserClass);
-        classMap.put(supportedClass, serialiserClass);
+        return toBytesSerialiser;
     }
 
     public byte getKey() {
@@ -66,7 +71,7 @@ public class MultiSerialiserStorage {
         try {
             return (null == serialiserClass) ? null : serialiserClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new GafferCheckedException(String.format("Unable to Instantiate serialiser, this means that serialiser was not checked within the put method: %s", serialiserClass));
+            throw new GafferCheckedException(String.format("Unable to Instantiate serialiser, this means that serialiser was not checked when added to the storage: %s", serialiserClass));
         }
     }
 
@@ -74,8 +79,7 @@ public class MultiSerialiserStorage {
         if (null == object) {
             return null;
         }
-        Class<?> objectClass = object.getClass();
-        Class<? extends ToBytesSerialiser> serialiserClass = classMap.get(objectClass);
+        Class<? extends ToBytesSerialiser> serialiserClass = classMap.get(object.getClass());
         try {
             return (null == serialiserClass) ? null : serialiserClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {

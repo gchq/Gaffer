@@ -42,17 +42,15 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-            ToBytesSerialiser serialiserFromValue = supportedSerialisers.getSerialiserFromValue(object);
-            byte[] serialise = serialiserFromValue.serialise(object);
-            byte key = supportedSerialisers.getKeyFromSerialiser(serialiserFromValue);
-            byte[] bytes;
+            ToBytesSerialiser serialiser = supportedSerialisers.getSerialiserFromValue(object);
+            byte[] bytes = serialiser.serialise(object);
+            byte key = supportedSerialisers.getKeyFromSerialiser(serialiser);
 
             stream.write(key);
-            stream.write(serialise);
-            bytes = stream.toByteArray();
-            return bytes;
+            stream.write(bytes);
+            return stream.toByteArray();
         } catch (SerialisationException e) {
-            //re-throws SerialisationException
+            //re-throw SerialisationException
             throw e;
         } catch (Exception e) {
             //wraps other exceptions.
@@ -63,12 +61,14 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
     @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try {
-            byte aByte = bytes[0];
-            ToBytesSerialiser serialiser = supportedSerialisers.getSerialiserFromKey(aByte);
+            byte keyByte = bytes[0];
+            ToBytesSerialiser serialiser = supportedSerialisers.getSerialiserFromKey(keyByte);
             return serialiser.deserialise(bytes, 1, bytes.length - 1);
         } catch (SerialisationException e) {
+            //re-throw SerialisationException
             throw e;
         } catch (Exception e) {
+            //wraps other exceptions.
             throw new SerialisationException(e.getMessage(), e);
         }
     }
