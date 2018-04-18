@@ -108,8 +108,6 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
             }
 
-            checkAddingElementGroupInSchema(gafferSchema, input);
-
             final Iterator<? extends Element> inputIter = input.iterator();
             new WriteUnsortedData(store, groupToSplitPoints).writeElements(inputIter);
             if (inputIter instanceof CloseableIterator) {
@@ -164,19 +162,6 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             tempDir = tempDir.getParent();
             LOGGER.debug("Empty directory '{}' has been deleted.", tempDataDirString);
             fs.delete(tempDir, true);
-        }
-    }
-
-    private void checkAddingElementGroupInSchema(final Schema schema, final Iterable<? extends Element> addingElements) {
-        boolean isGroupInSchema = false;
-        for (final Element e : addingElements) {
-            if (schema.getGroups().contains(e.getGroup())) {
-                isGroupInSchema = true;
-            }
-        }
-
-        if (!isGroupInSchema) {
-            throw new IllegalArgumentException("Element group being added cannot be found in Schema");
         }
     }
 }
