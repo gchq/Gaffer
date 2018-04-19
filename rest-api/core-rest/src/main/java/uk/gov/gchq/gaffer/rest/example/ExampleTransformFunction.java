@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.rest.example;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 @Since("1.0.0")
+@Summary("example Transform function")
 public class ExampleTransformFunction extends KorypheFunction<Object, String> {
     @Override
     public String apply(final Object input) {

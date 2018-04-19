@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.io.IOException;
 import java.util.Map;
@@ -47,6 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Gets all Elements between two sets of EntityIds")
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

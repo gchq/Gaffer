@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.function;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * it will unwrap the vertex.
  */
 @Since("1.3.0")
+@Summary("Unwraps the vertex of the supplied ElementId if it is an EntityId")
 public class FromElementId extends KorypheFunction<ElementId, Object> {
     @Override
     public Object apply(final ElementId e) {

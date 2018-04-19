@@ -21,12 +21,14 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 @JsonPropertyOrder(
         value = {"class", "graphId"},
         alphabetic = true
 )
 @Since("1.4.0")
+@Summary("Adds a Graph with Hooks to a FederatedStore")
 public class AddGraphWithHooks extends AddGraph {
     private GraphHook[] hooks;
 

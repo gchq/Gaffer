@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.rest.example;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 @Since("1.0.0")
+@Summary("Example filter function, always returning true")
 public class ExampleFilterFunction extends KoryphePredicate<Object> {
     @Override
     public boolean test(final Object input) {

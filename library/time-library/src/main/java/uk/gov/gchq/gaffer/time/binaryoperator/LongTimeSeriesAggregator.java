@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.time.Instant;
@@ -29,6 +30,7 @@ import java.util.Map;
  * are summed.
  */
 @Since("1.1.0")
+@Summary("Takes in LongTimeSeries and aggregates the time series")
 public class LongTimeSeriesAggregator extends KorypheBinaryOperator<LongTimeSeries> {
 
     @Override

@@ -19,6 +19,7 @@ import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link DoublesSketch}s using a {@link DoublesUnion}.
  */
 @Since("1.0.0")
+@Summary("Aggregates DoublesSketches using a DoublesUnion")
 public class DoublesSketchAggregator extends KorypheBinaryOperator<DoublesSketch> {
 
     @Override

@@ -19,6 +19,7 @@ import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ReservoirItemsSketch}s using a {@link ReservoirItemsUnion}.
  */
 @Since("1.0.0")
+@Summary("Aggregates ReservoirItemsSketches")
 public class ReservoirItemsSketchAggregator<T> extends KorypheBinaryOperator<ReservoirItemsSketch<T>> {
 
     @Override
