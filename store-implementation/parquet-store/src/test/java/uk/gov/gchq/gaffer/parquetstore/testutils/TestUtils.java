@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.testutils;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -29,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -37,6 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,9 +50,10 @@ public class TestUtils {
 
     public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
         final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final String folder = temporaryFolder.newFolder().getAbsolutePath();
-        properties.setDataDir(folder + "/data");
-        properties.setTempFilesDir(folder + "/tmpdata");
+        final File dataFolder = temporaryFolder.newFolder("data");
+        final File tmpDataFolder = temporaryFolder.newFolder("tmpdata");
+        properties.setDataDir(dataFolder.getAbsolutePath());
+        properties.setTempFilesDir(tmpDataFolder.getAbsolutePath());
         return properties;
     }
 
