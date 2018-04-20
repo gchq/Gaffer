@@ -50,8 +50,14 @@ public class TestUtils {
 
     public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
         final ParquetStoreProperties properties = new ParquetStoreProperties();
-        final File dataFolder = temporaryFolder.newFolder("data");
-        final File tmpDataFolder = temporaryFolder.newFolder("tmpdata");
+        File dataFolder = new File(temporaryFolder + "/data");
+        File tmpDataFolder = new File(temporaryFolder + "/tmpdata");
+        if (!dataFolder.exists()) {
+            dataFolder = temporaryFolder.newFolder("data");
+        }
+        if (!tmpDataFolder.exists()) {
+            tmpDataFolder = temporaryFolder.newFolder("tmpdata");
+        }
         properties.setDataDir(dataFolder.getAbsolutePath());
         properties.setTempFilesDir(tmpDataFolder.getAbsolutePath());
         return properties;
