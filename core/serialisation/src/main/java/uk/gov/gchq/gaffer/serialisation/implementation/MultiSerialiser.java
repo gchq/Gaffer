@@ -25,6 +25,17 @@ import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * This class is used to serialise and deserialise multiple object types.
+ * <p>
+ * The serialiser used is stored at the first byte of the serial byte[].
+ * This mean encoding can only go up to the size of a byte (256),
+ * however nesting MultiSerialiser you can increase encoding beyond the first byte to have more Serialisers.
+ * <p>
+ * {@code new byte[]{256,1,<byte values>}}
+ * <br>
+ * 256 could encode to a nested MultiSerialiser and now the second byte is also used for encoding extra serialisers.
+ */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
     private MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
@@ -44,7 +55,7 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
         try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
             ToBytesSerialiser serialiser = supportedSerialisers.getSerialiserFromValue(object);
             byte[] bytes = serialiser.serialise(object);
-            byte key = supportedSerialisers.getKeyFromSerialiser(serialiser);
+            byte key = supportedSerialisers.getKeyFromSerialiser(serialiser.getClass());
 
             stream.write(key);
             stream.write(bytes);
@@ -80,7 +91,7 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
 
     @Override
     public boolean preservesObjectOrdering() {
-        return supportedSerialisers.isPreservesObjectOrdering();
+        return supportedSerialisers.preservesObjectOrdering();
     }
 
 

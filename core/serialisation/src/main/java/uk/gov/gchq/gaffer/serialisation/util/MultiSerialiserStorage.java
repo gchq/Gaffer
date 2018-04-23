@@ -24,25 +24,30 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * Delegate for the storage of {@link uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser}
+ */
 public class MultiSerialiserStorage {
-    private Map<Byte, Class<? extends ToBytesSerialiser>> keyMap = new HashMap<>();
-    private Map<Class, Class<? extends ToBytesSerialiser>> classMap = new HashMap<>();
+    private Map<Byte, Class<? extends ToBytesSerialiser>> keyToSerialiser = new HashMap<>();
+    private Map<Byte, Class> keyToValueMap = new HashMap<>();
+    private Map<Class, Byte> valueToKeyMap = new HashMap<>();
     private boolean consistent = true;
     private boolean preservesObjectOrdering = true;
-    private byte savedKey = ((byte) 0);
+    private byte savedSerialiserEncoding = ((byte) 0);
 
     public void put(Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) throws GafferCheckedException {
-        put(getKey(), serialiserClass, supportedClass);
+        put(getSerialiserEncoding(), serialiserClass, supportedClass);
     }
 
-    public void put(byte key, Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) throws GafferCheckedException {
+    public void put(byte serialiserEncoding, Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) throws GafferCheckedException {
         ToBytesSerialiser toBytesSerialiser = getSerialiser(serialiserClass, supportedClass);
 
         consistent = continuesToBeConsistant(toBytesSerialiser);
         preservesObjectOrdering = continuesToPreserveOrdering(toBytesSerialiser);
 
-        keyMap.put(key, serialiserClass);
-        classMap.put(supportedClass, serialiserClass);
+        keyToSerialiser.put(serialiserEncoding, serialiserClass);
+        keyToValueMap.put(serialiserEncoding, supportedClass);
+        valueToKeyMap.put(supportedClass, serialiserEncoding);
     }
 
     private ToBytesSerialiser getSerialiser(final Class<? extends ToBytesSerialiser> serialiserClass, final Class supportedClass) throws GafferCheckedException {
@@ -58,16 +63,16 @@ public class MultiSerialiserStorage {
         return toBytesSerialiser;
     }
 
-    public byte getKey() {
-        Set<Byte> integers = keyMap.keySet();
-        while (integers.contains(savedKey)) {
-            savedKey++;
+    private byte getSerialiserEncoding() {
+        Set<Byte> integers = keyToSerialiser.keySet();
+        while (integers.contains(savedSerialiserEncoding)) {
+            savedSerialiserEncoding++;
         }
-        return savedKey;
+        return savedSerialiserEncoding;
     }
 
     public ToBytesSerialiser getSerialiserFromKey(final byte key) throws GafferCheckedException {
-        Class<? extends ToBytesSerialiser> serialiserClass = keyMap.get(key);
+        Class<? extends ToBytesSerialiser> serialiserClass = keyToSerialiser.get(key);
         try {
             return (null == serialiserClass) ? null : serialiserClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
@@ -79,7 +84,7 @@ public class MultiSerialiserStorage {
         if (null == object) {
             return null;
         }
-        Class<? extends ToBytesSerialiser> serialiserClass = classMap.get(object.getClass());
+        Class<? extends ToBytesSerialiser> serialiserClass = keyToSerialiser.get(valueToKeyMap.get(object.getClass()));
         try {
             return (null == serialiserClass) ? null : serialiserClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
@@ -87,9 +92,24 @@ public class MultiSerialiserStorage {
         }
     }
 
+    public Byte getKeyFromSerialiser(final Class<? extends ToBytesSerialiser> serialiser) {
+        for (Entry<Byte, Class<? extends ToBytesSerialiser>> entry : keyToSerialiser.entrySet()) {
+            if (entry.getValue().equals(serialiser)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param handleClass
+     * @return {@link ToBytesSerialiser#canHandle(Class)}
+     * @throws GafferCheckedException
+     * @see ToBytesSerialiser
+     */
     public boolean canHandle(final Class handleClass) throws GafferCheckedException {
         boolean rtn = false;
-        for (Class<? extends ToBytesSerialiser> serialiserClass : keyMap.values()) {
+        for (Class<? extends ToBytesSerialiser> serialiserClass : keyToSerialiser.values()) {
             ToBytesSerialiser toBytesSerialiser;
             try {
                 toBytesSerialiser = serialiserClass.newInstance();
@@ -104,28 +124,24 @@ public class MultiSerialiserStorage {
         return rtn;
     }
 
-    public byte getKeyFromSerialiser(final Object object) {
-        Class<?> aClass = object.getClass();
-        for (Entry<Byte, Class<? extends ToBytesSerialiser>> entry : keyMap.entrySet()) {
-            if (entry.getValue().equals(aClass)) {
-                return entry.getKey();
-            }
-        }
-        throw null;
-    }
-
-    public boolean continuesToPreserveOrdering(final ToBytesSerialiser toBytesSerialiser) {
+    private boolean continuesToPreserveOrdering(final ToBytesSerialiser toBytesSerialiser) {
         return preservesObjectOrdering && toBytesSerialiser.preservesObjectOrdering();
     }
 
-    public boolean continuesToBeConsistant(final ToBytesSerialiser toBytesSerialiser) {
+    private boolean continuesToBeConsistant(final ToBytesSerialiser toBytesSerialiser) {
         return consistent && toBytesSerialiser.isConsistent();
     }
 
-    public boolean isPreservesObjectOrdering() {
+    /**
+     * @return {@link ToBytesSerialiser#preservesObjectOrdering()}
+     */
+    public boolean preservesObjectOrdering() {
         return preservesObjectOrdering;
     }
 
+    /**
+     * @return {@link ToBytesSerialiser#isConsistent()}
+     */
     public boolean isConsistent() {
         return consistent;
     }
