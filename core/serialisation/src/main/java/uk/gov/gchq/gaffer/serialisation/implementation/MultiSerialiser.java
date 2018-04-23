@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
+import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.Content;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -37,20 +38,19 @@ import java.util.List;
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
-    public static final String ERROR_PAIR = "setSupportedSerialisers requires pair's of classes e.g. setSupportedSerialisers(StringSerialiser.class, String.class)";
-    public static final String ERROR_PAIR_ORDER = "setSupportedSerialisers requires  pair's of classes in the order e.g (Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) ";
     private MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
 
-    public void setSerialisers(final List<Contents> serialisers) throws GafferCheckedException {
-        if (null != serialisers) {
-            for (Contents serialiser : serialisers) {
-                supportedSerialisers.put(serialiser.getKey(), serialiser.getSerialiser(), serialiser.getValueClass());
-            }
-        }
+    public void setSerialisers(final List<Content> serialisers) throws GafferCheckedException {
+        supportedSerialisers.setSerialisers(serialisers);
     }
 
-    public List<Contents> getSerialisers() {
-        return null;
+    public MultiSerialiser addSerialiser(Content c) throws GafferCheckedException {
+        supportedSerialisers.addSerialiser(c);
+        return this;
+    }
+
+    public List<Content> getSerialisers() {
+        return supportedSerialisers.getSerialisers();
     }
 
     @Override
@@ -111,50 +111,4 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
             throw new RuntimeException("MultiSerialiser unable to recover from canHandle()", e);
         }
     }
-
-    public static class Contents {
-        public Contents() {
-        }
-
-        public Contents(final byte key, final Class<? extends ToBytesSerialiser> serialiser, final Class valueClass) {
-            this();
-            this.key = key;
-            this.serialiser = serialiser;
-            this.valueClass = valueClass;
-        }
-
-        private byte key;
-        private Class<? extends ToBytesSerialiser> serialiser;
-        private Class valueClass;
-
-
-        public byte getKey() {
-            return key;
-        }
-
-        public Contents key(final byte key) {
-            this.key = key;
-            return this;
-        }
-
-        public Class getValueClass() {
-            return valueClass;
-        }
-
-        public Contents valueClass(final Class valueClass) {
-            this.valueClass = valueClass;
-            return this;
-        }
-
-        public Class<? extends ToBytesSerialiser> getSerialiser() {
-            return serialiser;
-        }
-
-        public Contents serialiser(final Class<? extends ToBytesSerialiser> serialiser) {
-            this.serialiser = serialiser;
-            return this;
-        }
-    }
-
-
 }

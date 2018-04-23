@@ -16,10 +16,14 @@
 
 package uk.gov.gchq.gaffer.serialisation.util;
 
+import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -144,5 +148,86 @@ public class MultiSerialiserStorage {
      */
     public boolean isConsistent() {
         return consistent;
+    }
+
+    public void addSerialiser(final Content serialiser) throws GafferCheckedException {
+        if (null != serialiser) {
+            put(serialiser.getKey(), serialiser.getSerialiser(), serialiser.getValueClass());
+        }
+    }
+
+    public List<Content> getSerialisers() {
+        ArrayList<Content> rtn = Lists.newArrayList();
+
+        Set<Byte> keys = keyToSerialiser.keySet();
+        for (Byte key : keys) {
+            for (Entry<Class, Byte> entry : valueToKeyMap.entrySet()) {
+                if (key.equals(entry.getValue())) {
+                    rtn.add(new Content(key, keyToSerialiser.get(key), entry.getKey()));
+                    break;
+                }
+            }
+        }
+
+        return rtn;
+    }
+
+    public void setSerialisers(final List<Content> serialisers) throws GafferCheckedException {
+        clear();
+        if (null != serialisers) {
+            for (Content serialiser : serialisers) {
+                addSerialiser(serialiser);
+            }
+        }
+    }
+
+    private void clear() {
+        keyToSerialiser.clear();
+        keyToValueMap.clear();
+        valueToKeyMap.clear();
+    }
+
+    public static class Content {
+        public Content() {
+        }
+
+        public Content(final byte key, final Class<? extends ToBytesSerialiser> serialiser, final Class valueClass) {
+            this();
+            this.key = key;
+            this.serialiser = serialiser;
+            this.valueClass = valueClass;
+        }
+
+        private byte key;
+        private Class<? extends ToBytesSerialiser> serialiser;
+        private Class valueClass;
+
+
+        public byte getKey() {
+            return key;
+        }
+
+        public Content key(final byte key) {
+            this.key = key;
+            return this;
+        }
+
+        public Class getValueClass() {
+            return valueClass;
+        }
+
+        public Content valueClass(final Class valueClass) {
+            this.valueClass = valueClass;
+            return this;
+        }
+
+        public Class<? extends ToBytesSerialiser> getSerialiser() {
+            return serialiser;
+        }
+
+        public Content serialiser(final Class<? extends ToBytesSerialiser> serialiser) {
+            this.serialiser = serialiser;
+            return this;
+        }
     }
 }
