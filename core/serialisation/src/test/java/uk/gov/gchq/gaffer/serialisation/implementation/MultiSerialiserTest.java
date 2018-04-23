@@ -15,22 +15,27 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
-
-import static org.junit.Assert.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
 
+    public static final String path = "/multiSerialiser.json";
+
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
-        MultiSerialiser multiSerialiser = null;
+        MultiSerialiser multiSerialiser;
         try {
-            multiSerialiser = new MultiSerialiser();
-        } catch (Exception e) {
-            fail(e.getMessage());
+            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), path), MultiSerialiser.class);
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
         }
         return multiSerialiser;
     }
@@ -45,5 +50,9 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
         return pairs;
     }
 
-
+    @Test
+    public void shouldAcceptSupportedSerialisers() throws Exception {
+        MultiSerialiser multiSerialiser = new MultiSerialiser();
+        multiSerialiser.setSerialisers(null);
+    }
 }

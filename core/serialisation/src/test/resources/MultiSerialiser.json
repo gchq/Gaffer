@@ -1,0 +1,19 @@
+{
+  "serialisers": [
+    {
+      "key": "0",
+      "valueClass": "java.lang.String",
+      "serialiser": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+    },
+    {
+      "key": "1",
+      "valueClass": "java.lang.Long",
+      "serialiser": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser"
+    },
+    {
+      "key": "2",
+      "valueClass": "java.lang.Integer",
+      "serialiser": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+    }
+  ]
+}

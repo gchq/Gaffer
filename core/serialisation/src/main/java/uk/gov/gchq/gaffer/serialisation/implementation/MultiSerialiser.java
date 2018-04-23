@@ -19,11 +19,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * This class is used to serialise and deserialise multiple object types.
@@ -38,16 +37,20 @@ import java.io.ByteArrayOutputStream;
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
+    public static final String ERROR_PAIR = "setSupportedSerialisers requires pair's of classes e.g. setSupportedSerialisers(StringSerialiser.class, String.class)";
+    public static final String ERROR_PAIR_ORDER = "setSupportedSerialisers requires  pair's of classes in the order e.g (Class<? extends ToBytesSerialiser> serialiserClass, Class supportedClass) ";
     private MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
 
-    public MultiSerialiser() {
-        try {
-            supportedSerialisers.put(((byte) 0), StringSerialiser.class, String.class);
-            supportedSerialisers.put(((byte) 1), CompactRawLongSerialiser.class, Long.class);
-            supportedSerialisers.put(((byte) 2), CompactRawIntegerSerialiser.class, Integer.class);
-        } catch (GafferCheckedException e) {
-            e.printStackTrace();
+    public void setSerialisers(final List<Contents> serialisers) throws GafferCheckedException {
+        if (null != serialisers) {
+            for (Contents serialiser : serialisers) {
+                supportedSerialisers.put(serialiser.getKey(), serialiser.getSerialiser(), serialiser.getValueClass());
+            }
         }
+    }
+
+    public List<Contents> getSerialisers() {
+        return null;
     }
 
     @Override
@@ -94,11 +97,11 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
         return supportedSerialisers.preservesObjectOrdering();
     }
 
-
     @Override
     public boolean isConsistent() {
         return supportedSerialisers.isConsistent();
     }
+
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -106,6 +109,50 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
             return supportedSerialisers.canHandle(clazz);
         } catch (GafferCheckedException e) {
             throw new RuntimeException("MultiSerialiser unable to recover from canHandle()", e);
+        }
+    }
+
+    public static class Contents {
+        public Contents() {
+        }
+
+        public Contents(final byte key, final Class<? extends ToBytesSerialiser> serialiser, final Class valueClass) {
+            this();
+            this.key = key;
+            this.serialiser = serialiser;
+            this.valueClass = valueClass;
+        }
+
+        private byte key;
+        private Class<? extends ToBytesSerialiser> serialiser;
+        private Class valueClass;
+
+
+        public byte getKey() {
+            return key;
+        }
+
+        public Contents key(final byte key) {
+            this.key = key;
+            return this;
+        }
+
+        public Class getValueClass() {
+            return valueClass;
+        }
+
+        public Contents valueClass(final Class valueClass) {
+            this.valueClass = valueClass;
+            return this;
+        }
+
+        public Class<? extends ToBytesSerialiser> getSerialiser() {
+            return serialiser;
+        }
+
+        public Contents serialiser(final Class<? extends ToBytesSerialiser> serialiser) {
+            this.serialiser = serialiser;
+            return this;
         }
     }
 
