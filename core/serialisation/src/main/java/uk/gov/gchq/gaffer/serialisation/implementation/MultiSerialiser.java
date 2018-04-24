@@ -29,12 +29,8 @@ import java.util.List;
  * This class is used to serialise and deserialise multiple object types.
  * <p>
  * The serialiser used is stored at the first byte of the serial byte[].
- * This mean encoding can only go up to the size of a byte (256),
- * however nesting MultiSerialiser you can increase encoding beyond the first byte to have more Serialisers.
- * <p>
- * {@code new byte[]{256,1,<byte values>}}
- * <br>
- * 256 could encode to a nested MultiSerialiser and now the second byte is also used for encoding extra serialisers.
+ * This mean encoding can only go up to the size of a byte (256).
+ * For multiple serialisers that operate on the same value type. The order of adding matters, last in first out, regardless of the key value.
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;

@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Set;
  * Delegate for the storage of {@link uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser}
  */
 public class MultiSerialiserStorage {
+    public static final String ERROR_ADDING_MULTI_SERIALISER = "Adding nested MultiSerialiser within a MultiSerialiser is not supported yet.";
     private Map<Byte, ToBytesSerialiser> keyToSerialiser = new HashMap<>();
     private Map<Byte, Class> keyToValueMap = new HashMap<>();
     private Map<Class, Byte> valueToKeyMap = new HashMap<>();
@@ -128,6 +130,9 @@ public class MultiSerialiserStorage {
     }
 
     public void addSerialiser(final Content serialiser) throws GafferCheckedException {
+        if(serialiser.getSerialiser()instanceof MultiSerialiser){
+            throw new GafferCheckedException(ERROR_ADDING_MULTI_SERIALISER);
+        }
         if (null != serialiser) {
             put(serialiser.getKey(), serialiser.getSerialiser(), serialiser.getValueClass());
         }

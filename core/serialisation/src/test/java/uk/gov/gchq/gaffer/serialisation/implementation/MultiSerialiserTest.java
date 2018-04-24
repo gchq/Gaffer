@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -27,12 +26,16 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
 import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.Content;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
@@ -97,6 +100,16 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
         String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
 
-        Assert.assertEquals(fromDisk, fromCode);
+        assertEquals(fromDisk, fromCode);
+    }
+
+    @Test
+    public void shouldNotAddMultiSerialiser() throws Exception {
+        try {
+            new MultiSerialiser().addSerialiser(new Content((byte) 0, new MultiSerialiser(), Object.class));
+            fail("exception not thrown");
+        } catch (GafferCheckedException e){
+            assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER,e.getMessage());
+        }
     }
 }

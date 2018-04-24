@@ -48,6 +48,10 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.Content;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -57,6 +61,7 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -120,6 +125,19 @@ public class FederatedStoreTest {
     private HashMapGraphLibrary library;
     private Context userContext;
     private User blankUser;
+
+    @Test
+    public void testName() throws Exception {
+        System.out.println(new String(JSONSerialiser.serialise(
+                new Schema.Builder().type("ExampleType", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new MultiSerialiser().addSerialiser(new Content((Byte.MAX_VALUE), new MultiSerialiser().
+                                addSerialiser(new Content((byte) 0, new StringSerialiser(), String.class))
+                                .addSerialiser(new Content((byte) 1, new IntegerSerialiser(), Integer.class))
+                                , String.class)))
+                        .build()).build()
+                        , true)));
+    }
 
     @Before
     public void setUp() throws Exception {
