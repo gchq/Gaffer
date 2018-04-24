@@ -39,6 +39,11 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- External libraries -->
         <dependency>
