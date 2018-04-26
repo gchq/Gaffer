@@ -126,14 +126,13 @@ public class FederatedStoreTest {
     private User blankUser;
 
     @Test
-    public void testName() throws Exception {
+    public void shouldUseMulti() throws Exception {
         System.out.println(new String(JSONSerialiser.serialise(
                 new Schema.Builder().type("ExampleType", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new MultiSerialiser().addSerialiser((Byte.MAX_VALUE), new MultiSerialiser().
-                                addSerialiser((byte) 0, new StringSerialiser(), String.class)
-                                .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class)
-                                , String.class))
+                        .serialiser(new MultiSerialiser()
+                                .addSerialiser((byte) 0, new StringSerialiser(), String.class)
+                                .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class))
                         .build()).build()
                 , true)));
     }
