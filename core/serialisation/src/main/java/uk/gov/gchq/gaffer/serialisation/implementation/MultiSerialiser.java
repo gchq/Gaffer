@@ -19,29 +19,75 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
-import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.SerialiserDetail;
+import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiserStorage.SerialiserDetail;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /**
  * This class is used to serialise and deserialise multiple object types.
+ * This overcomes the limitation of a graph schema requiring all vertex types
+ * to use the same serialiser.
  * <p>
- * The serialiser used is stored at the first byte of the serial byte[].
- * This mean encoding can only go up to the size of a byte (256).
- * For multiple serialisers that operate on the same value type. The order of adding matters, last in first out, regardless of the key value.
+ * The serialiser used is stored at the first byte of the serialised byte[]
+ * The max value of different serialiser keys can only go up to the size of a byte (256).
+ * <pre>
+ * byte array [42,*,*,*,*,*]
+ *             ^
+ *             ^
+ *             serialiser byte key
+ * </pre>
+ * For multiple serialisers that operate on the same value type.
+ * The order of adding matters, last in first out, regardless of the key value.
+ * <br>
+ * In the below example, the MultiSerialiser has 3 Integer serialisers.
+ * There is backwards compatibility to deserialise all three byte arrays. However
+ * when re-serialising the Integer object, only the latest serialiser will be used (key 3, OrderedIntegerSerialiser)
+ * <br>
+ * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility.
+ * <pre>
+ *     Json
+ *     {
+ *       "serialisers" : [ {
+ *         "key" : 0,
+ *         "serialiser" : {
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser",
+ *           "charset" : "UTF-8"
+ *         },
+ *         "valueClass" : "java.lang.String"
+ *       }, {
+ *         "key" : 1,
+ *         "serialiser" : {
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser",
+ *           "charset" : "ISO-8859-1"
+ *         },
+ *         "valueClass" : "java.lang.Integer"
+ *       }, {
+ *         "key" : 2,
+ *         "serialiser" : {
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+ *         },
+ *         "valueClass" : "java.lang.Integer"
+ *       }, {
+ *         "key" : 3,
+ *         "serialiser" : {
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
+ *         },
+ *         "valueClass" : "java.lang.Integer"
+ *       } ]
+ *     }
+ *     </pre>
  */
 public class MultiSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 8206706506883696003L;
     private final MultiSerialiserStorage supportedSerialisers = new MultiSerialiserStorage();
 
     public void setSerialisers(final List<SerialiserDetail> serialisers) throws GafferCheckedException {
-        supportedSerialisers.setSerialisers(serialisers);
+        supportedSerialisers.setSerialiserDetails(serialisers);
     }
 
-    public MultiSerialiser addSerialiser(final SerialiserDetail c) throws GafferCheckedException {
-        supportedSerialisers.addSerialiser(c);
+    public MultiSerialiser addSerialiser(final byte key, final ToBytesSerialiser serialiser, final Class aClass) throws GafferCheckedException {
+        supportedSerialisers.addSerialiserDetails(key, serialiser, aClass);
         return this;
     }
 

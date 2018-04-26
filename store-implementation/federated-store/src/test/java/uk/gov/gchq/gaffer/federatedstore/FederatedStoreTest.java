@@ -51,7 +51,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.SerialiserDetail;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -131,12 +130,12 @@ public class FederatedStoreTest {
         System.out.println(new String(JSONSerialiser.serialise(
                 new Schema.Builder().type("ExampleType", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new MultiSerialiser().addSerialiser(new SerialiserDetail((Byte.MAX_VALUE), new MultiSerialiser().
-                                addSerialiser(new SerialiserDetail((byte) 0, new StringSerialiser(), String.class))
-                                .addSerialiser(new SerialiserDetail((byte) 1, new IntegerSerialiser(), Integer.class))
-                                , String.class)))
+                        .serialiser(new MultiSerialiser().addSerialiser((Byte.MAX_VALUE), new MultiSerialiser().
+                                addSerialiser((byte) 0, new StringSerialiser(), String.class)
+                                .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class)
+                                , String.class))
                         .build()).build()
-                        , true)));
+                , true)));
     }
 
     @Before

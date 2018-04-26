@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.util;
+package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,12 +62,16 @@ public class MultiSerialiserStorage {
         }
     }
 
-    public ToBytesSerialiser getSerialiserFromKey(final byte key) {
-        return keyToSerialiser.get(key);
+    public ToBytesSerialiser getSerialiserFromKey(final Byte key) {
+        return (null == key) ? null : keyToSerialiser.get(key);
+    }
+
+    public Byte getKeyFromValue(final Object object) {
+        return (null == object) ? null : classToKey.get(object.getClass());
     }
 
     public ToBytesSerialiser getSerialiserFromValue(final Object object) {
-        return (null == object) ? null : keyToSerialiser.get(classToKey.get(object.getClass()));
+        return (null == object) ? null : getSerialiserFromKey(getKeyFromValue(object));
     }
 
     /**
@@ -108,7 +111,11 @@ public class MultiSerialiserStorage {
         return consistent;
     }
 
-    public void addSerialiser(final SerialiserDetail serialiserDetail) throws GafferCheckedException {
+    public void addSerialiserDetails(final byte key, final ToBytesSerialiser serialiser, final Class aClass) throws GafferCheckedException {
+        addSerialiserDetails(new SerialiserDetail(key, serialiser, aClass));
+    }
+
+    public void addSerialiserDetails(final SerialiserDetail serialiserDetail) throws GafferCheckedException {
         if (null != serialiserDetail) {
             if (serialiserDetail.getSerialiser() instanceof MultiSerialiser) {
                 throw new GafferCheckedException(ERROR_ADDING_MULTI_SERIALISER);
@@ -123,11 +130,11 @@ public class MultiSerialiserStorage {
                 .collect(Collectors.toList());
     }
 
-    public void setSerialisers(final List<SerialiserDetail> serialisers) throws GafferCheckedException {
+    public void setSerialiserDetails(final List<SerialiserDetail> serialisersDetails) throws GafferCheckedException {
         clear();
-        if (null != serialisers) {
-            for (final SerialiserDetail serialiser : serialisers) {
-                addSerialiser(serialiser);
+        if (null != serialisersDetails) {
+            for (final SerialiserDetail serialiser : serialisersDetails) {
+                addSerialiserDetails(serialiser);
             }
         }
     }
@@ -136,10 +143,6 @@ public class MultiSerialiserStorage {
         keyToSerialiser.clear();
         keyToClass.clear();
         classToKey.clear();
-    }
-
-    public byte getKeyFromValue(final Object object) {
-        return classToKey.get(object.getClass());
     }
 
     @JsonPropertyOrder(value = {"class", "key", "serialiser", "valueClass"}, alphabetic = true)
