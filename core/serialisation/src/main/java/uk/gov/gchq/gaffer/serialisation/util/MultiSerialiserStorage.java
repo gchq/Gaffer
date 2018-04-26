@@ -16,59 +16,51 @@
 
 package uk.gov.gchq.gaffer.serialisation.util;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Delegate for the storage of {@link uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser}
  */
 public class MultiSerialiserStorage {
     public static final String ERROR_ADDING_MULTI_SERIALISER = "Adding nested MultiSerialiser within a MultiSerialiser is not supported yet.";
-    private Map<Byte, ToBytesSerialiser> keyToSerialiser = new HashMap<>();
-    private Map<Byte, Class> keyToValueMap = new HashMap<>();
-    private Map<Class, Byte> valueToKeyMap = new HashMap<>();
+    private final Map<Byte, ToBytesSerialiser> keyToSerialiser = new HashMap<>();
+    private final Map<Byte, Class> keyToClass = new HashMap<>();
+    private final Map<Class, Byte> classToKey = new HashMap<>();
     private boolean consistent = true;
     private boolean preservesObjectOrdering = true;
-    private byte savedSerialiserEncoding = ((byte) 0);
 
-    public void put(ToBytesSerialiser serialiser, Class supportedClass) throws GafferCheckedException {
-        put(getSerialiserEncoding(), serialiser, supportedClass);
-    }
-
-    public void put(byte serialiserEncoding, ToBytesSerialiser serialiser, Class supportedClass) throws GafferCheckedException {
-        validateSerialiser(serialiser, supportedClass);
+    public void put(final byte serialiserEncoding, final ToBytesSerialiser serialiser, final Class supportedClass) throws GafferCheckedException {
+        validatePutParams(serialiser, supportedClass);
 
         consistent = continuesToBeConsistant(serialiser);
         preservesObjectOrdering = continuesToPreserveOrdering(serialiser);
 
         keyToSerialiser.put(serialiserEncoding, serialiser);
-        keyToValueMap.put(serialiserEncoding, supportedClass);
-        valueToKeyMap.put(supportedClass, serialiserEncoding);
+        keyToClass.put(serialiserEncoding, supportedClass);
+        classToKey.put(supportedClass, serialiserEncoding);
     }
 
-    private void validateSerialiser(final ToBytesSerialiser serialiser, final Class supportedClass) throws GafferCheckedException {
+    private void validatePutParams(final ToBytesSerialiser serialiser, final Class supportedClass) throws GafferCheckedException {
+        if (null == supportedClass) {
+            throw new GafferCheckedException(String.format("Can not add null supportedClass to MultiSerialiserStorage"));
+        }
+        if (null == serialiser) {
+            throw new GafferCheckedException(String.format("Can not add null serialiser to MultiSerialiserStorage"));
+        }
         if (!serialiser.canHandle(supportedClass)) {
             throw new GafferCheckedException(String.format("%s does not handle %s", serialiser.getClass(), supportedClass));
         }
-    }
-
-    private byte getSerialiserEncoding() {
-        Set<Byte> integers = keyToSerialiser.keySet();
-        while (integers.contains(savedSerialiserEncoding)) {
-            savedSerialiserEncoding++;
-        }
-        return savedSerialiserEncoding;
     }
 
     public ToBytesSerialiser getSerialiserFromKey(final byte key) {
@@ -76,33 +68,20 @@ public class MultiSerialiserStorage {
     }
 
     public ToBytesSerialiser getSerialiserFromValue(final Object object) {
-        return (null == object) ? null : keyToSerialiser.get(valueToKeyMap.get(object.getClass()));
-    }
-
-    public Byte getKeyFromSerialiser(final ToBytesSerialiser serialiser) {
-        Byte key = null;
-        for (final Entry<Byte, ToBytesSerialiser> entry : keyToSerialiser.entrySet()) {
-            if (entry.getValue().equals(serialiser)) {
-                key = entry.getKey();
-                break;
-            }
-        }
-        return key;
+        return (null == object) ? null : keyToSerialiser.get(classToKey.get(object.getClass()));
     }
 
     /**
-     * @param handleClass
+     * @param handleClass class to check
      * @return {@link ToBytesSerialiser#canHandle(Class)}
-     * @throws GafferCheckedException
      * @see ToBytesSerialiser
      */
     public boolean canHandle(final Class handleClass) {
         boolean rtn = false;
-        for (final ToBytesSerialiser serialiser : keyToSerialiser.values()) {
-            rtn = serialiser.canHandle(handleClass);
-            if (rtn) {
-                break;
-            }
+        final Byte key = classToKey.get(handleClass);
+        if (null != key) {
+            Serialiser serialiser = keyToSerialiser.get(key);
+            rtn = null != serialiser && serialiser.canHandle(handleClass);
         }
         return rtn;
     }
@@ -129,35 +108,25 @@ public class MultiSerialiserStorage {
         return consistent;
     }
 
-    public void addSerialiser(final Content serialiser) throws GafferCheckedException {
-        if(serialiser.getSerialiser()instanceof MultiSerialiser){
-            throw new GafferCheckedException(ERROR_ADDING_MULTI_SERIALISER);
-        }
-        if (null != serialiser) {
-            put(serialiser.getKey(), serialiser.getSerialiser(), serialiser.getValueClass());
-        }
-    }
-
-    public List<Content> getSerialisers() {
-        ArrayList<Content> rtn = Lists.newArrayList();
-
-        Set<Byte> keys = keyToSerialiser.keySet();
-        for (Byte key : keys) {
-            for (Entry<Class, Byte> entry : valueToKeyMap.entrySet()) {
-                if (key.equals(entry.getValue())) {
-                    rtn.add(new Content(key, keyToSerialiser.get(key), entry.getKey()));
-                    break;
-                }
+    public void addSerialiser(final SerialiserDetail serialiserDetail) throws GafferCheckedException {
+        if (null != serialiserDetail) {
+            if (serialiserDetail.getSerialiser() instanceof MultiSerialiser) {
+                throw new GafferCheckedException(ERROR_ADDING_MULTI_SERIALISER);
             }
+            put(serialiserDetail.getKey(), serialiserDetail.getSerialiser(), serialiserDetail.getValueClass());
         }
-
-        return rtn;
     }
 
-    public void setSerialisers(final List<Content> serialisers) throws GafferCheckedException {
+    public List<SerialiserDetail> getSerialiserDetails() {
+        return keyToSerialiser.keySet().stream()
+                .map(key -> new SerialiserDetail(key, keyToSerialiser.get(key), keyToClass.get(key)))
+                .collect(Collectors.toList());
+    }
+
+    public void setSerialisers(final List<SerialiserDetail> serialisers) throws GafferCheckedException {
         clear();
         if (null != serialisers) {
-            for (Content serialiser : serialisers) {
+            for (final SerialiserDetail serialiser : serialisers) {
                 addSerialiser(serialiser);
             }
         }
@@ -165,19 +134,24 @@ public class MultiSerialiserStorage {
 
     private void clear() {
         keyToSerialiser.clear();
-        keyToValueMap.clear();
-        valueToKeyMap.clear();
+        keyToClass.clear();
+        classToKey.clear();
     }
 
-    public static class Content {
+    public byte getKeyFromValue(final Object object) {
+        return classToKey.get(object.getClass());
+    }
+
+    @JsonPropertyOrder(value = {"class", "key", "serialiser", "valueClass"}, alphabetic = true)
+    public static class SerialiserDetail {
         private byte key;
         private ToBytesSerialiser serialiser;
         private Class valueClass;
 
-        public Content() {
+        public SerialiserDetail() {
         }
 
-        public Content(final byte key, final ToBytesSerialiser serialiser, final Class valueClass) {
+        public SerialiserDetail(final byte key, final ToBytesSerialiser serialiser, final Class valueClass) {
             this();
             this.key = key;
             this.serialiser = serialiser;
@@ -188,7 +162,7 @@ public class MultiSerialiserStorage {
             return key;
         }
 
-        public Content key(final byte key) {
+        public SerialiserDetail key(final byte key) {
             this.key = key;
             return this;
         }
@@ -197,7 +171,7 @@ public class MultiSerialiserStorage {
             return valueClass;
         }
 
-        public Content valueClass(final Class valueClass) {
+        public SerialiserDetail valueClass(final Class valueClass) {
             this.valueClass = valueClass;
             return this;
         }
@@ -207,7 +181,7 @@ public class MultiSerialiserStorage {
             return serialiser;
         }
 
-        public Content serialiser(final ToBytesSerialiser serialiser) {
+        public SerialiserDetail serialiser(final ToBytesSerialiser serialiser) {
             this.serialiser = serialiser;
             return this;
         }

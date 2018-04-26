@@ -91,18 +91,6 @@ public class MultiSerialiserStorageTest {
         assertEquals("Wrong SerialiserClass, should have updated to newer SerialiserClass", SERIALISER_CLASS, actualClassFromValue2);
     }
 
-    @Test
-    public void shouldIncKey() throws Exception {
-        //when
-        mss.put(SERIALISER_CLASS, SUPPORTED_CLASS);
-        mss.put(SERIALISER_CLASS2, SUPPORTED_CLASS);
-        //then
-        byte first = mss.getKeyFromSerialiser(SERIALISER_CLASS);
-        byte second = mss.getKeyFromSerialiser(SERIALISER_CLASS2);
-        assertEquals((byte) 0, first);
-        assertEquals((byte) 1, second);
-    }
-
     private void checkBasicPut() throws GafferCheckedException {
         Byte keyFromSerialiser = mss.getKeyFromSerialiser(SERIALISER_CLASS);
         assertNotNull("SerialiserClass value not found", keyFromSerialiser);

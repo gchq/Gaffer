@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage;
-import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.Content;
+import uk.gov.gchq.gaffer.serialisation.util.MultiSerialiserStorage.SerialiserDetail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -91,9 +91,9 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
         MultiSerialiser multiSerialiser = null;
         try {
             multiSerialiser = new MultiSerialiser()
-                    .addSerialiser(new Content((byte) 0, new StringSerialiser(), String.class))
-                    .addSerialiser(new Content((byte) 1, new CompactRawLongSerialiser(), Long.class))
-                    .addSerialiser(new Content((byte) 2, new CompactRawIntegerSerialiser(), Integer.class));
+                    .addSerialiser(new SerialiserDetail((byte) 0, new StringSerialiser(), String.class))
+                    .addSerialiser(new SerialiserDetail((byte) 1, new CompactRawLongSerialiser(), Long.class))
+                    .addSerialiser(new SerialiserDetail((byte) 2, new CompactRawIntegerSerialiser(), Integer.class));
         } catch (GafferCheckedException e) {
             e.printStackTrace();
         }
@@ -106,7 +106,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     @Test
     public void shouldNotAddMultiSerialiser() throws Exception {
         try {
-            new MultiSerialiser().addSerialiser(new Content((byte) 0, new MultiSerialiser(), Object.class));
+            new MultiSerialiser().addSerialiser(new SerialiserDetail((byte) 0, new MultiSerialiser(), Object.class));
             fail("exception not thrown");
         } catch (GafferCheckedException e){
             assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER,e.getMessage());
