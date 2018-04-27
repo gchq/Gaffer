@@ -30,19 +30,22 @@ import java.util.List;
  * to use the same serialiser.
  * <p>
  * The serialiser used is stored at the first byte of the serialised byte[]
- * The max value of different serialiser keys can only go up to the size of a byte (256).
+ * The maximum number of different serialiser keys that can be used is limited to 256 (the size of a byte).
  * <pre>
  * byte array [42,*,*,*,*,*]
  *             ^
  *             ^
  *             serialiser byte key
  * </pre>
- * For multiple serialisers that operate on the same value type.
- * The order of adding matters, last in first out, regardless of the key value.
+ * When multiple serialisers that operate on the same value type are added,
+ * the last one to be added will be used for serialisation. This happens
+ * regardless of the key value used when adding to the MultiSerialiser (shown in example)
  * <br>
+ * For deserialising the correct serialiser is always chosen based on the byte key at the start of the byte[].
+ * <p>
  * In the below example, the MultiSerialiser has 3 Integer serialisers.
  * There is backwards compatibility to deserialise all three byte arrays. However
- * when re-serialising the Integer object, only the latest serialiser will be used (key 3, OrderedIntegerSerialiser)
+ * when re-serialising the Integer object, only the last serialiser will be used (key 8, OrderedIntegerSerialiser)
  * <br>
  * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility.
  * <pre>
@@ -56,20 +59,20 @@ import java.util.List;
  *         },
  *         "valueClass" : "java.lang.String"
  *       }, {
- *         "key" : 1,
+ *         "key" : 7,
  *         "serialiser" : {
  *           "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser",
  *           "charset" : "ISO-8859-1"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       }, {
- *         "key" : 2,
+ *         "key" : 24,
  *         "serialiser" : {
  *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       }, {
- *         "key" : 3,
+ *         "key" : 8,
  *         "serialiser" : {
  *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
  *         },
