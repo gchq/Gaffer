@@ -84,9 +84,9 @@ public class WriteUnsortedData {
         while (elements.hasNext()) {
             final Element element = elements.next();
             final String group = element.getGroup();
-            final ParquetWriter<Element> writer;
+            ParquetWriter<Element> writer = null;
             final Map<Integer, ParquetWriter<Element>> splitToWriter;
-            if  (groupSplitToWriter.containsKey(group)) {
+            if (groupSplitToWriter.containsKey(group)) {
                 splitToWriter = groupSplitToWriter.get(group);
             } else {
                 splitToWriter = new HashMap<>();
@@ -94,7 +94,7 @@ public class WriteUnsortedData {
             }
             if (schemaUtils.getEntityGroups().contains(group)) {
                 writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Entity) element).getVertex(), group, ParquetStoreConstants.VERTEX);
-            } else {
+            } else if (schemaUtils.getEdgeGroups().contains(group)) {
                 writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Edge) element).getSource(), group, ParquetStoreConstants.SOURCE);
             }
             if (null != writer) {
