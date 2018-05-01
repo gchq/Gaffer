@@ -163,6 +163,15 @@ public final class JsonSerialisationUtil {
         return fieldMap;
     }
 
+    public static String getSerialisedFieldClass(final String className, final String field) {
+        Map<String, String> serialsedFieldClasses = getSerialisedFieldClasses(className);
+        if (serialsedFieldClasses.containsKey(field)) {
+            return serialsedFieldClasses.get(field);
+        } else {
+            return null;
+        }
+    }
+
     private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
         T anno = builderclass.getAnnotation(annotationClass);
         if (null == anno) {

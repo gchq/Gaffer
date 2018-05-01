@@ -51,6 +51,7 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClass;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -259,11 +260,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationField {
         private final String name;
+        private String className;
         private final boolean required;
 
-        OperationField(final String name, final boolean required) {
+        OperationField(final String name, final boolean required, final String className) {
             this.name = name;
             this.required = required;
+            this.className = className;
         }
 
         public String getName() {
@@ -272,6 +275,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public boolean isRequired() {
             return required;
+        }
+
+        public String getClassName() {
+            return className;
         }
     }
 
@@ -321,7 +328,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                         if (null != annotations && annotations.length > 0) {
                             required = true;
                         }
-                        return new OperationField(f.getName(), required);
+
+                        return new OperationField(f.getName(), required, getSerialisedFieldClass(f.getClass().getName(), f.getName()));
                     })
                     .collect(Collectors.toList());
         }
