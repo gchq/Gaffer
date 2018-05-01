@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,34 +20,38 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.spark.sql.Row;
-import org.junit.AfterClass;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateGroupSplit;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
 
 public class AggregateDataTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @BeforeClass
-    public static void generatePreAggregatedData() throws IOException {
+    private void generatePreAggregatedData(final ParquetStoreProperties properties) throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
-        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final ParquetWriter<Element> writer = new ParquetElementWriter
-                .Builder(new Path(props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0/part-0.parquet"))
+                .Builder(new Path(properties.getTempFilesDir() +
+                    "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0/part-0.parquet"))
                 .isEntity(true)
                 .withSparkSchema(schemaUtils.getSparkSchema(TestGroups.ENTITY))
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
@@ -62,16 +66,17 @@ public class AggregateDataTest {
 
     @Test
     public void aggregateSplit() throws StoreException, IOException {
-        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
+        generatePreAggregatedData(properties);
         final ParquetStore store = new ParquetStore();
-        store.initialise("AggregateDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), props);
-
-        new AggregateGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, TestUtils.spark, 0).call();
+        store.initialise("AggregateDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), properties);
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        new AggregateGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, sparkSession, 0).call();
 
         final FileSystem fs = FileSystem.get(new Configuration());
-        final String entitySplit0 = props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
+        final String entitySplit0 = properties.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
         Assert.assertTrue(fs.exists(new Path(entitySplit0)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(entitySplit0).sort(ParquetStoreConstants.VERTEX).collect();
+        Row[] results = (Row[]) sparkSession.read().parquet(entitySplit0).sort(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 20; i++) {
             Assert.assertEquals((long) i, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
@@ -84,23 +89,6 @@ public class AggregateDataTest {
             Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
             Assert.assertEquals("A", results[i].getAs(TestTypes.VISIBILITY));
-        }
-    }
-
-    @AfterClass
-    public static void cleanUpData() throws IOException {
-        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
-        deleteFolder(props.getTempFilesDir() + "/AggregateDataTest", FileSystem.get(new Configuration()));
-    }
-
-    private static void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        Path dataDir = new Path(path);
-        if (fs.exists(dataDir)) {
-            fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
         }
     }
 }

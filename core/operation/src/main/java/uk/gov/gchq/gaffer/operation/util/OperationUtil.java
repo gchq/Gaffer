@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.operation.util;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.function.FromElementId;
 import uk.gov.gchq.gaffer.operation.function.FromEntityId;
 import uk.gov.gchq.gaffer.operation.function.ToElementId;
@@ -24,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.function.ToEntityId;
 import uk.gov.gchq.koryphe.util.IterableUtil;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 /**
@@ -122,5 +125,14 @@ public final class OperationUtil {
             return null;
         }
         return IterableUtil.map(input, new FromEntityId());
+    }
+
+    public static Operation extractNextOp(final Iterator<Operation> itr) {
+        final Operation nextOp = itr.next();
+        if (!(nextOp instanceof Operations) || !((Operations) nextOp).getOperations().isEmpty()) {
+            return nextOp;
+        }
+
+        return null;
     }
 }

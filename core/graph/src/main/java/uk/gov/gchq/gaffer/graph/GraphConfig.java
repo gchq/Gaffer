@@ -26,10 +26,12 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -47,6 +49,8 @@ import java.util.List;
  * a graph {@link View} and {@link GraphHook}s.
  * To create an instance of GraphConfig you can either use the {@link uk.gov.gchq.gaffer.graph.GraphConfig.Builder}
  * or a json file.
+ * If you wish to write a GraphHook in a separate json file and include it, you
+ * can do it by using the {@link GraphHookPath} GraphHook and setting the path field within.
  *
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
@@ -108,7 +112,26 @@ public final class GraphConfig {
         if (null == hooks) {
             this.hooks.clear();
         } else {
-            this.hooks = hooks;
+            hooks.forEach(this::addHook);
+        }
+    }
+
+    public void addHook(final GraphHook hook) {
+        if (null != hook) {
+            if (hook instanceof GraphHookPath) {
+                final String path = ((GraphHookPath) hook).getPath();
+                final File file = new File(path);
+                if (!file.exists()) {
+                    throw new IllegalArgumentException("Unable to find graph hook file: " + path);
+                }
+                try {
+                    hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
+                } catch (final IOException e) {
+                    throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + path, e);
+                }
+            } else {
+                hooks.add(hook);
+            }
         }
     }
 
@@ -253,7 +276,7 @@ public final class GraphConfig {
 
         public Builder addHook(final GraphHook graphHook) {
             if (null != graphHook) {
-                this.config.getHooks().add(graphHook);
+                this.config.addHook(graphHook);
             }
             return this;
         }

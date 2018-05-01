@@ -59,7 +59,6 @@ public class StorePropertiesTest {
     public void shouldRemovePropertyWhenPropertyValueIsNull() {
         // Given
         final StoreProperties props = createStoreProperties();
-        System.out.println(props.getProperties());
 
         // When
         props.set("testKey", null);

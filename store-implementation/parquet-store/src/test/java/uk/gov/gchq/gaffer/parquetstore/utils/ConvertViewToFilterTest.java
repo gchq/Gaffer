@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017-2018. Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.fs.Path;
@@ -5,8 +21,11 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -43,15 +62,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class ConvertViewToFilterTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     private ParquetFilterUtils filterUtils;
     private GraphIndex graphIndex;
     private Set<Path> expectedPaths;
 
     @Before
-    public void setUp() throws StoreException {
+    public void setUp() throws IOException, StoreException {
         final Schema schema = TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final ParquetStore store = new ParquetStore();
-        store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
+        store.initialise("ConvertViewToFilterTest", schema, properties);
         filterUtils = new ParquetFilterUtils(store);
         graphIndex = new GraphIndex();
         final GroupIndex groupIndex = new GroupIndex();
@@ -63,8 +86,8 @@ public class ConvertViewToFilterTest {
         final MinValuesWithPath file2 = new MinValuesWithPath(new Object[]{"type", "value"}, "file2");
         vertIndex.add(file2);
         expectedPaths = new HashSet<>();
-        expectedPaths.add(new Path("parquet_data/ConvertViewToFilterTest/0/graph/GROUP=BasicEntity/file1"));
-        expectedPaths.add(new Path("parquet_data/ConvertViewToFilterTest/0/graph/GROUP=BasicEntity/file2"));
+        expectedPaths.add(new Path(properties.getDataDir() + "/ConvertViewToFilterTest/0/graph/GROUP=BasicEntity/file1"));
+        expectedPaths.add(new Path(properties.getDataDir() + "/ConvertViewToFilterTest/0/graph/GROUP=BasicEntity/file2"));
     }
 
     @After
