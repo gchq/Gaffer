@@ -22,13 +22,10 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -112,19 +109,5 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
         } catch (GafferCheckedException e) {
             assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, e.getMessage());
         }
-    }
-
-    @Test
-    public void testName() throws Exception {
-
-
-        System.out.println(new String(JSONSerialiser.serialise(
-                new MultiSerialiser()
-                        .addSerialiser((byte) 0, new StringSerialiser(), String.class)
-                        .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class)
-                        .addSerialiser((byte) 2, new RawIntegerSerialiser(), Integer.class)
-                        .addSerialiser((byte) 3, new OrderedIntegerSerialiser(), Integer.class),true)));
-
-
     }
 }
