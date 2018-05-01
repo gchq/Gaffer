@@ -324,7 +324,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
             List<OperationField> operationFields = new ArrayList<>();
 
-            for (String fieldString : fieldsToClassMap.keySet()) {
+            for (final String fieldString : fieldsToClassMap.keySet()) {
                 Field field;
                 try {
                     field = opClass.getField(fieldString);
