@@ -76,7 +76,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
     public Response getOperationDetails(final Class clazz) throws IOException {
         startServer();
         return client.target(uriString)
-                .path("/graph/" + clazz.getCanonicalName())
+                .path("/graph/operations/" + clazz.getCanonicalName())
                 .request()
                 .get(Response.class);
     }
