@@ -70,7 +70,7 @@ import java.util.Set;
 @JsonDeserialize(builder = Schema.Builder.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    public static final String ERROR_DIFFERENT_VERTEX_TYPES = "Edge: %s has different Vertex types (%s,%s) Edge direction must be set to false";
+    public static final String ERROR_DIFFERENT_VERTEX_TYPES = "Edge: %s has different Vertex types (%s,%s) Edge direction must be set to true";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
