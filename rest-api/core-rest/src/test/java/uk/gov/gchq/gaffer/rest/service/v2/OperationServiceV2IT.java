@@ -29,7 +29,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -43,18 +43,21 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Test
-    public void shouldReturnOperationDetails() throws IOException {
+    public void shouldReturnOperationDetailFieldsWithClass() throws IOException {
+        // Given
+        String expectedFields = "\"fields\":[{\"name\":\"input\",\"className\":\"java.lang.Object[]\",\"required\":false}," +
+                "{\"name\":\"view\",\"className\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.View\",\"required\":false}," +
+                "{\"name\":\"includeIncomingOutGoing\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"seedMatching\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"options\",\"className\":\"java.util.Map<java.lang.String,java.lang.String>\",\"required\":false}," +
+                "{\"name\":\"directedType\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"views\",\"className\":\"java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>\",\"required\":false}]";
+
         // When
-        Response response = null;
-        try {
-            response = client.getOperationDetails(GetElements.class);
-        } catch (final Exception e) {
-            fail("Exception thrown");
-        }
+        Response response = client.getOperationDetails(GetElements.class);
 
         // Then
-        System.out.println(response.toString());
-        assertNotNull(response);
+        assertTrue(response.readEntity(String.class).contains(expectedFields));
     }
 
     @Override

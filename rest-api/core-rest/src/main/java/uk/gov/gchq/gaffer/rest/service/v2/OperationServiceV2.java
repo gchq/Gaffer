@@ -287,7 +287,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    private class OperationDetail {
+    protected class OperationDetail {
         private final String name;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
@@ -325,21 +325,23 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             List<OperationField> operationFields = new ArrayList<>();
 
             for (final String fieldString : fieldsToClassMap.keySet()) {
-                Field field;
+                boolean required = false;
+                Field field = null;
+
                 try {
                     field = opClass.getDeclaredField(fieldString);
                 } catch (final NoSuchFieldException e) {
-                    throw new RuntimeException(e);
+                    // Ignore, we will just assume it isn't required
                 }
 
-                boolean required = false;
-                final Required[] annotations = field.getAnnotationsByType(Required.class);
+                if (null != field) {
+                    final Required[] annotations = field.getAnnotationsByType(Required.class);
 
-                if (null != annotations && annotations.length > 0) {
-                    required = true;
+                    if (null != annotations && annotations.length > 0) {
+                        required = true;
+                    }
                 }
-
-                operationFields.add(new OperationField(field.getName(), required, fieldsToClassMap.get(fieldString)));
+                operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
             }
             return operationFields;
         }
