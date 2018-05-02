@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -38,6 +40,21 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertNotNull(response.getHeaderString(ServiceConstants.JOB_ID_HEADER));
+    }
+
+    @Test
+    public void shouldReturnOperationDetails() throws IOException {
+        // When
+        Response response = null;
+        try {
+            response = client.getOperationDetails(GetElements.class);
+        } catch (final Exception e) {
+            fail("Exception thrown");
+        }
+
+        // Then
+        System.out.println(response.toString());
+        assertNotNull(response);
     }
 
     @Override

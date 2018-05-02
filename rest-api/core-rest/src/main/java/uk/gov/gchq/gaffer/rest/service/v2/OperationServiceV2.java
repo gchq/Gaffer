@@ -327,7 +327,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             for (final String fieldString : fieldsToClassMap.keySet()) {
                 Field field;
                 try {
-                    field = opClass.getField(fieldString);
+                    field = opClass.getDeclaredField(fieldString);
                 } catch (final NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
