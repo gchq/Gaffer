@@ -141,6 +141,8 @@ public abstract class RestApiTestClient {
 
     public abstract SystemStatus getRestServiceStatus();
 
+    public abstract Response getOperationDetails(final Class clazz) throws IOException;
+
     public void startServer() throws IOException {
         if (null == server) {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);

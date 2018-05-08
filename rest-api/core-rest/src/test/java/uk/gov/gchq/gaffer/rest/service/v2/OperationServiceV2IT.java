@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
@@ -32,6 +33,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -59,6 +61,24 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertEquals(403, response.getStatus());
+    }
+
+    @Test
+    public void shouldReturnOperationDetailFieldsWithClass() throws IOException {
+        // Given
+        String expectedFields = "\"fields\":[{\"name\":\"input\",\"className\":\"java.lang.Object[]\",\"required\":false}," +
+                "{\"name\":\"view\",\"className\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.View\",\"required\":false}," +
+                "{\"name\":\"includeIncomingOutGoing\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"seedMatching\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"options\",\"className\":\"java.util.Map<java.lang.String,java.lang.String>\",\"required\":false}," +
+                "{\"name\":\"directedType\",\"className\":\"java.lang.String\",\"required\":false}," +
+                "{\"name\":\"views\",\"className\":\"java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>\",\"required\":false}]";
+
+        // When
+        Response response = client.getOperationDetails(GetElements.class);
+
+        // Then
+        assertTrue(response.readEntity(String.class).contains(expectedFields));
     }
 
     @Override
