@@ -48,7 +48,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     public void shouldReturn403WhenUnauthorised() throws IOException {
         // Given
         Graph graph = new Graph.Builder()
-                .config(StreamUtil.openStream(this.getClass(), "/graphConfigWithAuthorisationHook.json"))
+                .config(StreamUtil.graphConfig(this.getClass()))
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();

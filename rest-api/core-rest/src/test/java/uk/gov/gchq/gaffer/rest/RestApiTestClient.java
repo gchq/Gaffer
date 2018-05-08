@@ -104,6 +104,12 @@ public abstract class RestApiTestClient {
         DefaultGraphFactory.setGraph(graph);
 
         startServer();
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
+        }
     }
 
 
@@ -111,6 +117,12 @@ public abstract class RestApiTestClient {
         DefaultGraphFactory.setGraph(null);
 
         startServer();
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
+        }
     }
 
     public void addElements(final Element... elements) throws IOException {
@@ -132,12 +144,6 @@ public abstract class RestApiTestClient {
     public void startServer() throws IOException {
         if (null == server) {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
-        }
-
-        final SystemStatus status = getRestServiceStatus();
-
-        if (SystemStatus.Status.UP != status.getStatus()) {
-            throw new RuntimeException("The system status was not UP.");
         }
     }
 
