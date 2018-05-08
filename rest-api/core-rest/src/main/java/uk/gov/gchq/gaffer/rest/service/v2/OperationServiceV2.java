@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -82,7 +84,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        final Pair<Object, String> resultAndJobId = _execute(operation);
+        final Pair<Object, String> resultAndJobId;
+        try {
+            resultAndJobId = _execute(operation);
+        } catch (final UnauthorisedException e) {
+            return Response.status(FORBIDDEN)
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        }
         return Response.ok(resultAndJobId.getFirst())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -160,7 +169,11 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             return Response.status(NOT_FOUND)
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
-        } catch (final IllegalAccessException | InstantiationException e) {
+        } catch (final IllegalAccessException e) {
+            return Response.status(FORBIDDEN)
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        } catch (final InstantiationException e) {
             LOGGER.info("Unable to create example JSON for class: {}.", className, e);
             throw e;
         }
@@ -208,6 +221,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             } else {
                 throw new RuntimeException("Error executing opChain", e);
             }
+        } catch (final UnauthorisedException e) {
+            CloseableUtil.close(operation);
+            throw e;
         } finally {
             try {
                 postOperationHook(opChain, context);

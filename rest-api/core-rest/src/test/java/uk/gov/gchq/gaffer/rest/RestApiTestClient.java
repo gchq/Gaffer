@@ -24,6 +24,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -88,7 +89,7 @@ public abstract class RestApiTestClient {
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
             storeProperties.getProperties()
-                           .store(out, "This is an optional header comment string");
+                    .store(out, "This is an optional header comment string");
         }
 
         // set properties for REST service
@@ -99,17 +100,17 @@ public abstract class RestApiTestClient {
         reinitialiseGraph();
     }
 
+    public void reinitialiseGraph(final Graph graph) throws IOException {
+        DefaultGraphFactory.setGraph(graph);
+
+        startServer();
+    }
+
 
     public void reinitialiseGraph() throws IOException {
         DefaultGraphFactory.setGraph(null);
 
         startServer();
-
-        final SystemStatus status = getRestServiceStatus();
-
-        if (SystemStatus.Status.UP != status.getStatus()) {
-            throw new RuntimeException("The system status was not UP.");
-        }
     }
 
     public void addElements(final Element... elements) throws IOException {
@@ -131,6 +132,12 @@ public abstract class RestApiTestClient {
     public void startServer() throws IOException {
         if (null == server) {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
+        }
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
         }
     }
 
