@@ -147,8 +147,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         LOGGER.debug("Creating directory {}", destPath);
         fs.mkdirs(new Path(destPath).getParent());
         final String tempPath = tempDataDirString + "/" + ParquetStoreConstants.SORTED;
-        LOGGER.debug("Renaming {} to {}", tempPath, destPath);
-        fs.rename(new Path(tempPath), new Path(destPath));
+        if (fs.exists(new Path(tempPath))) {
+            LOGGER.debug("Renaming {} to {}", tempPath, destPath);
+            fs.rename(new Path(tempPath), new Path(destPath));
+        }
         // Reload indices
         newGraphIndex.setSnapshotTimestamp(snapshot);
         store.setGraphIndex(newGraphIndex);
