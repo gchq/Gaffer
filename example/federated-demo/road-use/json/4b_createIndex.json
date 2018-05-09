@@ -1,0 +1,23 @@
+{
+  "operations": [
+    {
+      "class": "GetAllElements",
+      "view": {
+        "globalElements": [
+          {
+            "groupBy": []
+          }
+        ]
+      },
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUse"
+      }
+    },
+    {
+      "class": "GenerateElements",
+      "elementGenerator": {
+        "class": "IndexGenerator"
+      }
+    }
+  ]
+}
