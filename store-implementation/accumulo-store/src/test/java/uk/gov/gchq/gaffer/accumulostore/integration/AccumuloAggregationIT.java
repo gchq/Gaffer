@@ -54,7 +54,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class AccumuloAggregationIT extends StandaloneIT {
-
     private final String VERTEX = "vertex";
     private final String PUBLIC_VISIBILITY = "publicVisibility";
     private final String PRIVATE_VISIBILITY = "privateVisibility";

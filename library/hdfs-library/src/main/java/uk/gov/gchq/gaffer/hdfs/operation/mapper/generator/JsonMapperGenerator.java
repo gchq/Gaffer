@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.integration;
+package uk.gov.gchq.gaffer.hdfs.operation.mapper.generator;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.JsonToElementGenerator;
 
-public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
-    private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
-
-    public AccumuloStoreClassicKeysITs() {
-        super(STORE_PROPERTIES);
+/**
+ * A {@code JsonMapperGenerator} is a {@link MapperGenerator} that
+ * can handle json input data and convert it into an {@link Iterable} of {@link Element}s.
+ */
+public class JsonMapperGenerator extends TextMapperGenerator {
+    public JsonMapperGenerator() {
+        super(new JsonToElementGenerator());
     }
 }

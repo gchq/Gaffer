@@ -31,37 +31,15 @@ import java.util.Map;
 public interface SchemaLoader {
 
     // Identifier prefixes
-    public static final String SOURCE = "1-Source";
-    public static final String DEST = "2-Dest";
-    public static final String SOURCE_DIR = "1-SourceDir";
-    public static final String DEST_DIR = "2-DestDir";
-    public static final String A = "A";
-    public static final String B = "B";
-    public static final String C = "C";
-    public static final String D = "D";
-    public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
-
-    // Identifiers
-    public static final String SOURCE_1 = SOURCE + 1;
-    public static final String DEST_1 = DEST + 1;
-
-    public static final String SOURCE_2 = SOURCE + 2;
-    public static final String DEST_2 = DEST + 2;
-
-    public static final String SOURCE_3 = SOURCE + 3;
-    public static final String DEST_3 = DEST + 3;
-
-    public static final String SOURCE_DIR_0 = SOURCE_DIR + 0;
-    public static final String DEST_DIR_0 = DEST_DIR + 0;
-
-    public static final String SOURCE_DIR_1 = SOURCE_DIR + 1;
-    public static final String DEST_DIR_1 = DEST_DIR + 1;
-
-    public static final String SOURCE_DIR_2 = SOURCE_DIR + 2;
-    public static final String DEST_DIR_2 = DEST_DIR + 2;
-
-    public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
-    public static final String DEST_DIR_3 = DEST_DIR + 3;
+    String SOURCE = "1-Source";
+    String DEST = "2-Dest";
+    String SOURCE_DIR = "1-SourceDir";
+    String DEST_DIR = "2-DestDir";
+    String A = "A";
+    String B = "B";
+    String C = "C";
+    String D = "D";
+    String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     Map<EdgeId, Edge> createEdges();
 
