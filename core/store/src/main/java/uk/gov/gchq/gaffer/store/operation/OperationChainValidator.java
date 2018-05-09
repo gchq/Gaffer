@@ -77,12 +77,7 @@ public class OperationChainValidator {
                 output = ((Output) operation).getClass();
             }
         } else {
-            final Operation firstOp;
-            if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
-                firstOp = ((OperationChain<?>) operation).getOperations().get(0);
-            } else {
-                firstOp = operation;
-            }
+            final Operation firstOp = getFirstOperation(operation);
             if (firstOp instanceof Input) {
                 final Class<?> outputType = OperationUtil.getOutputType(input);
                 final Class<?> inputType = OperationUtil.getInputType(((Input) firstOp));
@@ -101,6 +96,16 @@ public class OperationChainValidator {
             }
         }
         return output;
+    }
+
+    protected Operation getFirstOperation(final Operation operation) {
+        final Operation firstOp;
+        if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
+            firstOp = ((OperationChain<?>) operation).getOperations().get(0);
+        } else {
+            firstOp = operation;
+        }
+        return firstOp;
     }
 
     /**

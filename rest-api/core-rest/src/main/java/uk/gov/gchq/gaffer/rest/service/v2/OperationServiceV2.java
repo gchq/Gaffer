@@ -49,19 +49,20 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -311,11 +312,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationField {
         private final String name;
+        private String className;
         private final boolean required;
 
-        OperationField(final String name, final boolean required) {
+        OperationField(final String name, final boolean required, final String className) {
             this.name = name;
             this.required = required;
+            this.className = className;
         }
 
         public String getName() {
@@ -325,13 +328,17 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         public boolean isRequired() {
             return required;
         }
+
+        public String getClassName() {
+            return className;
+        }
     }
 
     /**
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    private class OperationDetail {
+    protected class OperationDetail {
         private final String name;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
@@ -365,17 +372,29 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
 
         private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            return Arrays.stream(opClass.getDeclaredFields())
-                    .map(f -> {
-                        boolean required = false;
-                        final Required[] annotations = f.getAnnotationsByType(Required.class);
+            Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
+            List<OperationField> operationFields = new ArrayList<>();
 
-                        if (null != annotations && annotations.length > 0) {
-                            required = true;
-                        }
-                        return new OperationField(f.getName(), required);
-                    })
-                    .collect(Collectors.toList());
+            for (final String fieldString : fieldsToClassMap.keySet()) {
+                boolean required = false;
+                Field field = null;
+
+                try {
+                    field = opClass.getDeclaredField(fieldString);
+                } catch (final NoSuchFieldException e) {
+                    // Ignore, we will just assume it isn't required
+                }
+
+                if (null != field) {
+                    final Required[] annotations = field.getAnnotationsByType(Required.class);
+
+                    if (null != annotations && annotations.length > 0) {
+                        required = true;
+                    }
+                }
+                operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
+            }
+            return operationFields;
         }
     }
 }

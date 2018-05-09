@@ -443,7 +443,7 @@ public class TransformHandlerTest {
             final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
             fail("Exception expected");
         } catch (final OperationException e) {
-            System.out.println(e.getMessage());
+            assertTrue(e.getMessage(), e.getMessage().contains("Incompatible number of types"));
         }
     }
 
