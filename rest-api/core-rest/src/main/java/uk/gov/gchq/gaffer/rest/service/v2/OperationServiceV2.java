@@ -123,7 +123,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(getOperationClass(className)))
+                return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -297,7 +297,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
-            this.summary = getSummary(opClass);
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -309,6 +309,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public List<OperationField> getFields() {
@@ -349,8 +353,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             return operationFields;
         }
 
-        private String getSummary(final Class<? extends Operation> opClass) {
-            return opClass.getAnnotation(Summary.class) != null ? opClass.getAnnotation(Summary.class) : "";
+        private String getSummaryValue(final Class<? extends Operation> opClass) {
+            return opClass.getAnnotation(Summary.class).value() != null ? opClass.getAnnotation(Summary.class).value() : "";
         }
     }
 }
