@@ -20,13 +20,14 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -60,8 +61,19 @@ public class OperationServiceV2IT extends OperationServiceIT {
         assertTrue(response.readEntity(String.class).contains(expectedFields));
     }
 
+    @Test
+    public void shouldReturnAllOperationsAsOperationDetails() throws IOException {
+        // Given
+
+        // When
+        Response response = getClient().getAllOperationsAsOperationDetails();
+
+        List<OperationServiceV2.OperationDetail> operationDetailList = response.readEntity(new GenericType<List<OperationServiceV2.OperationDetail>>() {
+        });
+    }
+
     @Override
-    protected RestApiTestClient getClient() {
+    protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();
     }
 }

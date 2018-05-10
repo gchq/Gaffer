@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
@@ -78,6 +79,16 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response getOperations() {
         return Response.ok(graphFactory.getGraph().getSupportedOperations())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response getOperationDetails() {
+        Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
+        List<OperationDetail> supportedClassesAsOperationDetail = supportedOperations.stream().map(OperationDetail::new).collect(Collectors.toList());
+
+        return Response.ok(supportedClassesAsOperationDetail)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }

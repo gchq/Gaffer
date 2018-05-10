@@ -136,7 +136,8 @@ public final class JsonSerialisationUtil {
                 } else {
                     if (genericType instanceof TypeVariable
                             && null != ((TypeVariable) genericType).getBounds()
-                            && 1 == ((TypeVariable) genericType).getBounds().length) {
+                            && 1 == ((TypeVariable) genericType).getBounds().length
+                            && Object.class != ((TypeVariable) genericType).getBounds()[0]) {
                         propClass = ((ParameterizedType) ((TypeVariable) genericType).getBounds()[0]).getRawType().getTypeName();
                     } else {
                         propClass = genericType.getTypeName();
