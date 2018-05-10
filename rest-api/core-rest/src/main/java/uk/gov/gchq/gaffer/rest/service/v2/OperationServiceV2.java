@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -46,8 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -86,7 +85,23 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response getOperationDetails() {
         Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
-        List<OperationDetail> supportedClassesAsOperationDetail = supportedOperations.stream().map(OperationDetail::new).collect(Collectors.toList());
+        List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
+
+        for (final Class<? extends Operation> supportedOperation : supportedOperations) {
+            try {
+                supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation.getName(), getOperationFields(supportedOperation), getNextOperations(supportedOperation), getExampleJson(supportedOperation)));
+            } catch (final IllegalAccessException | InstantiationException e) {
+                LOGGER.info(e.getMessage());
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.INTERNAL_SERVER_ERROR)
+                                .statusCode(404)
+                                .simpleMessage(e.getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
+        }
 
         return Response.ok(supportedClassesAsOperationDetail)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
@@ -133,7 +148,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(getOperationClass(className)))
+                return Response.ok(new OperationDetail(className, getOperationFields(operationClass), getNextOperations(operationClass), getExampleJson(operationClass)))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -254,8 +269,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
+    private Operation getExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
@@ -263,98 +277,34 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return graphFactory.getGraph().getNextOperations(opClass);
     }
 
-    private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
+    private static Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
-    /**
-     * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
-     */
-    private class OperationField {
-        private final String name;
-        private String className;
-        private final boolean required;
+    private static List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+        Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
+        List<OperationField> operationFields = new ArrayList<>();
 
-        OperationField(final String name, final boolean required, final String className) {
-            this.name = name;
-            this.required = required;
-            this.className = className;
-        }
+        for (final String fieldString : fieldsToClassMap.keySet()) {
+            boolean required = false;
+            Field field = null;
 
-        public String getName() {
-            return name;
-        }
-
-        public boolean isRequired() {
-            return required;
-        }
-
-        public String getClassName() {
-            return className;
-        }
-    }
-
-    /**
-     * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
-     * class.
-     */
-    protected class OperationDetail {
-        private final String name;
-        private final List<OperationField> fields;
-        private final Set<Class<? extends Operation>> next;
-        private final Operation exampleJson;
-
-        OperationDetail(final Class<? extends Operation> opClass) {
-            this.name = opClass.getName();
-            this.fields = getOperationFields(opClass);
-            this.next = getNextOperations(opClass);
             try {
-                this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
-            } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-                throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
+                field = opClass.getDeclaredField(fieldString);
+            } catch (final NoSuchFieldException e) {
+                // Ignore, we will just assume it isn't required
             }
-        }
 
-        public String getName() {
-            return name;
-        }
+            if (null != field) {
+                final Required[] annotations = field.getAnnotationsByType(Required.class);
 
-        public List<OperationField> getFields() {
-            return fields;
-        }
-
-        public Set<Class<? extends Operation>> getNext() {
-            return next;
-        }
-
-        public Operation getExampleJson() {
-            return exampleJson;
-        }
-
-        private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
-            List<OperationField> operationFields = new ArrayList<>();
-
-            for (final String fieldString : fieldsToClassMap.keySet()) {
-                boolean required = false;
-                Field field = null;
-
-                try {
-                    field = opClass.getDeclaredField(fieldString);
-                } catch (final NoSuchFieldException e) {
-                    // Ignore, we will just assume it isn't required
+                if (null != annotations && annotations.length > 0) {
+                    required = true;
                 }
-
-                if (null != field) {
-                    final Required[] annotations = field.getAnnotationsByType(Required.class);
-
-                    if (null != annotations && annotations.length > 0) {
-                        required = true;
-                    }
-                }
-                operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
             }
-            return operationFields;
+            operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
         }
+        return operationFields;
     }
+
 }

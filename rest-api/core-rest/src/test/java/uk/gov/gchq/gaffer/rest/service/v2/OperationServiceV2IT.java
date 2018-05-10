@@ -68,8 +68,11 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // When
         Response response = getClient().getAllOperationsAsOperationDetails();
 
-        List<OperationServiceV2.OperationDetail> operationDetailList = response.readEntity(new GenericType<List<OperationServiceV2.OperationDetail>>() {
+        List<OperationDetail> operationDetailList = response.readEntity(new GenericType<List<OperationDetail>>() {
         });
+
+        for (OperationDetail opDetail : operationDetailList) {
+        }
     }
 
     @Override
