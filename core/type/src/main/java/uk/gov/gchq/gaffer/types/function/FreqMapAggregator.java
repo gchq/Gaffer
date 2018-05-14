@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ import java.util.Map.Entry;
  * {@link FreqMap}s and merges the frequencies together.
  */
 @Since("1.0.0")
+@Summary("Aggregates FreqMap objects")
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
     @Override
     protected FreqMap _apply(final FreqMap a, final FreqMap b) {

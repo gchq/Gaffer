@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @see Schema
  */
 @Since("1.5.0")
+@Summary("Adds a Schema to the GraphLibrary")
 public class AddSchemaToLibrary implements Operation {
 
     @Required

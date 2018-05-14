@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation {
     @Required
     private String operations;

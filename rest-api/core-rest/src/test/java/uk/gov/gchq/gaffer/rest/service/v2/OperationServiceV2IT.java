@@ -18,17 +18,21 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -41,6 +45,23 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertNotNull(response.getHeaderString(ServiceConstants.JOB_ID_HEADER));
+    }
+
+    @Test
+    public void shouldReturn403WhenUnauthorised() throws IOException {
+        // Given
+        Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(StreamUtil.STORE_PROPERTIES)
+                .addSchema(new Schema())
+                .build();
+        client.reinitialiseGraph(graph);
+
+        // When
+        final Response response = client.executeOperation(new GetAllElements());
+
+        // Then
+        assertEquals(403, response.getStatus());
     }
 
     @Test

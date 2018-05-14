@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 @Since("1.0.0")
+@Summary("Filters elements based on groups")
 public class GroupFilterProcessor extends FilterProcessor {
     private final View view;
 

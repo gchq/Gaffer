@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -24,6 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link RBMBackedTimestampSet}s and merges the underlying {@code RoaringBitmap}s together.
  */
 @Since("1.0.0")
+@Summary("Aggregates RBMBackedTimestampSet objects")
 public class RBMBackedTimestampSetAggregator extends KorypheBinaryOperator<RBMBackedTimestampSet> {
 
     @Override

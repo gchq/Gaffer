@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 import com.yahoo.sketches.theta.Union;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * and merges that using {@link Union#update(com.yahoo.sketches.theta.Sketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates Unions")
 public class UnionAggregator extends KorypheBinaryOperator<Union> {
 
     @Override

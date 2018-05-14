@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 /**
  * Generates {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s from and {@link uk.gov.gchq.gaffer.data.element.Element}s.
@@ -33,6 +34,7 @@ import uk.gov.gchq.koryphe.Since;
  * {@link java.lang.IllegalArgumentException} will be thrown if this is attempted.
  */
 @Since("1.0.0")
+@Summary("Generates EntityIds from an Entity")
 public class EntityIdExtractor implements OneToOneObjectGenerator<EntityId> {
     private IdentifierType edgeIdentifierToExtract;
 

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 @Since("1.0.0")
+@Summary("Simple data access object, enabling (de)serialisation of an OperationChain")
 public class OperationChainDAO<OUT> extends OperationChain<OUT> {
 
     public OperationChainDAO() {
