@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
@@ -91,7 +92,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         for (final Class<? extends Operation> supportedOperation : supportedOperations) {
             try {
-                supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation.getName(), getOperationFields(supportedOperation), getNextOperations(supportedOperation), getExampleJson(supportedOperation)));
+                supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation.getName(), getOperationFields(supportedOperation), getNextOperations(supportedOperation), generateExampleJson(supportedOperation)));
             } catch (final IllegalAccessException | InstantiationException e) {
                 LOGGER.info(e.getMessage());
                 return Response.status(INTERNAL_SERVER_ERROR)
@@ -150,7 +151,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(className, getOperationFields(operationClass), getNextOperations(operationClass), getExampleJson(operationClass)))
+                return Response.ok(new OperationDetail(className, getOperationFields(operationClass), getNextOperations(operationClass), generateExampleJson(operationClass)))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -182,7 +183,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(getExampleJson(getOperationClass(className)))
+            return Response.ok(generateExampleJson(getOperationClass(className)))
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         } catch (final ClassNotFoundException e) {
@@ -309,6 +310,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return operationFields;
     }
 
+    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+        return opClass.getAnnotation(Summary.class).value() != null ? opClass.getAnnotation(Summary.class).value() : "";
+    }
+
     /**
      * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
      */
@@ -346,6 +351,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     protected static class OperationDetail implements Serializable {
         private String name;
+        private String summary;
         private List<OperationField> fields;
         private Set<Class<? extends Operation>> next;
         private Operation exampleJson;
@@ -355,6 +361,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
+            this.summary = getOperationSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -373,6 +380,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public List<OperationField> getFields() {
