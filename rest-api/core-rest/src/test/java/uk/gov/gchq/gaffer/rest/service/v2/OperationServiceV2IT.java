@@ -86,7 +86,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.executeOperation(addNamedOperation);
 
         // When
-        Response response = getClient().getNamedOperationDetail("exampleOp");
+        Response response = ((RestApiV2TestClient) client).getNamedOperationDetail("exampleOp");
         NamedOperationDetail namedOpDetail = response.readEntity(NamedOperationDetail.class);
 
         // Then
