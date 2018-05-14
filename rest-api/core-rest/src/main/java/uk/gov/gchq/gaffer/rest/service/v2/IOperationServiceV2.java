@@ -153,5 +153,6 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response nextOperations(@ApiParam(value = "The fully qualified class name, for which all possible compatible follow-up operations should be returned") @PathParam("className") final String className);
+
 }
 

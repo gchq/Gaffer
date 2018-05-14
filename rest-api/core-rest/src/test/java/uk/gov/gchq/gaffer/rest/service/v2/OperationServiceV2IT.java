@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -93,7 +94,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Override
-    protected RestApiV2TestClient getClient() {
+    protected RestApiTestClient getClient() {
         return new RestApiV2TestClient();
     }
 }
