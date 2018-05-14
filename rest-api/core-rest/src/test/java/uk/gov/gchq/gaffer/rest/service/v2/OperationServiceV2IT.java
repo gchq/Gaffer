@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -29,7 +30,9 @@ import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -65,6 +68,15 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnNamedOperationDetailWithInputType() throws IOException {
         // Given
+        NamedOperationDetail expectedNamedOpDetail = new NamedOperationDetail.Builder()
+                .operationName("exampleOp")
+                .inputType("I_ITEM[]")
+                .creatorId("UNKNOWN")
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .build();
+
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name("exampleOp")
                 .description("standard operation")
@@ -72,10 +84,13 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .build();
 
         client.executeOperation(addNamedOperation);
+
         // When
         Response response = getClient().getNamedOperationDetail("exampleOp");
+        NamedOperationDetail namedOpDetail = response.readEntity(NamedOperationDetail.class);
 
-        System.out.println(response.readEntity(String.class));
+        // Then
+        assertEquals(expectedNamedOpDetail, namedOpDetail);
     }
 
     @Override
