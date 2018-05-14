@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Adds an RDD of elements")
 public class ImportRDDOfElements implements
         Input<RDD<Element>> {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

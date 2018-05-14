@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Converts an Iterable to a Stream")
 public class ToStream<T> implements
         InputOutput<Iterable<? extends T>, Stream<? extends T>>,
         MultiInput<T> {

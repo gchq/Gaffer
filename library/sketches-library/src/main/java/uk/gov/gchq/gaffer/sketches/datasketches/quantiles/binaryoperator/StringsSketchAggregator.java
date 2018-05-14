@@ -20,6 +20,7 @@ import com.yahoo.sketches.quantiles.ItemsSketch;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -27,6 +28,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ItemsSketch}s of {@link String}s using an {@link ItemsUnion}.
  */
 @Since("1.0.0")
+@Summary("Aggregates ItemsSketches of Strings using an ItemsUnion")
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {
 
     @Override

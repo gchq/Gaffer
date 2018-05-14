@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.graph.function.walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.Set;
  * {@link Set}s of Gaffer {@link Edge}s, from a provided {@link Walk} object.
  */
 @Since("1.2.0")
+@Summary("Extracts the sets of edges from a Walk")
 public class ExtractWalkEdges extends KorypheFunction<Walk, Iterable<Set<Edge>>> {
     @Override
     public Iterable<Set<Edge>> apply(final Walk walk) {

@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,6 +55,7 @@ import java.util.Map;
  **/
 @JsonPropertyOrder(value = {"class", "operationChain", "options"}, alphabetic = true)
 @Since("1.1.0")
+@Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
 public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         implements InputOutput<I, CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  */
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Removes a Graph from the federated store")
 public class RemoveGraph implements FederatedOperation {
 
     @Required

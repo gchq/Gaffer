@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import java.util.stream.Collectors;
  */
 @JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("A chain of operations where the results are passed between each operation")
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;

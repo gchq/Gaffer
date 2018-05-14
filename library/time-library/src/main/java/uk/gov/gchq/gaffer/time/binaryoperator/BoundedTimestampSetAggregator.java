@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * only be aggregated if they have the same time bucket and maximum size.
  */
 @Since("1.0.0")
+@Summary("Aggregates BoundedTimestampSets")
 public class BoundedTimestampSetAggregator extends KorypheBinaryOperator<BoundedTimestampSet> {
 
     @Override
