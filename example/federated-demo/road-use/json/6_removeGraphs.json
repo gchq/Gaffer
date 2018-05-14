@@ -1,0 +1,16 @@
+{
+  "operations": [
+    {
+      "class": "RemoveGraph",
+      "graphId": "roadUse"
+    },
+    {
+      "class": "RemoveGraph",
+      "graphId": "roadJunctions"
+    },
+    {
+      "class": "RemoveGraph",
+      "graphId": "propertyIndex"
+    }
+  ]
+}

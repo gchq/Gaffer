@@ -1,0 +1,35 @@
+{
+  "class": "uk.gov.gchq.gaffer.operation.OperationChain",
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
+      "input": [
+        "1"
+      ],
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "propertyIndex"
+      }
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.Map",
+      "functions": [
+        {
+          "class": "IterableFunction",
+          "functions": [
+            {
+              "class": "ToElementSeed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
+      "includeIncomingOutGoing": "OUTGOING",
+      "seedMatching": "EQUAL",
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUse"
+      }
+    }
+  ]
+}

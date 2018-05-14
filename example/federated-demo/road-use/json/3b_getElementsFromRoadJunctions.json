@@ -1,0 +1,9 @@
+{
+  "class": "GetElements",
+  "input": [
+    "M32:1"
+  ],
+  "options": {
+    "gaffer.federatedstore.operation.graphIds": "roadJunctions"
+  }
+}
