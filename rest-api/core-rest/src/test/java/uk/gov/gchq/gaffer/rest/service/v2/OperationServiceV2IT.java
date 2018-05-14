@@ -20,10 +20,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
@@ -33,7 +29,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -83,34 +78,6 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertTrue(response.readEntity(String.class).contains(expectedFields));
-    }
-
-    @Test
-    public void shouldReturnNamedOperationDetailWithInputType() throws IOException {
-        // Given
-        NamedOperationDetail expectedNamedOpDetail = new NamedOperationDetail.Builder()
-                .operationName("exampleOp")
-                .inputType("I_ITEM[]")
-                .creatorId("UNKNOWN")
-                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
-                .build();
-
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
-                .name("exampleOp")
-                .description("standard operation")
-                .operationChain(new OperationChain.Builder().first(new AddElements()).build())
-                .build();
-
-        client.executeOperation(addNamedOperation);
-
-        // When
-        Response response = ((RestApiV2TestClient) client).getNamedOperationDetail("exampleOp");
-        NamedOperationDetail namedOpDetail = response.readEntity(NamedOperationDetail.class);
-
-        // Then
-        assertEquals(expectedNamedOpDetail, namedOpDetail);
     }
 
     @Test
