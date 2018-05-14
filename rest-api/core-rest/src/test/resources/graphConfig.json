@@ -1,3 +1,13 @@
 {
-  "graphId": "graphId1"
+  "graphId": "graphId1",
+  "hooks": [
+    {
+      "class": "uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser",
+      "auths": {
+        "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
+          "EnhancedUser"
+        ]
+      }
+    }
+  ]
 }
