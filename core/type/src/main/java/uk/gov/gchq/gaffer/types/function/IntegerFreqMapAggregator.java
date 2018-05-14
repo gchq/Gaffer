@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.util.Map.Entry;
@@ -29,6 +30,7 @@ import java.util.Map.Entry;
  */
 @Deprecated
 @Since("1.0.0")
+@Summary("Aggregates IntegerFreqMap objects")
 public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
     @Override
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {

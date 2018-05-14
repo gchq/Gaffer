@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,6 +66,7 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
  * @see If.Builder
  */
 @Since("1.4.0")
+@Summary("Conditionally runs an operation or an alternative operation")
 @JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
 public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
     private Boolean condition;

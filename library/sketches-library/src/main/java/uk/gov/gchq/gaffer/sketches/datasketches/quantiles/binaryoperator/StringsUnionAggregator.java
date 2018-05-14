@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ItemsUnion} and merges that using {@link ItemsUnion#update(com.yahoo.sketches.quantiles.ItemsSketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates ItemUnions of Strings")
 public class StringsUnionAggregator extends KorypheBinaryOperator<ItemsUnion<String>> {
 
     @Override

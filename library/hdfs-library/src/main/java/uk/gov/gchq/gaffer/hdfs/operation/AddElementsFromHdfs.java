@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -47,6 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "failurePath", "workingPath"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Adds elements from hdfs")
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce {

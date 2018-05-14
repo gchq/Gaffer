@@ -24,11 +24,13 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Date;
 import java.util.Map;
 
 @Since("1.0.0")
+@Summary("Input Implementation for testing")
 @JsonPropertyOrder(alphabetic = true)
 public class InputImpl implements MultiInput<String> {
     @Required

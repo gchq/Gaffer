@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.graph.function.walk;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.Set;
  * {@link Set}s of Gaffer {@link Entity}s, from a provided {@link Walk} object.
  */
 @Since("1.2.0")
+@Summary("Extracts the sets of entities from a Walk")
 public class ExtractWalkEntities extends KorypheFunction<Walk, Iterable<Set<Entity>>> {
     @Override
     public Iterable<Set<Entity>> apply(final Walk walk) {

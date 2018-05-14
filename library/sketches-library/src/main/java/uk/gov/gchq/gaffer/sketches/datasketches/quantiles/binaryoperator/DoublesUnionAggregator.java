@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * and merges that using {@link DoublesUnion#update(com.yahoo.sketches.quantiles.DoublesSketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates DoublesUnions")
 public class DoublesUnionAggregator extends KorypheBinaryOperator<DoublesUnion> {
 
     @Override

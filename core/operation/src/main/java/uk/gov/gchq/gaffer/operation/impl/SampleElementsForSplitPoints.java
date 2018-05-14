@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 /**
  * <p>
- * The {@code SampleDataForSplitPoints} operation is for sampling an {@link Iterable}
+ * The {@code SampleElementsForSplitPoints} operation is for sampling an {@link Iterable}
  * of {@link Element}s and generating split points. The operation returns a
  * {@link List} of the split points. The split points are normally UTF strings
  * but this may differ for different Stores.
@@ -61,6 +62,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.1.1")
+@Summary("Samples an iterable of elements and generates split points")
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,

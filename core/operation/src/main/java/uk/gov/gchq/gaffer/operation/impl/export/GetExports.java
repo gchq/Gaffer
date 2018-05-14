@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "getExports"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Fetches multiple exports")
 public class GetExports implements
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();

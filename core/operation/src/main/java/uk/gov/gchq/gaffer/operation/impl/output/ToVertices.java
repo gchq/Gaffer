@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -35,6 +36,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Converts element ids into vertices")
 public class ToVertices implements
         InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
         MultiInput<ElementId> {

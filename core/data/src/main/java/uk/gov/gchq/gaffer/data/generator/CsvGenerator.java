@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
  * </pre>
  */
 @Since("1.0.0")
+@Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";
     public static final String COMMA = ",";

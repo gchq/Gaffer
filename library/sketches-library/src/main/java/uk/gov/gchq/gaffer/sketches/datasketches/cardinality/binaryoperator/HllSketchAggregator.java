@@ -19,6 +19,7 @@ import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.hll.Union;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link HllSketch}s and merges them together using a {@link Union}.
  */
 @Since("1.0.0")
+@Summary("Aggregates HllSketches together using a Union")
 public class HllSketchAggregator extends KorypheBinaryOperator<HllSketch> {
 
     @Override
