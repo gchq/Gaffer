@@ -70,7 +70,6 @@ import java.util.Set;
 @JsonDeserialize(builder = Schema.Builder.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities", "types"}, alphabetic = true)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    public static final String ERROR_DIFFERENT_VERTEX_TYPES = "Edge: %s has different Vertex types (%s,%s) Edge direction must be set to true";
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -221,32 +220,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
 
-        result.add(validateEdgeWithDifferentVertexTypes());
-
         return result;
-    }
-
-    private ValidationResult validateEdgeWithDifferentVertexTypes() {
-        final ValidationResult rtn = new ValidationResult();
-        final Schema thisSchema = this;
-
-        for (final Entry<String, SchemaEdgeDefinition> entry : thisSchema.getEdges().entrySet()) {
-            SchemaEdgeDefinition edgeDef = entry.getValue();
-
-            final TypeDefinition srcDef = thisSchema.getType(edgeDef.getSource());
-            final Class<?> srcClazz = (null == srcDef) ? null : srcDef.getClazz();
-
-            final TypeDefinition dstDef = thisSchema.getType(edgeDef.getDestination());
-            final Class<?> dstClazz = (null == dstDef) ? null : dstDef.getClazz();
-
-            if (null != srcClazz && null != dstClazz) {
-                if (!srcClazz.equals(dstClazz) && !Boolean.valueOf(edgeDef.getDirected())) {
-                    rtn.addError(String.format(ERROR_DIFFERENT_VERTEX_TYPES, entry.getKey(), srcClazz, dstClazz));
-                }
-            }
-        }
-
-        return rtn;
     }
 
     public boolean hasValidation() {
