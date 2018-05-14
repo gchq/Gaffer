@@ -1,0 +1,48 @@
+{
+  "class": "AddGraph",
+  "graphId": "propertyIndex",
+  "schema": {
+    "entities": {
+      "count|Edge": {
+        "vertex": "property",
+        "properties": {
+          "source": "road",
+          "destination": "road",
+          "directed": "directed"
+        },
+        "groupBy": [
+          "source",
+          "destination",
+          "directed"
+        ]
+      }
+    },
+    "types": {
+      "road": {
+        "class": "String",
+        "aggregateFunction": {
+          "class": "First"
+        }
+      },
+      "directed": {
+        "class": "java.lang.Boolean",
+        "aggregateFunction": {
+          "class": "First"
+        }
+      },
+      "property": {
+        "class": "java.lang.String",
+        "aggregateFunction": {
+          "class": "First"
+        }
+      }
+    }
+  },
+  "storeProperties": {
+    "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+    "accumulo.instance": "someInstanceName",
+    "accumulo.zookeepers": "aZookeeper",
+    "accumulo.user": "user01",
+    "accumulo.password": "password"
+  }
+}

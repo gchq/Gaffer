@@ -1,0 +1,53 @@
+{
+  "class": "AddElements",
+  "input": [
+    {
+      "class": "Edge",
+      "group": "RoadUse",
+      "source": "M32:1",
+      "destination": "M32:2",
+      "directed": true,
+      "properties": {
+        "count": {
+          "Long": 1
+        }
+      }
+    },
+    {
+      "class": "Edge",
+      "group": "RoadUse",
+      "source": "M32:2",
+      "destination": "M32:3",
+      "directed": true,
+      "properties": {
+        "count": {
+          "Long": 2
+        }
+      }
+    },
+    {
+      "class": "Edge",
+      "group": "RoadHasJunction",
+      "source": "M32",
+      "destination": "M32:1",
+      "directed": true
+    },
+    {
+      "class": "Edge",
+      "group": "RoadHasJunction",
+      "source": "M32",
+      "destination": "M32:2",
+      "directed": true
+    },
+    {
+      "class": "Edge",
+      "group": "RoadHasJunction",
+      "source": "M32",
+      "destination": "M32:3",
+      "directed": true
+    }
+  ],
+  "options": {
+    "gaffer.federatedstore.operation.graphIds": "roadUse,roadJunctions"
+  }
+}
