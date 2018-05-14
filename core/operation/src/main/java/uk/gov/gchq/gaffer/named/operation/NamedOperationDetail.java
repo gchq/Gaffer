@@ -62,22 +62,7 @@ public class NamedOperationDetail implements Serializable {
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
-        if (null == operations) {
-            throw new IllegalArgumentException("Operation Chain must not be empty");
-        }
-        if (null == operationName || operationName.isEmpty()) {
-            throw new IllegalArgumentException("Operation Name must not be empty");
-        }
-
-        this.operationName = operationName;
-        this.description = description;
-        this.creatorId = userId;
-        this.operations = operations;
-
-        this.readAccessRoles = readers;
-        this.writeAccessRoles = writers;
-        this.parameters = parameters;
-        this.score = score;
+        this(operationName, null, description, userId, operations, readers, writers, parameters, score);
     }
 
     public NamedOperationDetail(final String operationName, final String inputType, final String description, final String userId,
