@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -30,7 +32,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -83,17 +87,20 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Test
-    public void shouldReturnAllOperationsAsOperationDetails() throws IOException {
+    public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
         final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph().getSupportedOperations();
 
         // When
-        Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
-        String operationDetailList = response.readEntity(String.class);
+        final Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
 
         // Then
-        for (Class<? extends Operation> clazz : expectedOperations) {
-            assertTrue(operationDetailList.contains(clazz.getName()));
+        byte[] json = response.readEntity(byte[].class);
+        List<OperationDetailPojo> opDetails = JSONSerialiser.deserialise(json, new TypeReference<List<OperationDetailPojo>>() {
+        });
+        final Set<String> opDetailClasses = opDetails.stream().map(OperationDetailPojo::getName).collect(Collectors.toSet());
+        for (final Class<? extends Operation> clazz : expectedOperations) {
+            assertTrue(opDetailClasses.contains(clazz.getName()));
         }
     }
 
@@ -113,5 +120,83 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Override
     protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();
+    }
+
+    private static class OperationDetailPojo {
+        private String name;
+        private String summary;
+        private List<OperationFieldPojo> fields;
+        private Set<Class<? extends Operation>> next;
+        private Operation exampleJson;
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public void setSummary(final String summary) {
+            this.summary = summary;
+        }
+
+        public void setFields(final List<OperationFieldPojo> fields) {
+            this.fields = fields;
+        }
+
+        public void setNext(final Set<Class<? extends Operation>> next) {
+            this.next = next;
+        }
+
+        public void setExampleJson(final Operation exampleJson) {
+            this.exampleJson = exampleJson;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getSummary() {
+            return summary;
+        }
+
+        public List<OperationFieldPojo> getFields() {
+            return fields;
+        }
+
+        public Set<Class<? extends Operation>> getNext() {
+            return next;
+        }
+
+        public Operation getExampleJson() {
+            return exampleJson;
+        }
+    }
+
+    private static class OperationFieldPojo {
+        private String name;
+        private String className;
+        private boolean required;
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public void setRequired(final boolean required) {
+            this.required = required;
+        }
+
+        public void setClassName(final String className) {
+            this.className = className;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isRequired() {
+            return required;
+        }
+
+        public String getClassName() {
+            return className;
+        }
     }
 }

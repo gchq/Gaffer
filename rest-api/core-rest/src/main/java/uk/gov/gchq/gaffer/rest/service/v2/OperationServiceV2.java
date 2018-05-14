@@ -42,14 +42,12 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -91,19 +89,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
 
         for (final Class<? extends Operation> supportedOperation : supportedOperations) {
-            try {
-                supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation.getName(), getOperationFields(supportedOperation), getNextOperations(supportedOperation), generateExampleJson(supportedOperation)));
-            } catch (final IllegalAccessException | InstantiationException e) {
-                LOGGER.info(e.getMessage());
-                return Response.status(INTERNAL_SERVER_ERROR)
-                        .entity(new Error.ErrorBuilder()
-                                .status(Status.INTERNAL_SERVER_ERROR)
-                                .statusCode(404)
-                                .simpleMessage(e.getMessage())
-                                .build())
-                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                        .build();
-            }
+            supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation));
         }
 
         return Response.ok(supportedClassesAsOperationDetail)
@@ -151,7 +137,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(className, getOperationFields(operationClass), getNextOperations(operationClass), generateExampleJson(operationClass)))
+                return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -280,11 +266,11 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return graphFactory.getGraph().getNextOperations(opClass);
     }
 
-    private static Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
+    private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
-    private static List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+    private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
         Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
         List<OperationField> operationFields = new ArrayList<>();
 
@@ -311,22 +297,19 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
-        return opClass.getAnnotation(Summary.class).value() != null ? opClass.getAnnotation(Summary.class).value() : "";
+        final Summary summary = opClass.getAnnotation(Summary.class);
+        return null != summary && null != summary.value() ? summary.value() : null;
     }
 
     /**
      * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
      */
-    private static class OperationField {
-        private String name;
+    private class OperationField {
+        private final String name;
         private String className;
-        private boolean required;
+        private final boolean required;
 
-        public OperationField() {
-
-        }
-
-        public OperationField(final String name, final boolean required, final String className) {
+        OperationField(final String name, final boolean required, final String className) {
             this.name = name;
             this.required = required;
             this.className = className;
@@ -349,17 +332,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    protected static class OperationDetail implements Serializable {
-        private String name;
-        private String summary;
-        private List<OperationField> fields;
-        private Set<Class<? extends Operation>> next;
-        private Operation exampleJson;
+    protected class OperationDetail {
+        private final String name;
+        private final String summary;
+        private final List<OperationField> fields;
+        private final Set<Class<? extends Operation>> next;
+        private final Operation exampleJson;
 
-        public OperationDetail() {
-        }
-
-        public OperationDetail(final Class<? extends Operation> opClass) {
+        OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
             this.summary = getOperationSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
@@ -369,13 +349,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
-        }
-
-        public OperationDetail(final String name, final List<OperationField> fields, final Set<Class<? extends Operation>> next, final Operation exampleJson) {
-            this.name = name;
-            this.fields = fields;
-            this.next = next;
-            this.exampleJson = exampleJson;
         }
 
         public String getName() {
