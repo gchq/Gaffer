@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
@@ -131,7 +132,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(getOperationClass(className)))
+                return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -338,12 +339,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     protected class OperationDetail {
         private final String name;
+        private final String summary;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -355,6 +358,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public List<OperationField> getFields() {
@@ -393,6 +400,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                 operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
             }
             return operationFields;
+        }
+
+        private String getSummaryValue(final Class<? extends Operation> opClass) {
+            return opClass.getAnnotation(Summary.class).value() != null ? opClass.getAnnotation(Summary.class).value() : "";
         }
     }
 }

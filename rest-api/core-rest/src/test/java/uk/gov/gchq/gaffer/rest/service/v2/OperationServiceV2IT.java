@@ -113,6 +113,18 @@ public class OperationServiceV2IT extends OperationServiceIT {
         assertEquals(expectedNamedOpDetail, namedOpDetail);
     }
 
+    @Test
+    public void shouldReturnOperationDetailSummaryOfClass() throws Exception {
+        // Given
+        final String expectedSummary = "\"summary\":\"Gets elements related to provided seeds\"";
+
+        // When
+        Response response = client.getOperationDetails(GetElements.class);
+
+        // Then
+        assertTrue(response.readEntity(String.class).contains(expectedSummary));
+    }
+
     @Override
     protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();
