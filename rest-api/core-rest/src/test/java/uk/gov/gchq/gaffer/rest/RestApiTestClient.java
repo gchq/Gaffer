@@ -24,6 +24,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -88,7 +89,7 @@ public abstract class RestApiTestClient {
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
             storeProperties.getProperties()
-                           .store(out, "This is an optional header comment string");
+                    .store(out, "This is an optional header comment string");
         }
 
         // set properties for REST service
@@ -97,6 +98,18 @@ public abstract class RestApiTestClient {
         System.setProperty(SystemProperty.GRAPH_ID, "graphId");
 
         reinitialiseGraph();
+    }
+
+    public void reinitialiseGraph(final Graph graph) throws IOException {
+        DefaultGraphFactory.setGraph(graph);
+
+        startServer();
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
+        }
     }
 
 
