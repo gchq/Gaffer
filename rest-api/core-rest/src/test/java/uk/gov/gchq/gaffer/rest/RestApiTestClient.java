@@ -49,12 +49,14 @@ public abstract class RestApiTestClient {
     protected final String versionString;
     protected final String uriString;
     protected HttpServer server;
+    protected DefaultGraphFactory defaultGraphFactory;
 
     public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config) {
         this.root = root.replaceAll("/$", "");
         this.path = path.replaceAll("/$", "");
         this.versionString = versionString.replaceAll("/$", "");
         this.config = config;
+        this.defaultGraphFactory = new DefaultGraphFactory();
 
         this.fullPath = this.path + '/' + versionString;
         this.uriString = this.root + '/' + this.fullPath;
@@ -88,7 +90,7 @@ public abstract class RestApiTestClient {
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
             storeProperties.getProperties()
-                           .store(out, "This is an optional header comment string");
+                    .store(out, "This is an optional header comment string");
         }
 
         // set properties for REST service
@@ -101,7 +103,7 @@ public abstract class RestApiTestClient {
 
 
     public void reinitialiseGraph() throws IOException {
-        DefaultGraphFactory.setGraph(null);
+        defaultGraphFactory.setGraph(null);
 
         startServer();
 
@@ -146,6 +148,10 @@ public abstract class RestApiTestClient {
 
     public String getRoot() {
         return root;
+    }
+
+    public DefaultGraphFactory getDefaultGraphFactory() {
+        return defaultGraphFactory;
     }
 
     public String getFullPath() {

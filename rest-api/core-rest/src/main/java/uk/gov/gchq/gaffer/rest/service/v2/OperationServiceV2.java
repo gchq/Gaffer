@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -40,6 +41,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -269,7 +271,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation getExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
@@ -307,4 +309,82 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return operationFields;
     }
 
+    /**
+     * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
+     */
+    private static class OperationField {
+        private String name;
+        private String className;
+        private boolean required;
+
+        public OperationField() {
+
+        }
+
+        public OperationField(final String name, final boolean required, final String className) {
+            this.name = name;
+            this.required = required;
+            this.className = className;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isRequired() {
+            return required;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+    }
+
+    /**
+     * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
+     * class.
+     */
+    protected static class OperationDetail implements Serializable {
+        private String name;
+        private List<OperationField> fields;
+        private Set<Class<? extends Operation>> next;
+        private Operation exampleJson;
+
+        public OperationDetail() {
+        }
+
+        public OperationDetail(final Class<? extends Operation> opClass) {
+            this.name = opClass.getName();
+            this.fields = getOperationFields(opClass);
+            this.next = getNextOperations(opClass);
+            try {
+                this.exampleJson = generateExampleJson(opClass);
+            } catch (final IllegalAccessException | InstantiationException e) {
+                throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
+            }
+        }
+
+        public OperationDetail(final String name, final List<OperationField> fields, final Set<Class<? extends Operation>> next, final Operation exampleJson) {
+            this.name = name;
+            this.fields = fields;
+            this.next = next;
+            this.exampleJson = exampleJson;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<OperationField> getFields() {
+            return fields;
+        }
+
+        public Set<Class<? extends Operation>> getNext() {
+            return next;
+        }
+
+        public Operation getExampleJson() {
+            return exampleJson;
+        }
+    }
 }
