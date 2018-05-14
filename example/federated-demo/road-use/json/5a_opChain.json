@@ -1,0 +1,79 @@
+{
+  "operations": [
+    {
+      "class": "AddGraph",
+      "graphId": "roadUseTmpGraph1",
+      "schema": {
+        "edges": {
+          "RoadUse": {
+            "source": "junction",
+            "destination": "junction",
+            "directed": "true",
+            "properties": {
+              "count": "count.long"
+            }
+          },
+          "RoadHasJunction": {
+            "description": "A directed edge from each road to all the junctions on that road.",
+            "source": "road",
+            "destination": "junction",
+            "directed": "true"
+          }
+        },
+        "types": {
+          "road": {
+            "class": "String"
+          },
+          "junction": {
+            "class": "String"
+          },
+          "true": {
+            "class": "java.lang.Boolean",
+            "validateFunctions": [
+              {
+                "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+              }
+            ]
+          },
+          "count.long": {
+            "class": "java.lang.Long",
+            "aggregateFunction": {
+              "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+            }
+          }
+        }
+      },
+      "storeProperties": {
+        "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+        "accumulo.instance": "someInstanceName",
+        "accumulo.zookeepers": "aZookeeper",
+        "accumulo.user": "user01",
+        "accumulo.password": "password"
+      }
+    },
+    {
+      "class": "GetElements",
+      "input": [
+        "M32:1"
+      ],
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUse,roadJunctions"
+      }
+    },
+    {
+      "class": "AddElements",
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUseTmpGraph1"
+      }
+    },
+    {
+      "class": "GetElements",
+      "input": [
+        "M32:1"
+      ],
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUseTmpGraph1"
+      }
+    }
+  ]
+}
