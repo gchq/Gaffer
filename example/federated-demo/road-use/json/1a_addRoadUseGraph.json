@@ -1,0 +1,42 @@
+{
+  "class": "AddGraph",
+  "graphId": "roadUse",
+  "schema": {
+    "edges": {
+      "RoadUse": {
+        "source": "junction",
+        "destination": "junction",
+        "directed": "true",
+        "properties": {
+          "count": "count.long"
+        }
+      }
+    },
+    "types": {
+      "junction": {
+        "class": "String"
+      },
+      "true": {
+        "class": "java.lang.Boolean",
+        "validateFunctions": [
+          {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+          }
+        ]
+      },
+      "count.long": {
+        "class": "java.lang.Long",
+        "aggregateFunction": {
+          "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+        }
+      }
+    }
+  },
+  "storeProperties": {
+    "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+    "accumulo.instance": "someInstanceName",
+    "accumulo.zookeepers": "aZookeeper",
+    "accumulo.user": "user01",
+    "accumulo.password": "password"
+  }
+}
