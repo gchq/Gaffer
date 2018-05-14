@@ -29,7 +29,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Collections;
@@ -136,9 +135,8 @@ public final class JsonSerialisationUtil {
                 } else {
                     if (genericType instanceof TypeVariable
                             && null != ((TypeVariable) genericType).getBounds()
-                            && 1 == ((TypeVariable) genericType).getBounds().length
-                            && Object.class != ((TypeVariable) genericType).getBounds()[0]) {
-                        propClass = ((ParameterizedType) ((TypeVariable) genericType).getBounds()[0]).getRawType().getTypeName();
+                            && 1 == ((TypeVariable) genericType).getBounds().length) {
+                        propClass = ((TypeVariable) genericType).getBounds()[0].getTypeName();
                     } else {
                         propClass = genericType.getTypeName();
                     }
