@@ -83,6 +83,13 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .get(Response.class);
     }
 
+    public Response getNamedOperationDetail(final String opName) throws IOException {
+        return client.target(uriString)
+                .path("graph/operations/namedoperation/" + opName)
+                .request()
+                .get(Response.class);
+    }
+
     public Response getProperties() {
         return client.target(uriString)
                 .path("/properties")

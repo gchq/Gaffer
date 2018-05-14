@@ -51,7 +51,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -227,10 +226,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             throw new IllegalArgumentException("Failed to deserialise operations for NamedOperation: " + opName, e);
         }
 
-        final Map<String, String> result = new HashMap<>();
-        result.put("Input type for NamedOperation '" + opName + "'", inputType);
+        namedOp.setInputType(inputType);
 
-        return Response.ok(result)
+        return Response.ok(namedOp)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }

@@ -155,9 +155,9 @@ public interface IOperationServiceV2 {
     Response nextOperations(@ApiParam(value = "The fully qualified class name, for which all possible compatible follow-up operations should be returned") @PathParam("className") final String className);
 
     @GET
-    @Path("/namedOperation/{opName}/inputType")
-    @ApiOperation(value = "Gets the input type for a given named operation",
-            notes = "Attempts to retrieve the input type for a given named operation",
+    @Path("/namedOperation/{opName}")
+    @ApiOperation(value = "Gets the named operation detail for a given named operation, including input type",
+            notes = "Attempts to retrieve the named operation detail a given named operation, including input type",
             produces = APPLICATION_JSON,
             response = String.class,
             responseContainer = "map",

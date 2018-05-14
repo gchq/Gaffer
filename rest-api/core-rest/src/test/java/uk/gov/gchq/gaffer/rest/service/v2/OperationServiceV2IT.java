@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
@@ -60,8 +62,24 @@ public class OperationServiceV2IT extends OperationServiceIT {
         assertTrue(response.readEntity(String.class).contains(expectedFields));
     }
 
+    @Test
+    public void shouldReturnNamedOperationDetailWithInputType() throws IOException {
+        // Given
+        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .name("exampleOp")
+                .description("standard operation")
+                .operationChain(new OperationChain.Builder().first(new AddElements()).build())
+                .build();
+
+        client.executeOperation(addNamedOperation);
+        // When
+        Response response = getClient().getNamedOperationDetail("exampleOp");
+
+        System.out.println(response.readEntity(String.class));
+    }
+
     @Override
-    protected RestApiTestClient getClient() {
+    protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();
     }
 }
