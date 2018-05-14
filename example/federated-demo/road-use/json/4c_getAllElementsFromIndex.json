@@ -1,0 +1,6 @@
+{
+  "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements",
+  "options": {
+    "gaffer.federatedstore.operation.graphIds": "propertyIndex"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "class": "AddGraph",
+  "graphId": "roadJunctions",
+  "schema": {
+    "edges": {
+      "RoadHasJunction": {
+        "description": "A directed edge from each road to all the junctions on that road.",
+        "source": "road",
+        "destination": "junction",
+        "directed": "true"
+      }
+    },
+    "types": {
+      "road": {
+        "class": "String"
+      },
+      "junction": {
+        "class": "String"
+      },
+      "true": {
+        "class": "java.lang.Boolean",
+        "validateFunctions": [
+          {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+          }
+        ]
+      }
+    }
+  },
+  "storeProperties": {
+    "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+    "accumulo.instance": "someInstanceName",
+    "accumulo.zookeepers": "aZookeeper",
+    "accumulo.user": "user01",
+    "accumulo.password": "password"
+  }
+}
