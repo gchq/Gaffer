@@ -63,7 +63,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnOperationDetailSummaryOfClass() throws Exception {
         // Given
-        final String expectedSummary = "\"summary\":\"Gets Elements based on ElementIds as seeds\"";
+        final String expectedSummary = "\"summary\":\"Gets elements related to provided seeds\"";
 
         // When
         Response response = client.getOperationDetails(GetElements.class);
