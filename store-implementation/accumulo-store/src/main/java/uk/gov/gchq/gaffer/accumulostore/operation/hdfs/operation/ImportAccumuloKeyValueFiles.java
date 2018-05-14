@@ -21,11 +21,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "inputPath", "failurePath"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Imports Accumulo key value files")
 public class ImportAccumuloKeyValueFiles implements
         Operation {
     @Required

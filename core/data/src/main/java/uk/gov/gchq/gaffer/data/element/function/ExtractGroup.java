@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the Element is null, this function will return null.
  */
 @Since("1.4.0")
+@Summary("Extracts a group from an element")
 public class ExtractGroup extends KorypheFunction<Element, String> {
     @Override
     public String apply(final Element element) {

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.function;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 
@@ -27,6 +28,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the input is already an {@link EntityId} is not modified.
  */
 @Since("1.3.0")
+@Summary("Converts an object to an EntityId")
 public class ToEntityId extends KorypheFunction<Object, EntityId> {
     @Override
     public EntityId apply(final Object obj) {

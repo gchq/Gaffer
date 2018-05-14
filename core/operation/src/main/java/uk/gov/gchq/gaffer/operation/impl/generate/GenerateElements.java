@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import java.util.function.Function;
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Generates elements from objects using provided generators")
 public class GenerateElements<OBJ> implements
         InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
         MultiInput<OBJ> {
