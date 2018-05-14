@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -32,13 +34,16 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -71,19 +76,26 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnOperationDetailFieldsWithClass() throws IOException {
         // Given
-        String expectedFields = "\"fields\":[{\"name\":\"input\",\"className\":\"java.lang.Object[]\",\"required\":false}," +
-                "{\"name\":\"view\",\"className\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.View\",\"required\":false}," +
-                "{\"name\":\"includeIncomingOutGoing\",\"className\":\"java.lang.String\",\"required\":false}," +
-                "{\"name\":\"seedMatching\",\"className\":\"java.lang.String\",\"required\":false}," +
-                "{\"name\":\"options\",\"className\":\"java.util.Map<java.lang.String,java.lang.String>\",\"required\":false}," +
-                "{\"name\":\"directedType\",\"className\":\"java.lang.String\",\"required\":false}," +
-                "{\"name\":\"views\",\"className\":\"java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>\",\"required\":false}]";
+        Map<String, String> expectedFieldsInGetElementsClass = getSerialisedFieldClasses(GetElements.class.getName());
+        List<OperationFieldPojo> expectedOperationFieldList = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : expectedFieldsInGetElementsClass.entrySet()) {
+            OperationFieldPojo expectedOpField = new OperationFieldPojo();
+            expectedOpField.setName(entry.getKey());
+            expectedOpField.setClassName(entry.getValue());
+            expectedOpField.setRequired(false);
+
+            expectedOperationFieldList.add(expectedOpField);
+        }
 
         // When
         Response response = client.getOperationDetails(GetElements.class);
+        byte[] json = response.readEntity(byte[].class);
+        OperationDetailPojo responseOpDetail = JSONSerialiser.deserialise(json, new TypeReference<OperationDetailPojo>() {
+        });
 
         // Then
-        assertTrue(response.readEntity(String.class).contains(expectedFields));
+        assertEquals(expectedOperationFieldList, responseOpDetail.getFields());
     }
 
     @Test
@@ -197,6 +209,34 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         public String getClassName() {
             return className;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("className", className)
+                    .append("required", required)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (null == obj || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final OperationFieldPojo that = (OperationFieldPojo) obj;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(className, that.className)
+                    .append(required, that.required)
+                    .isEquals();
         }
     }
 }
