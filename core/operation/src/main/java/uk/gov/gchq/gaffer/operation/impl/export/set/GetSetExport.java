@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "start", "end"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets exported Set results")
+@Summary("Fetches data from a Set cache")
 public class GetSetExport implements
         GetExport,
         Output<Iterable<?>> {

@@ -51,7 +51,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Retieves \"maximum\" element from an Iterable of Elements")
+@Summary("Extracts the maximum element based on provided Comparators")
 public class Max implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,

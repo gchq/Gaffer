@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Retrieves data from an exported Gaffer result cache")
+@Summary("Fetches data from a Gaffer result cache")
 public class GetGafferResultCacheExport implements
         GetExport,
         Output<CloseableIterable<?>> {

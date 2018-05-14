@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * </pre>
  */
 @Since("1.0.0")
-@Summary("Generates a CSV string for each Element provided")
+@Summary("Generates a CSV string for each element")
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";
     public static final String COMMA = ",";

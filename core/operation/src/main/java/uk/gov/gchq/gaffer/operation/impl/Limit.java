@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "resultsLimit"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Takes an Iterable and limits to a given number")
+@Summary("Limits the number of items")
 public class Limit<T> implements
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {

@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.3.0")
-@Summary("Gets all NamedViews associated with a Gaffer graph")
+@Summary("Gets all available named views")
 public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetail>> {
     private Map<String, String> options;
 

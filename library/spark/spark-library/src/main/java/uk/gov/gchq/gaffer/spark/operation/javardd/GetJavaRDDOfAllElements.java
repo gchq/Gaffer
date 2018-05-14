@@ -37,7 +37,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns all Elements inside a JavaRDD")
+@Summary("Gets a JavaRDD of all elements")
 public class GetJavaRDDOfAllElements implements
         Output<JavaRDD<Element>>,
         GraphFilters {

@@ -40,7 +40,7 @@ import java.util.function.Function;
  */
 @JsonPropertyOrder(value = {"class", "hostname", "port", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Adds Elements from a socket")
+@Summary("Adds elements from a socket")
 public class AddElementsFromSocket implements
         Operation,
         Validatable {

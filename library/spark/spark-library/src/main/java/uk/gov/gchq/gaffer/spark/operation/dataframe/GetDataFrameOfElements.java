@@ -49,7 +49,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets the data frame of Elements")
+@Summary("Gets a DataFrame of elements")
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {

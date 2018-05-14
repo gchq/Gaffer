@@ -28,7 +28,7 @@ import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Imports a JavaRDD of Elements")
+@Summary("Imports a JavaRDD of elements")
 public class ImportJavaRDDOfElements implements
         Operation,
         Input<JavaRDD<Element>> {

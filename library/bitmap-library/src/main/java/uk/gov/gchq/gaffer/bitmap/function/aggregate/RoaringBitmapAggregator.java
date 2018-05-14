@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * Bitmaps are aggregated using a bitwise OR operation.
  */
 @Since("1.0.0")
-@Summary("Aggregator for RoaringBitmap objects")
+@Summary("Aggregates RoaringBitmaps")
 public class RoaringBitmapAggregator extends KorypheBinaryOperator<RoaringBitmap> {
     @Override
     protected RoaringBitmap _apply(final RoaringBitmap a, final RoaringBitmap b) {

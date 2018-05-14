@@ -42,7 +42,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Adds Elements")
+@Summary("Adds elements")
 public class AddElements implements
         Validatable,
         MultiInput<Element> {

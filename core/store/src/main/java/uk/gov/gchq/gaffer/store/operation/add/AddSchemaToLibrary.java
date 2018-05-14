@@ -34,7 +34,7 @@ import java.util.Map;
  * @see Schema
  */
 @Since("1.5.0")
-@Summary("Adds a Schema to the GraphLibrary of a Store")
+@Summary("Adds a Schema to the GraphLibrary")
 public class AddSchemaToLibrary implements Operation {
 
     @Required

@@ -29,7 +29,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 @Since("1.0.0")
-@Summary("Filters duplicate Elements")
+@Summary("Filters and deduplicates elements")
 public class ElementDedupeFilterProcessor extends FilterProcessor {
     // This element serialisation does not have the schema so not all methods can be used.
     private final ElementSerialisation elementSerialisation = new ElementSerialisation(null);

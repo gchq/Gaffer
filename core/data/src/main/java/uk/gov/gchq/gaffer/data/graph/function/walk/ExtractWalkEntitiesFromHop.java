@@ -28,7 +28,7 @@ import java.util.Set;
  * Gaffer {@link Entity}s from a provided {@link Walk} object, for a given hop.
  */
 @Since("1.2.0")
-@Summary("Extracts a Set of Entities from a Walk object")
+@Summary("Extracts the set of entities from a single hop in a Walk")
 public class ExtractWalkEntitiesFromHop extends KorypheFunction<Walk, Set<Entity>> {
     private int hop;
 

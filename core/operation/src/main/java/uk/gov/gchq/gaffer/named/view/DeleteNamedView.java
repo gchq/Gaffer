@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "name"}, alphabetic = true)
 @Since("1.3.0")
-@Summary("Deletes a NamedView from a Gaffer graph")
+@Summary("Deletes a named view")
 public class DeleteNamedView implements Operation {
     @Required
     private String name;

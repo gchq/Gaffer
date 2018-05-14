@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all Elements compatible with a provided View")
+@Summary("Gets all elements compatible with a provided View")
 public class GetAllElements implements
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {

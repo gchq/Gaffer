@@ -34,7 +34,7 @@ import uk.gov.gchq.koryphe.Summary;
  * {@link java.lang.IllegalArgumentException} will be thrown if this is attempted.
  */
 @Since("1.0.0")
-@Summary("Generates EntityIds from an Element")
+@Summary("Generates EntityIds from an Entity")
 public class EntityIdExtractor implements OneToOneObjectGenerator<EntityId> {
     private IdentifierType edgeIdentifierToExtract;
 

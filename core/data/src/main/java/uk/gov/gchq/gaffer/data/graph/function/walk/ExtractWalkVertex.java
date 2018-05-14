@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * for simplifying the extraction of the starting Vertex from a {@link Walk} object.
  */
 @Since("1.3.0")
-@Summary("Extracts starting vertex from a Walk object")
+@Summary("Extracts the source vertex from a Walk")
 public class ExtractWalkVertex extends KorypheFunction<Walk, Object> {
     @Override
     public Object apply(final Walk walk) {

@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.1.1")
-@Summary("Splits a store based on an Iterable of split points")
+@Summary("Splits a store based on an iterable of split points")
 public class SplitStoreFromIterable<T> implements Operation,
         MultiInput<T> {
     private Iterable<? extends T> input;

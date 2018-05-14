@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * value is returned.
  */
 @Since("1.5.0")
-@Summary("Returns the vertex from an EntityId")
+@Summary("Extracts the the vertex from an entityId")
 public class UnwrapEntityId extends KorypheFunction<Object, Object> {
     @Override
     public Object apply(final Object item) {

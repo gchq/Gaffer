@@ -57,7 +57,7 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
  * which will need altering using {@link While#setMaxRepeats(int)}.</p>
  */
 @Since("1.5.0")
-@Summary("Executes a provided Operation while a condition is true")
+@Summary("Repeatedly executes an operation while a condition is met")
 @JsonPropertyOrder(value = {"class", "input", "conditional", "operation", "maxRepeats", "options"}, alphabetic = true)
 public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         Operations<Operation> {

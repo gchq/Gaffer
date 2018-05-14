@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  */
 @JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Holds a list of Operations that are chained together")
+@Summary("A chain of operations where the results are passed between each operation")
 public class OperationChain<OUT> implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;

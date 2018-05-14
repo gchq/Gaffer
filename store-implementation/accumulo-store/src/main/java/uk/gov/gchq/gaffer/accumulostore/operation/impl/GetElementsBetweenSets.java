@@ -48,7 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "inputB", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all Elements between two sets of EntityIds")
+@Summary("Gets edges that exist between 2 sets and entities in the first set")
 public class GetElementsBetweenSets implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

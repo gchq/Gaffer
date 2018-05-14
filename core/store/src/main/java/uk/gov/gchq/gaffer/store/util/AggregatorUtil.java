@@ -127,7 +127,7 @@ public final class AggregatorUtil {
      * Collector to do ingest aggregation.
      */
     @Since("1.0.0")
-    @Summary("Outputs an Element key from an Element. Can be used in a Collector to do ingest aggregation")
+    @Summary("Extracts the ingest key of an Element")
     public static class ToIngestElementKey extends ToElementKey {
         public ToIngestElementKey(final Schema schema) {
             super(getIngestGroupBys(schema));
@@ -140,7 +140,7 @@ public final class AggregatorUtil {
      * Collector to do query aggregation.
      */
     @Since("1.0.0")
-    @Summary("Outputs an Element key from an Element. Can be used in a Collector to do query aggregation")
+    @Summary("Extracts the query time key of an Element")
     public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
             super(getQueryGroupBys(schema, view));
@@ -148,7 +148,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("Returns Element Key from Element using groups to group by")
+    @Summary("Extracts the key of an element")
     public static class ToElementKey extends KorypheFunction<Element, Element> {
         private final Map<String, Set<String>> groupToGroupBys;
 
@@ -174,7 +174,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("Ingest Element binary operator")
+    @Summary("Aggregates elements, grouping the elements using the ingest key")
     public static class IngestElementBinaryOperator extends ElementBinaryOperator {
         public IngestElementBinaryOperator(final Schema schema) {
             super(schema, null);
@@ -182,7 +182,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("Query Element binary operator")
+    @Summary("Aggregates elements, grouping the elements using the query time key")
     public static class QueryElementBinaryOperator extends ElementBinaryOperator {
         public QueryElementBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
@@ -193,7 +193,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("Ingest Properties binary operator")
+    @Summary("Aggregates properties, grouping the properties using the ingest key")
     public static class IngestPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public IngestPropertiesBinaryOperator(final Schema schema) {
             super(schema, null);
@@ -201,7 +201,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("Query Properties binary operator")
+    @Summary("Aggregates properties, grouping the properties using the query time key")
     public static class QueryPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public QueryPropertiesBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
@@ -212,7 +212,7 @@ public final class AggregatorUtil {
     }
 
     @Since("1.0.0")
-    @Summary("checks if Element is aggregated")
+    @Summary("Tests if an element can be aggregated")
     public static class IsElementAggregated extends KoryphePredicate<Element> {
         final Collection<String> aggregatedGroups;
 

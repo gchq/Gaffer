@@ -37,7 +37,7 @@ import java.util.function.Function;
  */
 @JsonPropertyOrder(value = {"class", "filename", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Adds Elements from a file")
+@Summary("Adds elements from a file")
 public class AddElementsFromFile implements
         Operation,
         Validatable {

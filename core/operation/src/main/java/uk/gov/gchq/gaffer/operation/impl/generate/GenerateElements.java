@@ -41,7 +41,7 @@ import java.util.function.Function;
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Generates an Iterable of Elements from an Iterable of Objects")
+@Summary("Generates elements from objects using provided generators")
 public class GenerateElements<OBJ> implements
         InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
         MultiInput<OBJ> {

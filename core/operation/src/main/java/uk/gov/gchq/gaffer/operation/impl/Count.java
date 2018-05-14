@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Counts items in a provided Iterable")
+@Summary("Counts the number of items")
 public class Count<T> implements
         InputOutput<Iterable<? extends T>, Long>,
         MultiInput<T> {

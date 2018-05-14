@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link HllSketch}s and merges them together using a {@link Union}.
  */
 @Since("1.0.0")
-@Summary("Takes in HllSketches and merges them together using a Union")
+@Summary("Aggregates HllSketches together using a Union")
 public class HllSketchAggregator extends KorypheBinaryOperator<HllSketch> {
 
     @Override

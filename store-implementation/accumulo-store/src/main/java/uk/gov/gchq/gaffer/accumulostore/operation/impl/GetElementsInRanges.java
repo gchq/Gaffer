@@ -41,7 +41,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all data between provided ElementIds")
+@Summary("Gets elements that have vertices within a given range")
 public class GetElementsInRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,

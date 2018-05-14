@@ -28,7 +28,7 @@ import java.util.Set;
  * Gaffer {@link Edge}s from a provided {@link Walk} object, at a given hop.
  */
 @Since("1.2.0")
-@Summary("Extracts a Set of Edges from a Walk object")
+@Summary("Extracts the set of edges from a single hop in a Walk")
 public class ExtractWalkEdgesFromHop extends KorypheFunction<Walk, Set<Edge>> {
     private int hop;
 

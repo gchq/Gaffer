@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Converts an Iterable to an Iterable of CSV Strings")
+@Summary("Converts elements to CSV Strings")
 public class ToCsv implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {

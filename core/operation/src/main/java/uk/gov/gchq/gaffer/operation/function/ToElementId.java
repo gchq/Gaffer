@@ -28,7 +28,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the input is already an {@link ElementId} is not modified.
  */
 @Since("1.3.0")
-@Summary("Converts an ElementId or vertex to an ElementId")
+@Summary("Converts an object to an ElementId")
 public class ToElementId extends KorypheFunction<Object, ElementId> {
     @Override
     public ElementId apply(final Object obj) {

@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * A {@code FromEntityId} takes an {@link EntityId} and unwraps the vertex.
  */
 @Since("1.3.0")
-@Summary("Takes an EntityId and unwraps the vertex")
+@Summary("Extracts a vertex from an EntityId")
 public class FromEntityId extends KorypheFunction<EntityId, Object> {
     @Override
     public Object apply(final EntityId e) {

@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Converts an Iterable into EntitySeeds")
+@Summary("Converts an objects into EntitySeeds")
 public class ToEntitySeeds implements
         InputOutput<Iterable<? extends Object>, Iterable<? extends EntitySeed>>,
         MultiInput<Object> {

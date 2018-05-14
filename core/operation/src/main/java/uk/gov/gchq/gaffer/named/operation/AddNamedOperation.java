@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Creates new NamedOperation and adds it to a Gaffer graph")
+@Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation {
     @Required
     private String operations;

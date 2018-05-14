@@ -27,7 +27,7 @@ import java.util.Map.Entry;
  * {@link FreqMap}s and merges the frequencies together.
  */
 @Since("1.0.0")
-@Summary("Takes in a FreqMap and merges the frequencies together")
+@Summary("Aggregates FreqMap objects")
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
     @Override
     protected FreqMap _apply(final FreqMap a, final FreqMap b) {

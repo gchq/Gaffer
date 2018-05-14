@@ -30,7 +30,7 @@ import java.util.Map;
  * are summed.
  */
 @Since("1.1.0")
-@Summary("Takes in LongTimeSeries and aggregates the time series")
+@Summary("Aggregates LongTimeSeries objects")
 public class LongTimeSeriesAggregator extends KorypheBinaryOperator<LongTimeSeries> {
 
     @Override

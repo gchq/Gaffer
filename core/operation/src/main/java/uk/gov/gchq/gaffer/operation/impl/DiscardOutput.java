@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Used to indicate results from a previous Operation are not used again")
+@Summary("Discards the results from the previous operation")
 public class DiscardOutput implements
         Input<Object> {
 

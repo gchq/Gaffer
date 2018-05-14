@@ -40,7 +40,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Takes Elements and counts the number of groups used")
+@Summary("Counts the different element groups")
 public class CountGroups implements
         InputOutput<Iterable<? extends Element>, GroupCounts>,
         MultiInput<Element> {

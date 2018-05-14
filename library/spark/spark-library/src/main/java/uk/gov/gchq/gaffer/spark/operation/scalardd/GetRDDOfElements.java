@@ -40,7 +40,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns all Elements for the input seeds inside an RDD")
+@Summary("Gets an RDD of elements")
 public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiElementIdInput,

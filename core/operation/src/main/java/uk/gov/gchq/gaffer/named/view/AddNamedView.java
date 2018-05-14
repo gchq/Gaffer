@@ -48,7 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "name", "description", "view"}, alphabetic = true)
 @Since("1.3.0")
-@Summary("Adds a NamedView to a Gaffer graph")
+@Summary("Adds a new named view")
 public class AddNamedView implements Operation {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     @Required

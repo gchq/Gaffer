@@ -22,7 +22,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 @Since("1.0.0")
-@Summary("Filters out invalid Elements")
+@Summary("Filters out invalid elements")
 public class ValidationProcessor extends FilterProcessor {
     private final ElementValidator validator;
 

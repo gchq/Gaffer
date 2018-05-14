@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Determines a \"score\" for an OperationChain")
+@Summary("Scores an OperationChain")
 public class ScoreOperationChain implements Output<Integer> {
     private OperationChain operationChain;
     private Map<String, String> options;

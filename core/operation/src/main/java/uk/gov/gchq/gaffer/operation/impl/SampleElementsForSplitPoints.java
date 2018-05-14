@@ -62,7 +62,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.1.1")
-@Summary("Samples an Iterable of Elements and generates split points")
+@Summary("Samples an iterable of elements and generates split points")
 public class SampleElementsForSplitPoints<T> implements
         Operation,
         InputOutput<Iterable<? extends Element>, List<T>>,

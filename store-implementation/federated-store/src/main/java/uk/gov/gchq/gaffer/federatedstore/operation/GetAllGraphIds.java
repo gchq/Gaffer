@@ -34,7 +34,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all graphIds within scope of the FederatedStore")
+@Summary("Gets the ids of all available Graphs from a federated store")
 public class GetAllGraphIds implements
         FederatedOperation,
         Output<Iterable<? extends String>> {

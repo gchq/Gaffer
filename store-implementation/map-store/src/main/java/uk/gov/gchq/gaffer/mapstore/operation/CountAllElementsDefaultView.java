@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Counts all Elements in a MapStore")
+@Summary("Counts all elements")
 public class CountAllElementsDefaultView implements
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {

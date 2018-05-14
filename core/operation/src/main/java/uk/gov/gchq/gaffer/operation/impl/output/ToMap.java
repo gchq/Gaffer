@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Converts an Iterable to a Map of key-value pairs")
+@Summary("Converts elements to a Map of key-value pairs")
 public class ToMap implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {

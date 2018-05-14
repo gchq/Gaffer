@@ -66,7 +66,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  */
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Adds a graph to a FederatedStore")
+@Summary("Adds a new Graph to the federated store")
 public class AddGraph implements FederatedOperation {
     @Required
     private String graphId;

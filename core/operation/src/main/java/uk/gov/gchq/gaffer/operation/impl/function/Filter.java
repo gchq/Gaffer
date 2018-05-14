@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Applies ElementFilter(s) to a provided Iterable of Elements")
+@Summary("Filters elements")
 public class Filter implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

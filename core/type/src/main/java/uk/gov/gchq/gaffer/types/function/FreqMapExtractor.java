@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * count from a frequency map for the provided key.
  */
 @Since("1.0.0")
-@Summary("Extracts a count from a frequency map for the provided key")
+@Summary("Extracts a count from a FreqMap for a given key")
 public class FreqMapExtractor extends KorypheFunction<FreqMap, Long> {
     private String key;
 

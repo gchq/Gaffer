@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all JobDetails")
+@Summary("Gets all running and historic job details")
 public class GetAllJobDetails implements
         Output<CloseableIterable<JobDetail>> {
     private Map<String, String> options;

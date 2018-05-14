@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  */
 @JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
 @Since("1.1.0")
-@Summary("Retrieves all walks in a Graph from a set of EntityIds")
+@Summary("Walks around the Graph, returning the full walks taken")
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiEntityIdInput,

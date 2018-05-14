@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Adds an RDD of Elements to the Gaffer store")
+@Summary("Adds an RDD of elements")
 public class ImportRDDOfElements implements
         Input<RDD<Element>> {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

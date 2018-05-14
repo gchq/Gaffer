@@ -50,7 +50,7 @@ import java.util.Map;
  * and will be stored in a separate {@code LinkedHashMap}.
  */
 @Since("1.0.0")
-@Summary("Creates a LinkedHashMa representation using an Element")
+@Summary("Generates a Map for each element")
 public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>> {
     public static final String GROUP = "GROUP";
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();

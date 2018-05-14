@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.1.0")
-@Summary("Returns the Schema for a Gaffer Store")
+@Summary("Gets the Schema of a Graph")
 public class GetSchema implements Output<Schema> {
     private Map<String, String> options;
     private boolean compact = false;

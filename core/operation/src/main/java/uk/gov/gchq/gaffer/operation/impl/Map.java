@@ -41,7 +41,7 @@ import java.util.function.Function;
  */
 @JsonPropertyOrder(value = {"class", "input", "functions"}, alphabetic = true)
 @Since("1.2.0")
-@Summary("Maps input I to an output O")
+@Summary("Maps an input to an output using provided functions")
 public class Map<I, O> implements InputOutput<I, O> {
     private I input;
     private java.util.Map<String, String> options;

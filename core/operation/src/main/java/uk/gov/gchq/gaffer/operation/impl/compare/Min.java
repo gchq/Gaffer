@@ -50,7 +50,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Retieves \"minimum\" element from an Iterable of Elements")
+@Summary("Extracts the minimum element based on provided Comparators")
 public class Min implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,

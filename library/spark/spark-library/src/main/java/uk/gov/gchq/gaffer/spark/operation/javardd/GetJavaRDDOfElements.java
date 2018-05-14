@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns all Elements for the input seeds inside a JavaRDD")
+@Summary("Gets a JavaRDD of elements")
 public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
         MultiElementIdInput,

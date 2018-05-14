@@ -42,7 +42,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns the vertex at the opposite end of connected Edges")
+@Summary("Performs a single hop down related edges")
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiEntityIdInput,

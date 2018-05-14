@@ -30,7 +30,7 @@ import uk.gov.gchq.koryphe.Summary;
  * {@link java.lang.IllegalArgumentException} will be thrown if this is attempted.
  */
 @Since("1.0.0")
-@Summary("Generates EdgeIds from an Element")
+@Summary("Generates EdgeIds from an Edge")
 public class EdgeIdExtractor implements OneToOneObjectGenerator<EdgeId> {
     /**
      * @param element the element to convert to {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}.

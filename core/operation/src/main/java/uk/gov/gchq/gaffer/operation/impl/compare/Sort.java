@@ -53,7 +53,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Sorts an Iterable of Elements using a provided Comparator")
+@Summary("Sorts elements based on provided Comparators and can be used to extract the top 'n' elements")
 public class Sort implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element>,

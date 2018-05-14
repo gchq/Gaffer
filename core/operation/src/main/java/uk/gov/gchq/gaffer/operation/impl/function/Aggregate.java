@@ -37,7 +37,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "edges", "entities"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Applies ElementAggregator(s) to a provided Iterable of Elements")
+@Summary("Aggregates elements")
 public class Aggregate implements Function,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

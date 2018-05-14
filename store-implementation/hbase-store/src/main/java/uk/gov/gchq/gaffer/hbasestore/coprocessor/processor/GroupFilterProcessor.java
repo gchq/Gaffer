@@ -21,7 +21,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 @Since("1.0.0")
-@Summary("Filters groups out that aren't in View")
+@Summary("Filters elements based on groups")
 public class GroupFilterProcessor extends FilterProcessor {
     private final View view;
 

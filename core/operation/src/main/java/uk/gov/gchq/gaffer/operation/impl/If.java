@@ -66,7 +66,7 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
  * @see If.Builder
  */
 @Since("1.4.0")
-@Summary("Executes one of two Operations based on a result of a provided Predicate against the input Object")
+@Summary("Conditionally runs an operation or an alternative operation")
 @JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
 public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
     private Boolean condition;

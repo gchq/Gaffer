@@ -55,7 +55,7 @@ import java.util.Map;
  **/
 @JsonPropertyOrder(value = {"class", "operationChain", "options"}, alphabetic = true)
 @Since("1.1.0")
-@Summary("Holds an OperationChain to be executed in one go on the federated graphs")
+@Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
 public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         implements InputOutput<I, CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {

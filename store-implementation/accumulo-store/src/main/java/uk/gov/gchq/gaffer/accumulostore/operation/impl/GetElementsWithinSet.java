@@ -41,7 +41,7 @@ import java.util.Map;
  **/
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets Edges where both ends are in given set and/or entities where the vertex is in given set")
+@Summary("Gets edges with both vertices in a given set and entities with vertices in a given set")
 public class GetElementsWithinSet implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiEntityIdInput,

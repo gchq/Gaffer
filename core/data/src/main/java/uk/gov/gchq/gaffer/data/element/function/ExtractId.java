@@ -31,7 +31,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the Element is null, this will return null.
  */
 @Since("1.4.0")
-@Summary("Extracts object associated with a provided IdentifierType")
+@Summary("Extracts an identifier from an element")
 public class ExtractId extends KorypheFunction<Element, Object> {
     private IdentifierType id;
 

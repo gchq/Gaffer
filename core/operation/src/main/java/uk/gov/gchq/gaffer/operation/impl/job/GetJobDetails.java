@@ -34,7 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets details of a single Job")
+@Summary("Gets the details of a single job")
 public class GetJobDetails implements
         Output<JobDetail> {
     private String jobId;

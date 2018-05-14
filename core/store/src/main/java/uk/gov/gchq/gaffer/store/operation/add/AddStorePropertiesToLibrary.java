@@ -35,7 +35,7 @@ import java.util.Properties;
  * @see StoreProperties
  */
 @Since("1.5.0")
-@Summary("Adds StoreProperties to the GraphLibrary of a Store")
+@Summary("Adds StoreProperties to the GraphLibrary")
 public class AddStorePropertiesToLibrary implements Operation {
 
     @Required

@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Gets all NamedOperations associated with a Gaffer graph")
+@Summary("Gets all available named operations")
 public class GetAllNamedOperations implements
         Output<CloseableIterable<NamedOperationDetail>> {
     private Map<String, String> options;

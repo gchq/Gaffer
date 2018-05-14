@@ -30,7 +30,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * requires a specific serialiser.
  */
 @Since("1.0.0")
-@Summary("Merges ItemSketches of Strings")
+@Summary("Aggregates ItemSketches of Strings")
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {
 
     @Override

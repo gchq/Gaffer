@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link RBMBackedTimestampSet}s and merges the underlying {@code RoaringBitmap}s together.
  */
 @Since("1.0.0")
-@Summary("Merges the underlying RoaringBitmaps from RBMBackedTimestampSets")
+@Summary("Aggregates RBMBackedTimestampSet objects")
 public class RBMBackedTimestampSetAggregator extends KorypheBinaryOperator<RBMBackedTimestampSet> {
 
     @Override

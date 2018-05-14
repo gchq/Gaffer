@@ -29,7 +29,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * from an {@link Element}. If the Element is null, this will return null.
  */
 @Since("1.4.0")
-@Summary("Extracts a given property from an Element")
+@Summary("Extracts a property from an element")
 public class ExtractProperty extends KorypheFunction<Element, Object> {
     private String name;
 

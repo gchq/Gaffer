@@ -41,7 +41,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "getExports"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns multiple exports in a Map")
+@Summary("Fetches multiple exports")
 public class GetExports implements
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();

@@ -42,7 +42,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "graphId", "input"}, alphabetic = true)
 
 @Since("1.0.0")
-@Summary("Export results of a query to another Graph, with authorisations")
+@Summary("Exports elements to another authorised Graph")
 public class ExportToOtherAuthorisedGraph implements
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {

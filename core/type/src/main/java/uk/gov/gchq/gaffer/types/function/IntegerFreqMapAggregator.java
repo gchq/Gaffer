@@ -30,7 +30,7 @@ import java.util.Map.Entry;
  */
 @Deprecated
 @Since("1.0.0")
-@Summary("Takes in an IntegerFreqMap and merges frequencies")
+@Summary("Aggregates IntegerFreqMap objects")
 public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
     @Override
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {

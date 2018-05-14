@@ -28,7 +28,7 @@ import java.util.Set;
  * {@link Set}s of Gaffer {@link Entity}s, from a provided {@link Walk} object.
  */
 @Since("1.2.0")
-@Summary("Extracts a List of Sets of Entities from a Walk Object")
+@Summary("Extracts the sets of entities from a Walk")
 public class ExtractWalkEntities extends KorypheFunction<Walk, Iterable<Set<Entity>>> {
     @Override
     public Iterable<Set<Entity>> apply(final Walk walk) {

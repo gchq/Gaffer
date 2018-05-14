@@ -28,7 +28,7 @@ import uk.gov.gchq.koryphe.Summary;
         alphabetic = true
 )
 @Since("1.4.0")
-@Summary("Adds a Graph with Hooks to a FederatedStore")
+@Summary("Adds a new Graph with hooks to the federated store")
 public class AddGraphWithHooks extends AddGraph {
     private GraphHook[] hooks;
 

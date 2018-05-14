@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link HyperLogLogPlus}s and merges the sketches together.
  */
 @Since("1.0.0")
-@Summary("Takes in HyperLogLogPlus' and merges the sketches together")
+@Summary("Aggregates HyperLogLogPlus objects")
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
     protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {

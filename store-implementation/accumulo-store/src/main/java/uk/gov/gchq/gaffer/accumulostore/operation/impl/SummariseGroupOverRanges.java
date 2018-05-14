@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("gets an Element representing all data between provided range")
+@Summary("Gets summarised Elements for each group")
 public class SummariseGroupOverRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,

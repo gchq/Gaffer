@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "operationName"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Enables encapsulation of an OperationChain into a single NamedOperation")
+@Summary("Runs a named operation")
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
         MultiInput<I_ITEM> {

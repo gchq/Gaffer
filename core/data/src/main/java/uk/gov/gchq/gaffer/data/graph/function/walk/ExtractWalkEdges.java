@@ -28,7 +28,7 @@ import java.util.Set;
  * {@link Set}s of Gaffer {@link Edge}s, from a provided {@link Walk} object.
  */
 @Since("1.2.0")
-@Summary("Extracts a List of Sets of Edges from a Walk object")
+@Summary("Extracts the sets of edges from a Walk")
 public class ExtractWalkEdges extends KorypheFunction<Walk, Iterable<Set<Edge>>> {
     @Override
     public Iterable<Set<Edge>> apply(final Walk walk) {

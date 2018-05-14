@@ -28,7 +28,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the input is already an {@link EntityId} is not modified.
  */
 @Since("1.3.0")
-@Summary("Converts an EntityId or vertex into an EntityId")
+@Summary("Converts an object to an EntityId")
 public class ToEntityId extends KorypheFunction<Object, EntityId> {
     @Override
     public EntityId apply(final Object obj) {

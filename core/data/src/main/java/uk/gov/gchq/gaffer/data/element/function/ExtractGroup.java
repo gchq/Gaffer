@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * If the Element is null, this function will return null.
  */
 @Since("1.4.0")
-@Summary("Extracts group from an Element")
+@Summary("Extracts a group from an element")
 public class ExtractGroup extends KorypheFunction<Element, String> {
     @Override
     public String apply(final Element element) {

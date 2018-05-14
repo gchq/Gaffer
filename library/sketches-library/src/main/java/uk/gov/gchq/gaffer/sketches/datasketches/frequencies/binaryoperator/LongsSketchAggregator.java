@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link LongsSketch}s and merges them together using {@link LongsSketch#merge(LongsSketch)}.
  */
 @Since("1.0.0")
-@Summary("Merges LongSketches together")
+@Summary("Aggregates LongSketches objects")
 public class LongsSketchAggregator extends KorypheBinaryOperator<LongsSketch> {
 
     @Override

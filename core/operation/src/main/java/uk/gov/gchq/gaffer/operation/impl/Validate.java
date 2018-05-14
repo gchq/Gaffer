@@ -41,7 +41,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Returns valid elements, validating them using the Store Schema")
+@Summary("Validates elements based on the schema")
 public class Validate implements
         Validatable,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,

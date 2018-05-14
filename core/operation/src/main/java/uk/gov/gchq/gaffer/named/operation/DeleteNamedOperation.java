@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "operationName"}, alphabetic = true)
 @Since("1.0.0")
-@Summary("Deletes a NamedOperation from a Gaffer graph")
+@Summary("Deletes a named operation")
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;
