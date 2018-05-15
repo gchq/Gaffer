@@ -139,10 +139,25 @@ public class JSONSerialiser {
         SimpleClassNameCache.addSimpleClassNames(includeSubtypes, classes);
     }
 
+    /**
+     * Update the json serialiser with the provided custom properties.
+     *
+     * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
+     * @param jsonSerialiserModules any extra json serialiser modules required
+     * @deprecated use {@link #update(String, String, Boolean)} instead
+     */
+    @Deprecated
     public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
         update(jsonSerialiserClass, jsonSerialiserModules, null);
     }
 
+    /**
+     * Update the json serialiser with the provided custom properties.
+     *
+     * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
+     * @param jsonSerialiserModules any extra json serialiser modules required
+     * @param strictJson            true if strict json conversion should be used
+     */
     public static void update(final String jsonSerialiserClass,
                               final String jsonSerialiserModules,
                               final Boolean strictJson) {
