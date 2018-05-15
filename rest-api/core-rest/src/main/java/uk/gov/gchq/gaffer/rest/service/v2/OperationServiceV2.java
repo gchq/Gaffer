@@ -84,6 +84,20 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
+    public Response getOperationDetails() {
+        Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
+        List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
+
+        for (final Class<? extends Operation> supportedOperation : supportedOperations) {
+            supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation));
+        }
+
+        return Response.ok(supportedClassesAsOperationDetail)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
     public Response execute(final Operation operation) {
         final Pair<Object, String> resultAndJobId = _execute(operation);
         return Response.ok(resultAndJobId.getFirst())
@@ -155,7 +169,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(getExampleJson(getOperationClass(className)))
+            return Response.ok(generateExampleJson(getOperationClass(className)))
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         } catch (final ClassNotFoundException e) {
@@ -244,8 +258,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
+    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
@@ -255,6 +268,37 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
+    }
+
+    private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+        Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
+        List<OperationField> operationFields = new ArrayList<>();
+
+        for (final String fieldString : fieldsToClassMap.keySet()) {
+            boolean required = false;
+            Field field = null;
+
+            try {
+                field = opClass.getDeclaredField(fieldString);
+            } catch (final NoSuchFieldException e) {
+                // Ignore, we will just assume it isn't required
+            }
+
+            if (null != field) {
+                final Required[] annotations = field.getAnnotationsByType(Required.class);
+
+                if (null != annotations && annotations.length > 0) {
+                    required = true;
+                }
+            }
+            operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
+        }
+        return operationFields;
+    }
+
+    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+        final Summary summary = opClass.getAnnotation(Summary.class);
+        return null != summary && null != summary.value() ? summary.value() : null;
     }
 
     /**
@@ -297,12 +341,12 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
-            this.summary = getSummaryValue(opClass);
+            this.summary = getOperationSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
-                this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
-            } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                this.exampleJson = generateExampleJson(opClass);
+            } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
         }
@@ -325,36 +369,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public Operation getExampleJson() {
             return exampleJson;
-        }
-
-        private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
-            List<OperationField> operationFields = new ArrayList<>();
-
-            for (final String fieldString : fieldsToClassMap.keySet()) {
-                boolean required = false;
-                Field field = null;
-
-                try {
-                    field = opClass.getDeclaredField(fieldString);
-                } catch (final NoSuchFieldException e) {
-                    // Ignore, we will just assume it isn't required
-                }
-
-                if (null != field) {
-                    final Required[] annotations = field.getAnnotationsByType(Required.class);
-
-                    if (null != annotations && annotations.length > 0) {
-                        required = true;
-                    }
-                }
-                operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
-            }
-            return operationFields;
-        }
-
-        private String getSummaryValue(final Class<? extends Operation> opClass) {
-            return opClass.getAnnotation(Summary.class).value() != null ? opClass.getAnnotation(Summary.class).value() : "";
         }
     }
 }
