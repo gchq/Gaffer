@@ -133,13 +133,10 @@ uk.gov.gchq.gaffer.parquetstore.io.reader
 uk.gov.gchq.gaffer.parquetstore.io.reader.converter
 uk.gov.gchq.gaffer.parquetstore.io.writer
 uk.gov.gchq.gaffer.parquetstore.operation
-uk.gov.gchq.gaffer.parquetstore.operation.addelements
-uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler
-uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl
-uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd
-uk.gov.gchq.gaffer.parquetstore.operation.getelements
-uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler
-uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl
+uk.gov.gchq.gaffer.parquetstore.operation.handler
+uk.gov.gchq.gaffer.parquetstore.operation.handler.spark
+uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities
+uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities
 uk.gov.gchq.gaffer.parquetstore.serialisation
 uk.gov.gchq.gaffer.parquetstore.serialisation.impl
 uk.gov.gchq.gaffer.parquetstore.utils
@@ -168,6 +165,7 @@ uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation
@@ -216,6 +214,7 @@ uk.gov.gchq.gaffer.store
 uk.gov.gchq.gaffer.store.element
 uk.gov.gchq.gaffer.store.library
 uk.gov.gchq.gaffer.store.operation
+uk.gov.gchq.gaffer.store.operation.add
 uk.gov.gchq.gaffer.store.operation.declaration
 uk.gov.gchq.gaffer.store.operation.handler
 uk.gov.gchq.gaffer.store.operation.handler.compare
@@ -227,6 +226,7 @@ uk.gov.gchq.gaffer.store.operation.handler.job
 uk.gov.gchq.gaffer.store.operation.handler.named
 uk.gov.gchq.gaffer.store.operation.handler.named.cache
 uk.gov.gchq.gaffer.store.operation.handler.output
+uk.gov.gchq.gaffer.store.operation.handler.util
 uk.gov.gchq.gaffer.store.operation.resolver
 uk.gov.gchq.gaffer.store.operation.resolver.named
 uk.gov.gchq.gaffer.store.operation.util
