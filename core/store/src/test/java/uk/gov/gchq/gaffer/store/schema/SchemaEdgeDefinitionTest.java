@@ -142,43 +142,4 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         assertFalse(result.isValid());
     }
 
-    @Test
-    public void shouldFailEdgeWithDifferentVertexDirectionFalse() throws Exception {
-
-        // Given
-        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
-                .source("src")
-                .destination("dest")
-                .build();
-
-        Schema.Builder builder = new Schema.Builder()
-                .edge(TestGroups.EDGE, elementDef)
-                .type("src", String.class)
-                .type("dest", Integer.class);
-
-        //when
-        final ValidationResult result = builder.build().validate();
-        assertTrue(result.getErrorString().contains(String.format(Schema.ERROR_DIFFERENT_VERTEX_TYPES, TestGroups.EDGE, String.class, Integer.class)));
-    }
-
-    @Test
-    public void shouldValidateEdgeWithDifferentVertexDirectionTrue() throws Exception {
-
-        // Given
-        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
-                .source("src")
-                .destination("dest")
-                .directed("true")
-                .build();
-
-        Schema.Builder builder = new Schema.Builder()
-                .edge(TestGroups.EDGE, elementDef)
-                .type("src", String.class)
-                .type("dest", Integer.class)
-                .type("true", Boolean.class);
-
-        //when
-        final ValidationResult result = builder.build().validate();
-        assertTrue(result.isValid());
-    }
 }
