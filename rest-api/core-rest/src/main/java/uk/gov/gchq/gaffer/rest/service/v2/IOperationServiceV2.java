@@ -71,6 +71,18 @@ public interface IOperationServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK)})
     Response getOperations();
 
+    @GET
+    @Path("/details")
+    @ApiOperation(value = "Returns a List containing OperationDetails for all supported operations on the graph",
+            produces = APPLICATION_JSON,
+            response = Object.class,
+            responseContainer = "list",
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK)})
+    Response getOperationDetails();
+
     @POST
     @Path("/execute")
     @Produces({APPLICATION_JSON, TEXT_PLAIN})
