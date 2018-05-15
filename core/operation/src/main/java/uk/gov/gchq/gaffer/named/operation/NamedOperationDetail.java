@@ -46,6 +46,7 @@ public class NamedOperationDetail implements Serializable {
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
+    private String inputType;
     private String description;
     private String creatorId;
     private String operations;
@@ -61,6 +62,13 @@ public class NamedOperationDetail implements Serializable {
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
+        this(operationName, null, description, userId, operations, readers, writers, parameters, score);
+    }
+
+    public NamedOperationDetail(final String operationName, final String inputType, final String description, final String userId,
+                                final String operations, final List<String> readers,
+                                final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                final Integer score) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -69,6 +77,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         this.operationName = operationName;
+        this.inputType = inputType;
         this.description = description;
         this.creatorId = userId;
         this.operations = operations;
@@ -81,6 +90,14 @@ public class NamedOperationDetail implements Serializable {
 
     public String getOperationName() {
         return operationName;
+    }
+
+    public String getInputType() {
+        return inputType;
+    }
+
+    public void setInputType(final String inputType) {
+        this.inputType = inputType;
     }
 
     public String getDescription() {
@@ -216,6 +233,7 @@ public class NamedOperationDetail implements Serializable {
 
         return new EqualsBuilder()
                 .append(operationName, op.operationName)
+                .append(inputType, op.inputType)
                 .append(creatorId, op.creatorId)
                 .append(operations, op.operations)
                 .append(readAccessRoles, op.readAccessRoles)
@@ -229,6 +247,7 @@ public class NamedOperationDetail implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(71, 3)
                 .append(operationName)
+                .append(inputType)
                 .append(creatorId)
                 .append(operations)
                 .append(readAccessRoles)
@@ -242,6 +261,7 @@ public class NamedOperationDetail implements Serializable {
     public String toString() {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
+                .append("inputType", inputType)
                 .append("creatorId", creatorId)
                 .append("operations", operations)
                 .append("readAccessRoles", readAccessRoles)
@@ -285,6 +305,7 @@ public class NamedOperationDetail implements Serializable {
 
     public static final class Builder {
         private String operationName;
+        private String inputType;
         private String description;
         private String creatorId;
         private String opChain;
@@ -300,6 +321,11 @@ public class NamedOperationDetail implements Serializable {
 
         public Builder operationName(final String operationName) {
             this.operationName = operationName;
+            return this;
+        }
+
+        public Builder inputType(final String inputType) {
+            this.inputType = inputType;
             return this;
         }
 
@@ -346,7 +372,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers, parameters, score);
+            return new NamedOperationDetail(operationName, inputType, description, creatorId, opChain, readers, writers, parameters, score);
         }
     }
 }
