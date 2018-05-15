@@ -1,4 +1,3 @@
-package uk.gov.gchq.gaffer.rest.service.v2;
 /*
  * Copyright 2017-2018 Crown Copyright
  *
@@ -14,6 +13,8 @@ package uk.gov.gchq.gaffer.rest.service.v2;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package uk.gov.gchq.gaffer.rest.service.v2;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         //Given
 
         // When
-        final Response response = getClient().getProperty("UNKNOWN");
+        final Response response = client.getProperty("UNKNOWN");
 
         //Then
         assertEquals(404, response.getStatus());
@@ -60,7 +61,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test2", "2");
 
         // When
-        final Response response = getClient().getProperty("UNKNOWN");
+        final Response response = client.getProperty("UNKNOWN");
 
         //Then
         assertEquals(404, response.getStatus());
@@ -75,7 +76,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test3", "3");
 
         // When
-        final Response response = getClient().getProperty("gaffer.test3");
+        final Response response = client.getProperty("gaffer.test3");
 
         //Then
         assertEquals(404, response.getStatus());
@@ -91,7 +92,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty(SystemProperty.APP_TITLE, "newTitle");
 
         // When
-        final Response response = getClient().getProperties();
+        final Response response = client.getProperties();
 
         //Then
         assertEquals(200, response.getStatus());
@@ -113,7 +114,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty(SystemProperty.APP_TITLE, "newTitle");
 
         // When
-        final Response response = getClient().getProperties();
+        final Response response = client.getProperties();
 
         //Then
         assertEquals(200, response.getStatus());
@@ -132,7 +133,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test2", "2");
 
         // When
-        final Response response = getClient().getProperty("gaffer.test1");
+        final Response response = client.getProperty("gaffer.test1");
 
         //Then
         assertEquals(200, response.getStatus());
@@ -148,7 +149,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test2", "2");
 
         // When
-        final Response response = getClient().getProperty(SystemProperty.APP_TITLE);
+        final Response response = client.getProperty(SystemProperty.APP_TITLE);
 
         //Then
         assertEquals(200, response.getStatus());
@@ -165,11 +166,31 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty(SystemProperty.APP_TITLE, "newTitle");
 
         // When
-        final Response response = getClient().getProperty(SystemProperty.APP_TITLE);
+        final Response response = client.getProperty(SystemProperty.APP_TITLE);
 
         //Then
         assertEquals(200, response.getStatus());
         String property = response.readEntity(String.class);
         assertEquals("newTitle", property);
+    }
+
+    @Test
+    public void shouldGetKorypheVersion() throws IOException {
+        // When
+        final Response response = client.getProperty(SystemProperty.KORYPHE_VERSION);
+
+        final String propertyValue = response.readEntity(String.class);
+
+        assertEquals("1.4.0-RC2", propertyValue);
+    }
+
+    @Test
+    public void shouldGetGafferVersion() throws IOException {
+        // When
+        final Response response = client.getProperty(SystemProperty.GAFFER_VERSION);
+
+        final String propertyValue = response.readEntity(String.class);
+
+        assertEquals("1.4.2-SNAPSHOT", propertyValue);
     }
 }
