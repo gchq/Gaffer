@@ -95,8 +95,6 @@ public abstract class SystemProperty {
     public static final String CORE_VERSION = "2.0.0";
     public static final String GAFFER_VERSION_DEFAULT = getVersion(GAFFER_VERSION);
     public static final String KORYPHE_VERSION_DEFAULT = getVersion(KORYPHE_VERSION);
-    //public static final String GAFFER_VERSION_DEFAULT = "4.0.0";
-    //public static final String KORYPHE_VERSION_DEFAULT = "4.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
