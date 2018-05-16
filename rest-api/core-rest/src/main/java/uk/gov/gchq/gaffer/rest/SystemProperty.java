@@ -21,9 +21,10 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
-import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * System property keys and default values.
@@ -92,8 +93,10 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
     public static final String BASE_PATH_DEFAULT = "rest";
     public static final String CORE_VERSION = "2.0.0";
-    public static final String GAFFER_VERSION_DEFAULT = getGafferVersion();
-    public static final String KORYPHE_VERSION_DEFAULT = getKorypheVersion();
+    public static final String GAFFER_VERSION_DEFAULT = getVersion(GAFFER_VERSION);
+    public static final String KORYPHE_VERSION_DEFAULT = getVersion(KORYPHE_VERSION);
+    //public static final String GAFFER_VERSION_DEFAULT = "4.0.0";
+    //public static final String KORYPHE_VERSION_DEFAULT = "4.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
@@ -107,35 +110,12 @@ public abstract class SystemProperty {
         // Private constructor to prevent instantiation.
     }
 
-    private static String getKorypheVersion() {
+    private static String getVersion(final String propertyKey) {
         try {
-            Process pr = Runtime.getRuntime().exec("mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=koryphe.version | grep -v '\\['");
-
-            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-            while (input.readLine() != null) {
-                System.out.println(input.readLine());
-            }
-
-            return "testKorypheVersion";
-            //return input.readLine();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String getGafferVersion() {
-        try {
-            Process pr = Runtime.getRuntime().exec("mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\\['");
-
-            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-            while (input.readLine() != null) {
-                System.out.println(input.readLine());
-            }
-
-            return "testGafferVersion";
-            //return input.readLine();
+            Properties prop = new Properties();
+            InputStream input = new FileInputStream("src/main/resources/version.properties");
+            prop.load(input);
+            return prop.getProperty(propertyKey);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
