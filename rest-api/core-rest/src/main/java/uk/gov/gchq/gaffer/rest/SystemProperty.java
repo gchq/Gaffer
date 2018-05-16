@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.rest;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -111,7 +111,7 @@ public abstract class SystemProperty {
     private static String getVersion(final String propertyKey) {
         try {
             Properties prop = new Properties();
-            InputStream input = new FileInputStream("src/main/resources/version.properties");
+            InputStream input = StreamUtil.openStream(SystemProperty.class, "version.properties");
             prop.load(input);
             return prop.getProperty(propertyKey);
         } catch (final IOException e) {
