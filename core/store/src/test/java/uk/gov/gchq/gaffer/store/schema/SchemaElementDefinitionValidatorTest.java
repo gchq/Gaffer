@@ -256,14 +256,12 @@ public class SchemaElementDefinitionValidatorTest {
                         .property(TestPropertyNames.PROP_1, "int1")
                         .property(TestPropertyNames.PROP_2, "int2")
                         .build())
-                .type("int1", new TypeDefinition.Builder()
+                .type("int1", new TypeDefinition()
                         .clazz(Integer.class)
-                        .aggregateFunction(function1)
-                        .build())
-                .type("int2", new TypeDefinition.Builder()
+                        .aggregateFunction(function1))
+                .type("int2", new TypeDefinition()
                         .clazz(Integer.class)
-                        .aggregateFunction(function2)
-                        .build())
+                        .aggregateFunction(function2))
                 .build();
 
         // When
@@ -367,9 +365,8 @@ public class SchemaElementDefinitionValidatorTest {
                                 .execute(function1)
                                 .build())
                         .build())
-                .type("id", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
         // When
@@ -395,13 +392,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .execute(function1)
                                 .build())
                         .build())
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When
@@ -429,13 +424,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .build())
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When
@@ -465,13 +458,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .build())
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When
@@ -498,13 +489,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .build())
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When
@@ -534,13 +523,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .execute(function1)
                                 .build())
                         .build())
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When
@@ -568,12 +555,10 @@ public class SchemaElementDefinitionValidatorTest {
                                 .execute(null)
                                 .build())
                         .build())
-                .type("id", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
         // When
@@ -601,13 +586,11 @@ public class SchemaElementDefinitionValidatorTest {
                                 .execute(function1)
                                 .build())
                         .build())
-                .type("id", new TypeDefinition.Builder()
+                .type("id", new TypeDefinition()
+                        .clazz(String.class))
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(function1)
-                        .build())
+                        .aggregateFunction(function1))
                 .build();
 
         // When

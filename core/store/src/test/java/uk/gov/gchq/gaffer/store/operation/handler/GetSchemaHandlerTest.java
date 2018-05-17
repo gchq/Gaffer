@@ -75,11 +75,10 @@ public class GetSchemaHandlerTest {
                         .property(TestPropertyNames.PROP_1, "string")
                         .description("anEntity")
                         .build())
-                .type("string", new TypeDefinition.Builder()
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
                         .serialiser(new StringSerialiser())
-                        .aggregateFunction(new StringConcat())
-                        .build())
+                        .aggregateFunction(new StringConcat()))
                 .type("true", Boolean.class)
                 .build();
         compactSchemaBytes = schema.toCompactJson();

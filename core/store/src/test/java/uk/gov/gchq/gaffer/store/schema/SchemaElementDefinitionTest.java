@@ -817,11 +817,10 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .type("directed.true", Boolean.class)
                 .type("property.integer", Integer.class)
                 .type("property.object", Object.class)
-                .type(PROPERTY_STRING_TYPE, new TypeDefinition.Builder()
+                .type(PROPERTY_STRING_TYPE, new TypeDefinition()
                         .clazz(String.class)
                         .aggregateFunction(new ExampleAggregateFunction())
-                        .validateFunctions(new Exists())
-                        .build())
+                        .validateFunctions(new Exists()))
                 .visibilityProperty("visibility");
         if (elementDef instanceof SchemaEdgeDefinition) {
             schemaBuilder.edge(TestGroups.EDGE, (SchemaEdgeDefinition) elementDef);

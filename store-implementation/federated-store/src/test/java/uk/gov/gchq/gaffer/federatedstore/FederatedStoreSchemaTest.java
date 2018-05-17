@@ -46,10 +46,9 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
     private static final Schema STRING_SCHEMA = new Schema.Builder()
-            .type(STRING, new TypeDefinition.Builder()
+            .type(STRING, new TypeDefinition()
                     .clazz(String.class)
-                    .aggregateFunction(new StringConcat())
-                    .build())
+                    .aggregateFunction(new StringConcat()))
             .build();
     public User testUser;
     public Context testContext;

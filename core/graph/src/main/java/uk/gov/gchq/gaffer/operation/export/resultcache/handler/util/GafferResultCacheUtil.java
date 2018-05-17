@@ -65,9 +65,8 @@ public final class GafferResultCacheUtil {
 
         if (null != timeToLive) {
             builder.merge(new Schema.Builder()
-                    .type("timestamp", new TypeDefinition.Builder()
-                            .validateFunctions(new AgeOff(timeToLive))
-                            .build())
+                    .type("timestamp", new TypeDefinition()
+                            .validateFunctions(new AgeOff(timeToLive)))
                     .build());
         }
 

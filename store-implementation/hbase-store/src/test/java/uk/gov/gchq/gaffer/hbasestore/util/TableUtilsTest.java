@@ -71,10 +71,9 @@ public class TableUtilsTest {
         // Given
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .aggregateFunction(new StringConcat())
-                        .clazz(String.class)
-                        .build())
+                        .clazz(String.class))
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -98,10 +97,9 @@ public class TableUtilsTest {
         // Given
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .aggregateFunction(new StringConcat())
-                        .clazz(String.class)
-                        .build())
+                        .clazz(String.class))
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)

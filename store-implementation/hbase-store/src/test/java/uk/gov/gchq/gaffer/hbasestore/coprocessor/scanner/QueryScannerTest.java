@@ -59,10 +59,9 @@ import static org.mockito.Mockito.verify;
 
 public class QueryScannerTest {
     private static final Schema SCHEMA = new Schema.Builder()
-            .type("string", new TypeDefinition.Builder()
+            .type("string", new TypeDefinition()
                     .clazz(String.class)
-                    .aggregateFunction(new StringConcat())
-                    .build())
+                    .aggregateFunction(new StringConcat()))
             .type("type", Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                     .source("string")

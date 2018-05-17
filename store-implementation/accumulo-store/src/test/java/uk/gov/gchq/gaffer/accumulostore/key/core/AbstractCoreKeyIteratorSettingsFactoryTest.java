@@ -69,9 +69,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloStore store = mock(AccumuloStore.class);
         final Schema schema = new Schema.Builder()
                 .merge(createSchema())
-                .type("str", new TypeDefinition.Builder()
-                        .validateFunctions(new Exists())
-                        .build())
+                .type("str", new TypeDefinition()
+                        .validateFunctions(new Exists()))
                 .build();
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
@@ -204,10 +203,9 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "str")
                         .build())
-                .type("str", new TypeDefinition.Builder()
+                .type("str", new TypeDefinition()
                         .clazz(String.class)
-                        .aggregateFunction(new StringConcat())
-                        .build())
+                        .aggregateFunction(new StringConcat()))
                 .build();
     }
 }

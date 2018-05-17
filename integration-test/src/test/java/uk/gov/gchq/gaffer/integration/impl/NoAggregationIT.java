@@ -141,14 +141,12 @@ public class NoAggregationIT extends AbstractStoreIT {
                                 .aggregate(false)
                                 .build())
                 .type(TestTypes.ID_STRING,
-                        new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
+                        new TypeDefinition()
+                                .clazz(String.class))
                 .type(TestTypes.PROP_STRING,
-                        new TypeDefinition.Builder()
+                        new TypeDefinition()
                                 .clazz(String.class)
-                                .aggregateFunction(null)
-                                .build())
+                                .aggregateFunction(null))
                 .build();
     }
 }

@@ -128,12 +128,11 @@ public class FederatedStoreTest {
     @Test
     public void shouldUseMulti() throws Exception {
         System.out.println(new String(JSONSerialiser.serialise(
-                new Schema.Builder().type("ExampleType", new TypeDefinition.Builder()
+                new Schema.Builder().type("ExampleType", new TypeDefinition()
                         .clazz(String.class)
                         .serialiser(new MultiSerialiser()
                                 .addSerialiser((byte) 0, new StringSerialiser(), String.class)
-                                .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class))
-                        .build()).build()
+                                .addSerialiser((byte) 1, new IntegerSerialiser(), Integer.class))).build()
                 , true)));
     }
 

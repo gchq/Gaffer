@@ -244,13 +244,11 @@ public class FederatedOperationChainHandlerTest {
                         .directed(TestTypes.DIRECTED_TRUE)
                         .aggregate(false)
                         .build())
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
+                        .clazz(String.class))
+                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition()
                         .clazz(Boolean.class)
-                        .validateFunctions(new IsTrue())
-                        .build())
+                        .validateFunctions(new IsTrue()))
                 .build();
         final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
 

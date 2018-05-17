@@ -137,12 +137,10 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type("vertex", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition()
+                        .clazz(String.class))
+                .type("vertex", new TypeDefinition()
+                        .clazz(String.class))
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
@@ -152,12 +150,10 @@ public class GraphTest {
                 .build();
 
         final Schema schemaModule2 = new Schema.Builder()
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .build())
-                .type("vertex2", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition()
+                        .clazz(Integer.class))
+                .type("vertex2", new TypeDefinition()
+                        .clazz(String.class))
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
@@ -172,9 +168,8 @@ public class GraphTest {
                         .aggregate(false)
                         .vertex("vertex3")
                         .build())
-                .type("vertex3", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("vertex3", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
         final Schema schemaModule4 = new Schema.Builder()
@@ -183,9 +178,8 @@ public class GraphTest {
                         .aggregate(false)
                         .vertex("vertex4")
                         .build())
-                .type("vertex4", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("vertex4", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
 
@@ -1270,16 +1264,14 @@ public class GraphTest {
                             .graphId(GRAPH_ID)
                             .build())
                     .addSchema(new Schema.Builder()
-                            .type("int", new TypeDefinition.Builder()
+                            .type("int", new TypeDefinition()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
                                             // invalid serialiser
-                                    .serialiser(new RawDoubleSerialiser())
-                                    .build())
-                            .type("string", new TypeDefinition.Builder()
+                                    .serialiser(new RawDoubleSerialiser()))
+                            .type("string", new TypeDefinition()
                                     .clazz(String.class)
-                                    .aggregateFunction(new StringConcat())
-                                    .build())
+                                    .aggregateFunction(new StringConcat()))
                             .type("boolean", Boolean.class)
                             .edge("EDGE", new SchemaEdgeDefinition.Builder()
                                     .source("string")
@@ -1444,12 +1436,10 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type("vertex", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition()
+                        .clazz(String.class))
+                .type("vertex", new TypeDefinition()
+                        .clazz(String.class))
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
@@ -1459,12 +1449,10 @@ public class GraphTest {
                 .build();
 
         final Schema schemaModule2 = new Schema.Builder()
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .build())
-                .type("vertex2", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition()
+                        .clazz(Integer.class))
+                .type("vertex2", new TypeDefinition()
+                        .clazz(String.class))
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
@@ -1479,9 +1467,8 @@ public class GraphTest {
                         .aggregate(false)
                         .vertex("vertex3")
                         .build())
-                .type("vertex3", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("vertex3", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
         final Schema schemaModule4 = new Schema.Builder()
@@ -1490,9 +1477,8 @@ public class GraphTest {
                         .aggregate(false)
                         .vertex("vertex4")
                         .build())
-                .type("vertex4", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
+                .type("vertex4", new TypeDefinition()
+                        .clazz(String.class))
                 .build();
 
 
@@ -1933,12 +1919,10 @@ public class GraphTest {
                                 .source("vertex2")
                                 .destination("vertex2")
                                 .build())
-                        .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                                .clazz(Integer.class)
-                                .build())
-                        .type("vertex2", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
+                        .type(TestTypes.PROP_INTEGER, new TypeDefinition()
+                                .clazz(Integer.class))
+                        .type("vertex2", new TypeDefinition()
+                                .clazz(String.class))
                         .build())
                 .store(store)
                 .build();

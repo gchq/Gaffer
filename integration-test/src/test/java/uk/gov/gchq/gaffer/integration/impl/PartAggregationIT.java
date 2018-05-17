@@ -275,14 +275,12 @@ public class PartAggregationIT extends AbstractStoreIT {
                                 .groupBy(TestPropertyNames.INT)
                                 .build())
                 .type("NonAggregatedString",
-                        new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
+                        new TypeDefinition()
+                                .clazz(String.class))
                 .type("AggregatedString",
-                        new TypeDefinition.Builder()
+                        new TypeDefinition()
                                 .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .build())
+                                .aggregateFunction(new StringConcat()))
                 .build();
     }
 

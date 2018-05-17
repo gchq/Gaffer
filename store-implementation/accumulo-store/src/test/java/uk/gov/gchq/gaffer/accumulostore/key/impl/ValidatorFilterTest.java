@@ -158,13 +158,11 @@ public class ValidatorFilterTest {
 
     private Schema getSchema() throws UnsupportedEncodingException {
         return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .clazz(String.class)
-                        .validateFunctions(new ExampleFilterFunction())
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
-                        .clazz(Boolean.class)
-                        .build())
+                        .validateFunctions(new ExampleFilterFunction()))
+                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition()
+                        .clazz(Boolean.class))
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
                         .destination(TestTypes.ID_STRING)

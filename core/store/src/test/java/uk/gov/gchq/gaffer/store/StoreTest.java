@@ -202,11 +202,10 @@ public class StoreTest {
                         .property(TestPropertyNames.PROP_1, "string")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
-                .type("string", new TypeDefinition.Builder()
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
                         .serialiser(new StringSerialiser())
-                        .aggregateFunction(new StringConcat())
-                        .build())
+                        .aggregateFunction(new StringConcat()))
                 .type("true", Boolean.class)
                 .build();
     }
@@ -238,10 +237,9 @@ public class StoreTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, "invalidType")
                         .build())
-                .type("invalidType", new TypeDefinition.Builder()
+                .type("invalidType", new TypeDefinition()
                         .clazz(Object.class)
-                        .serialiser(new StringSerialiser())
-                        .build())
+                        .serialiser(new StringSerialiser()))
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -819,14 +817,12 @@ public class StoreTest {
                         .property(TestPropertyNames.PROP_1, "string")
                         .property(TestPropertyNames.PROP_2, "string")
                         .build())
-                .type("string", new TypeDefinition.Builder()
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
-                        .build())
-                .type("invalidString", new TypeDefinition.Builder()
+                        .serialiser(new StringSerialiser()))
+                .type("invalidString", new TypeDefinition()
                         .clazz(String.class)
-                        .serialiser(invalidSerialiserClass.newInstance())
-                        .build())
+                        .serialiser(invalidSerialiserClass.newInstance()))
                 .type("true", Boolean.class)
                 .build();
 

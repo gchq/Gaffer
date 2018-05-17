@@ -49,15 +49,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
                         .property("prop1", "string")
                         .property("invalidProp", "unusualSerialiser")
                         .build())
-                .type("string", new TypeDefinition.Builder()
+                .type("string", new TypeDefinition()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
-                        .build())
+                        .serialiser(new StringSerialiser()))
                 .type("true", Boolean.class)
-                .type("unusualSerialiser", new TypeDefinition.Builder()
+                .type("unusualSerialiser", new TypeDefinition()
                         .clazz(String.class)
-                        .serialiser(new UnusualTestSerialiser())
-                        .build())
+                        .serialiser(new UnusualTestSerialiser()))
                 .build();
 
         //when

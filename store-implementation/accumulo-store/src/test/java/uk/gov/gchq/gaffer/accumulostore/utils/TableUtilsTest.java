@@ -61,10 +61,9 @@ public class TableUtilsTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .aggregateFunction(new StringConcat())
-                        .clazz(String.class)
-                        .build())
+                        .clazz(String.class))
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -114,11 +113,10 @@ public class TableUtilsTest {
     public void shouldFailTableValidationWhenTableInvalid(final SingleUseMockAccumuloStore store, final Runnable invalidateTable) throws Exception {
         // Given
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .aggregateFunction(new StringConcat())
                         .validateFunctions(new Exists())
-                        .clazz(String.class)
-                        .build())
+                        .clazz(String.class))
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -172,10 +170,9 @@ public class TableUtilsTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
                         .clazz(String.class)
-                        .validateFunctions(new Exists())
-                        .build())
+                        .validateFunctions(new Exists()))
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)

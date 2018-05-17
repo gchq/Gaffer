@@ -58,11 +58,10 @@ public class FederatedGetSchemaHandlerTest {
     private final String TEST_FED_STORE = "testFedStore";
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
     private final Schema STRING_SCHEMA = new Schema.Builder()
-            .type("string", new TypeDefinition.Builder()
+            .type("string", new TypeDefinition()
                     .clazz(String.class)
                     .serialiser(new StringSerialiser())
-                    .aggregateFunction(new StringConcat())
-                    .build())
+                    .aggregateFunction(new StringConcat()))
             .build();
 
     @Before

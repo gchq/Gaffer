@@ -54,10 +54,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                     .destination(TestTypes.ID_STRING)
                     .directed(TestTypes.DIRECTED_EITHER)
                     .build())
-            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+            .type(TestTypes.ID_STRING, new TypeDefinition()
                     .clazz(String.class)
-                    .serialiser(new StringSerialiser())
-                    .build())
+                    .serialiser(new StringSerialiser()))
             .type(TestTypes.DIRECTED_EITHER, Boolean.class)
             .vertexSerialiser(new StringSerialiser())
             .build();

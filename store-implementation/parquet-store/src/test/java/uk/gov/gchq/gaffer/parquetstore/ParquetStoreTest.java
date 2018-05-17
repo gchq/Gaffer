@@ -56,9 +56,8 @@ public class ParquetStoreTest {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static final String VERTEX = "vertex";
     private final Schema schema = new Schema.Builder()
-            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                    .clazz(String.class)
-                    .build())
+            .type(TestTypes.ID_STRING, new TypeDefinition()
+                    .clazz(String.class))
             .type(TestTypes.PROP_INTEGER, Integer.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                     .source(TestTypes.ID_STRING)

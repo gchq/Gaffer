@@ -39,13 +39,11 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 public abstract class FlinkTest {
     public static final Schema SCHEMA = new Schema.Builder()
-            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                    .clazz(String.class)
-                    .build())
-            .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+            .type(TestTypes.ID_STRING, new TypeDefinition()
+                    .clazz(String.class))
+            .type(TestTypes.PROP_COUNT, new TypeDefinition()
                     .clazz(Long.class)
-                    .aggregateFunction(new Sum())
-                    .build())
+                    .aggregateFunction(new Sum()))
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex(TestTypes.ID_STRING)
                     .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)

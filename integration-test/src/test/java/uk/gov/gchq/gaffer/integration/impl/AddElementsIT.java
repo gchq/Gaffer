@@ -224,14 +224,12 @@ public class AddElementsIT extends AbstractStoreIT {
                         .aggregate(true)
                         .build())
                 .type(TestTypes.ID_STRING, String.class)
-                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+                .type(TestTypes.PROP_COUNT, new TypeDefinition()
                         .clazz(Long.class)
-                        .aggregateFunction(new Sum())
-                        .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .aggregateFunction(new Sum()))
+                .type(TestTypes.TIMESTAMP, new TypeDefinition()
                         .clazz(Long.class)
-                        .aggregateFunction(new Max())
-                        .build())
+                        .aggregateFunction(new Max()))
                 .timestampProperty(TestTypes.TIMESTAMP)
                 .build();
     }

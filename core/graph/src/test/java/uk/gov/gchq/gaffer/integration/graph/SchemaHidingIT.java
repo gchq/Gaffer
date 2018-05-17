@@ -18,11 +18,8 @@ package uk.gov.gchq.gaffer.integration.graph;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -198,30 +195,24 @@ public abstract class SchemaHidingIT {
 
     protected Schema createFilteredSchema() {
         return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition()
+                        .clazz(String.class))
+                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition()
                         .clazz(Boolean.class)
-                        .validateFunctions(new IsTrue())
-                        .build())
-                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+                        .validateFunctions(new IsTrue()))
+                .type(TestTypes.PROP_COUNT, new TypeDefinition()
                         .clazz(Integer.class)
-                        .aggregateFunction(new Sum())
-                        .build())
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .aggregateFunction(new Sum()))
+                .type(TestTypes.PROP_STRING, new TypeDefinition()
                         .clazz(String.class)
-                        .aggregateFunction(new StringDeduplicateConcat())
-                        .build())
-                .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
+                        .aggregateFunction(new StringDeduplicateConcat()))
+                .type(TestTypes.VISIBILITY, new TypeDefinition()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new StringSerialiser())
-                        .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .serialiser(new StringSerialiser()))
+                .type(TestTypes.TIMESTAMP, new TypeDefinition()
                         .clazz(Long.class)
-                        .aggregateFunction(new Max())
-                        .build())
+                        .aggregateFunction(new Max()))
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
                         .destination(TestTypes.ID_STRING)

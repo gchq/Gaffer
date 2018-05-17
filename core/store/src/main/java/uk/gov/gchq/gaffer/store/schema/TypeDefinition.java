@@ -59,7 +59,7 @@ public class TypeDefinition {
     }
 
     public TypeDefinition(final Class<?> clazz) {
-        this.clazz = clazz;
+        this.clazz(clazz);
     }
 
     @JsonIgnore
@@ -68,7 +68,7 @@ public class TypeDefinition {
     }
 
     public void setClazz(final Class<?> clazz) {
-        this.clazz = clazz;
+        this.clazz(clazz);
     }
 
     @JsonGetter("class")
@@ -78,7 +78,8 @@ public class TypeDefinition {
 
     @JsonSetter("class")
     public void setClassString(final String classType) throws ClassNotFoundException {
-        this.clazz = null != classType ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)) : null;
+        final Class<?> clazz = (null != classType) ? Class.forName(SimpleClassNameIdResolver.getClassName(classType)) : null;
+        this.clazz(clazz);
     }
 
     @JsonIgnore
@@ -92,7 +93,7 @@ public class TypeDefinition {
     }
 
     public void setValidateFunctions(final List<Predicate> validateFunctions) {
-        this.validateFunctions = validateFunctions;
+        this.validateFunctions(validateFunctions);
     }
 
     /**
@@ -107,7 +108,7 @@ public class TypeDefinition {
      * @param serialiser the {@link Serialiser} for the property.
      */
     public void setSerialiser(final Serialiser serialiser) {
-        this.serialiser = serialiser;
+        this.serialiser(serialiser);
     }
 
     @JsonIgnore
@@ -123,7 +124,7 @@ public class TypeDefinition {
     @JsonSetter("serialiserClass")
     public void setSerialiserClass(final String clazz) {
         if (null == clazz) {
-            this.serialiser = null;
+            this.serialiser(null);
         } else {
             final Class<? extends Serialiser> serialiserClass;
             try {
@@ -132,7 +133,7 @@ public class TypeDefinition {
                 throw new SchemaException(e.getMessage(), e);
             }
             try {
-                this.serialiser = serialiserClass.newInstance();
+                this.serialiser(serialiserClass.newInstance());
             } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
                 throw new SchemaException(e.getMessage(), e);
             }
@@ -145,7 +146,7 @@ public class TypeDefinition {
     }
 
     public <F extends BinaryOperator<T>, T> void setAggregateFunction(final F aggregateFunction) {
-        this.aggregateFunction = aggregateFunction;
+        this.aggregateFunction(aggregateFunction);
     }
 
     public String getDescription() {
@@ -153,12 +154,12 @@ public class TypeDefinition {
     }
 
     public void setDescription(final String description) {
-        this.description = description;
+        this.description(description);
     }
 
     public void merge(final TypeDefinition type) {
         if (null == clazz) {
-            clazz = type.getClazz();
+            this.clazz(type.getClazz());
         } else if (null != type.getClazz() && !clazz.equals(type.getClazz())) {
             throw new SchemaException("Unable to merge schemas. Conflict with type class, options are: "
                     + clazz.getName() + " and " + type.getClazz().getName());
@@ -175,27 +176,27 @@ public class TypeDefinition {
 
         if (null == validateFunctions) {
             if (null != type.getValidateFunctions()) {
-                validateFunctions = Collections.unmodifiableList(new ArrayList<>(type.getValidateFunctions()));
+                validateFunctions(Collections.unmodifiableList(new ArrayList<>(type.getValidateFunctions())));
             }
         } else if (null != type.getValidateFunctions()) {
             // Use a set to deduplicate the functions
             final LinkedHashSet<Predicate> newValidateFunctions = new LinkedHashSet<>(validateFunctions.size(), type.getValidateFunctions().size());
             newValidateFunctions.addAll(validateFunctions);
             newValidateFunctions.addAll(type.getValidateFunctions());
-            validateFunctions = Collections.unmodifiableList(new ArrayList<>(newValidateFunctions));
+            validateFunctions(Collections.unmodifiableList(new ArrayList<>(newValidateFunctions)));
         }
 
         if (null == aggregateFunction) {
-            aggregateFunction = type.getAggregateFunction();
+            this.aggregateFunction(type.getAggregateFunction());
         } else if (null != type.getAggregateFunction() && !aggregateFunction.equals(type.getAggregateFunction())) {
             throw new SchemaException("Unable to merge schemas. Conflict with type (" + clazz + ") aggregate function, options are: "
                     + aggregateFunction + " and " + type.getAggregateFunction());
         }
 
         if (null == description) {
-            description = type.getDescription();
+            description(type.getDescription());
         } else if (null != type.getDescription() && !description.contains(type.getDescription())) {
-            description = description + " | " + type.getDescription();
+            description(description + " | " + type.getDescription());
         }
     }
 
@@ -241,43 +242,33 @@ public class TypeDefinition {
                 .toHashCode();
     }
 
-    public static class Builder {
-        private final TypeDefinition type = new TypeDefinition();
+    public TypeDefinition clazz(final Class<?> clazz) {
+        this.clazz = clazz;
+        return this;
+    }
 
-        public Builder() {
-        }
+    public TypeDefinition serialiser(final Serialiser serialiser) {
+        this.serialiser = serialiser;
+        return this;
+    }
 
-        public Builder clazz(final Class clazz) {
-            type.setClazz(clazz);
-            return this;
-        }
+    public TypeDefinition validateFunctions(final List<Predicate> validateFunctions) {
+        this.validateFunctions = validateFunctions;
+        return this;
+    }
 
-        public Builder serialiser(final Serialiser serialiser) {
-            type.setSerialiser(serialiser);
-            return this;
-        }
+    public TypeDefinition validateFunctions(final Predicate... validateFunctions) {
+        this.validateFunctions(Lists.newArrayList(validateFunctions));
+        return this;
+    }
 
-        public Builder validateFunctions(final List<Predicate> validateFunctions) {
-            type.setValidateFunctions(validateFunctions);
-            return this;
-        }
+    public TypeDefinition aggregateFunction(final BinaryOperator aggregateFunction) {
+        this.aggregateFunction = aggregateFunction;
+        return this;
+    }
 
-        public Builder validateFunctions(final Predicate... validateFunctions) {
-            return validateFunctions(Lists.newArrayList(validateFunctions));
-        }
-
-        public <F extends BinaryOperator<T>, T> Builder aggregateFunction(final F aggregateFunction) {
-            type.setAggregateFunction(aggregateFunction);
-            return this;
-        }
-
-        public Builder description(final String description) {
-            type.setDescription(description);
-            return this;
-        }
-
-        public TypeDefinition build() {
-            return type;
-        }
+    public TypeDefinition description(final String description) {
+        this.description = description;
+        return this;
     }
 }

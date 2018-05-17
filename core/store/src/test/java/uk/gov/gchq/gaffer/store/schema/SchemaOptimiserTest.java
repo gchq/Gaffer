@@ -45,12 +45,10 @@ public class SchemaOptimiserTest {
 
     @Before
     public void setup() {
-        stringType = new TypeDefinition.Builder()
-                .clazz(String.class)
-                .build();
-        intType = new TypeDefinition.Builder()
-                .clazz(Integer.class)
-                .build();
+        stringType = new TypeDefinition()
+                .clazz(String.class);
+        intType = new TypeDefinition()
+                .clazz(Integer.class);
         schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
@@ -66,9 +64,8 @@ public class SchemaOptimiserTest {
                         .build())
                 .type("string", stringType)
                 .type("int", intType)
-                .type("unusedType", new TypeDefinition.Builder()
-                        .clazz(Object.class)
-                        .build())
+                .type("unusedType", new TypeDefinition()
+                        .clazz(Object.class))
                 .build();
     }
 

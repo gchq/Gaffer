@@ -493,11 +493,10 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                                 .build()
                 )
                 .type("string", String.class)
-                .type("map", new TypeDefinition.Builder()
+                .type("map", new TypeDefinition()
                         .clazz(FreqMap.class)
                         .aggregateFunction(new FreqMapAggregator())
-                        .serialiser(new FreqMapSerialiser())
-                        .build())
+                        .serialiser(new FreqMapSerialiser()))
                 .build();
 
         converter = createConverter(schema);
