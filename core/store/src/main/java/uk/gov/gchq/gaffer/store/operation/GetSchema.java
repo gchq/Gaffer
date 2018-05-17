@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +37,7 @@ import java.util.Map;
 @Since("1.1.0")
 @Summary("Gets the Schema of a Graph")
 public class GetSchema implements Output<Schema> {
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
     private boolean compact = false;
 
     public boolean isCompact() {
@@ -76,6 +77,11 @@ public class GetSchema implements Output<Schema> {
 
     public GetSchema options(final Map<String, String> options) {
         this.options = options;
+        return this;
+    }
+
+    public GetSchema option(final String key, final String value) {
+        this.options.put(key, value);
         return this;
     }
 }

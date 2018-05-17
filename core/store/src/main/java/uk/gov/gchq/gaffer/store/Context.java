@@ -36,7 +36,7 @@ import java.util.UUID;
 public class Context {
     private User user = new User();
     private String jobId;
-    private Map<String, Object> config;
+    private Map<String, Object> config = new HashMap<>();
     private OperationChain<?> originalOpChain;
 
     /**
@@ -225,6 +225,13 @@ public class Context {
         this.config = config;
         return this;
     }
+
+
+    public Context config(final String key, final String value) {
+        this.config.put(key, value);
+        return this;
+    }
+
 
     protected Context originalOpChain(final OperationChain<?> originalOpChain) {
         this.originalOpChain = originalOpChain;
