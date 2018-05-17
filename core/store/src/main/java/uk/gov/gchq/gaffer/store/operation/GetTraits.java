@@ -41,7 +41,11 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
      * By default it will return a list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
-    private Map<String, String> options = new HashMap<>();
+    private Map<String, String> options;
+
+    public GetTraits() {
+        this.options(new HashMap<>());
+    }
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {

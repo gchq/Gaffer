@@ -37,8 +37,12 @@ import java.util.Map;
 @Since("1.1.0")
 @Summary("Gets the Schema of a Graph")
 public class GetSchema implements Output<Schema> {
-    private Map<String, String> options = new HashMap<>();
+    private Map<String, String> options;
     private boolean compact = false;
+
+    public GetSchema() {
+        this.options( new HashMap<>());
+    }
 
     public boolean isCompact() {
         return compact;
