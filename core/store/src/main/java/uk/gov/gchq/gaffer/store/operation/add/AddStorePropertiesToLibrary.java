@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -51,6 +52,10 @@ public class AddStorePropertiesToLibrary implements Operation {
     private String parentPropertiesId;
     private Map<String, String> options;
 
+    public AddStorePropertiesToLibrary() {
+        this.options(new HashMap<>());
+    }
+
     public String getId() {
         return id;
     }
@@ -61,12 +66,11 @@ public class AddStorePropertiesToLibrary implements Operation {
 
     @Override
     public AddStorePropertiesToLibrary shallowClone() throws CloneFailedException {
-        return new Builder()
+        return new AddStorePropertiesToLibrary()
                 .storeProperties(storeProperties)
                 .parentPropertiesId(parentPropertiesId)
                 .options(this.options)
-                .id(id)
-                .build();
+                .id(id);
     }
 
     public StoreProperties getStoreProperties() {
@@ -109,24 +113,28 @@ public class AddStorePropertiesToLibrary implements Operation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
-    public static class Builder extends BaseBuilder<AddStorePropertiesToLibrary, Builder> {
-        public Builder() {
-            super(new AddStorePropertiesToLibrary());
-        }
+    public AddStorePropertiesToLibrary parentPropertiesId(final String parentPropertiesId) {
+        this.parentPropertiesId = parentPropertiesId;
+        return this;
+    }
 
-        public Builder storeProperties(final StoreProperties storeProperties) {
-            _getOp().setStoreProperties(storeProperties);
-            return this;
-        }
+    public AddStorePropertiesToLibrary id(final String id) {
+        this.id = id;
+        return this;
+    }
 
-        public Builder parentPropertiesId(final String parentPropertiesId) {
-            this._getOp().setParentPropertiesId(parentPropertiesId);
-            return _self();
-        }
+    public AddStorePropertiesToLibrary storeProperties(final StoreProperties storeProperties) {
+        this.storeProperties = storeProperties;
+        return this;
+    }
 
-        public Builder id(final String id) {
-            _getOp().setId(id);
-            return _self();
-        }
+    public AddStorePropertiesToLibrary options(final Map<String, String> options) {
+        this.options = options;
+        return this;
+    }
+
+    public AddStorePropertiesToLibrary options(final String key, final String value) {
+        this.options.put(key, value);
+        return this;
     }
 }

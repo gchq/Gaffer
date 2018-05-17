@@ -89,7 +89,7 @@ public class AddSchemaToLibrary implements Operation {
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        this.options = options;
+        this.options(options);
     }
 
     public List<String> getParentSchemaIds() {

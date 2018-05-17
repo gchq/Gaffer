@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
@@ -55,7 +54,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         try {
-            store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
+            store.execute(new AddStorePropertiesToLibrary().storeProperties(props).id(TEST_PROPS_ID), new Context(StoreUser.blankUser()));
             fail("Exception expected");
         } catch (final Exception e) {
             assertEquals(String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
@@ -67,7 +66,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-        store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
+        store.execute(new AddStorePropertiesToLibrary().storeProperties(props).id(TEST_PROPS_ID), new Context(StoreUser.blankUser()));
         StoreProperties actualProps = library.getProperties(TEST_PROPS_ID);
         assertEquals(props.getProperties(), actualProps.getProperties());
     }

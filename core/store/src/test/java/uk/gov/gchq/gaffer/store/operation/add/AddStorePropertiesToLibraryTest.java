@@ -21,7 +21,6 @@ import org.junit.Before;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builder;
 
 import java.util.Set;
 
@@ -39,11 +38,10 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
 
         storeProperties = new StoreProperties();
 
-        op = new Builder()
+        op = new AddStorePropertiesToLibrary()
                 .storeProperties(storeProperties)
                 .parentPropertiesId(VALUE_1)
-                .id(TEST_ID)
-                .build();
+                .id(TEST_ID);
     }
 
     @Override
