@@ -55,9 +55,7 @@ public class ContextTest {
         final User user = new User();
 
         // When
-        final Context context = new Context.Builder()
-                .user(user)
-                .build();
+        final Context context = new Context().user(user);
 
         // Then
         assertEquals(user, context.getUser());
@@ -91,9 +89,7 @@ public class ContextTest {
     @Test
     public void shouldConstructContextWithContext() {
         // Given
-        final Context context = new Context.Builder()
-                .user(new User())
-                .build();
+        final Context context = new Context().user(new User());
         final Exporter exporter = mock(Exporter.class);
         context.addExporter(exporter);
         final OperationChain opChain = mock(OperationChain.class);

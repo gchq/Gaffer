@@ -69,10 +69,7 @@ public class FederatedStoreMultiCacheTest {
                 .isPublic(false)
                 .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
-                .build(), new Context.Builder()
-                .user(testUser)
-                .build());
-
+                .build(), new Context().user(testUser));
 
         store2 = new FederatedStore();
         store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);
@@ -128,9 +125,7 @@ public class FederatedStoreMultiCacheTest {
                 .isPublic(true)
                 .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
-                .build(), new Context.Builder()
-                .user(testUser)
-                .build());
+                .build(), new Context().user(testUser));
 
         store2 = new FederatedStore();
         store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);

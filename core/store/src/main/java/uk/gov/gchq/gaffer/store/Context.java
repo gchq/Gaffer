@@ -34,9 +34,9 @@ import java.util.UUID;
  * as the user who executed the operation chain and a map of {@link Exporter}s.
  */
 public class Context {
-    private final User user;
-    private final String jobId;
-    private final Map<String, Object> config;
+    private User user = new User();
+    private String jobId;
+    private Map<String, Object> config;
     private OperationChain<?> originalOpChain;
 
     /**
@@ -62,7 +62,7 @@ public class Context {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
         if (null != context.originalOpChain) {
-            originalOpChain = context.originalOpChain.shallowClone();
+            this.originalOpChain(context.originalOpChain.shallowClone());
         }
     }
 
@@ -70,13 +70,13 @@ public class Context {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
-        this.user = user;
+        this.user(user);
         if (null == config) {
-            this.config = new HashMap<>();
+            this.config(new HashMap<>());
         } else {
-            this.config = config;
+            this.config(config);
         }
-        this.jobId = createJobId();
+        this.jobId(createJobId());
     }
 
     /**
@@ -92,16 +92,16 @@ public class Context {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
-        this.user = user;
+        this.user(user);
         if (null == config) {
-            this.config = new HashMap<>();
+            this.config(new HashMap<>());
         } else {
-            this.config = config;
+            this.config(config);
         }
         if (null == jobId) {
-            this.jobId = createJobId();
+            this.jobId(createJobId());
         } else {
-            this.jobId = jobId;
+            this.jobId(jobId);
         }
     }
 
@@ -211,36 +211,23 @@ public class Context {
         return UUID.randomUUID().toString();
     }
 
-    public static class Builder {
-        private User user = new User();
-        private final Map<String, Object> config = new HashMap<>();
-        private String jobId;
+    public Context user(final User user) {
+        this.user = user;
+        return this;
+    }
 
-        public Builder user(final User user) {
-            this.user = user;
-            return this;
-        }
+    public Context jobId(final String jobId) {
+        this.jobId = jobId;
+        return this;
+    }
 
-        /**
-         * Sets the job ID.
-         *
-         * @param jobId the job ID to set on the context
-         * @return the Builder
-         * @deprecated this should not be used. You should let the Context automatically set the job ID.
-         */
-        @Deprecated
-        public Builder jobId(final String jobId) {
-            this.jobId = jobId;
-            return this;
-        }
+    public Context config(final Map<String, Object> config) {
+        this.config = config;
+        return this;
+    }
 
-        public Builder config(final String key, final Object value) {
-            this.config.put(key, value);
-            return this;
-        }
-
-        public Context build() {
-            return new Context(user, config, jobId);
-        }
+    protected Context originalOpChain(final OperationChain<?> originalOpChain) {
+        this.originalOpChain = originalOpChain;
+        return this;
     }
 }
