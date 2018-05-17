@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -42,11 +41,10 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
                 .id("schemaID")
                 .build();
         parentSchemaIds = Lists.newArrayList("value1");
-        op = new Builder()
+        op = new AddSchemaToLibrary()
                 .parentSchemaIds(parentSchemaIds)
                 .schema(schema)
-                .id(TEST_ID)
-                .build();
+                .id(TEST_ID);
     }
 
     @Override

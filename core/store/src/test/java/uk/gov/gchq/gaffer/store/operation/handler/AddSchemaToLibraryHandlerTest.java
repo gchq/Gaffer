@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
@@ -54,7 +53,7 @@ public class AddSchemaToLibraryHandlerTest {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         try {
             //when
-            store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
+            store.execute(new AddSchemaToLibrary().schema(schema).id(TEST_SCHEMA_ID), new Context(StoreUser.blankUser()));
             fail("Exception expected");
         } catch (final Exception e) {
             //then
@@ -70,7 +69,7 @@ public class AddSchemaToLibraryHandlerTest {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
         //when
-        store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
+        store.execute(new AddSchemaToLibrary().schema(schema).id(TEST_SCHEMA_ID), new Context(StoreUser.blankUser()));
         //then
         Schema actualSchema = library.getSchema(TEST_SCHEMA_ID);
         assertEquals(schema, actualSchema);

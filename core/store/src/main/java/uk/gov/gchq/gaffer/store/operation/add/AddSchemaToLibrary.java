@@ -25,6 +25,8 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,12 +52,17 @@ public class AddSchemaToLibrary implements Operation {
     private List<String> parentSchemaIds;
     private Map<String, String> options;
 
+    public AddSchemaToLibrary() {
+        this.parentSchemaIds(new LinkedList<>());
+        this.options(new HashMap<>());
+    }
+
     public Schema getSchema() {
         return schema;
     }
 
     public void setSchema(final Schema schema) {
-        this.schema = schema;
+        this.schema(schema);
     }
 
     public String getId() {
@@ -63,17 +70,16 @@ public class AddSchemaToLibrary implements Operation {
     }
 
     public void setId(final String id) {
-        this.id = id;
+        this.id(id);
     }
 
     @Override
     public AddSchemaToLibrary shallowClone() throws CloneFailedException {
-        return new Builder()
+        return new AddSchemaToLibrary()
                 .options(options)
                 .parentSchemaIds(parentSchemaIds)
                 .schema(schema)
-                .id(id)
-                .build();
+                .id(id);
     }
 
     @Override
@@ -94,33 +100,33 @@ public class AddSchemaToLibrary implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
-    public static class Builder extends BaseBuilder<AddSchemaToLibrary, Builder> {
-        public Builder() {
-            super(new AddSchemaToLibrary());
-        }
+    public AddSchemaToLibrary schema(final Schema schema) {
+        this.schema = schema;
+        return this;
+    }
 
-        public Builder schema(final Schema schema) {
-            _getOp().setSchema(schema);
-            return _self();
-        }
+    public AddSchemaToLibrary id(final String id) {
+        this.id = id;
+        return this;
+    }
 
-        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
-            if (null == _getOp().getParentSchemaIds()) {
-                _getOp().setParentSchemaIds(parentSchemaIds);
-            } else {
-                _getOp().getParentSchemaIds().addAll(parentSchemaIds);
-            }
-            return _self();
-        }
+    public AddSchemaToLibrary options(final Map<String, String> options) {
+        this.options = options;
+        return this;
+    }
 
-        public Builder parentSchemaIds(final String... parentSchemaIds) {
-            parentSchemaIds(Arrays.asList(parentSchemaIds));
-            return _self();
-        }
+    public AddSchemaToLibrary option(final String key, final String value) {
+        this.options.put(key, value);
+        return this;
+    }
 
-        public Builder id(final String id) {
-            _getOp().setId(id);
-            return _self();
-        }
+    public AddSchemaToLibrary parentSchemaIds(final List<String> parentSchemaIds) {
+        this.parentSchemaIds = parentSchemaIds;
+        return this;
+    }
+
+    public AddSchemaToLibrary parentSchemaIds(final String... parentSchemaId) {
+        this.parentSchemaIds.addAll(Arrays.asList(parentSchemaId));
+        return this;
     }
 }
