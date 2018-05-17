@@ -44,7 +44,7 @@ public class GetSchema implements Output<Schema> {
     }
 
     public void setCompact(final boolean compact) {
-        this.compact = compact;
+        this.compact(compact);
     }
 
     @Override
@@ -54,15 +54,14 @@ public class GetSchema implements Output<Schema> {
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        this.options = options;
+        this.options(options);
     }
 
     @Override
     public GetSchema shallowClone() throws CloneFailedException {
-        return new Builder()
+        return new GetSchema()
                 .compact(compact)
-                .options(options)
-                .build();
+                .options(options);
     }
 
     @Override
@@ -70,15 +69,13 @@ public class GetSchema implements Output<Schema> {
         return new TypeReferenceStoreImpl.Schema();
     }
 
-    public static class Builder extends BaseBuilder<GetSchema, Builder>
-            implements Output.Builder<GetSchema, Schema, Builder> {
-        public Builder() {
-            super(new GetSchema());
-        }
+    public GetSchema compact(final boolean compact) {
+        this.compact = compact;
+        return this;
+    }
 
-        public Builder compact(final boolean compact) {
-            _getOp().setCompact(compact);
-            return this;
-        }
+    public GetSchema options(final Map<String, String> options) {
+        this.options = options;
+        return this;
     }
 }

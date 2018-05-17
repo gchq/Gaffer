@@ -91,9 +91,7 @@ public class GetSchemaHandlerTest {
         given(store.getSchema()).willReturn(schema);
         given(context.getUser()).willReturn(user);
 
-        final GetSchema operation = new GetSchema.Builder()
-                .compact(true)
-                .build();
+        final GetSchema operation = new GetSchema().compact(true);
 
         // When
         final Schema result = handler.doOperation(operation, context ,store);

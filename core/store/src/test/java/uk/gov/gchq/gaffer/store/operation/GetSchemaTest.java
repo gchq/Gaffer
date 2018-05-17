@@ -47,10 +47,9 @@ public class GetSchemaTest {
     @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final GetSchema operation = new GetSchema.Builder()
+        final GetSchema operation = new GetSchema()
                 .compact(false)
-                .options(new HashMap<>())
-                .build();
+                .options(new HashMap<>());
 
         // Then
         assertThat(operation.getOptions(), is(notNullValue()));
@@ -59,10 +58,9 @@ public class GetSchemaTest {
     @Test
     public void shouldShallowCloneOperation() {
         // Given
-        final GetSchema operation = new GetSchema.Builder()
+        final GetSchema operation = new GetSchema()
                 .compact(true)
-                .options(new HashMap<>())
-                .build();
+                .options(new HashMap<>());
 
         // When
         final GetSchema clone = operation.shallowClone();

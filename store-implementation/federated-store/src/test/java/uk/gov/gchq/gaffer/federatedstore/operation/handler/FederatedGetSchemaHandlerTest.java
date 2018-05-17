@@ -117,9 +117,7 @@ public class FederatedGetSchemaHandlerTest {
                         .parentSchemaIds(Lists.newArrayList(EDGE_SCHEMA_ID))
                         .build()), context);
 
-        final GetSchema operation = new GetSchema.Builder()
-                .compact(true)
-                .build();
+        final GetSchema operation = new GetSchema().compact(true);
 
         // When
         final Schema result = handler.doOperation(operation, context, fStore);
@@ -174,9 +172,7 @@ public class FederatedGetSchemaHandlerTest {
                         .disabledByDefault(true)
                         .build()), context);
 
-        final GetSchema operation = new GetSchema.Builder()
-                .compact(true)
-                .build();
+        final GetSchema operation = new GetSchema().compact(true);
 
         // When
         final Schema result = handler.doOperation(operation, context, fStore);

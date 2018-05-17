@@ -230,9 +230,7 @@ public class FederatedGraphStorage {
         final Builder schemaBuilder = new Builder();
         try {
             if (operation.isCompact()) {
-                final GetSchema getSchema = new GetSchema.Builder()
-                        .compact(true)
-                        .build();
+                final GetSchema getSchema = new GetSchema().compact(true);
                 graphs.forEach(g -> {
                     try {
                         schemaBuilder.merge(g.execute(getSchema, context));
