@@ -41,7 +41,7 @@ public class GetSchema implements Output<Schema> {
     private boolean compact = false;
 
     public GetSchema() {
-        this.options( new HashMap<>());
+        this.options(new HashMap<>());
     }
 
     public boolean isCompact() {
