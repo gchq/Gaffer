@@ -37,10 +37,9 @@ public class OperationDeclarationsTest {
     public void testSerialiseDeserialise() throws SerialisationException {
         // Given
         final OperationDeclarations declarations = new OperationDeclarations.Builder()
-                .declaration(new OperationDeclaration.Builder()
+                .declaration(new OperationDeclaration()
                         .handler(new GenerateElementsHandler())
-                        .operation(GenerateElements.class)
-                        .build())
+                        .operation(GenerateElements.class))
                 .build();
 
         // When

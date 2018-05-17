@@ -34,7 +34,7 @@ public class OperationDeclaration {
     }
 
     public void setOperation(final Class<? extends Operation> operation) {
-        this.operation = operation;
+        this.operation(operation);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -43,7 +43,7 @@ public class OperationDeclaration {
     }
 
     public void setHandler(final OperationHandler handler) {
-        this.handler = handler;
+        this.handler(handler);
     }
 
     @Override
@@ -54,27 +54,13 @@ public class OperationDeclaration {
                 .build();
     }
 
-    public static class Builder {
-        private final OperationDeclaration instance;
-
-        public Builder() {
-            instance = new OperationDeclaration();
-        }
-
-        public Builder operation(final Class<? extends Operation> operation) {
-            this.instance.setOperation(operation);
-            return this;
-        }
-
-        public Builder handler(final OperationHandler handler) {
-            this.instance.setHandler(handler);
-            return this;
-        }
-
-        public OperationDeclaration build() {
-            return this.instance;
-        }
+    public OperationDeclaration operation(final Class<? extends Operation> operation) {
+        this.operation = operation;
+        return this;
     }
 
-
+    public OperationDeclaration handler(final OperationHandler handler) {
+        this.handler = handler;
+        return this;
+    }
 }

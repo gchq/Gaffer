@@ -46,7 +46,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPair
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.GetRDDOfElementsInRanges;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration.Builder;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 
 import java.util.Arrays;
@@ -66,54 +65,54 @@ public class SparkOperationDeclarationsTest {
         // Then
         final List<OperationDeclaration> deserialisedOps = deserialised.getOperations();
         final List<OperationDeclaration> expectedOps = Arrays.asList(
-                new Builder()
+                new OperationDeclaration()
                         .operation(GetJavaRDDOfElements.class)
                         .handler(new GetJavaRDDOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetRDDOfElements.class)
                         .handler(new GetRDDOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetRDDOfAllElements.class)
                         .handler(new GetRDDOfAllElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetJavaRDDOfAllElements.class)
                         .handler(new GetJavaRDDOfAllElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetDataFrameOfElements.class)
                         .handler(new GetDataFrameOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(ImportKeyValueJavaPairRDDToAccumulo.class)
                         .handler(new ImportKeyValueJavaPairRDDToAccumuloHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(ImportJavaRDDOfElements.class)
                         .handler(new ImportJavaRDDOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(ImportKeyValuePairRDDToAccumulo.class)
                         .handler(new ImportKeyValuePairRDDToAccumuloHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(ImportRDDOfElements.class)
                         .handler(new ImportRDDOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetGraphFrameOfElements.class)
                         .handler(new GetGraphFrameOfElementsHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetJavaRDDOfElementsInRanges.class)
                         .handler(new GetJavaRDDOfElementsInRangesHandler())
-                        .build(),
-                new Builder()
+                        ,
+                new OperationDeclaration()
                         .operation(GetRDDOfElementsInRanges.class)
                         .handler(new GetRDDOfElementsInRangesHandler())
-                        .build()
+                        
         );
         assertEquals(expectedOps.size(), deserialisedOps.size());
         for (int i = 0; i < expectedOps.size(); i++) {
