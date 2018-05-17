@@ -359,9 +359,8 @@ public class FederatedStoreTest {
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
         //Given
-        final GetTraits getTraits = new GetTraits.Builder()
-                .currentTraits(true)
-                .build();
+        final GetTraits getTraits = new GetTraits()
+                .currentTraits(true);
 
         //When
         final Set<StoreTrait> before = store.getTraits(getTraits, userContext);

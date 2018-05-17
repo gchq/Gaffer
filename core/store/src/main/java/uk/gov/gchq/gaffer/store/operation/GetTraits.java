@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,14 +41,13 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
      * By default it will return a list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {
-        return new Builder()
+        return new GetTraits()
                 .options(options)
-                .currentTraits(currentTraits)
-                .build();
+                .currentTraits(currentTraits);
     }
 
     public boolean isCurrentTraits() {
@@ -55,7 +55,7 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
     }
 
     public void setCurrentTraits(final boolean currentTraits) {
-        this.currentTraits = currentTraits;
+        this.currentTraits(currentTraits);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        this.options = options;
+        this.options(options);
     }
 
     @Override
@@ -73,14 +73,20 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
         return new TypeReferenceStoreImpl.StoreTraits();
     }
 
-    public static class Builder extends BaseBuilder<GetTraits, Builder> {
-        public Builder() {
-            super(new GetTraits());
-        }
-
-        public Builder currentTraits(final boolean currentTraits) {
-            _getOp().setCurrentTraits(currentTraits);
-            return _self();
-        }
+    public GetTraits currentTraits(final boolean currentTraits) {
+        this.currentTraits = currentTraits;
+        return this;
     }
+
+    public GetTraits options(final Map<String, String> options) {
+        this.options = options;
+        return this;
+    }
+
+    public GetTraits option(final String key, final String value) {
+        this.options.put(key, value);
+        return this;
+    }
+
+
 }

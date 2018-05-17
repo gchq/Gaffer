@@ -173,9 +173,8 @@ public class GetTraitsHandlerTest {
 
         // When
         Set<StoreTrait> traits = store.execute(
-                new GetTraits.Builder()
-                        .currentTraits(false)
-                        .build(),
+                new GetTraits()
+                        .currentTraits(false),
                 new Context(testUser()));
 
         // Then
@@ -185,9 +184,8 @@ public class GetTraitsHandlerTest {
     private Set<StoreTrait> getStoreTraits(final Schema schema) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
         store.initialise(STORE_ID, schema, new StoreProperties());
         Set<StoreTrait> execute = store.execute(
-                new GetTraits.Builder()
-                        .currentTraits(true)
-                        .build(),
+                new GetTraits()
+                        .currentTraits(true),
                 new Context(testUser()));
 
         final Set<StoreTrait> actual = Sets.newHashSet(execute);

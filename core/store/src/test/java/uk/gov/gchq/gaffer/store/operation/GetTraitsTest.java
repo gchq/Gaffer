@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation;
 import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
 import java.util.Set;
 
@@ -34,25 +33,22 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
     @Override
     protected GetTraits getTestObject() {
-        return new GetTraits.Builder()
-                .currentTraits(true)
-                .build();
+        return new GetTraits()
+                .currentTraits(true);
     }
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new GetTraits()
+                .currentTraits(false);
 
         assertEquals(false, op.isCurrentTraits());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new GetTraits()
+                .currentTraits(false);
 
         GetTraits clone = op.shallowClone();
 

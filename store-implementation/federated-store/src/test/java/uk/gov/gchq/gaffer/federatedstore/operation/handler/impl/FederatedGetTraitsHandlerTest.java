@@ -77,9 +77,8 @@ public class FederatedGetTraitsHandlerTest {
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .currentTraits(false)
-                        .build(),
+                new GetTraits()
+                        .currentTraits(false),
                 new Context(testUser()));
 
         // Then
@@ -93,9 +92,8 @@ public class FederatedGetTraitsHandlerTest {
         assertEquals("graph is not starting empty", 0, federatedStore.getAllGraphIds(testUser()).size());
 
         // When
-        final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()
-                .currentTraits(true)
-                .build(), new Context(testUser()));
+        final Set<StoreTrait> traits = federatedStore.execute(new GetTraits()
+                .currentTraits(true), new Context(testUser()));
 
         // Then
         assertEquals(StoreTrait.ALL_TRAITS, traits);
@@ -114,9 +112,8 @@ public class FederatedGetTraitsHandlerTest {
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .currentTraits(false)
-                        .build(),
+                new GetTraits()
+                        .currentTraits(false),
                 new Context(testUser()));
 
         // Then
@@ -136,9 +133,8 @@ public class FederatedGetTraitsHandlerTest {
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .currentTraits(true)
-                        .build(),
+                new GetTraits()
+                        .currentTraits(true),
                 new Context(testUser()));
 
         // Then
@@ -174,10 +170,9 @@ public class FederatedGetTraitsHandlerTest {
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
+                new GetTraits()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(true)
-                        .build(),
+                        .currentTraits(true),
                 new Context(testUser()));
 
         // Then
@@ -213,10 +208,9 @@ public class FederatedGetTraitsHandlerTest {
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
+                new GetTraits()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(false)
-                        .build(),
+                        .currentTraits(false),
                 new Context(testUser()));
 
         // Then
