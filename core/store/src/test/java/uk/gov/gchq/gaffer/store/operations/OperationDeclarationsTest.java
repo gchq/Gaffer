@@ -36,11 +36,10 @@ public class OperationDeclarationsTest {
     @Test
     public void testSerialiseDeserialise() throws SerialisationException {
         // Given
-        final OperationDeclarations declarations = new OperationDeclarations.Builder()
+        final OperationDeclarations declarations = new OperationDeclarations()
                 .declaration(new OperationDeclaration()
                         .handler(new GenerateElementsHandler())
-                        .operation(GenerateElements.class))
-                .build();
+                        .operation(GenerateElements.class));
 
         // When
         final byte[] definitionJson = JSONSerialiser.serialise(declarations);

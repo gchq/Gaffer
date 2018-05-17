@@ -36,34 +36,25 @@ import java.util.List;
 public class OperationDeclarations {
     private List<OperationDeclaration> operations;
 
+    public OperationDeclarations() {
+        this.operations(new ArrayList<>());
+    }
+
     public List<OperationDeclaration> getOperations() {
         return operations;
     }
 
     public void setOperations(final List<OperationDeclaration> operations) {
-        this.operations = operations;
+        this.operations(operations);
     }
 
-    public static class Builder {
-        private final OperationDeclarations instance;
-
-        public Builder() {
-            this.instance = new OperationDeclarations();
-            this.instance.setOperations(new ArrayList<>());
-        }
-
-        public Builder declaration(final OperationDeclaration declaration) {
-            this.instance.getOperations().add(declaration);
-            return this;
-        }
-
-        public OperationDeclarations build() {
-            return this.instance;
-        }
+    public OperationDeclarations declaration(final OperationDeclaration operationDeclaration) {
+        operations.add(operationDeclaration);
+        return this;
     }
 
     public static OperationDeclarations fromPaths(final String paths) {
-        final OperationDeclarations allDefinitions = new OperationDeclarations.Builder().build();
+        final OperationDeclarations allDefinitions = new OperationDeclarations();
 
         try {
             for (final String pathStr : paths.split(",")) {
@@ -83,6 +74,11 @@ public class OperationDeclarations {
         }
 
         return allDefinitions;
+    }
+
+    public OperationDeclarations operations(final List<OperationDeclaration> operations) {
+        this.operations = operations;
+        return this;
     }
 
     public static OperationDeclarations fromJson(final byte[] json) {

@@ -312,7 +312,7 @@ public class StoreProperties implements Cloneable {
         }
 
         if (null == declarations) {
-            declarations = new OperationDeclarations.Builder().build();
+            declarations = new OperationDeclarations();
         }
 
         return declarations;

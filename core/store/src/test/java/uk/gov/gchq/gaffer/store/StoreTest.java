@@ -260,11 +260,10 @@ public class StoreTest {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         final OperationHandler<AddElements> addElementsHandlerOverridden = mock(OperationHandler.class);
-        final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
+        final OperationDeclarations opDeclarations = new OperationDeclarations()
                 .declaration(new OperationDeclaration()
                         .operation(AddElements.class)
-                        .handler(addElementsHandlerOverridden))
-                .build();
+                        .handler(addElementsHandlerOverridden));
         given(properties.getOperationDeclarations()).willReturn(opDeclarations);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
