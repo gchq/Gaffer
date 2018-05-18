@@ -85,6 +85,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         git pull
         git merge master
         mvn release:update-versions -B
+        sed -i '' 's/^koryphe.version=.*/koryphe.version='$KORYPHE_POM_VERSION'/' ../rest-api/core-rest/src/main/resources/version.properties
         git commit -a -m "prepare for next development iteration"
         git push
     else

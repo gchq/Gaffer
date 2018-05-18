@@ -30,6 +30,8 @@ import java.util.Properties;
  * System property keys and default values.
  */
 public abstract class SystemProperty {
+    private static Properties versionProperties;
+
     // KEYS
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
@@ -109,11 +111,18 @@ public abstract class SystemProperty {
     }
 
     private static String getVersion(final String propertyKey) {
+        if (versionProperties == null) {
+            loadVersionProperties();
+        }
+        return versionProperties.getProperty(propertyKey);
+    }
+
+    private static void loadVersionProperties() {
         try {
             Properties prop = new Properties();
             InputStream input = StreamUtil.openStream(SystemProperty.class, "version.properties");
             prop.load(input);
-            return prop.getProperty(propertyKey);
+            versionProperties = prop;
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
