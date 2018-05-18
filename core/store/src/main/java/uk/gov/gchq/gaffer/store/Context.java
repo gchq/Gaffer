@@ -49,7 +49,7 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, new HashMap<>());
+        this(user, null);
     }
 
     /**
@@ -72,9 +72,9 @@ public class Context {
         }
         this.user(user);
         if (null == config) {
-            this.config(new HashMap<>());
+            this.setConfig(new HashMap<>());
         } else {
-            this.config(config);
+            this.setConfig(config);
         }
         this.jobId(createJobId());
     }
@@ -221,20 +221,49 @@ public class Context {
         return this;
     }
 
+    /**
+     * @param config to append
+     * @return
+     */
     public Context config(final Map<String, Object> config) {
-        this.config = config;
+        if (null == this.config) {
+            setConfig(config);
+        } else {
+            this.config.putAll(config);
+        }
         return this;
+    }
+
+    /**
+     * @param config to replace
+     */
+    protected void setConfig(final Map<String, Object> config) {
+        this.config = config;
     }
 
 
     public Context config(final String key, final String value) {
+        if (null == this.config) {
+            setConfig(new HashMap<>());
+        }
         this.config.put(key, value);
         return this;
     }
 
 
+    /**
+     * @param originalOpChain to append
+     * @return
+     */
     protected Context originalOpChain(final OperationChain<?> originalOpChain) {
-        this.originalOpChain = originalOpChain;
+        if (originalOpChain == null) {
+            setOriginalOpChain(originalOpChain);
+        } else {
+            setOriginalOpChain(new OperationChain.Builder()
+                    .first(this.originalOpChain)
+                    .then(originalOpChain)
+                    .build());
+        }
         return this;
     }
 }
