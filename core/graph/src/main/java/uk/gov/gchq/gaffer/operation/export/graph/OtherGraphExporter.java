@@ -45,9 +45,8 @@ public class OtherGraphExporter implements Exporter {
             return;
         }
 
-        graph.execute(new AddElements.Builder()
-                .input((Iterable<Element>) elements)
-                .build(), context.getUser());
+        graph.execute(new AddElements()
+                .input((Iterable<Element>) elements), context.getUser());
     }
 
     @Override

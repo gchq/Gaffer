@@ -87,9 +87,8 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements.Builder()
-                        .input(entity1, entity2, entity3)
-                        .build(),
+        graph.execute(new AddElements()
+                        .input(entity1, entity2, entity3),
                 USER);
 
         // Given
@@ -163,7 +162,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), USER);
+        graph.execute(new AddElements().input(entity1, entity2, entity3), USER);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -216,7 +215,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements().input(entity1, entity2), USER);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -262,7 +261,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements().input(entity1, entity2), USER);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -308,7 +307,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements().input(entity1, entity2), USER);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -385,7 +384,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(
+        graph.execute(new AddElements().input(
                 entity1,
                 entity2,
                 entity3,
@@ -393,10 +392,10 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ), USER);
 
         // Duplicate the entities to check they are aggregated properly
-        graph.execute(new AddElements.Builder().input(
+        graph.execute(new AddElements().input(
                 entity1,
                 entity2,
                 entity3,
@@ -404,7 +403,7 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ), USER);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -515,7 +514,7 @@ public class AccumuloAggregationIT {
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(
+        graph.execute(new AddElements().input(
                 entity1,
                 entity2,
                 entity3,
@@ -523,10 +522,10 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ), USER);
 
         // Duplicate the entities to check they are not aggregated
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                         .input(entity1,
                                 entity2,
                                 entity3,
@@ -534,7 +533,7 @@ public class AccumuloAggregationIT {
                                 entity5,
                                 entity6,
                                 entity7)
-                        .build(),
+                ,
                 USER);
 
         // Given

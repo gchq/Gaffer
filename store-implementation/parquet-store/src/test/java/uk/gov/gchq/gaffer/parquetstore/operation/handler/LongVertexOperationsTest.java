@@ -25,12 +25,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -56,7 +54,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Before
     public void setup() throws IOException, OperationException {
         graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
     }
 
     @Override
@@ -120,7 +118,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     protected void checkData(final Graph graph, final CloseableIterable<? extends Element> data) throws IOException, OperationException {
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = new ArrayList<>(175);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -145,7 +143,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Override
     protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
         final List<Element> expected = new ArrayList<>(48);
         final List<Element> actual = new ArrayList<>(48);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -213,7 +211,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Override
     protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
         final List<Element> expected = new ArrayList<>(48);
         final List<Element> actual = new ArrayList<>(48);
         final Iterator<? extends Element> dataIter = data.iterator();
@@ -234,7 +232,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Override
     protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) throws IOException, OperationException {
         final Graph graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
         final List<Element> expected = new ArrayList<>(48);
         final List<Element> actual = new ArrayList<>(48);
         final Iterator<? extends Element> dataIter = data.iterator();

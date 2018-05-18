@@ -256,13 +256,15 @@ public class Context {
      * @return
      */
     protected Context originalOpChain(final OperationChain<?> originalOpChain) {
-        if (originalOpChain == null) {
-            setOriginalOpChain(originalOpChain);
-        } else {
-            setOriginalOpChain(new OperationChain.Builder()
-                    .first(this.originalOpChain)
-                    .then(originalOpChain)
-                    .build());
+        if (originalOpChain != null) {
+            if (this.originalOpChain == null) {
+                this.setOriginalOpChain(originalOpChain);
+            } else {
+                setOriginalOpChain(new OperationChain.Builder()
+                        .first(this.originalOpChain)
+                        .then(originalOpChain)
+                        .build());
+            }
         }
         return this;
     }

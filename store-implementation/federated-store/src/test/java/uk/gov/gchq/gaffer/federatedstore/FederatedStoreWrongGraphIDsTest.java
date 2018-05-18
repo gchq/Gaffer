@@ -92,10 +92,10 @@ public class FederatedStoreWrongGraphIDsTest {
                 .group(E1_GROUP)
                 .vertex("v1")
                 .build();
-        store.execute(new AddElements.Builder()
+        store.execute(new AddElements()
                         .input(expectedEntity)
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                        .build(),
+                ,
                 blankContext);
 
         CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
@@ -122,10 +122,10 @@ public class FederatedStoreWrongGraphIDsTest {
         }
 
         try {
-            store.execute(new AddElements.Builder()
+            store.execute(new AddElements()
                             .input(expectedEntity)
                             .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                            .build(),
+                    ,
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {

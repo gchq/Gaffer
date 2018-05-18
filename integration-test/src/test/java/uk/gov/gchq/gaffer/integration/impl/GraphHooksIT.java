@@ -77,9 +77,8 @@ public class GraphHooksIT extends AbstractStoreIT {
         final Edge edge2 = edge1.emptyClone();
         edge2.putProperty(TestPropertyNames.INT, 101);
 
-        graph.execute(new AddElements.Builder()
-                        .input(edge1, edge2)
-                        .build(),
+        graph.execute(new AddElements()
+                        .input(edge1, edge2),
                 getUser());
 
         final AddNamedView addNamedView = new AddNamedView.Builder()

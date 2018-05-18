@@ -214,7 +214,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                 .property("count", 200L)
                 .build();
 
-        graph.execute(new AddElements.Builder().input(edge1, edge2).build(), new User());
+        graph.execute(new AddElements().input(edge1, edge2), new User());
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -272,7 +272,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                 .property("count", 200L)
                 .build();
 
-        graph.execute(new AddElements.Builder().input(edge1, edge2).build(), new User());
+        graph.execute(new AddElements().input(edge1, edge2), new User());
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -305,7 +305,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     public void shouldGetCorrectElementsInGraphFrameWithRepeatedElements() throws OperationException {
         // Given
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getSimpleElements());
-        graph.execute(new AddElements.Builder().input(getSimpleElements()).build(), new User());
+        graph.execute(new AddElements().input(getSimpleElements()), new User());
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -340,7 +340,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), new User());
+        graph.execute(new AddElements().input(elements), new User());
         return graph;
     }
 

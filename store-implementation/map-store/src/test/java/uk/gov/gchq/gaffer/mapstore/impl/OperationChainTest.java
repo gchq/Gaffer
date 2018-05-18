@@ -55,9 +55,8 @@ public class OperationChainTest {
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
                 .storeProperties(new MapStoreProperties())
                 .build();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When

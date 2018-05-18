@@ -126,9 +126,8 @@ public abstract class RestApiTestClient {
     }
 
     public void addElements(final Element... elements) throws IOException {
-        executeOperation(new AddElements.Builder()
-                .input(elements)
-                .build());
+        executeOperation(new AddElements()
+                .input(elements));
     }
 
     public abstract Response executeOperation(final Operation operation) throws IOException;

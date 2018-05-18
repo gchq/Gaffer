@@ -118,9 +118,9 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                 edgeToDelete,
                 edgeToKeep);
 
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(elements)
-                .build(), new User());
+                , new User());
 
         final O resultBefore = graph.execute(createGetOperation(), new User());
         assertElements((Iterable) elements, resultBefore);

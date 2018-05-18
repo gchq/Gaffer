@@ -424,14 +424,13 @@ public class FederatedStoreTest {
         // Given
         addGraphWithPaths(ACC_ID_2, PATH_ACC_STORE_PROPERTIES_ALT, PATH_BASIC_EDGE_SCHEMA_JSON);
 
-        AddElements op = new AddElements.Builder()
+        AddElements op = new AddElements()
                 .input(new Edge.Builder()
                         .group("BasicEdge")
                         .source("testSource")
                         .dest("testDest")
                         .property("property1", 12)
-                        .build())
-                .build();
+                        .build());
 
         // When
         store.execute(op, userContext);
@@ -831,12 +830,12 @@ public class FederatedStoreTest {
         }
 
 
-        fedGraph.execute(new AddElements.Builder()
+        fedGraph.execute(new AddElements()
                         .input(new Entity.Builder()
                                 .group("BasicEntity")
                                 .vertex("v1")
                                 .build())
-                        .build(),
+                ,
                 blankUser);
 
         final CloseableIterable<? extends Element> elements = fedGraph.execute(

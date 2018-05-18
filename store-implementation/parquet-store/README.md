@@ -109,7 +109,7 @@ To get the best performance you should allow Gaffer to detect the best serialise
 The `ParquetStore` has two ways in which you can insert data into the graph. The first method is via the standard Gaffer `AddElements` operation which allows data to be inserted from a Java `Iterable`. For the `ParquetStore` this iterable must be of finite size as it is fully consumed before being sorted and merged with the existing data.
 
 ```
-AddElements addElements = new AddElements.Builder()
+AddElements addElements = new AddElements()
         .elements(elements)
         .build();
 graph.execute(addElements, new User());

@@ -31,9 +31,8 @@ public class CountTest extends OperationTest {
     @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Count count = new Count.Builder<String>()
-                .input("1", "2")
-                .build();
+        final Count count = new Count<String>()
+                .input("1", "2");
 
         // Then
         assertThat(count.getInput(), is(notNullValue()));
@@ -43,9 +42,8 @@ public class CountTest extends OperationTest {
     public void shouldShallowCloneOperation() {
         // Given
         final String input = "1";
-        final Count count = new Count.Builder<>()
-                .input(input)
-                .build();
+        final Count count = new Count<>()
+                .input(input);
 
         // When
         final Count clone = count.shallowClone();

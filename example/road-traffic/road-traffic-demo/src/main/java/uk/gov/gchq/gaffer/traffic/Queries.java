@@ -154,9 +154,9 @@ public class Queries {
                         .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "roadTrafficSampleData.csv")))
                         .generator(new RoadTrafficStringElementGenerator())
                         .build())
-                .then(new AddElements.Builder()
-                        .skipInvalidElements(false)
-                        .build())
+                .then(new AddElements()
+                                .skipInvalidElements(false)
+                )
                 .build();
         graph.execute(populateChain, user);
 

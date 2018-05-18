@@ -96,8 +96,8 @@ public class GetElementsInRangesIT {
                         .build()
         );
 
-        graphBE.execute(new AddElements.Builder().input(elements).build(), new User());
-        graphClassic.execute(new AddElements.Builder().input(elements).build(), new User());
+        graphBE.execute(new AddElements().input(elements), new User());
+        graphClassic.execute(new AddElements().input(elements), new User());
 
         // Repeat test for all in/out values
         final Set<SeededGraphFilters.IncludeIncomingOutgoingType> inOutTypes = Sets.newHashSet(SeededGraphFilters.IncludeIncomingOutgoingType.values());

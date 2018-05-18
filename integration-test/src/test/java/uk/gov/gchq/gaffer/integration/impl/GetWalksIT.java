@@ -848,13 +848,11 @@ public class GetWalksIT extends AbstractStoreIT {
 
     @Override
     public void addDefaultElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
-                .input(createEntitySet())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(createEntitySet()), getUser());
 
-        graph.execute(new AddElements.Builder()
-                .input(createEdgeSet())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(createEdgeSet()), getUser());
     }
 
     @Override

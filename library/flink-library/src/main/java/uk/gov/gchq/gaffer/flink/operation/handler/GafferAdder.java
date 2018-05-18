@@ -113,11 +113,10 @@ public class GafferAdder implements Serializable {
             restart = false;
             store.runAsync(() -> {
                 try {
-                    store.execute(new AddElements.Builder()
+                    store.execute(new AddElements()
                                     .input(queue)
                                     .validate(validate)
-                                    .skipInvalidElements(skipInvalid)
-                                    .build(),
+                                    .skipInvalidElements(skipInvalid),
                             new Context(new User()));
                     restart = true;
                 } catch (final OperationException e) {

@@ -1124,8 +1124,7 @@ public class SchemaTest {
                         .vertex("str")
                         .build())
                 .type("str", new TypeDefinition()
-                                .validateFunctions(new Exists())
-                )
+                                .validateFunctions(new Exists()))
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 

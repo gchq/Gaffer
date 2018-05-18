@@ -275,7 +275,7 @@ public class GetElementsInRangesHandlerTest {
         final List<Element> elements = createElements(numEntries);
 
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), context);
+            store.execute(new AddElements().input(elements), context);
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

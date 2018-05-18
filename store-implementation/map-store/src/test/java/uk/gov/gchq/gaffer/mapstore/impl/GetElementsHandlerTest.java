@@ -65,9 +65,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByNonExistentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -86,9 +85,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsWhenNoEntityIdsProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -107,9 +105,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByNonExistentEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -128,9 +125,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsWhenNoEdgeIdsProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -149,9 +145,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -186,9 +181,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When query for A->B0 with seedMatching set to RELATED
@@ -309,9 +303,8 @@ public class GetElementsHandlerTest {
     public void testAddAndGetAllElementsNoAggregationAndDuplicateElements() throws StoreException, OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoAggregation();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getDuplicateElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getDuplicateElements());
         graph.execute(addElements, new User());
 
         // When
@@ -344,9 +337,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -380,9 +372,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -416,9 +407,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -458,9 +448,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -500,9 +489,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -542,9 +530,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -593,9 +580,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -640,9 +626,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -687,9 +672,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -732,9 +716,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -784,9 +767,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsIncludeEntitiesOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When view has not entities
@@ -844,9 +826,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When directedType is EITHER
@@ -956,9 +937,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsInOutTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When inOutType is EITHER
@@ -1049,9 +1029,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsSeedMatchingTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When seedMatching is EQUAL
@@ -1124,9 +1103,8 @@ public class GetElementsHandlerTest {
     public void testGetElementsWhenNotMaintainingIndices() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoIndices();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -1143,9 +1121,8 @@ public class GetElementsHandlerTest {
     public void testElementsAreClonedBeforeBeingReturned() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When

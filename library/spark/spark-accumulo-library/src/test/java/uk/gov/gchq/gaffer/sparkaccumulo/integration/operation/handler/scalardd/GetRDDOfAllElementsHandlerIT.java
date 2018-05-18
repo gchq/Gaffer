@@ -371,10 +371,10 @@ public class GetRDDOfAllElementsHandlerIT {
                 .addSchema(schema)
                 .storeProperties(getAccumuloProperties(keyPackage))
                 .build();
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(elements)
                 .validate(false)
-                .build(), USER);
+                , USER);
         return graph;
     }
 
@@ -396,10 +396,10 @@ public class GetRDDOfAllElementsHandlerIT {
                 getSchemaForIngestAggregationChecking(),
                 getElementsForIngestAggregationChecking(), keyPackage);
         // Add data twice so that can check data is aggregated
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(getElementsForIngestAggregationChecking())
                 .validate(false)
-                .build(), USER);
+                , USER);
         return graph;
     }
 
@@ -420,10 +420,10 @@ public class GetRDDOfAllElementsHandlerIT {
                 .storeProperties(properties)
                 .build();
         if (null != elements) {
-            graph.execute(new AddElements.Builder()
+            graph.execute(new AddElements()
                     .input(elements)
                     .validate(false)
-                    .build(), USER);
+                    , USER);
             cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                     .tableOperations()
                     .compact(tableName, new CompactionConfig());
@@ -466,10 +466,10 @@ public class GetRDDOfAllElementsHandlerIT {
             IOException, OperationException, TableNotFoundException {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Graph graph = _getGraphForDirectRDD(keyPackage, tableName, getSchemaForValidationChecking(), null);
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(getElementsForValidationChecking())
                 .validate(false)
-                .build(), USER);
+                , USER);
         cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
@@ -659,8 +659,8 @@ public class GetRDDOfAllElementsHandlerIT {
     }
 
     private GetRDDOfAllElements getOperationWithBatchScannerEnabled() throws IOException {
-    	final GetRDDOfAllElements op = getOperation();
-    	op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
-    	return op;
+        final GetRDDOfAllElements op = getOperation();
+        op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
+        return op;
     }
 }

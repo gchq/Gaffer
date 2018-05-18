@@ -70,12 +70,11 @@ public class AddElementsTest extends OperationTest<AddElements> {
         final Boolean skipInvalidElements = false;
         final Element testInput = new Entity.Builder().property("name", "value").build();
 
-        final AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements()
                 .validate(validatable)
                 .skipInvalidElements(skipInvalidElements)
                 .input(testInput)
-                .option("testOption", "true")
-                .build();
+                .option("testOption", "true");
 
         // When
         final AddElements clone = addElements.shallowClone();
@@ -127,9 +126,8 @@ public class AddElementsTest extends OperationTest<AddElements> {
                         .build()
         );
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
 
         // When
         String json = new String(JSONSerialiser.serialise(addElements, true));
@@ -167,12 +165,11 @@ public class AddElementsTest extends OperationTest<AddElements> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element element = new Edge.Builder().group("testEdgeGroup").build();
-        AddElements addElements = new AddElements.Builder()
+        AddElements addElements = new AddElements()
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
-                .validate(false)
-                .build();
+                .validate(false);
 
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());

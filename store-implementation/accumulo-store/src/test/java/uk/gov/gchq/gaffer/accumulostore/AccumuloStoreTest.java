@@ -285,9 +285,8 @@ public class AccumuloStoreTest {
         e.putProperty(TestPropertyNames.COUNT, 1);
 
         final User user = new User();
-        final AddElements add = new AddElements.Builder()
-                .input(e)
-                .build();
+        final AddElements add = new AddElements()
+                .input(e);
         store.execute(add, store.createContext(user));
 
         final EntityId entityId1 = new EntitySeed("1");

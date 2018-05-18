@@ -95,9 +95,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.INT, 101);
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
-        graph.execute(new AddElements.Builder()
-                        .input(edge1, edge2)
-                        .build(),
+        graph.execute(new AddElements()
+                        .input(edge1, edge2),
                 getUser());
 
         final GetAllElements op = new GetAllElements.Builder()

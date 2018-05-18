@@ -72,9 +72,8 @@ public class TransformationIT extends AbstractStoreIT {
                         .build()
         );
 
-        graph.execute(new AddElements.Builder()
-                .input(elements)
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(elements), getUser());
     }
 
     /**

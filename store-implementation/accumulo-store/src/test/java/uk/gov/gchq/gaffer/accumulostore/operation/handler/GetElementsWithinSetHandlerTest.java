@@ -354,7 +354,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements.Builder().input(data).build(), store.createContext(user));
+            store.execute(new AddElements().input(data), store.createContext(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

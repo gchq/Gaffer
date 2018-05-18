@@ -81,9 +81,8 @@ public class RoadTrafficDataLoader {
                             .input(csvIterable)
                             .generator(new RoadTrafficCsvElementGenerator())
                             .build())
-                    .then(new AddElements.Builder()
-                            .skipInvalidElements(false)
-                            .build())
+                    .then(new AddElements()
+                            .skipInvalidElements(false))
                     .build();
             this.graph.execute(populateChain, this.user);
         } finally {

@@ -93,7 +93,7 @@ public class TypeDefinition {
     }
 
     public void setValidateFunctions(final List<Predicate> validateFunctions) {
-        this.validateFunctions(validateFunctions);
+        this.validateFunctions = validateFunctions;
     }
 
     /**
@@ -253,7 +253,11 @@ public class TypeDefinition {
     }
 
     public TypeDefinition validateFunctions(final List<Predicate> validateFunctions) {
-        this.validateFunctions = validateFunctions;
+        if (validateFunctions == null) {
+            setValidateFunctions(new ArrayList<>(validateFunctions));
+        } else {
+            validateFunctions.addAll(validateFunctions);
+        }
         return this;
     }
 

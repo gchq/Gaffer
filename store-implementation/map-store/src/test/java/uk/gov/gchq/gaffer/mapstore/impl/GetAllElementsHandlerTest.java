@@ -63,9 +63,8 @@ public class GetAllElementsHandlerTest {
     public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
         // Given
         final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -87,9 +86,8 @@ public class GetAllElementsHandlerTest {
     public void testAddAndGetAllElementsWithAggregation() throws StoreException, OperationException {
         // Given
         final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElementsForAggregation())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElementsForAggregation());
         graph.execute(addElements, new User());
 
         // When
@@ -152,9 +150,8 @@ public class GetAllElementsHandlerTest {
     public void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -179,9 +176,8 @@ public class GetAllElementsHandlerTest {
     public void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -211,9 +207,8 @@ public class GetAllElementsHandlerTest {
     public void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -244,9 +239,8 @@ public class GetAllElementsHandlerTest {
     public void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When no entities
@@ -289,9 +283,8 @@ public class GetAllElementsHandlerTest {
     public void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(getElements());
         graph.execute(addElements, new User());
 
         // When directedType is ALL

@@ -47,15 +47,14 @@ public class WhileIT extends AbstractStoreIT {
     public void shouldRepeatedlyAddElements() throws OperationException {
         // Given
         final While operation = new While.Builder<>()
-                .operation(new AddElements.Builder()
+                .operation(new AddElements()
                         .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex("1")
                                 .property(TestPropertyNames.COUNT, 2L)
                                 .property(TestPropertyNames.INT, 2)
                                 .property(TestPropertyNames.SET, CollectionUtil.treeSet(""))
-                                .build())
-                        .build())
+                                .build()))
                 .condition(true)
                 .maxRepeats(5)
                 .build();

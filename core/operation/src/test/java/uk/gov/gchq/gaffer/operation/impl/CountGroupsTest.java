@@ -38,10 +38,11 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final CountGroups countGroups = new CountGroups.Builder()
-                .input(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2))
-                .limit(1)
-                .build();
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity1 = new Entity(TestGroups.ENTITY_2);
+        final CountGroups countGroups = new CountGroups()
+                .input(entity, entity1)
+                .limit(1);
 
         // Then
         assertThat(countGroups.getInput(), is(notNullValue()));
@@ -55,10 +56,9 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         // Given
         final int limit = 3;
         final Entity input = new Entity(TestGroups.ENTITY);
-        final CountGroups countGroups = new CountGroups.Builder()
+        final CountGroups countGroups = new CountGroups()
                 .input(input)
-                .limit(limit)
-                .build();
+                .limit(limit);
 
         // When
         CountGroups clone = countGroups.shallowClone();

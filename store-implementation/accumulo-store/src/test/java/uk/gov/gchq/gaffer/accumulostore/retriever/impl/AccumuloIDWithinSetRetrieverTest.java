@@ -483,10 +483,10 @@ public class AccumuloIDWithinSetRetrieverTest {
                         .build());
 
                 data.add(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("A" + i)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .build()
+                                .group(TestGroups.ENTITY)
+                                .vertex("A" + i)
+                                .property(AccumuloPropertyNames.COUNT, i)
+                                .build()
                 );
             }
             data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
@@ -499,9 +499,9 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
-            store.execute(new AddElements.Builder()
+            store.execute(new AddElements()
                             .input(data)
-                            .build(),
+                    ,
                     store.createContext(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);

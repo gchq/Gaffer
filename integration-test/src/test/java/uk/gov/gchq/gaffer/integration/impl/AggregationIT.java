@@ -67,22 +67,19 @@ public class AggregationIT extends AbstractStoreIT {
         addDefaultElements();
 
         // Add duplicate elements
-        graph.execute(new AddElements.Builder()
-                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE)), getUser());
 
-        graph.execute(new AddElements.Builder()
-                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false)), getUser());
 
         // Edge with existing ids but directed
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(new Edge.Builder().group(TestGroups.EDGE)
                         .source(NON_AGGREGATED_SOURCE)
                         .dest(NON_AGGREGATED_DEST)
                         .directed(true)
-                        .build())
-                .build(), getUser());
+                        .build()), getUser());
     }
 
     @Test
@@ -123,7 +120,7 @@ public class AggregationIT extends AbstractStoreIT {
         final String vertex = "testVertex1";
         final long timestamp = System.currentTimeMillis();
 
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -135,10 +132,9 @@ public class AggregationIT extends AbstractStoreIT {
                                 .vertex(vertex)
                                 .property(TestPropertyNames.INT, 2)
                                 .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build())
-                .build(), getUser());
+                                .build()), getUser());
 
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -156,8 +152,7 @@ public class AggregationIT extends AbstractStoreIT {
                                 .vertex(vertex)
                                 .property(TestPropertyNames.INT, 9)
                                 .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build())
-                .build(), getUser());
+                                .build()), getUser());
 
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed(vertex))
@@ -223,9 +218,8 @@ public class AggregationIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.INT, 101);
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
-        graph.execute(new AddElements.Builder()
-                .input(edge1, edge2)
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(edge1, edge2), getUser());
 
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()

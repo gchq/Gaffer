@@ -75,9 +75,8 @@ public class VisibilityIT extends AbstractStoreIT {
         // entity1.putProperty(AccumuloPropertyNames.VISIBILITY, "");
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, USER_DEFAULT);
 
         final GetElements get = new GetElements.Builder()
@@ -114,9 +113,8 @@ public class VisibilityIT extends AbstractStoreIT {
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, USER_DEFAULT);
 
         final GetElements get = new GetElements.Builder()
@@ -149,9 +147,8 @@ public class VisibilityIT extends AbstractStoreIT {
         entity1.putProperty(TestTypes.VISIBILITY, "");
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, USER_DEFAULT);
 
         final GetElements get = new GetElements.Builder()
@@ -187,9 +184,8 @@ public class VisibilityIT extends AbstractStoreIT {
         entity1.putProperty(TestTypes.VISIBILITY, null);
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, USER_DEFAULT);
 
         final GetElements get = new GetElements.Builder()
@@ -229,9 +225,8 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
         elements.add(entity2);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, USER_VIS_1);
 
         final GetElements get = new GetElements.Builder()
@@ -273,9 +268,8 @@ public class VisibilityIT extends AbstractStoreIT {
         entity1.putProperty(TestTypes.VISIBILITY, "vis1&vis2");
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, new User());
 
         final GetElements get = new GetElements.Builder()
@@ -306,9 +300,8 @@ public class VisibilityIT extends AbstractStoreIT {
         entity1.putProperty(TestTypes.VISIBILITY, "vis1|vis2");
         elements.add(entity1);
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elements);
         graph.execute(addElements, new User());
 
         final GetElements get = new GetElements.Builder()

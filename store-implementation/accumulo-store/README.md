@@ -171,7 +171,7 @@ graph.execute(splitStore, new User());
 This is done by using the `AddElements` operation and is as simple as the following where `elements` is a Java `Iterable` of Gaffer `Element`s that match the schema specified when the graph was created:
 
 ```java
-AddElements addElements = new AddElements.Builder()
+AddElements addElements = new AddElements()
         .elements(elements)
         .build();
 graph.execute(addElements, new User());

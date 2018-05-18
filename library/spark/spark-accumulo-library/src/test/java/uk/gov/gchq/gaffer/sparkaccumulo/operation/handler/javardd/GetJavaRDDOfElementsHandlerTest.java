@@ -90,7 +90,7 @@ public class GetJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        graph1.execute(new AddElements().input(elements), user);
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -243,7 +243,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         }
         final User user = new User();
 
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        graph1.execute(new AddElements().input(elements), user);
 
 
         // Create Hadoop configuration and serialise to a string

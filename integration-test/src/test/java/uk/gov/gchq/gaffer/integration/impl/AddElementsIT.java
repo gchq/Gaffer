@@ -66,9 +66,8 @@ public class AddElementsIT extends AbstractStoreIT {
     @Test
     public void shouldThrowExceptionWithUsefulMessageWhenInvalidElementsAdded() throws OperationException {
         // Given
-        final AddElements addElements = new AddElements.Builder()
-                .input(VALID, INVALID)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(VALID, INVALID);
 
 
         // When / Then
@@ -90,10 +89,9 @@ public class AddElementsIT extends AbstractStoreIT {
     @Test
     public void shouldNotThrowExceptionWhenInvalidElementsAddedWithSkipInvalidSetToTrue() throws OperationException {
         // Given
-        final AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements()
                 .input(VALID, INVALID)
-                .skipInvalidElements(true)
-                .build();
+                .skipInvalidElements(true);
 
         // When
         graph.execute(addElements, getUser());
@@ -104,10 +102,9 @@ public class AddElementsIT extends AbstractStoreIT {
     @Test
     public void shouldNotThrowExceptionWhenInvalidElementsAddedWithValidateSetToFalse() throws OperationException {
         // Given
-        final AddElements addElements = new AddElements.Builder()
+        final AddElements addElements = new AddElements()
                 .input(VALID, INVALID)
-                .validate(false)
-                .build();
+                .validate(false);
 
         // When
         graph.execute(addElements, getUser());
@@ -138,9 +135,8 @@ public class AddElementsIT extends AbstractStoreIT {
                 .property(TestPropertyNames.TIMESTAMP, 2L)
                 .build();
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(entity, entity2, entity3)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(entity, entity2, entity3);
 
         // When
         graphWithNoAggregation.execute(addElements, getUser());
@@ -174,9 +170,8 @@ public class AddElementsIT extends AbstractStoreIT {
                 .property(TestPropertyNames.TIMESTAMP, 2L)
                 .build();
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(entity1, entity2, entity3)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(entity1, entity2, entity3);
 
         // When
         graphWithAggregation.execute(addElements, getUser());

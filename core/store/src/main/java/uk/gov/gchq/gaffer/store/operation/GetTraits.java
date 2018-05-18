@@ -19,19 +19,18 @@ package uk.gov.gchq.gaffer.store.operation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * An Operation used for getting traits from the Store.
  */
-public class GetTraits implements Operation, Output<Set<StoreTrait>> {
+public class GetTraits extends AbstractOperation<GetTraits> implements Operation, Output<Set<StoreTrait>> {
     public static final boolean DEFAULT_CURRENT_TRAITS = true;
 
     /**
@@ -41,11 +40,6 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
      * By default it will return a list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
-    private Map<String, String> options;
-
-    public GetTraits() {
-        this.options(new HashMap<>());
-    }
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {
@@ -63,16 +57,6 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
     }
 
     @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options(options);
-    }
-
-    @Override
     public TypeReference<Set<StoreTrait>> getOutputTypeReference() {
         return new TypeReferenceStoreImpl.StoreTraits();
     }
@@ -81,16 +65,4 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
         this.currentTraits = currentTraits;
         return this;
     }
-
-    public GetTraits options(final Map<String, String> options) {
-        this.options = options;
-        return this;
-    }
-
-    public GetTraits option(final String key, final String value) {
-        this.options.put(key, value);
-        return this;
-    }
-
-
 }

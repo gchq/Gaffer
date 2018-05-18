@@ -123,7 +123,7 @@ There are two ways of inserting data into a Gaffer `HBaseStore`: continuous load
 This is done by using the `AddElements` operation and is as simple as the following where `input` is a Java `Iterable` of Gaffer `Element`s that match the schema specified when the graph was created:
 
 ```java
-AddElements addElements = new AddElements.Builder()
+AddElements addElements = new AddElements()
         .input(elements)
         .build();
 graph.execute(addElements, new User());

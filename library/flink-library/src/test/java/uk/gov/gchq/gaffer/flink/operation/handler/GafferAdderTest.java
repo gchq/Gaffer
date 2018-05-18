@@ -68,11 +68,10 @@ public class GafferAdderTest {
 
         final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
         expectedQueue.put(element);
-        verify(store).execute(Mockito.eq(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements()
                 .input(expectedQueue)
                 .validate(true)
-                .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .skipInvalidElements(false)), Mockito.any());
     }
 
     @Test
@@ -99,11 +98,10 @@ public class GafferAdderTest {
         runnableCaptor1.getValue().run();
         final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
         expectedQueue.put(element);
-        verify(store).execute(Mockito.eq(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements()
                 .input(expectedQueue)
                 .validate(true)
-                .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .skipInvalidElements(false)), Mockito.any());
         Mockito.reset(store);
 
         // When
@@ -115,11 +113,10 @@ public class GafferAdderTest {
         runnableCaptor2.getValue().run();
         // As the queue has not been consumed the original elements will still be on the queue.
         expectedQueue.put(element2);
-        verify(store).execute(Mockito.eq(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements()
                 .input(expectedQueue)
                 .validate(true)
-                .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .skipInvalidElements(false)), Mockito.any());
     }
 
     @Test
@@ -150,10 +147,9 @@ public class GafferAdderTest {
         for (int i = 0; i < duplicates; i++) {
             expectedQueue.put(element);
         }
-        verify(store).execute(Mockito.eq(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements()
                 .input(expectedQueue)
                 .validate(true)
-                .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .skipInvalidElements(false)), Mockito.any());
     }
 }

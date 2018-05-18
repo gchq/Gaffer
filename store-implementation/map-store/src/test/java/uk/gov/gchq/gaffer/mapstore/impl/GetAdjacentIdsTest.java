@@ -47,9 +47,8 @@ public class GetAdjacentIdsTest {
     public void shouldGetAdjacentIdsWhenThereAreNone() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -68,9 +67,8 @@ public class GetAdjacentIdsTest {
     public void shouldGetAdjacentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When - query for A
@@ -144,9 +142,8 @@ public class GetAdjacentIdsTest {
     public void shouldGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -188,9 +185,8 @@ public class GetAdjacentIdsTest {
     public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -238,9 +234,8 @@ public class GetAdjacentIdsTest {
     public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When
@@ -288,9 +283,8 @@ public class GetAdjacentIdsTest {
     public void shouldFailValidationWhenEntityHasFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When / Then
@@ -298,19 +292,19 @@ public class GetAdjacentIdsTest {
             final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                     .input(new EntitySeed("A"), new EntitySeed("Y2"))
                     .view(new View.Builder()
-                                  .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                                          .postAggregationFilter(new ElementFilter.Builder()
-                                                                         .select(GetAllElementsHandlerTest.COUNT)
-                                                                         .execute(new IsMoreThan(5))
-                                                                         .build())
-                                          .build())
-                          .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition.Builder()
-                                  .postAggregationFilter(new ElementFilter.Builder()
-                                                        .select(GetAllElementsHandlerTest.PROPERTY1)
-                                                        .execute(new IsEqual("string"))
-                                                        .build())
-                                  .build())
-                          .build())
+                            .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                                    .postAggregationFilter(new ElementFilter.Builder()
+                                            .select(GetAllElementsHandlerTest.COUNT)
+                                            .execute(new IsMoreThan(5))
+                                            .build())
+                                    .build())
+                            .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition.Builder()
+                                    .postAggregationFilter(new ElementFilter.Builder()
+                                            .select(GetAllElementsHandlerTest.PROPERTY1)
+                                            .execute(new IsEqual("string"))
+                                            .build())
+                                    .build())
+                            .build())
                     .build();
             final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
             fail("Exception expected");
@@ -323,23 +317,22 @@ public class GetAdjacentIdsTest {
     public void shouldPassValidationOnEntitiesWithoutFilters() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("Y2"))
                 .view(new View.Builder()
-                      .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                            .postAggregationFilter(new ElementFilter.Builder()
-                                                   .select(GetAllElementsHandlerTest.COUNT)
-                                                   .execute(new IsMoreThan(5))
-                                                   .build())
-                            .build())
-                      .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition())
-                      .build())
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(GetAllElementsHandlerTest.COUNT)
+                                        .execute(new IsMoreThan(5))
+                                        .build())
+                                .build())
+                        .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition())
+                        .build())
                 .build();
 
         final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());

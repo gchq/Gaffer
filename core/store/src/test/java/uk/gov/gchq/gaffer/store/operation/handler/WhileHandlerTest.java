@@ -317,9 +317,8 @@ public class WhileHandlerTest {
     @Test
     public void shouldExecuteNonOutputOperation() throws OperationException {
         // Given
-        final AddElements addElements = new AddElements.Builder()
-                .input(new Edge.Builder().build())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(new Edge.Builder().build());
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
 

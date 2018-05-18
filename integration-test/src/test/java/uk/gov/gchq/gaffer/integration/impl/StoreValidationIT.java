@@ -37,9 +37,8 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.TIMESTAMP, now);
         entity.putProperty(TestPropertyNames.INT, 5);
 
-        graph.execute(new AddElements.Builder()
-                .input(entity)
-                .build(), user);
+        graph.execute(new AddElements()
+                .input(entity), user);
 
         // When 1 - before age off
         final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
@@ -82,10 +81,9 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 100);
 
         // add elements but skip the validation
-        graph.execute(new AddElements.Builder()
+        graph.execute(new AddElements()
                 .input(Collections.<Element>singleton(entity))
-                .validate(false)
-                .build(), user);
+                .validate(false), user);
 
         // When
         final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()

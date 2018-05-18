@@ -18,38 +18,23 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.AbstractIOOperation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
-import java.util.Map;
-
 /**
  * A {@code Count} operation counts how many items there are in the provided {@link Iterable}.
- *
- * @see Count.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Counts the number of items")
-public class Count<T> implements
+public class Count<T> extends AbstractIOOperation<Count, T> implements
         InputOutput<Iterable<? extends T>, Long>,
         MultiInput<T> {
-    private Iterable<? extends T> input;
-    private Map<String, String> options;
 
-    @Override
-    public Iterable<? extends T> getInput() {
-        return input;
-    }
-
-    @Override
-    public void setInput(final Iterable<? extends T> input) {
-        this.input = input;
-    }
 
     @Override
     public TypeReference<Long> getOutputTypeReference() {
@@ -58,28 +43,9 @@ public class Count<T> implements
 
     @Override
     public Count shallowClone() {
-        return new Count.Builder<T>()
-                .input(input)
-                .options(options)
-                .build();
+        return (Count<T>) new Count<T>()
+                .input(getInput())
+                .options(this.options);
     }
 
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options = options;
-    }
-
-    public static final class Builder<T>
-            extends Operation.BaseBuilder<Count<T>, Builder<T>>
-            implements InputOutput.Builder<Count<T>, Iterable<? extends T>, Long, Builder<T>>,
-            MultiInput.Builder<Count<T>, T, Builder<T>> {
-        public Builder() {
-            super(new Count<>());
-        }
-    }
 }

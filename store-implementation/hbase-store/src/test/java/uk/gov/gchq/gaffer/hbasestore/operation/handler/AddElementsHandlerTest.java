@@ -128,9 +128,8 @@ public class AddElementsHandlerTest {
         final List<Element> elementsWithNull = new ArrayList<>(elements);
         elementsWithNull.add(null); // null should be skipped
 
-        final AddElements addElements = new AddElements.Builder()
-                .input(elementsWithNull)
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(elementsWithNull);
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 

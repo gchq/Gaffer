@@ -75,6 +75,7 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
+
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
@@ -302,7 +303,7 @@ public class InputFormatTest {
 
     private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements.Builder().input(data).build(), store.createContext(new User()));
+            store.execute(new AddElements().input(data), store.createContext(new User()));
         } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }

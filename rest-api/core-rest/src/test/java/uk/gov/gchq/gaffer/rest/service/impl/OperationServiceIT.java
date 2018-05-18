@@ -145,9 +145,8 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperation(new AddElements.Builder()
-                .input(new Entity("wrong_group", "object"))
-                .build());
+        final Response response = client.executeOperation(new AddElements()
+                .input(new Entity("wrong_group", "object")));
 
         assertEquals(500, response.getStatus());
     }

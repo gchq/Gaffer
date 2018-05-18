@@ -117,9 +117,8 @@ public class GafferResultCacheExporter implements Exporter {
             }
         };
 
-        resultCache.execute(new AddElements.Builder()
-                .input(elements)
-                .build(), context);
+        resultCache.execute(new AddElements()
+                .input(elements), context);
     }
 
     @Override

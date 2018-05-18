@@ -36,11 +36,10 @@ import java.util.List;
 public class OperationDeclarations {
     private List<OperationDeclaration> operations;
 
-    public OperationDeclarations() {
-        this.operations(new ArrayList<>());
-    }
-
     public List<OperationDeclaration> getOperations() {
+        if (null == operations) {
+            operations = new ArrayList<>();
+        }
         return operations;
     }
 
@@ -49,7 +48,7 @@ public class OperationDeclarations {
     }
 
     public OperationDeclarations declaration(final OperationDeclaration operationDeclaration) {
-        operations.add(operationDeclaration);
+        getOperations().add(operationDeclaration);
         return this;
     }
 
@@ -77,7 +76,11 @@ public class OperationDeclarations {
     }
 
     public OperationDeclarations operations(final List<OperationDeclaration> operations) {
-        this.operations = operations;
+        if (this.operations == null) {
+            this.operations = new ArrayList<>(operations);
+        } else {
+            this.operations.addAll(operations);
+        }
         return this;
     }
 

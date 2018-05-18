@@ -20,14 +20,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@code GetSchema} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
@@ -36,13 +34,8 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.1.0")
 @Summary("Gets the Schema of a Graph")
-public class GetSchema implements Output<Schema> {
-    private Map<String, String> options;
+public class GetSchema extends AbstractOperation<GetSchema> implements Output<Schema> {
     private boolean compact = false;
-
-    public GetSchema() {
-        this.options(new HashMap<>());
-    }
 
     public boolean isCompact() {
         return compact;
@@ -53,20 +46,10 @@ public class GetSchema implements Output<Schema> {
     }
 
     @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options(options);
-    }
-
-    @Override
     public GetSchema shallowClone() throws CloneFailedException {
         return new GetSchema()
                 .compact(compact)
-                .options(options);
+                .options(getOptions());
     }
 
     @Override
@@ -79,13 +62,4 @@ public class GetSchema implements Output<Schema> {
         return this;
     }
 
-    public GetSchema options(final Map<String, String> options) {
-        this.options = options;
-        return this;
-    }
-
-    public GetSchema option(final String key, final String value) {
-        this.options.put(key, value);
-        return this;
-    }
 }

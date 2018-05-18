@@ -25,12 +25,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -54,7 +52,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     @Before
     public void setup() throws IOException, OperationException {
         graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
+        graph.execute(new AddElements().input(getElements()), USER);
     }
 
     @Override

@@ -103,34 +103,30 @@ public class ParquetStoreTest {
 
     @Test
     public void shouldNotThrowExceptionWhenAddingASingleEdgeWithGroupNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
-                        .input(unknownEdge)
-                        .build(),
+        getGraph().execute(new AddElements()
+                        .input(unknownEdge),
                 new User());
     }
 
     @Test
     public void shouldNotThrowExceptionWhenAddingASingleEntityWithGroupNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
-                        .input(unknownEntity)
-                        .build(),
+        getGraph().execute(new AddElements()
+                        .input(unknownEntity),
                 new User());
     }
 
     @Test
     public void shouldNotThrowExceptionWhenAddingAMultipleElementsWithGroupsNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
-                        .input(unknownEntity, unknownEdge)
-                        .build(),
+        getGraph().execute(new AddElements()
+                        .input(unknownEntity, unknownEdge),
                 new User());
     }
 
     @Test
     public void shouldAddElementWhenAddingBothValidAndInvalidElementsWithoutException() throws Exception {
         final Graph graph = getGraph();
-        graph.execute(new AddElements.Builder()
-                        .input(knownEntity, unknownEntity)
-                        .build(),
+        graph.execute(new AddElements()
+                        .input(knownEntity, unknownEntity),
                 new User());
 
         Iterable<? extends Element> results = graph.execute(new GetAllElements(), new User());

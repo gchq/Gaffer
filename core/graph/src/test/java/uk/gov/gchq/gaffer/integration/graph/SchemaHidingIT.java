@@ -127,10 +127,8 @@ public abstract class SchemaHidingIT {
                 .property(TestPropertyNames.TIMESTAMP, 1L)
                 .build();
 
-        fullGraph.execute(new AddElements.Builder()
-                        .input(edge1a, edge1b, edge2)
-                        .build(),
-                USER);
+        fullGraph.execute(new AddElements()
+                .input(edge1a, edge1b, edge2), USER);
 
         // Create a graph with a hidden group backed by the same store
         final Store filteredStore = createStore(createFilteredSchema());

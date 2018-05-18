@@ -19,16 +19,17 @@ package uk.gov.gchq.gaffer.store.operation.add;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An Operation used for adding {@link Schema} to the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary} of a store.
@@ -37,7 +38,7 @@ import java.util.Map;
  */
 @Since("1.5.0")
 @Summary("Adds a Schema to the GraphLibrary")
-public class AddSchemaToLibrary implements Operation {
+public class AddSchemaToLibrary extends AbstractOperation<AddSchemaToLibrary> implements Operation {
 
     @Required
     private Schema schema;
@@ -50,7 +51,6 @@ public class AddSchemaToLibrary implements Operation {
      * {@link #schema} field.
      */
     private List<String> parentSchemaIds;
-    private Map<String, String> options;
 
     public AddSchemaToLibrary() {
         this.parentSchemaIds(new LinkedList<>());
@@ -76,20 +76,10 @@ public class AddSchemaToLibrary implements Operation {
     @Override
     public AddSchemaToLibrary shallowClone() throws CloneFailedException {
         return new AddSchemaToLibrary()
-                .options(options)
+                .options(getOptions())
                 .parentSchemaIds(parentSchemaIds)
                 .schema(schema)
                 .id(id);
-    }
-
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options(options);
     }
 
     public List<String> getParentSchemaIds() {
@@ -110,18 +100,14 @@ public class AddSchemaToLibrary implements Operation {
         return this;
     }
 
-    public AddSchemaToLibrary options(final Map<String, String> options) {
-        this.options = options;
-        return this;
-    }
-
-    public AddSchemaToLibrary option(final String key, final String value) {
-        this.options.put(key, value);
-        return this;
-    }
-
     public AddSchemaToLibrary parentSchemaIds(final List<String> parentSchemaIds) {
-        this.parentSchemaIds = parentSchemaIds;
+        if (null != parentSchemaIds) {
+            if (this.parentSchemaIds == null) {
+                setParentSchemaIds(new ArrayList<>(parentSchemaIds));
+            } else {
+                this.parentSchemaIds.addAll(parentSchemaIds);
+            }
+        }
         return this;
     }
 

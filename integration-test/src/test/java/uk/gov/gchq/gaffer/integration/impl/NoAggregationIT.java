@@ -58,9 +58,8 @@ public class NoAggregationIT extends AbstractStoreIT {
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new Builder()
-                        .first(new AddElements.Builder()
-                                .input(input)
-                                .build())
+                        .first(new AddElements()
+                                .input(input))
                         .then(new GetAllElements.Builder()
                                 .build())
                         .build(),
@@ -87,9 +86,8 @@ public class NoAggregationIT extends AbstractStoreIT {
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new Builder()
-                        .first(new AddElements.Builder()
-                                .input(input)
-                                .build())
+                        .first(new AddElements()
+                                .input(input))
                         .then(new GetAllElements.Builder()
                                 .build())
                         .build(),

@@ -23,13 +23,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.AbstractIOOperation;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-
-import java.util.Map;
 
 /**
  * An {@code AddElements} operation is a {@link uk.gov.gchq.gaffer.operation.Validatable} operation for adding elements.
@@ -37,19 +35,16 @@ import java.util.Map;
  * This operation requires an {@link Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added. Handlers should
  * throw an {@link uk.gov.gchq.gaffer.operation.OperationException} if unsuccessful.
  * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
- *
- * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 @JsonPropertyOrder(value = {"class", "elements"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds elements")
-public class AddElements implements
+public class AddElements extends AbstractIOOperation<AddElements, Element>
+        implements
         Validatable,
         MultiInput<Element> {
     private boolean validate = true;
     private boolean skipInvalidElements;
-    private Iterable<? extends Element> elements;
-    private Map<String, String> options;
 
     @Override
     public boolean isValidate() {
@@ -77,34 +72,14 @@ public class AddElements implements
         return MultiInput.super.createInputArray();
     }
 
-    @Override
-    public Iterable<? extends Element> getInput() {
-        return elements;
-    }
-
-    @Override
-    public void setInput(final Iterable<? extends Element> elements) {
-        this.elements = elements;
-    }
-
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options = options;
-    }
 
     @Override
     public AddElements shallowClone() {
-        return new AddElements.Builder()
+        return new AddElements()
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
-                .input(elements)
-                .options(options)
-                .build();
+                .input(input)
+                .options(options);
     }
 
     @Override
@@ -123,7 +98,7 @@ public class AddElements implements
                 .append(options, addElements.options)
                 .append(validate, addElements.validate)
                 .append(skipInvalidElements, addElements.skipInvalidElements)
-                .append(elements, addElements.elements)
+                .append(input, addElements.input)
                 .isEquals();
     }
 
@@ -133,7 +108,7 @@ public class AddElements implements
                 .append(options)
                 .append(validate)
                 .append(skipInvalidElements)
-                .append(elements)
+                .append(input)
                 .toHashCode();
     }
 
@@ -143,15 +118,18 @@ public class AddElements implements
                 .append("options", options)
                 .append("validate", validate)
                 .append("skipInvalidElements", skipInvalidElements)
-                .append("elements", elements)
+                .append("elements", input)
                 .toString();
     }
 
-    public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
-            implements Validatable.Builder<AddElements, Builder>,
-            MultiInput.Builder<AddElements, Element, Builder> {
-        public Builder() {
-            super(new AddElements());
-        }
+    public AddElements validate(final boolean validate) {
+        this.validate = validate;
+        return this;
     }
+
+    public AddElements skipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+        return this;
+    }
+
 }

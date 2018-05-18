@@ -294,10 +294,9 @@ public class FederatedStoreUtilTest {
     public void shouldNotUpdateAddElementsFlagsWhenNotRequired() {
         // Given
         final Graph graph = createGraph();
-        final AddElements operation = new AddElements.Builder()
+        final AddElements operation = new AddElements()
                 .validate(true)
-                .skipInvalidElements(true)
-                .build();
+                .skipInvalidElements(true);
 
         // When
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
@@ -311,10 +310,9 @@ public class FederatedStoreUtilTest {
     public void shouldUpdateAddElementsFlagsWhenNullInputAndValidateFalse() {
         // Given
         final Graph graph = createGraph();
-        final AddElements operation = new AddElements.Builder()
+        final AddElements operation = new AddElements()
                 .validate(false)
-                .skipInvalidElements(true)
-                .build();
+                .skipInvalidElements(true);
 
         // When
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
@@ -330,10 +328,9 @@ public class FederatedStoreUtilTest {
     public void shouldUpdateAddElementsFlagsWhenNullInputAndSkipFalse() {
         // Given
         final Graph graph = createGraph();
-        final AddElements operation = new AddElements.Builder()
+        final AddElements operation = new AddElements()
                 .validate(true)
-                .skipInvalidElements(false)
-                .build();
+                .skipInvalidElements(false);
 
         // When
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
@@ -349,7 +346,7 @@ public class FederatedStoreUtilTest {
     public void shouldUpdateAddElementsInput() {
         // Given
         final Graph graph = createGraph();
-        final AddElements operation = new AddElements.Builder()
+        final AddElements operation = new AddElements()
                 .input(new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .build(),
@@ -361,8 +358,7 @@ public class FederatedStoreUtilTest {
                                 .build(),
                         new Edge.Builder()
                                 .group(TestGroups.EDGE_2)
-                                .build())
-                .build();
+                                .build());
 
         // When
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);

@@ -147,9 +147,8 @@ public class FederatedOperationChainHandlerTest {
         final FederatedOperationChain<Object, Void> opChain = new FederatedOperationChain.Builder<Object, Void>()
                 .operationChain(
                         new OperationChain.Builder()
-                                .first(new AddElements.Builder()
-                                        .input(elements2)
-                                        .build())
+                                .first(new AddElements()
+                                        .input(elements2))
                                 .build())
                 .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
                 .build();
@@ -254,9 +253,9 @@ public class FederatedOperationChainHandlerTest {
 
         final Context context = new Context();
 
-        store.execute(new AddElements.Builder()
+        store.execute(new AddElements()
                 .input(elements)
-                .build(), context);
+                , context);
 
         return store;
     }

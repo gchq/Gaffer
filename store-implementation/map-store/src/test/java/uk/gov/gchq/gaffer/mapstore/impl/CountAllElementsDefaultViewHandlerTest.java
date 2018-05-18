@@ -35,9 +35,8 @@ public class CountAllElementsDefaultViewHandlerTest {
     public void testCountAllElementsDefaultViewHandler() throws StoreException, OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .input(GetAllElementsHandlerTest.getElements())
-                .build();
+        final AddElements addElements = new AddElements()
+                .input(GetAllElementsHandlerTest.getElements());
         graph.execute(addElements, new User());
 
         // When

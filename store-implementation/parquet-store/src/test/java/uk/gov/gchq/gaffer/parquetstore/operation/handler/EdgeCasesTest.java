@@ -83,8 +83,8 @@ public class EdgeCasesTest {
         final ArrayList<Element> elements = new ArrayList<>(1);
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6,
                 TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements().input(elements), USER);
+        graph.execute(new AddElements().input(elements), USER);
         CloseableIterator<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER).iterator();
         final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
                 TestUtils.DATE, f2, 2, "");
@@ -110,7 +110,7 @@ public class EdgeCasesTest {
                 .addSchema(gafferSchema)
                 .storeProperties(parquetStoreProperties)
                 .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements().input(elements), USER);
         final List<Element> retrievedElements = new ArrayList<>();
         final CloseableIterator<? extends Element> iter = graph.execute(new GetAllElements(), USER).iterator();
         assertTrue(iter.hasNext());
@@ -140,7 +140,7 @@ public class EdgeCasesTest {
         B2A.putProperty("count", 1);
         elements.add(A2B);
         elements.add(B2A);
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements().input(elements), USER);
 
         final List<EntitySeed> entitySeeds = new ArrayList<>(1);
         entitySeeds.add(new EntitySeed("0"));
@@ -210,7 +210,7 @@ public class EdgeCasesTest {
         A2A.putProperty("count", 1);
         A2A.putProperty(TestTypes.VISIBILITY, "");
         elements.add(A2A);
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements().input(elements), USER);
 
         final List<EntitySeed> entitySeeds = new ArrayList<>(1);
         entitySeeds.add(new EntitySeed("A"));
@@ -240,17 +240,17 @@ public class EdgeCasesTest {
                 .storeProperties(parquetStoreProperties)
                 .build();
         final List<Element> input = DataGen.generate300StringElementsWithNullProperties(false);
-        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        graph.execute(new AddElements().input(input), USER);
         CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data, 1);
         data.close();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(2);
-        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        graph.execute(new AddElements().input(input), USER);
         data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data, 2);
         data.close();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(10);
-        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        graph.execute(new AddElements().input(input), USER);
         data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data, 3);
         data.close();

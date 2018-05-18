@@ -213,21 +213,17 @@ public class PartAggregationIT extends AbstractStoreIT {
     public void addDefaultElements() throws OperationException {
         super.addDefaultElements();
 
-        graph.execute(new AddElements.Builder()
-                .input(getNonAggregatedEntities())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getNonAggregatedEntities()), getUser());
 
-        graph.execute(new AddElements.Builder()
-                .input(getNonAggregatedEdges())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getNonAggregatedEdges()), getUser());
 
-        graph.execute(new AddElements.Builder()
-                .input(getEntitiesWithGroupBy())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getEntitiesWithGroupBy()), getUser());
 
-        graph.execute(new AddElements.Builder()
-                .input(getEdgesWithGroupBy())
-                .build(), getUser());
+        graph.execute(new AddElements()
+                .input(getEdgesWithGroupBy()), getUser());
     }
 
     @Override

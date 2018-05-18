@@ -167,9 +167,8 @@ public class ProxyStoreBasicIT {
     @Test
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
-        final AddElements add = new AddElements.Builder()
-                .input(DEFAULT_ELEMENTS)
-                .build();
+        final AddElements add = new AddElements()
+                .input(DEFAULT_ELEMENTS);
         JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
         // Wait until the job status is not RUNNING
@@ -233,9 +232,8 @@ public class ProxyStoreBasicIT {
     }
 
     private void addDefaultElements() throws OperationException {
-        final AddElements add = new AddElements.Builder()
-                .input(DEFAULT_ELEMENTS)
-                .build();
+        final AddElements add = new AddElements()
+                .input(DEFAULT_ELEMENTS);
         graph.execute(add, USER);
     }
 }

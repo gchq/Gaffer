@@ -153,9 +153,8 @@ public class AggregatorIteratorTest {
                 .build();
 
         final User user = new User();
-        store.execute(new AddElements.Builder()
-                .input(edge1, edge2, edge3)
-                .build(), store.createContext(user));
+        store.execute(new AddElements()
+                .input(edge1, edge2, edge3), store.createContext(user));
 
         final GetElements get = new GetElements.Builder()
                 .view(new View.Builder()
