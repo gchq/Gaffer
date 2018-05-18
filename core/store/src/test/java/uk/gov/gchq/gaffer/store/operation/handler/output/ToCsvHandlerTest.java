@@ -64,14 +64,13 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .generator(new CsvGenerator.Builder()
+                .generator(new CsvGenerator()
                         .group("Group Label")
                         .vertex("Vertex Label")
                         .source("Source Label")
                         .property("count", "Count Label")
                         .constant("A Constant", "Some constant value")
-                        .quoted(false)
-                        .build())
+                        .quoted(false))
                 .includeHeader(false)
                 .build();
 
@@ -120,14 +119,13 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .generator(new CsvGenerator.Builder()
+                .generator(new CsvGenerator()
                         .group("Group Label")
                         .vertex("Vertex Label")
                         .source("Source Label")
                         .property("count", "Count Label")
                         .constant("A Constant", "Some constant value")
-                        .quoted(true)
-                        .build())
+                        .quoted(true))
                 .includeHeader(false)
                 .build();
 
@@ -176,15 +174,14 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .generator(new CsvGenerator.Builder()
+                .generator(new CsvGenerator()
                         .group("Group Label")
                         .vertex("Vertex Label")
                         .source("Source Label")
                         .property("count", "Count Label")
                         .constant("A Constant", "Some constant value")
                         .quoted(false)
-                        .commaReplacement("-")
-                        .build())
+                        .commaReplacement("-"))
                 .includeHeader(false)
                 .build();
 
@@ -233,14 +230,13 @@ public class ToCsvHandlerTest {
 
         final ToCsv operation = new ToCsv.Builder()
                 .input(elements)
-                .generator(new CsvGenerator.Builder()
+                .generator(new CsvGenerator()
                         .group("Group Label")
                         .vertex("Vertex Label")
                         .source("Source Label")
                         .property("count", "Count Label")
                         .constant("A Constant", "Some constant value")
-                        .quoted(false)
-                        .build())
+                        .quoted(false))
                 .includeHeader(true)
                 .build();
 

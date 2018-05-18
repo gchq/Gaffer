@@ -290,10 +290,9 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                         // Convert the result entities to a simple CSV in format: Junction,busCount.
                 .then(new ToCsv.Builder()
-                        .generator(new CsvGenerator.Builder()
+                        .generator(new CsvGenerator()
                                 .vertex("Junction")
-                                .property("busCount", "Bus Count")
-                                .build())
+                                .property("busCount", "Bus Count"))
                         .build())
                 .build();
 

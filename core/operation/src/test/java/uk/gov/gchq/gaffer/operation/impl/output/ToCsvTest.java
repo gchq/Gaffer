@@ -56,7 +56,7 @@ public class ToCsvTest extends OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
-        final CsvGenerator generator = new CsvGenerator.Builder().group("group").build();
+        final CsvGenerator generator = new CsvGenerator().group("group");
         final ToCsv toCsv = new ToCsv.Builder()
                 .generator(generator)
                 .input(input)
@@ -74,7 +74,7 @@ public class ToCsvTest extends OperationTest {
     public void shouldShallowCloneOperation() {
         // Given
         final Entity input = new Entity(TestGroups.ENTITY);
-        final CsvGenerator generator = new CsvGenerator.Builder().group("group").build();
+        final CsvGenerator generator = new CsvGenerator().group("group");
         final ToCsv toCsv = new ToCsv.Builder()
                 .generator(generator)
                 .input(input)

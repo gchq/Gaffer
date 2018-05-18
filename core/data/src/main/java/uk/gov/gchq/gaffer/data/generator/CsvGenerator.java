@@ -89,9 +89,9 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
     public void setFields(final LinkedHashMap<String, String> fields) {
         if (null == fields) {
-            this.fields = new LinkedHashMap<>();
+            this.fields(new LinkedHashMap<>());
         }
-        this.fields = fields;
+        this.fields(fields);
     }
 
     public LinkedHashMap<String, String> getConstants() {
@@ -100,9 +100,9 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
     public void setConstants(final LinkedHashMap<String, String> constants) {
         if (null == constants) {
-            this.constants = new LinkedHashMap<>();
+            this.constants(new LinkedHashMap<>());
         }
-        this.constants = constants;
+        this.constants(constants);
     }
 
 
@@ -181,7 +181,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     }
 
     public void setQuoted(final boolean quoted) {
-        this.quoted = quoted;
+        this.quoted(quoted);
     }
 
     public String getCommaReplacement() {
@@ -189,144 +189,130 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     }
 
     public void setCommaReplacement(final String commaReplacement) {
-        this.commaReplacement = commaReplacement;
+        this.commaReplacement(commaReplacement);
     }
 
-    public static class Builder {
-        private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
-        private String commaReplacement = COMMA_REPLACEMENT_DEFAULT;
-        private Boolean quoted;
+    /**
+     * Stores the group of an {@link Element}.
+     *
+     * @param columnHeader the group of the {@code Element}
+     * @return this CsvGenerator
+     */
+    public CsvGenerator group(final String columnHeader) {
+        fields.put(GROUP, columnHeader);
+        return this;
+    }
 
-        /**
-         * Stores the group of an {@link Element}.
-         *
-         * @param columnHeader the group of the {@code Element}
-         * @return a new {@link Builder}
-         */
-        public Builder group(final String columnHeader) {
-            fields.put(GROUP, columnHeader);
-            return this;
-        }
+    /**
+     * Stores any additional properties of an {@link Element}.<br>
+     * For example: property("count", "3").<br>
+     * This would add the "count" property with a value of "3"
+     *
+     * @param propertyName the name of the property
+     * @param columnHeader the value of the property
+     * @return this CsvGenerator
+     */
+    public CsvGenerator property(final String propertyName, final String columnHeader) {
+        fields.put(propertyName, columnHeader);
+        return this;
+    }
 
-        /**
-         * Stores any additional properties of an {@link Element}.<br>
-         * For example: property("count", "3").<br>
-         * This would add the "count" property with a value of "3"
-         *
-         * @param propertyName the name of the property
-         * @param columnHeader the value of the property
-         * @return a new {@link Builder}
-         */
-        public Builder property(final String propertyName, final String columnHeader) {
-            fields.put(propertyName, columnHeader);
-            return this;
-        }
+    /**
+     * Stores the Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
+     *
+     * @param columnHeader the vertex contained within the {@code Entity}
+     * @return this CsvGenerator
+     */
+    public CsvGenerator vertex(final String columnHeader) {
+        return identifier(IdentifierType.VERTEX, columnHeader);
+    }
 
-        /**
-         * Stores the Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
-         *
-         * @param columnHeader the vertex contained within the {@code Entity}
-         * @return a new {@link Builder}
-         */
-        public Builder vertex(final String columnHeader) {
-            return identifier(IdentifierType.VERTEX, columnHeader);
-        }
 
-        /**
-         * Stores the Source Vertex of an {@link uk.gov.gchq.gaffer.data.element.Edge}.
-         *
-         * @param columnHeader the source vertex
-         * @return a new {@link Builder}
-         */
-        public Builder source(final String columnHeader) {
-            return identifier(IdentifierType.SOURCE, columnHeader);
-        }
+    /**
+     * Stores the Source Vertex of an {@link uk.gov.gchq.gaffer.data.element.Edge}.
+     *
+     * @param columnHeader the source vertex
+     * @return this CsvGenerator
+     */
+    public CsvGenerator source(final String columnHeader) {
+        return identifier(IdentifierType.SOURCE, columnHeader);
+    }
 
-        /**
-         * Stores the Destination Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
-         *
-         * @param columnHeader the destination vertex
-         * @return a new {@link Builder}
-         */
-        public Builder destination(final String columnHeader) {
-            return identifier(IdentifierType.DESTINATION, columnHeader);
-        }
+    /**
+     * Stores the Destination Vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
+     *
+     * @param columnHeader the destination vertex
+     * @return this CsvGenerator
+     */
+    public CsvGenerator destination(final String columnHeader) {
+        return identifier(IdentifierType.DESTINATION, columnHeader);
+    }
 
-        /**
-         * Stores the Direction flag, indicating whether or not the {@link uk.gov.gchq.gaffer.data.element.Edge}
-         * is directed.
-         *
-         * @param columnHeader true or false for if the {@code Edge} is directed or not
-         * @return a new {@link Builder}
-         */
-        public Builder direction(final String columnHeader) {
-            return identifier(IdentifierType.DIRECTED, columnHeader);
-        }
+    /**
+     * Stores the Direction flag, indicating whether or not the {@link uk.gov.gchq.gaffer.data.element.Edge}
+     * is directed.
+     *
+     * @param columnHeader true or false for if the {@code Edge} is directed or not
+     * @return this CsvGenerator
+     */
+    public CsvGenerator direction(final String columnHeader) {
+        return identifier(IdentifierType.DIRECTED, columnHeader);
+    }
 
-        /**
-         * Allows an {@link IdentifierType} of an {@link Element} to be stored, such as
-         * an {@link uk.gov.gchq.gaffer.data.element.Edge}'s {@link IdentifierType#MATCHED_VERTEX}.
-         *
-         * @param identifierType the {@code IdentifierType} of the {@code Element}
-         * @param columnHeader   the value for the corresponding field
-         * @return a new {@link Builder}
-         */
-        public Builder identifier(final IdentifierType identifierType, final String columnHeader) {
-            fields.put(identifierType.name(), columnHeader);
-            return this;
-        }
+    /**
+     * Allows an {@link IdentifierType} of an {@link Element} to be stored, such as
+     * an {@link uk.gov.gchq.gaffer.data.element.Edge}'s {@link IdentifierType#MATCHED_VERTEX}.
+     *
+     * @param identifierType the {@code IdentifierType} of the {@code Element}
+     * @param columnHeader   the value for the corresponding field
+     * @return this CsvGenerator
+     */
+    public CsvGenerator identifier(final IdentifierType identifierType, final String columnHeader) {
+        fields.put(identifierType.name(), columnHeader);
+        return this;
+    }
 
-        /**
-         * Stores any constants specific to a given {@link Element}.
-         *
-         * @param key   the name of the constant
-         * @param value the value of the constant
-         * @return a new {@link Builder}
-         */
-        public Builder constant(final String key, final String value) {
-            constants.put(key, value);
-            return this;
-        }
+    /**
+     * Stores any constants specific to a given {@link Element}.
+     *
+     * @param key   the name of the constant
+     * @param value the value of the constant
+     * @return this CsvGenerator
+     */
+    public CsvGenerator constant(final String key, final String value) {
+        constants.put(key, value);
+        return this;
+    }
 
-        /**
-         * Stores the String with which any encountered commas will be replaced.
-         *
-         * @param commaReplacement the replacement String
-         * @return a new {@link Builder}
-         */
-        public Builder commaReplacement(final String commaReplacement) {
-            this.commaReplacement = commaReplacement;
-            return this;
-        }
+    /**
+     * Stores the String with which any encountered commas will be replaced.
+     *
+     * @param commaReplacement the replacement String
+     * @return this CsvGenerator
+     */
+    public CsvGenerator commaReplacement(final String commaReplacement) {
+        this.commaReplacement = commaReplacement;
+        return this;
+    }
 
-        /**
-         * Stores the flag for whether or not each distinct value should be wrapped in quotation marks.
-         *
-         * @param quoted true or false
-         * @return a new {@link Builder}
-         */
-        public Builder quoted(final boolean quoted) {
-            this.quoted = quoted;
-            return this;
-        }
+    /**
+     * Stores the flag for whether or not each distinct value should be wrapped in quotation marks.
+     *
+     * @param quoted true or false
+     * @return this CsvGenerator
+     */
+    public CsvGenerator quoted(final boolean quoted) {
+        this.quoted = quoted;
+        return this;
+    }
 
-        /**
-         * Passes all of the configured fields and constants about an {@link Element} to a new {@link CsvGenerator},
-         * including the comma replacement String, and the flag for whether values should be quoted.
-         *
-         * @return a new {@code CsvGenerator}, containing all configured information
-         */
-        public CsvGenerator build() {
-            final CsvGenerator generator = new CsvGenerator();
-            generator.setFields(fields);
-            generator.setConstants(constants);
-            generator.setCommaReplacement(commaReplacement);
-            if (null != quoted) {
-                generator.setQuoted(quoted);
-            }
+    public CsvGenerator fields(final LinkedHashMap<String, String> fields) {
+        this.fields = fields;
+        return this;
+    }
 
-            return generator;
-        }
+    public CsvGenerator constants(final LinkedHashMap<String, String> constants) {
+        this.constants = constants;
+        return this;
     }
 }
