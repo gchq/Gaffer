@@ -105,7 +105,7 @@ public abstract class SystemProperty {
     public static final String LOGO_IMAGE_URL_DEFAULT = "images/logo.png";
 
     private static Properties versionProperties;
-    
+
     private SystemProperty() {
         // Private constructor to prevent instantiation.
     }
