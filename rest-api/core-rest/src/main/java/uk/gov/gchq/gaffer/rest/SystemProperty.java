@@ -30,8 +30,6 @@ import java.util.Properties;
  * System property keys and default values.
  */
 public abstract class SystemProperty {
-    private static Properties versionProperties;
-
     // KEYS
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
@@ -106,6 +104,8 @@ public abstract class SystemProperty {
     public static final String LOGO_LINK_DEFAULT = "https://github.com/gchq/Gaffer";
     public static final String LOGO_IMAGE_URL_DEFAULT = "images/logo.png";
 
+    private static Properties versionProperties;
+    
     private SystemProperty() {
         // Private constructor to prevent instantiation.
     }
