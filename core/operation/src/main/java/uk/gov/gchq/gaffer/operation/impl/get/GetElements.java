@@ -70,7 +70,13 @@ public class GetElements implements
         MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
+
+    /**
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     */
     private SeedMatchingType seedMatching;
+
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;

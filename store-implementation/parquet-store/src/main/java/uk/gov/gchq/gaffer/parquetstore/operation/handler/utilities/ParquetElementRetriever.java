@@ -61,7 +61,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final View view;
     private final DirectedType directedType;
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
+
+    /**
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     */
     private final SeedMatching.SeedMatchingType seedMatchingType;
+
     private final Iterable<? extends ElementId> seeds;
     private final ParquetFilterUtils parquetFilterUtils;
     private GraphIndex graphIndex;
