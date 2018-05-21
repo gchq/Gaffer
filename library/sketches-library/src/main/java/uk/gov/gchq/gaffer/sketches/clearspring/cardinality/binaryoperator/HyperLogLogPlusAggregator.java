@@ -19,6 +19,7 @@ import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link HyperLogLogPlus}s and merges the sketches together.
  */
 @Since("1.0.0")
+@Summary("Aggregates HyperLogLogPlus objects")
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
     protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {

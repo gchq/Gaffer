@@ -24,6 +24,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -49,12 +50,14 @@ public abstract class RestApiTestClient {
     protected final String versionString;
     protected final String uriString;
     protected HttpServer server;
+    protected DefaultGraphFactory defaultGraphFactory;
 
     public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config) {
         this.root = root.replaceAll("/$", "");
         this.path = path.replaceAll("/$", "");
         this.versionString = versionString.replaceAll("/$", "");
         this.config = config;
+        this.defaultGraphFactory = new DefaultGraphFactory();
 
         this.fullPath = this.path + '/' + versionString;
         this.uriString = this.root + '/' + this.fullPath;
@@ -88,7 +91,7 @@ public abstract class RestApiTestClient {
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
             storeProperties.getProperties()
-                           .store(out, "This is an optional header comment string");
+                    .store(out, "This is an optional header comment string");
         }
 
         // set properties for REST service
@@ -99,9 +102,21 @@ public abstract class RestApiTestClient {
         reinitialiseGraph();
     }
 
+    public void reinitialiseGraph(final Graph graph) throws IOException {
+        DefaultGraphFactory.setGraph(graph);
+
+        startServer();
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
+        }
+    }
+
 
     public void reinitialiseGraph() throws IOException {
-        DefaultGraphFactory.setGraph(null);
+        defaultGraphFactory.setGraph(null);
 
         startServer();
 
@@ -128,6 +143,8 @@ public abstract class RestApiTestClient {
 
     public abstract SystemStatus getRestServiceStatus();
 
+    public abstract Response getOperationDetails(final Class clazz) throws IOException;
+
     public void startServer() throws IOException {
         if (null == server) {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
@@ -144,6 +161,10 @@ public abstract class RestApiTestClient {
 
     public String getRoot() {
         return root;
+    }
+
+    public DefaultGraphFactory getDefaultGraphFactory() {
+        return defaultGraphFactory;
     }
 
     public String getFullPath() {

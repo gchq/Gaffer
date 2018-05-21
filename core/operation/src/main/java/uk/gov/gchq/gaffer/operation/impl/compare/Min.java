@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +50,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "comparators"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Extracts the minimum element based on provided Comparators")
 public class Min implements
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,

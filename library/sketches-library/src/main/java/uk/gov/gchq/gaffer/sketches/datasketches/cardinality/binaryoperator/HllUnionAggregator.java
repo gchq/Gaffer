@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 import com.yahoo.sketches.hll.Union;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -26,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link Union#update(com.yahoo.sketches.hll.HllSketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates HllUnions objects")
 public class HllUnionAggregator extends KorypheBinaryOperator<Union> {
 
     @Override

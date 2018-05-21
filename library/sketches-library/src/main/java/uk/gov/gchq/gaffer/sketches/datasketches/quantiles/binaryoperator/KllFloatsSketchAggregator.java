@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.yahoo.sketches.kll.KllFloatsSketch;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link KllFloatsSketch}s.
  */
 @Since("1.4.0")
+@Summary("Aggregates KllFloatsSketches")
 public class KllFloatsSketchAggregator extends KorypheBinaryOperator<KllFloatsSketch> {
 
     @Override

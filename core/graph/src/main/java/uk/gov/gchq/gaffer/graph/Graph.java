@@ -511,7 +511,11 @@ public final class Graph {
             this.properties = properties;
             if (null != properties) {
                 ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
-                JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+                JSONSerialiser.update(
+                        properties.getJsonSerialiserClass(),
+                        properties.getJsonSerialiserModules(),
+                        properties.getStrictJson()
+                );
             }
             return this;
         }

@@ -146,6 +146,49 @@ public class JsonSerialisationUtilTest {
         assertEquals(resultIDR.entrySet(), resultITR.entrySet());
     }
 
+    @Test
+    public void testClassWithTypeParamAndOtherField() {
+        // Given
+        final String ClassWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("test", String.class.getName());
+        expectedValues.put("t", Object.class.getName());
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamAndOtherFieldName);
+
+        // Then
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithJustTypeParam() {
+        // Given
+        final String classWithTypeParamName = ClassWithTypeParam.class.getName();
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("t", Object.class.getName());
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamName);
+
+        // Then
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithTypeParamExtendingComparable() {
+        // Given
+        final String ClassWithTypeParamExtendingComparableName = ClassWithTypeParamExtendingComparable.class.getName();
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("t", Comparable.class.getName());
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamExtendingComparableName);
+
+        // Then
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
     private static final class ClassWithNoFields {
     }
 
@@ -216,6 +259,52 @@ public class JsonSerialisationUtilTest {
                 result.field1 = this.field1;
                 return result;
             }
+        }
+    }
+
+    private static final class ClassWithTypeParamAndOtherField<T> {
+        private T t;
+        private String test;
+
+        public T getT() {
+            return t;
+        }
+
+        public void setT(final T t) {
+            this.t = t;
+        }
+
+        public String getTest() {
+            return test;
+        }
+
+        public void setTest(final String test) {
+            this.test = test;
+        }
+    }
+
+    private static final class ClassWithTypeParam<T> {
+        private T t;
+
+        public T getT() {
+            return t;
+        }
+
+        public void setT(final T t) {
+            this.t = t;
+        }
+    }
+
+
+    private static final class ClassWithTypeParamExtendingComparable<T extends Comparable> {
+        private T t;
+
+        public T getT() {
+            return t;
+        }
+
+        public void setT(final T t) {
+            this.t = t;
         }
     }
 }

@@ -35,22 +35,25 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -76,6 +79,20 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response getOperations() {
         return Response.ok(graphFactory.getGraph().getSupportedOperations())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response getOperationDetails() {
+        Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
+        List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
+
+        for (final Class<? extends Operation> supportedOperation : supportedOperations) {
+            supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation));
+        }
+
+        return Response.ok(supportedClassesAsOperationDetail)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -120,7 +137,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(getOperationClass(className)))
+                return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -152,7 +169,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(getExampleJson(getOperationClass(className)))
+            return Response.ok(generateExampleJson(getOperationClass(className)))
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         } catch (final ClassNotFoundException e) {
@@ -241,8 +258,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
+    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
@@ -254,16 +270,49 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
+    private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+        Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
+        List<OperationField> operationFields = new ArrayList<>();
+
+        for (final String fieldString : fieldsToClassMap.keySet()) {
+            boolean required = false;
+            Field field = null;
+
+            try {
+                field = opClass.getDeclaredField(fieldString);
+            } catch (final NoSuchFieldException e) {
+                // Ignore, we will just assume it isn't required
+            }
+
+            if (null != field) {
+                final Required[] annotations = field.getAnnotationsByType(Required.class);
+
+                if (null != annotations && annotations.length > 0) {
+                    required = true;
+                }
+            }
+            operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
+        }
+        return operationFields;
+    }
+
+    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+        final Summary summary = opClass.getAnnotation(Summary.class);
+        return null != summary && null != summary.value() ? summary.value() : null;
+    }
+
     /**
      * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
      */
     private class OperationField {
         private final String name;
+        private String className;
         private final boolean required;
 
-        OperationField(final String name, final boolean required) {
+        OperationField(final String name, final boolean required, final String className) {
             this.name = name;
             this.required = required;
+            this.className = className;
         }
 
         public String getName() {
@@ -273,31 +322,41 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         public boolean isRequired() {
             return required;
         }
+
+        public String getClassName() {
+            return className;
+        }
     }
 
     /**
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    private class OperationDetail {
+    protected class OperationDetail {
         private final String name;
+        private final String summary;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
+            this.summary = getOperationSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
-                this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
-            } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                this.exampleJson = generateExampleJson(opClass);
+            } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
         }
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public List<OperationField> getFields() {
@@ -310,20 +369,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public Operation getExampleJson() {
             return exampleJson;
-        }
-
-        private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            return Arrays.stream(opClass.getDeclaredFields())
-                    .map(f -> {
-                        boolean required = false;
-                        final Required[] annotations = f.getAnnotationsByType(Required.class);
-
-                        if (null != annotations && annotations.length > 0) {
-                            required = true;
-                        }
-                        return new OperationField(f.getName(), required);
-                    })
-                    .collect(Collectors.toList());
         }
     }
 }

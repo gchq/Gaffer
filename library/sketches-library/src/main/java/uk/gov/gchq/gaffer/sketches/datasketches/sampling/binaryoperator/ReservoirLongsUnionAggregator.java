@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -27,6 +28,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ReservoirLongsUnion#update(com.yahoo.sketches.sampling.ReservoirLongsSketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates ReservoirLongsUnions")
 public class ReservoirLongsUnionAggregator extends KorypheBinaryOperator<ReservoirLongsUnion> {
 
     @Override

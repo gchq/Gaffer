@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -29,6 +30,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * requires a specific serialiser.
  */
 @Since("1.0.0")
+@Summary("Aggregates ItemSketches of Strings")
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {
 
     @Override

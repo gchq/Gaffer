@@ -76,6 +76,21 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .get(SystemStatus.class);
     }
 
+    @Override
+    public Response getOperationDetails(final Class clazz) throws IOException {
+        return client.target(uriString)
+                .path("graph/operations/" + clazz.getCanonicalName())
+                .request()
+                .get(Response.class);
+    }
+
+    public Response getAllOperationsAsOperationDetails() throws IOException {
+        return client.target(uriString)
+                .path("graph/operations/details")
+                .request()
+                .get(Response.class);
+    }
+
     public Response getProperties() {
         return client.target(uriString)
                 .path("/properties")

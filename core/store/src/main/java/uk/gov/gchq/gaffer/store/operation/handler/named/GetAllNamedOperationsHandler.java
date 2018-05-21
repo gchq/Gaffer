@@ -18,13 +18,22 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.koryphe.util.IterableUtil;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Operation Handler for GetAllNamedOperations
@@ -53,6 +62,23 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      */
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        return cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
+        final CloseableIterable<NamedOperationDetail> ops =  cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
+        return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
+    }
+
+    private static class AddInputType implements Function<NamedOperationDetail, NamedOperationDetail> {
+        @Override
+        public NamedOperationDetail apply(final NamedOperationDetail namedOp) {
+            final List<Operation> opList = namedOp.getOperationChainWithDefaultParams().getOperations();
+            final Optional<String> inputClassName = opList.stream()
+                    .filter(op -> op instanceof Input)
+                    .map(op -> op.getClass().getName())
+                    .findFirst();
+
+            if (inputClassName.isPresent()) {
+                namedOp.setInputType(JsonSerialisationUtil.getSerialisedFieldClasses(inputClassName.get()).get("input"));
+            }
+            return namedOp;
+        }
     }
 }
