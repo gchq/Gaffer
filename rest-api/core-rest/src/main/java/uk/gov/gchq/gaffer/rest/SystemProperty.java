@@ -17,9 +17,14 @@
 package uk.gov.gchq.gaffer.rest;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * System property keys and default values.
@@ -29,7 +34,8 @@ public abstract class SystemProperty {
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
-
+    public static final String GAFFER_VERSION = "gaffer.version";
+    public static final String KORYPHE_VERSION = "koryphe.version";
     public static final String BASE_PATH = "gaffer.rest-api.basePath";
     public static final String REST_API_VERSION = "gaffer.rest-api.version";
     public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
@@ -87,6 +93,8 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
     public static final String BASE_PATH_DEFAULT = "rest";
     public static final String CORE_VERSION = "2.0.0";
+    public static final String GAFFER_VERSION_DEFAULT = getVersion(GAFFER_VERSION);
+    public static final String KORYPHE_VERSION_DEFAULT = getVersion(KORYPHE_VERSION);
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
@@ -96,7 +104,27 @@ public abstract class SystemProperty {
     public static final String LOGO_LINK_DEFAULT = "https://github.com/gchq/Gaffer";
     public static final String LOGO_IMAGE_URL_DEFAULT = "images/logo.png";
 
+    private static Properties versionProperties;
+
     private SystemProperty() {
         // Private constructor to prevent instantiation.
+    }
+
+    private static String getVersion(final String propertyKey) {
+        if (versionProperties == null) {
+            loadVersionProperties();
+        }
+        return versionProperties.getProperty(propertyKey);
+    }
+
+    private static void loadVersionProperties() {
+        try {
+            Properties prop = new Properties();
+            InputStream input = StreamUtil.openStream(SystemProperty.class, "version.properties");
+            prop.load(input);
+            versionProperties = prop;
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
