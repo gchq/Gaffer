@@ -86,7 +86,8 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         git pull
         git merge master
         mvn release:update-versions -B
-        sed -i'' -e 's/^koryphe.version=.*/koryphe.version='$KORYPHE_POM_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
+        NEW_GAFFER_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=pom.version | grep -v '\['`
+        sed -i'' -e 's/^gaffer.version=.*/gaffer.version='$NEW_GAFFER_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
         rm -f rest-api/core-rest/src/main/resources/version.properties-e
         git commit -a -m "prepare for next development iteration"
         git push
