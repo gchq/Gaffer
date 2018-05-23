@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-
 /**
- * @deprecated use a {@link View} instead to specify whether
+ * @deprecated use a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} instead to specify whether
  * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
  * See filtering documentation.
  * A {@code SeedMatching} adds seed matching to operations.
@@ -30,7 +28,7 @@ public interface SeedMatching {
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
      * @see SeedMatchingType
-     * @deprecated use a {@link View} instead to specify whether
+     * @deprecated use a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} instead to specify whether
      * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
      * See filtering documentation.
      */
@@ -40,7 +38,7 @@ public interface SeedMatching {
     /**
      * @return a {@link SeedMatchingType} describing how the seeds should be
      * matched to the identifiers in the graph.
-     * @deprecated use a {@link View} instead to specify whether
+     * @deprecated use a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} instead to specify whether
      * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
      * See filtering documentation.
      */
