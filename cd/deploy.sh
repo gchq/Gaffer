@@ -43,9 +43,6 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
 
         # Updating version properties in core-rest to update SystemProperties
-        sed -i'' -e "$sedCmd" ${f}
-        rm -f ${f}-e
-
         sed -i'' -e 's/^gaffer.version=.*/gaffer.version='$RELEASE_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
         sed -i'' -e 's/^koryphe.version=.*/koryphe.version='$KORYPHE_POM_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
         rm -f rest-api/core-rest/src/main/resources/version.properties-e
