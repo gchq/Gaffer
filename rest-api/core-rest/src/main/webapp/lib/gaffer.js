@@ -191,8 +191,9 @@ function updateTitle(properties) {
 function updateFooter(properties) {
     updateElementWithId("swagger-ui-container", "gaffer.version", properties, function(value, id) {
         var footer = $('#' + id).find(".footer")
-        var footerTextWithGafferVersion = footer.text().slice(0, -16) + ", gaffer version: " + value + " ]";
-        footer.html(footerTextWithGafferVersion);
+        var footerText = footer.text();
+        var newFooterText = footerText.substring(0, footerText.indexOf("]")) + ", gaffer version: " + value + " ]";
+        footer.text(newFooterText);
     })
 }
 
