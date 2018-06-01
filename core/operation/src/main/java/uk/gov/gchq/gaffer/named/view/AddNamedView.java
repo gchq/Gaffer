@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -47,6 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "name", "description", "view"}, alphabetic = true)
 @Since("1.3.0")
+@Summary("Adds a new named view")
 public class AddNamedView implements Operation {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     @Required

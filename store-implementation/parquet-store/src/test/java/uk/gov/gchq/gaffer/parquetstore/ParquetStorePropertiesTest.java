@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,14 +44,14 @@ public class ParquetStorePropertiesTest {
 
     @Test
     public void dataDirTest() {
-        assertEquals("parquet_data", props.getDataDir());
+        assertEquals(null, props.getDataDir());
         props.setDataDir("Test");
         assertEquals("Test", props.getDataDir());
     }
 
     @Test
     public void tempFilesDirTest() {
-        assertEquals(".gaffer/temp_parquet_data", props.getTempFilesDir());
+        assertEquals(null, props.getTempFilesDir());
         props.setTempFilesDir("Test");
         assertEquals("Test", props.getTempFilesDir());
     }

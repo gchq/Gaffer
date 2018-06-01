@@ -141,4 +141,5 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         // Then
         assertFalse(result.isValid());
     }
+
 }

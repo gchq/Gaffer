@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "name"}, alphabetic = true)
 @Since("1.3.0")
+@Summary("Deletes a named view")
 public class DeleteNamedView implements Operation {
     @Required
     private String name;

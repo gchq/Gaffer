@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -38,6 +39,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "resultsLimit"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Limits the number of items")
 public class Limit<T> implements
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {

@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -137,4 +138,11 @@ public interface ExamplesFactory {
      * @return the example class
      */
     If ifOperation();
+
+    /**
+     * Generates an example for the {@link While} operation.
+     *
+     * @return the example class
+     */
+    While whileOperation();
 }

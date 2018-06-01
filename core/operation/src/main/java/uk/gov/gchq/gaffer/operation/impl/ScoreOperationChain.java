@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "operationChain"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Scores an OperationChain")
 public class ScoreOperationChain implements Output<Integer> {
     private OperationChain operationChain;
     private Map<String, String> options;

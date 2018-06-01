@@ -15,6 +15,6 @@
  */
 
 /**
- * Additional operations for the parquet store.
+ * Operations and handlers for the Parquet store.
  */
 package uk.gov.gchq.gaffer.parquetstore.operation;

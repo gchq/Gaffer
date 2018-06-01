@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
@@ -47,6 +48,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "splitsFilePath"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Creates a splits file by sampling given data")
 public class SampleDataForSplitPoints implements
         Operation,
         MapReduce {

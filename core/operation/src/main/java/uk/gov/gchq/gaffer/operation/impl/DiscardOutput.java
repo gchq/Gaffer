@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Discards the results from the previous operation")
 public class DiscardOutput implements
         Input<Object> {
 

@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>1.4.0-RC4-SNAPSHOT</version>
+        <version>1.5.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,6 +38,11 @@
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- External libraries -->

@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.4.0-RC4-SNAPSHOT</version>
+        <version>1.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -174,7 +174,7 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
-                                    <include>io.github.lukehutch.fastclasspathscanner*</include>
+                                    <include>io.github.lukehutch*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

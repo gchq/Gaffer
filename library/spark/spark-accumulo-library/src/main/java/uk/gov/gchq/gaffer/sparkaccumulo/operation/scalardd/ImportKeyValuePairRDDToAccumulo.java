@@ -24,11 +24,13 @@ import scala.Tuple2;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "outputPath", "failurePath"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Imports key-value pair RDD to Accumulo")
 public class ImportKeyValuePairRDDToAccumulo implements
         Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;
