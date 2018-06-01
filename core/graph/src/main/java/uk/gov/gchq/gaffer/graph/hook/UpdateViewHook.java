@@ -62,6 +62,7 @@ import java.util.Set;
  */
 public class UpdateViewHook implements GraphHook {
 
+    public static final boolean ADD_EXTRA_GROUPS_DEFAULT = false;
     private Set<String> withOpAuth;
     private Set<String> withoutOpAuth;
     private Set<String> withDataAuth;
@@ -69,6 +70,7 @@ public class UpdateViewHook implements GraphHook {
     private Set<String> whiteListElementGroups;
     private Set<String> blackListElementGroups;
     private byte[] viewToMerge;
+    private boolean addExtraGroups = ADD_EXTRA_GROUPS_DEFAULT;
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
@@ -81,12 +83,22 @@ public class UpdateViewHook implements GraphHook {
         for (final Operation operation : opChain.flatten()) {
             if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
+
                 final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
                 if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
                         || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
                     viewBuilder.removeEntities(this::removeElementGroups);
                     viewBuilder.removeEdges(this::removeElementGroups);
                 }
+
+                if (!addExtraGroups && null != operationView.getView()) {
+                    final Set<String> entityGroups = operationView.getView().getEntityGroups();
+                    viewBuilder.removeEntities(grp -> null == entityGroups || !entityGroups.contains(grp.getKey()));
+
+                    final Set<String> edgeGroups = operationView.getView().getEdgeGroups();
+                    viewBuilder.removeEdges(grp -> null == edgeGroups || !edgeGroups.contains(grp.getKey()));
+                }
+
                 viewBuilder.expandGlobalDefinitions();
                 operationView.setView(viewBuilder.build());
             }
@@ -241,6 +253,15 @@ public class UpdateViewHook implements GraphHook {
         return null != viewToMerge ? View.fromJson(viewToMerge) : null;
     }
 
+    public boolean isAddExtraGroups() {
+        return addExtraGroups;
+    }
+
+    public UpdateViewHook setAddExtraGroups(final boolean addExtraGroups) {
+        this.addExtraGroups = addExtraGroups;
+        return this;
+    }
+
     public static class Builder {
         private Set<String> withOpAuth;
         private Set<String> withoutOpAuth;
@@ -249,6 +270,7 @@ public class UpdateViewHook implements GraphHook {
         private Set<String> whiteListElementGroups;
         private Set<String> blackListElementGroups;
         private View viewToMerge;
+        private boolean addExtraGroups;
 
         public Builder withOpAuth(final Set<String> withOpAuth) {
             this.withOpAuth = withOpAuth;
@@ -285,6 +307,11 @@ public class UpdateViewHook implements GraphHook {
             return this;
         }
 
+        public Builder addExtraGroups(final boolean addExtraGroups) {
+            this.addExtraGroups = addExtraGroups;
+            return this;
+        }
+
         public UpdateViewHook build() {
             return new UpdateViewHook()
                     .setWithOpAuth(withOpAuth)
@@ -293,7 +320,8 @@ public class UpdateViewHook implements GraphHook {
                     .setWithoutDataAuth(withoutDataAuth)
                     .setWhiteListElementGroups(whiteListElementGroups)
                     .setBlackListElementGroups(blackListElementGroups)
-                    .setViewToMerge(viewToMerge);
+                    .setViewToMerge(viewToMerge)
+                    .setAddExtraGroups(addExtraGroups);
         }
     }
 
