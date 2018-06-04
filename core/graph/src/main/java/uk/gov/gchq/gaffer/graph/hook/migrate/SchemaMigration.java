@@ -59,6 +59,8 @@ public class SchemaMigration implements GraphHook {
                     .filter(OperationView::hasView)
                     .map(OperationView.class::cast)
                     .forEach(this::updateView);
+
+            // TODO: conditionally (based on a flag being set) add an AggregateOperation after the OperationView operation.
         }
     }
 
