@@ -387,11 +387,6 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS preAggregationFilter(final ElementFilter preAggregationFilter) {
-            if (null != getElementDef().getPreAggregationFilter()) {
-                throw new IllegalArgumentException("ViewElementDefinition.Builder().preAggregationFilter(ElementFilter)" +
-                        "may only be called once.");
-            }
-
             getElementDef().preAggregationFilter = preAggregationFilter;
             return self();
         }
@@ -410,11 +405,6 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
-            if (null != getElementDef().getPostAggregationFilter()) {
-                throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
-                        "may only be called once.");
-            }
-
             getElementDef().postAggregationFilter = postAggregationFilter;
             return self();
         }
@@ -428,11 +418,6 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS postTransformFilter(final ElementFilter postTransformFilter) {
-            if (null != getElementDef().getPostTransformFilter()) {
-                throw new IllegalArgumentException("ViewElementDefinition.Builder().postTransformFilter(ElementFilter)" +
-                        "may only be called once.");
-            }
-
             getElementDef().postTransformFilter = postTransformFilter;
             return self();
         }
@@ -452,6 +437,13 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
+            return addTransformFunctions(transformFunctions);
+        }
+
+        public CHILD_CLASS addTransformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
+            if (null == getElementDef().transformer) {
+                getElementDef().transformer = new ElementTransformer();
+            }
             if (null != transformFunctions) {
                 getElementDef().transformer.getComponents().addAll(transformFunctions);
             }

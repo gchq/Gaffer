@@ -54,7 +54,12 @@ public enum IdentifierType {
     /**
      * The vertex adjacent to Edge's matched vertex (defaults to DESTINATION).
      */
-    ADJACENT_MATCHED_VERTEX;
+    ADJACENT_MATCHED_VERTEX,
+
+    /**
+     * The element Group.
+     */
+    GROUP;
 
     private static final Map<String, IdentifierType> VALUES = new HashMap<>(values().length);
 

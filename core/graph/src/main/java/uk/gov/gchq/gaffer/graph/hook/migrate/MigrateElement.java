@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.function.migration;
+package uk.gov.gchq.gaffer.graph.hook.migrate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder;
+import uk.gov.gchq.gaffer.operation.function.migration.ReturnValue;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.List;
@@ -33,8 +36,20 @@ public class MigrateElement {
     public MigrateElement() {
     }
 
+    public MigrateElement(final String oldGroup, final String newGroup,
+                          final ElementTransformer toNewTransform,
+                          final ElementTransformer toOldTransform) {
+        this.oldGroup = oldGroup;
+        this.newGroup = newGroup;
+        this.toNewTransform = toNewTransform;
+        this.toOldTransform = toOldTransform;
+        addNewGroupTransform();
+        addOldGroupTransform();
+    }
+
     public void setOldGroup(String oldGroup) {
         this.oldGroup = oldGroup;
+        addOldGroupTransform();
     }
 
     public String getOldGroup() {
@@ -43,12 +58,12 @@ public class MigrateElement {
 
     public void setNewGroup(String newGroup) {
         this.newGroup = newGroup;
+        addNewGroupTransform();
     }
 
     public String getNewGroup() {
         return newGroup;
     }
-
 
     @JsonIgnore
     public ElementTransformer getToNewTransform() {
@@ -66,6 +81,7 @@ public class MigrateElement {
 
     public void setToNew(final List<TupleAdaptedFunction<String, ?, ?>> toNewFunctions) {
         this.toNewTransform = new ElementTransformer();
+        addNewGroupTransform();
         if (null != toNewFunctions) {
             this.toNewTransform.getComponents().addAll(toNewFunctions);
         }
@@ -77,8 +93,37 @@ public class MigrateElement {
 
     public void setToOld(final List<TupleAdaptedFunction<String, ?, ?>> toOldFunctions) {
         this.toOldTransform = new ElementTransformer();
+        addOldGroupTransform();
         if (null != toOldFunctions) {
             this.toOldTransform.getComponents().addAll(toOldFunctions);
+        }
+    }
+
+    private void addNewGroupTransform() {
+        if (null != newGroup && !newGroup.equals(oldGroup)) {
+            final ElementTransformer toNewTransformTmp = new Builder()
+                    .select("GROUP")
+                    .execute(new ReturnValue(newGroup))
+                    .project("GROUP")
+                    .build();
+            if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
+                toNewTransformTmp.getComponents().addAll(toNewTransform.getComponents());
+            }
+            toNewTransform = toNewTransformTmp;
+        }
+    }
+
+    private void addOldGroupTransform() {
+        if (null != oldGroup && !oldGroup.equals(newGroup)) {
+            final ElementTransformer toOldTransformTmp = new Builder()
+                    .select("GROUP")
+                    .execute(new ReturnValue(oldGroup))
+                    .project("GROUP")
+                    .build();
+            if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
+                toOldTransformTmp.getComponents().addAll(toOldTransform.getComponents());
+            }
+            toOldTransform = toOldTransformTmp;
         }
     }
 }

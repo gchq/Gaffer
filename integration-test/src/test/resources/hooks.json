@@ -1,6 +1,6 @@
 [
   {
-    "class": "uk.gov.gchq.gaffer.graph.hook.SchemaMigration",
+    "class": "uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration",
     "migrations": {
       "edges": [
         {
