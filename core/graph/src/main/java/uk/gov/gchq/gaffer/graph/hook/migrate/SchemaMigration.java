@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook.migrate;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,12 @@ import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.ArrayList;
@@ -35,10 +39,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @JsonPropertyOrder(value = {"entities", "edges", "transformToNew"}, alphabetic = true)
 public class SchemaMigration implements GraphHook {
     public static final MigrationOutputType DEFAULT_OUTPUT_TYPE = MigrationOutputType.OLD;
+    public boolean aggregateAfter = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaMigration.class);
 
@@ -60,7 +66,24 @@ public class SchemaMigration implements GraphHook {
                     .map(OperationView.class::cast)
                     .forEach(this::updateView);
 
-            // TODO: conditionally (based on a flag being set) add an AggregateOperation after the OperationView operation.
+            if (aggregateAfter) {
+                AddOperationsToChain addOpsHook = new AddOperationsToChain();
+
+                List<? extends Operation> operationsWithViews = opChain.flatten()
+                        .stream()
+                        .filter(OperationView::hasView)
+                        .collect(Collectors.toList());
+
+                final java.util.Map<String, List<Operation>> afterOpsMap = new HashMap<>();
+
+                for (Operation o : operationsWithViews) {
+                    afterOpsMap.put(o.getClass().getName(), Lists.newArrayList(new Aggregate()));
+                }
+
+                addOpsHook.setAfter(afterOpsMap);
+
+                addOpsHook.preExecute(opChain, context);
+            }
         }
     }
 
@@ -163,10 +186,22 @@ public class SchemaMigration implements GraphHook {
             }
         }
 
-        //TODO apply all of the other ViewElementDefinition fields
         if (null != oldElement.getGroupBy()) {
             viewBuilder.groupBy(oldElement.getGroupBy().toArray(new String[oldElement.getGroupBy().size()]));
         }
+        if (null != oldElement.getAggregator()) {
+            viewBuilder.aggregator(oldElement.getAggregator());
+        }
+        if (null != oldElement.getTransientProperties()) {
+            viewBuilder.transientProperties(oldElement.getTransientPropertyMap());
+        }
+        if (null != oldElement.getProperties()) {
+            viewBuilder.properties(oldElement.getProperties());
+        }
+        if (null != oldElement.getExcludeProperties()) {
+            viewBuilder.excludeProperties(oldElement.getExcludeProperties());
+        }
+
         return viewBuilder.build();
     }
 
@@ -185,10 +220,22 @@ public class SchemaMigration implements GraphHook {
                     .build());
         }
 
-        //TODO apply all of the other ViewElementDefinition fields
         if (null != oldElement.getGroupBy()) {
             viewBuilder.groupBy(oldElement.getGroupBy().toArray(new String[oldElement.getGroupBy().size()]));
         }
+        if (null != oldElement.getAggregator()) {
+            viewBuilder.aggregator(oldElement.getAggregator());
+        }
+        if (null != oldElement.getTransientProperties()) {
+            viewBuilder.transientProperties(oldElement.getTransientPropertyMap());
+        }
+        if (null != oldElement.getProperties()) {
+            viewBuilder.properties(oldElement.getProperties());
+        }
+        if (null != oldElement.getExcludeProperties()) {
+            viewBuilder.excludeProperties(oldElement.getExcludeProperties());
+        }
+
         return viewBuilder.build();
     }
 
@@ -233,10 +280,22 @@ public class SchemaMigration implements GraphHook {
             }
         }
 
-        //TODO apply all of the other ViewElementDefinition fields
         if (null != newElement.getGroupBy()) {
             viewBuilder.groupBy(newElement.getGroupBy().toArray(new String[newElement.getGroupBy().size()]));
         }
+        if (null != newElement.getAggregator()) {
+            viewBuilder.aggregator(newElement.getAggregator());
+        }
+        if (null != newElement.getTransientProperties()) {
+            viewBuilder.transientProperties(newElement.getTransientPropertyMap());
+        }
+        if (null != newElement.getProperties()) {
+            viewBuilder.properties(newElement.getProperties());
+        }
+        if (null != newElement.getExcludeProperties()) {
+            viewBuilder.excludeProperties(newElement.getExcludeProperties());
+        }
+
         return viewBuilder.build();
     }
 
@@ -261,10 +320,22 @@ public class SchemaMigration implements GraphHook {
                     .build());
         }
 
-        //TODO apply all of the other ViewElementDefinition fields
         if (null != newElement.getGroupBy()) {
             viewBuilder.groupBy(newElement.getGroupBy().toArray(new String[newElement.getGroupBy().size()]));
         }
+        if (null != newElement.getAggregator()) {
+            viewBuilder.aggregator(newElement.getAggregator());
+        }
+        if (null != newElement.getTransientProperties()) {
+            viewBuilder.transientProperties(newElement.getTransientPropertyMap());
+        }
+        if (null != newElement.getProperties()) {
+            viewBuilder.properties(newElement.getProperties());
+        }
+        if (null != newElement.getExcludeProperties()) {
+            viewBuilder.excludeProperties(newElement.getExcludeProperties());
+        }
+
         return viewBuilder.build();
     }
 
@@ -299,5 +370,13 @@ public class SchemaMigration implements GraphHook {
             this.outputType = DEFAULT_OUTPUT_TYPE;
         }
         this.outputType = outputType;
+    }
+
+    public boolean isAggregateAfter() {
+        return aggregateAfter;
+    }
+
+    public void setAggregateAfter(final boolean aggregateAfter) {
+        this.aggregateAfter = aggregateAfter;
     }
 }
