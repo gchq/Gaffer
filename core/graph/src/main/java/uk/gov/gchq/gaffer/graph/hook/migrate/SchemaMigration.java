@@ -76,8 +76,8 @@ public class SchemaMigration implements GraphHook {
 
                 final java.util.Map<String, List<Operation>> afterOpsMap = new HashMap<>();
 
-                for (Operation o : operationsWithViews) {
-                    afterOpsMap.put(o.getClass().getName(), Lists.newArrayList(new Aggregate()));
+                for (final Operation op : operationsWithViews) {
+                    afterOpsMap.put(op.getClass().getName(), Lists.newArrayList(new Aggregate()));
                 }
 
                 addOpsHook.setAfter(afterOpsMap);

@@ -1,4 +1,5 @@
-/* Copyright 2018 Crown Copyright
+/*
+ * Copyright 2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +48,7 @@ public class MigrateElement {
         addOldGroupTransform();
     }
 
-    public void setOldGroup(String oldGroup) {
+    public void setOldGroup(final String oldGroup) {
         this.oldGroup = oldGroup;
         addOldGroupTransform();
     }
@@ -56,7 +57,7 @@ public class MigrateElement {
         return oldGroup;
     }
 
-    public void setNewGroup(String newGroup) {
+    public void setNewGroup(final String newGroup) {
         this.newGroup = newGroup;
         addNewGroupTransform();
     }

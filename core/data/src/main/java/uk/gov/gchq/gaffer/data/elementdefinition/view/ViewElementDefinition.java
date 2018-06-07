@@ -133,7 +133,7 @@ public class ViewElementDefinition implements ElementDefinition {
         return null == properties && (null == excludeProperties || excludeProperties.isEmpty());
     }
 
-    public boolean hasProperty(String property) {
+    public boolean hasProperty(final String property) {
         return properties.contains(property);
     }
 
@@ -181,6 +181,10 @@ public class ViewElementDefinition implements ElementDefinition {
         return preAggregationFilter;
     }
 
+    public void setPreAggregationFilter(final ElementFilter preAggregationFilter) {
+        this.preAggregationFilter = preAggregationFilter;
+    }
+
     @JsonGetter("preAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getComponents() : null;
@@ -203,6 +207,10 @@ public class ViewElementDefinition implements ElementDefinition {
         return postAggregationFilter;
     }
 
+    public void setPostAggregationFilter(final ElementFilter postAggregationFilter) {
+        this.postAggregationFilter = postAggregationFilter;
+    }
+
     @JsonGetter("postAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostAggregationFilterFunctions() {
         return null != postAggregationFilter ? postAggregationFilter.getComponents() : null;
@@ -215,6 +223,10 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementFilter getPostTransformFilter() {
         return postTransformFilter;
+    }
+
+    public void setPostTransformFilter(final ElementFilter postTransformFilter) {
+        this.postTransformFilter = postTransformFilter;
     }
 
     @JsonGetter("postTransformFilterFunctions")
@@ -387,6 +399,11 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS preAggregationFilter(final ElementFilter preAggregationFilter) {
+            if (null != getElementDef().getPreAggregationFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().preAggregationFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().preAggregationFilter = preAggregationFilter;
             return self();
         }
@@ -405,6 +422,11 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
+            if (null != getElementDef().getPostAggregationFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().postAggregationFilter = postAggregationFilter;
             return self();
         }
@@ -418,6 +440,11 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS postTransformFilter(final ElementFilter postTransformFilter) {
+            if (null != getElementDef().getPostTransformFilter()) {
+                throw new IllegalArgumentException("ViewElementDefinition.Builder().postTransformFilter(ElementFilter)" +
+                        "may only be called once.");
+            }
+
             getElementDef().postTransformFilter = postTransformFilter;
             return self();
         }
