@@ -408,6 +408,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearPreAggregationFilter() {
+            getElementDef().preAggregationFilter = null;
+            return self();
+        }
+
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
             if (null != filterFunctions) {
@@ -431,6 +436,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearPostAggregationFilter() {
+            getElementDef().postAggregationFilter = null;
+            return self();
+        }
+
         public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postAggregationFilter = new ElementFilter();
             if (null != filterFunctions) {
@@ -446,6 +456,11 @@ public class ViewElementDefinition implements ElementDefinition {
             }
 
             getElementDef().postTransformFilter = postTransformFilter;
+            return self();
+        }
+
+        public CHILD_CLASS clearPostTransformFilter() {
+            getElementDef().postTransformFilter = null;
             return self();
         }
 

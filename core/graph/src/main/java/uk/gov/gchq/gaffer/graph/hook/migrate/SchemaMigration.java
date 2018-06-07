@@ -149,17 +149,19 @@ public class SchemaMigration implements GraphHook {
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder();
 
         if (CollectionUtils.isNotEmpty(oldElement.getPreAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.preAggregationFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPreAggregationFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPreAggregationFilter()
+                    .preAggregationFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPreAggregationFilter()))
+                            .build());
         }
 
         if (CollectionUtils.isNotEmpty(oldElement.getPostAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.postAggregationFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostAggregationFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPostAggregationFilter()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostAggregationFilter()))
+                            .build());
         }
 
         if (MigrationOutputType.NEW == outputType) {
@@ -177,12 +179,14 @@ public class SchemaMigration implements GraphHook {
 
         if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
             if (MigrationOutputType.NEW == outputType) {
-                viewBuilder = viewBuilder.postTransformFilter(new ElementFilter.Builder()
-                        .select(ElementTuple.ELEMENT)
-                        .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
-                        .build());
+                viewBuilder = viewBuilder.clearPostTransformFilter()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(ElementTuple.ELEMENT)
+                                .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
+                                .build());
             } else {
-                viewBuilder.postTransformFilter(oldElement.getPostTransformFilter());
+                viewBuilder.clearPostTransformFilter()
+                        .postTransformFilter(oldElement.getPostTransformFilter());
             }
         }
 
@@ -214,10 +218,11 @@ public class SchemaMigration implements GraphHook {
                 .merge(oldElement)
                 .transformFunctions(migration.getToNew());
         if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
-            viewBuilder = viewBuilder.postTransformFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPostTransformFilter()
+                    .postTransformFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
+                            .build());
         }
 
         if (null != oldElement.getGroupBy()) {
@@ -247,23 +252,26 @@ public class SchemaMigration implements GraphHook {
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder();
 
         if (CollectionUtils.isNotEmpty(newElement.getPreAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.preAggregationFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPreAggregationFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPreAggregationFilter()
+                    .preAggregationFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPreAggregationFilter()))
+                            .build());
         }
 
         if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.postAggregationFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPostAggregationFilter()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
+                            .build());
         }
 
         if (MigrationOutputType.NEW == outputType) {
             viewBuilder = viewBuilder.transformer(migration.getToNewTransform());
             viewBuilder = viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
-            viewBuilder = viewBuilder.postTransformFilter(newElement.getPostTransformFilter());
+            viewBuilder = viewBuilder.clearPostTransformFilter()
+                    .postTransformFilter(newElement.getPostTransformFilter());
         } else {
             if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
                 viewBuilder = viewBuilder
@@ -273,10 +281,11 @@ public class SchemaMigration implements GraphHook {
             }
 
             if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
-                viewBuilder = viewBuilder.postTransformFilter(new ElementFilter.Builder()
-                        .select(ElementTuple.ELEMENT)
-                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                        .build());
+                viewBuilder = viewBuilder.clearPostTransformFilter()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(ElementTuple.ELEMENT)
+                                .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                                .build());
             }
         }
 
@@ -305,7 +314,9 @@ public class SchemaMigration implements GraphHook {
         }
 
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
+                .clearPreAggregationFilter()
                 .preAggregationFilter(newElement.getPreAggregationFilter())
+                .clearPostAggregationFilter()
                 .postAggregationFilter(newElement.getPostAggregationFilter());
 
         if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
@@ -314,10 +325,11 @@ public class SchemaMigration implements GraphHook {
         viewBuilder = viewBuilder.addTransformFunctions(migration.getToOld());
 
         if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
-            viewBuilder = viewBuilder.postTransformFilter(new ElementFilter.Builder()
-                    .select(ElementTuple.ELEMENT)
-                    .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                    .build());
+            viewBuilder = viewBuilder.clearPostTransformFilter()
+                    .postTransformFilter(new ElementFilter.Builder()
+                            .select(ElementTuple.ELEMENT)
+                            .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                            .build());
         }
 
         if (null != newElement.getGroupBy()) {
