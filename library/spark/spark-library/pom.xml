@@ -113,9 +113,17 @@
             <artifactId>spark-graphx_${scala.version}</artifactId>
             <version>${spark.version}</version>
             <exclusions>
+                <!--
+                Removed due to constraints by Maven Central disallowing
+                some of the characters used in these classes
+                -->
                 <exclusion>
                     <groupId>org.spire-math</groupId>
                     <artifactId>spire_2.11</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.chuusai</groupId>
+                    <artifactId>shapeless_2.11</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
