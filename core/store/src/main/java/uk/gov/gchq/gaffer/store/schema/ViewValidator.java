@@ -82,12 +82,15 @@ public class ViewValidator {
                         }
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-                        // TODO: find a way to skip this validation for the parts of the view that have been migrated
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+
+                        if (!view.hasBeenMigrated()) {
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        }
+
                         result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }
@@ -109,12 +112,15 @@ public class ViewValidator {
                         }
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-                        // TODO: find a way to skip this validation for the parts of the view that have been migrated
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-//                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+
+                        if (!view.hasBeenMigrated()) {
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        }
+
                         result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }

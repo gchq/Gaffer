@@ -64,7 +64,10 @@ public class SchemaMigration implements GraphHook {
                     .stream()
                     .filter(OperationView::hasView)
                     .map(OperationView.class::cast)
-                    .forEach(this::updateView);
+                    .forEach(opView -> {
+                        updateView(opView);
+                        opView.getView().setHasBeenMigrated(true);
+                    });
 
             if (aggregateAfter) {
                 AddOperationsToChain addOpsHook = new AddOperationsToChain();

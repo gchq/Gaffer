@@ -70,6 +70,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
+    private boolean hasBeenMigrated = false;
 
     public View() {
         super();
@@ -195,6 +196,14 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;
         }
+    }
+
+    public void setHasBeenMigrated(final boolean hasBeenMigrated){
+        this.hasBeenMigrated = hasBeenMigrated;
+    }
+
+    public boolean hasBeenMigrated() {
+        return hasBeenMigrated;
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
