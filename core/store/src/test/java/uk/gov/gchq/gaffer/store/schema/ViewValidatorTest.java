@@ -708,7 +708,7 @@ public class ViewValidatorTest {
         assertTrue(result.getErrorString(), result.isValid());
     }
 
-    /*@Test
+    @Test
     public void shouldValidateAndReturnFalseForOrFilterWithIncompatibleProperties() {
         // Given
         final ViewValidator validator = new ViewValidator();
@@ -739,7 +739,7 @@ public class ViewValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-    }*/
+    }
 
     @Test
     public void shouldValidateAndReturnTrueForAndFilter() {
@@ -774,7 +774,7 @@ public class ViewValidatorTest {
         assertTrue(result.getErrorString(), result.isValid());
     }
 
-    /*@Test
+    @Test
     public void shouldValidateAndReturnFalseForAndFilterWithIncompatibleProperties() {
         // Given
         final ViewValidator validator = new ViewValidator();
@@ -805,7 +805,7 @@ public class ViewValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-    }*/
+    }
 
     @Test
     public void shouldValidateAndReturnTrueForNotFilter() {
@@ -840,7 +840,7 @@ public class ViewValidatorTest {
         assertTrue(result.getErrorString(), result.isValid());
     }
 
-    /*@Test
+    @Test
     public void shouldValidateAndReturnFalseForNotFilterWithIncompatibleProperties() {
         // Given
         final ViewValidator validator = new ViewValidator();
@@ -871,7 +871,7 @@ public class ViewValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-    }*/
+    }
 
     @Test
     public void shouldValidateAndReturnTrueWhenAggregatorSelectionUnknownProperty() {
