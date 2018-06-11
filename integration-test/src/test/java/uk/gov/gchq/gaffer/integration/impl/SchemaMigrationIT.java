@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Entity.Builder;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -45,6 +46,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
@@ -94,6 +96,27 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .directed(true)
             .property("count", 10L)
             .build();
+    public static final Edge EDGE_AGG_OLD = new Edge.Builder()
+            .group("edgeAgg")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 10)
+            .build();
+    public static final Edge EDGE_AGG_NEW = new Edge.Builder()
+            .group("edgeAggNew")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 10L)
+            .build();
+    public static final Edge EDGE_AGG_OLD_DIFF_COUNT = new Edge.Builder()
+            .group("edgeAgg")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 12)
+            .build();
     public static final Edge EDGE_NEW_MIGRATED_TO_OLD = new Edge.Builder()
             .group("edgeOld")
             .source("newVertex")
@@ -101,6 +124,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .directed(true)
             .property("count", 10)
             .build();
+
     public static final View OLD_ENTITY_VIEW = new View.Builder()
             .entity("entityOld", new ViewElementDefinition.Builder()
                     .preAggregationFilter(new ElementFilter.Builder()
@@ -126,7 +150,6 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                             .build())
                     .build())
             .build();
-
 
     public static final View NEW_ENTITY_VIEW = new View.Builder()
             .entity("entityNew", new ViewElementDefinition.Builder()
@@ -154,7 +177,6 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                     .build())
             .build();
 
-
     public static final View OLD_VIEW = new View.Builder()
             .merge(OLD_ENTITY_VIEW)
             .merge(OLD_EDGE_VIEW)
@@ -170,6 +192,15 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .merge(NEW_VIEW)
             .build();
 
+    public static final View NEW_EDGE_AGG_VIEW = new View.Builder()
+            .edge("edgeAgg", new ViewElementDefinition.Builder()
+                    .groupBy()
+                    .aggregator(new ElementAggregator.Builder()
+                            .select("count")
+                            .execute(new Min())
+                            .build())
+                    .build())
+            .build();
 
     private SchemaMigration migration;
 
@@ -212,6 +243,20 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .directed("either")
                         .property("count", "long")
                         .build())
+                .edge("edgeAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .groupBy("count")
+                        .build())
+                .edge("edgeAggNew", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .groupBy("count")
+                        .build())
                 .type("string", String.class)
                 .type("either", Boolean.class)
                 .type("int", new TypeDefinition.Builder()
@@ -228,10 +273,9 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @Override
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW)
+                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_AGG_OLD, EDGE_AGG_OLD_DIFF_COUNT)
                 .build(), new User());
     }
-
 
     //--- Output NEW ---
 
@@ -375,6 +419,26 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 results);
     }
 
+    @Test
+    public void shouldMigrateOldToNewWithAgg() throws OperationException {
+        migration.setOutputType(MigrationOutputType.NEW);
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(
+                new GetElements.Builder()
+                        .input("aggVertex")
+                        .view(NEW_EDGE_AGG_VIEW)
+                        .build(),
+                new User());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        EDGE_AGG_NEW
+                ),
+                results);
+    }
+
     private SchemaMigration createMigration() {
         final SchemaMigration migration = new SchemaMigration();
 
@@ -394,10 +458,24 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .build()
                 )
         ));
-        migration.setEdges(Collections.singletonList(
+        migration.setEdges(Arrays.asList(
                 new MigrateElement(
                         "edgeOld",
                         "edgeNew",
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToLong())
+                                .project("count")
+                                .build(),
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToInteger())
+                                .project("count")
+                                .build()
+                ),
+                new MigrateElement(
+                        "edgeAgg",
+                        "edgeAggNew",
                         new ElementTransformer.Builder()
                                 .select("count")
                                 .execute(new ToLong())
