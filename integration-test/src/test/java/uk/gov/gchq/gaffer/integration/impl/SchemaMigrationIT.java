@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
@@ -96,33 +97,76 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .directed(true)
             .property("count", 10L)
             .build();
-    public static final Edge EDGE_AGG_OLD = new Edge.Builder()
-            .group("edgeAgg")
-            .source("aggVertex")
-            .dest("aggVertex2")
-            .directed(true)
-            .property("count", 10)
-            .build();
-    public static final Edge EDGE_AGG_NEW = new Edge.Builder()
-            .group("edgeAggNew")
-            .source("aggVertex")
-            .dest("aggVertex2")
-            .directed(true)
-            .property("count", 10L)
-            .build();
-    public static final Edge EDGE_AGG_OLD_DIFF_COUNT = new Edge.Builder()
-            .group("edgeAgg")
-            .source("aggVertex")
-            .dest("aggVertex2")
-            .directed(true)
-            .property("count", 12)
-            .build();
     public static final Edge EDGE_NEW_MIGRATED_TO_OLD = new Edge.Builder()
             .group("edgeOld")
             .source("newVertex")
             .dest("newVertex2")
             .directed(true)
             .property("count", 10)
+            .build();
+    public static final Edge EDGE_OLD_AGGREGATION = new Edge.Builder()
+            .group("edgeAgg")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 10)
+            .build();
+    public static final Edge EDGE_OLD_MIGRATED_TO_NEW_AGGREGATION = new Edge.Builder()
+            .group("edgeAggNew")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 10L)
+            .build();
+    public static final Edge EDGE_OLD_AGGREGATION_ALT_COUNT = new Edge.Builder()
+            .group("edgeAgg")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .property("count", 12)
+            .build();
+
+    public static final Edge EDGE_OLD_AGGREGATION_ALT_COUNT_MIGRATED_TO_NEW = new Edge.Builder()
+            .group("edgeAggNew")
+            .source("aggVertex")
+            .dest("aggVertex2")
+            .directed(true)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+            .property("count", 12L)
+            .build();
+
+    public static final Edge EDGE_OLD_POST_OP_AGGREGATION = new Edge.Builder()
+            .group("oldEdgePostOpAgg")
+            .source("postOpAggVertex")
+            .dest("postOpAggVertex2")
+            .directed(false)
+            .property("count", 5)
+            .build();
+
+    public static final Edge EDGE_OLD_POST_OP_AGGREGATION_MIGRATED_TO_NEW = new Edge.Builder()
+            .group("newEdgePostOpAgg")
+            .source("postOpAggVertex")
+            .dest("postOpAggVertex2")
+            .directed(false)
+            .property("count", 5L)
+            .build();
+
+
+    public static final Edge EDGE_NEW_POST_OP_AGGREGATION = new Edge.Builder()
+            .group("newEdgePostOpAgg")
+            .source("postOpAggVertex")
+            .dest("postOpAggVertex2")
+            .directed(false)
+            .property("count", 3L)
+            .build();
+
+    public static final Edge EDGE_NEW_POST_OP_AGGREGATION_AGGREGATED = new Edge.Builder()
+            .group("newEdgePostOpAgg")
+            .source("postOpAggVertex")
+            .dest("postOpAggVertex2")
+            .directed(false)
+            .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+            .property("count", 8L)
             .build();
 
     public static final View OLD_ENTITY_VIEW = new View.Builder()
@@ -202,6 +246,26 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                     .build())
             .build();
 
+    public static final View EDGE_POST_OP_AGG_VIEW = new View.Builder()
+            .edge("newEdgePostOpAgg", new ViewElementDefinition.Builder()
+                    .build())
+            .build();
+
+    public static final View EDGE_POST_AGG_FILTER_VIEW = new View.Builder()
+            .edge("edgeNew", new ViewElementDefinition.Builder()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select("count")
+                            .execute(new IsMoreThan(11L))
+                            .build())
+                    .build())
+            .edge("edgeAggNew", new ViewElementDefinition.Builder()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select("count")
+                            .execute(new IsMoreThan(11L))
+                            .build())
+                    .build())
+            .build();
+
     private SchemaMigration migration;
 
     @Before
@@ -257,6 +321,18 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .property("count", "long")
                         .groupBy("count")
                         .build())
+                .edge("oldEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .build())
+                .edge("newEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .build())
                 .type("string", String.class)
                 .type("either", Boolean.class)
                 .type("int", new TypeDefinition.Builder()
@@ -273,7 +349,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @Override
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_AGG_OLD, EDGE_AGG_OLD_DIFF_COUNT)
+                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT, EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION)
                 .build(), new User());
     }
 
@@ -434,9 +510,68 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         // Then
         ElementUtil.assertElementEquals(
                 Arrays.asList(
-                        EDGE_AGG_NEW
+                        EDGE_OLD_MIGRATED_TO_NEW_AGGREGATION
                 ),
                 results);
+    }
+
+    @Test
+    public void shouldCorrectlyApplyPostAggFiltering() throws OperationException {
+        migration.setOutputType(MigrationOutputType.NEW);
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(
+                new GetElements.Builder()
+                        .input("oldVertex", "newVertex", "aggVertex")
+                        .view(EDGE_POST_AGG_FILTER_VIEW)
+                        .build(),
+                new User());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        EDGE_OLD_AGGREGATION_ALT_COUNT_MIGRATED_TO_NEW
+                ),
+                results
+        );
+    }
+
+    @Test
+    public void shouldApplyPostOpAggregation() throws OperationException {
+        migration.setOutputType(MigrationOutputType.NEW);
+
+        // When
+        final CloseableIterable<? extends Element> resultsNoPostOpAgg = graph.execute(
+                new GetElements.Builder()
+                        .input("postOpAggVertex")
+                        .view(EDGE_POST_OP_AGG_VIEW)
+                        .build(),
+                new User());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        EDGE_OLD_POST_OP_AGGREGATION_MIGRATED_TO_NEW,
+                        EDGE_NEW_POST_OP_AGGREGATION
+                ),
+                resultsNoPostOpAgg);
+
+        // When
+        migration.setAggregateAfter(true);
+
+        final CloseableIterable<? extends Element> resultsWithPostOpAgg = graph.execute(
+                new GetElements.Builder()
+                        .input("postOpAggVertex")
+                        .view(EDGE_POST_OP_AGG_VIEW)
+                        .build(),
+                new User());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        EDGE_NEW_POST_OP_AGGREGATION_AGGREGATED
+                ),
+                resultsWithPostOpAgg);
     }
 
     private SchemaMigration createMigration() {
@@ -486,7 +621,22 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .execute(new ToInteger())
                                 .project("count")
                                 .build()
+                ),
+                new MigrateElement(
+                        "oldEdgePostOpAgg",
+                        "newEdgePostOpAgg",
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToLong())
+                                .project("count")
+                                .build(),
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToInteger())
+                                .project("count")
+                                .build()
                 )
+
         ));
         return migration;
     }

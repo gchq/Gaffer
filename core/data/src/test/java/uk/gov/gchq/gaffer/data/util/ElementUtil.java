@@ -63,7 +63,7 @@ public class ElementUtil {
 
             final List<ElementId> missingEntities = new ArrayList<>();
             final List<ElementId> missingEdges = new ArrayList<>();
-            for (final ElementId element : expectedList) {
+            for (final ElementId element : resultList) {
                 if (element instanceof EntityId) {
                     missingEntities.add(element);
                 } else {
@@ -73,7 +73,7 @@ public class ElementUtil {
 
             final List<ElementId> incorrectEntities = new ArrayList<>();
             final List<ElementId> incorrectEdges = new ArrayList<>();
-            for (final ElementId element : resultList) {
+            for (final ElementId element : expectedList) {
                 if (element instanceof EntityId) {
                     incorrectEntities.add(element);
                 } else {
