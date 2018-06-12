@@ -198,7 +198,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
     }
 
-    public void setHasBeenMigrated(final boolean hasBeenMigrated){
+    public void setHasBeenMigrated(final boolean hasBeenMigrated) {
         this.hasBeenMigrated = hasBeenMigrated;
     }
 
