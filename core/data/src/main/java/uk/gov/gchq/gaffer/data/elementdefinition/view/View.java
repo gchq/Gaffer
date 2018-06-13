@@ -72,7 +72,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
     private Map<String, String> config = new HashMap<>();
-    private static final String SKIP__VIEW_VALIDATION = "skipViewValidation";
+    private static final String SKIP_VIEW_VALIDATION = "skipViewValidation";
 
     public View() {
         super();
@@ -211,11 +211,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     public void setSkipViewValidation(final boolean skipViewValidation) {
-        this.config.put(SKIP__VIEW_VALIDATION, String.valueOf(skipViewValidation));
+        this.config.put(SKIP_VIEW_VALIDATION, String.valueOf(skipViewValidation));
     }
 
     public boolean skipViewValidation() {
-        return Boolean.valueOf(this.getFromConfig(SKIP__VIEW_VALIDATION));
+        return Boolean.valueOf(this.getFromConfig(SKIP_VIEW_VALIDATION));
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
