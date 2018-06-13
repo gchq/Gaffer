@@ -42,6 +42,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @JsonPropertyOrder(value = {"entities", "edges", "transformToNew"}, alphabetic = true)
+/**
+ * A {@link SchemaMigration} {@link GraphHook} allows an admin to set migration mappings
+ * that are then applied on any {@link Operation} with output and an {@link OperationView}.
+ *
+ * To make use of this {@link SchemaMigration} the implemented {@Store} must have the Transform trait.
+ */
 public class SchemaMigration implements GraphHook {
     public static final MigrationOutputType DEFAULT_OUTPUT_TYPE = MigrationOutputType.OLD;
     public boolean aggregateAfter = false;
