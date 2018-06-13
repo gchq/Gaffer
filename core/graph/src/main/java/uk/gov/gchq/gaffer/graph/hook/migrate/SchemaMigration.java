@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * A {@link SchemaMigration} {@link GraphHook} allows an admin to set migration mappings
  * that are then applied on any {@link Operation} with output and an {@link OperationView}.
  * <p>
- * To make use of this {@link SchemaMigration} the implemented {@Store} must have the Transform trait.
+ * To make use of this {@link SchemaMigration} the implemented {@link uk.gov.gchq.gaffer.store.Store} must have the Transform trait.
  */
 @JsonPropertyOrder(value = {"entities", "edges", "transformToNew"}, alphabetic = true)
 public class SchemaMigration implements GraphHook {
@@ -72,7 +72,7 @@ public class SchemaMigration implements GraphHook {
                     .map(OperationView.class::cast)
                     .forEach(opView -> {
                         updateView(opView);
-                        opView.getView().setHasBeenMigrated(true);
+                        opView.getView().setSkipViewValidation(true);
                     });
 
             if (aggregateAfter) {

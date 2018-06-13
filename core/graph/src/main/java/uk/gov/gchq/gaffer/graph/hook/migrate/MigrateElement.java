@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder;
-import uk.gov.gchq.gaffer.operation.function.migration.ReturnValue;
+import uk.gov.gchq.gaffer.operation.function.migration.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.List;
@@ -104,7 +104,7 @@ public class MigrateElement {
         if (null != newGroup && !newGroup.equals(oldGroup)) {
             final ElementTransformer toNewTransformTmp = new Builder()
                     .select("GROUP")
-                    .execute(new ReturnValue(newGroup))
+                    .execute(new Identity(newGroup))
                     .project("GROUP")
                     .build();
             if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
@@ -118,7 +118,7 @@ public class MigrateElement {
         if (null != oldGroup && !oldGroup.equals(newGroup)) {
             final ElementTransformer toOldTransformTmp = new Builder()
                     .select("GROUP")
-                    .execute(new ReturnValue(oldGroup))
+                    .execute(new Identity(oldGroup))
                     .project("GROUP")
                     .build();
             if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {

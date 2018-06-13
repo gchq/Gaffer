@@ -18,26 +18,26 @@ package uk.gov.gchq.gaffer.operation.function.migration;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ReturnValue extends KorypheFunction<Object, Object> {
-    private Object returnValue;
+public class Identity extends KorypheFunction<Object, Object> {
+    private Object identity;
 
-    public ReturnValue() {
+    public Identity() {
     }
 
-    public ReturnValue(final Object returnValue) {
-        this.returnValue = returnValue;
+    public Identity(final Object returnValue) {
+        this.identity = returnValue;
     }
 
     @Override
     public Object apply(final Object o) {
-        return returnValue;
+        return identity;
     }
 
-    public Object getReturnValue() {
-        return returnValue;
+    public Object getIdentity() {
+        return identity;
     }
 
-    public void setReturnValue(final Object returnValue) {
-        this.returnValue = returnValue;
+    public void setIdentity(final Object identity) {
+        this.identity = identity;
     }
 }

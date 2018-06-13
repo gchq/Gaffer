@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,7 +71,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
-    private boolean hasBeenMigrated = false;
+    private Map<String, String> config = new HashMap<>();
+    private static final String SKIP__VIEW_VALIDATION = "skipViewValidation";
 
     public View() {
         super();
@@ -198,12 +200,22 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
     }
 
-    public void setHasBeenMigrated(final boolean hasBeenMigrated) {
-        this.hasBeenMigrated = hasBeenMigrated;
+    public void setInConfig(final String key, final String value) {
+        if (!this.config.containsKey(key)) {
+            this.config.put(key, value);
+        }
     }
 
-    public boolean hasBeenMigrated() {
-        return hasBeenMigrated;
+    public String getFromConfig(final String key) {
+        return this.config.get(key);
+    }
+
+    public void setSkipViewValidation(final boolean skipViewValidation) {
+        this.config.put(SKIP__VIEW_VALIDATION, String.valueOf(skipViewValidation));
+    }
+
+    public boolean skipViewValidation() {
+        return Boolean.valueOf(this.getFromConfig(SKIP__VIEW_VALIDATION));
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
