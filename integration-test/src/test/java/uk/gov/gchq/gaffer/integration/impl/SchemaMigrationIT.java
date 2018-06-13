@@ -503,7 +503,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 results);
     }
 
-    @TraitRequirement(StoreTrait.TRANSFORMATION)
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldMigrateOldToNewWithAgg() throws OperationException {
         migration.setOutputType(MigrationOutputType.NEW);
