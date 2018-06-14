@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -72,7 +74,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
     private Map<String, String> config = new HashMap<>();
-    private static final String SKIP_VIEW_VALIDATION = "skipViewValidation";
 
     public View() {
         super();
@@ -200,30 +201,19 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
     }
 
-    public void setConfig(final Map<String, String> config) {
-        this.config = config;
-    }
-
+    @JsonInclude(Include.NON_EMPTY)
     public Map<String, String> getConfig() {
         return this.config;
     }
 
-    public void setInConfig(final String key, final String value) {
+    public void addConfig(final String key, final String value) {
         if (!this.config.containsKey(key)) {
             this.config.put(key, value);
         }
     }
 
-    public String getFromConfig(final String key) {
+    public String getConfig(final String key) {
         return this.config.get(key);
-    }
-
-    public void setSkipViewValidation(final boolean skipViewValidation) {
-        this.config.put(SKIP_VIEW_VALIDATION, String.valueOf(skipViewValidation));
-    }
-
-    public boolean skipViewValidation() {
-        return Boolean.valueOf(this.getFromConfig(SKIP_VIEW_VALIDATION));
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
@@ -390,9 +380,15 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS config(final String key, final String value) {
+            getThisView().config.put(key, value);
+            return self();
+        }
+
+        @JsonSetter("config")
         public CHILD_CLASS config(final Map<String, String> config) {
             if (null != config) {
-                getThisView().setConfig(config);
+                getThisView().config.putAll(config);
             }
             return self();
         }
@@ -502,6 +498,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                         getThisView().globalEdges = new ArrayList<>();
                     }
                     getThisView().globalEdges.addAll(view.globalEdges);
+                }
+
+                if (null != view.config) {
+                    getThisView().config.putAll(view.config);
                 }
             }
 

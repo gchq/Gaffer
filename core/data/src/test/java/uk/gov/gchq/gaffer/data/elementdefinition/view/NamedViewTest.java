@@ -182,8 +182,7 @@ public class NamedViewTest {
                 "      \"name\": \"testViewName\"," +
                 "       \"parameters\": {" +
                 "           \"testParamKey\" : 1" +
-                "         }, " +
-                "       \"config\": {}" +
+                "         }" +
                 "    }"), new String(json));
     }
 

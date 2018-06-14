@@ -290,8 +290,7 @@ public class ViewUtilTest {
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  },%n" +
-                " \"config\": {}" +
+                "  }%n" +
                 "}"), new String(json));
     }
 
@@ -489,8 +488,7 @@ public class ViewUtilTest {
                 "        \"selection\" : [ \"dateProperty\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  }, %n" +
-                " \"config\" : {}" +
+                "  }%n" +
                 "}"), new String(view.toJson(true)));
     }
 

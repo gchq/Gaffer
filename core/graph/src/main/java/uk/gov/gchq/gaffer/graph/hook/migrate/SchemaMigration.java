@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class SchemaMigration implements GraphHook {
                     .map(OperationView.class::cast)
                     .forEach(opView -> {
                         updateView(opView);
-                        opView.getView().setSkipViewValidation(true);
+                        opView.getView().addConfig(ViewValidator.SKIP_VIEW_VALIDATION, "true");
                     });
 
             if (aggregateAfter) {
