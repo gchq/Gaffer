@@ -83,7 +83,7 @@ public class ViewValidator {
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
 
-                        if (view.skipViewValidation()) {
+                        if (!view.skipViewValidation()) {
                             result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
                             result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
                             result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
@@ -113,7 +113,7 @@ public class ViewValidator {
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
 
-                        if (view.skipViewValidation()) {
+                        if (!view.skipViewValidation()) {
                             result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
                             result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
                             result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
