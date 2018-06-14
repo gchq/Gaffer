@@ -390,6 +390,13 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS config(final Map<String, String> config) {
+            if (null != config) {
+                getThisView().setConfig(config);
+            }
+            return self();
+        }
+
         public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {
             if (null != globalElements && globalElements.length > 0) {
                 if (null == getThisView().globalElements) {
