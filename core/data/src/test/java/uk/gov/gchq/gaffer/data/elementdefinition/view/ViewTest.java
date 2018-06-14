@@ -121,6 +121,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
         // Then
         JsonAssert.assertEquals(String.format("{" +
+                "  \"config\" : {}, " +
                 "  \"globalEdges\" : [ {%n" +
                 "    \"groupBy\" : [ ]%n" +
                 "  } ]%n" +
@@ -185,7 +186,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  }%n" +
+                "  },%n" +
+                " \"config\" : { }" +
                 "}"), new String(json));
     }
 
@@ -388,7 +390,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "        \"selection\" : [ \"dateProperty\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  }%n" +
+                "  }, %n" +
+                " \"config\" : { }" +
                 "}"), new String(view.toJson(true)));
     }
 
