@@ -200,6 +200,14 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
     }
 
+    public void setConfig(final Map<String, String> config) {
+        this.config = config;
+    }
+
+    public Map<String, String> getConfig() {
+        return this.config;
+    }
+
     public void setInConfig(final String key, final String value) {
         if (!this.config.containsKey(key)) {
             this.config.put(key, value);
