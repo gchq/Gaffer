@@ -570,7 +570,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         // When
         migration.setAggregateAfter(true);
 
-        final CloseableIterable<? extends Element> resultsWithPostOpAgg = graph.execute(
+        final Iterable<? extends Element> resultsWithPostOpAgg = graph.execute(
                 new GetElements.Builder()
                         .input("postOpAggVertex")
                         .view(EDGE_POST_OP_AGG_VIEW)
