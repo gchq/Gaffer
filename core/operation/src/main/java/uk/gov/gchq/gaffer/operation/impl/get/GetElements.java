@@ -70,7 +70,14 @@ public class GetElements implements
         MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
+
+    /**
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation.
+     */
     private SeedMatchingType seedMatching;
+
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
@@ -83,19 +90,27 @@ public class GetElements implements
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
     /**
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     *
      * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
      * matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public SeedMatchingType getSeedMatching() {
         return seedMatching;
