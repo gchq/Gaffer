@@ -171,6 +171,30 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .property("count", 8L)
             .build();
 
+    public static final Edge EDGE_OLD_AGG_BEFORE_POST_FILTER = new Edge.Builder()
+            .group("oldEdgeAggBeforePostFilter")
+            .source("aggBeforePostFilterVertex")
+            .dest("aggBeforePostFilterVertex2")
+            .directed(true)
+            .property("count", 7)
+            .build();
+
+    public static final Edge EDGE_NEW_AGG_BEFORE_POST_FILTER_ALT_COUNT = new Edge.Builder()
+            .group("newEdgeAggBeforePostFilter")
+            .source("aggBeforePostFilterVertex")
+            .dest("aggBeforePostFilterVertex2")
+            .directed(true)
+            .property("count", 6L)
+            .build();
+
+    public static final Edge EDGE_NEW_AGG_BEFORE_POST_FILTER_ALT_COUNT_MIGRATED_TO_OLD = new Edge.Builder()
+            .group("oldEdgeAggBeforePostFilter")
+            .source("aggBeforePostFilterVertex")
+            .dest("aggBeforePostFilterVertex2")
+            .directed(true)
+            .property("count", 6)
+            .build();
+
     public static final View OLD_ENTITY_VIEW = new View.Builder()
             .entity("entityOld", new ViewElementDefinition.Builder()
                     .preAggregationFilter(new ElementFilter.Builder()
@@ -268,6 +292,21 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                     .build())
             .build();
 
+    public static final View FULL_AGG_AND_POST_FILTER_VIEW = new View.Builder()
+            .edge("edgeOld", new ViewElementDefinition.Builder()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select("count")
+                            .execute(new IsMoreThan(11L))
+                            .build())
+                    .build())
+            .entity("entityOld", new ViewElementDefinition.Builder()
+                    .postAggregationFilter(new ElementFilter.Builder()
+                            .select("count")
+                            .execute(new IsMoreThan(11L))
+                            .build())
+                    .build())
+            .build();
+
     private SchemaMigration migration;
 
     @Before
@@ -335,6 +374,18 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .directed("either")
                         .property("count", "long")
                         .build())
+                .edge("oldEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .build())
+                .edge("newEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .build())
                 .type("string", String.class)
                 .type("either", Boolean.class)
                 .type("int", new TypeDefinition.Builder()
@@ -351,7 +402,9 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @Override
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT, EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION)
+                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
+                        EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
+                        EDGE_NEW_AGG_BEFORE_POST_FILTER_ALT_COUNT)
                 .build(), new User());
     }
 
@@ -532,7 +585,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
-                        .input("oldVertex", "newVertex", "aggVertex")
+                        .input("aggVertex")
                         .view(EDGE_POST_AGG_FILTER_VIEW)
                         .build(),
                 new User());
@@ -583,6 +636,28 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         EDGE_NEW_POST_OP_AGGREGATION_AGGREGATED
                 ),
                 resultsWithPostOpAgg);
+    }
+
+    @Test
+    public void shouldAggBeforePostFilters() throws OperationException {
+        migration.setOutputType(MigrationOutputType.OLD);
+
+        // When
+        final CloseableIterable<? extends Element> resultsWithPostAgg = graph.execute(
+                new GetElements.Builder()
+                        .input("oldVertex", "newVertex")
+                        .view(FULL_AGG_AND_POST_FILTER_VIEW)
+                        .build(),
+                new User());
+
+        // Then
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        EDGE_OLD_AGG_BEFORE_POST_FILTER,
+                        EDGE_NEW_AGG_BEFORE_POST_FILTER_ALT_COUNT_MIGRATED_TO_OLD
+                ),
+                resultsWithPostAgg
+        );
     }
 
     private SchemaMigration createMigration() {
@@ -636,6 +711,20 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 new MigrateElement(
                         "oldEdgePostOpAgg",
                         "newEdgePostOpAgg",
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToLong())
+                                .project("count")
+                                .build(),
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToInteger())
+                                .project("count")
+                                .build()
+                ),
+                new MigrateElement(
+                        "oldEdgePostAggBeforePostFilter",
+                        "newEdgePostAggBeforePostFilter",
                         new ElementTransformer.Builder()
                                 .select("count")
                                 .execute(new ToLong())

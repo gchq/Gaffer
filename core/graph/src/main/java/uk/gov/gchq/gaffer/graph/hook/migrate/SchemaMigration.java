@@ -17,13 +17,13 @@
 package uk.gov.gchq.gaffer.graph.hook.migrate;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
@@ -32,6 +32,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
@@ -60,6 +62,10 @@ public class SchemaMigration implements GraphHook {
 
     private MigrationOutputType outputType = DEFAULT_OUTPUT_TYPE;
 
+    private List<ElementFilter> postAggregationFilterList = new ArrayList<>();
+    private Map<String, ElementTransformer> transformFunctionsMap = new HashMap<>();
+    private List<ElementFilter> postTransformFilterList = new ArrayList<>();
+
     public enum MigrationOutputType {
         NEW, OLD
     }
@@ -67,32 +73,53 @@ public class SchemaMigration implements GraphHook {
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         if (!edges.isEmpty() || !entities.isEmpty()) {
-            opChain.flatten()
+            List<? extends Operation> opsWithViewList = opChain.flatten()
                     .stream()
                     .filter(OperationView::hasView)
-                    .map(OperationView.class::cast)
-                    .forEach(opView -> {
-                        updateView(opView);
-                        opView.getView().addConfig(ViewValidator.SKIP_VIEW_VALIDATION, "true");
-                    });
+                    .collect(Collectors.toList());
 
-            if (aggregateAfter) {
+            for (Operation op : opsWithViewList) {
+                postAggregationFilterList.clear();
+                transformFunctionsMap.clear();
+                postTransformFilterList.clear();
+
                 AddOperationsToChain addOpsHook = new AddOperationsToChain();
-
-                List<? extends Operation> operationsWithViews = opChain.flatten()
-                        .stream()
-                        .filter(OperationView::hasView)
-                        .collect(Collectors.toList());
-
                 final java.util.Map<String, List<Operation>> afterOpsMap = new HashMap<>();
+                final List<Operation> hookOpList = new ArrayList<>();
+                OperationView operationView = OperationView.class.cast(op);
 
-                for (final Operation op : operationsWithViews) {
-                    afterOpsMap.put(op.getClass().getName(), Lists.newArrayList(new Aggregate()));
+                updateView(operationView);
+                operationView.getView().addConfig(ViewValidator.SKIP_VIEW_VALIDATION, "true");
+
+                if (aggregateAfter) {
+                    hookOpList.add(new Aggregate());
                 }
 
-                addOpsHook.setAfter(afterOpsMap);
+                if (!postAggregationFilterList.isEmpty()) {
+                    Filter.Builder postAggregationFilterBuilder = new Filter.Builder();
+                    postAggregationFilterList.forEach(postAggregationFilterBuilder::globalElements);
+                    hookOpList.add(postAggregationFilterBuilder.build());
+                }
 
-                addOpsHook.preExecute(opChain, context);
+                if (!transformFunctionsMap.isEmpty()) {
+                    Transform transformFunctions = new Transform.Builder()
+                            //        .edges(transformFunctionsMap)
+                            //        .entities(transformFunctionsMap)
+                            .build();
+                    hookOpList.add(transformFunctions);
+                }
+
+                if (!postTransformFilterList.isEmpty()) {
+                    Filter.Builder postTransformFilterBuilder = new Filter.Builder();
+                    postTransformFilterList.forEach(postTransformFilterBuilder::globalElements);
+                    hookOpList.add(postTransformFilterBuilder.build());
+                }
+
+                if (!hookOpList.isEmpty()) {
+                    afterOpsMap.put(op.getClass().getName(), hookOpList);
+                    addOpsHook.setAfter(afterOpsMap);
+                    addOpsHook.preExecute(opChain, context);
+                }
             }
         }
     }
@@ -159,7 +186,7 @@ public class SchemaMigration implements GraphHook {
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder();
 
         if (CollectionUtils.isNotEmpty(oldElement.getPreAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPreAggregationFilter()
+            viewBuilder.clearPreAggregationFilter()
                     .preAggregationFilter(new ElementFilter.Builder()
                             .select(ElementTuple.ELEMENT)
                             .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPreAggregationFilter()))
@@ -167,16 +194,16 @@ public class SchemaMigration implements GraphHook {
         }
 
         if (CollectionUtils.isNotEmpty(oldElement.getPostAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPostAggregationFilter()
-                    .postAggregationFilter(new ElementFilter.Builder()
-                            .select(ElementTuple.ELEMENT)
-                            .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostAggregationFilter()))
-                            .build());
+            viewBuilder.clearPostAggregationFilter();
+            postAggregationFilterList.add(new ElementFilter.Builder()
+                    .select(ElementTuple.ELEMENT)
+                    .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostAggregationFilter()))
+                    .build());
         }
 
         if (MigrationOutputType.NEW == outputType) {
             if (CollectionUtils.isNotEmpty(oldElement.getTransformFunctions())) {
-                viewBuilder = viewBuilder.addTransformFunctions(migration.getToOld());
+                viewBuilder.addTransformFunctions(migration.getToOld());
                 viewBuilder.addTransformFunctions(oldElement.getTransformFunctions());
                 viewBuilder.addTransformFunctions(migration.getToNew());
             }
@@ -189,14 +216,14 @@ public class SchemaMigration implements GraphHook {
 
         if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
             if (MigrationOutputType.NEW == outputType) {
-                viewBuilder = viewBuilder.clearPostTransformFilter()
-                        .postTransformFilter(new ElementFilter.Builder()
-                                .select(ElementTuple.ELEMENT)
-                                .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
-                                .build());
+                viewBuilder.clearPostTransformFilter();
+                postTransformFilterList.add(new ElementFilter.Builder()
+                        .select(ElementTuple.ELEMENT)
+                        .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
+                        .build());
             } else {
-                viewBuilder.clearPostTransformFilter()
-                        .postTransformFilter(oldElement.getPostTransformFilter());
+                viewBuilder.clearPostTransformFilter();
+                postTransformFilterList.add(oldElement.getPostTransformFilter());
             }
         }
 
@@ -228,11 +255,11 @@ public class SchemaMigration implements GraphHook {
                 .merge(oldElement)
                 .transformFunctions(migration.getToNew());
         if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPostTransformFilter()
-                    .postTransformFilter(new ElementFilter.Builder()
-                            .select(ElementTuple.ELEMENT)
-                            .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
-                            .build());
+            viewBuilder.clearPostTransformFilter();
+            postTransformFilterList.add(new ElementFilter.Builder()
+                    .select(ElementTuple.ELEMENT)
+                    .execute(new TransformAndFilter(migration.getToOldTransform(), oldElement.getPostTransformFilter()))
+                    .build());
         }
 
         if (null != oldElement.getGroupBy()) {
@@ -262,7 +289,7 @@ public class SchemaMigration implements GraphHook {
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder();
 
         if (CollectionUtils.isNotEmpty(newElement.getPreAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPreAggregationFilter()
+            viewBuilder.clearPreAggregationFilter()
                     .preAggregationFilter(new ElementFilter.Builder()
                             .select(ElementTuple.ELEMENT)
                             .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPreAggregationFilter()))
@@ -270,32 +297,31 @@ public class SchemaMigration implements GraphHook {
         }
 
         if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPostAggregationFilter()
-                    .postAggregationFilter(new ElementFilter.Builder()
-                            .select(ElementTuple.ELEMENT)
-                            .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
-                            .build());
+            viewBuilder.clearPostAggregationFilter();
+            postAggregationFilterList.add(new ElementFilter.Builder()
+                    .select(ElementTuple.ELEMENT)
+                    .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
+                    .build());
         }
 
         if (MigrationOutputType.NEW == outputType) {
-            viewBuilder = viewBuilder.transformer(migration.getToNewTransform());
-            viewBuilder = viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
-            viewBuilder = viewBuilder.clearPostTransformFilter()
-                    .postTransformFilter(newElement.getPostTransformFilter());
+            viewBuilder.transformer(migration.getToNewTransform());
+            viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
+            viewBuilder.clearPostTransformFilter();
+            postTransformFilterList.add(newElement.getPostTransformFilter());
         } else {
             if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
-                viewBuilder = viewBuilder
-                        .addTransformFunctions(migration.getToNew())
+                viewBuilder.addTransformFunctions(migration.getToNew())
                         .addTransformFunctions(newElement.getTransformFunctions())
                         .addTransformFunctions(migration.getToOld());
             }
 
             if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
-                viewBuilder = viewBuilder.clearPostTransformFilter()
-                        .postTransformFilter(new ElementFilter.Builder()
-                                .select(ElementTuple.ELEMENT)
-                                .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                                .build());
+                viewBuilder.clearPostTransformFilter();
+                postTransformFilterList.add(new ElementFilter.Builder()
+                        .select(ElementTuple.ELEMENT)
+                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                        .build());
             }
         }
 
@@ -323,23 +349,23 @@ public class SchemaMigration implements GraphHook {
             return newElement;
         }
 
+        postAggregationFilterList.add(newElement.getPostAggregationFilter());
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
                 .clearPreAggregationFilter()
                 .preAggregationFilter(newElement.getPreAggregationFilter())
-                .clearPostAggregationFilter()
-                .postAggregationFilter(newElement.getPostAggregationFilter());
+                .clearPostAggregationFilter();
 
         if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
-            viewBuilder = viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
+            viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
         }
-        viewBuilder = viewBuilder.addTransformFunctions(migration.getToOld());
+        viewBuilder.addTransformFunctions(migration.getToOld());
 
         if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
-            viewBuilder = viewBuilder.clearPostTransformFilter()
-                    .postTransformFilter(new ElementFilter.Builder()
-                            .select(ElementTuple.ELEMENT)
-                            .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                            .build());
+            viewBuilder.clearPostTransformFilter();
+            postTransformFilterList.add(new ElementFilter.Builder()
+                    .select(ElementTuple.ELEMENT)
+                    .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                    .build());
         }
 
         if (null != newElement.getGroupBy()) {
