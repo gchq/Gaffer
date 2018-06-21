@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
-import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration.MigrationOutputType;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -413,7 +412,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateOldToNew() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -437,7 +436,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateNewToNew() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -461,7 +460,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateOldAndNewToNew() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -487,7 +486,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateOldToOld() throws OperationException {
-        migration.setOutputType(MigrationOutputType.OLD);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -511,7 +510,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateNewToOld() throws OperationException {
-        migration.setOutputType(MigrationOutputType.OLD);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -535,7 +534,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldMigrateOldAndNewToOld() throws OperationException {
-        migration.setOutputType(MigrationOutputType.OLD);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -559,7 +558,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldMigrateOldToNewWithAgg() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -580,7 +579,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldCorrectlyApplyPostAggFiltering() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
@@ -602,7 +601,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldApplyPostOpAggregation() throws OperationException {
-        migration.setOutputType(MigrationOutputType.NEW);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
         final CloseableIterable<? extends Element> resultsNoPostOpAgg = graph.execute(
@@ -638,9 +637,10 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 resultsWithPostOpAgg);
     }
 
+    @TraitRequirement(StoreTrait.TRANSFORMATION)
     @Test
     public void shouldAggBeforePostFilters() throws OperationException {
-        migration.setOutputType(MigrationOutputType.OLD);
+        migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
         final CloseableIterable<? extends Element> resultsWithPostAgg = graph.execute(

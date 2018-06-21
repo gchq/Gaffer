@@ -188,8 +188,99 @@ public class SchemaMigration implements GraphHook {
         }
     }
 
+    private ViewElementDefinition createNewElementDefFromNew(final MigrateElement migration, final ViewElementDefinition newElement) {
+        if (MigrationOutputType.NEW == outputType || migration.getToOld().isEmpty()) {
+            if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+                }
+                newElement.setPostAggregationFilter(null);
+            }
+            if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
+                }
+                newElement.setPostTransformFilter(null);
+            }
+            return newElement;
+        }
+
+        ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
+                .clearPreAggregationFilter()
+                .preAggregationFilter(newElement.getPreAggregationFilter());
+
+        if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
+            viewBuilder.clearPostAggregationFilter();
+            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                entitiesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                edgesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
+            viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
+        }
+        viewBuilder.addTransformFunctions(migration.getToOld());
+
+        if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
+            viewBuilder.clearPostTransformFilter();
+            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                entitiesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                        .select(ElementTuple.ELEMENT)
+                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                        .build());
+            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                edgesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                        .select(ElementTuple.ELEMENT)
+                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
+                        .build());
+            }
+        }
+
+        if (null != newElement.getGroupBy()) {
+            viewBuilder.groupBy(newElement.getGroupBy().toArray(new String[newElement.getGroupBy().size()]));
+        }
+        if (null != newElement.getAggregator()) {
+            viewBuilder.aggregator(newElement.getAggregator());
+        }
+        if (null != newElement.getTransientProperties()) {
+            viewBuilder.transientProperties(newElement.getTransientPropertyMap());
+        }
+        if (null != newElement.getProperties()) {
+            viewBuilder.properties(newElement.getProperties());
+        }
+        if (null != newElement.getExcludeProperties()) {
+            viewBuilder.excludeProperties(newElement.getExcludeProperties());
+        }
+
+        return viewBuilder.build();
+    }
+
     private ViewElementDefinition createNewElementDefFromOld(final MigrateElement migration, final ViewElementDefinition oldElement) {
         if (migration.getToNew().isEmpty()) {
+
+            if (CollectionUtils.isNotEmpty(oldElement.getPostAggregationFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostAggregationFilterMap.put(migration.getNewGroup(), oldElement.getPostAggregationFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostAggregationFilterMap.put(migration.getNewGroup(), oldElement.getPostAggregationFilter());
+                }
+                oldElement.setPostAggregationFilter(null);
+            }
+            if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilterMap.put(migration.getNewGroup(), oldElement.getPostTransformFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilterMap.put(migration.getNewGroup(), oldElement.getPostTransformFilter());
+                }
+                oldElement.setPostTransformFilter(null);
+            }
+
             return oldElement;
         }
 
@@ -276,6 +367,24 @@ public class SchemaMigration implements GraphHook {
 
     private ViewElementDefinition createOldElementDefFromOld(final MigrateElement migration, final ViewElementDefinition oldElement) {
         if (MigrationOutputType.OLD == outputType || migration.getToNew().isEmpty()) {
+
+            if (CollectionUtils.isNotEmpty(oldElement.getPostAggregationFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostAggregationFilterMap.put(migration.getOldGroup(), oldElement.getPostAggregationFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostAggregationFilterMap.put(migration.getOldGroup(), oldElement.getPostAggregationFilter());
+                }
+                oldElement.setPostAggregationFilter(null);
+            }
+            if (CollectionUtils.isNotEmpty(oldElement.getPostTransformFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilterMap.put(migration.getOldGroup(), oldElement.getPostTransformFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilterMap.put(migration.getOldGroup(), oldElement.getPostTransformFilter());
+                }
+                oldElement.setPostTransformFilter(null);
+            }
+
             return oldElement;
         }
 
@@ -318,6 +427,23 @@ public class SchemaMigration implements GraphHook {
 
     private ViewElementDefinition createOldElementDefFromNew(final MigrateElement migration, final ViewElementDefinition newElement) {
         if (migration.getToOld().isEmpty()) {
+            if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostAggregationFilterMap.put(migration.getOldGroup(), newElement.getPostAggregationFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostAggregationFilterMap.put(migration.getOldGroup(), newElement.getPostAggregationFilter());
+                }
+                newElement.setPostAggregationFilter(null);
+            }
+            if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilterMap.put(migration.getOldGroup(), newElement.getPostTransformFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilterMap.put(migration.getOldGroup(), newElement.getPostTransformFilter());
+                }
+                newElement.setPostTransformFilter(null);
+            }
+
             return newElement;
         }
 
@@ -349,7 +475,7 @@ public class SchemaMigration implements GraphHook {
         if (MigrationOutputType.NEW == outputType) {
             viewBuilder.transformer(migration.getToNewTransform());
             viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
-            if(CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
+            if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
                 viewBuilder.clearPostTransformFilter();
                 if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
                     entitiesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
@@ -377,63 +503,6 @@ public class SchemaMigration implements GraphHook {
                             .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
                             .build());
                 }
-            }
-        }
-
-        if (null != newElement.getGroupBy()) {
-            viewBuilder.groupBy(newElement.getGroupBy().toArray(new String[newElement.getGroupBy().size()]));
-        }
-        if (null != newElement.getAggregator()) {
-            viewBuilder.aggregator(newElement.getAggregator());
-        }
-        if (null != newElement.getTransientProperties()) {
-            viewBuilder.transientProperties(newElement.getTransientPropertyMap());
-        }
-        if (null != newElement.getProperties()) {
-            viewBuilder.properties(newElement.getProperties());
-        }
-        if (null != newElement.getExcludeProperties()) {
-            viewBuilder.excludeProperties(newElement.getExcludeProperties());
-        }
-
-        return viewBuilder.build();
-    }
-
-    private ViewElementDefinition createNewElementDefFromNew(final MigrateElement migration, final ViewElementDefinition newElement) {
-        if (MigrationOutputType.NEW == outputType || migration.getToOld().isEmpty()) {
-            return newElement;
-        }
-
-        ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
-                .clearPreAggregationFilter()
-                .preAggregationFilter(newElement.getPreAggregationFilter());
-
-        if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
-            viewBuilder.clearPostAggregationFilter();
-            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
-            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
-            }
-        }
-
-        if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
-            viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
-        }
-        viewBuilder.addTransformFunctions(migration.getToOld());
-
-        if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
-            viewBuilder.clearPostTransformFilter();
-            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
-                        .select(ElementTuple.ELEMENT)
-                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                        .build());
-            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
-                        .select(ElementTuple.ELEMENT)
-                        .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
-                        .build());
             }
         }
 
