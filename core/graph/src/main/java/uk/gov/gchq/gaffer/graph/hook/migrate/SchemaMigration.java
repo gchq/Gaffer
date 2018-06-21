@@ -247,12 +247,10 @@ public class SchemaMigration implements GraphHook {
                 }
             } else {
                 viewBuilder.clearPostTransformFilter();
-                System.out.println("ElementType: " + migration.getElementType());
-                System.out.println("Migration new group: " + migration.getNewGroup());
                 if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                    entitiesPostTransformFilterMap.put(migration.getNewGroup(), oldElement.getPostTransformFilter());
+                    entitiesPostTransformFilterMap.put(migration.getOldGroup(), oldElement.getPostTransformFilter());
                 } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                    edgesPostTransformFilterMap.put(migration.getNewGroup(), oldElement.getPostTransformFilter());
+                    edgesPostTransformFilterMap.put(migration.getOldGroup(), oldElement.getPostTransformFilter());
                 }
             }
         }
@@ -336,12 +334,12 @@ public class SchemaMigration implements GraphHook {
         if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
             viewBuilder.clearPostAggregationFilter();
             if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostAggregationFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                entitiesPostAggregationFilterMap.put(migration.getOldGroup(), new ElementFilter.Builder()
                         .select(ElementTuple.ELEMENT)
                         .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
                         .build());
             } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostAggregationFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                edgesPostAggregationFilterMap.put(migration.getOldGroup(), new ElementFilter.Builder()
                         .select(ElementTuple.ELEMENT)
                         .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostAggregationFilter()))
                         .build());
@@ -351,11 +349,13 @@ public class SchemaMigration implements GraphHook {
         if (MigrationOutputType.NEW == outputType) {
             viewBuilder.transformer(migration.getToNewTransform());
             viewBuilder.addTransformFunctions(newElement.getTransformFunctions());
-            viewBuilder.clearPostTransformFilter();
-            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
-            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
+            if(CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
+                viewBuilder.clearPostTransformFilter();
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilterMap.put(migration.getNewGroup(), newElement.getPostTransformFilter());
+                }
             }
         } else {
             if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
@@ -367,12 +367,12 @@ public class SchemaMigration implements GraphHook {
             if (CollectionUtils.isNotEmpty(newElement.getPostTransformFilterFunctions())) {
                 viewBuilder.clearPostTransformFilter();
                 if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-                    entitiesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                    entitiesPostTransformFilterMap.put(migration.getOldGroup(), new ElementFilter.Builder()
                             .select(ElementTuple.ELEMENT)
                             .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
                             .build());
                 } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-                    edgesPostTransformFilterMap.put(migration.getNewGroup(), new ElementFilter.Builder()
+                    edgesPostTransformFilterMap.put(migration.getOldGroup(), new ElementFilter.Builder()
                             .select(ElementTuple.ELEMENT)
                             .execute(new TransformAndFilter(migration.getToNewTransform(), newElement.getPostTransformFilter()))
                             .build());
@@ -404,15 +404,18 @@ public class SchemaMigration implements GraphHook {
             return newElement;
         }
 
-        if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
-            entitiesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
-        } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
-            edgesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
-        }
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
                 .clearPreAggregationFilter()
-                .preAggregationFilter(newElement.getPreAggregationFilter())
-                .clearPostAggregationFilter();
+                .preAggregationFilter(newElement.getPreAggregationFilter());
+
+        if (CollectionUtils.isNotEmpty(newElement.getPostAggregationFilterFunctions())) {
+            viewBuilder.clearPostAggregationFilter();
+            if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                entitiesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+            } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                edgesPostAggregationFilterMap.put(migration.getNewGroup(), newElement.getPostAggregationFilter());
+            }
+        }
 
         if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
             viewBuilder.addTransformFunctions(newElement.getTransformFunctions());

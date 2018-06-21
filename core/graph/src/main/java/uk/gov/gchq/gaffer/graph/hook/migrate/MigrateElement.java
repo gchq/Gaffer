@@ -29,7 +29,7 @@ import java.util.List;
 
 @JsonPropertyOrder(value = {"oldGroup", "newGroup", "toNewFunctions", "toOldFunctions"}, alphabetic = true)
 public class MigrateElement {
-    private static ElementType ELEMENT_TYPE = null;
+    private ElementType ELEMENT_TYPE;
     private String oldGroup;
     private String newGroup;
     private ElementTransformer toNewTransform;
@@ -86,7 +86,7 @@ public class MigrateElement {
     }
 
     @JsonIgnore
-    public ElementTransformer getToOldTransform() {
+    public ElementTransformer  getToOldTransform() {
         return toOldTransform;
     }
 
