@@ -665,6 +665,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
 
         migration.setEntities(Collections.singletonList(
                 new MigrateElement(
+                        MigrateElement.ElementType.ENTITY,
                         "entityOld",
                         "entityNew",
                         new ElementTransformer.Builder()
@@ -681,6 +682,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         ));
         migration.setEdges(Arrays.asList(
                 new MigrateElement(
+                        MigrateElement.ElementType.EDGE,
                         "edgeOld",
                         "edgeNew",
                         new ElementTransformer.Builder()
@@ -695,6 +697,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .build()
                 ),
                 new MigrateElement(
+                        MigrateElement.ElementType.EDGE,
                         "edgeAgg",
                         "edgeAggNew",
                         new ElementTransformer.Builder()
@@ -709,6 +712,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .build()
                 ),
                 new MigrateElement(
+                        MigrateElement.ElementType.EDGE,
                         "oldEdgePostOpAgg",
                         "newEdgePostOpAgg",
                         new ElementTransformer.Builder()
@@ -723,6 +727,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .build()
                 ),
                 new MigrateElement(
+                        MigrateElement.ElementType.EDGE,
                         "oldEdgePostAggBeforePostFilter",
                         "newEdgePostAggBeforePostFilter",
                         new ElementTransformer.Builder()
