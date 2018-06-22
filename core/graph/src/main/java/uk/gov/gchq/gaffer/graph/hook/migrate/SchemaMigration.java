@@ -64,6 +64,7 @@ public class SchemaMigration implements GraphHook {
 
     private Map<String, ElementFilter> entitiesPostAggregationFilterMap = new HashMap<>();
     private Map<String, ElementFilter> edgesPostAggregationFilterMap = new HashMap<>();
+    // TODO - Fix TransformFunctions to use similar logic to the filters
     private Map<String, ElementTransformer> entitiesTransformFunctionsMap = new HashMap<>();
     private Map<String, ElementTransformer> edgesTransformFunctionsMap = new HashMap<>();
     private Map<String, ElementFilter> entitiesPostTransformFilterMap = new HashMap<>();
