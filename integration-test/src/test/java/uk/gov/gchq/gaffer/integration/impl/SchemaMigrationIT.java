@@ -272,8 +272,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .build();
 
     public static final View EDGE_POST_OP_AGG_VIEW = new View.Builder()
-            .edge("newEdgePostOpAgg", new ViewElementDefinition.Builder()
-                    .build())
+            .edge("newEdgePostOpAgg")
             .build();
 
     public static final View EDGE_POST_AGG_FILTER_VIEW = new View.Builder()
@@ -644,10 +643,6 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .view(EDGE_AGG_AND_POST_FILTER_VIEW)
                         .build(),
                 new User());
-
-        for (Element e : resultsWithPostAgg) {
-            System.out.println(e.toString());
-        }
 
         // Then
         ElementUtil.assertElementEquals(
