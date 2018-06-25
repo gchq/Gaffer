@@ -639,7 +639,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         // When
         final CloseableIterable<? extends Element> resultsWithPostAgg = graph.execute(
                 new GetElements.Builder()
-                        .input("oldEdgeAggBeforePostFilter", "newEdgeAggBeforePostFilter")
+                        .input("aggBeforePostFilterVertex")
                         .view(EDGE_AGG_AND_POST_FILTER_VIEW)
                         .build(),
                 new User());
