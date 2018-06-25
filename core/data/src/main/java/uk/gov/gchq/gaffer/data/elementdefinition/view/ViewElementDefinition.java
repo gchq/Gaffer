@@ -243,6 +243,10 @@ public class ViewElementDefinition implements ElementDefinition {
         return transformer;
     }
 
+    public void setTransformer(ElementTransformer transformer) {
+        this.transformer = transformer;
+    }
+
     @JsonGetter("transformFunctions")
     public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
         return null != transformer ? transformer.getComponents() : null;
