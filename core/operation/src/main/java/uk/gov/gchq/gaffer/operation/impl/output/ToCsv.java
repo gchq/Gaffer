@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -49,6 +50,22 @@ public class ToCsv implements
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
     private Map<String, String> options;
+
+    public ToCsv vertex(final String vertexHeader) {
+        if (null == elementGenerator) {
+            elementGenerator = new CsvGenerator();
+        }
+        elementGenerator.getFields().put(IdentifierType.VERTEX.name(), vertexHeader);
+        return this;
+    }
+
+    public ToCsv property(final String property, final String propertyHeader) {
+        if (null == elementGenerator) {
+            elementGenerator = new CsvGenerator();
+        }
+        elementGenerator.getFields().put(property, propertyHeader);
+        return this;
+    }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public CsvGenerator getElementGenerator() {

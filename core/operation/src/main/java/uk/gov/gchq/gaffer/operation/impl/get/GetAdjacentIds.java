@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -47,11 +48,51 @@ public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiEntityIdInput,
         SeededGraphFilters {
-    private View view;
+    private View view = new View();
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
     private IncludeIncomingOutgoingType inOutType;
+
+    private ViewElementDefinition tmpDef;
+
+    public GetAdjacentIds() {
+    }
+
+
+    public GetAdjacentIds input(final EntityId... input) {
+        this.setInput(input);
+        return this;
+    }
+
+    public GetAdjacentIds input(final Object... input) {
+        this.setInputFromVerticesAndIds(input);
+        return this;
+    }
+
+    public GetAdjacentIds outbound() {
+        inOutType = IncludeIncomingOutgoingType.OUTGOING;
+        return this;
+    }
+
+    public GetAdjacentIds inbound() {
+        inOutType = IncludeIncomingOutgoingType.INCOMING;
+        return this;
+    }
+
+    public GetAdjacentIds edge(final String edge) {
+        tmpDef = new ViewElementDefinition();
+        view.getEdges().put(edge, tmpDef);
+        return this;
+    }
+
+    public GetAdjacentIds edges(final String... edges) {
+        tmpDef = new ViewElementDefinition();
+        for (final String edge : edges) {
+            view.getEdges().put(edge, tmpDef);
+        }
+        return this;
+    }
 
     @Override
     public View getView() {

@@ -23,7 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
@@ -32,8 +34,14 @@ import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Gets elements from Gaffer based on {@link ElementId}s as
@@ -78,11 +86,125 @@ public class GetElements implements
      */
     private SeedMatchingType seedMatching;
 
-    private View view;
+    private View view = new View();
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
     private Iterable<? extends ElementId> input;
     private Map<String, String> options;
+
+    private ViewElementDefinition tmpDef;
+
+    public GetElements outgoing() {
+        setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
+        return this;
+    }
+
+    public GetElements global() {
+        tmpDef = new GlobalViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        view.getGlobalElements().add((GlobalViewElementDefinition) tmpDef);
+        return this;
+    }
+
+    public GetElements summarise() {
+        return groupBy();
+    }
+
+    public GetElements groupBy(final String... groupBy) {
+        if (null == tmpDef) {
+            global();
+        }
+        tmpDef.setGroupBy(new LinkedHashSet<>(Arrays.asList(groupBy)));
+        return this;
+    }
+
+    public GetElements entity(final String entity) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        view.getEntities().put(entity, tmpDef);
+        return this;
+    }
+
+    public GetElements entities(final String... entities) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        for (final String entity : entities) {
+            view.getEntities().put(entity, tmpDef);
+        }
+        return this;
+    }
+
+    public GetElements edge(final String edge) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        view.getEdges().put(edge, tmpDef);
+        return this;
+    }
+
+    public GetElements edges(final String... edges) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        for (final String edge : edges) {
+            view.getEdges().put(edge, tmpDef);
+        }
+        return this;
+    }
+
+    public static String[] select(final String... selection) {
+        return selection;
+    }
+
+    public static String[] project(final String... projection) {
+        return projection;
+    }
+
+    public GetElements filter(final String selection, final Predicate<?> predicate) {
+        return filter(select(selection), predicate);
+    }
+
+    public GetElements filter(final String[] selection, final Predicate<?> predicate) {
+        if (null != tmpDef.getTransformFunctions() && !tmpDef.getTransformFunctions().isEmpty()) {
+            tmpDef.getPostTransformFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        } else if (null == tmpDef.getGroupBy()) {
+            tmpDef.getPreAggregationFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        } else {
+            tmpDef.getPostAggregationFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        }
+        return this;
+    }
+
+    public GetElements transform(final String selection, final Function<?, ?> function, final String projection) {
+        return transform(select(selection), function, project(projection));
+    }
+
+    public GetElements transform(final String[] selection, final Function<?, ?> function, final String[] projection) {
+        final TupleAdaptedFunction transformer = new TupleAdaptedFunction<>();
+        transformer.setSelection(selection);
+        transformer.setFunction(function);
+        transformer.setProjection(projection);
+        tmpDef.getTransformFunctions().add(transformer);
+        return this;
+    }
 
     /**
      * Sets the seedMatchingType which determines how to match seeds to identifiers in the Graph.

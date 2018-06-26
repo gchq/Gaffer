@@ -36,6 +36,11 @@ public class FreqMapExtractor extends KorypheFunction<FreqMap, Long> {
         this.key = key;
     }
 
+    public FreqMapExtractor key(final String key) {
+        this.key = key;
+        return this;
+    }
+
     @Override
     public Long apply(final FreqMap freqMap) {
         if (null != freqMap) {

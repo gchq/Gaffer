@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,63 @@ public class Sort implements
     private Integer resultLimit = null;
     private boolean deduplicate = true;
     private Map<String, String> options;
+
+    public Sort compare() {
+        comparators.add(new ElementPropertyComparator());
+        return this;
+    }
+
+    public Sort groups(final String... groups) {
+        final ElementPropertyComparator comparator;
+        if (null == comparators) {
+            comparators = new ArrayList<>();
+        }
+        if (comparators.isEmpty()) {
+            comparator = new ElementPropertyComparator();
+            comparators.add(comparator);
+        } else {
+            comparator = (ElementPropertyComparator) comparators.get(comparators.size() - 1);
+        }
+
+        comparator.setGroups(Sets.newHashSet(groups));
+        return this;
+    }
+
+    public Sort property(final String property) {
+        final ElementPropertyComparator comparator;
+        if (comparators.isEmpty()) {
+            comparator = new ElementPropertyComparator();
+            comparators.add(comparator);
+        } else {
+            comparator = (ElementPropertyComparator) comparators.get(comparators.size() - 1);
+        }
+
+        comparator.setProperty(property);
+        return this;
+    }
+
+    public Sort reverse() {
+        final ElementPropertyComparator comparator;
+        if (comparators.isEmpty()) {
+            comparator = new ElementPropertyComparator();
+            comparators.add(comparator);
+        } else {
+            comparator = (ElementPropertyComparator) comparators.get(comparators.size() - 1);
+        }
+
+        comparator.setReversed(true);
+        return this;
+    }
+
+    public Sort limit(final int limit) {
+        setResultLimit(limit);
+        return this;
+    }
+
+    public Sort deduplicate() {
+        setDeduplicate(true);
+        return this;
+    }
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class", defaultImpl = ElementPropertyComparator.class)

@@ -80,6 +80,31 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
     private Conditional conditional;
     private Map<String, String> options;
 
+    public While<I, O> conditional(final Conditional contitional) {
+        this.conditional = contitional;
+        return this;
+    }
+
+    public While<I, O> conditional(final Predicate predicate) {
+        return conditional(new Conditional(predicate));
+    }
+
+    public While<I, O> conditional(final Predicate predicate, final Operation transform) {
+        return conditional(new Conditional(predicate, transform));
+    }
+
+    public While<I, O> until(final Conditional contitional) {
+        return conditional(contitional);
+    }
+
+    public While<I, O> until(final Predicate predicate) {
+        return conditional(predicate);
+    }
+
+
+    public While<I, O> until(final Predicate predicate, final Operation transform) {
+        return conditional(predicate, transform);
+    }
 
     @Override
     public TypeReference<O> getOutputTypeReference() {
