@@ -243,7 +243,7 @@ public class ViewElementDefinition implements ElementDefinition {
         return transformer;
     }
 
-    public void setTransformer(ElementTransformer transformer) {
+    public void setTransformer(final ElementTransformer transformer) {
         this.transformer = transformer;
     }
 
