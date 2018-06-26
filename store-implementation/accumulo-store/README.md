@@ -56,7 +56,7 @@ Accumulo set up
 
 Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.8.* versions of Accumulo as well.
 
-For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](src/main/java/uk/gov/gchq/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
+For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/MockAccumuloStore.html). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
