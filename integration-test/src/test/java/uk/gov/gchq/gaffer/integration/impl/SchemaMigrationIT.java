@@ -408,7 +408,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(OLD_VIEW)
@@ -432,7 +432,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(NEW_VIEW)
@@ -482,7 +482,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(OLD_VIEW)
@@ -575,7 +575,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("aggVertex")
                         .view(EDGE_POST_AGG_FILTER_VIEW)
@@ -637,7 +637,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setAggregateAfter(true);
 
         // When
-        final CloseableIterable<? extends Element> resultsWithPostAgg = graph.execute(
+        final Iterable<? extends Element> resultsWithPostAgg = graph.execute(
                 new GetElements.Builder()
                         .input("aggBeforePostFilterVertex")
                         .view(EDGE_AGG_AND_POST_FILTER_VIEW)
