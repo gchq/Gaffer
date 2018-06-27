@@ -70,6 +70,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
+    private boolean allEntities;
+    private boolean allEdges;
 
     public View() {
         super();
@@ -114,6 +116,26 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         return viewElementDef.getGroupBy();
+    }
+
+    @JsonSetter("allEntities")
+    public boolean isAllEntities() {
+        return allEntities;
+    }
+
+    @JsonGetter("allEntities")
+    public void setAllEntities(final boolean allEntities) {
+        this.allEntities = allEntities;
+    }
+
+    @JsonSetter("allEdges")
+    public boolean isAllEdges() {
+        return allEdges;
+    }
+
+    @JsonGetter("allEdges")
+    public void setAllEdges(final boolean allEdges) {
+        this.allEdges = allEdges;
     }
 
     public List<GlobalViewElementDefinition> getGlobalElements() {
@@ -342,6 +364,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS allEntities(final boolean allEntites) {
+            getThisView().allEntities = allEntites;
+            return self();
+        }
+
         public CHILD_CLASS edge(final String group) {
             return edge(group, new ViewElementDefinition());
         }
@@ -358,6 +385,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 }
             }
 
+            return self();
+        }
+
+        public CHILD_CLASS allEdges(final boolean allEdges) {
+            getThisView().allEdges = allEdges;
             return self();
         }
 
