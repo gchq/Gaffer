@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -70,8 +71,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
-    private boolean allEntities;
-    private boolean allEdges;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean allEntities = false;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean allEdges = false;
 
     public View() {
         super();
