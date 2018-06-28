@@ -210,10 +210,6 @@ public class GetElementsIT extends AbstractStoreIT {
         // When
         final CloseableIterable<? extends Element> resultsIncludingAllElements = graph.execute(opIncludingAllEdges, user);
 
-        for (Element e : resultsIncludingAllElements) {
-            System.out.println(e.toString());
-        }
-
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
                         new Edge.Builder()
