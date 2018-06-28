@@ -295,7 +295,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                 if (field.getType().isEnum()) {
                     enumOptions = new HashSet<>();
                     Object[] enumOptionsList = field.getType().getEnumConstants();
-                    for (Object enumObject : enumOptionsList) {
+                    for (final Object enumObject : enumOptionsList) {
                         enumOptions.add(enumObject.toString());
                     }
                 }
