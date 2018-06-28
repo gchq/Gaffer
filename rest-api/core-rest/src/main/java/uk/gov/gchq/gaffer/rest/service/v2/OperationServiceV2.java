@@ -44,6 +44,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -277,6 +278,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         for (final String fieldString : fieldsToClassMap.keySet()) {
             boolean required = false;
             Field field = null;
+            Set<String> enumOptions = null;
 
             try {
                 field = opClass.getDeclaredField(fieldString);
@@ -290,9 +292,17 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                 if (null != annotations && annotations.length > 0) {
                     required = true;
                 }
+                if (field.getType().isEnum()) {
+                    enumOptions = new HashSet<>();
+                    Object[] enumOptionsList = field.getType().getEnumConstants();
+                    for (Object enumObject : enumOptionsList) {
+                        enumOptions.add(enumObject.toString());
+                    }
+                }
             }
-            operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
+            operationFields.add(new OperationField(fieldString, fieldsToClassMap.get(fieldString), enumOptions, required));
         }
+
         return operationFields;
     }
 
@@ -307,24 +317,30 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     private class OperationField {
         private final String name;
         private String className;
+        private Set<String> options;
         private final boolean required;
 
-        OperationField(final String name, final boolean required, final String className) {
+        OperationField(final String name, final String className, final Set<String> options, final boolean required) {
             this.name = name;
-            this.required = required;
             this.className = className;
+            this.options = options;
+            this.required = required;
         }
 
         public String getName() {
             return name;
         }
 
-        public boolean isRequired() {
-            return required;
-        }
-
         public String getClassName() {
             return className;
+        }
+
+        public Set<String> getOptions() {
+            return options;
+        }
+
+        public boolean isRequired() {
+            return required;
         }
     }
 
