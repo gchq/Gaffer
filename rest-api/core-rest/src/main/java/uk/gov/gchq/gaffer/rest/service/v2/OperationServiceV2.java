@@ -298,7 +298,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return operationFields;
     }
 
-    private String getOperationOutputType(Operation operation) {
+    private String getOperationOutputType(final Operation operation) {
         if (operation instanceof Output) {
             final Type outputType = ((Output) operation).getOutputTypeReference().getType();
             return outputType.getTypeName();
