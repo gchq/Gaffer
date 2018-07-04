@@ -251,7 +251,7 @@ public final class Graph {
                             .merge(config.getView())
                             .merge(opView)
                             .build();
-                } else if (opView.isAllEdges() || opView.isAllEdges()) {
+                } else if (opView.isAllEdges() || opView.isAllEntities()) {
                     View.Builder opViewBuilder = new View.Builder()
                             .merge(opView);
                     if (opView.isAllEdges()) {

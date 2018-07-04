@@ -156,10 +156,10 @@ public class GetElementsIT extends AbstractStoreIT {
         // Given
         final User user = new User();
 
-        final GetElements opNotIncludingAllEdges = new GetElements.Builder()
+        final GetElements opExcludingAllEdges = new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_1), new EntitySeed(DEST_2))
                 .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
                         .build())
                 .build();
 
@@ -167,60 +167,14 @@ public class GetElementsIT extends AbstractStoreIT {
                 .input(new EntitySeed(SOURCE_1), new EntitySeed(DEST_2))
                 .view(new View.Builder()
                         .allEdges(true)
-                        .allEntities(true)
                         .build())
                 .build();
 
-
         // When
-        final CloseableIterable<? extends Element> resultsNotIncludingAllEdges = graph.execute(opNotIncludingAllEdges, user);
+        final CloseableIterable<? extends Element> resultsExcludingAllEdges = graph.execute(opExcludingAllEdges, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_1)
-                                .dest(DEST_1)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_2)
-                                .dest(DEST_2)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
-                ),
-                resultsNotIncludingAllEdges);
-
-        // When
-        final CloseableIterable<? extends Element> resultsIncludingAllElements = graph.execute(opIncludingAllEdges, user);
-
-        // Then
-        ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_1)
-                                .dest(DEST_1)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_2)
-                                .dest(DEST_2)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex(SOURCE_1)
@@ -234,7 +188,100 @@ public class GetElementsIT extends AbstractStoreIT {
                                 .property(TestPropertyNames.COUNT, 1L)
                                 .build()
                 ),
-                resultsIncludingAllElements);
+                resultsExcludingAllEdges);
+
+        // When
+        final CloseableIterable<? extends Element> resultsIncludingAllEdges = graph.execute(opIncludingAllEdges, user);
+
+        // Then
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_1)
+                                .dest(DEST_1)
+                                .directed(false)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_2)
+                                .dest(DEST_2)
+                                .directed(false)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build()
+                ),
+                resultsIncludingAllEdges);
+    }
+
+    @Test
+    public void shouldGetAllEntitiesWhenFlagSet() throws OperationException {
+        // Given
+        final User user = new User();
+
+        final GetElements opExcludingAllEntities = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_1), new EntitySeed(DEST_2))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        final GetElements opIncludingAllEntities = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_1), new EntitySeed(DEST_2))
+                .view(new View.Builder()
+                        .allEntities(true)
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> resultsExcludingAllEntities = graph.execute(opExcludingAllEntities, user);
+
+        // Then
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_1)
+                                .dest(DEST_1)
+                                .directed(false)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_2)
+                                .dest(DEST_2)
+                                .directed(false)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build()
+                ),
+                resultsExcludingAllEntities);
+
+        // When
+        final CloseableIterable<? extends Element> resultsIncludingAllEntities = graph.execute(opIncludingAllEntities, user);
+
+        // Then
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        new Entity.Builder()
+                                .group(TestGroups.ENTITY)
+                                .vertex(SOURCE_1)
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Entity.Builder()
+                                .group(TestGroups.ENTITY)
+                                .vertex(DEST_2)
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build()
+                ),
+                resultsIncludingAllEntities);
+
     }
 
     @TraitRequirement(StoreTrait.MATCHED_VERTEX)
