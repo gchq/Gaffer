@@ -33,10 +33,10 @@ public class TypeValueTest {
         TypeValue typeValueNullStrings = new TypeValue(null, null);
 
         // When
-        String typeValueEmptyStringsToString = typeValueEmptyStrings.toString();
-        String typeValueNullStringsToString = typeValueNullStrings.toString();
+        boolean equalsResult = typeValueEmptyStrings.equals(typeValueNullStrings);
 
         // Then
-        assertEquals(typeValueNullStringsToString, typeValueEmptyStringsToString);
+        assertTrue(equalsResult);
+        assertEquals(typeValueEmptyStrings.hashCode(), typeValueNullStrings.hashCode());
     }
 }

@@ -173,9 +173,6 @@ public final class StringUtil {
      * @return null if input {@link String} is null or empty otherwise returns the input {@link String}
      */
     public static String nullIfEmpty(final String string) {
-        if (null == string) {
-            return null;
-        }
-        return string.length() == 0 ? null : string;
+        return null != string && string.isEmpty() ? null : string;
     }
 }

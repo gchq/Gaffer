@@ -85,16 +85,16 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 89)
-                .append(type)
-                .append(value)
+                .append(StringUtil.nullIfEmpty(type))
+                .append(StringUtil.nullIfEmpty(value))
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", StringUtil.nullIfEmpty(type))
-                .append("value", StringUtil.nullIfEmpty(value))
+                .append("type", type)
+                .append("value", value)
                 .toString();
     }
 

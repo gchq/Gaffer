@@ -37,10 +37,10 @@ public class TypeSubTypeValueTest {
         TypeSubTypeValue typeSubTypeValueNullStrings = new TypeSubTypeValue(null, null, "X");
 
         // When
-        String typeSubTypeValueEmptyStringsToString = typeSubTypeValueEmptyStrings.toString();
-        String typeSubTypeValueNullStringsToString = typeSubTypeValueNullStrings.toString();
+        Boolean equalsResult = typeSubTypeValueEmptyStrings.equals(typeSubTypeValueNullStrings);
 
         // Then
-        assertEquals(typeSubTypeValueNullStringsToString, typeSubTypeValueEmptyStringsToString);
+        assertTrue(equalsResult);
+        assertEquals(typeSubTypeValueEmptyStrings.hashCode(), typeSubTypeValueNullStrings.hashCode());
     }
 }

@@ -76,9 +76,9 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 89)
-                .append(type)
-                .append(subType)
-                .append(value)
+                .append(StringUtil.nullIfEmpty(type))
+                .append(StringUtil.nullIfEmpty(subType))
+                .append(StringUtil.nullIfEmpty(value))
                 .toHashCode();
     }
 
@@ -104,9 +104,9 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", StringUtil.nullIfEmpty(type))
-                .append("subType", StringUtil.nullIfEmpty(subType))
-                .append("value", StringUtil.nullIfEmpty(value))
+                .append("type", type)
+                .append("subType", subType)
+                .append("value", value)
                 .toString();
     }
 
