@@ -28,8 +28,19 @@ public class TypeSubTypeValueTest {
         assertTrue(typeSubTypeValue.compareTo(new TypeSubTypeValue("a", "c", "c")) < 0);
 
         assertTrue(typeSubTypeValue.compareTo(new TypeSubTypeValue("a", "b", "d")) < 0);
-
     }
 
+    @Test
+    public void testToStringAndEqualsMethodTreatsNullAsEmptyString() {
+        // Given
+        TypeSubTypeValue typeSubTypeValueEmptyStrings = new TypeSubTypeValue("", "", "X");
+        TypeSubTypeValue typeSubTypeValueNullStrings = new TypeSubTypeValue(null, null, "X");
 
+        // When
+        String typeSubTypeValueEmptyStringsToString = typeSubTypeValueEmptyStrings.toString();
+        String typeSubTypeValueNullStringsToString = typeSubTypeValueNullStrings.toString();
+
+        // Then
+        assertEquals(typeSubTypeValueNullStringsToString, typeSubTypeValueEmptyStringsToString);
+    }
 }

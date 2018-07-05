@@ -23,6 +23,7 @@ import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * A {@code TypeSubTypeValue} is used to store information relating to types,
@@ -94,18 +95,18 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
         final TypeSubTypeValue tstv = (TypeSubTypeValue) object;
 
         return new EqualsBuilder()
-                .append(type, tstv.type)
-                .append(subType, tstv.subType)
-                .append(value, tstv.value)
+                .append(Objects.toString(type, ""), Objects.toString(tstv.type, ""))
+                .append(Objects.toString(subType, ""), Objects.toString(tstv.subType, ""))
+                .append(Objects.toString(value, ""), Objects.toString(tstv.value, ""))
                 .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", type)
-                .append("subType", subType)
-                .append("value", value)
+                .append("type", Objects.toString(type, ""))
+                .append("subType", Objects.toString(subType, ""))
+                .append("value", Objects.toString(value, ""))
                 .toString();
     }
 

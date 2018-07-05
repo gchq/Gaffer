@@ -24,6 +24,7 @@ import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * A {@code TypeValue} is used to store information relating to types and associated
@@ -76,8 +77,8 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
         final TypeValue typeValue = (TypeValue) obj;
 
         return new EqualsBuilder()
-                .append(type, typeValue.type)
-                .append(value, typeValue.value)
+                .append(Objects.toString(type, ""), Objects.toString(typeValue.type, ""))
+                .append(Objects.toString(value, ""), Objects.toString(typeValue.value, ""))
                 .isEquals();
     }
 
@@ -92,8 +93,8 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", type)
-                .append("value", value)
+                .append("type", Objects.toString(type, ""))
+                .append("value", Objects.toString(value, ""))
                 .toString();
     }
 

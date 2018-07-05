@@ -24,6 +24,19 @@ public class TypeValueTest {
         assertTrue(typeValue.compareTo(new TypeValue("b", "a")) < 0);
 
         assertTrue(typeValue.compareTo(new TypeValue("a", "c")) < 0);
+    }
 
+    @Test
+    public void testToStringAndEqualsMethodTreatsNullAsEmptyString() {
+        // Given
+        TypeValue typeValueEmptyStrings = new TypeValue("", "");
+        TypeValue typeValueNullStrings = new TypeValue(null, null);
+
+        // When
+        String typeValueEmptyStringsToString = typeValueEmptyStrings.toString();
+        String typeValueNullStringsToString = typeValueNullStrings.toString();
+
+        // Then
+        assertEquals(typeValueNullStringsToString, typeValueEmptyStringsToString);
     }
 }
