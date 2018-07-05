@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * @deprecated use a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} instead to specify whether
  * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
@@ -48,6 +50,7 @@ public interface SeedMatching {
     /**
      * A {@code SeedMatchingType} defines how the seeds in the operation should be matched.
      */
+    @Summary("How should the seeds be matched?")
     enum SeedMatchingType {
         EQUAL, RELATED
     }

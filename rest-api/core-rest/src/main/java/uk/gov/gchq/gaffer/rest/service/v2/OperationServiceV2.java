@@ -44,10 +44,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
@@ -277,6 +278,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         for (final String fieldString : fieldsToClassMap.keySet()) {
             boolean required = false;
+            String summary = null;
             Field field = null;
             Set<String> enumOptions = null;
 
@@ -287,26 +289,23 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
 
             if (null != field) {
-                final Required[] annotations = field.getAnnotationsByType(Required.class);
+                required = null != field.getAnnotation(Required.class);
+                summary = getSummaryValue(field.getType());
 
-                if (null != annotations && annotations.length > 0) {
-                    required = true;
-                }
                 if (field.getType().isEnum()) {
-                    enumOptions = new HashSet<>();
-                    Object[] enumOptionsList = field.getType().getEnumConstants();
-                    for (final Object enumObject : enumOptionsList) {
-                        enumOptions.add(enumObject.toString());
-                    }
+                    enumOptions = Stream
+                            .of(field.getType().getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.toSet());
                 }
             }
-            operationFields.add(new OperationField(fieldString, fieldsToClassMap.get(fieldString), enumOptions, required));
+            operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
         }
 
         return operationFields;
     }
 
-    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+    private static String getSummaryValue(final Class<?> opClass) {
         final Summary summary = opClass.getAnnotation(Summary.class);
         return null != summary && null != summary.value() ? summary.value() : null;
     }
@@ -316,12 +315,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationField {
         private final String name;
+        private final String summary;
         private String className;
         private Set<String> options;
         private final boolean required;
 
-        OperationField(final String name, final String className, final Set<String> options, final boolean required) {
+        OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
             this.name = name;
+            this.summary = summary;
             this.className = className;
             this.options = options;
             this.required = required;
@@ -329,6 +330,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public String getClassName() {
@@ -357,7 +362,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
-            this.summary = getOperationSummaryValue(opClass);
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
