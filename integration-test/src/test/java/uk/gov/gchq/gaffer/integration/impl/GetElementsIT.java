@@ -178,13 +178,13 @@ public class GetElementsIT extends AbstractStoreIT {
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex(SOURCE_1)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                                 .property(TestPropertyNames.COUNT, 1L)
                                 .build(),
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex(DEST_2)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                                 .property(TestPropertyNames.COUNT, 1L)
                                 .build()
                 ),
@@ -270,13 +270,13 @@ public class GetElementsIT extends AbstractStoreIT {
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex(SOURCE_1)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                                 .property(TestPropertyNames.COUNT, 1L)
                                 .build(),
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex(DEST_2)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet(3))
+                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                                 .property(TestPropertyNames.COUNT, 1L)
                                 .build()
                 ),
