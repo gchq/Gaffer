@@ -29,7 +29,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.STORE_VALIDATION)
-    public void shouldAgeOfDataBasedOnTimestampAndAgeOfFunctionInSchema() throws OperationException, InterruptedException {
+    public void shouldAgeOffDataBasedOnTimestampAndAgeOffFunctionInSchema() throws OperationException, InterruptedException {
         // Given
         final User user = new User();
         final long now = System.currentTimeMillis();
