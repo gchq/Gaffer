@@ -31,7 +31,7 @@ public class TypeSubTypeValueTest {
     }
 
     @Test
-    public void testToStringAndEqualsMethodTreatsNullAsEmptyString() {
+    public void testHashCodeAndEqualsMethodTreatsEmptyStringAsNull() {
         // Given
         TypeSubTypeValue typeSubTypeValueEmptyStrings = new TypeSubTypeValue("", "", "X");
         TypeSubTypeValue typeSubTypeValueNullStrings = new TypeSubTypeValue(null, null, "X");

@@ -27,7 +27,7 @@ public class TypeValueTest {
     }
 
     @Test
-    public void testToStringAndEqualsMethodTreatsNullAsEmptyString() {
+    public void testHashCodeAndEqualsMethodTreatsEmptyStringAsNull() {
         // Given
         TypeValue typeValueEmptyStrings = new TypeValue("", "");
         TypeValue typeValueNullStrings = new TypeValue(null, null);
