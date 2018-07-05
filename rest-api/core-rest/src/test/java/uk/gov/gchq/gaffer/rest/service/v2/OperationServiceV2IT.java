@@ -153,6 +153,20 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // Then
         assertFalse(response.readEntity(String.class).contains(outputClassNameString));
     }
+  
+    public void shouldReturnOptionsForEnumField() throws Exception {
+        // Given
+        final String seedMatchingWithEnum = "{\"name\":\"seedMatching\",\"className\":\"java.lang.String\",\"options\":[\"RELATED\",\"EQUAL\"],\"required\":false}";
+        final String directedTypeWithEnum = "{\"name\":\"directedType\",\"className\":\"java.lang.String\",\"options\":[\"DIRECTED\",\"UNDIRECTED\",\"EITHER\"],\"required\":false}";
+
+        // When
+        Response response = client.getOperationDetails(GetElements.class);
+        String responseString = response.readEntity(String.class);
+
+        // Then
+        assertTrue(responseString.contains(seedMatchingWithEnum));
+        assertTrue(responseString.contains(directedTypeWithEnum));
+    }
 
     @Override
     protected RestApiV2TestClient getClient() {
