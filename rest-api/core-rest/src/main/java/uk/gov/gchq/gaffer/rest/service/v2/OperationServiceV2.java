@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -347,6 +350,49 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         public boolean isRequired() {
             return required;
         }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationField that = (OperationField) o;
+
+            return new EqualsBuilder()
+                    .append(required, that.required)
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(className, that.className)
+                    .append(options, that.options)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(className)
+                    .append(options)
+                    .append(required)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("className", className)
+                    .append("options", options)
+                    .append("required", required)
+                    .toString();
+        }
     }
 
     /**
@@ -390,6 +436,49 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public Operation getExampleJson() {
             return exampleJson;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationDetail that = (OperationDetail) o;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(fields, that.fields)
+                    .append(next, that.next)
+                    .append(exampleJson, that.exampleJson)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(fields)
+                    .append(next)
+                    .append(exampleJson)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("fields", fields)
+                    .append("next", next)
+                    .append("exampleJson", exampleJson)
+                    .toString();
         }
     }
 }
