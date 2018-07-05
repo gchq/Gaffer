@@ -69,8 +69,7 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         fs.delete(new Path(inputPath + "/_SUCCESS"), false);
 
         // Set all permissions
-        if (!options.containsKey(AccumuloProperties.HDFS_SKIP_PERMISSIONS) ||
-                options.get(AccumuloProperties.HDFS_SKIP_PERMISSIONS).equals(String.valueOf(false))) {
+        if (!Boolean.parseBoolean(options.get(AccumuloProperties.HDFS_SKIP_PERMISSIONS))) {
             IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
         }
 
