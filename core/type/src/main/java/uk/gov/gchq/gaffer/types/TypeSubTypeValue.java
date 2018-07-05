@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.types;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Objects;
 
 /**
  * A {@code TypeSubTypeValue} is used to store information relating to types,
@@ -95,18 +95,18 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
         final TypeSubTypeValue tstv = (TypeSubTypeValue) object;
 
         return new EqualsBuilder()
-                .append(Objects.toString(type, ""), Objects.toString(tstv.type, ""))
-                .append(Objects.toString(subType, ""), Objects.toString(tstv.subType, ""))
-                .append(Objects.toString(value, ""), Objects.toString(tstv.value, ""))
+                .append(StringUtil.nullIfEmpty(type), StringUtil.nullIfEmpty(tstv.type))
+                .append(StringUtil.nullIfEmpty(subType), StringUtil.nullIfEmpty(tstv.subType))
+                .append(StringUtil.nullIfEmpty(value), StringUtil.nullIfEmpty(tstv.value))
                 .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", Objects.toString(type, ""))
-                .append("subType", Objects.toString(subType, ""))
-                .append("value", Objects.toString(value, ""))
+                .append("type", StringUtil.nullIfEmpty(type))
+                .append("subType", StringUtil.nullIfEmpty(subType))
+                .append("value", StringUtil.nullIfEmpty(value))
                 .toString();
     }
 

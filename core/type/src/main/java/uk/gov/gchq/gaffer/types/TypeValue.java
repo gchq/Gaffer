@@ -19,12 +19,12 @@ package uk.gov.gchq.gaffer.types;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Objects;
 
 /**
  * A {@code TypeValue} is used to store information relating to types and associated
@@ -77,8 +77,8 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
         final TypeValue typeValue = (TypeValue) obj;
 
         return new EqualsBuilder()
-                .append(Objects.toString(type, ""), Objects.toString(typeValue.type, ""))
-                .append(Objects.toString(value, ""), Objects.toString(typeValue.value, ""))
+                .append(StringUtil.nullIfEmpty(type), StringUtil.nullIfEmpty(typeValue.type))
+                .append(StringUtil.nullIfEmpty(value), StringUtil.nullIfEmpty(typeValue.value))
                 .isEquals();
     }
 
@@ -93,8 +93,8 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("type", Objects.toString(type, ""))
-                .append("value", Objects.toString(value, ""))
+                .append("type", StringUtil.nullIfEmpty(type))
+                .append("value", StringUtil.nullIfEmpty(value))
                 .toString();
     }
 
