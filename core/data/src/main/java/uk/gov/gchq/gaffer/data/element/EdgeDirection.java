@@ -21,7 +21,7 @@ import uk.gov.gchq.koryphe.Summary;
 /**
  * Enumerated type denoting the directionality of an {@link Edge}.
  */
-@Summary("The directed of an edge")
+@Summary("The direction of an edge")
 public enum EdgeDirection {
     /**
      * The edge is directed.

@@ -22,7 +22,7 @@ import uk.gov.gchq.koryphe.Summary;
  * A {@code DirectedType} defines whether edges should be
  * directed, undirected or either/both.
  */
-@Summary("The direction of Edges")
+@Summary("Is the Edge directed?")
 public enum DirectedType {
     /**
      * Edges are either DIRECTED or UNDIRECTED. This is the default value.

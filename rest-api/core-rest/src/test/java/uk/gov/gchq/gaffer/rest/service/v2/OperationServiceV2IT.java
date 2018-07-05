@@ -146,7 +146,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false, "Should the edges point towards, or away from your seeds", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
                 new OperationFieldPojo("seedMatching", "java.lang.String", false, "How should the seeds be matched?", Sets.newHashSet("RELATED", "EQUAL")),
                 new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null, null),
-                new OperationFieldPojo("directedType", "java.lang.String", false, "The direction of Edges", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
+                new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
                 new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
         );
         assertEquals(fields, opDetails.getFields());
