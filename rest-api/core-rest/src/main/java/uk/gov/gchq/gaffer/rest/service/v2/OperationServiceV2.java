@@ -47,7 +47,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -301,13 +300,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                             .of(field.getType().getEnumConstants())
                             .map(Object::toString)
                             .collect(Collectors.toSet());
-                }
-                if (field.getType().isEnum()) {
-                    enumOptions = new HashSet<>();
-                    Object[] enumOptionsList = field.getType().getEnumConstants();
-                    for (final Object enumObject : enumOptionsList) {
-                        enumOptions.add(enumObject.toString());
-                    }
                 }
             }
             operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
