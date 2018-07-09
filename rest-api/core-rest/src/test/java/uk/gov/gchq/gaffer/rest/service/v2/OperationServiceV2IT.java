@@ -22,7 +22,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -33,24 +32,18 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.Summary;
 
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -78,55 +71,6 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertEquals(403, response.getStatus());
-    }
-
-    @Test
-    public void shouldReturnOperationDetailFieldsWithClass() throws Exception {
-        // Given
-        Map<String, String> expectedFieldsInGetElementsClass = getSerialisedFieldClasses(GetElements.class.getName());
-        List<OperationFieldPojo> expectedOperationFieldList = new ArrayList<>();
-
-        for (String fieldString : expectedFieldsInGetElementsClass.keySet()) {
-            OperationFieldPojo expectedOpField = new OperationFieldPojo();
-            expectedOpField.setName(fieldString);
-            expectedOpField.setClassName(expectedFieldsInGetElementsClass.get(fieldString));
-            expectedOpField.setRequired(false);
-
-            Field field = null;
-
-            try {
-                field = GetElements.class.getDeclaredField(fieldString);
-            } catch (final NoSuchFieldException e) {
-                // Ignore
-            }
-
-            if (null != field) {
-                boolean required = null != field.getAnnotation(Required.class);
-                expectedOpField.setRequired(required);
-                Summary summary = field.getType().getAnnotation(Summary.class);
-                if (null != summary) {
-                    expectedOpField.setSummary(summary.value());
-                }
-                if (field.getType().isEnum()) {
-                    Set<String> enumOptions = Stream
-                            .of(field.getType().getEnumConstants())
-                            .map(Object::toString)
-                            .collect(Collectors.toSet());
-                    if (null != enumOptions) {
-                        expectedOpField.setOptions(enumOptions);
-                    }
-                }
-            }
-            expectedOperationFieldList.add(expectedOpField);
-        }
-
-        // When
-        Response response = client.getOperationDetails(GetElements.class);
-        byte[] json = response.readEntity(byte[].class);
-        OperationDetailPojo responseOpDetail = JSONSerialiser.deserialise(json, OperationDetailPojo.class);
-
-        // Then
-        assertEquals(expectedOperationFieldList, responseOpDetail.getFields());
     }
 
     @Test
