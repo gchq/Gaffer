@@ -309,12 +309,20 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private String getOperationOutputType(final Operation operation) {
+        String outputClass = null;
         if (operation instanceof Output) {
             final Type outputType = ((Output) operation).getOutputTypeReference().getType();
-            return outputType.getTypeName();
-        } else {
-            return null;
+            outputClass = outputType.getTypeName();
+            if (null != outputClass) {
+                if (!outputClass.contains(".")) {
+                    outputClass = SimpleClassNameIdResolver.getClassName(outputClass);
+                }
+                outputClass = outputClass.replaceAll("\\? extends ", "")
+                        .replaceAll("\\? super ", "")
+                        .replaceAll(" ", "");
+            }
         }
+        return outputClass;
     }
 
     private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {

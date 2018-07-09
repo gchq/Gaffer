@@ -133,7 +133,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
         // Given
-        final String expectedOutputString = "\"outputClassName\":\"uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<? extends uk.gov.gchq.gaffer.data.element.Element>\"";
+        final String expectedOutputString = "\"outputClassName\":\"uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>\"";
 
         // When
         Response response = client.getOperationDetails(GetElements.class);
@@ -153,7 +153,8 @@ public class OperationServiceV2IT extends OperationServiceIT {
         // Then
         assertFalse(response.readEntity(String.class).contains(outputClassNameString));
     }
-  
+
+    @Test
     public void shouldReturnOptionsForEnumField() throws Exception {
         // Given
         final String seedMatchingWithEnum = "{\"name\":\"seedMatching\",\"className\":\"java.lang.String\",\"options\":[\"RELATED\",\"EQUAL\"],\"required\":false}";
