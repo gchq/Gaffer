@@ -40,7 +40,7 @@ public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<Impo
     }
 
     private void importFiles(final ImportAccumuloKeyValueFiles operation, final AccumuloStore store) throws OperationException {
-        final ImportElementsToAccumuloTool importTool = new ImportElementsToAccumuloTool(operation.getInputPath(), operation.getFailurePath(), store);
+        final ImportElementsToAccumuloTool importTool = new ImportElementsToAccumuloTool(operation.getInputPath(), operation.getFailurePath(), store, operation.getOptions());
         try {
             ToolRunner.run(importTool, new String[0]);
         } catch (final Exception e) {
