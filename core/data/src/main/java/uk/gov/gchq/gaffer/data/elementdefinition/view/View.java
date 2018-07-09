@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -70,6 +71,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean allEntities = false;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean allEdges = false;
 
     public View() {
         super();
@@ -114,6 +119,26 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         return viewElementDef.getGroupBy();
+    }
+
+    @JsonSetter("allEntities")
+    public boolean isAllEntities() {
+        return allEntities;
+    }
+
+    @JsonGetter("allEntities")
+    public void setAllEntities(final boolean allEntities) {
+        this.allEntities = allEntities;
+    }
+
+    @JsonSetter("allEdges")
+    public boolean isAllEdges() {
+        return allEdges;
+    }
+
+    @JsonGetter("allEdges")
+    public void setAllEdges(final boolean allEdges) {
+        this.allEdges = allEdges;
     }
 
     public List<GlobalViewElementDefinition> getGlobalElements() {
@@ -342,6 +367,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS allEntities(final boolean allEntites) {
+            getThisView().allEntities = allEntites;
+            return self();
+        }
+
         public CHILD_CLASS edge(final String group) {
             return edge(group, new ViewElementDefinition());
         }
@@ -358,6 +388,11 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 }
             }
 
+            return self();
+        }
+
+        public CHILD_CLASS allEdges(final boolean allEdges) {
+            getThisView().allEdges = allEdges;
             return self();
         }
 
