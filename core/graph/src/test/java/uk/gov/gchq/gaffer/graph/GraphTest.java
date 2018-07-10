@@ -396,9 +396,9 @@ public class GraphTest {
         final User user = mock(User.class);
         final Context context = mock(Context.class);
         final Context clonedContext = mock(Context.class);
-        given(context.shallowClone()).willReturn(clonedContext);
         final Store store = mock(Store.class);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
@@ -631,8 +631,10 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         final Schema schema = new Schema();
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
@@ -642,8 +644,8 @@ public class GraphTest {
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
-        given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
+        given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
+        given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -663,8 +665,8 @@ public class GraphTest {
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, clonedOpChain, context);
-        inOrder.verify(hook2).postExecute(result2, clonedOpChain, context);
+        inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
+        inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
         assertSame(actualResult, result3);
         verify(context).setOriginalOpChain(opChain);
     }
@@ -710,11 +712,9 @@ public class GraphTest {
         final JobDetail actualResult = graph.executeJob(opChain, user);
 
         // Then
-        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
-        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, clonedOpChain, contextCaptor1.capture());
-        inOrder.verify(hook2).postExecute(result2, clonedOpChain, contextCaptor2.capture());
+        inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
+        inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
         assertSame(actualResult, result3);
         verify(context).setOriginalOpChain(opChain);
     }
@@ -1248,7 +1248,7 @@ public class GraphTest {
         final Context context = mock(Context.class);
         final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
+        given(clonedContext.getUser()).willReturn(user);
         given(context.shallowClone()).willReturn(clonedContext);
         final int expectedResult = 5;
         final Operation operation = mock(Operation.class);
@@ -1257,7 +1257,7 @@ public class GraphTest {
         final OperationChain<Integer> clonedOpChain = mock(OperationChain.class);
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(store.execute(clonedOpChain, context)).willReturn(expectedResult);
+        given(store.execute(clonedOpChain, clonedContext)).willReturn(expectedResult);
 
         // When
         int result = graph.execute(opChain, user);
