@@ -116,7 +116,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class GraphTest {
+public class GraphTfest {
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -274,8 +274,9 @@ public class GraphTest {
     private URI getResourceUri(String resource) throws URISyntaxException {
         resource = resource.replaceFirst(Pattern.quote("/"), "");
         final URI resourceURI = getClass().getClassLoader().getResource(resource).toURI();
-        if (resourceURI == null)
+        if (resourceURI == null) {
             fail("Test json file not found: " + resource);
+        }
         return resourceURI;
     }
 
@@ -544,15 +545,19 @@ public class GraphTest {
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(clonedContext));
-        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(clonedContext));
+        inOrder.verify(hook1).preExecute(captor1.capture(), contextCaptor1.capture());
+        inOrder.verify(hook2).preExecute(captor2.capture(), contextCaptor2.capture());
         inOrder.verify(operation).setView(Mockito.any(View.class));
         assertSame(captor1.getValue(), captor2.getValue());
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
-        verify(context).setOriginalOpChain(opChain);
+        assertSame(user, contextCaptor1.getValue().getUser());
+        assertSame(clonedOpChain, contextCaptor1.getValue().getOriginalOpChain());
+        assertEquals(contextCaptor1.getValue(), contextCaptor2.getValue());
     }
 
     @Test
