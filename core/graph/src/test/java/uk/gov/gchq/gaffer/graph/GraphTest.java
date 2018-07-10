@@ -116,7 +116,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class GraphTfest {
+public class GraphTest {
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -394,10 +394,12 @@ public class GraphTfest {
 
         final Exception exception = mock(RuntimeException.class);
         final User user = mock(User.class);
-        final Context context = new Context(user);
+        final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
+        given(context.shallowClone()).willReturn(clonedContext);
         final Store store = mock(Store.class);
         given(store.createContext(user)).willReturn(context);
-        given(store.execute(clonedOpChain, context)).willThrow(exception);
+        given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -471,9 +473,11 @@ public class GraphTfest {
 
         final User user = mock(User.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
         final Store store = mock(Store.class);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -496,15 +500,17 @@ public class GraphTfest {
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(context));
-        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(context));
+        inOrder.verify(hook1).preExecute(captor1.capture(), contextCaptor1.capture());
+        inOrder.verify(hook2).preExecute(captor2.capture(), contextCaptor2.capture());
         inOrder.verify(operation).setView(Mockito.any(View.class));
         assertSame(captor1.getValue(), captor2.getValue());
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
-        verify(context).setOriginalOpChain(opChain);
+        assertSame(clonedOpChain, contextCaptor1.getValue().getOriginalOpChain());
     }
 
     @Test
@@ -574,8 +580,10 @@ public class GraphTfest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
@@ -598,15 +606,16 @@ public class GraphTfest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.execute(captor.capture(), Mockito.eq(context))).willReturn(result1);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(result1);
 
         // When
         final Object actualResult = graph.execute(opChain, user);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, captor.getValue(), context);
-        inOrder.verify(hook2).postExecute(result2, captor.getValue(), context);
+        inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+        inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
         final List<Operation> ops = captor.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
@@ -668,6 +677,8 @@ public class GraphTfest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
+        given(context.shallowClone()).willReturn(clonedContext);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
@@ -699,9 +710,11 @@ public class GraphTfest {
         final JobDetail actualResult = graph.executeJob(opChain, user);
 
         // Then
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, clonedOpChain, context);
-        inOrder.verify(hook2).postExecute(result2, clonedOpChain, context);
+        inOrder.verify(hook1).postExecute(result1, clonedOpChain, contextCaptor1.capture());
+        inOrder.verify(hook2).postExecute(result2, clonedOpChain, contextCaptor2.capture());
         assertSame(actualResult, result3);
         verify(context).setOriginalOpChain(opChain);
     }
@@ -829,6 +842,8 @@ public class GraphTfest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
+        given(context.shallowClone()).willReturn(clonedContext);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
@@ -837,8 +852,8 @@ public class GraphTfest {
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
-        given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
+        given(hook1.onFailure(null, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, clonedContext, e)).willReturn(null);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1216,8 +1231,7 @@ public class GraphTfest {
     }
 
     @Test
-    public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet
-            () throws OperationException {
+    public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
@@ -1232,8 +1246,10 @@ public class GraphTfest {
                 .build();
         final User user = new User();
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         final int expectedResult = 5;
         final Operation operation = mock(Operation.class);
 
@@ -2029,7 +2045,7 @@ public class GraphTfest {
             graph.execute(opChain, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
+            assertEquals("A user is required", e.getMessage());
         }
     }
 
@@ -2052,7 +2068,7 @@ public class GraphTfest {
             graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
+            assertEquals("A user is required", e.getMessage());
         }
     }
 

@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -71,6 +72,25 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertEquals(403, response.getStatus());
+    }
+
+    @Test
+    public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
+        // Given
+        Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(StreamUtil.STORE_PROPERTIES)
+                .addSchema(new Schema())
+                .build();
+
+        //graph.getSupportedOperations().add(GetAllJobDetails.class);
+        client.reinitialiseGraph(graph);
+
+        // When
+        final Response response = client.executeOperation(new GetAllJobDetails());
+
+        // Then
+        assertTrue(response.readEntity(String.class).contains(response.getHeaderString("job-id")));
     }
 
     @Test
