@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -44,7 +45,6 @@ import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -311,16 +311,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     private String getOperationOutputType(final Operation operation) {
         String outputClass = null;
         if (operation instanceof Output) {
-            final Type outputType = ((Output) operation).getOutputTypeReference().getType();
-            outputClass = outputType.getTypeName();
-            if (null != outputClass) {
-                if (!outputClass.contains(".")) {
-                    outputClass = SimpleClassNameIdResolver.getClassName(outputClass);
-                }
-                outputClass = outputClass.replaceAll("\\? extends ", "")
-                        .replaceAll("\\? super ", "")
-                        .replaceAll(" ", "");
-            }
+            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
         }
         return outputClass;
     }
