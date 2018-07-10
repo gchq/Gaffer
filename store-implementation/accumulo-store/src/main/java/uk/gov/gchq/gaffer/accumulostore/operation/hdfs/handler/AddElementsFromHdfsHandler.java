@@ -222,7 +222,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         final ImportElementsToAccumuloTool importTool;
         final int response;
-        importTool = new ImportElementsToAccumuloTool(operation.getOutputPath(), operation.getFailurePath(), store);
+        importTool = new ImportElementsToAccumuloTool(operation.getOutputPath(), operation.getFailurePath(), store, operation.getOptions());
         try {
             LOGGER.info("Running import job");
             response = ToolRunner.run(importTool, new String[0]);

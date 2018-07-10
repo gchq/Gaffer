@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -46,10 +49,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
@@ -279,6 +283,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         for (final String fieldString : fieldsToClassMap.keySet()) {
             boolean required = false;
+            String summary = null;
             Field field = null;
             Set<String> enumOptions = null;
 
@@ -289,20 +294,17 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
 
             if (null != field) {
-                final Required[] annotations = field.getAnnotationsByType(Required.class);
+                required = null != field.getAnnotation(Required.class);
+                summary = getSummaryValue(field.getType());
 
-                if (null != annotations && annotations.length > 0) {
-                    required = true;
-                }
                 if (field.getType().isEnum()) {
-                    enumOptions = new HashSet<>();
-                    Object[] enumOptionsList = field.getType().getEnumConstants();
-                    for (final Object enumObject : enumOptionsList) {
-                        enumOptions.add(enumObject.toString());
-                    }
+                    enumOptions = Stream
+                            .of(field.getType().getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.toSet());
                 }
             }
-            operationFields.add(new OperationField(fieldString, fieldsToClassMap.get(fieldString), enumOptions, required));
+            operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
         }
 
         return operationFields;
@@ -316,7 +318,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return outputClass;
     }
 
-    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+    private static String getSummaryValue(final Class<?> opClass) {
         final Summary summary = opClass.getAnnotation(Summary.class);
         return null != summary && null != summary.value() ? summary.value() : null;
     }
@@ -326,12 +328,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationField {
         private final String name;
+        private final String summary;
         private String className;
         private Set<String> options;
         private final boolean required;
 
-        OperationField(final String name, final String className, final Set<String> options, final boolean required) {
+        OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
             this.name = name;
+            this.summary = summary;
             this.className = className;
             this.options = options;
             this.required = required;
@@ -339,6 +343,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public String getClassName() {
@@ -352,13 +360,56 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         public boolean isRequired() {
             return required;
         }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationField that = (OperationField) o;
+
+            return new EqualsBuilder()
+                    .append(required, that.required)
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(className, that.className)
+                    .append(options, that.options)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(className)
+                    .append(options)
+                    .append(required)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("className", className)
+                    .append("options", options)
+                    .append("required", required)
+                    .toString();
+        }
     }
 
     /**
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    protected class OperationDetail {
+    private class OperationDetail {
         private final String name;
         private final String summary;
         private final List<OperationField> fields;
@@ -368,7 +419,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
-            this.summary = getOperationSummaryValue(opClass);
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -401,6 +452,49 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public String getOutputClassName() {
             return outputClassName;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationDetail that = (OperationDetail) o;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(fields, that.fields)
+                    .append(next, that.next)
+                    .append(exampleJson, that.exampleJson)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(fields)
+                    .append(next)
+                    .append(exampleJson)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("fields", fields)
+                    .append("next", next)
+                    .append("exampleJson", exampleJson)
+                    .toString();
         }
     }
 }

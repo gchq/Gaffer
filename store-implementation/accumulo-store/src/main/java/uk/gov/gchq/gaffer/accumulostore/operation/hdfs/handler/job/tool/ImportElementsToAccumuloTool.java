@@ -23,11 +23,13 @@ import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class ImportElementsToAccumuloTool extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 0;
@@ -36,11 +38,19 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
     private final String inputPath;
     private final String failurePath;
     private final AccumuloStore store;
+    private Map<String, String> options;
 
     public ImportElementsToAccumuloTool(final String inputPath, final String failurePath, final AccumuloStore store) {
         this.inputPath = inputPath;
         this.failurePath = failurePath;
         this.store = store;
+    }
+
+    public ImportElementsToAccumuloTool(final String inputPath, final String failurePath, final AccumuloStore store, final Map<String, String> options) {
+        this.inputPath = inputPath;
+        this.failurePath = failurePath;
+        this.store = store;
+        this.options = options;
     }
 
     @Override
@@ -59,7 +69,9 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         fs.delete(new Path(inputPath + "/_SUCCESS"), false);
 
         // Set all permissions
-        IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
+            if (options == null || !Boolean.parseBoolean(options.get(AccumuloProperties.HDFS_SKIP_PERMISSIONS))) {
+            IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
+        }
 
         // Import the files
         LOGGER.info("Importing files in {} to table {}", inputPath, store.getTableName());

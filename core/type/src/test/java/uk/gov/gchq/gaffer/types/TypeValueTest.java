@@ -24,6 +24,19 @@ public class TypeValueTest {
         assertTrue(typeValue.compareTo(new TypeValue("b", "a")) < 0);
 
         assertTrue(typeValue.compareTo(new TypeValue("a", "c")) < 0);
+    }
 
+    @Test
+    public void testHashCodeAndEqualsMethodTreatsEmptyStringAsNull() {
+        // Given
+        TypeValue typeValueEmptyStrings = new TypeValue("", "");
+        TypeValue typeValueNullStrings = new TypeValue(null, null);
+
+        // When
+        boolean equalsResult = typeValueEmptyStrings.equals(typeValueNullStrings);
+
+        // Then
+        assertTrue(equalsResult);
+        assertEquals(typeValueEmptyStrings.hashCode(), typeValueNullStrings.hashCode());
     }
 }
