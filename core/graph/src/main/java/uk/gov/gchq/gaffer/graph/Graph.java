@@ -226,15 +226,19 @@ public final class Graph {
             throw new IllegalArgumentException("A request is required");
         }
 
+        if (null == request.getContext()) {
+            throw new IllegalArgumentException("A context is required");
+        }
+
         request.getContext().setOriginalOpChain(request.getOperationChain());
 
-        final Context clonedContext = new Context(request.getContext());
+        final Context clonedContext = request.getContext().shallowClone();
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
         O result = null;
         try {
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, request.getContext());
+                graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);

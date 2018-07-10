@@ -66,6 +66,15 @@ public class Context {
         }
     }
 
+    /**
+     * Creates a clone of the current {@link Context} and returns it with a new job ID.
+     *
+     * @return cloned {@link Context}
+     */
+    public Context shallowClone() {
+        return new Context(this);
+    }
+
     private Context(final User user, final Map<String, Object> config) {
         if (null == user) {
             throw new IllegalArgumentException("User is required");

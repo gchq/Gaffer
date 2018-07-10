@@ -517,9 +517,11 @@ public class GraphTest {
 
         final User user = mock(User.class);
         final Context context = mock(Context.class);
+        final Context clonedContext = mock(Context.class);
         given(context.getUser()).willReturn(user);
         final Store store = mock(Store.class);
         given(store.createContext(user)).willReturn(context);
+        given(context.shallowClone()).willReturn(clonedContext);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -543,8 +545,8 @@ public class GraphTest {
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(context));
-        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(context));
+        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(clonedContext));
+        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(clonedContext));
         inOrder.verify(operation).setView(Mockito.any(View.class));
         assertSame(captor1.getValue(), captor2.getValue());
         final List<Operation> ops = captor1.getValue().getOperations();
