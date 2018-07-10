@@ -409,7 +409,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    private class OperationDetail {
+    protected class OperationDetail {
         private final String name;
         private final String summary;
         private final List<OperationField> fields;
