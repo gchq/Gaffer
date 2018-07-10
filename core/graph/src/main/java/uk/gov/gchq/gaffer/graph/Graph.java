@@ -264,11 +264,21 @@ public final class Graph {
                 View opView = ((OperationView) operation).getView();
                 if (null == opView) {
                     opView = config.getView();
-                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
                     opView = new View.Builder()
                             .merge(config.getView())
                             .merge(opView)
                             .build();
+                } else if (opView.isAllEdges() || opView.isAllEntities()) {
+                    View.Builder opViewBuilder = new View.Builder()
+                            .merge(opView);
+                    if (opView.isAllEdges()) {
+                        opViewBuilder.edges(getSchema().getEdgeGroups());
+                    }
+                    if (opView.isAllEntities()) {
+                        opViewBuilder.entities(getSchema().getEntityGroups());
+                    }
+                    opView = opViewBuilder.build();
                 }
                 opView.expandGlobalDefinitions();
                 ((OperationView) operation).setView(opView);

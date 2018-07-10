@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -34,16 +36,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -74,31 +74,6 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Test
-    public void shouldReturnOperationDetailFieldsWithClass() throws IOException {
-        // Given
-        Map<String, String> expectedFieldsInGetElementsClass = getSerialisedFieldClasses(GetElements.class.getName());
-        List<OperationFieldPojo> expectedOperationFieldList = new ArrayList<>();
-
-        for (Map.Entry<String, String> entry : expectedFieldsInGetElementsClass.entrySet()) {
-            OperationFieldPojo expectedOpField = new OperationFieldPojo();
-            expectedOpField.setName(entry.getKey());
-            expectedOpField.setClassName(entry.getValue());
-            expectedOpField.setRequired(false);
-
-            expectedOperationFieldList.add(expectedOpField);
-        }
-
-        // When
-        Response response = client.getOperationDetails(GetElements.class);
-        byte[] json = response.readEntity(byte[].class);
-        OperationDetailPojo responseOpDetail = JSONSerialiser.deserialise(json, new TypeReference<OperationDetailPojo>() {
-        });
-
-        // Then
-        assertEquals(expectedOperationFieldList, responseOpDetail.getFields());
-    }
-
-    @Test
     public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
         final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph().getSupportedOperations();
@@ -126,7 +101,28 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertTrue(response.readEntity(String.class).contains(expectedSummary));
+    }
 
+    @Test
+    public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
+        // Given
+
+        // When
+        Response response = client.getOperationDetails(GetElements.class);
+
+        // Then
+        final byte[] json = response.readEntity(byte[].class);
+        final OperationDetailPojo opDetails = JSONSerialiser.deserialise(json, OperationDetailPojo.class);
+        final List<OperationFieldPojo> fields = Arrays.asList(
+                new OperationFieldPojo("input", "java.lang.Object[]", false, null, null),
+                new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null, null),
+                new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false, "Should the edges point towards, or away from your seeds", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
+                new OperationFieldPojo("seedMatching", "java.lang.String", false, "How should the seeds be matched?", Sets.newHashSet("RELATED", "EQUAL")),
+                new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null, null),
+                new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
+                new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
+        );
+        assertEquals(fields, opDetails.getFields());
     }
 
     @Override
@@ -180,12 +176,70 @@ public class OperationServiceV2IT extends OperationServiceIT {
         public Operation getExampleJson() {
             return exampleJson;
         }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationDetailPojo that = (OperationDetailPojo) o;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(fields, that.fields)
+                    .append(next, that.next)
+                    .append(exampleJson, that.exampleJson)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(fields)
+                    .append(next)
+                    .append(exampleJson)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("fields", fields)
+                    .append("next", next)
+                    .append("exampleJson", exampleJson)
+                    .toString();
+        }
+
+
     }
 
     private static class OperationFieldPojo {
         private String name;
         private String className;
         private boolean required;
+        private String summary;
+        private Set<String> options;
+
+        public OperationFieldPojo() {
+        }
+
+        public OperationFieldPojo(final String name, final String className, final boolean required, final String summary, final Set<String> options) {
+            this.name = name;
+            this.className = className;
+            this.required = required;
+            this.summary = summary;
+            this.options = options;
+        }
 
         public void setName(final String name) {
             this.name = name;
@@ -211,32 +265,63 @@ public class OperationServiceV2IT extends OperationServiceIT {
             return className;
         }
 
+        public String getSummary() {
+            return summary;
+        }
+
+        public void setSummary(final String summary) {
+            this.summary = summary;
+        }
+
+        public Set<String> getOptions() {
+            return options;
+        }
+
+        public void setOptions(final Set<String> options) {
+            this.options = options;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationFieldPojo that = (OperationFieldPojo) o;
+
+            return new EqualsBuilder()
+                    .append(required, that.required)
+                    .append(name, that.name)
+                    .append(className, that.className)
+                    .append(summary, that.summary)
+                    .append(options, that.options)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(className)
+                    .append(required)
+                    .append(summary)
+                    .append(options)
+                    .toHashCode();
+        }
+
         @Override
         public String toString() {
             return new ToStringBuilder(this)
                     .append("name", name)
                     .append("className", className)
                     .append("required", required)
+                    .append("summary", summary)
+                    .append("options", options)
                     .toString();
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-
-            if (null == obj || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            final OperationFieldPojo that = (OperationFieldPojo) obj;
-
-            return new EqualsBuilder()
-                    .append(name, that.name)
-                    .append(className, that.className)
-                    .append(required, that.required)
-                    .isEquals();
         }
     }
 }

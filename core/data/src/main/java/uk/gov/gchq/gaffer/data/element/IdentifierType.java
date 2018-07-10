@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+import uk.gov.gchq.koryphe.Summary;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import java.util.Map;
  * The {@code IdentifierType} enum contains the identifier types used for {@link uk.gov.gchq.gaffer.data.element.Entity}s and
  * {@link uk.gov.gchq.gaffer.data.element.Edge}s.
  */
+@Summary("An identifier of an Entity or Edge")
 public enum IdentifierType {
     // Entity identifier type
     /**
