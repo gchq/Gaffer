@@ -31,6 +31,8 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
+import uk.gov.gchq.gaffer.graph.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -222,9 +224,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         final Context context = userFactory.createContext();
         preOperationHook(opChain, context);
 
-        O result;
+        GraphResult<O> result;
         try {
-            result = graphFactory.getGraph().execute(opChain, context);
+            result = graphFactory.getGraph().execute(new GraphRequest<>(opChain, context));
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
             if (null != e.getMessage()) {
@@ -241,7 +243,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
         }
 
-        return new Pair<>(result, context.getJobId());
+        return new Pair<>(result.getResult(), result.getContext().getJobId());
     }
 
     protected void chunkResult(final Object result, final ChunkedOutput<String> output) {

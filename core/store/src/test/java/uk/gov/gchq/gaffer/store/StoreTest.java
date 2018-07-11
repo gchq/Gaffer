@@ -303,7 +303,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, store.createContext(user));
+        store.execute(addElements, context);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -704,7 +704,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
+        final JobDetail resultJobDetail = store.executeJob(opChain, context);
 
         // Then
         Thread.sleep(1000);
@@ -731,7 +731,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
+        final JobDetail resultJobDetail = store.executeJob(opChain, context);
 
         // Then
         Thread.sleep(1000);
@@ -912,12 +912,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public Context createContext(final User user) {
-            super.createContext(user);
-            return context;
         }
 
         @Override

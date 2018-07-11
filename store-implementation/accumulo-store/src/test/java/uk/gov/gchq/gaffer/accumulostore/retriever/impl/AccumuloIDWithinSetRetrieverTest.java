@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -502,7 +503,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             store.execute(new AddElements.Builder()
                             .input(data)
                             .build(),
-                    store.createContext(user));
+                    new Context(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
