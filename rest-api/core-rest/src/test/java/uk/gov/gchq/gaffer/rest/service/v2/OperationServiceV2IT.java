@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -43,6 +44,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -82,8 +84,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();
-
-        //graph.getSupportedOperations().add(GetAllJobDetails.class);
+        
         client.reinitialiseGraph(graph);
 
         // When
@@ -121,6 +122,30 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertTrue(response.readEntity(String.class).contains(expectedSummary));
+    }
+
+    @Test
+    public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
+        // Given
+        final String expectedOutputString = "\"outputClassName\":\"uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>\"";
+
+        // When
+        Response response = client.getOperationDetails(GetElements.class);
+
+        // Then
+        assertTrue(response.readEntity(String.class).contains(expectedOutputString));
+    }
+
+    @Test
+    public void shouldNotIncludeAnyOutputClassForOperationWithoutOutput() throws Exception {
+        // Given
+        final String outputClassNameString = "\"outputClassName\"";
+
+        // When
+        Response response = client.getOperationDetails(DiscardOutput.class);
+
+        // Then
+        assertFalse(response.readEntity(String.class).contains(outputClassNameString));
     }
 
     @Test
