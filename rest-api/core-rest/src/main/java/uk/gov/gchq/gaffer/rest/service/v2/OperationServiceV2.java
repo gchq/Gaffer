@@ -34,9 +34,11 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -308,6 +310,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return operationFields;
     }
 
+    private String getOperationOutputType(final Operation operation) {
+        String outputClass = null;
+        if (operation instanceof Output) {
+            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+        }
+        return outputClass;
+    }
+
     private static String getSummaryValue(final Class<?> opClass) {
         final Summary summary = opClass.getAnnotation(Summary.class);
         return null != summary && null != summary.value() ? summary.value() : null;
@@ -405,6 +415,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
+        private final String outputClassName;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
@@ -416,6 +427,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
+            this.outputClassName = getOperationOutputType(exampleJson);
         }
 
         public String getName() {
@@ -436,6 +448,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public Operation getExampleJson() {
             return exampleJson;
+        }
+
+        public String getOutputClassName() {
+            return outputClassName;
         }
 
         @Override
