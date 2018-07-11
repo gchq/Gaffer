@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -155,7 +156,7 @@ public class AggregatorIteratorTest {
         final User user = new User();
         store.execute(new AddElements.Builder()
                 .input(edge1, edge2, edge3)
-                .build(), store.createContext(user));
+                .build(), new Context(user));
 
         final GetElements get = new GetElements.Builder()
                 .view(new View.Builder()
@@ -165,7 +166,7 @@ public class AggregatorIteratorTest {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(store.execute(get, store.createContext(user)));
+        final List<Element> results = Lists.newArrayList(store.execute(get, new Context(user)));
 
         // Then
         assertEquals(1, results.size());

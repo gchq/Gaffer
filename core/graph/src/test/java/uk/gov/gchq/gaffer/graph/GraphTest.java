@@ -100,7 +100,6 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -124,10 +123,32 @@ public class GraphTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private User user;
+    private Context context;
+    private Context clonedContext;
+
+    private OperationChain opChain;
+    private OperationChain clonedOpChain;
+    private GetElements operation;
+
     @Before
     public void before() throws Exception {
         HashMapGraphLibrary.clear();
         TestStore.mockStore = mock(TestStore.class);
+
+        user = mock(User.class);
+        context = mock(Context.class);
+        clonedContext = mock(Context.class);
+        given(context.getUser()).willReturn(user);
+        given(context.shallowClone()).willReturn(clonedContext);
+        given(clonedContext.getUser()).willReturn(user);
+
+        operation = mock(GetElements.class);
+        opChain = mock(OperationChain.class);
+        clonedOpChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
     }
 
     @Test
@@ -283,11 +304,7 @@ public class GraphTest {
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOperation() throws OperationException, IOException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final User user = mock(User.class);
-        final Context context = new Context(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -305,25 +322,13 @@ public class GraphTest {
         graph.execute(operation, context);
 
         // Then
-        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(store).execute(Mockito.any(Output.class), contextCaptor.capture());
-        assertNotSame(contextCaptor.getValue(), context);
-        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+        verify(store).execute(Mockito.any(Output.class), eq(clonedContext));
     }
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOutputOperation() throws OperationException, IOException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = new Context(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -341,25 +346,13 @@ public class GraphTest {
         graph.execute(opChain, context);
 
         // Then
-        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(store).execute(Mockito.eq(clonedOpChain), contextCaptor.capture());
-        assertNotSame(contextCaptor.getValue(), context);
-        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+        verify(store).execute(clonedOpChain, clonedContext);
     }
 
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteJob() throws OperationException, IOException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = new Context(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -377,28 +370,14 @@ public class GraphTest {
         graph.executeJob(opChain, context);
 
         // Then
-        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(store).executeJob(Mockito.eq(clonedOpChain), contextCaptor.capture());
-        assertNotSame(contextCaptor.getValue(), context);
-        assertNotEquals(contextCaptor.getValue().getJobId(), context.getJobId());
+        verify(store).executeJob(clonedOpChain, clonedContext);
     }
 
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted() throws OperationException, IOException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
         final Exception exception = mock(RuntimeException.class);
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
-        given(context.shallowClone()).willReturn(clonedContext);
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
@@ -415,7 +394,7 @@ public class GraphTest {
 
         // When / Then
         try {
-            graph.execute(opChain, user);
+            graph.execute(opChain, context);
             fail("Exception expected");
         } catch (final Exception e) {
             assertSame(exception, e);
@@ -426,19 +405,9 @@ public class GraphTest {
     @Test
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted() throws OperationException, IOException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
         final Exception exception = mock(RuntimeException.class);
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
-        given(store.executeJob(clonedOpChain, context)).willThrow(exception);
+        given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -454,7 +423,7 @@ public class GraphTest {
 
         // When / Then
         try {
-            graph.executeJob(opChain, user);
+            graph.executeJob(opChain, context);
             fail("Exception expected");
         } catch (final Exception e) {
             assertSame(exception, e);
@@ -465,19 +434,7 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
-        final GetElements operation = mock(GetElements.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.getUser()).willReturn(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
-        given(context.shallowClone()).willReturn(clonedContext);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -495,40 +452,20 @@ public class GraphTest {
                 .build();
 
         // When
-        graph.execute(opChain, user);
+        graph.execute(opChain, context);
 
         // Then
-        final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
-        final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
-        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
-        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(captor1.capture(), contextCaptor1.capture());
-        inOrder.verify(hook2).preExecute(captor2.capture(), contextCaptor2.capture());
+        inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
+        inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(operation).setView(Mockito.any(View.class));
-        assertSame(captor1.getValue(), captor2.getValue());
-        final List<Operation> ops = captor1.getValue().getOperations();
-        assertEquals(1, ops.size());
-        assertSame(operation, ops.get(0));
-        assertSame(clonedOpChain, contextCaptor1.getValue().getOriginalOpChain());
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
     public void shouldCallAllGraphHooksBeforeJobExecuted() throws OperationException {
         // Given
-        final GetElements operation = mock(GetElements.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.getUser()).willReturn(user);
         final Store store = mock(Store.class);
-        given(store.createContext(user)).willReturn(context);
-        given(context.shallowClone()).willReturn(clonedContext);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -546,101 +483,26 @@ public class GraphTest {
                 .build();
 
         // When
-        graph.executeJob(opChain, user);
+        graph.executeJob(opChain, context);
 
         // Then
-        final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
-        final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
-        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
-        final ArgumentCaptor<Context> contextCaptor2 = ArgumentCaptor.forClass(Context.class);
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(captor1.capture(), contextCaptor1.capture());
-        inOrder.verify(hook2).preExecute(captor2.capture(), contextCaptor2.capture());
+        inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
+        inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(operation).setView(Mockito.any(View.class));
-        assertSame(captor1.getValue(), captor2.getValue());
-        final List<Operation> ops = captor1.getValue().getOperations();
-        assertEquals(1, ops.size());
-        assertSame(operation, ops.get(0));
-        assertSame(user, contextCaptor1.getValue().getUser());
-        assertSame(clonedOpChain, contextCaptor1.getValue().getOriginalOpChain());
-        assertEquals(contextCaptor1.getValue(), contextCaptor2.getValue());
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
     public void shouldCallAllGraphHooksAfterOperationExecuted() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
-        given(context.shallowClone()).willReturn(clonedContext);
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
         final Schema schema = new Schema();
-
-        given(store.getSchema()).willReturn(schema);
-        given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
-        given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
-
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(hook1)
-                        .addHook(hook2)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .addSchema(schema)
-                .build();
-
-        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
-        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(result1);
-
-        // When
-        final Object actualResult = graph.execute(opChain, user);
-
-        // Then
-        final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
-        inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
-        final List<Operation> ops = captor.getValue().getOperations();
-        assertEquals(1, ops.size());
-        assertSame(operation, ops.get(0));
-        assertSame(actualResult, result3);
-        verify(context).setOriginalOpChain(opChain);
-    }
-
-    @Test
-    public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
-        // Given
-        final User user = mock(User.class);
-        final GraphHook hook1 = mock(GraphHook.class);
-        final GraphHook hook2 = mock(GraphHook.class);
-        final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
-        given(context.shallowClone()).willReturn(clonedContext);
-        final Schema schema = new Schema();
-        final Object result1 = mock(Object.class);
-        final Object result2 = mock(Object.class);
-        final Object result3 = mock(Object.class);
-        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
-        final OperationChain clonedOpChain = opChain.shallowClone();
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -658,42 +520,38 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(store.execute(clonedOpChain, context)).willReturn(result1);
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(result1);
 
         // When
-        final Object actualResult = graph.execute(opChain, user);
+        final Object actualResult = graph.execute(opChain, context);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
-        inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
+        inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+        inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
         assertSame(actualResult, result3);
         verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
-    public void shouldCallAllGraphHooksAfterJobExecuted() throws OperationException {
+    public void shouldCallAllGraphHooksAfterOperationChainExecuted() throws OperationException {
         // Given
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.shallowClone()).willReturn(clonedContext);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
-        final JobDetail result1 = mock(JobDetail.class);
-        final JobDetail result2 = mock(JobDetail.class);
-        final JobDetail result3 = mock(JobDetail.class);
-        final OperationChain opChain = new OperationChain.Builder().first(mock(Operation.class)).build();
-        final OperationChain clonedOpChain = opChain.shallowClone();
-
+        final Object result1 = mock(Object.class);
+        final Object result2 = mock(Object.class);
+        final Object result3 = mock(Object.class);
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
-        given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
+        given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
+        given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -706,10 +564,49 @@ public class GraphTest {
                 .addSchema(schema)
                 .build();
 
-        given(store.executeJob(clonedOpChain, context)).willReturn(result1);
+        given(store.execute(clonedOpChain, clonedContext)).willReturn(result1);
 
         // When
-        final JobDetail actualResult = graph.executeJob(opChain, user);
+        final Object actualResult = graph.execute(opChain, context);
+
+        // Then
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
+        inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
+        assertSame(actualResult, result3);
+        verify(context).setOriginalOpChain(opChain);
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksAfterJobExecuted() throws OperationException {
+        // Given
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+        final JobDetail result1 = mock(JobDetail.class);
+        final JobDetail result2 = mock(JobDetail.class);
+        final JobDetail result3 = mock(JobDetail.class);
+        given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
+        given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willReturn(result3);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        given(store.executeJob(clonedOpChain, clonedContext)).willReturn(result1);
+
+        // When
+        final JobDetail actualResult = graph.executeJob(opChain, context);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);
@@ -722,26 +619,16 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.createContext(user)).willReturn(context);
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
-        doThrow(e).when(hook1).preExecute(clonedOpChain, context);
-        given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
+        doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
+        given(hook1.onFailure(null, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, clonedContext, e)).willReturn(null);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -756,7 +643,7 @@ public class GraphTest {
 
         // When / Then
         try {
-            graph.execute(opChain, user);
+            graph.execute(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
@@ -764,38 +651,28 @@ public class GraphTest {
             inOrder.verify(hook2, never()).preExecute(any(), any());
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(context), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(context), eq(e));
+            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
         }
     }
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailure() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
+        given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
-        given(hook2.postExecute(result2, clonedOpChain, context)).willThrow(e);
-        given(hook1.onFailure(result2, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(result2, clonedOpChain, context, e)).willReturn(result3);
+        given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willThrow(e);
+        given(hook1.onFailure(result2, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(result2, clonedOpChain, clonedContext, e)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -809,19 +686,19 @@ public class GraphTest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.execute(captor.capture(), Mockito.eq(context))).willReturn(result1);
+        given(store.execute(captor.capture(), eq(clonedContext))).willReturn(result1);
 
         // When / Then
         try {
-            graph.execute(opChain, user);
+            graph.execute(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
             inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1).postExecute(result1, captor.getValue(), context);
-            inOrder.verify(hook2).postExecute(result2, captor.getValue(), context);
-            inOrder.verify(hook1).onFailure(result2, captor.getValue(), context, e);
-            inOrder.verify(hook2).onFailure(result2, captor.getValue(), context, e);
+            inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+            inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
+            inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
+            inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
             assertEquals(1, ops.size());
             assertSame(operation, ops.get(0));
@@ -831,27 +708,14 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksOnExecuteFailure() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.shallowClone()).willReturn(clonedContext);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
-
         given(hook1.onFailure(null, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
         given(hook2.onFailure(null, clonedOpChain, clonedContext, e)).willReturn(null);
 
@@ -867,19 +731,19 @@ public class GraphTest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.execute(captor.capture(), Mockito.eq(context))).willThrow(e);
+        given(store.execute(captor.capture(), eq(clonedContext))).willThrow(e);
 
         // When / Then
         try {
-            graph.execute(opChain, user);
+            graph.execute(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
+            final InOrder inOrder = inOrder(context, clonedContext, hook1, hook2);
             inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(null, captor.getValue(), context, e);
-            inOrder.verify(hook2).onFailure(null, captor.getValue(), context, e);
+            inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
+            inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
             assertEquals(1, ops.size());
             assertSame(operation, ops.get(0));
@@ -889,26 +753,16 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.createContext(user)).willReturn(context);
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
-        doThrow(e).when(hook1).preExecute(clonedOpChain, context);
-        given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
+        doThrow(e).when(hook1).preExecute(clonedOpChain, clonedContext);
+        given(hook1.onFailure(null, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, clonedContext, e)).willReturn(null);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -923,7 +777,7 @@ public class GraphTest {
 
         // When / Then
         try {
-            graph.executeJob(opChain, user);
+            graph.executeJob(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
@@ -931,27 +785,17 @@ public class GraphTest {
             inOrder.verify(hook2, never()).preExecute(any(), any());
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(context), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(context), eq(e));
+            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
         }
     }
 
     @Test
     public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailureWhenRunningJob() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
-        final OperationChain opChain = mock(OperationChain.class);
-        final OperationChain clonedOpChain = mock(OperationChain.class);
-        given(opChain.shallowClone()).willReturn(clonedOpChain);
-        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
         final JobDetail result3 = mock(JobDetail.class);
@@ -959,11 +803,11 @@ public class GraphTest {
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
+        given(hook1.postExecute(result1, clonedOpChain, clonedContext)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
-        given(hook2.postExecute(result2, clonedOpChain, context)).willThrow(e);
-        given(hook1.onFailure(result2, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(result2, clonedOpChain, context, e)).willReturn(result3);
+        given(hook2.postExecute(result2, clonedOpChain, clonedContext)).willThrow(e);
+        given(hook1.onFailure(result2, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(result2, clonedOpChain, clonedContext, e)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -977,19 +821,19 @@ public class GraphTest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.executeJob(captor.capture(), Mockito.eq(context))).willReturn(result1);
+        given(store.executeJob(captor.capture(), eq(clonedContext))).willReturn(result1);
 
         // When / Then
         try {
-            graph.executeJob(opChain, user);
+            graph.executeJob(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
             inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1).postExecute(result1, captor.getValue(), context);
-            inOrder.verify(hook2).postExecute(result2, captor.getValue(), context);
-            inOrder.verify(hook1).onFailure(result2, captor.getValue(), context, e);
-            inOrder.verify(hook2).onFailure(result2, captor.getValue(), context, e);
+            inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+            inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
+            inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
+            inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
             assertEquals(1, ops.size());
             assertSame(operation, ops.get(0));
@@ -1005,20 +849,16 @@ public class GraphTest {
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
 
-        final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
-        given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
+        given(hook1.onFailure(null, clonedOpChain, clonedContext, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, clonedContext, e)).willReturn(null);
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1032,19 +872,19 @@ public class GraphTest {
                 .build();
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.executeJob(captor.capture(), Mockito.eq(context))).willThrow(e);
+        given(store.executeJob(captor.capture(), eq(clonedContext))).willThrow(e);
 
         // When / Then
         try {
-            graph.executeJob(opChain, user);
+            graph.executeJob(opChain, context);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
             inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(null, captor.getValue(), context, e);
-            inOrder.verify(hook2).onFailure(null, captor.getValue(), context, e);
+            inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
+            inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
             assertEquals(1, ops.size());
             assertSame(operation, ops.get(0));
@@ -1169,10 +1009,6 @@ public class GraphTest {
                         .build())
                 .store(store)
                 .build();
-        final User user = new User();
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Integer expectedResult = 5;
         final GetElements operation = new GetElements();
 
@@ -1180,14 +1016,14 @@ public class GraphTest {
         final OperationChain clonedOpChain = mock(OperationChain.class);
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(store.execute(clonedOpChain, context)).willReturn(expectedResult);
+        given(store.execute(clonedOpChain, clonedContext)).willReturn(expectedResult);
 
         // When
-        Integer result = graph.execute(opChain, user);
+        Integer result = graph.execute(opChain, context);
 
         // Then
         assertEquals(expectedResult, result);
-        verify(store).execute(clonedOpChain, context);
+        verify(store).execute(clonedOpChain, clonedContext);
         JsonAssert.assertEquals(view.toJson(false), operation.getView().toJson(false));
     }
 
@@ -1207,26 +1043,21 @@ public class GraphTest {
                         .build())
                 .store(store)
                 .build();
-        final User user = new User();
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
         final Integer expectedResult = 5;
-        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
         final OperationChain<Integer> clonedOpChain = mock(OperationChain.class);
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(store.execute(clonedOpChain, context)).willReturn(expectedResult);
+        given(store.execute(clonedOpChain, clonedContext)).willReturn(expectedResult);
 
         // When
-        Integer result = graph.execute(opChain, user);
+        Integer result = graph.execute(opChain, context);
 
         // Then
         assertEquals(expectedResult, result);
-        verify(store).execute(clonedOpChain, context);
+        verify(store).execute(clonedOpChain, clonedContext);
         verify(operation, Mockito.never()).setView(view);
     }
 
@@ -1244,12 +1075,6 @@ public class GraphTest {
                         .build())
                 .store(store)
                 .build();
-        final User user = new User();
-        final Context context = mock(Context.class);
-        final Context clonedContext = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(clonedContext.getUser()).willReturn(user);
-        given(context.shallowClone()).willReturn(clonedContext);
         final int expectedResult = 5;
         final Operation operation = mock(Operation.class);
 
@@ -1260,11 +1085,11 @@ public class GraphTest {
         given(store.execute(clonedOpChain, clonedContext)).willReturn(expectedResult);
 
         // When
-        int result = graph.execute(opChain, user);
+        int result = graph.execute(opChain, context);
 
         // Then
         assertEquals(expectedResult, result);
-        verify(store).execute(clonedOpChain, context);
+        verify(store).execute(clonedOpChain, clonedContext);
     }
 
     @Test
