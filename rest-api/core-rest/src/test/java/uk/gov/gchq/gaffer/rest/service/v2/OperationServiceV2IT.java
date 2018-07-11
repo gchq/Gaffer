@@ -82,8 +82,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();
-
-        //graph.getSupportedOperations().add(GetAllJobDetails.class);
+        
         client.reinitialiseGraph(graph);
 
         // When
