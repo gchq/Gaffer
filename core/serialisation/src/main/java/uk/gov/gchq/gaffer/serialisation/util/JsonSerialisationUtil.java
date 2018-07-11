@@ -97,7 +97,7 @@ public final class JsonSerialisationUtil {
         for (final BeanPropertyDefinition property : properties) {
             final String propName = property.getName();
 
-            String propClass = null;
+            final String propClass;
             if ("class".equals(propName)) {
                 propClass = Class.class.getName();
             } else {
@@ -136,46 +136,7 @@ public final class JsonSerialisationUtil {
                 if (null == genericType) {
                     propClass = Object.class.getName();
                 } else {
-                    final boolean isArray = genericType instanceof GenericArrayTypeImpl;
-                    if (isArray) {
-                        genericType = ((GenericArrayTypeImpl) genericType).getGenericComponentType();
-                    }
-
-                    if (genericType instanceof TypeVariable) {
-                        final TypeVariable tv = (TypeVariable) genericType;
-                        final GenericDeclaration genericDeclaration = ((TypeVariable) genericType).getGenericDeclaration();
-                        if (genericDeclaration instanceof Class) {
-                            final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(clazz, (Class) genericDeclaration);
-                            final Type propType = typeArgs.get(tv);
-                            if (null != propType) {
-                                propClass = propType.getTypeName();
-                            }
-                        }
-
-                        if (null == propClass) {
-                            if (null != ((TypeVariable) genericType).getBounds()
-                                    && 1 == ((TypeVariable) genericType).getBounds().length) {
-                                propClass = ((TypeVariable) genericType).getBounds()[0].getTypeName();
-                            } else {
-                                propClass = genericType.getTypeName();
-                            }
-                        }
-                    } else {
-                        propClass = genericType.getTypeName();
-                    }
-
-                    if (null != propClass) {
-                        if (isArray) {
-                            propClass = propClass + "[]";
-                        }
-                        // Try and replace any primitive types with the full class name, e.g int/boolean with java.lang.Integer/java.lang.Boolean
-                        if (!propClass.contains(".")) {
-                            propClass = SimpleClassNameIdResolver.getClassName(propClass);
-                        }
-                        propClass = propClass.replaceAll("\\? extends ", "")
-                                .replaceAll("\\? super ", "")
-                                .replaceAll(" ", "");
-                    }
+                    propClass = getFieldTypeString(clazz, genericType);
                 }
             }
 
@@ -187,6 +148,71 @@ public final class JsonSerialisationUtil {
         cache = Collections.unmodifiableMap(newCache);
 
         return fieldMap;
+    }
+
+    /**
+     * Get the string representation of a type of an object.
+     *
+     * @param typeArg the type of the field.
+     * @return the type of the field represented as a string.
+     */
+    public static String getTypeString(final Type typeArg) {
+        return getFieldTypeString(null, typeArg);
+    }
+
+    /**
+     * Get the string representation of a type of a field within a class.
+     *
+     * @param clazz   the class containing the field. This is used to try to resolve any generic class arguments
+     * @param typeArg the type of the field.
+     * @return the type of the field represented as a string.
+     */
+    public static String getFieldTypeString(final Class<?> clazz, final Type typeArg) {
+        String typeName = null;
+        final boolean isArray = typeArg instanceof GenericArrayTypeImpl;
+        Type type = typeArg;
+        if (isArray) {
+            type = ((GenericArrayTypeImpl) typeArg).getGenericComponentType();
+        }
+
+        if (type instanceof TypeVariable) {
+            final TypeVariable tv = (TypeVariable) type;
+            final GenericDeclaration genericDeclaration = ((TypeVariable) type).getGenericDeclaration();
+            if (null != clazz && genericDeclaration instanceof Class) {
+                final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(clazz, (Class) genericDeclaration);
+                if (null != typeArgs) {
+                    final Type propType = typeArgs.get(tv);
+                    if (null != propType) {
+                        typeName = propType.getTypeName();
+                    }
+                }
+            }
+
+            if (null == typeName) {
+                if (null != ((TypeVariable) type).getBounds()
+                        && 1 == ((TypeVariable) type).getBounds().length) {
+                    typeName = ((TypeVariable) type).getBounds()[0].getTypeName();
+                } else {
+                    typeName = type.getTypeName();
+                }
+            }
+        } else {
+            typeName = type.getTypeName();
+        }
+
+        if (null != typeName) {
+            if (isArray) {
+                typeName = typeName + "[]";
+            }
+            // Try and replace any primitive types with the full class name, e.g int/boolean with java.lang.Integer/java.lang.Boolean
+            if (!typeName.contains(".")) {
+                typeName = SimpleClassNameIdResolver.getClassName(typeName);
+            }
+            typeName = typeName.replaceAll("\\? extends ", "")
+                    .replaceAll("\\? super ", "")
+                    .replaceAll(" ", "");
+        }
+        return typeName;
     }
 
     private static <T extends Annotation> T findAnnotation(final Class<?> builderclass, final Class<T> annotationClass) {
