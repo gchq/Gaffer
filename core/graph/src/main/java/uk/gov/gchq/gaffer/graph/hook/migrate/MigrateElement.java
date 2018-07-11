@@ -19,7 +19,10 @@ package uk.gov.gchq.gaffer.graph.hook.migrate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder;
 import uk.gov.gchq.gaffer.operation.function.migration.Identity;
@@ -140,5 +143,48 @@ public class MigrateElement {
             }
             toOldTransform = toOldTransformTmp;
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final MigrateElement migrateElement = (MigrateElement) obj;
+
+        return new EqualsBuilder()
+                .append(elementType, migrateElement.getElementType())
+                .append(oldGroup, migrateElement.getOldGroup())
+                .append(newGroup, migrateElement.getNewGroup())
+                .append(toNewTransform, migrateElement.getToNewTransform())
+                .append(toOldTransform, migrateElement.getToOldTransform())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(19, 39)
+                .append(elementType)
+                .append(oldGroup)
+                .append(newGroup)
+                .append(toNewTransform)
+                .append(toOldTransform)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("elementType", elementType)
+                .append("oldGroup", oldGroup)
+                .append("newGroup", newGroup)
+                .append("toNewTransform", toNewTransform)
+                .append("toOldTransform", toOldTransform)
+                .build();
     }
 }
