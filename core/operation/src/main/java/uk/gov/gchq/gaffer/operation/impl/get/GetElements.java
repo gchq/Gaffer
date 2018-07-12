@@ -49,7 +49,7 @@ import java.util.Map;
  * <li>Edges when their source, destination matches the EdgeId where the DirectedType of the EdgeId is {@code DirectedType.EITHER}</li>
  * <li>Edges when their source or destination match the EntityId's vertex</li>
  * </ul>
- * inOutType - what type of edges to include
+ * includeIncomingOutGoing - what type of edges to include
  * <ul>
  * <li>{@code IncludeIncomingOutgoingType.INCOMING} - only returns edges where the destination matches the vertex of EntityId</li>
  * <li>{@code IncludeIncomingOutgoingType.OUTGOING} - only returns edges where the source matches the vertex of EntityId</li>
@@ -79,7 +79,7 @@ public class GetElements implements
     private SeedMatchingType seedMatching;
 
     private View view;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private DirectedType directedType;
     private Iterable<? extends ElementId> input;
     private Map<String, String> options;
@@ -119,14 +119,14 @@ public class GetElements implements
     /**
      * Gets the incomingOutGoingType for this operation which is used for filtering Edges.
      *
-     * @return inOutType an {@link IncludeIncomingOutgoingType}
+     * @return includeIncomingOutGoing an {@link IncludeIncomingOutgoingType}
      * that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
      * filtered out in the operation.
      * @see IncludeIncomingOutgoingType
      */
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     /**
@@ -139,7 +139,7 @@ public class GetElements implements
      */
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     /**
@@ -243,7 +243,7 @@ public class GetElements implements
         return new GetElements.Builder()
                 .seedMatching(seedMatching)
                 .view(view)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
                 .input(input)
                 .options(options)

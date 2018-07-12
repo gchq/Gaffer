@@ -123,7 +123,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
+        execute(new GraphRequest<>(operation, user));
     }
 
     /**
@@ -136,10 +136,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
-        _execute(store::execute, OperationChain.wrap(operation), new Context(context));
+        execute(new GraphRequest<>(operation, context));
     }
 
     /**
@@ -153,7 +150,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return _execute(store::execute, OperationChain.wrap(operation), store.createContext(user));
+        return execute(new GraphRequest<>(operation, user)).getResult();
     }
 
     /**
@@ -168,10 +165,19 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
-        return _execute(store::execute, OperationChain.wrap(operation), new Context(context));
+        return execute(new GraphRequest<>(operation, context)).getResult();
+    }
+
+    /**
+     * Exeutes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
+     *
+     * @param request the request to execute
+     * @param <O>     the result type
+     * @return {@link GraphResult} containing the result and details
+     * @throws OperationException if an operation fails
+     */
+    public <O> GraphResult<O> execute(final GraphRequest<O> request) throws OperationException {
+        return _execute(store::execute, request);
     }
 
     /**
@@ -184,7 +190,7 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
-        return _execute(store::executeJob, OperationChain.wrap(operation), store.createContext(user));
+        return executeJob(new GraphRequest<>(operation, user)).getResult();
     }
 
     /**
@@ -198,35 +204,51 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
-        return _execute(store::executeJob, OperationChain.wrap(operation), new Context(context));
+        return executeJob(new GraphRequest<>(operation, context)).getResult();
     }
 
-    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
-        if (null == operationChain) {
-            throw new IllegalArgumentException("operationChain is required");
+    /**
+     * Executes the given {@link GraphRequest} on the graph as an asynchronous job
+     * and returns a {@link GraphResult} containing the {@link JobDetail}s.
+     * If the operation does not have a view then the graph view is used.
+     * The context will be cloned and a new jobId will be created.
+     *
+     * @param request the request to execute
+     * @return {@link GraphResult} containing the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public GraphResult<JobDetail> executeJob(final GraphRequest<?> request) throws OperationException {
+        return _execute(store::executeJob, request);
+    }
+
+    private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request) throws OperationException {
+        if (null == request) {
+            throw new IllegalArgumentException("A request is required");
         }
 
-        context.setOriginalOpChain(operationChain);
+        if (null == request.getContext()) {
+            throw new IllegalArgumentException("A context is required");
+        }
 
-        final OperationChain clonedOpChain = operationChain.shallowClone();
+        request.getContext().setOriginalOpChain(request.getOperationChain());
+
+        final Context clonedContext = request.getContext().shallowClone();
+        final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
         O result = null;
         try {
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, context);
+                graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
-            result = (O) storeExecuter.execute(clonedOpChain, context);
+            result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, context);
+                result = graphHook.postExecute(result, clonedOpChain, clonedContext);
             }
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
-                    result = graphHook.onFailure(result, clonedOpChain, context, e);
+                    result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
                     LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
                 }
@@ -235,7 +257,7 @@ public final class Graph {
             CloseableUtil.close(result);
             throw e;
         }
-        return result;
+        return new GraphResult<>(result, clonedContext);
     }
 
     private void updateOperationChainView(final Operations<?> operations) {
@@ -246,11 +268,21 @@ public final class Graph {
                 View opView = ((OperationView) operation).getView();
                 if (null == opView) {
                     opView = config.getView();
-                } else if (!(opView instanceof NamedView) && !opView.hasGroups()) {
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
                     opView = new View.Builder()
                             .merge(config.getView())
                             .merge(opView)
                             .build();
+                } else if (opView.isAllEdges() || opView.isAllEntities()) {
+                    View.Builder opViewBuilder = new View.Builder()
+                            .merge(opView);
+                    if (opView.isAllEdges()) {
+                        opViewBuilder.edges(getSchema().getEdgeGroups());
+                    }
+                    if (opView.isAllEntities()) {
+                        opViewBuilder.entities(getSchema().getEntityGroups());
+                    }
+                    opView = opViewBuilder.build();
                 }
                 opView.expandGlobalDefinitions();
                 ((OperationView) operation).setView(opView);

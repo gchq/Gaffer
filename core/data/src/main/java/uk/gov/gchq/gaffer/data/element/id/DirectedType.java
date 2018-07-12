@@ -16,10 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * A {@code DirectedType} defines whether edges should be
  * directed, undirected or either/both.
  */
+@Summary("Is the Edge directed?")
 public enum DirectedType {
     /**
      * Edges are either DIRECTED or UNDIRECTED. This is the default value.

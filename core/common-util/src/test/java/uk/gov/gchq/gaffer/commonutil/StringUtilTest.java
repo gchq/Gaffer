@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.jobtracker;
 
-import uk.gov.gchq.koryphe.Summary;
+package uk.gov.gchq.gaffer.commonutil;
 
-/**
- * Denotes the status of a Gaffer job.
- */
-@Summary("The status of a job")
-public enum JobStatus {
+import org.junit.Test;
 
-    /**
-     * The Gaffer job has been submitted and is running.
-     */
-    RUNNING,
+import static org.junit.Assert.assertEquals;
 
-    /**
-     * The Gaffer job has completed successfully.
-     */
-    FINISHED,
-
-    /**
-     * An error occured while executing the Gaffer job.
-     */
-    FAILED
+public class StringUtilTest {
+    @Test
+    public void nullIfEmptyStringTest() {
+        assertEquals(null, StringUtil.nullIfEmpty(null));
+        assertEquals(null, StringUtil.nullIfEmpty(""));
+        assertEquals(" ", StringUtil.nullIfEmpty(" "));
+        assertEquals("String", StringUtil.nullIfEmpty("String"));
+        assertEquals(" string ", StringUtil.nullIfEmpty(" string "));
+    }
 }
