@@ -110,8 +110,8 @@ public class JsonSerialisationUtilTest {
         // Given
         final String className = InRange.class.getName();
         final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("start", Comparable.class.getName());
-        expectedValues.put("end", Comparable.class.getName());
+        expectedValues.put("start", "java.lang.Comparable<T>");
+        expectedValues.put("end", "java.lang.Comparable<T>");
         expectedValues.put("startInclusive", Boolean.class.getName());
         expectedValues.put("endInclusive", Boolean.class.getName());
 
@@ -136,6 +136,7 @@ public class JsonSerialisationUtilTest {
         expectedValues.put("end", String.class.getName());
         expectedValues.put("endOffset", Long.class.getName());
         expectedValues.put("endInclusive", Boolean.class.getName());
+        expectedValues.put("timeZone", String.class.getName());
 
         // When
         final Map<String, String> resultIDR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameIDR);
