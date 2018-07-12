@@ -108,7 +108,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
     }
 
     @Test
-    public void shouldSerialiseTooJsonSkippingEmptyElementMaps() {
+    public void shouldSerialiseToJsonSkippingEmptyElementMaps() {
         // Given
         final View view = new View.Builder()
                 .globalEdges(new GlobalViewElementDefinition.Builder()

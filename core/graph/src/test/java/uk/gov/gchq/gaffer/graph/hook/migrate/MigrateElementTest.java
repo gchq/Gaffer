@@ -19,10 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook.migrate;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.function.migration.ToInteger;
 import uk.gov.gchq.gaffer.operation.function.migration.ToLong;
 
@@ -40,14 +37,14 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
         final MigrateElement deserialisedOnceTestObject = fromJson(json);
 
         // Then
-        assertEquals(getTestObject(), deserialisedOnceTestObject);
+        assertEquals(testObject, deserialisedOnceTestObject);
 
         // When
         final byte[] seriailisedTwiceJson = toJson(deserialisedOnceTestObject);
         final MigrateElement deserialisedTwiceTestObject = fromJson(seriailisedTwiceJson);
 
         // Then
-        assertEquals(getTestObject(), deserialisedTwiceTestObject);
+        assertEquals(testObject, deserialisedTwiceTestObject);
     }
 
     @Override
@@ -66,13 +63,5 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
                         .execute(new ToInteger())
                         .project("count")
                         .build());
-    }
-
-    protected MigrateElement fromJson(final String path) {
-        try {
-            return JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), path), MigrateElement.class);
-        } catch (final SerialisationException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
