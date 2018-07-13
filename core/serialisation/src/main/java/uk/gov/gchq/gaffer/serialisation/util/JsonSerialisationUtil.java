@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.serialisation.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,14 +105,32 @@ public final class JsonSerialisationUtil {
                 Type genericType = null;
                 if (null != builder) {
                     final String methodName = buildMethodPrefix + propName;
+                    Method matchedMethod = null;
                     for (final Method method : builder.getMethods()) {
                         if (methodName.equalsIgnoreCase(method.getName())) {
                             final Type[] params = method.getGenericParameterTypes();
                             if (null != params && 1 == params.length) {
-                                genericType = params[0];
+                                final JsonSetter jsonSetter = method.getAnnotation(JsonSetter.class);
+                                if (null != jsonSetter && propName.equals(jsonSetter.value())) {
+                                    matchedMethod = method;
+                                    break;
+                                }
+                                final JsonProperty jsonProperty = method.getAnnotation(JsonProperty.class);
+                                if (null != jsonProperty && propName.equals(jsonProperty.value())) {
+                                    matchedMethod = method;
+                                    break;
+                                }
+                                if (null == matchedMethod) {
+                                    matchedMethod = method;
+                                } else if (builder.equals(method.getReturnType())) {
+                                    // Checks for overridden methods
+                                    matchedMethod = method;
+                                }
                             }
-                            break;
                         }
+                    }
+                    if (null != matchedMethod) {
+                        genericType = matchedMethod.getGenericParameterTypes()[0];
                     }
                 }
                 if (null == genericType && null != creator) {
@@ -177,7 +196,7 @@ public final class JsonSerialisationUtil {
 
         if (type instanceof TypeVariable) {
             final TypeVariable tv = (TypeVariable) type;
-            final GenericDeclaration genericDeclaration = ((TypeVariable) type).getGenericDeclaration();
+            final GenericDeclaration genericDeclaration = tv.getGenericDeclaration();
             if (null != clazz && genericDeclaration instanceof Class) {
                 final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(clazz, (Class) genericDeclaration);
                 if (null != typeArgs) {
@@ -189,9 +208,8 @@ public final class JsonSerialisationUtil {
             }
 
             if (null == typeName) {
-                if (null != ((TypeVariable) type).getBounds()
-                        && 1 == ((TypeVariable) type).getBounds().length) {
-                    typeName = ((TypeVariable) type).getBounds()[0].getTypeName();
+                if (null != tv.getBounds() && 1 == tv.getBounds().length) {
+                    typeName = tv.getBounds()[0].getTypeName();
                 } else {
                     typeName = type.getTypeName();
                 }
