@@ -19,11 +19,10 @@ package uk.gov.gchq.gaffer.graph.hook.migrate;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.function.migration.ToInteger;
 import uk.gov.gchq.gaffer.operation.function.migration.ToLong;
-
-import static org.junit.Assert.assertEquals;
 
 public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
 
@@ -33,18 +32,12 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
         final MigrateElement testObject = getTestObject();
 
         // When
-        final byte[] json = toJson(testObject);
-        final MigrateElement deserialisedOnceTestObject = fromJson(json);
+        final byte[] serialisedOnceJson = toJson(testObject);
+        final MigrateElement deserialisedOnceTestObject = fromJson(serialisedOnceJson);
+        final byte[] serialisedTwiceJson = toJson(deserialisedOnceTestObject);
 
         // Then
-        assertEquals(testObject, deserialisedOnceTestObject);
-
-        // When
-        final byte[] seriailisedTwiceJson = toJson(deserialisedOnceTestObject);
-        final MigrateElement deserialisedTwiceTestObject = fromJson(seriailisedTwiceJson);
-
-        // Then
-        assertEquals(testObject, deserialisedTwiceTestObject);
+        JsonAssert.assertEquals(serialisedOnceJson, serialisedTwiceJson);
     }
 
     @Override

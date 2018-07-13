@@ -22,8 +22,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
@@ -164,36 +162,5 @@ public class ElementTransformerTest {
         assertEquals(identifier3Proj.name(), context.getProjection()[0]);
 
         assertEquals(i, transformer.getComponents().size());
-    }
-
-    @Test
-    public void shouldBeEqual() {
-        final ElementTransformer transformer = new ElementTransformer.Builder()
-                .select("prop1")
-                .execute(new Identity())
-                .project("prop3")
-                .build();
-
-        final ElementTransformer identicalTransformer = new ElementTransformer.Builder()
-                .select("prop1")
-                .execute(new Identity())
-                .project("prop3")
-                .build();
-
-        assertEquals(transformer, identicalTransformer);
-    }
-
-    @Test
-    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        final ElementTransformer testObj = new ElementTransformer.Builder()
-                .select("prop1")
-                .execute(new Identity())
-                .project("prop3")
-                .build();
-
-        final byte[] json = JSONSerialiser.serialise(testObj);
-        final ElementTransformer deserialisedTestObj = JSONSerialiser.deserialise(json, ElementTransformer.class);
-
-        assertEquals(testObj, deserialisedTestObj);
     }
 }
