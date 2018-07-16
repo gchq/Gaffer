@@ -49,12 +49,11 @@ public class MigrateElement {
                           final ElementTransformer toNewTransform,
                           final ElementTransformer toOldTransform) {
         this.elementType = elementType;
-        this.oldGroup = oldGroup;
         this.newGroup = newGroup;
         this.toNewTransform = toNewTransform;
         this.toOldTransform = toOldTransform;
-        addNewGroupTransform();
-        addOldGroupTransform();
+        setOldGroup(oldGroup);
+        setNewGroup(newGroup);
     }
 
     public void setElementType(final ElementType elementType) {
