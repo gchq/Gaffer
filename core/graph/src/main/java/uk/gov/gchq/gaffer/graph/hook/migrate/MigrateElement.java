@@ -36,7 +36,9 @@ public class MigrateElement {
     private String oldGroup;
     private String newGroup;
     private ElementTransformer toNewTransform;
+    private ElementTransformer toNewPrivateTransform;
     private ElementTransformer toOldTransform;
+    private ElementTransformer toOldPrivateTransform;
 
     public enum ElementType {
         EDGE, ENTITY
@@ -84,16 +86,28 @@ public class MigrateElement {
 
     @JsonIgnore
     public ElementTransformer getToNewTransform() {
-        return toNewTransform;
+        ElementTransformer tmp = null != toNewPrivateTransform ? toNewPrivateTransform : new ElementTransformer();
+        if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
+            tmp.getComponents().addAll(toNewTransform.getComponents());
+        }
+        return tmp;
     }
 
     @JsonIgnore
     public ElementTransformer getToOldTransform() {
-        return toOldTransform;
+        ElementTransformer tmp = null != toOldPrivateTransform ? toOldPrivateTransform : new ElementTransformer();
+        if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
+            tmp.getComponents().addAll(toOldTransform.getComponents());
+        }
+        return tmp;
     }
 
     public List<TupleAdaptedFunction<String, ?, ?>> getToNew() {
-        return null != toNewTransform ? toNewTransform.getComponents() : null;
+        ElementTransformer tmp = null != toNewPrivateTransform ? toNewPrivateTransform : new ElementTransformer();
+        if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
+            tmp.getComponents().addAll(toNewTransform.getComponents());
+        }
+        return tmp.getComponents();
     }
 
     public void setToNew(final List<TupleAdaptedFunction<String, ?, ?>> toNewFunctions) {
@@ -105,7 +119,11 @@ public class MigrateElement {
     }
 
     public List<TupleAdaptedFunction<String, ?, ?>> getToOld() {
-        return null != toOldTransform ? toOldTransform.getComponents() : null;
+        ElementTransformer tmp = null != toOldPrivateTransform ? toOldPrivateTransform : new ElementTransformer();
+        if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
+            tmp.getComponents().addAll(toOldTransform.getComponents());
+        }
+        return tmp.getComponents();
     }
 
     public void setToOld(final List<TupleAdaptedFunction<String, ?, ?>> toOldFunctions) {
@@ -118,29 +136,21 @@ public class MigrateElement {
 
     private void addNewGroupTransform() {
         if (null != newGroup && !newGroup.equals(oldGroup)) {
-            final ElementTransformer toNewTransformTmp = new Builder()
+            toNewPrivateTransform = new Builder()
                     .select("GROUP")
                     .execute(new Identity(newGroup))
                     .project("GROUP")
                     .build();
-            if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
-                toNewTransformTmp.getComponents().addAll(toNewTransform.getComponents());
-            }
-            toNewTransform = toNewTransformTmp;
         }
     }
 
     private void addOldGroupTransform() {
         if (null != oldGroup && !oldGroup.equals(newGroup)) {
-            final ElementTransformer toOldTransformTmp = new Builder()
+            toOldPrivateTransform = new Builder()
                     .select("GROUP")
                     .execute(new Identity(oldGroup))
                     .project("GROUP")
                     .build();
-            if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
-                toOldTransformTmp.getComponents().addAll(toOldTransform.getComponents());
-            }
-            toOldTransform = toOldTransformTmp;
         }
     }
 
