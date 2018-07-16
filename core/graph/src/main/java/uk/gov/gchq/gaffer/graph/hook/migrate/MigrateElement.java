@@ -103,11 +103,7 @@ public class MigrateElement {
     }
 
     public List<TupleAdaptedFunction<String, ?, ?>> getToNew() {
-        ElementTransformer tmp = null != toNewPrivateTransform ? toNewPrivateTransform : new ElementTransformer();
-        if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
-            tmp.getComponents().addAll(toNewTransform.getComponents());
-        }
-        return tmp.getComponents();
+        return toNewTransform.getComponents();
     }
 
     public void setToNew(final List<TupleAdaptedFunction<String, ?, ?>> toNewFunctions) {
@@ -119,11 +115,7 @@ public class MigrateElement {
     }
 
     public List<TupleAdaptedFunction<String, ?, ?>> getToOld() {
-        ElementTransformer tmp = null != toOldPrivateTransform ? toOldPrivateTransform : new ElementTransformer();
-        if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
-            tmp.getComponents().addAll(toOldTransform.getComponents());
-        }
-        return tmp.getComponents();
+        return toOldTransform.getComponents();
     }
 
     public void setToOld(final List<TupleAdaptedFunction<String, ?, ?>> toOldFunctions) {

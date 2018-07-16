@@ -231,7 +231,7 @@ public class SchemaMigration implements GraphHook {
 
     private ViewWithTransformationsAndFilters createViewWithTransformationsAndFiltersNewFromNew(final MigrateElement migration, final ViewElementDefinition newElement) {
         ViewWithTransformationsAndFilters viewWithTransformationsAndFilters = new ViewWithTransformationsAndFilters();
-        if (MigrationOutputType.NEW == outputType || migration.getToOld().isEmpty()) {
+        if (MigrationOutputType.NEW == outputType || migration.getToOldTransform().getComponents().isEmpty()) {
             viewWithTransformationsAndFilters.setViewElementDefinition(newElement);
             updateAllFiltersAndTransforms(migration.getElementType(), migration.getNewGroup(), newElement, viewWithTransformationsAndFilters);
             return viewWithTransformationsAndFilters;
@@ -239,7 +239,7 @@ public class SchemaMigration implements GraphHook {
 
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
                 .merge(newElement)
-                .addTransformFunctions(migration.getToOld());
+                .addTransformFunctions(migration.getToOldTransform().getComponents());
 
         if (null != newElement.getPreAggregationFilter()) {
             viewBuilder.clearPreAggregationFilter();
@@ -272,7 +272,7 @@ public class SchemaMigration implements GraphHook {
 
     private ViewWithTransformationsAndFilters createViewWithTransformationsAndFiltersNewFromOld(final MigrateElement migration, final ViewElementDefinition oldElement) {
         final ViewWithTransformationsAndFilters viewWithTransformationsAndFilters = new ViewWithTransformationsAndFilters();
-        if (migration.getToNew().isEmpty()) {
+        if (migration.getToNewTransform().getComponents().isEmpty()) {
             viewWithTransformationsAndFilters.setViewElementDefinition(oldElement);
             updateAllFiltersAndTransforms(migration.getElementType(), migration.getNewGroup(), oldElement, viewWithTransformationsAndFilters);
             return viewWithTransformationsAndFilters;
@@ -295,8 +295,8 @@ public class SchemaMigration implements GraphHook {
         }
 
         if (MigrationOutputType.NEW == outputType) {
-            viewBuilder.addTransformFunctions(migration.getToOld());
-            viewBuilder.addTransformFunctions(migration.getToNew());
+            viewBuilder.addTransformFunctions(migration.getToOldTransform().getComponents());
+            viewBuilder.addTransformFunctions(migration.getToNewTransform().getComponents());
 
             if (CollectionUtils.isNotEmpty(oldElement.getTransformFunctions())) {
                 ElementTransformer transformer = new ElementTransformer();
@@ -311,7 +311,7 @@ public class SchemaMigration implements GraphHook {
                 updatePostTransformFilters(migration.getElementType(), migration.getNewGroup(), filter, viewWithTransformationsAndFilters);
             }
         } else {
-            viewBuilder.addTransformFunctions(migration.getToOld());
+            viewBuilder.addTransformFunctions(migration.getToOldTransform().getComponents());
 
             if (CollectionUtils.isNotEmpty(oldElement.getTransformFunctions())) {
                 ElementTransformer transformer = new ElementTransformer();
@@ -331,7 +331,7 @@ public class SchemaMigration implements GraphHook {
 
     private ViewWithTransformationsAndFilters createViewWithTransformationsAndFiltersOldFromOld(final MigrateElement migration, final ViewElementDefinition oldElement) {
         ViewWithTransformationsAndFilters viewWithTransformationsAndFilters = new ViewWithTransformationsAndFilters();
-        if (MigrationOutputType.OLD == outputType || migration.getToNew().isEmpty()) {
+        if (MigrationOutputType.OLD == outputType || migration.getToNewTransform().getComponents().isEmpty()) {
             viewWithTransformationsAndFilters.setViewElementDefinition(oldElement);
             updateAllFiltersAndTransforms(migration.getElementType(), migration.getOldGroup(), oldElement, viewWithTransformationsAndFilters);
             return viewWithTransformationsAndFilters;
@@ -339,7 +339,7 @@ public class SchemaMigration implements GraphHook {
 
         ViewElementDefinition.Builder viewBuilder = new ViewElementDefinition.Builder()
                 .merge(oldElement)
-                .transformFunctions(migration.getToNew());
+                .transformFunctions(migration.getToNewTransform().getComponents());
 
         if (null != oldElement.getPreAggregationFilter()) {
             viewBuilder.clearPreAggregationFilter();
@@ -372,7 +372,7 @@ public class SchemaMigration implements GraphHook {
 
     private ViewWithTransformationsAndFilters createViewWithTransformAndFiltersOldFromNew(final MigrateElement migration, final ViewElementDefinition newElement) {
         final ViewWithTransformationsAndFilters viewWithTransformationsAndFilters = new ViewWithTransformationsAndFilters();
-        if (migration.getToOld().isEmpty()) {
+        if (migration.getToOldTransform().getComponents().isEmpty()) {
             viewWithTransformationsAndFilters.setViewElementDefinition(newElement);
             updateAllFiltersAndTransforms(migration.getElementType(), migration.getOldGroup(), newElement, viewWithTransformationsAndFilters);
             return viewWithTransformationsAndFilters;
@@ -395,8 +395,8 @@ public class SchemaMigration implements GraphHook {
         }
 
         if (MigrationOutputType.OLD == outputType) {
-            viewBuilder.addTransformFunctions(migration.getToNew());
-            viewBuilder.addTransformFunctions(migration.getToOld());
+            viewBuilder.addTransformFunctions(migration.getToNewTransform().getComponents());
+            viewBuilder.addTransformFunctions(migration.getToOldTransform().getComponents());
 
             if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
                 ElementTransformer transformer = new ElementTransformer();
@@ -411,7 +411,7 @@ public class SchemaMigration implements GraphHook {
                 updatePostTransformFilters(migration.getElementType(), migration.getOldGroup(), filter, viewWithTransformationsAndFilters);
             }
         } else {
-            viewBuilder.addTransformFunctions(migration.getToNew());
+            viewBuilder.addTransformFunctions(migration.getToNewTransform().getComponents());
 
             if (CollectionUtils.isNotEmpty(newElement.getTransformFunctions())) {
                 ElementTransformer transformer = new ElementTransformer();
