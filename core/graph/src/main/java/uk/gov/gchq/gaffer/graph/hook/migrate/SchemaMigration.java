@@ -175,10 +175,10 @@ public class SchemaMigration implements GraphHook {
     private void updateView(final OperationView op, final Map<String, ViewWithTransformationsAndFilters> migratedEdges, final Map<String, ViewWithTransformationsAndFilters> migratedEntities) {
         final View currentView = op.getView();
         View.Builder viewBuilder = new View.Builder().merge(currentView);
-        for (Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEntities.entrySet()) {
+        for (final Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEntities.entrySet()) {
             viewBuilder.entity(entry.getKey(), entry.getValue().getViewElementDefinition());
         }
-        for (Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEdges.entrySet()) {
+        for (final Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEdges.entrySet()) {
             viewBuilder.edge(entry.getKey(), entry.getValue().getViewElementDefinition());
         }
         op.setView(viewBuilder.build());
@@ -429,7 +429,7 @@ public class SchemaMigration implements GraphHook {
         return viewWithTransformationsAndFilters;
     }
 
-    private void updateElementDefinition(ViewElementDefinition.Builder viewBuilder, ViewElementDefinition elementDefinition) {
+    private void updateElementDefinition(final ViewElementDefinition.Builder viewBuilder, final ViewElementDefinition elementDefinition) {
         if (null != elementDefinition.getGroupBy()) {
             viewBuilder.groupBy(elementDefinition.getGroupBy().toArray(new String[elementDefinition.getGroupBy().size()]));
         }
@@ -494,7 +494,7 @@ public class SchemaMigration implements GraphHook {
 
     private ViewWithTransformationsAndFilters getTransformationsAndFilters(final Map<String, ViewWithTransformationsAndFilters> migratedEdges, final Map<String, ViewWithTransformationsAndFilters> migratedEntities) {
         final ViewWithTransformationsAndFilters transformationsAndFilters = new ViewWithTransformationsAndFilters();
-        for (Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEntities.entrySet()) {
+        for (final Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEntities.entrySet()) {
             transformationsAndFilters.setEdgesPostAggregationFilterMap(entry.getValue().getEdgesPostAggregationFilterMap());
             transformationsAndFilters.setEntitiesPostAggregationFilterMap(entry.getValue().getEntitiesPostAggregationFilterMap());
             transformationsAndFilters.setEdgesPostTransformFilterMap(entry.getValue().getEdgesPostTransformFilterMap());
@@ -502,7 +502,7 @@ public class SchemaMigration implements GraphHook {
             transformationsAndFilters.setEdgesTransformerMap(entry.getValue().getEdgesTransformerMap());
             transformationsAndFilters.setEntitiesTransformerMap(entry.getValue().getEntitiesTransformerMap());
         }
-        for (Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEdges.entrySet()) {
+        for (final Map.Entry<String, ViewWithTransformationsAndFilters> entry : migratedEdges.entrySet()) {
             transformationsAndFilters.setEdgesPostAggregationFilterMap(entry.getValue().getEdgesPostAggregationFilterMap());
             transformationsAndFilters.setEntitiesPostAggregationFilterMap(entry.getValue().getEntitiesPostAggregationFilterMap());
             transformationsAndFilters.setEdgesPostTransformFilterMap(entry.getValue().getEdgesPostTransformFilterMap());
@@ -525,7 +525,7 @@ public class SchemaMigration implements GraphHook {
         private Map<String, ElementFilter> entitiesPostTransformFilterMap;
         private Map<String, ElementFilter> edgesPostTransformFilterMap;
 
-        public ViewWithTransformationsAndFilters() {
+        ViewWithTransformationsAndFilters() {
             viewElementDefinition = new ViewElementDefinition();
             entitiesPostAggregationFilterMap = new HashMap<>();
             edgesPostAggregationFilterMap = new HashMap<>();
