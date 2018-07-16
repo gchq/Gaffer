@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.function.migration.ToInteger;
 import uk.gov.gchq.gaffer.operation.function.migration.ToLong;
@@ -104,6 +105,20 @@ public class SchemaMigrationIT extends AbstractStoreIT {
             .dest("newVertex2")
             .directed(true)
             .property("count", 10)
+            .build();
+    public static final Edge EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW = new Edge.Builder()
+            .group("edgeNewOpChain")
+            .source("opChainVertex")
+            .dest("opChainVertex2")
+            .directed(true)
+            .property("count", 14L)
+            .build();
+    public static final Edge EDGE_OLD_OP_CHAIN = new Edge.Builder()
+            .group("edgeOldOpChain")
+            .source("opChainVertex")
+            .dest("opChainVertex2")
+            .directed(true)
+            .property("count", 14)
             .build();
     public static final Edge EDGE_OLD_AGGREGATION = new Edge.Builder()
             .group("edgeAgg")
@@ -246,6 +261,15 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                     .build())
             .build();
 
+    public static final View NEW_EDGE_VIEW_OP_CHAIN = new View.Builder()
+            .edge("edgeNewOpChain", new ViewElementDefinition.Builder()
+                    .preAggregationFilter(new ElementFilter.Builder()
+                            .select("count")
+                            .execute(new IsMoreThan(13L))
+                            .build())
+                    .build())
+            .build();
+
     public static final View OLD_VIEW = new View.Builder()
             .merge(OLD_ENTITY_VIEW)
             .merge(OLD_EDGE_VIEW)
@@ -259,6 +283,11 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     public static final View FULL_VIEW = new View.Builder()
             .merge(OLD_VIEW)
             .merge(NEW_VIEW)
+            .build();
+
+    public static final View FULL_VIEW_OP_CHAIN = new View.Builder()
+            .merge(FULL_VIEW)
+            .merge(NEW_EDGE_VIEW_OP_CHAIN)
             .build();
 
     public static final View NEW_EDGE_AGG_VIEW = new View.Builder()
@@ -354,6 +383,20 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .property("count", "long")
                         .groupBy("count")
                         .build())
+                .edge("edgeOldOpChain", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .groupBy("count")
+                        .build())
+                .edge("edgeNewOpChain", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .groupBy("count")
+                        .build())
                 .edge("oldEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
@@ -394,7 +437,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     @Override
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
+                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_OP_CHAIN, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
                         EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
                         EDGE_NEW_AGG_BEFORE_POST_FILTER)
                 .build(), new User());
@@ -653,6 +696,34 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         );
     }
 
+    @Test
+    public void shouldAddOperationsAfterEachGetElements() throws OperationException {
+        migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
+
+        // Given
+        GetElements getElements1 = new GetElements.Builder()
+                .input("newVertex", "opChainVertex")
+                .view(FULL_VIEW_OP_CHAIN)
+                .build();
+
+        GetElements getElements2 = new GetElements.Builder()
+                .input("opChainVertex")
+                .view(NEW_EDGE_VIEW_OP_CHAIN)
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(
+                new OperationChain.Builder()
+                        .first(getElements1)
+                        .then(getElements2)
+                        .build(), new User());
+
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW
+                ),
+                results);
+    }
+
     private SchemaMigration createMigration() {
         final SchemaMigration migration = new SchemaMigration();
 
@@ -733,8 +804,22 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                                 .execute(new ToInteger())
                                 .project("count")
                                 .build()
+                ),
+                new MigrateElement(
+                        MigrateElement.ElementType.EDGE,
+                        "edgeOldOpChain",
+                        "edgeNewOpChain",
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToLong())
+                                .project("count")
+                                .build(),
+                        new ElementTransformer.Builder()
+                                .select("count")
+                                .execute(new ToInteger())
+                                .project("count")
+                                .build()
                 )
-
         ));
         return migration;
     }

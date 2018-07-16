@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -116,9 +115,7 @@ public class SchemaMigration implements GraphHook {
                     .collect(Collectors.toList());
 
             for (final Operation op : opsWithViewList) {
-                AddOperationsToChain addOpsHook = new AddOperationsToChain();
-                final java.util.Map<String, List<Operation>> afterOpsMap = new HashMap<>();
-                final List<Operation> hookOpList = new ArrayList<>();
+                int indexInOpChain = opChain.getOperations().indexOf(op);
                 OperationView operationView = OperationView.class.cast(op);
 
                 Map<String, ViewWithTransformationsAndFilters> migratedEntities = getMigratedElements(entities, operationView.getView()::getEntity);
@@ -131,7 +128,10 @@ public class SchemaMigration implements GraphHook {
                 operationView.getView().addConfig(ViewValidator.SKIP_VIEW_VALIDATION, Boolean.toString(true));
 
                 if (aggregateAfter) {
-                    hookOpList.add(new Aggregate());
+                    if (-1 != indexInOpChain) {
+                        opChain.getOperations().add(indexInOpChain + 1, new Aggregate());
+                        indexInOpChain += 1;
+                    }
                 }
 
                 if (!transformationsAndFilters.getEntitiesPostAggregationFilterMap().isEmpty()
@@ -140,7 +140,10 @@ public class SchemaMigration implements GraphHook {
                             .entities(transformationsAndFilters.getEntitiesPostAggregationFilterMap())
                             .edges(transformationsAndFilters.getEdgesPostAggregationFilterMap())
                             .build();
-                    hookOpList.add(postAggregationFilter);
+                    if (-1 != indexInOpChain) {
+                        opChain.getOperations().add(indexInOpChain + 1, postAggregationFilter);
+                        indexInOpChain += 1;
+                    }
                 }
 
                 if (!transformationsAndFilters.getEntitiesTransformerMap().isEmpty()
@@ -149,7 +152,10 @@ public class SchemaMigration implements GraphHook {
                             .entities(transformationsAndFilters.getEntitiesTransformerMap())
                             .edges(transformationsAndFilters.getEdgesTransformerMap())
                             .build();
-                    hookOpList.add(transformFunction);
+                    if (-1 != indexInOpChain) {
+                        opChain.getOperations().add(indexInOpChain + 1, transformFunction);
+                        indexInOpChain += 1;
+                    }
                 }
 
                 if (!transformationsAndFilters.getEdgesPostTransformFilterMap().isEmpty()
@@ -158,13 +164,9 @@ public class SchemaMigration implements GraphHook {
                             .entities(transformationsAndFilters.getEntitiesPostTransformFilterMap())
                             .edges(transformationsAndFilters.getEdgesPostTransformFilterMap())
                             .build();
-                    hookOpList.add(postTransformFilter);
-                }
-
-                if (!hookOpList.isEmpty()) {
-                    afterOpsMap.put(op.getClass().getName(), hookOpList);
-                    addOpsHook.setAfter(afterOpsMap);
-                    addOpsHook.preExecute(opChain, context);
+                    if (-1 != indexInOpChain) {
+                        opChain.getOperations().add(indexInOpChain + 1, postTransformFilter);
+                    }
                 }
             }
         }
