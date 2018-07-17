@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.function.migration;
+package uk.gov.gchq.gaffer.integration.migration.function;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ToLowerCase extends KorypheFunction<Object, String> {
+public class ToLong extends KorypheFunction<Object, Long> {
+
     @Override
-    public String apply(final Object value) {
+    public Long apply(final Object value) {
         if (null == value) {
             return null;
         }
 
-        if (value instanceof String) {
-            ((String) value).toLowerCase();
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
         }
 
-        return value.toString().toLowerCase();
+        if (value instanceof String) {
+            return Long.valueOf(((String) value));
+        }
+
+        throw new IllegalArgumentException("Could not convert value to Long: " + value);
     }
 }
