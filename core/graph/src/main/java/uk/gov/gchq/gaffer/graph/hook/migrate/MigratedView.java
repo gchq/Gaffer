@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * POJO to hold all relevant ElementFilters and ElementTransformers with the related ViewElementDefinition.
  */
-public class ViewConfig {
+public class MigratedView {
     private final boolean aggregateAfter;
     private ViewElementDefinition viewElementDefinition;
     private Map<String, ElementFilter> entitiesPostAggregationFilterMap;
@@ -46,7 +46,7 @@ public class ViewConfig {
     private Map<String, ElementFilter> entitiesPostTransformFilterMap;
     private Map<String, ElementFilter> edgesPostTransformFilterMap;
 
-    public ViewConfig(final boolean aggregateAfter) {
+    public MigratedView(final boolean aggregateAfter) {
         this.aggregateAfter = aggregateAfter;
         viewElementDefinition = new ViewElementDefinition();
         entitiesPostAggregationFilterMap = new HashMap<>();
@@ -57,36 +57,36 @@ public class ViewConfig {
         edgesPostTransformFilterMap = new HashMap<>();
     }
 
-    public List<Operation> createMigrationOps(final ViewConfig viewConfig) {
+    public List<Operation> createMigrationOps(final MigratedView migratedView) {
         final List<Operation> updatedOps = new ArrayList<>();
         if (aggregateAfter) {
             final Aggregate aggregate = new Aggregate();
             updatedOps.add(aggregate);
         }
 
-        if (!viewConfig.getEntitiesPostAggregationFilterMap().isEmpty()
-                || !viewConfig.getEdgesPostAggregationFilterMap().isEmpty()) {
+        if (!migratedView.getEntitiesPostAggregationFilterMap().isEmpty()
+                || !migratedView.getEdgesPostAggregationFilterMap().isEmpty()) {
             final Filter postAggregationFilter = new Filter.Builder()
-                    .entities(viewConfig.getEntitiesPostAggregationFilterMap())
-                    .edges(viewConfig.getEdgesPostAggregationFilterMap())
+                    .entities(migratedView.getEntitiesPostAggregationFilterMap())
+                    .edges(migratedView.getEdgesPostAggregationFilterMap())
                     .build();
             updatedOps.add(postAggregationFilter);
         }
 
-        if (!viewConfig.getEntitiesTransformerMap().isEmpty()
-                || !viewConfig.getEdgesTransformerMap().isEmpty()) {
+        if (!migratedView.getEntitiesTransformerMap().isEmpty()
+                || !migratedView.getEdgesTransformerMap().isEmpty()) {
             final Transform transformFunction = new Transform.Builder()
-                    .entities(viewConfig.getEntitiesTransformerMap())
-                    .edges(viewConfig.getEdgesTransformerMap())
+                    .entities(migratedView.getEntitiesTransformerMap())
+                    .edges(migratedView.getEdgesTransformerMap())
                     .build();
             updatedOps.add(transformFunction);
         }
 
-        if (!viewConfig.getEdgesPostTransformFilterMap().isEmpty()
-                || !viewConfig.getEntitiesPostTransformFilterMap().isEmpty()) {
+        if (!migratedView.getEdgesPostTransformFilterMap().isEmpty()
+                || !migratedView.getEntitiesPostTransformFilterMap().isEmpty()) {
             final Filter postTransformFilter = new Filter.Builder()
-                    .entities(viewConfig.getEntitiesPostTransformFilterMap())
-                    .edges(viewConfig.getEdgesPostTransformFilterMap())
+                    .entities(migratedView.getEntitiesPostTransformFilterMap())
+                    .edges(migratedView.getEdgesPostTransformFilterMap())
                     .build();
             updatedOps.add(postTransformFilter);
         }
@@ -171,20 +171,20 @@ public class ViewConfig {
         return edgesPostTransformFilterMap;
     }
 
-    public static ViewConfig merge(final boolean aggregateAfter, final Iterable<ViewConfig> configs1, final Iterable<ViewConfig> configs2) {
-        return merge(aggregateAfter, IterableUtil.concat(Arrays.asList(configs1, configs2)));
+    public static MigratedView merge(final boolean aggregateAfter, final Iterable<MigratedView> views1, final Iterable<MigratedView> views2) {
+        return merge(aggregateAfter, IterableUtil.concat(Arrays.asList(views1, views2)));
     }
 
-    public static ViewConfig merge(final boolean aggregateAfter, final Iterable<ViewConfig> configs) {
-        final ViewConfig viewConfig = new ViewConfig(aggregateAfter);
-        for (final ViewConfig config : configs) {
-            viewConfig.edgesPostAggregationFilterMap.putAll(config.getEdgesPostAggregationFilterMap());
-            viewConfig.entitiesPostAggregationFilterMap.putAll(config.getEntitiesPostAggregationFilterMap());
-            viewConfig.edgesPostTransformFilterMap.putAll(config.getEdgesPostTransformFilterMap());
-            viewConfig.entitiesPostTransformFilterMap.putAll(config.getEntitiesPostTransformFilterMap());
-            viewConfig.edgesTransformerMap.putAll(config.getEdgesTransformerMap());
-            viewConfig.entitiesTransformerMap.putAll(config.getEntitiesTransformerMap());
+    public static MigratedView merge(final boolean aggregateAfter, final Iterable<MigratedView> views) {
+        final MigratedView migratedView = new MigratedView(aggregateAfter);
+        for (final MigratedView view : views) {
+            migratedView.edgesPostAggregationFilterMap.putAll(view.getEdgesPostAggregationFilterMap());
+            migratedView.entitiesPostAggregationFilterMap.putAll(view.getEntitiesPostAggregationFilterMap());
+            migratedView.edgesPostTransformFilterMap.putAll(view.getEdgesPostTransformFilterMap());
+            migratedView.entitiesPostTransformFilterMap.putAll(view.getEntitiesPostTransformFilterMap());
+            migratedView.edgesTransformerMap.putAll(view.getEdgesTransformerMap());
+            migratedView.entitiesTransformerMap.putAll(view.getEntitiesTransformerMap());
         }
-        return viewConfig;
+        return migratedView;
     }
 }

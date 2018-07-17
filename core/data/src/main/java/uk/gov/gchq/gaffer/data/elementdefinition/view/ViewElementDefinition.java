@@ -430,6 +430,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearAggregator() {
+            getElementDef().aggregator = null;
+            return self();
+        }
+
         public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
             if (null != getElementDef().getPostAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
@@ -493,6 +498,20 @@ public class ViewElementDefinition implements ElementDefinition {
             if (null != transformFunctions) {
                 getElementDef().transformer.getComponents().addAll(transformFunctions);
             }
+            return self();
+        }
+
+        public CHILD_CLASS clearTransform() {
+            getElementDef().transformer = null;
+            return self();
+        }
+
+        public CHILD_CLASS clearFunctions() {
+            clearPreAggregationFilter();
+            clearAggregator();
+            clearPostAggregationFilter();
+            clearTransform();
+            clearPostTransformFilter();
             return self();
         }
 
