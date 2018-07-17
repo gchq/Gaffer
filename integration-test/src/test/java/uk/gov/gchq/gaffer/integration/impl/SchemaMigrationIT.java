@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -499,7 +498,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(FULL_VIEW)
@@ -549,7 +548,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(NEW_VIEW)
@@ -573,7 +572,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(FULL_VIEW)
@@ -597,7 +596,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = graph.execute(
                 new GetElements.Builder()
                         .input("aggVertex")
                         .view(NEW_EDGE_AGG_VIEW)
@@ -640,7 +639,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final CloseableIterable<? extends Element> resultsNoPostOpAgg = graph.execute(
+        final Iterable<? extends Element> resultsNoPostOpAgg = graph.execute(
                 new GetElements.Builder()
                         .input("postOpAggVertex")
                         .view(EDGE_POST_OP_AGG_VIEW)

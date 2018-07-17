@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook.migrate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -29,6 +28,8 @@ import uk.gov.gchq.gaffer.operation.function.migration.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.List;
+
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 @JsonPropertyOrder(value = {"oldGroup", "newGroup", "toNewFunctions", "toOldFunctions"}, alphabetic = true)
 public class MigrateElement {
@@ -86,8 +87,11 @@ public class MigrateElement {
 
     @JsonIgnore
     public ElementTransformer getToNewTransform() {
-        ElementTransformer tmp = null != toNewPrivateTransform ? toNewPrivateTransform : new ElementTransformer();
-        if (null != toNewTransform && CollectionUtils.isNotEmpty(toNewTransform.getComponents())) {
+        final ElementTransformer tmp = new ElementTransformer();
+        if (null != toNewPrivateTransform && isNotEmpty(toNewPrivateTransform.getComponents())) {
+            tmp.getComponents().addAll(toNewPrivateTransform.getComponents());
+        }
+        if (null != toNewTransform && isNotEmpty(toNewTransform.getComponents())) {
             tmp.getComponents().addAll(toNewTransform.getComponents());
         }
         return tmp;
@@ -95,8 +99,11 @@ public class MigrateElement {
 
     @JsonIgnore
     public ElementTransformer getToOldTransform() {
-        ElementTransformer tmp = null != toOldPrivateTransform ? toOldPrivateTransform : new ElementTransformer();
-        if (null != toOldTransform && CollectionUtils.isNotEmpty(toOldTransform.getComponents())) {
+        final ElementTransformer tmp = new ElementTransformer();
+        if (null != toOldPrivateTransform && isNotEmpty(toOldPrivateTransform.getComponents())) {
+            tmp.getComponents().addAll(toOldPrivateTransform.getComponents());
+        }
+        if (null != toOldTransform && isNotEmpty(toOldTransform.getComponents())) {
             tmp.getComponents().addAll(toOldTransform.getComponents());
         }
         return tmp;
