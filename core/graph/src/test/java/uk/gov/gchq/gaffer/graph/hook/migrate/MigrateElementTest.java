@@ -21,8 +21,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.operation.function.migration.ToInteger;
-import uk.gov.gchq.gaffer.operation.function.migration.ToLong;
+import uk.gov.gchq.gaffer.function.migration.ToInteger;
+import uk.gov.gchq.gaffer.function.migration.ToLong;
 
 public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
 

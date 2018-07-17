@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.function.migration;
+package uk.gov.gchq.gaffer.function.migration;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class ToInteger extends KorypheFunction<Object, Integer> {
-
+public class ToLowerCase extends KorypheFunction<Object, String> {
     @Override
-    public Integer apply(final Object value) {
+    public String apply(final Object value) {
         if (null == value) {
             return null;
         }
 
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        }
-
         if (value instanceof String) {
-            return Integer.valueOf(((String) value));
+            ((String) value).toLowerCase();
         }
 
-        throw new IllegalArgumentException("Could not convert value to Integer: " + value);
+        return value.toString().toLowerCase();
     }
 }

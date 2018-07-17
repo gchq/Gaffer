@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.function.migration;
+package uk.gov.gchq.gaffer.function.migration;
 
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-public class Cast<I, O> extends KorypheFunction<I, O> {
-    private Class<O> outputClass;
-
-    public Cast() {
-    }
-
-    public Cast(final Class<O> outputClass) {
-        this.outputClass = outputClass;
-    }
-
+public class ToUpperCase extends KorypheFunction<Object, String> {
     @Override
-    public O apply(final I value) {
-        return outputClass.cast(value);
-    }
+    public String apply(final Object value) {
+        if (null == value) {
+            return null;
+        }
 
-    public Class<O> getOutputClass() {
-        return outputClass;
-    }
+        if (value instanceof String) {
+            ((String) value).toUpperCase();
+        }
 
-    public void setOutputClass(final Class<O> outputClass) {
-        this.outputClass = outputClass;
+        return value.toString().toUpperCase();
     }
 }
