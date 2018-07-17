@@ -187,11 +187,11 @@ public class SchemaMigration implements GraphHook {
             viewMig.update(migration.getElementType(), migration.getNewGroup(), newElement);
         } else {
             final ViewElementDefinition.Builder viewBuilder = createViewBuilder(newElement);
-            setPreAggregationFilters(viewBuilder, newElement.getPreAggregationFilter());
-            setAggregator(viewBuilder, newElement.getAggregator());
-            setPostAggregationFilters(migration, viewMig, migration.getNewGroup(), newElement.getPostAggregationFilter());
-            setTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToOldTransform(), newElement.getTransformer());
-            setPostTransformFilters(migration, viewMig, migration.getNewGroup(), migration.getToNewTransform(), newElement.getPostTransformFilter());
+            updatePreAggregationFilters(viewBuilder, newElement.getPreAggregationFilter());
+            updateAggregator(viewBuilder, newElement.getAggregator());
+            updatePostAggregationFilters(migration, viewMig, migration.getNewGroup(), newElement.getPostAggregationFilter());
+            updateTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToOldTransform(), newElement.getTransformer());
+            updatePostTransformFilters(migration, viewMig, migration.getNewGroup(), migration.getToNewTransform(), newElement.getPostTransformFilter());
             viewMig.setViewElementDefinition(viewBuilder.build());
         }
         return viewMig;
@@ -204,15 +204,15 @@ public class SchemaMigration implements GraphHook {
             viewMig.update(migration.getElementType(), migration.getNewGroup(), oldElement);
         } else {
             final ViewElementDefinition.Builder viewBuilder = createViewBuilder(oldElement);
-            setPreAggregationFilters(viewBuilder, migration.getToOldTransform(), oldElement.getPreAggregationFilter());
-            setAggregator(viewBuilder, oldElement.getAggregator());
-            setPostAggregationFilters(migration, viewMig, migration.getNewGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
+            updatePreAggregationFilters(viewBuilder, migration.getToOldTransform(), oldElement.getPreAggregationFilter());
+            updateAggregator(viewBuilder, oldElement.getAggregator());
+            updatePostAggregationFilters(migration, viewMig, migration.getNewGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
             if (MigrationOutputType.NEW == outputType) {
-                setTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToNewTransform(), oldElement.getTransformer());
-                setPostTransformFilters(migration, viewMig, migration.getNewGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
+                updateTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToNewTransform(), oldElement.getTransformer());
+                updatePostTransformFilters(migration, viewMig, migration.getNewGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
             } else {
-                setTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToOldTransform(), oldElement.getTransformer());
-                setPostTransformFilters(migration, viewMig, migration.getOldGroup(), oldElement.getPostTransformFilter());
+                updateTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToOldTransform(), oldElement.getTransformer());
+                updatePostTransformFilters(migration, viewMig, migration.getOldGroup(), oldElement.getPostTransformFilter());
             }
             viewMig.setViewElementDefinition(viewBuilder.build());
         }
@@ -226,11 +226,11 @@ public class SchemaMigration implements GraphHook {
             viewMig.update(migration.getElementType(), migration.getOldGroup(), oldElement);
         } else {
             final ViewElementDefinition.Builder viewBuilder = createViewBuilder(oldElement);
-            setPreAggregationFilters(viewBuilder, oldElement.getPreAggregationFilter());
-            setAggregator(viewBuilder, oldElement.getAggregator());
-            setPostAggregationFilters(migration, viewMig, migration.getOldGroup(), oldElement.getPostAggregationFilter());
-            setTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToNewTransform(), oldElement.getTransformer());
-            setPostTransformFilters(migration, viewMig, migration.getOldGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
+            updatePreAggregationFilters(viewBuilder, oldElement.getPreAggregationFilter());
+            updateAggregator(viewBuilder, oldElement.getAggregator());
+            updatePostAggregationFilters(migration, viewMig, migration.getOldGroup(), oldElement.getPostAggregationFilter());
+            updateTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToNewTransform(), oldElement.getTransformer());
+            updatePostTransformFilters(migration, viewMig, migration.getOldGroup(), migration.getToOldTransform(), oldElement.getPostTransformFilter());
             viewMig.setViewElementDefinition(viewBuilder.build());
         }
         return viewMig;
@@ -243,15 +243,15 @@ public class SchemaMigration implements GraphHook {
             viewMig.update(migration.getElementType(), migration.getOldGroup(), newElement);
         } else {
             final ViewElementDefinition.Builder viewBuilder = createViewBuilder(newElement);
-            setPreAggregationFilters(viewBuilder, migration.getToNewTransform(), newElement.getPreAggregationFilter());
-            setAggregator(viewBuilder, newElement.getAggregator());
-            setPostAggregationFilters(migration, viewMig, migration.getOldGroup(), migration.getToNewTransform(), newElement.getPostAggregationFilter());
+            updatePreAggregationFilters(viewBuilder, migration.getToNewTransform(), newElement.getPreAggregationFilter());
+            updateAggregator(viewBuilder, newElement.getAggregator());
+            updatePostAggregationFilters(migration, viewMig, migration.getOldGroup(), migration.getToNewTransform(), newElement.getPostAggregationFilter());
             if (MigrationOutputType.OLD == outputType) {
-                setTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToOldTransform(), newElement.getTransformer());
-                setPostTransformFilters(migration, viewMig, migration.getOldGroup(), migration.getToNewTransform(), newElement.getPostTransformFilter());
+                updateTransformer(migration, viewMig, viewBuilder, migration.getOldGroup(), migration.getToOldTransform(), newElement.getTransformer());
+                updatePostTransformFilters(migration, viewMig, migration.getOldGroup(), migration.getToNewTransform(), newElement.getPostTransformFilter());
             } else {
-                setTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToNewTransform(), newElement.getTransformer());
-                setPostTransformFilters(migration, viewMig, migration.getNewGroup(), newElement.getPostTransformFilter());
+                updateTransformer(migration, viewMig, viewBuilder, migration.getNewGroup(), migration.getToNewTransform(), newElement.getTransformer());
+                updatePostTransformFilters(migration, viewMig, migration.getNewGroup(), newElement.getPostTransformFilter());
             }
             viewMig.setViewElementDefinition(viewBuilder.build());
         }
@@ -262,59 +262,59 @@ public class SchemaMigration implements GraphHook {
         return new ViewElementDefinition.Builder().merge(elementDef).clearFunctions();
     }
 
-    private void setPreAggregationFilters(final Builder viewBuilder,
-                                          final ElementTransformer transformer,
-                                          final ElementFilter filter) {
+    private void updatePreAggregationFilters(final Builder viewBuilder,
+                                             final ElementTransformer transformer,
+                                             final ElementFilter filter) {
         viewBuilder.preAggregationFilter(ViewMigration.createTransformAndFilter(transformer, filter));
     }
 
-    private void setPreAggregationFilters(final Builder viewBuilder,
-                                          final ElementFilter filter) {
+    private void updatePreAggregationFilters(final Builder viewBuilder,
+                                             final ElementFilter filter) {
         viewBuilder.preAggregationFilter(filter);
     }
 
-    private void setAggregator(final Builder viewBuilder,
-                               final ElementAggregator aggregator) {
+    private void updateAggregator(final Builder viewBuilder,
+                                  final ElementAggregator aggregator) {
         viewBuilder.aggregator(aggregator);
     }
 
-    private void setPostAggregationFilters(final MigrateElement migration,
-                                           final ViewMigration view,
-                                           final String group,
-                                           final ElementFilter filter) {
+    private void updatePostAggregationFilters(final MigrateElement migration,
+                                              final ViewMigration view,
+                                              final String group,
+                                              final ElementFilter filter) {
         view.updatePostAggregationFilters(migration.getElementType(), group, filter);
     }
 
-    private void setPostAggregationFilters(final MigrateElement migration,
-                                           final ViewMigration view,
-                                           final String newGroup,
-                                           final ElementTransformer transformer,
-                                           final ElementFilter filter) {
+    private void updatePostAggregationFilters(final MigrateElement migration,
+                                              final ViewMigration view,
+                                              final String newGroup,
+                                              final ElementTransformer transformer,
+                                              final ElementFilter filter) {
         view.updatePostAggregationFilters(migration.getElementType(), newGroup, transformer, filter);
     }
 
-    private void setTransformer(final MigrateElement migration,
-                                final ViewMigration view,
-                                final Builder viewBuilder,
-                                final String group,
-                                final ElementTransformer migrationTransform,
-                                final ElementTransformer userTransform) {
+    private void updateTransformer(final MigrateElement migration,
+                                   final ViewMigration view,
+                                   final Builder viewBuilder,
+                                   final String group,
+                                   final ElementTransformer migrationTransform,
+                                   final ElementTransformer userTransform) {
         viewBuilder.addTransformFunctions(migrationTransform.getComponents());
         view.updateTransformer(migration.getElementType(), group, userTransform);
     }
 
-    private void setPostTransformFilters(final MigrateElement migration,
-                                         final ViewMigration view,
-                                         final String newGroup,
-                                         final ElementTransformer transformer,
-                                         final ElementFilter filter) {
+    private void updatePostTransformFilters(final MigrateElement migration,
+                                            final ViewMigration view,
+                                            final String newGroup,
+                                            final ElementTransformer transformer,
+                                            final ElementFilter filter) {
         view.updatePostTransformFilters(migration.getElementType(), newGroup, transformer, filter);
     }
 
-    private void setPostTransformFilters(final MigrateElement migration,
-                                         final ViewMigration view,
-                                         final String group,
-                                         final ElementFilter filter) {
+    private void updatePostTransformFilters(final MigrateElement migration,
+                                            final ViewMigration view,
+                                            final String group,
+                                            final ElementFilter filter) {
         view.updatePostTransformFilters(migration.getElementType(), group, filter);
     }
 }
