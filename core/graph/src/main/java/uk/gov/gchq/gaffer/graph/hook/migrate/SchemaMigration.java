@@ -44,6 +44,9 @@ import java.util.function.Function;
  * that are then applied on any {@link Operation} with output and an {@link OperationView}.
  * <p>
  * To make use of this {@link SchemaMigration} the implemented {@link uk.gov.gchq.gaffer.store.Store} must have the Transform trait.
+ * <p>
+ * <b>NOTE: This is currently experimental and may not function perfectly.</b>
+ * </p>
  */
 @JsonPropertyOrder(value = {"entities", "edges", "transformToNew"}, alphabetic = true)
 public class SchemaMigration implements GraphHook {
@@ -279,42 +282,42 @@ public class SchemaMigration implements GraphHook {
     }
 
     private void updatePostAggregationFilters(final MigrateElement migration,
-                                              final ViewMigration view,
+                                              final ViewMigration viewMig,
                                               final String group,
                                               final ElementFilter filter) {
-        view.updatePostAggregationFilters(migration.getElementType(), group, filter);
+        viewMig.updatePostAggregationFilters(migration.getElementType(), group, filter);
     }
 
     private void updatePostAggregationFilters(final MigrateElement migration,
-                                              final ViewMigration view,
+                                              final ViewMigration viewMig,
                                               final String newGroup,
                                               final ElementTransformer transformer,
                                               final ElementFilter filter) {
-        view.updatePostAggregationFilters(migration.getElementType(), newGroup, transformer, filter);
+        viewMig.updatePostAggregationFilters(migration.getElementType(), newGroup, transformer, filter);
     }
 
     private void updateTransformer(final MigrateElement migration,
-                                   final ViewMigration view,
+                                   final ViewMigration viewMig,
                                    final Builder viewBuilder,
                                    final String group,
                                    final ElementTransformer migrationTransform,
                                    final ElementTransformer userTransform) {
         viewBuilder.addTransformFunctions(migrationTransform.getComponents());
-        view.updateTransformer(migration.getElementType(), group, userTransform);
+        viewMig.updateTransformer(migration.getElementType(), group, userTransform);
     }
 
     private void updatePostTransformFilters(final MigrateElement migration,
-                                            final ViewMigration view,
+                                            final ViewMigration viewMig,
                                             final String newGroup,
                                             final ElementTransformer transformer,
                                             final ElementFilter filter) {
-        view.updatePostTransformFilters(migration.getElementType(), newGroup, transformer, filter);
+        viewMig.updatePostTransformFilters(migration.getElementType(), newGroup, transformer, filter);
     }
 
     private void updatePostTransformFilters(final MigrateElement migration,
-                                            final ViewMigration view,
+                                            final ViewMigration viewMig,
                                             final String group,
                                             final ElementFilter filter) {
-        view.updatePostTransformFilters(migration.getElementType(), group, filter);
+        viewMig.updatePostTransformFilters(migration.getElementType(), group, filter);
     }
 }
