@@ -1,28 +1,18 @@
 {
   "class": "uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration",
+  "outputType": "OLD",
   "entities": [
     {
+      "elementType": "ENTITY",
       "oldGroup": "entityOld",
       "newGroup": "entityNew",
       "toNew": [
         {
           "selection": [
-            "GROUP"
-          ],
-          "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ReturnValue",
-            "returnValue": "entityNew"
-          },
-          "projection": [
-            "GROUP"
-          ]
-        },
-        {
-          "selection": [
             "count"
           ],
           "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
+            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToInteger"
           },
           "projection": [
             "count"
@@ -32,22 +22,10 @@
       "toOld": [
         {
           "selection": [
-            "GROUP"
-          ],
-          "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ReturnValue",
-            "returnValue": "entityOld"
-          },
-          "projection": [
-            "GROUP"
-          ]
-        },
-        {
-          "selection": [
             "count"
           ],
           "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToInteger"
+            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
           },
           "projection": [
             "count"
@@ -58,52 +36,29 @@
   ],
   "edges": [
     {
+      "elementType": "EDGE",
       "oldGroup": "edgeOld",
       "newGroup": "edgeNew",
       "toNew": [
         {
           "selection": [
-            "GROUP"
-          ],
-          "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ReturnValue",
-            "returnValue": "edgeNew"
-          },
-          "projection": [
-            "GROUP"
-          ]
-        },
-        {
-          "selection": [
             "count"
           ],
           "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
+            "class": "uk.gov.gchq.koryphe.impl.function.ToInteger"
           },
           "projection": [
-            "count"
+            "count2"
           ]
         }
       ],
       "toOld": [
         {
           "selection": [
-            "GROUP"
+            "count2"
           ],
           "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ReturnValue",
-            "returnValue": "edgeOld"
-          },
-          "projection": [
-            "GROUP"
-          ]
-        },
-        {
-          "selection": [
-            "count"
-          ],
-          "function": {
-            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToInteger"
+            "class": "uk.gov.gchq.koryphe.impl.function.ToLong"
           },
           "projection": [
             "count"
@@ -111,6 +66,5 @@
         }
       ]
     }
-  ],
-  "outputType": "OLD"
+  ]
 }
