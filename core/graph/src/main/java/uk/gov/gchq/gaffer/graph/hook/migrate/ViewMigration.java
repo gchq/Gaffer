@@ -37,7 +37,7 @@ import java.util.Map;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 /**
- * Applies the migrations required for a {@link View}.
+ * Applies the migrations required for a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
  */
 public class ViewMigration {
     private final Map<String, ElementFilter> entitiesPostAggregationFilter = new HashMap<>();
