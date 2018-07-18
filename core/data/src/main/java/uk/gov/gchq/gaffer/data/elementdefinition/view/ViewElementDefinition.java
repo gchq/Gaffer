@@ -181,10 +181,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return preAggregationFilter;
     }
 
-    public void setPreAggregationFilter(final ElementFilter preAggregationFilter) {
-        this.preAggregationFilter = preAggregationFilter;
-    }
-
     @JsonGetter("preAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getComponents() : null;
@@ -198,6 +194,14 @@ public class ViewElementDefinition implements ElementDefinition {
         return aggregator;
     }
 
+    /**
+     * Sets the aggregator
+     *
+     * @param aggregator the aggregator to set.
+     * @deprecated a {@link ViewElementDefinition} should be constructed using the
+     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.Builder}.
+     */
+    @Deprecated
     public void setAggregator(final ElementAggregator aggregator) {
         this.aggregator = aggregator;
     }
@@ -205,10 +209,6 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
-    }
-
-    public void setPostAggregationFilter(final ElementFilter postAggregationFilter) {
-        this.postAggregationFilter = postAggregationFilter;
     }
 
     @JsonGetter("postAggregationFilterFunctions")
@@ -225,10 +225,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return postTransformFilter;
     }
 
-    public void setPostTransformFilter(final ElementFilter postTransformFilter) {
-        this.postTransformFilter = postTransformFilter;
-    }
-
     @JsonGetter("postTransformFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getComponents() : null;
@@ -241,10 +237,6 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementTransformer getTransformer() {
         return transformer;
-    }
-
-    public void setTransformer(final ElementTransformer transformer) {
-        this.transformer = transformer;
     }
 
     @JsonGetter("transformFunctions")
