@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook.migrate;
 
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -36,7 +37,7 @@ import java.util.Map;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 /**
- * POJO to hold all relevant ElementFilters and ElementTransformers with the related ViewElementDefinition.
+ * Applies the migrations required for a {@link View}.
  */
 public class ViewMigration {
     private final Map<String, ElementFilter> entitiesPostAggregationFilter = new HashMap<>();
@@ -45,15 +46,23 @@ public class ViewMigration {
     private final Map<String, ElementTransformer> edgesTransformer = new HashMap<>();
     private final Map<String, ElementFilter> entitiesPostTransformFilter = new HashMap<>();
     private final Map<String, ElementFilter> edgesPostTransformFilter = new HashMap<>();
+    private final boolean aggregateAfter;
 
-    private ViewElementDefinition viewElementDefinition = new ViewElementDefinition();
+    private ViewElementDefinition.Builder elementDefBuilder = new ViewElementDefinition.Builder();
 
-    public static List<Operation> createMigrationOps(final boolean aggregateAfter, final Iterable<ViewMigration> views1, final Iterable<ViewMigration> views2) {
+    public ViewMigration(final boolean aggregateAfter) {
+        this.aggregateAfter = aggregateAfter;
+    }
+
+    public static List<Operation> createMigrationOps(final boolean aggregateAfter,
+                                                     final Iterable<ViewMigration> views1,
+                                                     final Iterable<ViewMigration> views2) {
         return createMigrationOps(aggregateAfter, IterableUtil.concat(Arrays.asList(views1, views2)));
     }
 
-    public static List<Operation> createMigrationOps(final boolean aggregateAfter, final Iterable<ViewMigration> views) {
-        final ViewMigration viewMig = new ViewMigration();
+    public static List<Operation> createMigrationOps(final boolean aggregateAfter,
+                                                     final Iterable<ViewMigration> views) {
+        final ViewMigration viewMig = new ViewMigration(aggregateAfter);
         for (final ViewMigration view : views) {
             viewMig.edgesPostAggregationFilter.putAll(view.edgesPostAggregationFilter);
             viewMig.entitiesPostAggregationFilter.putAll(view.entitiesPostAggregationFilter);
@@ -67,107 +76,216 @@ public class ViewMigration {
         if (aggregateAfter) {
             final Aggregate aggregate = new Aggregate();
             updatedOps.add(aggregate);
-        }
 
-        if (!viewMig.entitiesPostAggregationFilter.isEmpty()
-                || !viewMig.edgesPostAggregationFilter.isEmpty()) {
-            final Filter postAggregationFilter = new Filter.Builder()
-                    .entities(viewMig.entitiesPostAggregationFilter)
-                    .edges(viewMig.edgesPostAggregationFilter)
-                    .build();
-            updatedOps.add(postAggregationFilter);
-        }
+            if (!viewMig.entitiesPostAggregationFilter.isEmpty()
+                    || !viewMig.edgesPostAggregationFilter.isEmpty()) {
+                final Filter postAggregationFilter = new Filter.Builder()
+                        .entities(viewMig.entitiesPostAggregationFilter)
+                        .edges(viewMig.edgesPostAggregationFilter)
+                        .build();
+                updatedOps.add(postAggregationFilter);
+            }
 
-        if (!viewMig.entitiesTransformer.isEmpty()
-                || !viewMig.edgesTransformer.isEmpty()) {
-            final Transform transformFunction = new Transform.Builder()
-                    .entities(viewMig.entitiesTransformer)
-                    .edges(viewMig.edgesTransformer)
-                    .build();
-            updatedOps.add(transformFunction);
-        }
+            if (!viewMig.entitiesTransformer.isEmpty()
+                    || !viewMig.edgesTransformer.isEmpty()) {
+                final Transform transformFunction = new Transform.Builder()
+                        .entities(viewMig.entitiesTransformer)
+                        .edges(viewMig.edgesTransformer)
+                        .build();
+                updatedOps.add(transformFunction);
+            }
 
-        if (!viewMig.edgesPostTransformFilter.isEmpty()
-                || !viewMig.entitiesPostTransformFilter.isEmpty()) {
-            final Filter postTransformFilter = new Filter.Builder()
-                    .entities(viewMig.entitiesPostTransformFilter)
-                    .edges(viewMig.edgesPostTransformFilter)
-                    .build();
-            updatedOps.add(postTransformFilter);
+            if (!viewMig.edgesPostTransformFilter.isEmpty()
+                    || !viewMig.entitiesPostTransformFilter.isEmpty()) {
+                final Filter postTransformFilter = new Filter.Builder()
+                        .entities(viewMig.entitiesPostTransformFilter)
+                        .edges(viewMig.edgesPostTransformFilter)
+                        .build();
+                updatedOps.add(postTransformFilter);
+            }
         }
 
         return updatedOps;
     }
 
-    public static ElementFilter createTransformAndFilter(final ElementTransformer transform, final ElementFilter filter) {
+    public ViewMigration update(final MigrateElement migration,
+                                final String group,
+                                final ViewElementDefinition elementDefinition) {
+        this.elementDefBuilder.merge(elementDefinition);
+        if (isNotEmpty(elementDefinition.getPostAggregationFilterFunctions())) {
+            updatePostAggregationFilters(migration, group, elementDefinition);
+            this.elementDefBuilder.clearPostAggregationFilter();
+        }
+        if (isNotEmpty(elementDefinition.getTransformFunctions())) {
+            updateTransformer(migration.getElementType(), group, elementDefinition.getTransformer());
+            this.elementDefBuilder.clearTransform();
+        }
+        if (isNotEmpty(elementDefinition.getPostTransformFilterFunctions())) {
+            updatePostTransformFilters(migration, group, elementDefinition.getPostTransformFilter());
+            this.elementDefBuilder.clearPostTransformFilter();
+        }
+        return this;
+    }
+
+    public ViewMigration prepareBuilder(final ViewElementDefinition elementDef) {
+        elementDefBuilder.merge(elementDef).clearFunctions();
+        return this;
+    }
+
+    public ViewMigration updatePreAggregationFilters(final ElementTransformer transformer,
+                                                     final ViewElementDefinition elementDef) {
+        return updatePreAggregationFilters(transformer, elementDef.getPreAggregationFilter());
+    }
+
+    public ViewMigration updatePreAggregationFilters(final ElementTransformer transformer,
+                                                     final ElementFilter filter) {
+        if (null != filter && isNotEmpty(filter.getComponents())) {
+            elementDefBuilder.preAggregationFilter(createTransformAndFilter(transformer, filter));
+        }
+        return this;
+    }
+
+    public ViewMigration updatePreAggregationFilters(final ViewElementDefinition elementDef) {
+        return updatePreAggregationFilters(elementDef.getPreAggregationFilter());
+    }
+
+    public ViewMigration updatePreAggregationFilters(final ElementFilter filter) {
+        elementDefBuilder.preAggregationFilter(filter);
+        return this;
+    }
+
+    public ViewMigration updateAggregator(final ViewElementDefinition elementDef) {
+        return updateAggregator(elementDef.getAggregator());
+    }
+
+    public ViewMigration updateAggregator(final ElementAggregator aggregator) {
+        elementDefBuilder.aggregator(aggregator);
+        return this;
+    }
+
+    public ViewMigration updatePostAggregationFilters(final MigrateElement migration,
+                                                      final String group,
+                                                      final ViewElementDefinition elementDef) {
+        updatePostAggregationFilters(migration, group, elementDef.getPostAggregationFilter());
+        return this;
+    }
+
+    public ViewMigration updatePostAggregationFilters(final MigrateElement migration,
+                                                      final String group,
+                                                      final ElementTransformer transformer,
+                                                      final ViewElementDefinition elementDef) {
+        return updatePostAggregationFilters(migration, group, transformer, elementDef.getPostAggregationFilter());
+    }
+
+    public ViewMigration updatePostAggregationFilters(final MigrateElement migration,
+                                                      final String group,
+                                                      final ElementTransformer transformer,
+                                                      final ElementFilter filter) {
+        if (null != filter && isNotEmpty(filter.getComponents())) {
+            updatePostAggregationFilters(migration, group, createTransformAndFilter(transformer, filter));
+        }
+        return this;
+    }
+
+    public ViewMigration updatePostAggregationFilters(final MigrateElement migration,
+                                                      final String group,
+                                                      final ElementFilter filter) {
+        if (null != filter && isNotEmpty(filter.getComponents())) {
+            if (aggregateAfter) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostAggregationFilter.put(group, filter);
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostAggregationFilter.put(group, filter);
+                }
+            } else {
+                elementDefBuilder.postAggregationFilterFunctions(filter.getComponents());
+            }
+        }
+        return this;
+    }
+
+    public ViewMigration updateTransformer(final MigrateElement migration,
+                                           final String group,
+                                           final ElementTransformer migrationTransform,
+                                           final ViewElementDefinition elementDef) {
+        return updateTransformer(migration, group, migrationTransform, elementDef.getTransformer());
+    }
+
+    public ViewMigration updateTransformer(final MigrateElement migration,
+                                           final String group,
+                                           final ElementTransformer migrationTransform,
+                                           final ElementTransformer userTransform) {
+        elementDefBuilder.addTransformFunctions(migrationTransform.getComponents());
+        updateTransformer(migration.getElementType(), group, userTransform);
+        return this;
+    }
+
+    public ViewMigration updateTransformer(final MigrateElement.ElementType migrationElementType,
+                                           final String group,
+                                           final ElementTransformer transformer) {
+        if (null != transformer && isNotEmpty(transformer.getComponents())) {
+            if (aggregateAfter) {
+                if (migrationElementType.equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesTransformer.put(group, transformer);
+                } else if (migrationElementType.equals(MigrateElement.ElementType.EDGE)) {
+                    edgesTransformer.put(group, transformer);
+                }
+            } else {
+                elementDefBuilder.addTransformFunctions(transformer.getComponents());
+            }
+        }
+        return this;
+    }
+
+    public ViewMigration updatePostTransformFilters(final MigrateElement migration,
+                                                    final String group,
+                                                    final ElementTransformer transformer,
+                                                    final ViewElementDefinition elementDef) {
+        updatePostTransformFilters(migration, group, transformer, elementDef.getPostTransformFilter());
+        return this;
+    }
+
+    public ViewMigration updatePostTransformFilters(final MigrateElement migration,
+                                                    final String group,
+                                                    final ElementTransformer transformer,
+                                                    final ElementFilter filter) {
+        updatePostTransformFilters(migration, group, createTransformAndFilter(transformer, filter));
+        return this;
+    }
+
+
+    public ViewMigration updatePostTransformFilters(final MigrateElement migration,
+                                                    final String group,
+                                                    final ViewElementDefinition elementDef) {
+        return updatePostTransformFilters(migration, group, elementDef.getPostTransformFilter());
+    }
+
+    public ViewMigration updatePostTransformFilters(final MigrateElement migration,
+                                                    final String group,
+                                                    final ElementFilter filter) {
+        if (null != filter && isNotEmpty(filter.getComponents())) {
+            if (aggregateAfter) {
+                if (migration.getElementType().equals(MigrateElement.ElementType.ENTITY)) {
+                    entitiesPostTransformFilter.put(group, filter);
+                } else if (migration.getElementType().equals(MigrateElement.ElementType.EDGE)) {
+                    edgesPostTransformFilter.put(group, filter);
+                }
+            } else {
+                elementDefBuilder.postTransformFilterFunctions(filter.getComponents());
+            }
+        }
+        return this;
+    }
+
+    public ViewElementDefinition buildViewElementDefinition() {
+        return elementDefBuilder.build();
+    }
+
+    private ElementFilter createTransformAndFilter(final ElementTransformer transform,
+                                                   final ElementFilter filter) {
         return new ElementFilter.Builder()
                 .select(ElementTuple.ELEMENT)
                 .execute(new TransformAndFilter(transform, filter))
                 .build();
-    }
-
-    public void update(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ViewElementDefinition elementDefinition) {
-        if (isNotEmpty(elementDefinition.getPostAggregationFilterFunctions())) {
-            updatePostAggregationFilters(migrationElementType, migrationGroup, elementDefinition.getPostAggregationFilter());
-            this.viewElementDefinition.setPostAggregationFilter(null);
-        }
-        if (isNotEmpty(elementDefinition.getTransformFunctions())) {
-            updateTransformer(migrationElementType, migrationGroup, elementDefinition.getTransformer());
-            this.viewElementDefinition.setTransformer(null);
-        }
-        if (isNotEmpty(elementDefinition.getPostTransformFilterFunctions())) {
-            updatePostTransformFilters(migrationElementType, migrationGroup, elementDefinition.getPostTransformFilter());
-            this.viewElementDefinition.setPostTransformFilter(null);
-        }
-    }
-
-    public void updatePostTransformFilters(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ElementFilter filter) {
-        if (null != filter && isNotEmpty(filter.getComponents())) {
-            if (migrationElementType.equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostTransformFilter.put(migrationGroup, filter);
-            } else if (migrationElementType.equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostTransformFilter.put(migrationGroup, filter);
-            }
-        }
-    }
-
-    public void updatePostTransformFilters(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ElementTransformer transformer, final ElementFilter filter) {
-        if (null != filter && isNotEmpty(filter.getComponents())) {
-            updatePostTransformFilters(migrationElementType, migrationGroup, createTransformAndFilter(transformer, filter));
-        }
-    }
-
-    public void updatePostAggregationFilters(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ElementFilter filter) {
-        if (null != filter && isNotEmpty(filter.getComponents())) {
-            if (migrationElementType.equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesPostAggregationFilter.put(migrationGroup, filter);
-            } else if (migrationElementType.equals(MigrateElement.ElementType.EDGE)) {
-                edgesPostAggregationFilter.put(migrationGroup, filter);
-            }
-        }
-    }
-
-    public void updatePostAggregationFilters(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ElementTransformer transformer, final ElementFilter filter) {
-        if (null != filter && isNotEmpty(filter.getComponents())) {
-            updatePostAggregationFilters(migrationElementType, migrationGroup, createTransformAndFilter(transformer, filter));
-        }
-    }
-
-    public void updateTransformer(final MigrateElement.ElementType migrationElementType, final String migrationGroup, final ElementTransformer transformer) {
-        if (null != transformer && isNotEmpty(transformer.getComponents())) {
-            if (migrationElementType.equals(MigrateElement.ElementType.ENTITY)) {
-                entitiesTransformer.put(migrationGroup, transformer);
-            } else if (migrationElementType.equals(MigrateElement.ElementType.EDGE)) {
-                edgesTransformer.put(migrationGroup, transformer);
-            }
-        }
-    }
-
-    public ViewElementDefinition getViewElementDefinition() {
-        return viewElementDefinition;
-    }
-
-    public void setViewElementDefinition(final ViewElementDefinition viewElementDefinition) {
-        this.viewElementDefinition = viewElementDefinition;
     }
 }
