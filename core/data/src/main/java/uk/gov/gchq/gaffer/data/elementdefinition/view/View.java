@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -41,6 +42,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,6 +73,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
+    private Map<String, String> config = new HashMap<>();
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean allEntities = false;
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -220,6 +223,21 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;
         }
+    }
+
+    @JsonInclude(Include.NON_EMPTY)
+    public Map<String, String> getConfig() {
+        return this.config;
+    }
+
+    public void addConfig(final String key, final String value) {
+        if (!this.config.containsKey(key)) {
+            this.config.put(key, value);
+        }
+    }
+
+    public String getConfig(final String key) {
+        return this.config.get(key);
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
@@ -396,6 +414,19 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        public CHILD_CLASS config(final String key, final String value) {
+            getThisView().config.put(key, value);
+            return self();
+        }
+
+        @JsonSetter("config")
+        public CHILD_CLASS config(final Map<String, String> config) {
+            if (null != config) {
+                getThisView().config.putAll(config);
+            }
+            return self();
+        }
+
         public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {
             if (null != globalElements && globalElements.length > 0) {
                 if (null == getThisView().globalElements) {
@@ -501,6 +532,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                         getThisView().globalEdges = new ArrayList<>();
                     }
                     getThisView().globalEdges.addAll(view.globalEdges);
+                }
+
+                if (null != view.config) {
+                    getThisView().config.putAll(view.config);
                 }
             }
 

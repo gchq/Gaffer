@@ -48,6 +48,7 @@ import java.util.Set;
  * View.
  */
 public class ViewValidator {
+    public static final String SKIP_VIEW_VALIDATION = "skipViewValidation";
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewValidator.class);
 
     /**
@@ -82,11 +83,15 @@ public class ViewValidator {
                         }
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+
+                        if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        }
+
                         result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }
@@ -108,11 +113,15 @@ public class ViewValidator {
                         }
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+
+                        if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        }
+
                         result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }
@@ -190,6 +199,7 @@ public class ViewValidator {
             final ElementFilter filter,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
+
         if (null != filter && null != filter.getComponents()) {
             for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
                 if (null == adaptedPredicate.getPredicate()) {

@@ -1,0 +1,70 @@
+{
+  "class": "uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration",
+  "outputType": "OLD",
+  "entities": [
+    {
+      "elementType": "ENTITY",
+      "oldGroup": "entityOld",
+      "newGroup": "entityNew",
+      "toNew": [
+        {
+          "selection": [
+            "count"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToInteger"
+          },
+          "projection": [
+            "count"
+          ]
+        }
+      ],
+      "toOld": [
+        {
+          "selection": [
+            "count"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.gaffer.operation.function.migration.ToLong"
+          },
+          "projection": [
+            "count"
+          ]
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "elementType": "EDGE",
+      "oldGroup": "edgeOld",
+      "newGroup": "edgeNew",
+      "toNew": [
+        {
+          "selection": [
+            "count"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.koryphe.impl.function.ToInteger"
+          },
+          "projection": [
+            "count2"
+          ]
+        }
+      ],
+      "toOld": [
+        {
+          "selection": [
+            "count2"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.koryphe.impl.function.ToLong"
+          },
+          "projection": [
+            "count"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -108,7 +108,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
     }
 
     @Test
-    public void shouldSerialiseTfoJsonSkippingEmptyElementMaps() {
+    public void shouldSerialiseToJsonSkippingEmptyElementMaps() {
         // Given
         final View view = new View.Builder()
                 .globalEdges(new GlobalViewElementDefinition.Builder()
@@ -149,6 +149,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
+                .config("key1", "value1")
                 .build();
 
         // When
@@ -185,7 +186,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  }%n" +
+                "  },%n" +
+                " \"config\" : { \"key1\": \"value1\"}" +
                 "}"), new String(json));
     }
 
@@ -232,6 +234,9 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
         assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
+
+        assertEquals(view.getConfig(), deserialisedView.getConfig());
+        assertEquals("value1", deserialisedView.getConfig().get("key1"));
     }
 
     @Override
@@ -388,7 +393,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "        \"selection\" : [ \"dateProperty\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
-                "  }%n" +
+                "  } %n" +
                 "}"), new String(view.toJson(true)));
     }
 
@@ -1506,6 +1511,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
+                .config("key1", "value1")
                 .build();
     }
 }
