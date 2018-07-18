@@ -695,6 +695,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         );
     }
 
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.POST_TRANSFORMATION_FILTERING})
     @Test
     public void shouldAddOperationsAfterEachGetElements() throws OperationException {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
