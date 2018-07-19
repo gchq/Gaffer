@@ -36,8 +36,6 @@ import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
-import uk.gov.gchq.gaffer.integration.migration.function.ToInteger;
-import uk.gov.gchq.gaffer.integration.migration.function.ToLong;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -50,6 +48,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Arrays;
