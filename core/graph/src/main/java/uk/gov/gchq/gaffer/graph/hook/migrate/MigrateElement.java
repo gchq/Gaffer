@@ -24,7 +24,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder;
-import uk.gov.gchq.gaffer.operation.function.migration.Identity;
+import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.List;
@@ -137,7 +137,7 @@ public class MigrateElement {
         if (null != newGroup && !newGroup.equals(oldGroup)) {
             toNewPrivateTransform = new Builder()
                     .select("GROUP")
-                    .execute(new Identity(newGroup))
+                    .execute(new SetValue(newGroup))
                     .project("GROUP")
                     .build();
         }
@@ -147,7 +147,7 @@ public class MigrateElement {
         if (null != oldGroup && !oldGroup.equals(newGroup)) {
             toOldPrivateTransform = new Builder()
                     .select("GROUP")
-                    .execute(new Identity(oldGroup))
+                    .execute(new SetValue(oldGroup))
                     .project("GROUP")
                     .build();
         }
