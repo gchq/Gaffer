@@ -66,6 +66,8 @@ uk.gov.gchq.gaffer.flink.operation.handler.serialisation
 uk.gov.gchq.gaffer.flink.operation.handler.util
 uk.gov.gchq.gaffer.graph
 uk.gov.gchq.gaffer.graph.hook
+uk.gov.gchq.gaffer.graph.hook.migrate
+uk.gov.gchq.gaffer.graph.hook.migrate.predicate
 uk.gov.gchq.gaffer.hbasestore
 uk.gov.gchq.gaffer.hbasestore.coprocessor
 uk.gov.gchq.gaffer.hbasestore.coprocessor.processor
