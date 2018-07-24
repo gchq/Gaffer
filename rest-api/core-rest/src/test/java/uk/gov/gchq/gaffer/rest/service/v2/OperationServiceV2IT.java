@@ -84,7 +84,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();
-        
+
         client.reinitialiseGraph(graph);
 
         // When
@@ -175,7 +175,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         return new RestApiV2TestClient();
     }
 
-    private static class OperationDetailPojo {
+    public static class OperationDetailPojo {
         private String name;
         private String summary;
         private List<OperationFieldPojo> fields;
@@ -264,11 +264,9 @@ public class OperationServiceV2IT extends OperationServiceIT {
                     .append("exampleJson", exampleJson)
                     .toString();
         }
-
-
     }
 
-    private static class OperationFieldPojo {
+    public static class OperationFieldPojo {
         private String name;
         private String className;
         private boolean required;

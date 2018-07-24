@@ -43,7 +43,7 @@ public class GetJavaRDDOfElementsInRanges implements
         SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
@@ -65,12 +65,12 @@ public class GetJavaRDDOfElementsInRanges implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class GetJavaRDDOfElementsInRanges implements
     public GetJavaRDDOfElementsInRanges shallowClone() {
         return new GetJavaRDDOfElementsInRanges.Builder()
                 .input(input)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .view(view)
                 .directedType(directedType)
                 .options(options)
