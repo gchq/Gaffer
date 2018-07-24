@@ -135,7 +135,7 @@ public class SchemaMigration implements GraphHook {
         viewBuilder.config(ViewValidator.SKIP_VIEW_VALIDATION, TRUE);
 
         final View updatedView = viewBuilder.build();
-        LOGGER.warn("Migrated view: {}", updatedView);
+        LOGGER.debug("Migrated view: {}", updatedView);
         opView.setView(updatedView);
 
         final List<Operation> migrationOps = ViewMigration.createMigrationOps(aggregateAfter, migratedEdges.values(), migratedEntities.values());
