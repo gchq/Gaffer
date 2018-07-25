@@ -47,7 +47,7 @@ public class GetJavaRDDOfElements implements
 
     private Map<String, String> options;
     private Iterable<? extends ElementId> input;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private View view;
     private DirectedType directedType;
 
@@ -81,12 +81,12 @@ public class GetJavaRDDOfElements implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class GetJavaRDDOfElements implements
         return new GetJavaRDDOfElements.Builder()
                 .options(options)
                 .input(input)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .view(view)
                 .directedType(directedType)
                 .build();

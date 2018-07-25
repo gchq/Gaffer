@@ -51,7 +51,7 @@ public class GetAdjacentIds implements
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
 
     @Override
     public View getView() {
@@ -110,12 +110,12 @@ public class GetAdjacentIds implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class GetAdjacentIds implements
                 .input(input)
                 .directedType(directedType)
                 .options(options)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .build();
     }
 
