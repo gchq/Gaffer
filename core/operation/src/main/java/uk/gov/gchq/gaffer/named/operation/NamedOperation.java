@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +55,7 @@ public class NamedOperation<I_ITEM, O> implements
 
     @Required
     private String operationName;
-    private Map<String, Object> parameters;
+    private LinkedHashMap<String, Object> parameters;
     private Map<String, String> options;
 
     @Override
@@ -72,7 +73,8 @@ public class NamedOperation<I_ITEM, O> implements
     }
 
     public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
+        this.parameters.clear();
+        this.parameters.putAll(parameters);
     }
 
     public String getOperationName() {
