@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hdfs.integration.operation.handler;
 
+import com.google.common.collect.Sets;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -174,7 +175,8 @@ public abstract class AddElementsFromHdfsIT {
         final Graph graph = createGraph(getSchema());
 
         // When
-        graph.execute(createOperation(inputDir3, inputMappers).build(), new User());
+        graph.execute(createOperation(inputDir3, inputMappers).build(), new User("User", Sets.newHashSet("public",
+        "private")));
 
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(
@@ -230,10 +232,10 @@ public abstract class AddElementsFromHdfsIT {
     protected void addElementsFromHdfs(final Schema schema, final boolean fullyAggregated) throws Exception {
         // Given
         createInputFile(inputDir, 0, NUM_ELEMENTS);
-        final Graph graph = createGraph(schema);
+        Graph graph = createGraph(schema);
 
         // When
-        graph.execute(createOperation().build(), new User());
+        graph.execute(createOperation().build(), new User("User", Sets.newHashSet("public", "private")));
 
         // Then
         final CloseableIterable<? extends Element> allElements =
@@ -315,6 +317,8 @@ public abstract class AddElementsFromHdfsIT {
         ElementUtil.assertElementEquals(expectedEdges, publicElements);
         ElementUtil.assertElementEquals(expectedEntities, privateElements);
         ElementUtil.assertElementEquals(Collections.emptyList(), noElements);
+        //Remove reference to graph for GC cleanup.
+        graph = null;
     }
 
     private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {

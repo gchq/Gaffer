@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 @Deprecated
 public class SplitStoreHandler implements OperationHandler<SplitStore> {
+
     @Override
     public Void doOperation(final SplitStore operation,
                             final Context context, final Store store) throws OperationException {
@@ -39,4 +40,5 @@ public class SplitStoreHandler implements OperationHandler<SplitStore> {
         );
         return null;
     }
+
 }

@@ -29,13 +29,12 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -67,28 +66,19 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
-
 public class RowIdAggregatorTest {
 
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final MockAccumuloStore byteEntityStore = new MockAccumuloStore();
+    private static final MockAccumuloStore gaffer1KeyStore = new MockAccumuloStore();
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private static AccumuloElementConverter byteEntityElementConverter;
-    private static AccumuloElementConverter gaffer1ElementConverter;
+    private static final AccumuloElementConverter byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+    private static final AccumuloElementConverter gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
 
     @BeforeClass
-    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
-    }
-
-    @Before
-    public void reInitialise() throws StoreException, TableExistsException {
+    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException, TableExistsException {
         byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         createTable(byteEntityStore);
@@ -96,11 +86,10 @@ public class RowIdAggregatorTest {
     }
 
     @AfterClass
-    public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
+    public static void tearDown() throws StoreException {
+        gaffer1KeyStore.close();
+        byteEntityStore.close();
     }
-
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, RangeFactoryException {
@@ -113,7 +102,6 @@ public class RowIdAggregatorTest {
     }
 
     private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, RangeFactoryException {
-        String visibilityString = "public";
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
@@ -267,7 +255,7 @@ public class RowIdAggregatorTest {
             writer.close();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));

@@ -23,15 +23,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
@@ -68,6 +66,21 @@ import static org.mockito.Mockito.verify;
 public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    private static final MockAccumuloStore store = new MockAccumuloStore();
+    final static Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+    final static AccumuloProperties properties = AccumuloProperties
+            .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+
+    @BeforeClass
+    public static void createStore() throws StoreException {
+        store.initialise("graphId", schema, properties);
+    }
+
+    @AfterClass
+    public static void tearDown() throws StoreException {
+        store.close();
+    }
 
     public String inputDir;
     public String outputDir;
@@ -147,12 +160,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
 
     @Test
     public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
-        // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -209,11 +216,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -270,11 +272,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -338,11 +335,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));

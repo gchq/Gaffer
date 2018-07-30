@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -88,7 +88,7 @@ public class CreateSplitPointsIT {
                 AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );
 
-        final Graph graph = new Graph.Builder()
+        Graph graph = new Graph.Builder()
                 .store(store)
                 .build();
 
@@ -118,6 +118,9 @@ public class CreateSplitPointsIT {
         assertEquals(2, splitsOnTable.size());
         assertEquals(VERTEX_ID_PREFIX + "53\u0000\u0001", stringSplitsOnTable.get(0));
         assertEquals(VERTEX_ID_PREFIX + "99\u0000\u0001", stringSplitsOnTable.get(1));
+        store.close();
+        graph = null;
+        System.gc();
     }
 
     private void createInputFile() throws IOException, StoreException {
@@ -156,7 +159,7 @@ public class CreateSplitPointsIT {
         }
     }
 
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
+    private static final class SingleUseMockAccumuloStoreWithTabletServers extends MockAccumuloStore {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");

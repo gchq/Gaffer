@@ -30,6 +30,8 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
 import java.util.List;
 
+import static org.junit.Assert.fail;
+
 public class AccumuloSchemaHidingIT extends SchemaHidingIT {
     public AccumuloSchemaHidingIT() {
         super("mockAccumuloStore.properties");

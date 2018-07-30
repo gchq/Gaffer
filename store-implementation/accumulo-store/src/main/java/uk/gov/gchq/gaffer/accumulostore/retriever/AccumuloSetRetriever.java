@@ -404,4 +404,5 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             return scannerIterator.hasNext();
         }
     }
+
 }

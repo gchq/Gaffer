@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.DistributedCacheHelper;
-import org.apache.accumulo.core.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;

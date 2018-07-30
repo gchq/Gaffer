@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * Meant to be used for testing.
  */
 public class SingleUseAccumuloStore extends AccumuloStore {
+
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {

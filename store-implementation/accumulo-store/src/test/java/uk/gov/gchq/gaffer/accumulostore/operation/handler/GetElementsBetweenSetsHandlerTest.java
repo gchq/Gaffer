@@ -19,13 +19,12 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -63,8 +62,8 @@ public class GetElementsBetweenSetsHandlerTest {
     private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
 
     private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static MockAccumuloStore byteEntityStore;
+    private static MockAccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -112,12 +111,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-    }
-
-    @Before
-    public void reInitialise() throws StoreException {
+        byteEntityStore = new MockAccumuloStore();
+        gaffer1KeyStore = new MockAccumuloStore();
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
@@ -153,8 +148,10 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     @AfterClass
-    public static void tearDown() {
+    public static void tearDown() throws StoreException {
+        byteEntityStore.close();
         byteEntityStore = null;
+        gaffer1KeyStore.close();
         gaffer1KeyStore = null;
         defaultView = null;
     }

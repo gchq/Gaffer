@@ -16,15 +16,17 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -37,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -63,6 +64,16 @@ import static org.junit.Assert.assertTrue;
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
 public class AccumuloStoreRelationTest {
+
+    private static final AccumuloProperties properties = AccumuloProperties
+            .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
+    private static MockAccumuloStore store;
+
+    @Before
+    public void setUp() throws StoreException {
+        store = new SingleUseMockAccumuloStore();
+        store.initialise("graphId", getSchema(), properties);
+    }
 
     @Test
     public void testBuildScanFullView() throws OperationException, StoreException {
@@ -103,11 +114,6 @@ public class AccumuloStoreRelationTest {
             throws OperationException, StoreException {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When
@@ -125,7 +131,7 @@ public class AccumuloStoreRelationTest {
             results.add(returnedElements[i]);
         }
         //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(getSchema(), view,
                 new ArrayList<>());
         final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
@@ -152,10 +158,6 @@ public class AccumuloStoreRelationTest {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When
@@ -206,10 +208,6 @@ public class AccumuloStoreRelationTest {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When
@@ -245,10 +243,6 @@ public class AccumuloStoreRelationTest {
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
         addElements(store);
         final String[] requiredColumns = new String[1];
         requiredColumns[0] = "property1";
@@ -263,7 +257,6 @@ public class AccumuloStoreRelationTest {
 
         // Then
         assertTrue(rdd.isEmpty());
-
     }
 
     private static Schema getSchema() {

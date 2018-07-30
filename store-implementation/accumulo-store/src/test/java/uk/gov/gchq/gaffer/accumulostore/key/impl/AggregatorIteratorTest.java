@@ -17,22 +17,18 @@
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import com.google.common.collect.Lists;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.MockAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -72,25 +68,23 @@ public class AggregatorIteratorTest {
             .storeProps(AggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
             .loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static MockAccumuloStore byteEntityStore;
+    private static MockAccumuloStore gaffer1KeyStore;
 
     @BeforeClass
     public static void setup() throws IOException, StoreException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        byteEntityStore = new MockAccumuloStore();
+        gaffer1KeyStore = new MockAccumuloStore();
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
     }
 
     @AfterClass
-    public static void tearDown() {
+    public static void tearDown() throws StoreException {
+        byteEntityStore.close();
         byteEntityStore = null;
+        gaffer1KeyStore.close();
         gaffer1KeyStore = null;
-    }
-
-    @Before
-    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
     }
 
     @Test

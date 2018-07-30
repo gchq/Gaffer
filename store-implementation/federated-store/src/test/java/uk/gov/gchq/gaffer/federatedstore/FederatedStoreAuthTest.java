@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -71,6 +72,11 @@ public class FederatedStoreAuthTest {
         graphStoreProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         schema = new Schema.Builder().build();
+    }
+
+    @After
+    public void cleanUp() {
+        federatedStore = null;
     }
 
     @Test

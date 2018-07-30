@@ -28,13 +28,11 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -53,44 +51,34 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class CoreKeyGroupByAggregatorIteratorTest {
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final MockAccumuloStore byteEntityStore  = new SingleUseMockAccumuloStore();
+    private static final MockAccumuloStore gaffer1KeyStore = new SingleUseMockAccumuloStore();
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private static AccumuloElementConverter byteEntityElementConverter;
-    private static AccumuloElementConverter gaffer1ElementConverter;
-
-    @BeforeClass
-    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
-    }
+    private static final AccumuloElementConverter byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+    private static final AccumuloElementConverter gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
 
     @Before
-    public void reInitialise() throws StoreException, TableExistsException {
+    public void before() throws StoreException {
         byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
-        createTable(byteEntityStore);
-        createTable(gaffer1KeyStore);
     }
 
     @AfterClass
-    public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
+    public static void tearDown() throws StoreException {
+        gaffer1KeyStore.close();
+        byteEntityStore.close();
     }
 
     @Test
@@ -104,7 +92,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     private void testAggregatingMultiplePropertySets(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        String visibilityString = "public";
         try {
 
             // Create edge
@@ -184,7 +171,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writer.close();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
@@ -239,7 +226,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     public void testAggregatingSinglePropertySet(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        String visibilityString = "public";
         try {
             // Create edge
             final Edge edge = new Edge.Builder()
@@ -283,7 +269,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .build();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
@@ -324,7 +310,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     public void testAggregatingEmptyColumnQualifier(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        final String visibilityString = "public";
         try {
             // Create edge
             final Edge edge = new Edge.Builder()
@@ -414,7 +399,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .build();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
@@ -455,7 +440,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        final String visibilityString = "public";
         try {
             // Create edge
             final Edge edge = new Edge.Builder()
@@ -646,7 +630,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
@@ -706,7 +690,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        final String visibilityString = "public";
         try {
             // Create edge
             final Edge edge = new Edge.Builder()
@@ -884,7 +867,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .build();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
@@ -938,7 +921,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     public void shouldAggregateEverythingWhenGroupByIsSetToBlank(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
-        final String visibilityString = "public";
         try {
             // Create edge
             final Edge edge = new Edge.Builder()
@@ -1092,7 +1074,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .build();
 
             // Read data back and check we get one merged element
-            final Authorizations authorizations = new Authorizations(visibilityString);
+            final Authorizations authorizations = new Authorizations();
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)

@@ -584,8 +584,6 @@ public class FederatedStoreTest {
         assertEquals(1, store.getGraphs(blankUser, null).size());
         Graph graph = store.getGraphs(blankUser, ACC_ID_2).iterator().next();
         assertEquals(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toString(), graph.getSchema().toString());
-        assertEquals(getPropertiesFromPath(PATH_ACC_STORE_PROPERTIES_ALT), graph.getStoreProperties());
-
     }
 
     @Test
@@ -1243,4 +1241,5 @@ public class FederatedStoreTest {
     private void clearLibrary() {
         HashMapGraphLibrary.clear();
     }
+
 }

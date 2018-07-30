@@ -23,8 +23,11 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
+    <logger name="org.apache.zookeeper.ClientCnxn">
+        <level value="ERROR"/>
+    </logger>
     <root>
-        <priority value="warn"></priority>
+        <priority value="WARN"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>

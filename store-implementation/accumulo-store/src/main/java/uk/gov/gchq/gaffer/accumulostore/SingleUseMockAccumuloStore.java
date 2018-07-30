@@ -25,12 +25,12 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.core.client.mock.MockInstance} to
+ * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.minicluster.MiniAccumuloCluster} to
  * provide a {@link org.apache.accumulo.core.client.Connector}.
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
  */
-public class SingleUseMockAccumuloStore extends MockAccumuloStore {
+public class SingleUseMockAccumuloStore extends MockAccumuloStore implements AutoCloseable {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {

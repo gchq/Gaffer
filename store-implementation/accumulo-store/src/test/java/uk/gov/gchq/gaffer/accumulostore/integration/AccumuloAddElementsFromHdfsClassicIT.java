@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.junit.After;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.integration.operation.handler.AddElementsFromHdfsIT;
@@ -41,6 +41,9 @@ import static org.junit.Assert.fail;
 
 public class AccumuloAddElementsFromHdfsClassicIT extends AddElementsFromHdfsIT {
     private static final List<String> TABLET_SERVERS = Arrays.asList("1", "2", "3", "4");
+    private MockAccumuloStore store;
+    private static Graph graph;
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloAddElementsFromHdfsClassicIT.class, "/accumuloStoreClassicKeys.properties"));
 
     @Test
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
@@ -60,23 +63,27 @@ public class AccumuloAddElementsFromHdfsClassicIT extends AddElementsFromHdfsIT 
 
     @Override
     protected Graph createGraph(final Schema schema) throws Exception {
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-        properties.setInstance("instance_" + ClassicKeyPackage.class.getName());
+        if(null == store) {
+            store = new SingleUseMockAccumuloStore();
+        }
+        store.initialise("graph1", schema, PROPERTIES);
 
-        final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
-        store.initialise(ClassicKeyPackage.class.getSimpleName() + "Graph", schema, properties);
+        if(null != graph) {
+            return graph;
+        }
+
         assertEquals(0, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
 
-        return new Graph.Builder()
+        graph = new Graph.Builder()
                 .store(store)
                 .build();
+        return graph;
     }
 
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
-        @Override
-        public List<String> getTabletServers() throws StoreException {
-            return TABLET_SERVERS;
-        }
+    @After
+    public void tearDown() throws StoreException {
+        store.close();
+        store = null;
     }
+
 }

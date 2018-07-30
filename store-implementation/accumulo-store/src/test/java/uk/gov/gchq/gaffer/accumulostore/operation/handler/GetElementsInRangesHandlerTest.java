@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -59,8 +59,8 @@ import static org.junit.Assert.fail;
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
     private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static MockAccumuloStore byteEntityStore;
+    private static MockAccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsInRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -70,24 +70,25 @@ public class GetElementsInRangesHandlerTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-    }
-
-    @Before
-    public void reInitialise() throws StoreException {
-        handler = createHandler();
+        byteEntityStore = new MockAccumuloStore();
+        gaffer1KeyStore = new MockAccumuloStore();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-
         byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, NUM_ENTRIES);
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
+    @Before
+    public void before() {
+        handler = createHandler();
+    }
+
     @AfterClass
-    public static void tearDown() {
+    public static void tearDown() throws StoreException {
+        byteEntityStore.close();
         byteEntityStore = null;
+        gaffer1KeyStore.close();
         gaffer1KeyStore = null;
         defaultView = null;
     }

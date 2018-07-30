@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -57,7 +57,7 @@ public class FederatedStorePublicAccessTest {
         HashMapGraphLibrary.clear();
 
         AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        storeProperties.setStoreClass(MockAccumuloStore.class);
 
         library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());

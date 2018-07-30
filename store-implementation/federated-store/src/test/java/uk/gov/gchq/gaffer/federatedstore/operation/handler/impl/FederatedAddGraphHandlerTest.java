@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,9 +73,13 @@ public class FederatedAddGraphHandlerTest {
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
-
         testUser = testUser();
         authUser = authUser();
+    }
+
+    @After
+    public void tearDown() {
+        this.store = null;
     }
 
     @Test
@@ -302,7 +307,7 @@ public class FederatedAddGraphHandlerTest {
                     store);
             fail(EXCEPTION_EXPECTED);
         } catch (OperationException e) {
-            assertEquals(String.format(FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties}"), e.getMessage());
+            assertTrue(e.getMessage().startsWith("User is limited to only using parentPropertiesId from the graphLibrary"));
         }
 
         federatedAddGraphHandler.doOperation(

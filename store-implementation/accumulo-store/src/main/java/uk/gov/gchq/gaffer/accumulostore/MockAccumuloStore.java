@@ -19,72 +19,122 @@ package uk.gov.gchq.gaffer.accumulostore;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
-import org.apache.accumulo.core.client.mock.MockInstance;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 
+import org.apache.commons.io.FileUtils;
+
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
+ * An {@link AccumuloStore} that uses an Accumulo {@link MiniAccumuloCluster} to
  * provide a {@link Connector}.
  */
-public class MockAccumuloStore extends AccumuloStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
+public class MockAccumuloStore extends AccumuloStore implements AutoCloseable {
+    private static final Map<String, MiniAccumuloCluster> MACS = new HashMap<>();
+    private static final Map<String, Path> MAC_FILES = new HashMap<>();
 
-    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken(AccumuloProperties.PASSWORD);
-    private MockInstance mockAccumulo = null;
-    private Connector mockConnector;
+    private Connector connection = null;
 
     @Override
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        super.initialise(graphId, schema, properties);
+        String auths = properties.get("miniaccumulo.user.auths");
+        if (null != auths) {
+            setUserAuths(properties.get("miniaccumulo.user.auths").split(","));
+        }
+    }
+
+    public void close() throws StoreException {
+        MiniAccumuloCluster mac = MACS.get(getGraphId());
+        if (null != mac) {
+            try {
+                mac.stop();
+            } catch (final IOException | InterruptedException e) {
+                throw new StoreException(e.getMessage(), e);
+            }
+            MACS.remove(getGraphId());
+            deleteFiles(MAC_FILES.get(getGraphId()));
+            MAC_FILES.remove(getGraphId());
+        }
+    }
+
     public Connector getConnection() throws StoreException {
+        if (null == connection) {
+            AccumuloProperties properties = createMacAndGetProperties(getProperties());
+            connection = TableUtils.getConnector(properties.getInstance(), properties.getZookeepers(),
+                    properties.getUser(), properties.getPassword());
+        }
+        return connection;
+    }
+
+    private AccumuloProperties createMacAndGetProperties(final AccumuloProperties properties) throws StoreException {
+        MiniAccumuloCluster mac = MACS.get(getGraphId());
+        if (mac != null) {
+            properties.setInstance(mac.getInstanceName());
+            properties.setZookeepers(mac.getZooKeepers());
+            properties.setUser("root");
+            properties.setPassword("password");
+            return properties;
+        }
+        Path files;
         try {
-            mockConnector = mockAccumulo.getConnector(AccumuloProperties.USER, PASSWORD_TOKEN);
+            files = Files.createTempDirectory("accumulo", new FileAttribute[]{});
+        } catch (final IOException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+        MAC_FILES.put(getGraphId(), files);
+
+        try {
+            mac = new MiniAccumuloCluster(files.toFile(), "password");
+        } catch (final IOException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+        try {
+            mac.start();
+        } catch (final IOException | InterruptedException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+        properties.setInstance(mac.getInstanceName());
+        properties.setZookeepers(mac.getZooKeepers());
+        properties.setUser("root");
+        properties.setPassword("password");
+        MACS.put(getGraphId(), mac);
+        return properties;
+    }
+
+    protected static void deleteFiles(final Path path) throws StoreException {
+        if (null != path && path.toFile().exists()) {
+            try {
+                FileUtils.deleteDirectory(path.toFile());
+            } catch (final IOException e) {
+                throw new StoreException(e.getMessage(), e);
+            }
+        }
+    }
+
+    public void setUserAuths(final String... auths) throws StoreException {
+        try {
+            getConnection().securityOperations().changeUserAuthorizations("root", new Authorizations(auths));
         } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
-        return mockConnector;
-    }
-
-    @Override
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        setProperties(properties);
-        mockAccumulo = new MockInstance(getProperties().getInstance());
-        super.preInitialise(graphId, schema, getProperties());
-    }
-
-    @Override
-    protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
-        InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
-                conf,
-                AccumuloProperties.USER,
-                PASSWORD_TOKEN);
-    }
-
-    @Override
-    protected void addZookeeperToConfiguration(final Configuration conf) {
-        InputConfigurator.setMockInstance(AccumuloInputFormat.class,
-                conf,
-                getProperties().getInstance());
-    }
-
-    public MockInstance getMockAccumulo() {
-        return mockAccumulo;
-    }
-
-    public Connector getMockConnector() {
-        return mockConnector;
     }
 
     OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
         return super.getOperationHandler(opClass);
     }
+
 }

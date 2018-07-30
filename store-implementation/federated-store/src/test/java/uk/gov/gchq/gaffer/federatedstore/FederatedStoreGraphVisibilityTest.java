@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -83,7 +83,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .build();
 
         final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        accProp.setStoreClass(MockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
         library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
@@ -131,7 +131,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .build();
 
         final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        accProp.setStoreClass(MockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
         library.add(TEST_GRAPH_ID, aSchema, accProp);

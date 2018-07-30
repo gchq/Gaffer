@@ -17,13 +17,11 @@
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -54,16 +52,15 @@ public class AccumuloRangeIDRetrieverTest {
 
     private static final int numEntries = 1000;
     private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final MockAccumuloStore byteEntityStore = new MockAccumuloStore();
+    private static final MockAccumuloStore gaffer1KeyStore = new MockAccumuloStore();
+    ;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloRangeIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -72,9 +69,9 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
+    public static void tearDown() throws StoreException {
+        byteEntityStore.close();
+        gaffer1KeyStore.close();
         defaultView = null;
     }
 

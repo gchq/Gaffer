@@ -29,15 +29,13 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -67,11 +65,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class InputFormatTest {
-
-    private enum KeyPackage {
-        BYTE_ENTITY_KEY_PACKAGE,
-        CLASSIC_KEY_PACKAGE
-    }
 
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
@@ -137,6 +130,27 @@ public class InputFormatTest {
     private static String getJsonString(final Object obj) throws SerialisationException {
         return new String(JSONSerialiser.serialise(obj));
     }
+    private static final MockAccumuloStore byteEntityStore = new SingleUseMockAccumuloStore();
+    private static final MockAccumuloStore gaffer1KeyStore =  new SingleUseMockAccumuloStore();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(InputFormatTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    @Before
+    public void reInit() throws StoreException {
+        byteEntityStore.initialise("byteEntityGraph", getSchema(), PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", getSchema(), CLASSIC_PROPERTIES);
+    }
+
+    public void reInitWithSchema(Schema schema) throws StoreException {
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDown() throws StoreException {
+        gaffer1KeyStore.close();
+        byteEntityStore.close();
+    }
 
     @Test
     public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
@@ -147,25 +161,20 @@ public class InputFormatTest {
         for (final Element element : DATA) {
             expectedResults.add(getJsonString(element));
         }
-        shouldReturnCorrectDataToMapReduceJob(getSchema(),
-                KeyPackage.CLASSIC_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(gaffer1KeyStore,
                 DATA,
                 op,
                 new User(),
-                "instance1",
                 expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(getSchema(),
-                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(byteEntityStore,
                 DATA,
                 op,
                 new User(),
-                "instance2",
                 expectedResults);
     }
 
     @Test
     public void shouldReturnCorrectDataToMapReduceJobWithView() throws Exception {
-        final Schema schema = getSchema();
         final GetElements op = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
@@ -177,25 +186,20 @@ public class InputFormatTest {
                 expectedResults.add(getJsonString(element));
             }
         }
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(byteEntityStore,
                 DATA,
                 op,
                 new User(),
-                "instance3",
                 expectedResults);
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.CLASSIC_KEY_PACKAGE,
+        shouldReturnCorrectDataToMapReduceJob(gaffer1KeyStore,
                 DATA,
                 op,
                 new User(),
-                "instance4",
                 expectedResults);
     }
 
     @Test
     public void shouldReturnCorrectDataToMapReduceJobRespectingAuthorizations() throws Exception {
-        final Schema schema = getSchemaWithVisibilities();
         final GetElements op = new GetElements.Builder()
                 .view(new View())
                 .build();
@@ -215,63 +219,38 @@ public class InputFormatTest {
         final User userWithPrivate = new User("user1", privateAuth);
         final User userWithPublicNotPrivate = new User("user1", publicNotPrivate);
 
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        reInitWithSchema(getSchemaWithVisibilities());
+        shouldReturnCorrectDataToMapReduceJob(byteEntityStore,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPublicNotPrivate,
-                "instance5",
                 expectedResultsPublicNotPrivate);
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+        reInitWithSchema(getSchemaWithVisibilities());
+        shouldReturnCorrectDataToMapReduceJob(byteEntityStore,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
-                "instance6",
                 expectedResultsPrivate);
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.CLASSIC_KEY_PACKAGE,
+        reInitWithSchema(getSchemaWithVisibilities());
+        shouldReturnCorrectDataToMapReduceJob(gaffer1KeyStore,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPublicNotPrivate,
-                "instance7",
                 expectedResultsPublicNotPrivate);
-        shouldReturnCorrectDataToMapReduceJob(schema,
-                KeyPackage.CLASSIC_KEY_PACKAGE,
+        reInitWithSchema(getSchemaWithVisibilities());
+        shouldReturnCorrectDataToMapReduceJob(gaffer1KeyStore,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
-                "instance8",
                 expectedResultsPrivate);
     }
 
-    private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
-                                                       final KeyPackage kp,
+    private void shouldReturnCorrectDataToMapReduceJob(final AccumuloStore store,
                                                        final List<Element> data,
                                                        final GraphFilters graphFilters,
                                                        final User user,
-                                                       final String instanceName,
                                                        final Set<String> expectedResults)
             throws Exception {
-        final AccumuloStore store = new SingleUseMockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        String graphId = null;
-        switch (kp) {
-            case BYTE_ENTITY_KEY_PACKAGE:
-                properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_BYTE_ENTITY");
-                graphId = "byteEntityGraph";
-                break;
-            case CLASSIC_KEY_PACKAGE:
-                graphId = "gaffer1Graph";
-                properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_CLASSIC");
-        }
-        try {
-            store.initialise(graphId, schema, properties);
-        } catch (final StoreException e) {
-            fail("StoreException thrown: " + e);
-        }
         setupGraph(store, data);
 
         // Set up local conf
@@ -310,12 +289,12 @@ public class InputFormatTest {
         }
     }
 
-    private Schema getSchema() {
-        return Schema.fromJson(StreamUtil.schemas(getClass()));
+    private static Schema getSchema() {
+        return Schema.fromJson(StreamUtil.schemas(InputFormatTest.class));
     }
 
-    private Schema getSchemaWithVisibilities() {
-        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
+    private static Schema getSchemaWithVisibilities() {
+        return Schema.fromJson(StreamUtil.openStreams(InputFormatTest.class, "schemaWithVisibilities"));
     }
 
     private class Driver extends Configured implements Tool {

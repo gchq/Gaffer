@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.After;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -48,7 +50,7 @@ import static org.junit.Assert.assertEquals;
 
 public class GetElementsInRangesIT {
     @Test
-    public void shouldReturnSameResultsFromByteEntityAndClassicKeyPackages() throws OperationException {
+    public void shouldReturnSameResultsFromByteEntityAndClassicKeyPackages() throws OperationException, StoreException {
         // Given
         final Schema schema = new Schema.Builder()
                 .edge("EDGE", new SchemaEdgeDefinition.Builder()

@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -87,7 +87,7 @@ public class FederatedGraphStorageTest {
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
         accumuloProperties = new AccumuloProperties();
-        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        accumuloProperties.setStoreClass(MockAccumuloStore.class);
 
         e1 = new SchemaEntityDefinition.Builder()
                 .vertex("string")

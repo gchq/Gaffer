@@ -17,9 +17,11 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -55,15 +58,75 @@ public class AccumuloAggregationIT {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(AccumuloStoreITs.class));
     private static final String VERTEX = "vertex";
-    private static final String PUBLIC_VISIBILITY = "publicVisibility";
-    private static final String PRIVATE_VISIBILITY = "privateVisibility";
+    private static final String PUBLIC_VISIBILITY = "public";
+    private static final String PRIVATE_VISIBILITY = "private";
     private static final User USER = new User.Builder()
             .dataAuth(PUBLIC_VISIBILITY)
             .dataAuth(PRIVATE_VISIBILITY)
             .build();
+    private static final Schema SCHEMANOVISIBILITY = new Schema.Builder()
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type("colQual", new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .aggregateFunction(new StringConcat())
+                    .serialiser(new StringSerialiser())
+                    .build())
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
+                    .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                    .build())
+            .build();
+    private static final Schema SCHEMA = new Schema.Builder()
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type("colQual", new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .aggregateFunction(new StringConcat())
+                    .serialiser(new StringSerialiser())
+            .build())
+            .type("visibility", new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .aggregateFunction(new StringConcat())
+                    .serialiser(new StringSerialiser())
+                    .build())
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
+                    .property(AccumuloPropertyNames.VISIBILITY, "visibility")
+                    .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                            AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                    .build())
+            .visibilityProperty(AccumuloPropertyNames.VISIBILITY)
+            .build();
+    private static Graph graph;
+    private static Graph graphNoVisibility;
+    private static final SingleUseMockAccumuloStore NOVISIBILITYSTORE = new SingleUseMockAccumuloStore();
+    private static final SingleUseMockAccumuloStore STORE = new SingleUseMockAccumuloStore();
+
+
+    @AfterClass
+    public static void tearDown() throws StoreException {
+        NOVISIBILITYSTORE.close();
+        STORE.close();
+    }
 
     @Test
-    public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws OperationException, UnsupportedEncodingException {
+    public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -133,7 +196,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldAggregateOverAllPropertiesExceptForGroupByProperties() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateOverAllPropertiesExceptForGroupByProperties() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -199,7 +262,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -247,7 +310,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -293,7 +356,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -339,7 +402,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException, StoreException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -468,7 +531,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregationWhenNoAggregatorsAreProvided() throws OperationException {
+    public void shouldHandleAggregationWhenNoAggregatorsAreProvided() throws OperationException, StoreException {
 
         final Graph graph = createGraphNoAggregators();
         final Entity entity1 = new Entity.Builder()
@@ -596,71 +659,24 @@ public class AccumuloAggregationIT {
 
     }
 
-    protected Graph createGraph() {
-        return new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .storeProperties(STORE_PROPERTIES)
-                .addSchema(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type("colQual", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .type("visibility", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
-                                .property(AccumuloPropertyNames.VISIBILITY, "visibility")
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
-                                .build())
-                        .visibilityProperty(AccumuloPropertyNames.VISIBILITY)
-                        .build())
-                .build();
+    protected Graph createGraph() throws StoreException {
+        STORE.initialise("graph", SCHEMA, STORE_PROPERTIES);
+        if (null == graph) {
+            graph = new Builder()
+                    .store(STORE)
+                    .build();
+        }
+        return graph;
     }
 
-    protected Graph createGraphNoVisibility() {
-        return new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphWithNoVisibility")
-                        .build())
-                .storeProperties(STORE_PROPERTIES)
-                .addSchema(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type("colQual", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
-                                .build())
-                        .build())
-                .build();
+    protected Graph createGraphNoVisibility() throws StoreException {
+        NOVISIBILITYSTORE.initialise("graphWithNoVisibility", SCHEMANOVISIBILITY, STORE_PROPERTIES);
+        if (null == graphNoVisibility) {
+            graphNoVisibility = new Builder()
+                    .store(NOVISIBILITYSTORE)
+                    .build();
+        }
+        return graphNoVisibility;
     }
 
     protected Graph createGraphNoAggregators() {

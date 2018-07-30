@@ -25,4 +25,5 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     public AccumuloStoreITs() {
         super(STORE_PROPERTIES);
     }
+
 }

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
+import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
@@ -149,8 +149,8 @@ public class BloomFilterIT {
         final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, property);
 
         // Create Accumulo configuration
-        final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration
-                .getDefaultConfiguration());
+        final ConfigurationCopy accumuloConf = new ConfigurationCopy(DefaultConfiguration
+                .getInstance());
         accumuloConf.set(Property.TABLE_BLOOM_ENABLED, "true");
         accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class
                 .getName());

@@ -341,7 +341,7 @@ public class AccumuloStore extends Store {
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
-                new ClientConfiguration()
+                ClientConfiguration.loadDefault()
                         .withInstance(getProperties().getInstance())
                         .withZkHosts(getProperties().getZookeepers()));
     }

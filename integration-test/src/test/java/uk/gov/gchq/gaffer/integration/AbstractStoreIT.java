@@ -180,11 +180,14 @@ public abstract class AbstractStoreIT {
         for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
+
+
     }
 
     protected void createGraph() {
-        graph = getGraphBuilder()
-                .build();
+        if(null == graph) {
+            graph = getGraphBuilder().build();
+        }
     }
 
     protected Graph.Builder getGraphBuilder() {
