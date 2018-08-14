@@ -631,6 +631,10 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
+    public OperationChainValidator getOperationChainValidator() {
+        return opChainValidator;
+    }
+
     public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
