@@ -37,7 +37,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class GraphUtilTest {
+public class SchemaOperationChainUtilTest {
     Graph graph;
     final StoreProperties storeProperties = new StoreProperties();
     final Schema schema = new Schema.Builder()
