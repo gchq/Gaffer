@@ -65,7 +65,7 @@ public class SchemaOperationChainUtil {
         }
     }
 
-    private static View createView(Schema schema) {
+    private static View createView(final Schema schema) {
         return new View.Builder()
                 .entities(schema.getEntityGroups())
                 .edges(schema.getEdgeGroups())
