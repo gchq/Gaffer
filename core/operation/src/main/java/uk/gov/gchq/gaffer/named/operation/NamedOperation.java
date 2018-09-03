@@ -79,10 +79,12 @@ public class NamedOperation<I_ITEM, O> implements
     }
 
     public void setParameters(final Map<String, Object> parameters) {
-        if(parameters instanceof LinkedHashMap) {
-            this.parameters = (LinkedHashMap) parameters;
-        } else {
-            this.parameters = new LinkedHashMap<>(parameters);
+        if (null != parameters) {
+            if (parameters instanceof LinkedHashMap) {
+                this.parameters = (LinkedHashMap) parameters;
+            } else {
+                this.parameters = new LinkedHashMap<>(parameters);
+            }
         }
     }
 
