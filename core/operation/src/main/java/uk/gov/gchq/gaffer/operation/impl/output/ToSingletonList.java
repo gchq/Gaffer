@@ -22,10 +22,21 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code ToSingletonList} operation takes an input of type T and converts a
+ * single input to a list.
+ *
+ * @param <T> input type
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList.Builder
+ */
+@Since("1.7.0")
+@Summary("Converts a single input of type T to a List")
 public class ToSingletonList<T> implements InputOutput<T, List<? extends T>> {
     private T input;
     private Map<String, String> options;
