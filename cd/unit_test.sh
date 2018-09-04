@@ -2,6 +2,7 @@ test.sh#!/usr/bin/env bash
 
 set -e
 
+MODULES=$1
 if [ "$MODULES" == '' ]; then
     echo "Running unit test script: mvn -q verify -P travis,unit-test -B"
     mvn -q verify -P travis,unit-test -B

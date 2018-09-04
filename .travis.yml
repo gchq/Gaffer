@@ -31,37 +31,8 @@ jobs:
 
     - stage: "Unit Test"
       if: type == pull_request
-
-      MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:accumulo-store,:spark-accumulo-library,:accumulo-rest
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:hbase-store,:hbase-rest
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:parquet-store,:parquet-rest
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:integration-test,:federated-store,:map-store,:map-rest
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:flink-library,:hdfs-library,:spark,:spark-library
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:library,:time-library
-      script: travis_wait 45 ./cd/unit_test.sh
-
-      MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
-      script: travis_wait 45 ./cd/unit_test.sh
-
+      script: travis_wait 45 ./cd/unit_test.sh :gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+      script: travis_wait 45 ./cd/unit_test.sh :accumulo-store,:spark-accumulo-library,:accumulo-rest
       after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
 
