@@ -56,10 +56,12 @@ jobs:
     - stage: test
       if: type == pull_request
       script: travis_wait 45 ./cd/test.sh
-      after_success: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
+      after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
     - stage: deploy
       if: branch == master && type == push
       env: MODULES=''
       script: ./cd/deploy.sh
       before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
+
+after_success: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
