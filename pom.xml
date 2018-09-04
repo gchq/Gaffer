@@ -41,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests />
+        <exclude.tests/>
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -63,6 +63,7 @@
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
         <jackson.compile.version>2.6.5</jackson.compile.version>
+        <jackson.max.version>2.9.6</jackson.max.version>
         <jackson.min.version>2.3.1</jackson.min.version>
         <jackson.version>${jackson.compile.version}</jackson.version>
 
@@ -160,6 +161,30 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>uk.gov.gchq.koryphe</groupId>
+                <artifactId>core</artifactId>
+                <version>${koryphe.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>uk.gov.gchq.koryphe</groupId>
+                <artifactId>core</artifactId>
+                <version>${koryphe.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
@@ -1309,6 +1334,18 @@
             <id>serialisation-compatibility</id>
             <properties>
                 <jackson.version>${jackson.min.version}</jackson.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>serialisation-compatibility-min-version</id>
+            <properties>
+                <jackson.version>${jackson.min.version}</jackson.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>serialisation-compatibility-max-version</id>
+            <properties>
+                <jackson.version>${jackson.max.version}</jackson.version>
             </properties>
         </profile>
     </profiles>

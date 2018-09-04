@@ -87,6 +87,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         return (TypeReference) new TypeReferenceImpl.CloseableIterableObj();
     }
 
+    @JsonIgnore
     public OperationChain getOperationChain() {
         return operationChain;
     }
