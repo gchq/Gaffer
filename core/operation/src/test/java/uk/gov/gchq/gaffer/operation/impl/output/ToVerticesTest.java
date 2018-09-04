@@ -49,6 +49,7 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
+        System.out.println(new String(json));
         final ToVertices deserialisedOp = JSONSerialiser.deserialise(json, ToVertices.class);
 
         // Then
