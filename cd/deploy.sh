@@ -6,6 +6,8 @@ repoName="Gaffer"
 repoId="Gaffer"
 artifactId="gaffer2"
 
+rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
+
 git checkout master
 mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version
 POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
