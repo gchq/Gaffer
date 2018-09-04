@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
@@ -35,6 +35,7 @@ import java.util.Map;
  * @param <T> input type
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList.Builder
  */
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.7.0")
 @Summary("Converts a single input of type T to a List")
 public class ToSingletonList<T> implements InputOutput<T, List<? extends T>> {
@@ -57,7 +58,7 @@ public class ToSingletonList<T> implements InputOutput<T, List<? extends T>> {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public ToSingletonList<T> shallowClone() throws CloneFailedException {
         return new ToSingletonList.Builder<T>()
                 .input(input)
                 .options(options)
