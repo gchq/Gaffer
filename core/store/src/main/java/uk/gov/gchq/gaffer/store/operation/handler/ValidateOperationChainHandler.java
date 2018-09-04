@@ -36,7 +36,7 @@ public class ValidateOperationChainHandler implements OutputOperationHandler<Val
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
      * @return the {@link ValidationResult}
-     * @throws OperationException
+     * @throws OperationException if an error occurs handling the operation.
      */
     @Override
     public ValidationResult doOperation(final ValidateOperationChain operation, final Context context, final Store store) throws OperationException {
