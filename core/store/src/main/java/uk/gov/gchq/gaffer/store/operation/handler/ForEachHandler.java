@@ -39,6 +39,13 @@ public class ForEachHandler<T, U> implements OutputOperationHandler<ForEach<T, U
         Operation operationInstance;
         List output = new ArrayList<>();
 
+        if (null == operation) {
+            throw new OperationException("Operation cannot be null");
+        }
+        if (null == input) {
+            throw new OperationException("Input cannot be null");
+        }
+
         try {
             operationInstance = operation.newInstance();
         } catch (final IllegalAccessException | InstantiationException e) {

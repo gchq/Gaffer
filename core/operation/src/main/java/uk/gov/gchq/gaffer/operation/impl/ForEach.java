@@ -71,7 +71,7 @@ public class ForEach<T, U> implements InputOutput<Iterable<? extends T>, Iterabl
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public ForEach<T,U> shallowClone() throws CloneFailedException {
         return new ForEach.Builder<T, U>()
                 .input(input)
                 .operation(operation)
