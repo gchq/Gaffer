@@ -38,6 +38,7 @@ stages:
 
 install: echo "Binaries have been fetched from the cache"
 script: travis_wait 45 ./cd/test.sh
+after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
 jobs:
   include:
@@ -59,5 +60,3 @@ jobs:
       env: MODULES=''
       install: "Binaries will be complied as part of the deployment script"
       script: ./cd/deploy.sh
-
-after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
