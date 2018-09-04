@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ForEachHandler<T, U> implements OutputOperationHandler<ForEach<T, U>, Iterable<? extends U>> {
 
@@ -36,7 +37,7 @@ public class ForEachHandler<T, U> implements OutputOperationHandler<ForEach<T, U
 
     private Iterable<U> runForEach(final Iterable<Object> input, final Class<? extends Operation> operation, final Store store, final Context context) throws OperationException {
         Operation operationInstance;
-        Iterable<U> output = new ArrayList<>();
+        List output = new ArrayList<>();
 
         try {
             operationInstance = operation.newInstance();
