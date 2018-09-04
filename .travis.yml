@@ -38,21 +38,24 @@ jobs:
   include:
     - stage: compile
       if: type == pull_request
+      env: MODULES=''
       before_install: ./cd/before_install.sh
       install: travis_wait 45 ./cd/install.sh
       after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
     - stage: analyze
       if: type == pull_request
+      env: MODULES=''
       script: ./cd/analyze.sh
       after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
     - stage: test
       if: type == pull_request
-    - script: travis_wait 45 ./cd/test.sh
-      after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
+      script: travis_wait 45 ./cd/test.sh
+      after_success: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
     - stage: deploy
       if: branch == master && type == push
+      env: MODULES=''
       script: ./cd/deploy.sh
       before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
