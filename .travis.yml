@@ -36,7 +36,8 @@ stages:
     - test
     - deploy
 
-script: echo "Skipping testing"
+install: echo "Install will be completed in the compile stage"
+script: echo "Testing will be completed in the analyze and test stages"
 
 jobs:
   include:
