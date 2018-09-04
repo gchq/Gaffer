@@ -36,8 +36,8 @@ stages:
     - test
     - deploy
 
-install: echo "Install will be completed in the compile stage"
-script: echo "Testing will be completed in the analyze and test stages"
+install: echo "Binaries have been fetched from the cache"
+script: travis_wait 45 ./cd/test.sh
 
 jobs:
   include:
@@ -53,11 +53,6 @@ jobs:
       env: MODULES=''
       install: echo "Binaries have been fetched from the cache"
       script: ./cd/analyze.sh
-
-    - stage: test
-      if: type == pull_request
-      install: echo "Binaries have been fetched from the cache"
-      script: travis_wait 45 ./cd/test.sh
 
     - stage: deploy
       if: branch == master && type == push
