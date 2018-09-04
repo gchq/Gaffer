@@ -21,7 +21,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -48,6 +54,33 @@ public class NamedOperationScoreResolverTest {
 
         final Integer result = resolver.getScore(namedOp);
 
+        assertEquals(expectedScore, result);
+    }
+
+    @Test
+    public void shouldDefaultScoreFromOpChainIfNamedOpScoreEmpty() throws CacheOperationFailedException {
+        // Given
+        final String namedOpName = "namedOp";
+        final Map parametersMap = new HashMap<>();
+        final Integer expectedScore = 7;
+        final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+        final NamedOperationCache cache = mock(NamedOperationCache.class);
+        final ScoreResolver defaultScoreResolver = mock(DefaultScoreResolver.class);
+        final NamedOperationDetail namedOpDetail = mock(NamedOperationDetail.class);
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(cache);
+        final OperationChain opChain = new OperationChain();
+        namedOp.setOperationName(namedOpName);
+        namedOp.setParameters(parametersMap);
+
+        given(namedOpDetail.getOperationChain(parametersMap)).willReturn(opChain);
+        given(namedOpDetail.getScore()).willReturn(null);
+        given(cache.getFromCache(namedOpDetail.getOperationName())).willReturn(namedOpDetail);
+        given(defaultScoreResolver.getScore(opChain)).willReturn(7);
+
+        // When
+        final Integer result = resolver.getScore(namedOp, defaultScoreResolver);
+
+        // Then
         assertEquals(expectedScore, result);
     }
 
