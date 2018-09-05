@@ -18,28 +18,14 @@ global:
     - secure: dTfNDVvqeZSx+hlQahSc3Ft3H/48e4q8NsfNuHE4Vxal44N1XvdgUcc3TGJSMCNx7lyp2jIR8ezLRyVnh8heQ7iCTxP0eQgNW9fZJygbnqy9Ar7j9nYUkaSSzAxTSFGR+sFVlRHM98vKoeYGMxp6+h4F7Krzfu7vDeJYXTixwh887Yb/hil9yOvRKqQ2zZ2wKxd8Z4QKbcf1pjRbgNsiK6FVHFZziouBWjJI36Eu/vr2NT0gSHA1Zio9LvV935bImrxf3hAronfPIz+K8q8CEfbcEaeLcfOFkzh0apRhPXWrwqpC6+eApB6S7gcIgvmZhjAQczME6bpOWdLxdGSFaw2c0FJCaDHVRtlPRgt8EuHnrVslxkqQqGR5gIRPBA2zI/cHP6upQGYsPRXpG0zmDnx1S2mS/1w6qHQnF/Ww1c7vbR2hBg8RO4jwl/jeuYe6Yr9CvjsCj7OoAk2CoFLByhl55gN5I28KNsCvA+jecS5hwxcHp/IAFsdj6mWlN+H94NOv6F2Ncod84a6DlbxpaV9rumCM0D6/GWe/XnGy8rKV4fKyUOb+YqlKKO3T+RzuYoeXpHes/GPj3vRsrtIJImov6aJ+zmz1/fMjAkUAzhDjoSRFAgo1Czu/YunlSP0UDQTAA6/uw0w+8slJIW9bPl5hVVFidYDgTBssbKD/rQg=
     - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
-env:
-  matrix:
-  - MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-  - MODULES=:accumulo-store,:spark-accumulo-library,:accumulo-rest
-  - MODULES=:hbase-store,:hbase-rest
-  - MODULES=:parquet-store,:parquet-rest
-  - MODULES=:integration-test,:federated-store,:map-store,:map-rest
-  - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-  - MODULES=:flink-library,:hdfs-library,:spark,:spark-library
-  - MODULES=:library,:time-library
-  - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
-
 stages:
     - prepare cache
     - analyze
     - test
     - deploy
 
-install:
-    - echo "Binaries have been fetched from the cache"
-    - ls $HOME/.m2/repository/uk/gov/gchq/gaffer/*/*/*.jar
-script: travis_wait 45 ./cd/test.sh
+install: skip
+script: skip
 
 jobs:
   include:
@@ -53,10 +39,62 @@ jobs:
     - stage: analyze
       if: type == pull_request
       env: MODULES=''
-      install:
-        - echo "Binaries have been fetched from the cache"
-        - ls $HOME/.m2/repository/uk/gov/gchq/gaffer/*/*/*.jar
+      install: skip
       script: ./cd/analyze.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':accumulo-store,:spark-accumulo-library,:accumulo-rest'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':hbase-store,:hbase-rest'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':parquet-store,:parquet-rest'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':integration-test,:federated-store,:map-store,:map-rest'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':flink-library,:hdfs-library,:spark,:spark-library'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':library,:time-library'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
+
+    - stage: test
+      if: branch != master && type == pull_request
+      env: MODULES=':cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh
 
     - stage: deploy
       if: branch == master && type == push
