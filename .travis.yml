@@ -31,7 +31,7 @@ env:
   - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
 stages:
-    - compile
+    - prepare cache
     - analyze
     - test
     - deploy
@@ -42,7 +42,7 @@ after_failure: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
 
 jobs:
   include:
-    - stage: compile
+    - stage: prepare cache
       if: type == pull_request OR branch == develop
       env: MODULES=''
       before_install: ./cd/before_install.sh
