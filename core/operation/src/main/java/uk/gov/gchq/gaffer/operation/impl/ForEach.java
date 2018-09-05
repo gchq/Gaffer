@@ -31,24 +31,24 @@ import java.util.Map;
 /**
  * A {@code ForEach} operation runs the supplied operation on an Iterable of inputs.
  *
- * @param <T> input type in iterable
- * @param <U> output type in iterable
+ * @param <I> input type in iterable
+ * @param <O> output type in iterable
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.7.0")
 @Summary("Runs supplied operation on Iterable of inputs")
-public class ForEach<T, U> implements InputOutput<Iterable<? extends T>, Iterable<? extends U>> {
-    private Iterable<? extends T> input;
+public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>> {
+    private Iterable<? extends I> input;
     private Class<? extends Operation> operation;
     private Map<String, String> options;
 
     @Override
-    public Iterable<? extends T> getInput() {
+    public Iterable<? extends I> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends T> input) {
+    public void setInput(final Iterable<? extends I> input) {
         this.input = input;
     }
 
@@ -71,8 +71,8 @@ public class ForEach<T, U> implements InputOutput<Iterable<? extends T>, Iterabl
     }
 
     @Override
-    public ForEach<T,U> shallowClone() throws CloneFailedException {
-        return new ForEach.Builder<T, U>()
+    public ForEach<I, O> shallowClone() throws CloneFailedException {
+        return new ForEach.Builder<I, O>()
                 .input(input)
                 .operation(operation)
                 .options(options)
@@ -80,19 +80,18 @@ public class ForEach<T, U> implements InputOutput<Iterable<? extends T>, Iterabl
     }
 
     @Override
-    public TypeReference<Iterable<? extends U>> getOutputTypeReference() {
+    public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
     }
 
-    public static final class Builder<T, U>
-            extends BaseBuilder<ForEach<T, U>, Builder<T, U>>
-            implements InputOutput.Builder<ForEach<T, U>, Iterable<? extends T>, Iterable<? extends U>, Builder<T, U>> {
-
+    public static final class Builder<I, O>
+            extends BaseBuilder<ForEach<I, O>, Builder<I, O>>
+            implements InputOutput.Builder<ForEach<I, O>, Iterable<? extends I>, Iterable<? extends O>, Builder<I, O>> {
         public Builder() {
             super(new ForEach<>());
         }
 
-        public Builder<T, U> operation(final Class<? extends Operation> operation) {
+        public Builder<I, O> operation(final Class<? extends Operation> operation) {
             _getOp().setOperation(operation);
             return _self();
         }

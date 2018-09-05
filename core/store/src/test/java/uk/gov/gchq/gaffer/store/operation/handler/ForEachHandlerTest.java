@@ -20,9 +20,12 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -48,6 +51,7 @@ public class ForEachHandlerTest {
         // Given
         final ForEach op = new ForEach.Builder<>()
                 .operation(null)
+                .input(Arrays.asList("1", "2"))
                 .build();
         final ForEachHandler handler = new ForEachHandler();
 
@@ -65,6 +69,7 @@ public class ForEachHandlerTest {
         // Given
         final ForEach op = new ForEach.Builder<>()
                 .input(null)
+                .operation(GetElements.class)
                 .build();
         final ForEachHandler handler = new ForEachHandler();
 

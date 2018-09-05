@@ -12,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -30,40 +31,40 @@ import static org.junit.Assert.assertThat;
 
 public class ForEachTest extends OperationTest<ForEach> {
 
+    final Iterable inputIterable = Arrays.asList("1", "2");
+    final Class<? extends Operation> opClass = GetElements.class;
+
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        List inputIterable = Arrays.asList("one", "two");
-
-        final ForEach operation = new ForEach.Builder<>()
-                .input(inputIterable)
-                .operation(GetElements.class)
-                .build();
+        final ForEach<Object, Object> forEachOp = getTestObject();
 
         // Then
-        assertThat(operation.getInput(), is(notNullValue()));
-        assertEquals(inputIterable, operation.getInput());
-        assertEquals(operation.getOperation(), GetElements.class);
+        assertThat(forEachOp.getInput(), is(notNullValue()));
+        assertEquals(inputIterable, forEachOp.getInput());
+        assertEquals(opClass, forEachOp.getOperation());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        List inputIterable = Arrays.asList("one", "two");
-        final ForEach operation = new ForEach.Builder<>()
-                .input(inputIterable)
-                .build();
+        final ForEach forEachOp = getTestObject();
 
         // When
-        final ForEach clone = operation.shallowClone();
+        final ForEach clone = forEachOp.shallowClone();
 
         // Then
-        assertNotSame(operation, clone);
-        assertEquals(inputIterable, clone.getInput().iterator().next());
+        assertNotSame(forEachOp, clone);
+        assertEquals(forEachOp.getInput(), clone.getInput());
+        assertEquals(forEachOp.getOperation(), clone.getOperation());
     }
 
     @Override
-    protected ForEach getTestObject() {
-        return new ForEach();
+    protected ForEach<Object, Object> getTestObject() {
+        return new ForEach.Builder<>()
+                .input(inputIterable)
+                .operation(opClass)
+                .build();
     }
 }
+*/
