@@ -31,73 +31,61 @@ jobs:
   include:
     - stage: prepare cache
       if: type == pull_request OR branch == develop
-      env: MODULES=''
       before_install: ./cd/before_install.sh
       install: travis_wait 45 ./cd/install.sh
       script: echo "Install completed"
 
     - stage: analyze
       if: type == pull_request
-      env: MODULES=''
       install: skip
       script: ./cd/analyze.sh
 
     - stage: test
       if: branch != master && type == pull_request
-      env: MODULES=':gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type'
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':accumulo-store,:spark-accumulo-library,:accumulo-rest'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':hbase-store,:hbase-rest'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':parquet-store,:parquet-rest'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':integration-test,:federated-store,:map-store,:map-rest'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo'
+
+    - stage: test
+      if: branch != master && type == pull_request
+      install: skip
+      script: travis_wait 45 ./cd/test.sh ':flink-library,:hdfs-library,:spark,:spark-library'
+
+    - stage: test
+      if: branch != master && type == pull_request
       install: skip
       script: travis_wait 45 ./cd/test.sh
 
     - stage: test
       if: branch != master && type == pull_request
-      env: MODULES=':accumulo-store,:spark-accumulo-library,:accumulo-rest'
       install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':hbase-store,:hbase-rest'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':parquet-store,:parquet-rest'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':integration-test,:federated-store,:map-store,:map-rest'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':flink-library,:hdfs-library,:spark,:spark-library'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':library,:time-library'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
-
-    - stage: test
-      if: branch != master && type == pull_request
-      env: MODULES=':cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service'
-      install: skip
-      script: travis_wait 45 ./cd/test.sh
+      script: travis_wait 45 ./cd/test.sh ':cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service'
 
     - stage: deploy
       if: branch == master && type == push
-      env: MODULES=''
       install: "Binaries will be complied as part of the deployment script"
       script: ./cd/deploy.sh
