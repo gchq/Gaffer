@@ -49,6 +49,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -105,6 +106,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
@@ -631,6 +633,10 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
+    public OperationChainValidator getOperationChainValidator() {
+        return opChainValidator;
+    }
+
     public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
@@ -846,6 +852,9 @@ public abstract class Store {
         // OperationChain
         addOperationHandler(OperationChain.class, getOperationChainHandler());
         addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
+
+        // OperationChain validation
+        addOperationHandler(ValidateOperationChain.class, new ValidateOperationChainHandler());
 
         // Walk tracking
         addOperationHandler(GetWalks.class, new GetWalksHandler());
