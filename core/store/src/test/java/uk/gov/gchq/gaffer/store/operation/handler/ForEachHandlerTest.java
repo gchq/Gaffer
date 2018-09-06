@@ -37,16 +37,6 @@ public class ForEachHandlerTest {
     private final Context context = new Context(new User());
 
     @Test
-    public void shouldExecuteForEachOperationOnInputWithValidResults() {
-
-    }
-
-    @Test
-    public void shouldExecuteForEachOperationOnInputWithEmptyIterable() {
-
-    }
-
-    @Test
     public void shouldThrowExceptionWithNullOperation() {
         // Given
         final ForEach op = new ForEach.Builder<>()
@@ -80,15 +70,5 @@ public class ForEachHandlerTest {
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("Input cannot be null"));
         }
-    }
-
-    @Test
-    public void shouldReturnEmptyIterableWithOperationThatDoesntImplementOutput() {
-
-    }
-
-    @Test
-    public void shouldReturnEmptyIterableWithOperationThatDoesntImplementInput() {
-
     }
 }
