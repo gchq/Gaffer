@@ -78,7 +78,7 @@ jobs:
     - stage: test
       if: branch != master && type == pull_request
       install: skip
-      script: travis_wait 45 ./cd/test.sh
+      script: travis_wait 45 ./cd/test.sh ':library,:time-library'
 
     - stage: test
       if: branch != master && type == pull_request
