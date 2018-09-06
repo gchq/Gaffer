@@ -27,7 +27,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-public class SchemaOperationChainUtil {
+public final class SchemaOperationChainUtil {
+
+    private SchemaOperationChainUtil() {
+        // Private constructor to prevent instantiation.
+    }
+
     public static ValidationResult validate(final Schema schema, final OperationChain operationChain) {
         updateOperationChainViews(operationChain, schema);
         SchemaOperationChainValidator validator = new SchemaOperationChainValidator(new ViewValidator(), schema);
