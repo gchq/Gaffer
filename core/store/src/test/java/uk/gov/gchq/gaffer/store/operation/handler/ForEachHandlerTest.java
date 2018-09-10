@@ -58,8 +58,7 @@ public class ForEachHandlerTest {
     public void shouldThrowExceptionWithNullInput() {
         // Given
         final ForEach op = new ForEach.Builder<>()
-                .input(null)
-                .operation(GetElements.class)
+                .operation(new GetElements())
                 .build();
         final ForEachHandler handler = new ForEachHandler();
 

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
@@ -35,8 +34,7 @@ public class ForEachHandler<T, U> implements OutputOperationHandler<ForEach<T, U
         return runForEach(operation.getInput(), operation.getOperation(), store, context);
     }
 
-    private Iterable<U> runForEach(final Iterable<Object> input, final Class<? extends Operation> operation, final Store store, final Context context) throws OperationException {
-        Operation operationInstance;
+    private Iterable<U> runForEach(final Iterable<Object> input, Operation operation, final Store store, final Context context) throws OperationException {
         List output = new ArrayList<>();
 
         if (null == operation) {
@@ -46,20 +44,12 @@ public class ForEachHandler<T, U> implements OutputOperationHandler<ForEach<T, U
             throw new OperationException("Input cannot be null");
         }
 
-        try {
-            operationInstance = operation.newInstance();
-        } catch (final IllegalAccessException | InstantiationException e) {
-            throw new OperationException(e);
+        if (operation instanceof Input) {
+            ((Input) operation).setInput(input);
         }
 
-        if (operationInstance instanceof Input) {
-            ((Input) operationInstance).setInput(input);
-        }
-
-        if (operationInstance instanceof Output) {
-            if (((Output) operationInstance).getOutputClass().getName().equals(CloseableIterable.class.getName())) {
-                output.add(store.execute((Output) operationInstance, context));
-            }
+        if (operation instanceof Output) {
+            output.add(store.execute((Output) operation, context));
         }
         return output;
     }

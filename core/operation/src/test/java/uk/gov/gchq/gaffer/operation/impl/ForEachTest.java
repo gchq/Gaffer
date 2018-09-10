@@ -30,8 +30,8 @@ import static org.junit.Assert.assertThat;
 
 public class ForEachTest extends OperationTest<ForEach> {
 
-    final Iterable inputIterable = Arrays.asList("1", "2");
-    final Class<? extends Operation> opClass = GetElements.class;
+    final Iterable<String> inputIterable = Arrays.asList("1", "2");
+    final Operation op = new GetElements();
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
@@ -41,7 +41,7 @@ public class ForEachTest extends OperationTest<ForEach> {
         // Then
         assertThat(forEachOp.getInput(), is(notNullValue()));
         assertEquals(inputIterable, forEachOp.getInput());
-        assertEquals(opClass, forEachOp.getOperation());
+        assertEquals(op, forEachOp.getOperation());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ForEachTest extends OperationTest<ForEach> {
     protected ForEach<Object, Object> getTestObject() {
         return new ForEach.Builder<>()
                 .input(inputIterable)
-                .operation(opClass)
+                .operation(op)
                 .build();
     }
 }

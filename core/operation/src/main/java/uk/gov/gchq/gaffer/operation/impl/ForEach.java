@@ -22,6 +22,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -37,9 +38,10 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.7.0")
 @Summary("Runs supplied operation on Iterable of inputs")
-public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>> {
+public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>,
+        MultiInput<I> {
     private Iterable<? extends I> input;
-    private Class<? extends Operation> operation;
+    private Operation operation;
     private Map<String, String> options;
 
     @Override
@@ -52,11 +54,11 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
         this.input = input;
     }
 
-    public Class<? extends Operation> getOperation() {
+    public Operation getOperation() {
         return operation;
     }
 
-    public void setOperation(final Class<? extends Operation> operation) {
+    public void setOperation(final Operation operation) {
         this.operation = operation;
     }
 
@@ -86,14 +88,18 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
 
     public static final class Builder<I, O>
             extends BaseBuilder<ForEach<I, O>, Builder<I, O>>
-            implements InputOutput.Builder<ForEach<I, O>, Iterable<? extends I>, Iterable<? extends O>, Builder<I, O>> {
+            implements InputOutput.Builder<ForEach<I, O>,
+            Iterable<? extends I>, Iterable<? extends O>,
+            Builder<I, O>>,
+            MultiInput.Builder<ForEach<I, O>, I, Builder<I, O>> {
         public Builder() {
             super(new ForEach<>());
         }
 
-        public Builder<I, O> operation(final Class<? extends Operation> operation) {
+        public Builder<I, O> operation(Operation operation) {
             _getOp().setOperation(operation);
             return _self();
         }
     }
 }
+
