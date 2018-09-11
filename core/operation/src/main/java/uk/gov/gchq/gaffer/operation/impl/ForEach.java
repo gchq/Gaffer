@@ -18,15 +18,19 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -39,7 +43,8 @@ import java.util.Map;
 @Since("1.7.0")
 @Summary("Runs supplied operation on Iterable of inputs")
 public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>,
-        MultiInput<I> {
+        MultiInput<I>,
+        Operations<Operation> {
     private Iterable<? extends I> input;
     private Operation operation;
     private Map<String, String> options;
@@ -84,6 +89,16 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
     @Override
     public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
+    }
+
+    @Override
+    public void updateOperations(final Collection<Operation> operations) {
+        this.operation = new OperationChain<>(Lists.newArrayList(operations));
+    }
+
+    @Override
+    public Collection<Operation> getOperations() {
+        return OperationChain.wrap(operation).getOperations();
     }
 
     public static final class Builder<I, O>

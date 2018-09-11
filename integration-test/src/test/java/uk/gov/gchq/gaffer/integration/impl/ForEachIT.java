@@ -17,26 +17,38 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Count;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class ForEachIT extends AbstractStoreIT {
     final User user = new User();
@@ -50,50 +62,91 @@ public class ForEachIT extends AbstractStoreIT {
 
     @Test
     public void shouldReturnEmptyIterableWithOperationThatDoesntImplementOutput() throws OperationException {
-    }
-
-    @Test
-    public void shouldReturnEmptyIterableWithOperationThatDoesntImplementInput() {
-
-    }
-
-    @Test
-    public void shouldExecuteForEachOperationOnGetElementsWithValidResults() throws OperationException {
-        final ForEach<List<ElementSeed>, Iterable<Element>> op = new ForEach.Builder<List<ElementSeed>, Iterable<Element>>()
-                .operation(new GetElements.Builder().view(new View()).build())
+        // Given
+        final ForEach<ElementSeed, Element> op = new ForEach.Builder<ElementSeed, Element>()
+                .operation(new DiscardOutput.Builder().build())
                 .input(Arrays.asList(new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true)))
                 .build();
 
-        Iterable<Element> results = graph.execute(op, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
-        ElementUtil.assertElementEquals(new HashSet<>(), results);
+        // Then
+        ElementUtil.assertElementEquals(Sets.newHashSet((ElementId) null), results);
+    }
+
+    @Test
+    public void shouldReturnEmptyIterableWithOperationThatDoesntImplementInput() throws OperationException {
+        // Given
+        final ForEach<ElementSeed, Schema> op = new ForEach.Builder<ElementSeed, Schema>()
+                .operation(new GetSchema.Builder().build())
+                .input(Arrays.asList(new EntitySeed(SOURCE_DIR_1)))
+                .build();
+
+        // When
+        final Iterable<? extends Schema> results = graph.execute(op, user);
+
+        // Then
+        for (Schema resultSchema : results) {
+            JsonAssert.assertEquals(graph.getSchema().toCompactJson(), resultSchema.toCompactJson());
+        }
     }
 
     @Test
     public void shouldExecuteForEachOperationOnCountWithValidResults() throws OperationException {
         // Given
-        final Iterable<List> inputIterable = Arrays.asList(Arrays.asList("1", "2", "3"));
-        final ForEach<List<List<String>>, Iterable<Long>> op = new ForEach.Builder<List<List<String>>, Iterable<Long>>()
+        final List<List<String>> inputIterable = Arrays.asList(Arrays.asList("1", "2", "3"), Arrays.asList("4", "5"), Arrays.asList());
+        final ForEach<List<String>, Long> op = new ForEach.Builder<List<String>, Long>()
                 .input(inputIterable)
                 .operation(new Count<>())
                 .build();
 
         // When
-        Iterable<Long> output = graph.execute(op, user);
+        final Iterable<? extends Long> output = graph.execute(op, user);
 
         // Then
-        assertTrue(output.iterator().next().equals(3L));
+        assertEquals(Arrays.asList(3L, 2L, 0L), Lists.newArrayList(output));
     }
 
     @Test
-    public void shouldExecuteForEachOperationOnInputWithEmptyIterable() throws OperationException {
-        final ForEach<List<ElementSeed>, Iterable<Element>> op = new ForEach.Builder<List<ElementSeed>, Iterable<Element>>()
-                .operation(new GetElements.Builder().view(new View()).build())
-                .input(Arrays.asList(new EdgeSeed("doesNotExist", "doesNotExist", true)))
+    public void shouldExecuteForEachOperationOnGetElementsWithValidResults() throws OperationException {
+        final ForEach<ElementSeed, Iterable<Element>> op = new ForEach.Builder<ElementSeed, Iterable<Element>>()
+                .input(Arrays.asList(new EntitySeed(SOURCE_DIR_1)))
+                .operation(
+                        new OperationChain.Builder()
+                                .first(new ToSingletonList<>())
+                                .thenTypeUnsafe(new GetElements.Builder().build())
+                                .build())
                 .build();
 
-        Iterable<Element> results = graph.execute(op, user);
+        final Iterable<? extends Iterable<Element>> results = graph.execute(op, user);
 
-        ElementUtil.assertElementEquals(new HashSet<>(), results);
+        Entity entity = getEntity(SOURCE_DIR_1);
+        Edge edge = getEdge(SOURCE_DIR_1, DEST_DIR_1, true);
+
+        for (final Iterable<Element> result : results) {
+            ElementUtil.assertElementEquals(Sets.newHashSet(entity, edge), result);
+        }
+    }
+
+    @Test
+    public void shouldExecuteForEachOperationOnGetElementsWithEmptyIterable() throws OperationException {
+        // Given
+        final ForEach<ElementSeed, Iterable<Element>> op = new ForEach.Builder<ElementSeed, Iterable<Element>>()
+                .input(Arrays.asList(new EdgeSeed("doesNotExist", "doesNotExist", true)))
+                .operation(
+                        new OperationChain.Builder()
+                                .first(new ToSingletonList<>())
+                                .thenTypeUnsafe(new GetElements.Builder().view(new View()).build())
+                                .build())
+                .build();
+
+        // When
+        final Iterable<? extends Iterable<Element>> results = graph.execute(op, user);
+
+        // Then
+        for (final Iterable<Element> result : results) {
+            ElementUtil.assertElementEquals(new HashSet<>(), result);
+        }
     }
 }
