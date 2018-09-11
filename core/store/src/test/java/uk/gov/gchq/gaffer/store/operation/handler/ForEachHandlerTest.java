@@ -67,7 +67,7 @@ public class ForEachHandlerTest {
             handler.doOperation(op, context, store);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Input cannot be null"));
+            assertTrue(e.getMessage().contains("Inputs cannot be null"));
         }
     }
 }

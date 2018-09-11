@@ -27,6 +27,15 @@ import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An {@code OperationHandler} for the {@link ForEach} Operation.
+ * <p>
+ * An {@code Iterable} of inputs of type {@code I} will be taken in and put in a {@link java.util.Collections.SingletonList} and supplied to the {@code Operation}.
+ * <p>
+ *
+ * @param <I> input type
+ * @param <O> output type
+ */
 public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O>, Iterable<? extends O>> {
 
     @Override
@@ -42,7 +51,7 @@ public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O
         }
 
         if (null == inputs) {
-            throw new OperationException("Input cannot be null");
+            throw new OperationException("Inputs cannot be null");
         }
 
         for (Object input : inputs) {
@@ -52,7 +61,6 @@ public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O
                 output.add(store.execute((Output) opInstance, context));
             }
         }
-
 
         return output;
     }
