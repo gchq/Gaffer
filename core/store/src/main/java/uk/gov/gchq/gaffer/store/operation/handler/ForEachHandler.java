@@ -57,11 +57,9 @@ public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O
         for (Object input : inputs) {
             Operation opInstance = operation.shallowClone();
             OperationHandlerUtil.updateOperationInput(opInstance, input);
-            if (opInstance instanceof Output) {
-                output.add(store.execute((Output) opInstance, context));
-            }
-        }
 
+            output.add(store.execute((Output) opInstance, context));
+        }
         return output;
     }
 }

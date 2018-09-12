@@ -35,11 +35,30 @@ import java.util.Map;
 
 /**
  * A {@code ForEach} operation runs the supplied operation on an Iterable of inputs.
- *
- * @param <I> input type in iterable
- * @param <O> output type in iterable
+ * <p>
+ * <I> the type of items in the input iterable. This is the same type as the input to the supplied Operation.
+ * <O> the type of items in the output iterable. This is the same type as the output from the supplied Operation.
+ * <p>
+ * For the given iterable of inputs, it will run the supplied operation for each input one at a time.
+ * <p>
+ * For example, a ForEach operation with:
+ * <p>
+ * input = [
+ * [1,2,3],
+ * [4,5],
+ * [6]
+ * ]
+ * operation = Count
+ * <p>
+ * The results would be:
+ * <p>
+ * [
+ * 3,
+ * 2,
+ * 1
+ * ]
  */
-@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "operation"}, alphabetic = true)
 @Since("1.7.0")
 @Summary("Runs supplied operation on Iterable of inputs")
 public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>,
