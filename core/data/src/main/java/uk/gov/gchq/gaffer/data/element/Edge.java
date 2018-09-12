@@ -167,6 +167,8 @@ public class Edge extends Element implements EdgeId {
     @Override
     public Object getIdentifier(final IdentifierType identifierType) {
         switch (identifierType) {
+            case GROUP:
+                return getGroup();
             case SOURCE:
                 return getSource();
             case DESTINATION:
@@ -192,6 +194,9 @@ public class Edge extends Element implements EdgeId {
     @Override
     void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
+            case GROUP:
+                setGroup((String) value);
+                break;
             case SOURCE:
             case MATCHED_VERTEX:
                 source = value;
@@ -353,6 +358,11 @@ public class Edge extends Element implements EdgeId {
                 getMatchedVertex(),
                 new Properties()
         );
+    }
+
+    @Override
+    public Edge shallowClone() {
+        return (Edge) super.shallowClone();
     }
 
     @Override

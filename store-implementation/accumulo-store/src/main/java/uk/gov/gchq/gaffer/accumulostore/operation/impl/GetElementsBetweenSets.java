@@ -63,7 +63,7 @@ public class GetElementsBetweenSets implements
     private SeedMatchingType seedMatching;
 
     private View view;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private DirectedType directedType;
     private Iterable<? extends EntityId> input;
     private Iterable<? extends EntityId> inputB;
@@ -86,12 +86,12 @@ public class GetElementsBetweenSets implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -166,7 +166,7 @@ public class GetElementsBetweenSets implements
         return new GetElementsBetweenSets.Builder()
                 .seedMatching(seedMatching)
                 .view(view)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
                 .input(input)
                 .inputB(inputB)

@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -288,7 +289,7 @@ public class AccumuloStoreTest {
         final AddElements add = new AddElements.Builder()
                 .input(e)
                 .build();
-        store.execute(add, store.createContext(user));
+        store.execute(add, new Context(user));
 
         final EntityId entityId1 = new EntitySeed("1");
         final GetElements getBySeed = new GetElements.Builder()
@@ -297,7 +298,7 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        final CloseableIterable<? extends Element> results = store.execute(getBySeed, store.createContext(user));
+        final CloseableIterable<? extends Element> results = store.execute(getBySeed, new Context(user));
 
         assertEquals(1, Iterables.size(results));
         assertTrue(Iterables.contains(results, e));

@@ -159,7 +159,6 @@ public class FederatedOperationHandlerTest {
         StoreProperties storeProperties = new StoreProperties();
 
         Store mockStoreInner = getMockStore(unusedSchema, storeProperties);
-        given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
 
         FederatedStore mockStore = mock(FederatedStore.class);
@@ -188,9 +187,7 @@ public class FederatedOperationHandlerTest {
 
         Store mockStore1 = getMockStore(unusedSchema, storeProperties);
         given(mockStore1.execute(any(OperationChain.class), eq(context))).willReturn(1);
-        given(mockStore1.createContext(any(User.class))).willReturn(context);
         Store mockStore2 = getMockStore(unusedSchema, storeProperties);
-        given(mockStore2.createContext(any(User.class))).willReturn(context);
         given(mockStore2.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
 
         FederatedStore mockStore = mock(FederatedStore.class);

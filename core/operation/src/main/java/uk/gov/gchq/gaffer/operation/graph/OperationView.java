@@ -152,6 +152,14 @@ public interface OperationView {
         }
     }
 
+    static boolean hasView(final Operation op) {
+        return op instanceof OperationView && hasView(((OperationView) op));
+    }
+
+    static boolean hasView(final OperationView op) {
+        return null != op && null != op.getView();
+    }
+
     interface Builder<OP extends OperationView, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
         default B view(final View view) {
             _getOp().setView(view);

@@ -22,6 +22,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * POJO representing the Gaffer system status.
  */
@@ -76,9 +78,9 @@ public class SystemStatus {
 
     /**
      * Enumerated type for the Gaffer system status.
-     *
      * This enum is compliant with the Spring Boot Actuator.
      */
+    @Summary("Status of the system")
     public enum Status {
 
         UP("UP", "The system is working normally."),

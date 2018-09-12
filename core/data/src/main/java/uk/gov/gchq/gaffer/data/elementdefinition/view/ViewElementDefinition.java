@@ -99,6 +99,19 @@ public class ViewElementDefinition implements ElementDefinition {
      */
     protected Map<String, Class<?>> transientProperties = new LinkedHashMap<>();
 
+    @JsonIgnore
+    public boolean isEmpty() {
+        return null == preAggregationFilter
+                && null == postAggregationFilter
+                && null == aggregator
+                && null == transformer
+                && null == postTransformFilter
+                && null == groupBy
+                && null == properties
+                && null == excludeProperties
+                && null == transientProperties;
+    }
+
     public Set<String> getGroupBy() {
         return groupBy;
     }
@@ -118,6 +131,10 @@ public class ViewElementDefinition implements ElementDefinition {
     @JsonIgnore
     public boolean isAllProperties() {
         return null == properties && (null == excludeProperties || excludeProperties.isEmpty());
+    }
+
+    public boolean hasProperty(final String property) {
+        return properties.contains(property);
     }
 
     public Class<?> getTransientPropertyClass(final String propertyName) {
@@ -177,6 +194,14 @@ public class ViewElementDefinition implements ElementDefinition {
         return aggregator;
     }
 
+    /**
+     * Sets the aggregator
+     *
+     * @param aggregator the aggregator to set.
+     * @deprecated a {@link ViewElementDefinition} should be constructed using the
+     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.Builder}.
+     */
+    @Deprecated
     public void setAggregator(final ElementAggregator aggregator) {
         this.aggregator = aggregator;
     }
@@ -379,6 +404,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearPreAggregationFilter() {
+            getElementDef().preAggregationFilter = null;
+            return self();
+        }
+
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
             if (null != filterFunctions) {
@@ -392,6 +422,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearAggregator() {
+            getElementDef().aggregator = null;
+            return self();
+        }
+
         public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
             if (null != getElementDef().getPostAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
@@ -399,6 +434,11 @@ public class ViewElementDefinition implements ElementDefinition {
             }
 
             getElementDef().postAggregationFilter = postAggregationFilter;
+            return self();
+        }
+
+        public CHILD_CLASS clearPostAggregationFilter() {
+            getElementDef().postAggregationFilter = null;
             return self();
         }
 
@@ -420,6 +460,11 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS clearPostTransformFilter() {
+            getElementDef().postTransformFilter = null;
+            return self();
+        }
+
         public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postTransformFilter = new ElementFilter();
             if (null != filterFunctions) {
@@ -435,9 +480,30 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
+            return addTransformFunctions(transformFunctions);
+        }
+
+        public CHILD_CLASS addTransformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
+            if (null == getElementDef().transformer) {
+                getElementDef().transformer = new ElementTransformer();
+            }
             if (null != transformFunctions) {
                 getElementDef().transformer.getComponents().addAll(transformFunctions);
             }
+            return self();
+        }
+
+        public CHILD_CLASS clearTransform() {
+            getElementDef().transformer = null;
+            return self();
+        }
+
+        public CHILD_CLASS clearFunctions() {
+            clearPreAggregationFilter();
+            clearAggregator();
+            clearPostAggregationFilter();
+            clearTransform();
+            clearPostTransformFilter();
             return self();
         }
 
