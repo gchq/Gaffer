@@ -59,6 +59,7 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
 @Since("1.5.0")
 @Summary("Repeatedly executes an operation while a condition is met")
 @JsonPropertyOrder(value = {"class", "input", "conditional", "operation", "maxRepeats", "options"}, alphabetic = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         Operations<Operation> {
 
@@ -179,7 +180,6 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         return conditional;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public int getMaxRepeats() {
         return maxRepeats;
     }

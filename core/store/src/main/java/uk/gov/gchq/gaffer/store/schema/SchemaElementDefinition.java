@@ -60,6 +60,7 @@ import java.util.function.Predicate;
  * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
  */
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
@@ -122,6 +123,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return elementDefValidator.validate(this);
     }
 
+    @JsonIgnore
     public Set<String> getProperties() {
         return properties.keySet();
     }
@@ -129,7 +131,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     public boolean containsProperty(final String propertyName) {
         return properties.containsKey(propertyName);
     }
-
 
     @JsonGetter("properties")
     public Map<String, String> getPropertyMap() {
@@ -417,6 +418,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return groupBy;
     }
 
+    @JsonIgnore
     protected Set<String> getParents() {
         return parents;
     }
@@ -534,7 +536,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
     }
 
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     public boolean isAggregate() {
         return aggregate;
     }
