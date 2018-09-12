@@ -29,9 +29,6 @@ import java.util.List;
 
 /**
  * An {@code OperationHandler} for the {@link ForEach} Operation.
- * <p>
- * An {@code Iterable} of inputs of type {@code I} will be taken in and put in a {@link java.util.Collections.SingletonList} and supplied to the {@code Operation}.
- * <p>
  *
  * @param <I> input type
  * @param <O> output type
@@ -39,27 +36,31 @@ import java.util.List;
 public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O>, Iterable<? extends O>> {
 
     @Override
-    public Iterable<? extends O> doOperation(final ForEach operation, final Context context, final Store store) throws OperationException {
-        return runForEach(operation.getInput(), operation.getOperation(), store, context);
-    }
-
-    private Iterable<O> runForEach(final Iterable<Object> inputs, Operation operation, final Store store, final Context context) throws OperationException {
-        List output = new ArrayList<>();
-
-        if (null == operation) {
+    public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final Store store) throws OperationException {
+        if (null == forEach.getOperation()) {
             throw new OperationException("Operation cannot be null");
         }
-
-        if (null == inputs) {
+        if (null == forEach.getInput()) {
             throw new OperationException("Inputs cannot be null");
         }
 
-        for (Object input : inputs) {
-            Operation opInstance = operation.shallowClone();
-            OperationHandlerUtil.updateOperationInput(opInstance, input);
-
-            output.add(store.execute((Output) opInstance, context));
+        final List<O> results = new ArrayList<>();
+        for (final I input : forEach.getInput()) {
+            final Operation clonedOperation = forEach.getOperation().shallowClone();
+            OperationHandlerUtil.updateOperationInput(clonedOperation, input);
+            results.add(executeOperation(clonedOperation, context, store));
         }
-        return output;
+        return results;
+    }
+
+    private O executeOperation(final Operation operation, final Context context, final Store store) throws OperationException {
+        final O result;
+        if (operation instanceof Output) {
+            result = store.execute((Output<O>) operation, context);
+        } else {
+            store.execute(operation, context);
+            result = null;
+        }
+        return result;
     }
 }
