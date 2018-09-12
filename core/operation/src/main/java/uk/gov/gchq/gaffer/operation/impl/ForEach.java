@@ -130,7 +130,7 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
             super(new ForEach<>());
         }
 
-        public Builder<I, O> operation(Operation operation) {
+        public Builder<I, O> operation(final Operation operation) {
             _getOp().setOperation(operation);
             return _self();
         }
