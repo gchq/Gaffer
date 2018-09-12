@@ -636,6 +636,7 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+                ToSingletonList.class,
 
                 // Function
                 Filter.class,
