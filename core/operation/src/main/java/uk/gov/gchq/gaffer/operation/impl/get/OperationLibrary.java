@@ -32,7 +32,9 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.util.OperationUtil;
 
-public class Op {
+import static uk.gov.gchq.gaffer.data.elementdefinition.view.View.createView;
+
+public class OperationLibrary {
     public static OperationChain<Void> chain() {
         return new OperationChain<>();
     }
@@ -46,7 +48,7 @@ public class Op {
     }
 
     public static GetAdjacentIds getAdjacentIds(final String... edges) {
-        return new GetAdjacentIds().edges(edges);
+        return new GetAdjacentIds().view(createView().edges(edges));
     }
 
     public static GetWalks getWalks() {
@@ -62,11 +64,11 @@ public class Op {
     }
 
     public static GetElements getEntities(final String... entities) {
-        return get().entities(entities);
+        return get().view(createView().entities(entities));
     }
 
     public static GetElements getEdges(final String... edges) {
-        return get().edges(edges);
+        return get().view(createView().edges(edges));
     }
 
     public static GetElements getElements() {
@@ -138,7 +140,6 @@ public class Op {
     }
 
     public static class OpBuilder {
-        private OperationChain chain = new OperationChain();
         private Object tmpInput;
 
         private static OpBuilder input(Object... input) {
@@ -163,22 +164,6 @@ public class Op {
         public <T> OperationChain<T> then(final Output<T> op) {
             setInput(op);
             return new OperationChain<>(op);
-        }
-
-        public GetElements getEntities(final String... entities) {
-            return Op.getEntities(entities);
-        }
-
-        public GetElements getEdges(final String... edges) {
-            return Op.getEdges(edges);
-        }
-
-        public GetAdjacentIds hop(final String... edges) {
-            return Op.hop(edges);
-        }
-
-        public ToSet dedup() {
-            return Op.toSet();
         }
 
         private void setInput(final Operation op) {

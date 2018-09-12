@@ -35,20 +35,25 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * The {@code View} defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -79,8 +84,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean allEdges = false;
 
+    private ViewElementDefinition tmpDef;
+
     public View() {
         super();
+    }
+
+    public static View create() {
+        return createView();
+    }
+
+    public static View createView() {
+        return new View();
     }
 
     public static View fromJson(final InputStream inputStream) throws SchemaException {
@@ -97,6 +112,122 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     public byte[] toCompactJson() throws SchemaException {
         return toJson(false);
+    }
+
+    public View global() {
+        tmpDef = new GlobalViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        if (null == getGlobalElements()) {
+            globalElements = new ArrayList<>(1);
+        }
+        getGlobalElements().add((GlobalViewElementDefinition) tmpDef);
+        return this;
+    }
+
+    public View summarise() {
+        return groupBy();
+    }
+
+    public View groupBy(final String... groupBy) {
+        if (null == tmpDef) {
+            global();
+        }
+        tmpDef.setGroupBy(new LinkedHashSet<>(Arrays.asList(groupBy)));
+        return this;
+    }
+
+    public View entity(final String entity) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        getEntities().put(entity, tmpDef);
+        return this;
+    }
+
+    public View entities(final String... entities) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        for (final String entity : entities) {
+            getEntities().put(entity, tmpDef);
+        }
+        return this;
+    }
+
+    public View edge(final String edge) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        getEdges().put(edge, tmpDef);
+        return this;
+    }
+
+    public View edges(final String... edges) {
+        tmpDef = new ViewElementDefinition.Builder()
+                .preAggregationFilterFunctions(null)
+                .postAggregationFilterFunctions(null)
+                .transformFunctions(null)
+                .postTransformFilterFunctions(null)
+                .build();
+        for (final String edge : edges) {
+            getEdges().put(edge, tmpDef);
+        }
+        return this;
+    }
+
+    public static String[] select(final String... selection) {
+        return selection;
+    }
+
+    public static String[] project(final String... projection) {
+        return projection;
+    }
+
+    public View filter(final String selection, final Predicate<?> predicate) {
+        return filter(select(selection), predicate);
+    }
+
+    public View filter(final String[] selection, final Predicate<?> predicate) {
+        if (null == tmpDef) {
+            global();
+        }
+        if (null != tmpDef.getTransformFunctions() && !tmpDef.getTransformFunctions().isEmpty()) {
+            tmpDef.getPostTransformFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        } else if (null == tmpDef.getGroupBy()) {
+            tmpDef.getPreAggregationFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        } else {
+            tmpDef.getPostAggregationFilterFunctions().add(new TupleAdaptedPredicate<>(predicate, selection));
+        }
+        return this;
+    }
+
+    public View transform(final String selection, final Function<?, ?> function, final String projection) {
+        return transform(select(selection), function, project(projection));
+    }
+
+    public View transform(final String[] selection, final Function<?, ?> function, final String[] projection) {
+        if (null == tmpDef) {
+            global();
+        }
+        final TupleAdaptedFunction transformer = new TupleAdaptedFunction<>();
+        transformer.setSelection(selection);
+        transformer.setFunction(function);
+        transformer.setProjection(projection);
+        tmpDef.getTransformFunctions().add(transformer);
+        return this;
     }
 
     @Override
@@ -330,7 +461,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(view))
-                .append(globalElements, view.getGlobalElements())
+                .append(globalElements, getGlobalElements())
                 .append(globalEntities, view.getGlobalEntities())
                 .append(globalEdges, view.getGlobalEdges())
                 .isEquals();

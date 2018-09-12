@@ -28,7 +28,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.operation.impl.get.Op;
+import uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 @JsonPropertyOrder(value = {"class", "operations"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("A chain of operations where the results are passed between each operation")
-public class OperationChain<OUT> extends Op implements Output<OUT>,
+public class OperationChain<OUT> extends OperationLibrary implements Output<OUT>,
         Operations<Operation> {
     private List<Operation> operations;
     private Map<String, String> options;

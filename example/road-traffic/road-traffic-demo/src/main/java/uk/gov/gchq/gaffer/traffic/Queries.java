@@ -30,12 +30,13 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.deduplicate;
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.getEntities;
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.hop;
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.input;
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.sort;
-import static uk.gov.gchq.gaffer.operation.impl.get.Op.toCsv;
+import static uk.gov.gchq.gaffer.data.elementdefinition.view.View.createView;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.deduplicate;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.getEntities;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.hop;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.input;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.sort;
+import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.toCsv;
 import static uk.gov.gchq.gaffer.types.function.TypeFunctionLibrary.freqMapExtractor;
 import static uk.gov.gchq.koryphe.impl.predicate.PredicateLibrary.inDateRange;
 import static uk.gov.gchq.koryphe.impl.predicate.PredicateLibrary.isMoreThan;
@@ -61,16 +62,17 @@ public class Queries {
     }
 
     private void runFullExample(final Graph graph, final User user) throws OperationException {
-        final OperationChain<Iterable<? extends String>> opChain = input("South West")
+        final OperationChain<Iterable<String>> opChain = input("South West")
                 .then(hop("RegionContainsLocation"))
                 .then(hop("LocationContainsRoad"))
                 .then(deduplicate())
                 .then(hop("RoadHasJunction"))
                 .then(getEntities("JunctionUse")
-                        .filter("startDate", inDateRange().start("2000/01/01").end("2001/01/01"))
-                        .summarise()
-                        .filter("countByVehicleType", predicateMap().key("BUS").predicate(isMoreThan().value(1000L)))
-                        .transform("countByVehicleType", freqMapExtractor().key("BUS"), "busCount"))
+                        .view(createView()
+                                .filter("startDate", inDateRange().start("2000/01/01").end("2001/01/01"))
+                                .summarise()
+                                .filter("countByVehicleType", predicateMap().key("BUS").predicate(isMoreThan().value(1000L)))
+                                .transform("countByVehicleType", freqMapExtractor().key("BUS"), "busCount")))
                 .then(sort()
                         .groups("JunctionUse")
                         .property("busCount")
