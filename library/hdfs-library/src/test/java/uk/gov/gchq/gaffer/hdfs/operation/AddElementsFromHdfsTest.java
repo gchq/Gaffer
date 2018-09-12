@@ -39,7 +39,6 @@ import static org.junit.Assert.assertTrue;
 public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
-            "  \"validate\" : true,%n" +
             "  \"inputMapperPairs\" : {%n    \"TestInput\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n  } ,%n" +
             "  \"outputPath\" : \"TestOutput\"%n" +
             "}");
@@ -78,7 +77,6 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
-                "  \"validate\" : true,%n" +
                 "  \"inputMapperPairs\" : { \"inputPath\" :\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"},%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +

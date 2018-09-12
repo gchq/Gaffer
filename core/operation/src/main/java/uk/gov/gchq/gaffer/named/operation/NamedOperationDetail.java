@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -42,6 +41,7 @@ import java.util.Set;
 /**
  * Simple POJO containing the details associated with a {@link NamedOperation}.
  */
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NamedOperationDetail implements Serializable {
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -120,7 +120,6 @@ public class NamedOperationDetail implements Serializable {
         return creatorId;
     }
 
-    @JsonInclude(Include.NON_DEFAULT)
     public Map<String, ParameterDetail> getParameters() {
         return parameters;
     }
