@@ -21,24 +21,29 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ForEachHandlerTest {
-
-    private final Store store = mock(Store.class);
-    private final Context context = new Context(new User());
 
     @Test
     public void shouldThrowExceptionWithNullOperation() {
         // Given
+        final Store store = mock(Store.class);
+        final Context context = new Context(new User());
         final ForEach op = new ForEach.Builder<>()
                 .operation(null)
                 .input(Arrays.asList("1", "2"))
@@ -57,6 +62,8 @@ public class ForEachHandlerTest {
     @Test
     public void shouldThrowExceptionWithNullInput() {
         // Given
+        final Store store = mock(Store.class);
+        final Context context = new Context(new User());
         final ForEach op = new ForEach.Builder<>()
                 .operation(new GetElements())
                 .build();
@@ -69,5 +76,36 @@ public class ForEachHandlerTest {
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("Inputs cannot be null"));
         }
+    }
+
+    @Test
+    public void shouldExecuteAndReturnExpected() throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final Context context = new Context(new User());
+
+        final InputOutput op = mock(InputOutput.class);
+        final InputOutput opClone = mock(InputOutput.class);
+        given(op.shallowClone()).willReturn(opClone);
+
+        final Object input = mock(Object.class);
+        final Object output = mock(Object.class);
+
+        final ForEach forEach = new ForEach.Builder<>()
+                .input(input)
+                .operation(op)
+                .build();
+
+        final ForEachHandler handler = new ForEachHandler();
+
+        given(store.execute(opClone, context)).willReturn(output);
+
+        // When
+        final List<Object> result = (List<Object>) handler.doOperation(forEach, context, store);
+
+        // Then
+        verify(opClone).setInput(input);
+        assertEquals(1, result.size());
+        assertSame(output, result.get(0));
     }
 }
