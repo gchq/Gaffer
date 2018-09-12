@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -535,6 +536,7 @@ public class StoreTest {
                 If.class,
                 GetTraits.class,
                 While.class,
+                Join.class,
 
                 // Function
                 Filter.class,
@@ -634,6 +636,7 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+                Join.class,
 
                 // Function
                 Filter.class,

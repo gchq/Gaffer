@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
@@ -100,6 +101,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.JoinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
@@ -871,6 +873,7 @@ public abstract class Store {
         addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
         addOperationHandler(If.class, new IfHandler());
         addOperationHandler(While.class, new WhileHandler());
+        addOperationHandler(Join.class, new JoinHandler());
 
 
         // Function
