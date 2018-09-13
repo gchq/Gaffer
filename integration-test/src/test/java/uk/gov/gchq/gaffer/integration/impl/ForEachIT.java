@@ -164,6 +164,7 @@ public class ForEachIT extends AbstractStoreIT {
         final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, user));
 
         // Then
-        assertEquals(0, results.size());
+        assertEquals(1, results.size());
+        assertEquals(Collections.emptyList(), Lists.newArrayList(results.get(0)));
     }
 }
