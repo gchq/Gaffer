@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -115,6 +116,7 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
         this.operation = new OperationChain<>(Lists.newArrayList(operations));
     }
 
+    @JsonIgnore
     @Override
     public Collection<Operation> getOperations() {
         return OperationChain.wrap(operation).getOperations();

@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Arrays;
@@ -25,12 +27,13 @@ import java.util.Arrays;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class ForEachTest extends OperationTest<ForEach> {
 
-    final Iterable<String> inputIterable = Arrays.asList("1", "2");
+    final Iterable<EntitySeed> inputIterable = Arrays.asList(new EntitySeed("1"), new EntitySeed("2"));
     final Operation op = new GetElements();
 
     @Override
@@ -56,6 +59,32 @@ public class ForEachTest extends OperationTest<ForEach> {
         assertNotSame(forEachOp, clone);
         assertEquals(forEachOp.getInput(), clone.getInput());
         assertEquals(forEachOp.getOperation(), clone.getOperation());
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final ForEach obj = getTestObject();
+
+        // When
+        final byte[] json = toJson(obj);
+        final ForEach deserialisedObj = fromJson(json);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.ForEach\",%n" +
+                "  \"input\" : [ {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"vertex\" : \"1\"%n" +
+                "  }, {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
+                "    \"vertex\" : \"2\"%n" +
+                "  } ],%n" +
+                "  \"operation\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"%n" +
+                "  }%n" +
+                "}"), new String(json));
+        assertNotNull(deserialisedObj);
     }
 
     @Override

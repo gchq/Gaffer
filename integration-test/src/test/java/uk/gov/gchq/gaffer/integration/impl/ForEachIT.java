@@ -23,11 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -39,13 +37,16 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
+import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +66,7 @@ public class ForEachIT extends AbstractStoreIT {
         // Given
         final ForEach<ElementSeed, Element> op = new ForEach.Builder<ElementSeed, Element>()
                 .operation(new DiscardOutput.Builder().build())
-                .input(Arrays.asList(new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true)))
+                .input(Collections.singletonList(new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true)))
                 .build();
 
         // When
@@ -80,7 +81,7 @@ public class ForEachIT extends AbstractStoreIT {
         // Given
         final ForEach<ElementSeed, Schema> op = new ForEach.Builder<ElementSeed, Schema>()
                 .operation(new GetSchema.Builder().build())
-                .input(Arrays.asList(new EntitySeed(SOURCE_DIR_1)))
+                .input(Collections.singletonList(new EntitySeed(SOURCE_DIR_1)))
                 .build();
 
         // When
@@ -110,43 +111,59 @@ public class ForEachIT extends AbstractStoreIT {
 
     @Test
     public void shouldExecuteForEachOperationOnGetElementsWithValidResults() throws OperationException {
-        final ForEach<ElementSeed, Iterable<Element>> op = new ForEach.Builder<ElementSeed, Iterable<Element>>()
-                .input(Arrays.asList(new EntitySeed(SOURCE_DIR_1)))
+        // Given
+        final ForEach<String, Iterable<String>> op = new ForEach.Builder<String, Iterable<String>>()
+                .input(Collections.singletonList(SOURCE_DIR_1))
                 .operation(
                         new OperationChain.Builder()
                                 .first(new ToSingletonList<>())
-                                .thenTypeUnsafe(new GetElements.Builder().build())
+                                .then(new ToEntitySeeds())
+                                .then(new GetElements())
+                                .then(new ToList<Element>())
+                                .then(new ToCsv.Builder()
+                                        .includeHeader(false)
+                                        .generator(new CsvGenerator.Builder()
+                                                .vertex("vertex")
+                                                .destination("dest")
+                                                .build())
+                                        .build())
                                 .build())
                 .build();
 
-        final Iterable<? extends Iterable<Element>> results = graph.execute(op, user);
+        // When
+        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, user));
 
-        Entity entity = getEntity(SOURCE_DIR_1);
-        Edge edge = getEdge(SOURCE_DIR_1, DEST_DIR_1, true);
-
-        for (final Iterable<Element> result : results) {
-            ElementUtil.assertElementEquals(Sets.newHashSet(entity, edge), result);
-        }
+        // Then
+        assertEquals(1, results.size());
+        assertEquals(
+                Sets.newHashSet(SOURCE_DIR_1 + ",", "," + DEST_DIR_1),
+                Sets.newHashSet(results.get(0))
+        );
     }
 
     @Test
     public void shouldExecuteForEachOperationOnGetElementsWithEmptyIterable() throws OperationException {
         // Given
-        final ForEach<ElementSeed, Iterable<Element>> op = new ForEach.Builder<ElementSeed, Iterable<Element>>()
-                .input(Arrays.asList(new EdgeSeed("doesNotExist", "doesNotExist", true)))
+        final ForEach<ElementSeed, Iterable<String>> op = new ForEach.Builder<ElementSeed, Iterable<String>>()
+                .input(Collections.singletonList(new EdgeSeed("doesNotExist", "doesNotExist", true)))
                 .operation(
                         new OperationChain.Builder()
-                                .first(new ToSingletonList<>())
-                                .thenTypeUnsafe(new GetElements.Builder().view(new View()).build())
+                                .first(new ToSingletonList<EntitySeed>())
+                                .then(new GetElements())
+                                .then(new ToCsv.Builder()
+                                        .includeHeader(false)
+                                        .generator(new CsvGenerator.Builder()
+                                                .vertex("vertex")
+                                                .destination("dest")
+                                                .build())
+                                        .build())
                                 .build())
                 .build();
 
         // When
-        final Iterable<? extends Iterable<Element>> results = graph.execute(op, user);
+        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, user));
 
         // Then
-        for (final Iterable<Element> result : results) {
-            ElementUtil.assertElementEquals(new HashSet<>(), result);
-        }
+        assertEquals(0, results.size());
     }
 }
