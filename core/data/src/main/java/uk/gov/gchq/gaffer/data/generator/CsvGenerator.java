@@ -113,8 +113,8 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             final Object value = getFieldValue(element, field);
             if (null != value) {
                 strBuilder.append(quoteString(value));
-                strBuilder.append(COMMA);
             }
+            strBuilder.append(COMMA);
         }
 
         if (!constants.isEmpty()) {
