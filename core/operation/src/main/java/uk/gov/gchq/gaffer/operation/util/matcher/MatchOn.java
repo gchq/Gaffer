@@ -38,19 +38,22 @@ public class MatchOn implements Matcher {
     }
 
     @Override
-    public Map matching(final List list, final Object testObj) {
+    public Map matching(final Object testObject, final List listToTest) {
+        // Based on the matching field, iterate through the list to test, and
+        // if the test object matches the object within the list add it to the results.
+        // After this, add the test object and List of results to a Map that will be returned.
         List results = new ArrayList<>();
         Map resultsMap = new HashMap<>();
-        for (Object o : list) {
+        for (Object o : listToTest) {
             try {
-                if (matchingField.get(testObj).equals(matchingField.get(o))) {
+                if (matchingField.get(testObject).equals(matchingField.get(o))) {
                     results.add(o);
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        resultsMap.put(testObj, results);
+        resultsMap.put(testObject, results);
         return resultsMap;
     }
 }

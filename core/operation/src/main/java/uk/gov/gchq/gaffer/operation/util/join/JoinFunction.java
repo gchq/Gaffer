@@ -17,7 +17,8 @@
 package uk.gov.gchq.gaffer.operation.util.join;
 
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
 public interface JoinFunction {
-    Iterable join(Iterable left, Iterable right, Matcher matcher);
+    Iterable join(Iterable left, Iterable right, Matcher matcher, MatchingOnIterable matchOn);
 }

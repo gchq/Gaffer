@@ -22,8 +22,7 @@ public enum JoinType {
     LEFT_OUTER(LeftOuterJoin.class),
     LEFT_INNER(LeftInnerJoin.class),
     RIGHT_INNER(RightInnerJoin.class),
-    FULL_OUTER(FullOuterJoin.class),
-    FULL(FullJoin.class);
+    FULL_OUTER(FullOuterJoin.class);
 
     private final Class<? extends JoinFunction> className;
 

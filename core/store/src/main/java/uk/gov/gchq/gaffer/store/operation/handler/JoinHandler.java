@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.util.join.JoinFunction;
+import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -34,12 +35,20 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             operation.setInput(new ArrayList<>());
         }
 
+        if (null != operation.getMatchingOnIterable() && !operation.getJoinType().equals(JoinType.INNER)) {
+            throw new OperationException("It is only possible to specify an Iterable to match on when using Inner join type");
+        }
+
+        if (null == operation.getMatchingOnIterable() && operation.getJoinType().equals(JoinType.INNER)) {
+            throw new OperationException("You must specify an Iterable to match on when using Inner join type");
+        }
+
         Iterable<I> rightIterable = new ArrayList<>();
         if (operation.getOperation() instanceof Output) {
             rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
         }
 
-        Iterable joinResults = joinFunction.join(operation.getInput(), rightIterable, operation.getMatcher());
+        Iterable joinResults = joinFunction.join(operation.getInput(), rightIterable, operation.getMatcher(), operation.getMatchingOnIterable());
 
         return operation.getReducer().reduce(joinResults);
     }

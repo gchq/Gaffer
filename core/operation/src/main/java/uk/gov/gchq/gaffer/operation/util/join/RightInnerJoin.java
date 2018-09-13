@@ -16,19 +16,31 @@
 
 package uk.gov.gchq.gaffer.operation.util.join;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RightInnerJoin implements JoinFunction {
     @Override
-    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher) {
-        // If found in the right then return it
-        Set rightSet = Sets.newLinkedHashSet(new LimitedCloseableIterable(right, 0, 100000, false));
+    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
+        List leftList = Lists.newArrayList(new LimitedCloseableIterable(left, 0, 100000, false));
+        List rightList = Lists.newArrayList(new LimitedCloseableIterable(right, 0, 100000, false));
 
-        return rightSet;
+        Set resultSet = new HashSet<>();
+
+        for (Object listObj : rightList) {
+            Map matchingMap = !matcher.matching(listObj, leftList).isEmpty() ? matcher.matching(listObj, leftList) : ImmutableMap.of(listObj, new ArrayList<>());
+            resultSet.add(matchingMap);
+        }
+        return resultSet;
     }
 }

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +28,30 @@ import java.util.Map;
 
 public class InnerJoin implements JoinFunction {
     @Override
-    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher) {
-
+    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
         List results = new ArrayList<>();
-        List leftList = Lists.newArrayList(new LimitedCloseableIterable(left, 0, 100000, false));
-        List rightList = Lists.newArrayList(new LimitedCloseableIterable(right, 0, 100000, false));
+        List leftList = Lists.newArrayList(new LimitedCloseableIterable(left, 0, 10000, false));
+        List rightList = Lists.newArrayList(new LimitedCloseableIterable(right, 0, 10000, false));
 
-        // If right list contains the object from the left list, add it to a results list
-        for (Object listObj : leftList) {
-            Map<Object, List> matchingObjs = matcher.matching(rightList, listObj);
-            for (List o : matchingObjs.values()) {
-                if (!o.isEmpty()) {
-                    results.add(matchingObjs);
+        switch (matchingOnIterable){
+            case LEFT: {
+                for (Object leftListObject : leftList) {
+                    Map<Object, List> matchingObjects = matcher.matching(leftListObject, rightList);
+                    for (List o : matchingObjects.values()) {
+                        if (!o.isEmpty()) {
+                            results.add(matchingObjects);
+                        }
+                    }
+                }
+            }
+            case RIGHT: {
+                for (Object rightListObject : rightList) {
+                    Map<Object, List> matchingObjects = matcher.matching(rightListObject, leftList);
+                    for (List o : matchingObjects.values()) {
+                        if (!o.isEmpty()) {
+                            results.add(matchingObjects);
+                        }
+                    }
                 }
             }
         }

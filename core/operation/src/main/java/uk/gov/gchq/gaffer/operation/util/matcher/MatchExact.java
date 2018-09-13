@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.util.matcher;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +24,20 @@ import java.util.Map;
 public class MatchExact implements Matcher {
 
     @Override
-    public Map matching(final List input, final Object testObj) {
-        Map results = new HashMap<>();
+    public Map matching(final Object testObject, final List listToTest) {
+        List results = new ArrayList<>();
+        Map resultsMap = new HashMap<>();
 
-        if (input.contains(testObj)) {
-            results.put(testObj, testObj);
+        for (Object o : listToTest) {
+            if (o.equals(testObject)) {
+                results.add(o);
+            }
         }
 
-        return results;
+        if (!results.isEmpty()) {
+            resultsMap.put(testObject, results);
+        }
+
+        return resultsMap;
     }
 }

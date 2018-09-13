@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.operation.util.matcher;
 
-import com.google.common.collect.Sets;
-
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-
-public class FullJoin implements JoinFunction {
-    @Override
-    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher) {
-        // return all objects in left and right iterables
-        return Sets.newHashSet(new ChainedIterable(left, right));
-    }
+public enum MatchingOnIterable {
+    LEFT,
+    RIGHT
 }

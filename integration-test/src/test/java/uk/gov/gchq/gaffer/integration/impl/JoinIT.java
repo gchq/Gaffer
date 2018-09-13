@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 
@@ -26,11 +27,17 @@ import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchExact;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchOn;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 import uk.gov.gchq.gaffer.operation.util.reducer.ReduceOn;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class JoinIT extends AbstractStoreIT {
 
@@ -39,20 +46,56 @@ public class JoinIT extends AbstractStoreIT {
     final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
 
     @Test
-    public void shouldInnerJoinTwoSimpleLists() throws OperationException, NoSuchFieldException {
+    public void shouldInnerJoinTwoSimpleListsFromLeftToRight() throws OperationException, NoSuchFieldException {
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6), new TestPojo(4, 11))));
+
         Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
+                .matchingOnIterable(MatchingOnIterable.LEFT)
                 .matcher(new MatchOn(TestPojo.class.getField("field1")))
                 .reducer(new ReduceOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+    }
+
+    @Test
+    public void shouldInnerJoinTwoSimpleListsFromRightToLeft() throws OperationException, NoSuchFieldException {
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList(new TestPojo(4, 6))));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+                .joinType(JoinType.INNER)
+                .matchingOnIterable(MatchingOnIterable.RIGHT)
+                .matcher(new MatchOn(TestPojo.class.getField("field1")))
+                .reducer(new ReduceOn())
+                .build();
+
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
 
     @Test
     public void shouldFullOuterJoinTwoSimpleLists() throws OperationException {
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
+
         Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
@@ -62,109 +105,92 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
 
-    /*
-    //@Test
+    @Test
     public void shouldLeftOuterJoinTwoSimpleLists() throws OperationException {
-        Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
-                .input(Arrays.asList(1, 2, 3, 4))
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(Arrays.asList(2, 4, 6, 8)).build())
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.LEFT_OUTER)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
 
-        final Iterable<? extends Integer> results = graph.execute(joinOp, user);
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
 
-        for (Integer i : results) {
-            System.out.println("Left outer : " + i);
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
 
-    //@Test
+    @Test
     public void shouldRightOuterJoinTwoSimpleLists() throws OperationException {
-        Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
-                .input(Arrays.asList(1, 2, 3, 4))
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(Arrays.asList(2, 4, 6, 8)).build())
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.RIGHT_OUTER)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
 
-        final Iterable<? extends Integer> results = graph.execute(joinOp, user);
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
 
-        for (Integer i : results) {
-            System.out.println("Right outer : " + i);
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
 
-    //@Test
+    @Test
     public void shouldLeftInnerJoinTwoSimpleLists() throws OperationException {
-        Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
-                .input(Arrays.asList(1, 2, 3, 4))
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(Arrays.asList(2, 4, 6, 8)).build())
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.LEFT_INNER)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
 
-        final Iterable<? extends Integer> results = graph.execute(joinOp, user);
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
 
-        for (Integer i : results) {
-            System.out.println("Left inner : " + i);
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
 
-    //@Test
+    @Test
     public void shouldRightInnerJoinTwoSimpleLists() throws OperationException {
-        Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
-                .input(Arrays.asList(1, 2, 3, 4))
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(Arrays.asList(2, 4, 6, 8)).build())
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.RIGHT_INNER)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
 
-        final Iterable<? extends Integer> results = graph.execute(joinOp, user);
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
 
-        for (Integer i : results) {
-            System.out.println("Right inner : " + i);
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
     }
-
-    //@Test
-    public void shouldFullJoinTwoSimpleLists() throws OperationException {
-        Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
-                .input(Arrays.asList(1, 2, 3, 4))
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(Arrays.asList(2, 4, 6, 8)).build())
-                .joinType(JoinType.FULL)
-                .matcher(new MatchExact())
-                .reducer(new ReduceOn())
-                .build();
-
-        final Iterable<? extends Integer> results = graph.execute(joinOp, user);
-
-        for (Integer i : results) {
-            System.out.println("full : " + i);
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
-    }
-**/
 
     public class TestPojo {
         public Integer field1;

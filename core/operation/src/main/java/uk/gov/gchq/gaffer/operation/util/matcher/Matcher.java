@@ -20,5 +20,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface Matcher {
-    Map matching(final List inputList, final Object testObj);
+    Map matching(final Object testObject, final List listToTest);
 }

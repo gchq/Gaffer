@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 import uk.gov.gchq.gaffer.operation.util.reducer.Reducer;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -39,6 +40,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
     private Matcher matcher;
+    private MatchingOnIterable matchingOnIterable;
     private Reducer reducer;
     private JoinType joinType;
     private Map<String, String> options;
@@ -69,6 +71,14 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.matcher = matcher;
     }
 
+    public MatchingOnIterable getMatchingOnIterable() {
+        return matchingOnIterable;
+    }
+
+    public void setMatchingOnIterable(final MatchingOnIterable matchingOnIterable) {
+        this.matchingOnIterable = matchingOnIterable;
+    }
+
     public JoinType getJoinType() {
         return joinType;
     }
@@ -91,6 +101,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
                 .input(leftSideInput)
                 .operation(rightSideOperation)
                 .matcher(matcher)
+                .matchingOnIterable(matchingOnIterable)
                 .joinType(joinType)
                 .reducer(reducer)
                 .options(options)
@@ -139,6 +150,11 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
 
         public Builder<I, O> reducer(Reducer reducer) {
             _getOp().setReducer(reducer);
+            return _self();
+        }
+
+        public Builder<I, O> matchingOnIterable(MatchingOnIterable matchingOnIterable) {
+            _getOp().setMatchingOnIterable(matchingOnIterable);
             return _self();
         }
 
