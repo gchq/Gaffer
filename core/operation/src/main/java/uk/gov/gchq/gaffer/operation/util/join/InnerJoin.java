@@ -28,21 +28,21 @@ import java.util.Set;
 public class InnerJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
-        Set resultSet = new HashSet<>();
-
         if (matchingOnIterable.equals(MatchingOnIterable.LEFT)) {
-            for (Object listObject : left) {
-                List matchingObjects = matcher.matching(listObject, right);
-                if (!matchingObjects.isEmpty()) {
-                    resultSet.add(ImmutableMap.of(listObject, matchingObjects));
-                }
-            }
+            return getResultSet(left, right, matcher);
+        } else if (matchingOnIterable.equals(MatchingOnIterable.RIGHT)) {
+            return getResultSet(right, left, matcher);
         } else {
-            for (Object listObject : right) {
-                List matchingObjects = matcher.matching(listObject, left);
-                if (!matchingObjects.isEmpty()) {
-                    resultSet.add(ImmutableMap.of(listObject, matchingObjects));
-                }
+            return new HashSet<>();
+        }
+    }
+
+    private Set getResultSet(List startingList, List secondaryList, final Matcher matcher) {
+        Set resultSet = new HashSet<>();
+        for (Object listObject : startingList) {
+            List matchingObjects = matcher.matching(listObject, secondaryList);
+            if (!matchingObjects.isEmpty()) {
+                resultSet.add(ImmutableMap.of(listObject, matchingObjects));
             }
         }
         return resultSet;
