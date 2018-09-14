@@ -17,35 +17,20 @@
 package uk.gov.gchq.gaffer.operation.util.join;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class LeftOuterJoin implements JoinFunction {
     @Override
-    public Iterable join(final Iterable left, final Iterable right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
-        List leftList = Lists.newArrayList(new LimitedCloseableIterable(left, 0, 100000, false));
-        List rightList = Lists.newArrayList(new LimitedCloseableIterable(right, 0, 100000, false));
-
+    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
         Set resultSet = new HashSet<>();
-        Map inBothLists = new HashMap<>();
-
-        // If right list does not contain the object from the left list, add it to a results list
-        for (Object listObj : leftList) {
-            inBothLists.putAll(matcher.matching(listObj, rightList));
-            if (!inBothLists.containsKey(listObj)) {
-                resultSet.add(ImmutableMap.of(listObj, new ArrayList<>()));
-            }
-        }
+        left.stream().filter(listObj -> matcher.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, new ArrayList<>())));
         return resultSet;
     }
 }

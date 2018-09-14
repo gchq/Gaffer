@@ -17,8 +17,17 @@
 package uk.gov.gchq.gaffer.operation.util.matcher;
 
 import java.util.List;
-import java.util.Map;
 
+/**
+ * This is used to return a List of Objects within the testList that match the testObject supplied.
+ */
 public interface Matcher {
-    Map matching(final Object testObject, final List listToTest);
+    /**
+     * Returns a list of matching Objects.
+     *
+     * @param testObject Object to test against.
+     * @param testList   List to test against.
+     * @return List containing matched Objects.
+     */
+    List matching(final Object testObject, final List testList);
 }

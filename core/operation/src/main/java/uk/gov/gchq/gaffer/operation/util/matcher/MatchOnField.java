@@ -18,14 +18,15 @@ package uk.gov.gchq.gaffer.operation.util.matcher;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class MatchOn implements Matcher {
+/**
+ * Tests matches based on a field within a Join Operation.
+ */
+public class MatchOnField implements Matcher {
     private Field matchingField;
 
-    public MatchOn(final Field matchingField) {
+    public MatchOnField(final Field matchingField) {
         this.matchingField = matchingField;
     }
 
@@ -37,23 +38,25 @@ public class MatchOn implements Matcher {
         this.matchingField = matchingField;
     }
 
+    /**
+     * Returns a list of matches based on a field to match on.
+     *
+     * @param testObject Object to test against.
+     * @param testList   List to test against.
+     * @return List containing matched Objects.
+     */
     @Override
-    public Map matching(final Object testObject, final List listToTest) {
-        // Based on the matching field, iterate through the list to test, and
-        // if the test object matches the object within the list add it to the results.
-        // After this, add the test object and List of results to a Map that will be returned.
+    public List matching(final Object testObject, final List testList) {
         List results = new ArrayList<>();
-        Map resultsMap = new HashMap<>();
-        for (Object o : listToTest) {
+        for (Object entry : testList) {
             try {
-                if (matchingField.get(testObject).equals(matchingField.get(o))) {
-                    results.add(o);
+                if (matchingField.get(testObject).equals(matchingField.get(entry))) {
+                    results.add(entry);
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        resultsMap.put(testObject, results);
-        return resultsMap;
+        return results;
     }
 }

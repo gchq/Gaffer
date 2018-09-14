@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchExact;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchOn;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnField;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 import uk.gov.gchq.gaffer.operation.util.reducer.ReduceOn;
 import uk.gov.gchq.gaffer.user.User;
@@ -57,7 +57,7 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
                 .matchingOnIterable(MatchingOnIterable.LEFT)
-                .matcher(new MatchOn(TestPojo.class.getField("field1")))
+                .matcher(new MatchOnField(TestPojo.class.getField("field1")))
                 .reducer(new ReduceOn())
                 .build();
 
@@ -78,7 +78,63 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
                 .matchingOnIterable(MatchingOnIterable.RIGHT)
-                .matcher(new MatchOn(TestPojo.class.getField("field1")))
+                .matcher(new MatchOnField(TestPojo.class.getField("field1")))
+                .reducer(new ReduceOn())
+                .build();
+
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+    }
+
+    @Test
+     public void shouldFullJoinTwoSimpleListsFromLeftToRight() throws OperationException {
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        // Left with no relation to right
+        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+        // Left with relation to right
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6), new TestPojo(4, 11))));
+        // Right with no relation to left
+        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+                .joinType(JoinType.FULL)
+                .matchingOnIterable(MatchingOnIterable.LEFT)
+                .matcher(new MatchExact())
+                .reducer(new ReduceOn())
+                .build();
+
+        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+
+        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+    }
+
+    @Test
+    public void shouldFullJoinTwoSimpleListsFromRightToLeft() throws OperationException {
+        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
+        // Right with no relation to left
+        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+        // Right with relation to left
+        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList(new TestPojo(4, 6))));
+        // Left with no relation to right
+        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
+        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+
+        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
+                .input(inputTestList)
+                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+                .joinType(JoinType.FULL)
+                .matchingOnIterable(MatchingOnIterable.RIGHT)
+                .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
 

@@ -17,27 +17,29 @@
 package uk.gov.gchq.gaffer.operation.util.matcher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Tests exact matches within a Join Operation.
+ */
 public class MatchExact implements Matcher {
-
+    /**
+     * Returns a List of exact matches to the testObject.
+     *
+     * @param testObject Object to test against.
+     * @param testList   List to test against.
+     * @return List containing matched Objects.
+     */
     @Override
-    public Map matching(final Object testObject, final List listToTest) {
-        List results = new ArrayList<>();
-        Map resultsMap = new HashMap<>();
+    public List matching(final Object testObject, final List testList) {
+        List matches = new ArrayList<>();
 
-        for (Object o : listToTest) {
-            if (o.equals(testObject)) {
-                results.add(o);
+        for (Object entry : testList) {
+            if (entry.equals(testObject)) {
+                matches.add(entry);
             }
         }
 
-        if (!results.isEmpty()) {
-            resultsMap.put(testObject, results);
-        }
-
-        return resultsMap;
+        return matches;
     }
 }

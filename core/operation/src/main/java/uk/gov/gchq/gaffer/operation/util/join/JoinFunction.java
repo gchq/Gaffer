@@ -19,6 +19,11 @@ package uk.gov.gchq.gaffer.operation.util.join;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
+import java.util.List;
+
+/**
+ * Used by the Join Operation to join two Lists together.
+ */
 public interface JoinFunction {
-    Iterable join(Iterable left, Iterable right, Matcher matcher, MatchingOnIterable matchOn);
+    Iterable join(List left, List right, Matcher matcher, MatchingOnIterable matchOn);
 }
