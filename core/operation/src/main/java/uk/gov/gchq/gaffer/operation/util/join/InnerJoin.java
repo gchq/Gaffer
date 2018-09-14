@@ -22,39 +22,37 @@ import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class InnerJoin implements JoinFunction {
     @Override
     public Iterable join(final Iterable left, final Iterable right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
-        List results = new ArrayList<>();
+        Set resultSet = new HashSet<>();
         List leftList = Lists.newArrayList(new LimitedCloseableIterable(left, 0, 10000, false));
         List rightList = Lists.newArrayList(new LimitedCloseableIterable(right, 0, 10000, false));
 
-        switch (matchingOnIterable){
-            case LEFT: {
-                for (Object leftListObject : leftList) {
-                    Map<Object, List> matchingObjects = matcher.matching(leftListObject, rightList);
-                    for (List o : matchingObjects.values()) {
-                        if (!o.isEmpty()) {
-                            results.add(matchingObjects);
-                        }
+        if (matchingOnIterable.equals(MatchingOnIterable.LEFT)) {
+            for (Object listObject : leftList) {
+                Map<Object, List> matchingObjects = matcher.matching(listObject, rightList);
+                for (List o : matchingObjects.values()) {
+                    if (!o.isEmpty()) {
+                        resultSet.add(matchingObjects);
                     }
                 }
             }
-            case RIGHT: {
-                for (Object rightListObject : rightList) {
-                    Map<Object, List> matchingObjects = matcher.matching(rightListObject, leftList);
-                    for (List o : matchingObjects.values()) {
-                        if (!o.isEmpty()) {
-                            results.add(matchingObjects);
-                        }
+        } else {
+            for (Object listObject : rightList) {
+                Map<Object, List> matchingObjects = matcher.matching(listObject, leftList);
+                for (List o : matchingObjects.values()) {
+                    if (!o.isEmpty()) {
+                        resultSet.add(matchingObjects);
                     }
                 }
             }
         }
-        return results;
+        return resultSet;
     }
 }
