@@ -59,6 +59,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.Reduce;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -537,6 +538,7 @@ public class StoreTest {
                 GetTraits.class,
                 While.class,
                 ToSingletonList.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
@@ -637,6 +639,7 @@ public class StoreTest {
                 If.class,
                 While.class,
                 ToSingletonList.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
