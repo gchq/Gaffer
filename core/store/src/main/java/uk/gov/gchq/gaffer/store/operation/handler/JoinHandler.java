@@ -39,12 +39,8 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             operation.setInput(new ArrayList<>());
         }
 
-        if (null != operation.getMatchingOnIterable() && !(operation.getJoinType().equals(JoinType.INNER)|| operation.getJoinType().equals(JoinType.FULL))) {
-            throw new OperationException("It is only possible to specify an Iterable to match on when using Inner or Full join type");
-        }
-
-        if (null == operation.getMatchingOnIterable() && (operation.getJoinType().equals(JoinType.INNER)|| operation.getJoinType().equals(JoinType.FULL))) {
-            throw new OperationException("You must specify an Iterable to match on when using Inner or Full join type");
+        if (null == operation.getMatchingOnIterable() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
+            throw new OperationException("You must specify an Iterable side to match on");
         }
 
         Iterable<I> rightIterable = new ArrayList<>();
@@ -52,8 +48,9 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
         }
 
-        List leftList =  Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 10000, false));
-        List rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 10000, false));
+        List leftList =  Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
+        List rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
+
         Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatcher(), operation.getMatchingOnIterable());
 
         return operation.getReducer().reduce(joinResults);

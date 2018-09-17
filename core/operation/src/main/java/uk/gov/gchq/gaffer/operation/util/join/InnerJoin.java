@@ -28,22 +28,11 @@ import java.util.Set;
 public class InnerJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
-        if (matchingOnIterable.equals(MatchingOnIterable.LEFT)) {
-            return getResultSet(left, right, matcher);
-        } else if (matchingOnIterable.equals(MatchingOnIterable.RIGHT)) {
-            return getResultSet(right, left, matcher);
-        } else {
-            return new HashSet<>();
-        }
-    }
-
-    private Set getResultSet(List startingList, List secondaryList, final Matcher matcher) {
         Set resultSet = new HashSet<>();
-        for (Object listObject : startingList) {
-            List matchingObjects = matcher.matching(listObject, secondaryList);
-            if (!matchingObjects.isEmpty()) {
-                resultSet.add(ImmutableMap.of(listObject, matchingObjects));
-            }
+        if (matchingOnIterable.equals(MatchingOnIterable.LEFT)) {
+            left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, matcher.matching(listObj, right))));
+        } else if (matchingOnIterable.equals(MatchingOnIterable.RIGHT)) {
+            right.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, matcher.matching(listObj, left))));
         }
         return resultSet;
     }

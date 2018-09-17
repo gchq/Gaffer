@@ -21,15 +21,20 @@ import com.google.common.collect.ImmutableMap;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LeftInnerJoin implements JoinFunction {
+public class OuterJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
         Set resultSet = new HashSet<>();
-        left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, matcher.matching(listObj, right))));
+        if (matchingOnIterable.equals(MatchingOnIterable.LEFT)) {
+            left.stream().filter(listObj -> matcher.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, new ArrayList<>())));
+        } else if (matchingOnIterable.equals(MatchingOnIterable.RIGHT)) {
+            right.stream().filter(listObj -> matcher.matching(listObj, left).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, new ArrayList<>())));
+        }
         return resultSet;
     }
 }

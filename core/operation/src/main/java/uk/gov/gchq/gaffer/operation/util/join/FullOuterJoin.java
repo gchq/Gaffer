@@ -26,9 +26,9 @@ import java.util.Set;
 public class FullOuterJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
-        Set resultsSet = new HashSet<>();
-        resultsSet.addAll((Set) new RightOuterJoin().join(left, right, matcher, matchingOnIterable));
-        resultsSet.addAll((Set) new LeftOuterJoin().join(left, right, matcher, matchingOnIterable));
-        return resultsSet;
+        Set resultSet = new HashSet<>();
+        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.RIGHT));
+        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.LEFT));
+        return resultSet;
     }
 }

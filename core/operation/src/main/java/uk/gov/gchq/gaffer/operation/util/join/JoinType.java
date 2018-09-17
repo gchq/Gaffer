@@ -17,13 +17,11 @@
 package uk.gov.gchq.gaffer.operation.util.join;
 
 public enum JoinType {
-    INNER(InnerJoin.class),
-    RIGHT_OUTER(RightOuterJoin.class),
-    LEFT_OUTER(LeftOuterJoin.class),
-    LEFT_INNER(LeftInnerJoin.class),
-    RIGHT_INNER(RightInnerJoin.class),
+    FULL(FullJoin.class),
+    FULL_INNER(FullInnerJoin.class),
     FULL_OUTER(FullOuterJoin.class),
-    FULL(FullJoin.class);
+    OUTER(OuterJoin.class),
+    INNER(InnerJoin.class);
 
     private final Class<? extends JoinFunction> className;
 
