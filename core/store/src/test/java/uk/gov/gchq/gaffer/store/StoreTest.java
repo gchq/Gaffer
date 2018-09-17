@@ -638,11 +638,8 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
-<<<<<<< HEAD
                 Join.class,
-=======
                 ToSingletonList.class,
->>>>>>> develop
 
                 // Function
                 Filter.class,
