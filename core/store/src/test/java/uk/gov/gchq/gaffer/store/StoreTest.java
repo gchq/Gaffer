@@ -89,6 +89,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -537,6 +538,7 @@ public class StoreTest {
                 GetTraits.class,
                 While.class,
                 Join.class,
+                ToSingletonList.class,
 
                 // Function
                 Filter.class,
@@ -636,7 +638,11 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+<<<<<<< HEAD
                 Join.class,
+=======
+                ToSingletonList.class,
+>>>>>>> develop
 
                 // Function
                 Filter.class,

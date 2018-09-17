@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -39,6 +38,7 @@ import java.util.Set;
 /**
  * Simple POJO containing the details associated with a {@link NamedView}.
  */
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NamedViewDetail implements Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -126,7 +126,6 @@ public class NamedViewDetail implements Serializable {
         return hasWriteAccess(userId, opAuths, writeAccessRoles, adminAuth);
     }
 
-    @JsonInclude(Include.NON_DEFAULT)
     public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
     }

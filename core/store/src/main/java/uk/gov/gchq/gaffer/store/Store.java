@@ -77,6 +77,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -137,6 +138,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToSingletonListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -874,7 +876,7 @@ public abstract class Store {
         addOperationHandler(If.class, new IfHandler());
         addOperationHandler(While.class, new WhileHandler());
         addOperationHandler(Join.class, new JoinHandler());
-
+        addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

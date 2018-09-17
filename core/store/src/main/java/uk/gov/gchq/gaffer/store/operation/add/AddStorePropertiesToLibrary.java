@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -69,10 +70,12 @@ public class AddStorePropertiesToLibrary implements Operation {
                 .build();
     }
 
+    @JsonIgnore
     public StoreProperties getStoreProperties() {
         return storeProperties;
     }
 
+    @JsonIgnore
     public void setStoreProperties(final StoreProperties properties) {
         this.storeProperties = properties;
     }
