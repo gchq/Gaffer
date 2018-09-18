@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
@@ -36,14 +35,14 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.ToInteger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,36 +76,19 @@ public class ForEachIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldReturnEmptyIterableWithOperationThatDoesntImplementInput() throws OperationException {
-        // Given
-        final ForEach<ElementSeed, Schema> op = new ForEach.Builder<ElementSeed, Schema>()
-                .operation(new GetSchema.Builder().build())
-                .input(Collections.singletonList(new EntitySeed(SOURCE_DIR_1)))
-                .build();
-
-        // When
-        final Iterable<? extends Schema> results = graph.execute(op, user);
-
-        // Then
-        for (Schema resultSchema : results) {
-            JsonAssert.assertEquals(graph.getSchema().toCompactJson(), resultSchema.toCompactJson());
-        }
-    }
-
-    @Test
     public void shouldExecuteForEachOperationOnCountWithValidResults() throws OperationException {
         // Given
         final List<List<String>> inputIterable = Arrays.asList(Arrays.asList("1", "2", "3"), Arrays.asList("4", "5"), Arrays.asList());
         final ForEach<List<String>, Long> op = new ForEach.Builder<List<String>, Long>()
                 .input(inputIterable)
-                .operation(new Count<>())
+                .operation(new OperationChain.Builder().first(new Count<>()).then(new Map.Builder<>().first(new ToInteger()).build()).build())
                 .build();
 
         // When
         final Iterable<? extends Long> output = graph.execute(op, user);
 
         // Then
-        assertEquals(Arrays.asList(3L, 2L, 0L), Lists.newArrayList(output));
+        assertEquals(Arrays.asList(3, 2, 0), Lists.newArrayList(output));
     }
 
     @Test
