@@ -27,8 +27,10 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -89,9 +91,10 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
 
         final String table = store.getTableName();
         try {
-            final Collection<Text> splits = connector.tableOperations().listSplits(table);
+            final List<Text> splits = new ArrayList<>(connector.tableOperations().listSplits(table));
+            Collections.sort(splits);
             final String[] arr = new String[splits.size()];
-            return splits.parallelStream().map(Text::toString).collect(Collectors.toList()).toArray(arr);
+            return splits.stream().map(Text::toString).collect(Collectors.toList()).toArray(arr);
         } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }
