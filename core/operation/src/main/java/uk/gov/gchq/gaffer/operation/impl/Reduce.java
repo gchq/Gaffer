@@ -34,10 +34,10 @@ import java.util.function.BinaryOperator;
  * input of T to a single output value by applying a supplied {@link BinaryOperator}.
  *
  * @param <T> the type of the output object (and also the type of object held in
- *           the input {@link Iterable}.
+ *            the input {@link Iterable}.
  */
 @JsonPropertyOrder(value = {"class", "input", "aggregateFunction", "identity"}, alphabetic = true)
-@Since("1.8.0")
+@Since("1.7.0")
 @Summary("Reduces an input to an output with a single value using provided function")
 public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiInput<T> {
     private Iterable<? extends T> input;
