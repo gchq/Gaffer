@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.util.join;
 
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.util.Set;
 
 public class FullOuterJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchingOnIterable) {
+    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOn matchingOn) {
         Set resultSet = new HashSet<>();
-        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.RIGHT));
-        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.LEFT));
+        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.RIGHT));
+        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.LEFT));
         return resultSet;
     }
 }

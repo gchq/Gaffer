@@ -23,13 +23,6 @@ import java.util.List;
  * Tests exact matches within a Join Operation.
  */
 public class MatchExact implements Matcher {
-    /**
-     * Returns a List of exact matches to the testObject.
-     *
-     * @param testObject Object to test against.
-     * @param testList   List to test against.
-     * @return List containing matched Objects.
-     */
     @Override
     public List matching(final Object testObject, final List testList) {
         List matches = new ArrayList<>();

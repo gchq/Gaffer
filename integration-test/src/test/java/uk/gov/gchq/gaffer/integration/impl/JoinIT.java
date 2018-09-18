@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchExact;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnField;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnFields;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 import uk.gov.gchq.gaffer.operation.util.reducer.ReduceOn;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -42,6 +42,7 @@ import static org.junit.Assert.assertThat;
 public class JoinIT extends AbstractStoreIT {
 
     final User user = new User();
+    final String testField = "field1";
     final List<TestPojo> inputTestList = Arrays.asList(new TestPojo(1, 3), new TestPojo(2, 4), new TestPojo(2, 4), new TestPojo(3, 5), new TestPojo(4, 6));
     final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
 
@@ -56,8 +57,8 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
-                .matchingOnIterable(MatchingOnIterable.LEFT)
-                .matcher(new MatchOnField(TestPojo.class.getField("field1")))
+                .matchingOn(MatchingOn.LEFT)
+                .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
                 .reducer(new ReduceOn())
                 .build();
 
@@ -77,8 +78,8 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
-                .matchingOnIterable(MatchingOnIterable.RIGHT)
-                .matcher(new MatchOnField(TestPojo.class.getField("field1")))
+                .matchingOn(MatchingOn.RIGHT)
+                .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
                 .reducer(new ReduceOn())
                 .build();
 
@@ -90,14 +91,11 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldFullJoinFromLeftToRight() throws OperationException {
         List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        // Left with no relation to right
         expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
-        // Left with relation to right
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
         expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        // Right with no relation to left
         expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
@@ -106,7 +104,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL)
-                .matchingOnIterable(MatchingOnIterable.LEFT)
+                .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
@@ -119,14 +117,11 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldFullJoinFromRightToLeft() throws OperationException {
         List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        // Right with no relation to left
         expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
-        // Right with relation to left
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
         expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        // Left with no relation to right
         expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
         expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
 
@@ -134,7 +129,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL)
-                .matchingOnIterable(MatchingOnIterable.RIGHT)
+                .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
@@ -176,7 +171,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.OUTER)
-                .matchingOnIterable(MatchingOnIterable.LEFT)
+                .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
@@ -197,7 +192,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.OUTER)
-                .matchingOnIterable(MatchingOnIterable.RIGHT)
+                .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
@@ -220,7 +215,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
-                .matchingOnIterable(MatchingOnIterable.LEFT)
+                .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();
@@ -243,7 +238,7 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
-                .matchingOnIterable(MatchingOnIterable.RIGHT)
+                .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
                 .reducer(new ReduceOn())
                 .build();

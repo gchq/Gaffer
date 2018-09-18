@@ -39,7 +39,7 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             operation.setInput(new ArrayList<>());
         }
 
-        if (null == operation.getMatchingOnIterable() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
+        if (null == operation.getMatchingOn() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
             throw new OperationException("You must specify an Iterable side to match on");
         }
 
@@ -51,7 +51,7 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
         List leftList =  Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
         List rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
 
-        Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatcher(), operation.getMatchingOnIterable());
+        Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatcher(), operation.getMatchingOn());
 
         return operation.getReducer().reduce(joinResults);
     }

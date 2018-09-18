@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.util.join;
 
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOnIterable;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,16 +25,16 @@ import java.util.Set;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOnIterable matchOn) {
+    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOn matchOn) {
         Set resultSet = new HashSet<>();
-        if (matchOn.equals(MatchingOnIterable.LEFT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.LEFT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOnIterable.LEFT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.RIGHT));
-        } else if (matchOn.equals(MatchingOnIterable.RIGHT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.RIGHT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOnIterable.RIGHT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOnIterable.LEFT));
+        if (matchOn.equals(MatchingOn.LEFT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.LEFT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOn.LEFT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.RIGHT));
+        } else if (matchOn.equals(MatchingOn.RIGHT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.RIGHT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOn.RIGHT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.LEFT));
         }
 
         return resultSet;

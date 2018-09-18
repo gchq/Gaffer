@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation.util.matcher;
 
 /**
- * This is used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
+ * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
  */
-public enum MatchingOnIterable {
+public enum MatchingOn {
     LEFT,
     RIGHT
 }
