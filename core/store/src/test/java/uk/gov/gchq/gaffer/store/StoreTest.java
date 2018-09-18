@@ -55,6 +55,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -538,6 +539,7 @@ public class StoreTest {
                 GetTraits.class,
                 While.class,
                 ToSingletonList.class,
+                ForEach.class,
                 Reduce.class,
 
                 // Function
@@ -639,6 +641,7 @@ public class StoreTest {
                 If.class,
                 While.class,
                 ToSingletonList.class,
+                ForEach.class,
                 Reduce.class,
 
                 // Function
