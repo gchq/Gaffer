@@ -146,6 +146,7 @@ public class ViewElementDefinition implements ElementDefinition {
         return transientProperties.values();
     }
 
+    @JsonIgnore
     public Set<String> getTransientProperties() {
         return transientProperties.keySet();
     }
@@ -181,7 +182,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return preAggregationFilter;
     }
 
-    @JsonGetter("preAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getComponents() : null;
     }
@@ -211,7 +211,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return postAggregationFilter;
     }
 
-    @JsonGetter("postAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostAggregationFilterFunctions() {
         return null != postAggregationFilter ? postAggregationFilter.getComponents() : null;
     }
@@ -225,7 +224,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return postTransformFilter;
     }
 
-    @JsonGetter("postTransformFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getComponents() : null;
     }
@@ -239,7 +237,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return transformer;
     }
 
-    @JsonGetter("transformFunctions")
     public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
         return null != transformer ? transformer.getComponents() : null;
     }
@@ -344,6 +341,7 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        @JsonIgnore
         public CHILD_CLASS properties(final String... properties) {
             if (null != properties && null != elDef.excludeProperties && !elDef.excludeProperties.isEmpty()) {
                 throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
@@ -367,6 +365,7 @@ public class ViewElementDefinition implements ElementDefinition {
             return self();
         }
 
+        @JsonIgnore
         public CHILD_CLASS excludeProperties(final String... excludeProperties) {
             if (null != excludeProperties && excludeProperties.length > 0 && null != elDef.properties) {
                 throw new IllegalArgumentException("You cannot set both properties and excludeProperties");

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,10 +107,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return maxUserScore;
     }
 
+    @JsonIgnore
     public Map<Class<? extends Operation>, Integer> getOpScores() {
         return Collections.unmodifiableMap(opScores);
     }
 
+    @JsonIgnore
     public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         this.opScores.clear();
         if (null != opScores) {

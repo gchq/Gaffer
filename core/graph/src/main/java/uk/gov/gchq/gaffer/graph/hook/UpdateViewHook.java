@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -176,79 +174,65 @@ public class UpdateViewHook implements GraphHook {
         return result;
     }
 
-    @JsonGetter("withOpAuth")
     public Set<String> getWithOpAuth() {
         return withOpAuth;
     }
 
-    @JsonSetter("withOpAuth")
     public UpdateViewHook setWithOpAuth(final Set<String> withOpAuth) {
         this.withOpAuth = withOpAuth;
         return this;
     }
 
-    @JsonGetter("withoutOpAuth")
     public Set<String> getWithoutOpAuth() {
         return withoutOpAuth;
     }
 
-    @JsonSetter("withoutOpAuth")
     public UpdateViewHook setWithoutOpAuth(final Set<String> withoutOpAuth) {
         this.withoutOpAuth = withoutOpAuth;
         return this;
     }
 
-    @JsonGetter("withDataAuth")
     public Set<String> getWithDataAuth() {
         return withDataAuth;
     }
 
-    @JsonSetter("withDataAuth")
     public UpdateViewHook setWithDataAuth(final Set<String> withDataAuth) {
         this.withDataAuth = withDataAuth;
         return this;
     }
 
-    @JsonGetter("withoutDataAuth")
     public Set<String> getWithoutDataAuth() {
         return withoutDataAuth;
     }
 
-    @JsonSetter("withoutDataAuth")
     public UpdateViewHook setWithoutDataAuth(final Set<String> withoutDataAuth) {
         this.withoutDataAuth = withoutDataAuth;
         return this;
     }
 
-    @JsonGetter("whiteListElementGroups")
     public Set<String> getWhiteListElementGroups() {
         return whiteListElementGroups;
     }
 
-    @JsonSetter("whiteListElementGroups")
     public UpdateViewHook setWhiteListElementGroups(final Set<String> whiteListElementGroups) {
         this.whiteListElementGroups = whiteListElementGroups;
         return this;
     }
 
-    @JsonGetter("blackListElementGroups")
     public Set<String> getBlackListElementGroups() {
         return blackListElementGroups;
     }
 
-    @JsonSetter("blackListElementGroups")
     public UpdateViewHook setBlackListElementGroups(final Set<String> blackListElementGroups) {
         this.blackListElementGroups = blackListElementGroups;
         return this;
     }
 
-    @JsonSetter("viewToMerge")
     public UpdateViewHook setViewToMerge(final View viewToMerge) {
         this.viewToMerge = null != viewToMerge ? viewToMerge.toCompactJson() : null;
         return this;
     }
 
-    @JsonGetter("viewToMerge")
     public View getViewToMerge() {
         return null != viewToMerge ? View.fromJson(viewToMerge) : null;
     }

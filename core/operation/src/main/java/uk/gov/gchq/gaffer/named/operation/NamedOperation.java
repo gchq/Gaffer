@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -54,7 +56,7 @@ public class NamedOperation<I_ITEM, O> implements
 
     @Required
     private String operationName;
-    private Map<String, Object> parameters;
+    private LinkedHashMap<String, Object> parameters;
     private Map<String, String> options;
 
     @Override
@@ -71,8 +73,19 @@ public class NamedOperation<I_ITEM, O> implements
         return parameters;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
+    @JsonSetter("parameters")
+    public void setParameters(final LinkedHashMap<String, Object> parameters) {
         this.parameters = parameters;
+    }
+
+    public void setParameters(final Map<String, Object> parameters) {
+        if (null != parameters) {
+            if (parameters instanceof LinkedHashMap) {
+                this.parameters = (LinkedHashMap) parameters;
+            } else {
+                this.parameters = new LinkedHashMap<>(parameters);
+            }
+        }
     }
 
     public String getOperationName() {

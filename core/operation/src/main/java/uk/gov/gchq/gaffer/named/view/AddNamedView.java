@@ -93,6 +93,7 @@ public class AddNamedView implements Operation {
         }
     }
 
+    @JsonIgnore
     public void setView(final View view) {
         try {
             this.view = null == view ? null : new String(JSONSerialiser.serialise(view), Charset.forName(CHARSET_NAME));
@@ -101,6 +102,7 @@ public class AddNamedView implements Operation {
         }
     }
 
+    @JsonIgnore
     public View getView() {
         try {
             return null == view ? null : JSONSerialiser.deserialise(view.getBytes(CHARSET_NAME), View.class);

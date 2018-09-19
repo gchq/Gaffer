@@ -159,4 +159,8 @@ public final class TypeReferenceImpl {
 
     public static class IterableWalk extends TypeReference<Iterable<Walk>> {
     }
+
+    public static class ValidationResult extends TypeReference<uk.gov.gchq.koryphe.ValidationResult> {
+
+    }
 }
