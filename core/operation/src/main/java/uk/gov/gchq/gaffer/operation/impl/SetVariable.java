@@ -16,13 +16,19 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
+@Since("1.8.0")
+@Summary("Sets a variable in the Context")
+@JsonPropertyOrder(value = {"input", "variableName", "options"}, alphabetic = true)
 public class SetVariable implements Input<Object> {
     private Object input;
     private String variableName;
@@ -57,7 +63,7 @@ public class SetVariable implements Input<Object> {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public SetVariable shallowClone() throws CloneFailedException {
         return new SetVariable.Builder()
                 .input(input)
                 .variableName(variableName)
