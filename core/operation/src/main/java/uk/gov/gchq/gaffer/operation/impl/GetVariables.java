@@ -50,7 +50,7 @@ public class GetVariables implements Output<Map<String, Object>> {
 
     @Override
     public TypeReference<Map<String, Object>> getOutputTypeReference() {
-        return new TypeReferenceImpl.MapStringObject();
+        return new TypeReferenceImpl.Map();
     }
 
     @Override
