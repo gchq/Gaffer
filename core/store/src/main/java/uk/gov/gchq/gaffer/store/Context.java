@@ -38,6 +38,7 @@ public class Context {
     private final String jobId;
     private final Map<String, Object> config;
     private OperationChain<?> originalOpChain;
+    private Map<String, Object> variables;
 
     /**
      * Map of exporter simple class name to exporter
@@ -122,6 +123,26 @@ public class Context {
         return jobId;
     }
 
+    public Map<String, Object> getVariables() {
+        return variables;
+    }
+
+    public Object getVariable(final String key) {
+        return variables.get(key);
+    }
+
+    public void setVariables(final Map<String, Object> variables) {
+        this.variables = variables;
+    }
+
+    public void addVariables(final Map<String, Object> variables) {
+        if (null != variables) {
+            this.variables.putAll(variables);
+        } else {
+            setVariables(variables);
+        }
+    }
+
     public Collection<Exporter> getExporters() {
         return Collections.unmodifiableCollection(exporters.values());
     }
@@ -191,6 +212,7 @@ public class Context {
                 .append(originalOpChain, context.originalOpChain)
                 .append(exporters, context.exporters)
                 .append(config, context.config)
+                .append(variables, context.variables)
                 .isEquals();
     }
 
@@ -202,6 +224,7 @@ public class Context {
                 .append(originalOpChain)
                 .append(exporters)
                 .append(config)
+                .append(variables)
                 .toHashCode();
     }
 
@@ -213,6 +236,7 @@ public class Context {
                 .append("originalOpChain", originalOpChain)
                 .append("exporters", exporters)
                 .append("config", config)
+                .append("variables", variables)
                 .toString();
     }
 
@@ -223,6 +247,7 @@ public class Context {
     public static class Builder {
         private User user = new User();
         private final Map<String, Object> config = new HashMap<>();
+        private final Map<String, Object> variables = new HashMap<>();
         private String jobId;
 
         public Builder user(final User user) {
@@ -245,6 +270,16 @@ public class Context {
 
         public Builder config(final String key, final Object value) {
             this.config.put(key, value);
+            return this;
+        }
+
+        public Builder variables(final Map<String, Object> variables) {
+            this.variables.putAll(variables);
+            return this;
+        }
+
+        public Builder variable(final String key, final Object value) {
+            this.variables.put(key, value);
             return this;
         }
 
