@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.GetVariable;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -549,7 +550,8 @@ public class StoreTest {
                 Aggregate.class,
 
                 // Context variables
-                SetVariable.class
+                SetVariable.class,
+                GetVariable.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -654,7 +656,8 @@ public class StoreTest {
                 Aggregate.class,
 
                 // Context variables
-                SetVariable.class
+                SetVariable.class,
+                GetVariable.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
