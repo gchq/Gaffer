@@ -109,6 +109,10 @@ public final class TypeReferenceImpl {
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
+    public static class MapStringObject extends TypeReference<java.util.Map<String, Object>> {
+
+    }
+
     public static class MapStringSet extends TypeReference<java.util.Map<String, Set<Object>>> {
     }
 
