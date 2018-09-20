@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -40,7 +41,7 @@ public class RoadTrafficStringElementGeneratorTest {
         final OneToManyElementGenerator<String> generator = new RoadTrafficStringElementGenerator();
 
         try {
-            final File file = new File(getClass().getResource("/roadTrafficSampleData.csv").getFile());
+            final File file = new File(getClass().getResource("/roadTrafficSampleData.csv").toURI());
 
             final LineIterator iterator = FileUtils.lineIterator(file);
 
@@ -62,7 +63,7 @@ public class RoadTrafficStringElementGeneratorTest {
             assertEquals(1600, entityCount);
             assertEquals(700, edgeCount);
 
-        } catch (final IOException e) {
+        } catch (final IOException | URISyntaxException e) {
             e.printStackTrace();
         }
 
