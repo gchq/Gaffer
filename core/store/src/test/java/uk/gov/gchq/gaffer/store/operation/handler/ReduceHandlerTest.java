@@ -39,7 +39,7 @@ public class ReduceHandlerTest {
         final Integer expectedResult = 15;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
-                .aggregationFunction(new Sum())
+                .aggregateFunction(new Sum())
                 .build();
 
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
@@ -61,7 +61,7 @@ public class ReduceHandlerTest {
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(10)
-                .aggregationFunction(new Max())
+                .aggregateFunction(new Max())
                 .build();
 
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
@@ -82,7 +82,7 @@ public class ReduceHandlerTest {
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(null)
-                .aggregationFunction(new Max())
+                .aggregateFunction(new Max())
                 .build();
 
         final ReduceHandler<Integer> handler = new ReduceHandler<>();

@@ -44,14 +44,14 @@ public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiIn
     private T identity;
     private java.util.Map<String, String> options;
     @Required
-    private BinaryOperator<T> aggregationFunction;
+    private BinaryOperator<T> aggregateFunction;
 
     public Reduce() {
         // Empty
     }
 
-    public Reduce(final BinaryOperator<T> aggregationFunction) {
-        this.aggregationFunction = aggregationFunction;
+    public Reduce(final BinaryOperator<T> aggregateFunction) {
+        this.aggregateFunction = aggregateFunction;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiIn
     @Override
     public Reduce<T> shallowClone() throws CloneFailedException {
         final Reduce<T> clone = new Reduce<>();
-        clone.setAggreationFunction(aggregationFunction);
+        clone.setAggregateFunction(aggregateFunction);
         clone.setIdentity(identity);
         clone.setInput(input);
         clone.setOptions(options);
@@ -98,13 +98,13 @@ public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiIn
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public BinaryOperator<T> getAggregationFunction() {
-        return aggregationFunction;
+    public BinaryOperator<T> getAggregateFunction() {
+        return aggregateFunction;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public void setAggreationFunction(final BinaryOperator<T> aggregationFunction) {
-        this.aggregationFunction = aggregationFunction;
+    public void setAggregateFunction(final BinaryOperator<T> aggregateFunction) {
+        this.aggregateFunction = aggregateFunction;
     }
 
     public static final class Builder<T> extends
@@ -114,9 +114,9 @@ public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiIn
             super(new Reduce<>());
         }
 
-        public Builder<T> aggregationFunction(final BinaryOperator aggregationFunction) {
-            if (null != aggregationFunction) {
-                _getOp().setAggreationFunction(aggregationFunction);
+        public Builder<T> aggregateFunction(final BinaryOperator aggregateFunction) {
+            if (null != aggregateFunction) {
+                _getOp().setAggregateFunction(aggregateFunction);
             }
             return _self();
         }
