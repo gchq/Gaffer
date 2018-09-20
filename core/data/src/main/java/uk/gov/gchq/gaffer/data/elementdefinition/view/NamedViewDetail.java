@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -38,6 +40,7 @@ import java.util.Set;
 /**
  * Simple POJO containing the details associated with a {@link NamedView}.
  */
+@JsonPropertyOrder(value = {"name", "description", "creatorId", "writeAccessRoles", "parameters", "view"}, alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NamedViewDetail implements Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
@@ -147,6 +150,7 @@ public class NamedViewDetail implements Serializable {
      * @return The {@link View}
      * @throws IllegalArgumentException if substituting the parameters fails
      */
+    @JsonIgnore
     public View getViewWithDefaultParams() {
         String viewStringWithDefaults = view;
 
@@ -168,7 +172,7 @@ public class NamedViewDetail implements Serializable {
         try {
             view = JSONSerialiser.deserialise(StringUtil.toBytes(viewStringWithDefaults), View.class);
         } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return view;
     }
