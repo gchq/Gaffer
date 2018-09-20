@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -32,6 +33,7 @@ import java.util.Map;
 @Since("1.7.0")
 @Summary("Validates an OperationChain")
 public class ValidateOperationChain implements Output<ValidationResult> {
+    @Required
     private OperationChain operationChain;
     private Map<String, String> options;
 
