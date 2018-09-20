@@ -22,9 +22,11 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partitioner;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.util.Arrays;
 
 /**
