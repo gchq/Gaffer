@@ -890,13 +890,12 @@ public abstract class Store {
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());
         addOperationHandler(GetVariable.class, new GetVariableHandler());
+        addOperationHandler(GetVariables.class, new GetVariablesHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());
         addOperationHandler(Transform.class, new TransformHandler());
         addOperationHandler(Aggregate.class, new AggregateHandler());
-
-        addOperationHandler(GetVariables.class, new GetVariablesHandler());
 
         // GraphLibrary Adds
         if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
