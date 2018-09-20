@@ -16,11 +16,8 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
@@ -39,9 +36,6 @@ import static org.junit.Assert.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     private static final String path = "multiSerialiser.json";
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
