@@ -21,15 +21,15 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,18 +37,17 @@ import static org.junit.Assert.fail;
 public class RoadTrafficCsvElementGeneratorTest {
 
     @Test
-    public void shouldParseSampleData() {
-
+    public void shouldParseSampleData() throws IOException {
         // Given
         final OneToManyElementGenerator<CSVRecord> generator = new RoadTrafficCsvElementGenerator();
 
-        try {
-            final FileReader reader = new FileReader(new File(getClass().getResource("/roadTrafficSampleData.csv").toURI()));
-            final Iterable<CSVRecord> csvRecords = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+        try (final InputStream inputStream = StreamUtil.openStream(getClass(), "/roadTrafficSampleData.csv")) {
+            final Iterable<CSVRecord> csvRecords = new CSVParser(new InputStreamReader(inputStream), CSVFormat.DEFAULT.withFirstRecordAsHeader());
 
             // When
             final Iterable<? extends Element> elements = generator.apply(csvRecords);
 
+            // Then
             int entityCount = 0;
             int edgeCount = 0;
             for (final Element element : elements) {
@@ -63,11 +62,7 @@ public class RoadTrafficCsvElementGeneratorTest {
 
             assertEquals(1600, entityCount);
             assertEquals(700, edgeCount);
-
-        } catch (final IOException | URISyntaxException e) {
-            e.printStackTrace();
         }
-
     }
 
 }

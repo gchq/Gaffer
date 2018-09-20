@@ -16,18 +16,18 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -35,19 +35,15 @@ import static org.junit.Assert.fail;
 public class RoadTrafficStringElementGeneratorTest {
 
     @Test
-    public void shouldParseSampleData() {
-
+    public void shouldParseSampleData() throws IOException {
         // Given
         final OneToManyElementGenerator<String> generator = new RoadTrafficStringElementGenerator();
 
-        try {
-            final File file = new File(getClass().getResource("/roadTrafficSampleData.csv").toURI());
-
-            final LineIterator iterator = FileUtils.lineIterator(file);
-
+        try (final InputStream inputStream = StreamUtil.openStream(getClass(), "/roadTrafficSampleData.csv")) {
             // When
-            final Iterable<? extends Element> elements = generator.apply(() -> iterator);
+            final Iterable<? extends Element> elements = generator.apply(() -> new LineIterator(new InputStreamReader(inputStream)));
 
+            // Then
             int entityCount = 0;
             int edgeCount = 0;
             for (final Element element : elements) {
@@ -62,11 +58,7 @@ public class RoadTrafficStringElementGeneratorTest {
 
             assertEquals(1600, entityCount);
             assertEquals(700, edgeCount);
-
-        } catch (final IOException | URISyntaxException e) {
-            e.printStackTrace();
         }
-
     }
 
 }
