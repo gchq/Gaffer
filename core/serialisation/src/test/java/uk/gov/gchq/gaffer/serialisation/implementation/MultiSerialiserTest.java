@@ -31,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -70,7 +71,12 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     @Test
     public void shouldMatchHistoricalSerialisation() throws IOException {
         String fromDisk;
-        File file = new File(getClass().getClassLoader().getSystemResource(path).getFile());
+        File file;
+        try {
+            file = new File(getClass().getClassLoader().getSystemResource(path).toURI());
+        } catch (final URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             StringBuilder stringBuilder = new StringBuilder();
 
