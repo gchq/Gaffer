@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchExact;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnFields;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
-import uk.gov.gchq.gaffer.operation.util.reducer.ReduceOn;
+import uk.gov.gchq.gaffer.operation.util.merge.MergeOn;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.FULL_INNER)
                 .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -80,7 +80,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.FULL_INNER)
                 .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -106,7 +106,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.FULL)
                 .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -131,7 +131,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.FULL)
                 .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -153,7 +153,7 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_OUTER)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -173,7 +173,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.OUTER)
                 .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -194,7 +194,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.OUTER)
                 .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -217,7 +217,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.INNER)
                 .matchingOn(MatchingOn.LEFT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -240,7 +240,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.INNER)
                 .matchingOn(MatchingOn.RIGHT)
                 .matcher(new MatchExact())
-                .reducer(new ReduceOn())
+                .reducer(new MergeOn())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);

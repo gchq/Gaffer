@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.reducer;
+package uk.gov.gchq.gaffer.operation.util.merge;
 
-public class ReduceOn implements Reducer {
-
-    @Override
-    public Iterable reduce(final Iterable results) {
-        return results;
-    }
+public interface Merge {
+    Iterable reduce(final Iterable results);
 }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
 
+import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Join;
@@ -48,11 +49,18 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
         }
 
-        List leftList =  Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
-        List rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
+        List leftList;
+        List rightList;
+
+        try {
+            leftList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
+            rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
+        } catch (LimitExceededException e) {
+            throw new OperationException(e);
+        }
 
         Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatcher(), operation.getMatchingOn());
 
-        return operation.getReducer().reduce(joinResults);
+        return operation.getMerge().reduce(joinResults);
     }
 }

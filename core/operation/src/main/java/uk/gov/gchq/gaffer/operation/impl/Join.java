@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
-import uk.gov.gchq.gaffer.operation.util.reducer.Reducer;
+import uk.gov.gchq.gaffer.operation.util.merge.Merge;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -41,7 +41,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     private Operation rightSideOperation;
     private Matcher matcher;
     private MatchingOn matchingOn;
-    private Reducer reducer;
+    private Merge merge;
     private JoinType joinType;
     private Map<String, String> options;
 
@@ -87,12 +87,12 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.joinType = joinType;
     }
 
-    public Reducer getReducer() {
-        return reducer;
+    public Merge getMerge() {
+        return merge;
     }
 
-    public void setReducer(final Reducer reducer) {
-        this.reducer = reducer;
+    public void setMerge(final Merge merge) {
+        this.merge = merge;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
                 .matcher(matcher)
                 .matchingOn(matchingOn)
                 .joinType(joinType)
-                .reducer(reducer)
+                .reducer(merge)
                 .options(options)
                 .build();
     }
@@ -148,8 +148,8 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
             return _self();
         }
 
-        public Builder<I, O> reducer(Reducer reducer) {
-            _getOp().setReducer(reducer);
+        public Builder<I, O> reducer(Merge merge) {
+            _getOp().setMerge(merge);
             return _self();
         }
 
