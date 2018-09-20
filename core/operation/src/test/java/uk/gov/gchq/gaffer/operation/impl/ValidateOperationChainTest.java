@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -25,6 +26,8 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.koryphe.ValidationResult;
+
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -82,6 +85,12 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
 
         // Then
         assertEquals(ValidationResult.class, outputClass);
+    }
+
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("operationChain");
     }
 
     @Override
