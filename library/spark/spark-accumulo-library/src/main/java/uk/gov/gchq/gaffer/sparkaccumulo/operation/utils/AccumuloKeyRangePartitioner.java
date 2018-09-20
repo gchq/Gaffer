@@ -22,15 +22,10 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partitioner;
-
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This is a spark compatible implementation of the accumulo RangePartitioner ( @link org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner }
@@ -90,8 +85,12 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
 
         final String table = store.getTableName();
         try {
-            final List<Text> splits = new ArrayList<>(connector.tableOperations().listSplits(table));
-            return splits.stream().sorted().map(Text::toString).collect(Collectors.toList()).toArray(new String[splits.size()]);
+            return connector.tableOperations()
+                    .listSplits(table)
+                    .stream()
+                    .sorted()
+                    .map(Text::toString)
+                    .toArray(String[]::new);
         } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }
