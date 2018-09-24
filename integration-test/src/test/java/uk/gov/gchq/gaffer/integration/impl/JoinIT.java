@@ -18,18 +18,31 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Join;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchExact;
+import uk.gov.gchq.gaffer.operation.util.matcher.ExactMatch;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnFields;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
-import uk.gov.gchq.gaffer.operation.util.merge.MergeOn;
+import uk.gov.gchq.gaffer.operation.util.merge.ElementMerge;
+import uk.gov.gchq.gaffer.operation.util.merge.NoMerge;
+import uk.gov.gchq.gaffer.operation.util.merge.ReduceType;
+import uk.gov.gchq.gaffer.operation.util.merge.ResultsWanted;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +59,77 @@ public class JoinIT extends AbstractStoreIT {
     final List<TestPojo> inputTestList = Arrays.asList(new TestPojo(1, 3), new TestPojo(2, 4), new TestPojo(2, 4), new TestPojo(3, 5), new TestPojo(4, 6));
     final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
 
+    @Override
+    @Before
+    public void setup() throws Exception {
+        super.setup();
+        addDefaultElements();
+    }
+
+    @Test
+    public void shouldFullInnerJoinElementsFromLeftToRightWithFlatten() throws OperationException, NoSuchFieldException {
+        final Entity entity1 = getEntity(VERTEX_PREFIXES[0] + 0);
+        final Entity entity2 = getEntity(VERTEX_PREFIXES[0] + 1);
+        final Entity entity3 = getEntity(VERTEX_PREFIXES[0] + 2);
+
+        List<Element> expectedResults = Arrays.asList(entity1, entity2, entity1, entity2);
+
+        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3);
+
+        final GetElements rhsGetElementsOperation = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX_PREFIXES[0] + 0),
+                        new EntitySeed(VERTEX_PREFIXES[0] + 1))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElementList)
+                .operation(rhsGetElementsOperation)
+                .joinType(JoinType.FULL_INNER)
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.BOTH, ReduceType.NONE, null))
+                .build();
+
+        final Iterable<? extends Element> results = graph.execute(joinOp, user);
+
+        ElementUtil.assertElementEquals(expectedResults, results);
+    }
+
+    @Test
+    public void shouldFullInnerJoinElementsFromLeftToRightWithReduceAndBothResults() throws OperationException, NoSuchFieldException {
+        final Entity entity1 = getEntity(VERTEX_PREFIXES[0] + 0);
+        final Entity entity2 = getEntity(VERTEX_PREFIXES[0] + 1);
+        final Entity entity3 = getEntity(VERTEX_PREFIXES[0] + 2);
+
+        List<Element> expectedResults = Arrays.asList(entity1, entity2);
+
+        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3);
+
+        final GetElements rhsGetElementsOperation = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX_PREFIXES[0] + 0),
+                        new EntitySeed(VERTEX_PREFIXES[0] + 1))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
+
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElementList)
+                .operation(rhsGetElementsOperation)
+                .joinType(JoinType.FULL_INNER)
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.RELATED_ONLY, ReduceType.AGAINST_KEY, new ElementAggregator.Builder().select("count").execute(new Sum()).build()))
+                .build();
+
+        final Iterable<? extends Element> results = graph.execute(joinOp, user);
+
+        ElementUtil.assertElementEquals(expectedResults, results);
+    }
+
     @Test
     public void shouldFullInnerJoinFromLeftToRight() throws OperationException, NoSuchFieldException {
         List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
@@ -57,9 +141,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
-                .matchingOn(MatchingOn.LEFT)
-                .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new MatchOnFields(TestPojo.class.getField(testField)))
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -78,9 +162,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
-                .matchingOn(MatchingOn.RIGHT)
-                .matcher(new MatchOnFields(TestPojo.class.getField(testField)))
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.RIGHT)
+                .matchMethod(new MatchOnFields(TestPojo.class.getField(testField)))
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -104,9 +188,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL)
-                .matchingOn(MatchingOn.LEFT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -129,9 +213,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL)
-                .matchingOn(MatchingOn.RIGHT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.RIGHT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -152,8 +236,8 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_OUTER)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -171,9 +255,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.OUTER)
-                .matchingOn(MatchingOn.LEFT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -192,9 +276,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.OUTER)
-                .matchingOn(MatchingOn.RIGHT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.RIGHT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -215,9 +299,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
-                .matchingOn(MatchingOn.LEFT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
@@ -238,9 +322,9 @@ public class JoinIT extends AbstractStoreIT {
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.INNER)
-                .matchingOn(MatchingOn.RIGHT)
-                .matcher(new MatchExact())
-                .reducer(new MergeOn())
+                .matchKey(MatchKey.RIGHT)
+                .matchMethod(new ExactMatch())
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);

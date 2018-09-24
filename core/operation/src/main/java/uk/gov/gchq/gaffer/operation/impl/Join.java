@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 import uk.gov.gchq.gaffer.operation.util.merge.Merge;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -39,9 +39,9 @@ import java.util.Map;
 public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
-    private Matcher matcher;
-    private MatchingOn matchingOn;
-    private Merge merge;
+    private Matcher matchMethod;
+    private MatchKey matchKey;
+    private Merge mergeMethod;
     private JoinType joinType;
     private Map<String, String> options;
 
@@ -63,20 +63,20 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.rightSideOperation = rightSideOperation;
     }
 
-    public Matcher getMatcher() {
-        return matcher;
+    public Matcher getMatchMethod() {
+        return matchMethod;
     }
 
-    public void setMatcher(Matcher matcher) {
-        this.matcher = matcher;
+    public void setMatchMethod(Matcher matchMethod) {
+        this.matchMethod = matchMethod;
     }
 
-    public MatchingOn getMatchingOn() {
-        return matchingOn;
+    public MatchKey getMatchKey() {
+        return matchKey;
     }
 
-    public void setMatchingOn(final MatchingOn matchingOn) {
-        this.matchingOn = matchingOn;
+    public void setMatchKey(final MatchKey matchKey) {
+        this.matchKey = matchKey;
     }
 
     public JoinType getJoinType() {
@@ -87,12 +87,12 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.joinType = joinType;
     }
 
-    public Merge getMerge() {
-        return merge;
+    public Merge getMergeMethod() {
+        return mergeMethod;
     }
 
-    public void setMerge(final Merge merge) {
-        this.merge = merge;
+    public void setMergeMethod(final Merge mergeMethod) {
+        this.mergeMethod = mergeMethod;
     }
 
     @Override
@@ -100,10 +100,10 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         return new Join.Builder<I, O>()
                 .input(leftSideInput)
                 .operation(rightSideOperation)
-                .matcher(matcher)
-                .matchingOn(matchingOn)
+                .matchMethod(matchMethod)
+                .matchKey(matchKey)
                 .joinType(joinType)
-                .reducer(merge)
+                .mergeMethod(mergeMethod)
                 .options(options)
                 .build();
     }
@@ -138,8 +138,8 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
             return _self();
         }
 
-        public Builder<I, O> matcher(Matcher matcher) {
-            _getOp().setMatcher(matcher);
+        public Builder<I, O> matchMethod(Matcher matchMethod) {
+            _getOp().setMatchMethod(matchMethod);
             return _self();
         }
 
@@ -148,13 +148,13 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
             return _self();
         }
 
-        public Builder<I, O> reducer(Merge merge) {
-            _getOp().setMerge(merge);
+        public Builder<I, O> mergeMethod(Merge mergeMethod) {
+            _getOp().setMergeMethod(mergeMethod);
             return _self();
         }
 
-        public Builder<I, O> matchingOn(MatchingOn matchingOn) {
-            _getOp().setMatchingOn(matchingOn);
+        public Builder<I, O> matchKey(MatchKey matchKey) {
+            _getOp().setMatchKey(matchKey);
             return _self();
         }
 

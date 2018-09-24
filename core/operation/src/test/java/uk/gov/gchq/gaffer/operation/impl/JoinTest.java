@@ -50,7 +50,7 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(clone.getInput(), op.getInput());
         assertEquals(clone.getOperation(), op.getOperation());
         assertEquals(clone.getJoinType(), op.getJoinType());
-        assertEquals(clone.getMatcher(), op.getMatcher());
+        assertEquals(clone.getMatchMethod(), op.getMatchMethod());
     }
 
     @Override

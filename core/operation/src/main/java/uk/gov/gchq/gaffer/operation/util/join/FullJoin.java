@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.util.join;
 
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,16 +25,16 @@ import java.util.Set;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOn matchOn) {
+    public Iterable join(final List left, final List right, final Matcher matcher, final MatchKey matchKey) {
         Set resultSet = new HashSet<>();
-        if (matchOn.equals(MatchingOn.LEFT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.LEFT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOn.LEFT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.RIGHT));
-        } else if (matchOn.equals(MatchingOn.RIGHT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.RIGHT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchingOn.RIGHT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchingOn.LEFT));
+        if (matchKey.equals(MatchKey.LEFT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.LEFT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchKey.LEFT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.RIGHT));
+        } else if (matchKey.equals(MatchKey.RIGHT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.RIGHT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, matcher, MatchKey.RIGHT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.LEFT));
         }
 
         return resultSet;

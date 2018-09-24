@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.util.merge;
 
-public interface Merge {
-    Iterable merge(final Iterable input);
+public enum ResultsWanted {
+    KEY_ONLY,
+    RELATED_ONLY,
+    BOTH
 }

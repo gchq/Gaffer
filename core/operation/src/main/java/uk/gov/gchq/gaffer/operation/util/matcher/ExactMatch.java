@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.operation.util.matcher;
 
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-public class FullOuterJoin implements JoinFunction {
+/**
+ * Tests exact matches within a Join Operation.
+ */
+public class ExactMatch implements Matcher {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchKey matchKey) {
-        Set resultSet = new HashSet<>();
-        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.RIGHT));
-        resultSet.addAll((Set) new OuterJoin().join(left, right, matcher, MatchKey.LEFT));
-        return resultSet;
+    public List matching(final Object testObject, final List testList) {
+        List matches = new ArrayList<>();
+
+        for (Object entry : testList) {
+            if (entry.equals(testObject)) {
+                matches.add(entry);
+            }
+        }
+
+        return matches;
     }
 }

@@ -14,25 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.matcher;
+package uk.gov.gchq.gaffer.operation.util.merge;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Tests exact matches within a Join Operation.
- */
-public class MatchExact implements Matcher {
-    @Override
-    public List matching(final Object testObject, final List testList) {
-        List matches = new ArrayList<>();
-
-        for (Object entry : testList) {
-            if (entry.equals(testObject)) {
-                matches.add(entry);
-            }
-        }
-
-        return matches;
-    }
+public enum ReduceType {
+    NONE,
+    AGAINST_KEY,
+    BOTH
 }

@@ -40,7 +40,7 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             operation.setInput(new ArrayList<>());
         }
 
-        if (null == operation.getMatchingOn() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
+        if (null == operation.getMatchKey() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
             throw new OperationException("You must specify an Iterable side to match on");
         }
 
@@ -59,8 +59,8 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             throw new OperationException(e);
         }
 
-        Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatcher(), operation.getMatchingOn());
+        Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatchMethod(), operation.getMatchKey());
 
-        return operation.getMerge().reduce(joinResults);
+        return operation.getMergeMethod().merge(joinResults);
     }
 }

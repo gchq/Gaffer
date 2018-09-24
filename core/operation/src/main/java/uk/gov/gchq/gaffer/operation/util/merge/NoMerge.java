@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.matcher;
+package uk.gov.gchq.gaffer.operation.util.merge;
 
-/**
- * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
- */
-public enum MatchingOn {
-    LEFT,
-    RIGHT
+public class NoMerge implements Merge {
+    @Override
+    public Iterable merge(final Iterable input) {
+        return input;
+    }
 }

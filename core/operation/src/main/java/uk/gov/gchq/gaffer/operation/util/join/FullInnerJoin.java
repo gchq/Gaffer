@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.operation.util.join;
 
 import com.google.common.collect.ImmutableMap;
 
+import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchingOn;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +27,10 @@ import java.util.Set;
 
 public class FullInnerJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchingOn matchingOn) {
-        if (matchingOn.equals(MatchingOn.LEFT)) {
+    public Iterable join(final List left, final List right, final Matcher matcher, final MatchKey matchKey) {
+        if (matchKey.equals(MatchKey.LEFT)) {
             return getResultSet(left, right, matcher);
-        } else if (matchingOn.equals(MatchingOn.RIGHT)) {
+        } else if (matchKey.equals(MatchKey.RIGHT)) {
             return getResultSet(right, left, matcher);
         } else {
             return new HashSet<>();
