@@ -65,13 +65,18 @@ public class GetVariablesHandlerTest {
         given(context.getVariable(key2)).willReturn(null);
         given(context.getVariable(key3)).willReturn(null);
 
+        Map expected = new HashMap<>();
+        expected.put(key1, null);
+        expected.put(key2, null);
+        expected.put(key3, null);
+
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
-        assertEquals(new HashMap<>(), resultMap);
+        assertEquals(expected, resultMap);
     }
 
     @Test
@@ -81,12 +86,17 @@ public class GetVariablesHandlerTest {
         given(context.getVariable(key2)).willReturn(null);
         given(context.getVariable(key3)).willReturn(val3);
 
+        Map expected = new HashMap<>();
+        expected.put(key1, val1);
+        expected.put(key2, null);
+        expected.put(key3, val3);
+
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
-        assertEquals(ImmutableMap.of(key1, val1, key3, val3), resultMap);
+        assertEquals(expected, resultMap);
     }
 }

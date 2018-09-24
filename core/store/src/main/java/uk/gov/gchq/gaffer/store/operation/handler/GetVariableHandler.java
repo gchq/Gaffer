@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetVariable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetVariableHandler  implements OperationHandler<GetVariable>{
+public class GetVariableHandler implements OperationHandler<GetVariable> {
     @Override
     public Object doOperation(final GetVariable operation, final Context context, final Store store) throws OperationException {
         return context.getVariable(operation.getVariableName());

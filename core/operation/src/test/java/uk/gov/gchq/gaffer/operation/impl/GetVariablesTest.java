@@ -22,7 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class GetVariablesTest extends OperationTest<GetVariables> {
     final List<String> variableNames = Arrays.asList("var1", "var2", "var3");
@@ -31,7 +32,8 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
     public void builderShouldCreatePopulatedOperation() {
         GetVariables getVariablesOp = getTestObject();
 
-        assertEquals(variableNames, getVariablesOp);
+        assertEquals(3, getVariablesOp.getVariableNames().size());
+        assertTrue(getVariablesOp.getVariableNames().containsAll(variableNames));
     }
 
     @Override
@@ -40,7 +42,7 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
 
         GetVariables opClone = op.shallowClone();
 
-        assertNotEquals(op, opClone);
+        assertNotSame(op, opClone);
         assertEquals(op.getVariableNames(), opClone.getVariableNames());
 
     }
