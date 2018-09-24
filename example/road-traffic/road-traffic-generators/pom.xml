@@ -25,9 +25,16 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.4</version>
+            <version>${commons-csv.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>data</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>

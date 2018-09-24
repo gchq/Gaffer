@@ -30,8 +30,10 @@ import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -256,8 +258,29 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
-        public void timestamps(final Collection<Instant> timestamps) {
-            this.timestamps = timestamps;
+        public Builder timestamp(final Instant timestamp) {
+            if (null == timestamps) {
+                timestamps = new ArrayList<>();
+            }
+            timestamps.add(timestamp);
+            return this;
+        }
+
+        public Builder timestamps(final Instant... timestamps) {
+            if (null == this.timestamps) {
+                this.timestamps = new ArrayList<>();
+            }
+            Collections.addAll(this.timestamps, timestamps);
+            return this;
+        }
+
+        public Builder timestamps(final Collection<Instant> timestamps) {
+            if (null == this.timestamps) {
+                this.timestamps = timestamps;
+            } else {
+                this.timestamps.addAll(timestamps);
+            }
+            return this;
         }
 
         public RBMBackedTimestampSet build() {

@@ -20,8 +20,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.ElementTuple;
+import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
@@ -29,16 +28,16 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 import java.util.function.Function;
 
 /**
- * An {@code ElementTransformer} is a {@link Function} which applies a series of
- * transformations to an {@link Element}.
+ * An {@code PropertiesTransformer} is a {@link Function} which applies a series of
+ * transformations to an {@link Properties} object.
  */
-public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
-    private final ElementTuple elementTuple = new ElementTuple();
+public class PropertiesTransformer extends TupleAdaptedFunctionComposite<String> {
+    private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 
-    public Element apply(final Element element) {
-        elementTuple.setElement(element);
-        apply(elementTuple);
-        return element;
+    public Properties apply(final Properties properties) {
+        propertiesTuple.setProperties(properties);
+        apply(propertiesTuple);
+        return properties;
     }
 
     @Override
@@ -51,97 +50,104 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
             return false;
         }
 
-        final ElementTransformer that = (ElementTransformer) obj;
+        final PropertiesTransformer that = (PropertiesTransformer) obj;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
-                .append(elementTuple, that.elementTuple)
+                .append(propertiesTuple, that.propertiesTuple)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(47, 17)
+        return new HashCodeBuilder(47, 13)
                 .appendSuper(super.hashCode())
-                .append(elementTuple)
+                .append(propertiesTuple)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("elementTuple", elementTuple)
+                .append("propertiesTuple", propertiesTuple)
                 .toString();
     }
 
     public static class Builder {
-        private final ElementTransformer transformer;
+        private final PropertiesTransformer transformer;
 
         public Builder() {
-            this(new ElementTransformer());
+            this(new PropertiesTransformer());
         }
 
-        private Builder(final ElementTransformer transformer) {
+        private Builder(final PropertiesTransformer transformer) {
             this.transformer = transformer;
         }
 
-        public SelectedBuilder select(final String... selection) {
+        public PropertiesTransformer.SelectedBuilder select(final String... selection) {
             final TupleAdaptedFunction<String, Object, Object> current = new TupleAdaptedFunction<>();
             current.setSelection(selection);
-            return new SelectedBuilder(transformer, current);
+            return new PropertiesTransformer.SelectedBuilder(transformer, current);
         }
 
-        public ElementTransformer build() {
+        public PropertiesTransformer.ExecutedBuilder execute(final Function function) {
+            final TupleAdaptedFunction<String, Object, Object> current = new TupleAdaptedFunction<>();
+            current.setSelection(new String[0]);
+            current.setFunction(function);
+            return new PropertiesTransformer.ExecutedBuilder(transformer, current);
+        }
+
+        public PropertiesTransformer build() {
             return transformer;
         }
     }
 
     public static final class SelectedBuilder {
-        private final ElementTransformer transformer;
+        private final PropertiesTransformer transformer;
         private final TupleAdaptedFunction<String, Object, Object> current;
 
-        private SelectedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+        private SelectedBuilder(final PropertiesTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
             this.transformer = transformer;
             this.current = current;
         }
 
-        public ExecutedBuilder execute(final Function function) {
+        public PropertiesTransformer.ExecutedBuilder execute(final Function function) {
             current.setFunction(function);
-            return new ExecutedBuilder(transformer, current);
+            return new PropertiesTransformer.ExecutedBuilder(transformer, current);
         }
 
-        public Builder project(final String... projection) {
+        public PropertiesTransformer.Builder project(final String... projection) {
             current.setFunction(new Identity());
             current.setProjection(projection);
             transformer.getComponents().add(current);
-            return new Builder(transformer);
+            return new PropertiesTransformer.Builder(transformer);
         }
     }
 
     public static final class ExecutedBuilder {
-        private final ElementTransformer transformer;
+        private final PropertiesTransformer transformer;
         private final TupleAdaptedFunction<String, Object, Object> current;
 
-        private ExecutedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+        private ExecutedBuilder(final PropertiesTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
             this.transformer = transformer;
             this.current = current;
         }
 
-        public ElementTransformer.SelectedBuilder select(final String... selection) {
+        public PropertiesTransformer.SelectedBuilder select(final String... selection) {
             current.setProjection(current.getSelection().clone());
             transformer.getComponents().add(current);
             final TupleAdaptedFunction<String, Object, Object> newCurrent = new TupleAdaptedFunction<>();
             newCurrent.setSelection(selection);
-            return new ElementTransformer.SelectedBuilder(transformer, newCurrent);
+            return new PropertiesTransformer.SelectedBuilder(transformer, newCurrent);
         }
 
-        public Builder project(final String... projection) {
+        public PropertiesTransformer.Builder project(final String... projection) {
             current.setProjection(projection);
             transformer.getComponents().add(current);
-            return new Builder(transformer);
+            return new PropertiesTransformer.Builder(transformer);
         }
 
-        public ElementTransformer build() {
+        public PropertiesTransformer build() {
             current.setProjection(current.getSelection().clone());
             return transformer;
         }

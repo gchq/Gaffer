@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.util.HashMap;
@@ -66,5 +68,17 @@ public class FreqMap extends HashMap<String, Long> {
      */
     public void upsert(final String key) {
         upsert(key, 1L);
+    }
+
+    /**
+     * @return the total frequency.
+     */
+    @JsonIgnore
+    public Long getTotal() {
+        long sum = 0;
+        for (final Long count : values()) {
+            sum += count;
+        }
+        return sum;
     }
 }

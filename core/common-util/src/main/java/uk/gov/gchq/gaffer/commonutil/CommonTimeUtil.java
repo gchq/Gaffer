@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import uk.gov.gchq.koryphe.function.KorypheFunction;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -106,5 +108,33 @@ public final class CommonTimeUtil {
      */
     public enum TimeBucket {
         SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR, MILLISECOND
+    }
+
+    /**
+     * Converts a timestamp into a timestamp bucket, based on a provided
+     * {@link TimeBucket}.
+     */
+    public static class ToTimeBucket extends KorypheFunction<Long, Long> {
+        private TimeBucket bucket;
+
+        public ToTimeBucket() {
+        }
+
+        public ToTimeBucket(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+
+        @Override
+        public Long apply(final Long time) {
+            return CommonTimeUtil.timeToBucket(time, bucket);
+        }
+
+        public TimeBucket getBucket() {
+            return bucket;
+        }
+
+        public void setBucket(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
     }
 }

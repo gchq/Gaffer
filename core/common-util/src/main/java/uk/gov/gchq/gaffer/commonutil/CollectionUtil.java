@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.Collection;
@@ -59,6 +60,16 @@ public final class CollectionUtil {
         }
 
         return treeSet;
+    }
+
+    /**
+     * Creates a new {@link TreeSet} and adds the given object.
+     */
+    public static class ToSingletonTreeSet extends KorypheFunction<Object, TreeSet> {
+        @Override
+        public TreeSet apply(final Object o) {
+            return treeSet(o);
+        }
     }
 
     public static <K, V> void toMapWithClassKeys(final Map<String, V> mapAsStrings, final Map<Class<? extends K>, V> map) throws ClassNotFoundException {

@@ -159,7 +159,7 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
                 value = 0L;
             }
 
-            freqMap.upsert(fieldName.name(), value);
+            freqMap.upsert(fieldName.fieldName(), value);
         }
         return freqMap;
     }

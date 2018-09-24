@@ -17,6 +17,9 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.Tuple;
@@ -27,6 +30,7 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
  * This class allows Properties to be used with the function module whilst minimising dependencies.
  */
 public class PropertiesTuple implements Tuple<String> {
+    public static final String PROPERTIES = "PROPERTIES";
 
     private Properties properties;
 
@@ -39,6 +43,9 @@ public class PropertiesTuple implements Tuple<String> {
 
     @Override
     public Object get(final String propertyName) {
+        if (PROPERTIES.equals(propertyName)) {
+            return properties;
+        }
         return properties.get(propertyName);
     }
 
@@ -58,6 +65,30 @@ public class PropertiesTuple implements Tuple<String> {
 
     public void setProperties(final Properties properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final PropertiesTuple objects = (PropertiesTuple) obj;
+
+        return new EqualsBuilder()
+                .append(properties, objects.properties)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(61, 3)
+                .append(properties)
+                .toHashCode();
     }
 
     @Override
