@@ -30,6 +30,7 @@ import uk.gov.gchq.koryphe.impl.function.ToLong;
 import java.util.Arrays;
 
 public class CsvElementGeneratorTest {
+
     @Test
     public void test() {
         // Given

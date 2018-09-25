@@ -32,14 +32,18 @@ import java.time.Instant;
 public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     @Required
     private CommonTimeUtil.TimeBucket bucket;
+    private long millisCorrection = 1L;
 
     private Integer maxSize;
 
     public ToTimestampSet() {
     }
 
-    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket) {
+    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, boolean toMilliseconds){
         this.bucket = bucket;
+        if(toMilliseconds){
+            this.millisCorrection = 1000L;
+        }
     }
 
     public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, final Integer maxSize) {
@@ -61,7 +65,7 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
                     .build();
         }
         if (null != timestamp) {
-            timestampSet.add(Instant.ofEpochMilli(timestamp));
+            timestampSet.add(Instant.ofEpochMilli(timestamp * millisCorrection));
         }
         return timestampSet;
     }
