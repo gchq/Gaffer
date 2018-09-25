@@ -41,7 +41,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
 
-@Since("1.0.0")
+@Since("1.8.0")
 @Summary("String ElementGenerator for Road-Traffic demo")
 public class RoadTrafficCsvElementGenerator2 implements ElementGenerator<String> {
     public static final CsvElementGenerator CSV_ELEMENT_GENERATOR = new CsvElementGenerator()
@@ -85,7 +85,6 @@ public class RoadTrafficCsvElementGenerator2 implements ElementGenerator<String>
                     .select("B Ref E", "B Ref N").execute(new Concat()).project("B-Location")
                     .select("PROPERTIES").execute(new CreateRoadTrafficFreqMap()).project("vehicle-counts")
                     .select("vehicle-counts").execute(new CallMethod("getTotal")).project("total-count")
-                    .select("B Ref E", "B Ref N").execute(new Concat()).project("B-Location")
                     .select("dCount").execute(new ToDate())
                     .select("Hour").execute(new ToInteger())
                     .select("dCount", "Hour").execute(new AddGivenHours()).project("start-date")
