@@ -28,8 +28,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * This is a spark compatible implementation of the accumulo RangePartitioner ( @link org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner }
@@ -89,9 +87,12 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
 
         final String table = store.getTableName();
         try {
-            final Collection<Text> splits = connector.tableOperations().listSplits(table);
-            final String[] arr = new String[splits.size()];
-            return splits.parallelStream().map(Text::toString).collect(Collectors.toList()).toArray(arr);
+            return connector.tableOperations()
+                    .listSplits(table)
+                    .stream()
+                    .sorted()
+                    .map(Text::toString)
+                    .toArray(String[]::new);
         } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }

@@ -45,9 +45,11 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.Reduce;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -97,6 +99,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.AddStorePropertiesToLibraryHan
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
@@ -106,6 +109,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
@@ -873,8 +877,9 @@ public abstract class Store {
         addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
         addOperationHandler(If.class, new IfHandler());
         addOperationHandler(While.class, new WhileHandler());
+        addOperationHandler(ForEach.class, new ForEachHandler());
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
-
+        addOperationHandler(Reduce.class, new ReduceHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

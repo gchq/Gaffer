@@ -74,14 +74,13 @@ import java.util.function.Predicate;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = View.class)
 @JsonPropertyOrder(value = {"class", "edges", "entities"}, alphabetic = true)
 @JsonSimpleClassName(includeSubtypes = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
     private List<GlobalViewElementDefinition> globalElements;
     private List<GlobalViewElementDefinition> globalEntities;
     private List<GlobalViewElementDefinition> globalEdges;
     private Map<String, String> config = new HashMap<>();
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean allEntities = false;
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean allEdges = false;
 
     private ViewElementDefinition tmpDef;
@@ -255,22 +254,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return viewElementDef.getGroupBy();
     }
 
-    @JsonSetter("allEntities")
     public boolean isAllEntities() {
         return allEntities;
     }
 
-    @JsonGetter("allEntities")
     public void setAllEntities(final boolean allEntities) {
         this.allEntities = allEntities;
     }
 
-    @JsonSetter("allEdges")
     public boolean isAllEdges() {
         return allEdges;
     }
 
-    @JsonGetter("allEdges")
     public void setAllEdges(final boolean allEdges) {
         this.allEdges = allEdges;
     }
@@ -477,8 +472,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 .toHashCode();
     }
 
+    @JsonInclude(Include.NON_NULL)
     @JsonGetter("class")
-    String getClassName() {
+    public String getClassName() {
         return View.class.equals(getClass()) ? null : getClass().getName();
     }
 

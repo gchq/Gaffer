@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -27,18 +28,14 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
-
-
-    public static final String path = "multiSerialiser.json";
+    private static final String path = "multiSerialiser.json";
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
@@ -68,41 +65,23 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     }
 
     @Test
-    public void shouldMatchHistoricalSerialisation() throws IOException {
-        String fromDisk;
-        File file = new File(getClass().getClassLoader().getSystemResource(path).getFile());
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-            StringBuilder stringBuilder = new StringBuilder();
+    public void shouldMatchHistoricalSerialisation() throws IOException, GafferCheckedException {
+        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), path))
+                .stream()
+                .collect(Collectors.joining("\n"));
 
-            while (bufferedReader.ready()) {
-                stringBuilder.append(bufferedReader.readLine());
-                if (bufferedReader.ready()) {
-                    stringBuilder.append('\n');
-                }
-            }
+        final MultiSerialiser multiSerialiser = new MultiSerialiser()
+                .addSerialiser((byte) 0, new StringSerialiser(), String.class)
+                .addSerialiser((byte) 1, new CompactRawLongSerialiser(), Long.class)
+                .addSerialiser((byte) 2, new CompactRawIntegerSerialiser(), Integer.class);
 
-            fromDisk = stringBuilder.toString();
-        } catch (Exception e) {
-            throw e;
-        }
-
-        MultiSerialiser multiSerialiser = null;
-        try {
-            multiSerialiser = new MultiSerialiser()
-                    .addSerialiser((byte) 0, new StringSerialiser(), String.class)
-                    .addSerialiser((byte) 1, new CompactRawLongSerialiser(), Long.class)
-                    .addSerialiser((byte) 2, new CompactRawIntegerSerialiser(), Integer.class);
-        } catch (GafferCheckedException e) {
-            e.printStackTrace();
-        }
-
-        String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
+        final String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
 
         assertEquals(fromDisk, fromCode);
     }
 
     @Test
-    public void shouldNotAddMultiSerialiser() throws Exception {
+    public void shouldNotAddMultiSerialiser() {
         try {
             new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class);
             fail("exception not thrown");

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -82,10 +83,12 @@ public class OperationChainLimiter implements GraphHook {
         return result;
     }
 
+    @JsonIgnore
     public Map<Class<? extends Operation>, Integer> getOpScores() {
         return scorer.getOpScores();
     }
 
+    @JsonIgnore
     public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         scorer.setOpScores(opScores);
     }

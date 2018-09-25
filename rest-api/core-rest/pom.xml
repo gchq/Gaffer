@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>1.6.1-SNAPSHOT</version>
+        <version>1.7.0-RC3-SNAPSHOT</version>
     </parent>
 
     <artifactId>core-rest</artifactId>
@@ -58,10 +58,19 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.glassfish.jersey.containers</groupId>
                     <artifactId>jersey-container-servlet-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
