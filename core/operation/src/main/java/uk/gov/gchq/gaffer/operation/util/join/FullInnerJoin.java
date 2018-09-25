@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.operation.util.join;
 
 import com.google.common.collect.ImmutableMap;
 
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.util.match.Match;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,20 +27,20 @@ import java.util.Set;
 
 public class FullInnerJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchKey matchKey) {
+    public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
         if (matchKey.equals(MatchKey.LEFT)) {
-            return getResultSet(left, right, matcher);
+            return getResultSet(left, right, match);
         } else if (matchKey.equals(MatchKey.RIGHT)) {
-            return getResultSet(right, left, matcher);
+            return getResultSet(right, left, match);
         } else {
             return new HashSet<>();
         }
     }
 
-    private Set getResultSet(final List startingList, final List secondaryList, final Matcher matcher) {
+    private Set getResultSet(final List startingList, final List secondaryList, final Match match) {
         Set resultSet = new HashSet<>();
         for (Object listObject : startingList) {
-            List matchingObjects = matcher.matching(listObject, secondaryList);
+            List matchingObjects = match.matching(listObject, secondaryList);
             if (!matchingObjects.isEmpty()) {
                 resultSet.add(ImmutableMap.of(listObject, matchingObjects));
             }

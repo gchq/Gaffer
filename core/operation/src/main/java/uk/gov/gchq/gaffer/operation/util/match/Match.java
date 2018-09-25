@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.matcher;
+package uk.gov.gchq.gaffer.operation.util.match;
+
+import java.util.List;
 
 /**
- * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
+ * This is used to return a List of Objects within the testList that match the testObject supplied.
  */
-public enum MatchKey {
-    LEFT,
-    RIGHT
+public interface Match {
+    /**
+     * Returns a list of matching Objects.
+     *
+     * @param testObject Object to test against.
+     * @param testList   List to test against.
+     * @return List containing matched Objects.
+     */
+    List matching(final Object testObject, final List testList);
 }

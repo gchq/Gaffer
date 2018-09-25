@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.util.match.Match;
 import uk.gov.gchq.gaffer.operation.util.merge.Merge;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -39,7 +39,7 @@ import java.util.Map;
 public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
-    private Matcher matchMethod;
+    private Match matchMethod;
     private MatchKey matchKey;
     private Merge mergeMethod;
     private JoinType joinType;
@@ -63,11 +63,11 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.rightSideOperation = rightSideOperation;
     }
 
-    public Matcher getMatchMethod() {
+    public Match getMatchMethod() {
         return matchMethod;
     }
 
-    public void setMatchMethod(Matcher matchMethod) {
+    public void setMatchMethod(Match matchMethod) {
         this.matchMethod = matchMethod;
     }
 
@@ -138,7 +138,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
             return _self();
         }
 
-        public Builder<I, O> matchMethod(Matcher matchMethod) {
+        public Builder<I, O> matchMethod(Match matchMethod) {
             _getOp().setMatchMethod(matchMethod);
             return _self();
         }

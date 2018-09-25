@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.matcher;
+package uk.gov.gchq.gaffer.operation.util.match;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is used to return a List of Objects within the testList that match the testObject supplied.
+ * Tests exact matches within a Join Operation.
  */
-public interface Matcher {
-    /**
-     * Returns a list of matching Objects.
-     *
-     * @param testObject Object to test against.
-     * @param testList   List to test against.
-     * @return List containing matched Objects.
-     */
-    List matching(final Object testObject, final List testList);
+public class ExactMatch implements Match {
+    @Override
+    public List matching(final Object testObject, final List testList) {
+        List matches = new ArrayList<>();
+
+        for (Object entry : testList) {
+            if (entry.equals(testObject)) {
+                matches.add(entry);
+            }
+        }
+
+        return matches;
+    }
 }

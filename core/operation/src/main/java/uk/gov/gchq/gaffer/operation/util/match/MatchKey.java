@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.matcher;
-
-import java.util.ArrayList;
-import java.util.List;
+package uk.gov.gchq.gaffer.operation.util.match;
 
 /**
- * Tests exact matches within a Join Operation.
+ * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
  */
-public class ExactMatch implements Matcher {
-    @Override
-    public List matching(final Object testObject, final List testList) {
-        List matches = new ArrayList<>();
-
-        for (Object entry : testList) {
-            if (entry.equals(testObject)) {
-                matches.add(entry);
-            }
-        }
-
-        return matches;
-    }
+public enum MatchKey {
+    LEFT,
+    RIGHT
 }

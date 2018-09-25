@@ -18,22 +18,22 @@ package uk.gov.gchq.gaffer.operation.util.join;
 
 import com.google.common.collect.ImmutableMap;
 
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.matcher.Matcher;
+import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.util.match.Match;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class OuterJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Matcher matcher, final MatchKey matchKey) {
+    public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
         Set resultSet = new HashSet<>();
         if (matchKey.equals(MatchKey.LEFT)) {
-            left.stream().filter(listObj -> matcher.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, new ArrayList<>())));
+            left.stream().filter(listObj -> match.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, Collections.emptyList())));
         } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.stream().filter(listObj -> matcher.matching(listObj, left).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, new ArrayList<>())));
+            right.stream().filter(listObj -> match.matching(listObj, left).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, Collections.emptyList())));
         }
         return resultSet;
     }

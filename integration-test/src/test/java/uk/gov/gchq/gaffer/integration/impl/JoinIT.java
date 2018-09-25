@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -34,9 +37,9 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Join;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
-import uk.gov.gchq.gaffer.operation.util.matcher.ExactMatch;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.matcher.MatchOnFields;
+import uk.gov.gchq.gaffer.operation.util.match.ElementMatch;
+import uk.gov.gchq.gaffer.operation.util.match.ExactMatch;
+import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.merge.ElementMerge;
 import uk.gov.gchq.gaffer.operation.util.merge.NoMerge;
 import uk.gov.gchq.gaffer.operation.util.merge.ReduceType;
@@ -48,20 +51,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class JoinIT extends AbstractStoreIT {
 
-    final User user = new User();
-    final String testField = "field1";
-    final List<TestPojo> inputTestList = Arrays.asList(new TestPojo(1, 3), new TestPojo(2, 4), new TestPojo(2, 4), new TestPojo(3, 5), new TestPojo(4, 6));
-    final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
+    private final User user = new User();
+
+    private final Entity entityWithAltCount = new Entity.Builder()
+            .group(TestGroups.ENTITY)
+            .vertex(VERTEX_PREFIXES[0] + 0)
+            .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+            .property(TestPropertyNames.COUNT, 2L)
+            .build();
+
+    private final List<TestPojo> inputTestList = Arrays.asList(new TestPojo(1, 3), new TestPojo(2, 4), new TestPojo(2, 4), new TestPojo(3, 5), new TestPojo(4, 6));
+    private final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
 
     @Override
     @Before
     public void setup() throws Exception {
+        addToMap(entityWithAltCount, getEntities());
         super.setup();
         addDefaultElements();
     }
@@ -71,14 +83,16 @@ public class JoinIT extends AbstractStoreIT {
         final Entity entity1 = getEntity(VERTEX_PREFIXES[0] + 0);
         final Entity entity2 = getEntity(VERTEX_PREFIXES[0] + 1);
         final Entity entity3 = getEntity(VERTEX_PREFIXES[0] + 2);
+        final Set<String> elementGroupByProperties = Sets.newHashSet("count");
 
-        List<Element> expectedResults = Arrays.asList(entity1, entity2, entity1, entity2);
+        List<Element> expectedResults = Arrays.asList(entity1, entity2, entityWithAltCount, entity1, entity2, entityWithAltCount);
 
-        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3);
+        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3, entityWithAltCount);
 
         final GetElements rhsGetElementsOperation = new GetElements.Builder()
                 .input(new EntitySeed(VERTEX_PREFIXES[0] + 0),
-                        new EntitySeed(VERTEX_PREFIXES[0] + 1))
+                        new EntitySeed(VERTEX_PREFIXES[0] + 1),
+                        new EntitySeed(VERTEX_PREFIXES[0] + 15))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -89,8 +103,9 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new ElementMerge(ResultsWanted.BOTH, ReduceType.NONE, null))
+                .matchMethod(new ElementMatch())
+                //.mergeMethod(new ElementMerge(ResultsWanted.BOTH, ReduceType.NONE, null))
+                .mergeMethod(new NoMerge())
                 .build();
 
         final Iterable<? extends Element> results = graph.execute(joinOp, user);
@@ -135,14 +150,14 @@ public class JoinIT extends AbstractStoreIT {
         List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6), new TestPojo(4, 11))));
+        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
 
         Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new MatchOnFields(TestPojo.class.getField(testField)))
+                .matchMethod(new ExactMatch())
                 .mergeMethod(new NoMerge())
                 .build();
 
@@ -156,14 +171,13 @@ public class JoinIT extends AbstractStoreIT {
         List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
         expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
         expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList(new TestPojo(4, 6))));
 
         Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
                 .input(inputTestList)
                 .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new MatchOnFields(TestPojo.class.getField(testField)))
+                .matchMethod(new ExactMatch())
                 .mergeMethod(new NoMerge())
                 .build();
 

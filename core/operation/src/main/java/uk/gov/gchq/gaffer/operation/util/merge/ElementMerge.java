@@ -42,8 +42,6 @@ public class ElementMerge implements Merge {
 
     @Override
     public Iterable merge(final Iterable input) {
-        //Set(Map(Object,List(relatedObjects));
-
         if (reduceFunction == null || reduceType.equals(ReduceType.NONE)) {
             return flatten(input);
         } else if (null != reduceFunction) {
