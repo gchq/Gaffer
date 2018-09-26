@@ -102,11 +102,6 @@ public class ElementMerge implements Merge {
     }
 
     private List reduceAgainstKey(Iterable input) {
-        //[Element(count=1) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
-        // Element(count=2) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
-        // Element(count=3) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
-        // Element(count=4) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)]]
-
         // Wanting both, reducing right, [E1]:[E1,E2] -> [E1, E3]
         List results = new ArrayList<>();
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
