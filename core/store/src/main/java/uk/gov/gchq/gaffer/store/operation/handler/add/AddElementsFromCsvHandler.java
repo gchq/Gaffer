@@ -51,7 +51,7 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
         final Iterable<String> data = () -> {
             try {
                 return FileUtils.lineIterator(new File(operation.getFilename()));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         };
