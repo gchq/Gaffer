@@ -16,16 +16,12 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -35,370 +31,271 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Join;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.operation.util.match.ElementMatch;
-import uk.gov.gchq.gaffer.operation.util.match.ExactMatch;
 import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.util.merge.ElementMerge;
-import uk.gov.gchq.gaffer.operation.util.merge.NoMerge;
 import uk.gov.gchq.gaffer.operation.util.merge.ReduceType;
 import uk.gov.gchq.gaffer.operation.util.merge.ResultsWanted;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 public class JoinIT extends AbstractStoreIT {
+    private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4), getJoinEntity(6)));
 
-    private final User user = new User();
-
-    private final Entity entityWithAltCount = new Entity.Builder()
-            .group(TestGroups.ENTITY)
-            .vertex(VERTEX_PREFIXES[0] + 0)
-            .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-            .property(TestPropertyNames.COUNT, 2L)
+    private final GetElements rhsGetElementsOperation = new GetElements.Builder()
+            .input(new EntitySeed(VERTEX_PREFIXES[0] + 0))
+            .view(new View.Builder()
+                    .entity(TestGroups.ENTITY_3)
+                    .build())
             .build();
-
-    private final List<TestPojo> inputTestList = Arrays.asList(new TestPojo(1, 3), new TestPojo(2, 4), new TestPojo(2, 4), new TestPojo(3, 5), new TestPojo(4, 6));
-    private final List<TestPojo> operationTestList = Arrays.asList(new TestPojo(2, 4), new TestPojo(4, 6), new TestPojo(4, 11), new TestPojo(6, 8), new TestPojo(8, 10));
 
     @Override
     @Before
     public void setup() throws Exception {
-        addToMap(entityWithAltCount, getEntities());
         super.setup();
         addDefaultElements();
+        addJoinEntityElements();
     }
 
     @Test
-    public void shouldFullInnerJoinElementsFromLeftToRightWithFlatten() throws OperationException, NoSuchFieldException {
-        final Entity entity1 = getEntity(VERTEX_PREFIXES[0] + 0);
-        final Entity entity2 = getEntity(VERTEX_PREFIXES[0] + 1);
-        final Entity entity3 = getEntity(VERTEX_PREFIXES[0] + 2);
-        final Set<String> elementGroupByProperties = Sets.newHashSet("count");
-
-        List<Element> expectedResults = Arrays.asList(entity1, entity2, entityWithAltCount, entity1, entity2, entityWithAltCount);
-
-        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3, entityWithAltCount);
-
-        final GetElements rhsGetElementsOperation = new GetElements.Builder()
-                .input(new EntitySeed(VERTEX_PREFIXES[0] + 0),
-                        new EntitySeed(VERTEX_PREFIXES[0] + 1),
-                        new EntitySeed(VERTEX_PREFIXES[0] + 15))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
+    public void shouldLeftKeyFullInnerJoinWithFlattenGettingKeys() throws OperationException {
+        // Given
+        final List<Element> expectedElements = Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4));
 
         Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElementList)
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
+                .joinType(JoinType.FULL_INNER)
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ElementMatch("count"))
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+
+        // Then
+        ElementUtil.assertElementEquals(expectedElements, results);
+    }
+
+    @Test
+    public void shouldRightKeyFullInnerJoinWithFlattenGettingKeys() throws OperationException, NoSuchFieldException {
+        // Given
+        final List<Element> expectedResults = Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4));
+
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
+                .joinType(JoinType.FULL_INNER)
+                .matchKey(MatchKey.RIGHT)
+                .matchMethod(new ElementMatch("count"))
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
+    }
+
+    @Test
+    public void shouldLeftKeyFullInnerJoinWithReduceGettingRelated() throws OperationException {
+        // Get Full inner, grouped by count, then merge, get related only, reducing against the key, aggregated based on the count
+        // Given
+        final Entity expectedEntity = getJoinEntity(18);
+        final List<Element> expectedElements = new ArrayList<>(Arrays.asList(expectedEntity, expectedEntity, expectedEntity, expectedEntity, expectedEntity));
+
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.LEFT)
                 .matchMethod(new ElementMatch())
-                //.mergeMethod(new ElementMerge(ResultsWanted.BOTH, ReduceType.NONE, null))
-                .mergeMethod(new NoMerge())
-                .build();
-
-        final Iterable<? extends Element> results = graph.execute(joinOp, user);
-
-        ElementUtil.assertElementEquals(expectedResults, results);
-    }
-
-    @Test
-    public void shouldFullInnerJoinElementsFromLeftToRightWithReduceAndBothResults() throws OperationException, NoSuchFieldException {
-        final Entity entity1 = getEntity(VERTEX_PREFIXES[0] + 0);
-        final Entity entity2 = getEntity(VERTEX_PREFIXES[0] + 1);
-        final Entity entity3 = getEntity(VERTEX_PREFIXES[0] + 2);
-
-        List<Element> expectedResults = Arrays.asList(entity1, entity2);
-
-        final List<Element> inputElementList = Arrays.asList(entity1, entity2, entity3);
-
-        final GetElements rhsGetElementsOperation = new GetElements.Builder()
-                .input(new EntitySeed(VERTEX_PREFIXES[0] + 0),
-                        new EntitySeed(VERTEX_PREFIXES[0] + 1))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
-
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElementList)
-                .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_INNER)
-                .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
                 .mergeMethod(new ElementMerge(ResultsWanted.RELATED_ONLY, ReduceType.AGAINST_KEY, new ElementAggregator.Builder().select("count").execute(new Sum()).build()))
                 .build();
 
-        final Iterable<? extends Element> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
+        // Then
+        ElementUtil.assertElementEquals(expectedElements, results);
+    }
+
+    @Test
+    public void shouldLeftKeyFullJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = inputElements;
+
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
+                .joinType(JoinType.FULL)
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+
+        // Then
         ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
-    public void shouldFullInnerJoinFromLeftToRight() throws OperationException, NoSuchFieldException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+    public void shouldRightKeyFullJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
-                .joinType(JoinType.FULL_INNER)
-                .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
-                .build();
-
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
-
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
-    }
-
-    @Test
-    public void shouldFullInnerJoinFromRightToLeft() throws OperationException, NoSuchFieldException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
-    }
-
-    @Test
-    public void shouldFullJoinFromLeftToRight() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
-
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
-                .joinType(JoinType.FULL)
-                .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
-                .build();
-
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
-
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
-    }
-
-    @Test
-    public void shouldFullJoinFromRightToLeft() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
-
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
-                .joinType(JoinType.FULL)
-                .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
-                .build();
-
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
-
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
     public void shouldFullOuterJoin() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL_OUTER)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
-    public void shouldOuterJoinFromLeftToRight() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
+    public void shouldLeftKeyOuterJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
-    public void shouldOuterJoinFromRightToLeft() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+    public void shouldRightKeyOuterJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
-    public void shouldInnerJoinFromLeftToRight() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(1, 3), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(3, 5), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
+    public void shouldLeftKeyInnerJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
     @Test
-    public void shouldInnerJoinFromRightToLeft() throws OperationException {
-        List<Map<TestPojo, List<TestPojo>>> expectedResults = new ArrayList<>();
-        expectedResults.add(ImmutableMap.of(new TestPojo(2, 4), Arrays.asList(new TestPojo(2, 4), new TestPojo(2, 4))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 6), Arrays.asList(new TestPojo(4, 6))));
-        expectedResults.add(ImmutableMap.of(new TestPojo(4, 11), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(6, 8), Arrays.asList()));
-        expectedResults.add(ImmutableMap.of(new TestPojo(8, 10), Arrays.asList()));
+    public void shouldRightKeyInnerJoin() throws OperationException {
+        // Given
+        final List<Element> expectedResults = new ArrayList<>();
 
-        Join<TestPojo, TestPojo> joinOp = new Join.Builder<TestPojo, TestPojo>()
-                .input(inputTestList)
-                .operation(new uk.gov.gchq.gaffer.operation.impl.Map.Builder<>().input(operationTestList).build())
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ExactMatch())
-                .mergeMethod(new NoMerge())
+                .matchMethod(new ElementMatch())
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, ReduceType.NONE, null))
                 .build();
 
-        final Iterable<? extends TestPojo> results = graph.execute(joinOp, user);
+        // When
+        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
 
-        assertThat(results, containsInAnyOrder(expectedResults.toArray()));
+        // Then
+        ElementUtil.assertElementEquals(expectedResults, results);
     }
 
-    public class TestPojo {
-        public Integer field1;
-        public Integer field2;
-
-        public TestPojo() {
-
-        }
-
-        public TestPojo(final Integer field1, final Integer field2) {
-            this.field1 = field1;
-            this.field2 = field2;
-        }
-
-        public Integer getField1() {
-            return field1;
-        }
-
-        public void setField1(final Integer field1) {
-            this.field1 = field1;
-        }
-
-        public Integer getField2() {
-            return field2;
-        }
-
-        public void setField2(final Integer field2) {
-            this.field2 = field2;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
+    private void addJoinEntityElements() {
+        for (int i = 1; i <= 4; i++) {
+            final Entity entity = getJoinEntity(i);
+            try {
+                graph.execute(new AddElements.Builder().input(entity).build(), getUser());
+            } catch (final OperationException e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
-
-            if (null == obj || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            final TestPojo that = (TestPojo) obj;
-
-            return new EqualsBuilder()
-                    .append(field1, that.field1)
-                    .append(field2, that.field2)
-                    .isEquals();
         }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("field1: " + field1)
-                    .append("field2: " + field2)
-                    .toString();
+        try {
+            graph.execute(new AddElements.Builder().input(getJoinEntity(8)).build(), getUser());
+        } catch (final OperationException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private Entity getJoinEntity(final Integer countProperty) {
+        return new Entity.Builder()
+                .group(TestGroups.ENTITY_3)
+                .vertex(VERTEX_PREFIXES[0] + 0)
+                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                .property(TestPropertyNames.COUNT, Long.parseLong(countProperty.toString()))
+                .build();
     }
 }

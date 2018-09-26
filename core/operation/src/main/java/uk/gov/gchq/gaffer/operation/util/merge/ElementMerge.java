@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.util.merge;
 
-import com.google.common.collect.ImmutableMap;
-
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
@@ -26,25 +24,51 @@ import java.util.List;
 import java.util.Map;
 
 public class ElementMerge implements Merge {
-    private ResultsWanted resultsWanted = ResultsWanted.BOTH;
-    private ReduceType reduceType = ReduceType.AGAINST_KEY;
-    private ElementAggregator reduceFunction;
+    private ResultsWanted resultsWanted;
+    private ReduceType reduceType;
+    private ElementAggregator reduceAggregator;
 
     public ElementMerge() {
-
+        this.resultsWanted = ResultsWanted.BOTH;
+        this.reduceType = ReduceType.AGAINST_KEY;
+        this.reduceAggregator = null;
     }
 
-    public ElementMerge(final ResultsWanted resultsWanted, final ReduceType reduceType, final ElementAggregator reduceFunction) {
+    public ElementMerge(final ResultsWanted resultsWanted, final ReduceType reduceType, final ElementAggregator reduceAggregator) {
         this.resultsWanted = resultsWanted;
         this.reduceType = reduceType;
-        this.reduceFunction = reduceFunction;
+        this.reduceAggregator = reduceAggregator;
+    }
+
+    public ResultsWanted getResultsWanted() {
+        return resultsWanted;
+    }
+
+    public void setResultsWanted(ResultsWanted resultsWanted) {
+        this.resultsWanted = resultsWanted;
+    }
+
+    public ReduceType getReduceType() {
+        return reduceType;
+    }
+
+    public void setReduceType(ReduceType reduceType) {
+        this.reduceType = reduceType;
+    }
+
+    public ElementAggregator getReduceFunction() {
+        return reduceAggregator;
+    }
+
+    public void setReduceFunction(ElementAggregator reduceAggregator) {
+        this.reduceAggregator = reduceAggregator;
     }
 
     @Override
     public Iterable merge(final Iterable input) {
-        if (reduceFunction == null || reduceType.equals(ReduceType.NONE)) {
+        if (reduceAggregator == null || reduceType.equals(ReduceType.NONE)) {
             return flatten(input);
-        } else if (null != reduceFunction) {
+        } else if (null != reduceAggregator) {
             if (reduceType.equals(ReduceType.AGAINST_KEY)) {
                 return reduceAgainstKey(input);
             } else if (reduceType.equals(ReduceType.BOTH)) {
@@ -78,7 +102,12 @@ public class ElementMerge implements Merge {
     }
 
     private List reduceAgainstKey(Iterable input) {
-        // Wanting both, reducing right, [E1]:[E1,E2] -> [E1]:[E3]
+        //[Element(count=1) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
+        // Element(count=2) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
+        // Element(count=3) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)],
+        // Element(count=4) : [Element(count=1),Element(count=2),Element(count=3),Element(count=4)]]
+
+        // Wanting both, reducing right, [E1]:[E1,E2] -> [E1, E3]
         List results = new ArrayList<>();
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
             for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
@@ -86,7 +115,7 @@ public class ElementMerge implements Merge {
                 Element aggregatedElement = null;
                 for (Object rhsObject : mapEntry.getValue()) {
                     if (null != aggregatedElement) {
-                        aggregatedElement = reduceFunction.apply(aggregatedElement, (Element) rhsObject);
+                        aggregatedElement = reduceAggregator.apply(aggregatedElement, (Element) rhsObject);
                     } else {
                         aggregatedElement = (Element) rhsObject;
                     }
@@ -96,7 +125,8 @@ public class ElementMerge implements Merge {
                 } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
                     results.add(aggregatedElement);
                 } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
-                    results.add(ImmutableMap.of(lhsElement, aggregatedElement));
+                    results.add(lhsElement);
+                    results.add(aggregatedElement);
                 }
             }
         }
@@ -114,35 +144,11 @@ public class ElementMerge implements Merge {
                     aggregatedElement = lhsElement;
                 }
                 for (Object rhsObject : mapEntry.getValue()) {
-                    aggregatedElement = reduceFunction.apply(aggregatedElement, (Element) rhsObject);
+                    aggregatedElement = reduceAggregator.apply(aggregatedElement, (Element) rhsObject);
                 }
                 results.add(aggregatedElement);
             }
         }
         return results;
-    }
-
-    public ResultsWanted getResultsWanted() {
-        return resultsWanted;
-    }
-
-    public void setResultsWanted(ResultsWanted resultsWanted) {
-        this.resultsWanted = resultsWanted;
-    }
-
-    public ReduceType getReduceType() {
-        return reduceType;
-    }
-
-    public void setReduceType(ReduceType reduceType) {
-        this.reduceType = reduceType;
-    }
-
-    public ElementAggregator getReduceFunction() {
-        return reduceFunction;
-    }
-
-    public void setReduceFunction(ElementAggregator reduceFunction) {
-        this.reduceFunction = reduceFunction;
     }
 }

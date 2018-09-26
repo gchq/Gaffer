@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Tests for matches for Elements within a Join Operation, groupBy properties can be optionally specified.
+ */
 public class ElementMatch implements Match {
     private ElementEquality elementEquality;
 
@@ -45,11 +48,10 @@ public class ElementMatch implements Match {
     @Override
     public List matching(final Object testObject, final List testList) {
         List matches = new ArrayList<>();
-        ElementEquality elementEquality = new ElementEquality();
 
         for (Object entry : testList) {
             if (elementEquality.test((Element) entry, (Element) testObject)) {
-                matches.add(entry);
+                matches.add(((Element) entry).shallowClone());
             }
         }
         return matches;
