@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.match;
+package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
 
-/**
- * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
- */
-public enum MatchKey {
-    LEFT,
-    RIGHT
+public enum ResultsWanted {
+    KEY_ONLY,
+    RELATED_ONLY,
+    BOTH
 }

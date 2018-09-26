@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.merge;
+package uk.gov.gchq.gaffer.operation.impl.join.match;
 
-public enum ResultsWanted {
-    KEY_ONLY,
-    RELATED_ONLY,
-    BOTH
+import java.util.List;
+
+/**
+ * This is used to return a List of Objects within the testList that match the testObject supplied.
+ */
+public interface Match {
+    /**
+     * Returns a list of matching Objects.
+     *
+     * @param testObject Object to test against.
+     * @param testList   List to test against.
+     * @return List containing matched Objects.
+     */
+    List matching(final Object testObject, final List testList);
 }

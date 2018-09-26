@@ -14,74 +14,78 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.merge;
+package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ElementMerge implements Merge {
     private ResultsWanted resultsWanted;
-    private ReduceType reduceType;
-    private ElementAggregator reduceAggregator;
+    private MergeType mergeType;
+    private Schema schema;
 
     public ElementMerge() {
         this.resultsWanted = ResultsWanted.BOTH;
-        this.reduceType = ReduceType.AGAINST_KEY;
-        this.reduceAggregator = null;
+        this.mergeType = MergeType.AGAINST_KEY;
+        this.schema = null;
     }
 
-    public ElementMerge(final ResultsWanted resultsWanted, final ReduceType reduceType, final ElementAggregator reduceAggregator) {
+    public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType) {
         this.resultsWanted = resultsWanted;
-        this.reduceType = reduceType;
-        this.reduceAggregator = reduceAggregator;
+        this.mergeType = mergeType;
+        this.schema = schema;
     }
 
     public ResultsWanted getResultsWanted() {
         return resultsWanted;
     }
 
-    public void setResultsWanted(ResultsWanted resultsWanted) {
+    public void setResultsWanted(final ResultsWanted resultsWanted) {
         this.resultsWanted = resultsWanted;
     }
 
-    public ReduceType getReduceType() {
-        return reduceType;
+    public MergeType getMergeType() {
+        return mergeType;
     }
 
-    public void setReduceType(ReduceType reduceType) {
-        this.reduceType = reduceType;
+    public void setMergeType(final MergeType mergeType) {
+        this.mergeType = mergeType;
     }
 
-    public ElementAggregator getReduceFunction() {
-        return reduceAggregator;
+    public Schema getSchema() {
+        return schema;
     }
 
-    public void setReduceFunction(ElementAggregator reduceAggregator) {
-        this.reduceAggregator = reduceAggregator;
+    public void setSchema(final Schema schema) {
+        this.schema = schema;
     }
 
     @Override
-    public Iterable merge(final Iterable input) {
-        if (reduceAggregator == null || reduceType.equals(ReduceType.NONE)) {
+    public List merge(final Set input) throws OperationException {
+        if (null == schema) {
+            throw new OperationException("Schema cannot be null");
+        }
+        if (mergeType.equals(MergeType.NONE)) {
             return flatten(input);
-        } else if (null != reduceAggregator) {
-            if (reduceType.equals(ReduceType.AGAINST_KEY)) {
-                return reduceAgainstKey(input);
-            } else if (reduceType.equals(ReduceType.BOTH)) {
-                return reduceAll(input);
-            } else {
-                return input;
-            }
+        } else if (mergeType.equals(MergeType.AGAINST_KEY)) {
+            return reduceAgainstKey(input);
+        } else if (mergeType.equals(MergeType.BOTH)) {
+            return reduceAll(input);
         } else {
-            return input;
+            return new ArrayList<>(input);
         }
     }
 
-    private List flatten(Iterable input) {
+    private List flatten(Set input) {
         // Flatten, [E1]:[E2,E3] -> [E1, E2, E3]
         List results = new ArrayList<>();
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
@@ -101,16 +105,19 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List reduceAgainstKey(Iterable input) {
+    private List reduceAgainstKey(Set input) {
         // Wanting both, reducing right, [E1]:[E1,E2] -> [E1, E3]
         List results = new ArrayList<>();
+
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
             for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
                 Element lhsElement = (Element) mapEntry.getKey();
+                final SchemaElementDefinition schemaElDef = schema.getElement(lhsElement.getGroup());
+                final ElementAggregator agg = schemaElDef.getIngestAggregator();
                 Element aggregatedElement = null;
                 for (Object rhsObject : mapEntry.getValue()) {
                     if (null != aggregatedElement) {
-                        aggregatedElement = reduceAggregator.apply(aggregatedElement, (Element) rhsObject);
+                        aggregatedElement = agg.apply(aggregatedElement, (Element) rhsObject);
                     } else {
                         aggregatedElement = (Element) rhsObject;
                     }
@@ -125,21 +132,24 @@ public class ElementMerge implements Merge {
                 }
             }
         }
+
         return results;
     }
 
-    private List<Element> reduceAll(Iterable input) {
+    private List<Element> reduceAll(Set input) {
         // Wanting both, reducing both, [E1]:[E1,E2] -> [E4]
         List<Element> results = new ArrayList<>();
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
             Element aggregatedElement = null;
             for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
                 Element lhsElement = (Element) mapEntry.getKey();
+                final SchemaElementDefinition schemaElDef = schema.getElement(lhsElement.getGroup());
+                final ElementAggregator agg = schemaElDef.getIngestAggregator();
                 if (null == aggregatedElement) {
                     aggregatedElement = lhsElement;
                 }
                 for (Object rhsObject : mapEntry.getValue()) {
-                    aggregatedElement = reduceAggregator.apply(aggregatedElement, (Element) rhsObject);
+                    aggregatedElement = agg.apply(aggregatedElement, (Element) rhsObject);
                 }
                 results.add(aggregatedElement);
             }

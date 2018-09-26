@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.match;
+package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementEquality;
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 
 import java.util.ArrayList;
 import java.util.List;

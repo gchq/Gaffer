@@ -58,7 +58,7 @@ import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
-import uk.gov.gchq.gaffer.operation.impl.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;

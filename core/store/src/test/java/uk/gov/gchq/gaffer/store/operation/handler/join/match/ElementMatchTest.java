@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.match;
+package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import org.junit.Test;
 

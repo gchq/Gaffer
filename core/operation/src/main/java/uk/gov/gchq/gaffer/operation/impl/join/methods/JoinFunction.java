@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.match;
+package uk.gov.gchq.gaffer.operation.impl.join.methods;
+
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
 import java.util.List;
 
 /**
- * This is used to return a List of Objects within the testList that match the testObject supplied.
+ * Used by the Join Operation to join two Lists together.
  */
-public interface Match {
-    /**
-     * Returns a list of matching Objects.
-     *
-     * @param testObject Object to test against.
-     * @param testList   List to test against.
-     * @return List containing matched Objects.
-     */
-    List matching(final Object testObject, final List testList);
+public interface JoinFunction {
+    Iterable join(List left, List right, Match match, MatchKey matchKey);
 }

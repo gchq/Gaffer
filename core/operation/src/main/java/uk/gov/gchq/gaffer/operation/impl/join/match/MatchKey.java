@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.merge;
+package uk.gov.gchq.gaffer.operation.impl.join.match;
 
-public interface Merge {
-    Iterable merge(final Iterable input);
+/**
+ * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
+ */
+public enum MatchKey {
+    LEFT,
+    RIGHT
 }

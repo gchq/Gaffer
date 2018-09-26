@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
-import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.match.Match;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FullInnerJoin implements JoinFunction {
+public class FullJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        if (matchKey.equals(MatchKey.LEFT)) {
-            return getResultSet(left, right, match);
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            return getResultSet(right, left, match);
-        } else {
-            return new HashSet<>();
-        }
-    }
-
-    private Set getResultSet(final List startingList, final List secondaryList, final Match match) {
         Set resultSet = new HashSet<>();
-        for (Object listObject : startingList) {
-            List matchingObjects = match.matching(listObject, secondaryList);
-            if (!matchingObjects.isEmpty()) {
-                resultSet.add(ImmutableMap.of(listObject, matchingObjects));
-            }
+        if (matchKey.equals(MatchKey.LEFT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, match, MatchKey.LEFT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+        } else if (matchKey.equals(MatchKey.RIGHT)) {
+            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+            resultSet.addAll((Set) new InnerJoin().join(left, right, match, MatchKey.RIGHT));
+            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
         }
         return resultSet;
     }

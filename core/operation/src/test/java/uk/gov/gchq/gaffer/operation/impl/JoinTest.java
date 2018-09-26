@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.util.join.JoinType;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
 

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.operation.impl.join;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
+import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import uk.gov.gchq.gaffer.operation.util.join.JoinType;
-import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.match.Match;
-import uk.gov.gchq.gaffer.operation.util.merge.Merge;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 

@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
 
-import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.match.Match;
-
-import java.util.List;
-
-/**
- * Used by the Join Operation to join two Lists together.
- */
-public interface JoinFunction {
-    Iterable join(List left, List right, Match match, MatchKey matchKey);
+public enum MergeType {
+    NONE,
+    AGAINST_KEY,
+    BOTH
 }

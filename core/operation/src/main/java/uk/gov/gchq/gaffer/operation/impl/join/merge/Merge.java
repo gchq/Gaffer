@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.merge;
+package uk.gov.gchq.gaffer.operation.impl.join.merge;
 
-public enum ReduceType {
-    NONE,
-    AGAINST_KEY,
-    BOTH
+import uk.gov.gchq.gaffer.operation.OperationException;
+
+import java.util.List;
+import java.util.Set;
+
+public interface Merge {
+    List merge(final Set input) throws OperationException;
 }

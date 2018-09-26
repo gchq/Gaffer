@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
-import uk.gov.gchq.gaffer.operation.util.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.util.match.Match;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class InnerJoin implements JoinFunction {
+public class FullOuterJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
         Set resultSet = new HashSet<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
-        }
+        resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+        resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
         return resultSet;
     }
 }

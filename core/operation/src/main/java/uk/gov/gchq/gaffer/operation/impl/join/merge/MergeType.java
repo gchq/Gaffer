@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.merge;
+package uk.gov.gchq.gaffer.operation.impl.join.merge;
 
-public class ElementMergeTest {
-
+public enum MergeType {
+    NONE,
+    AGAINST_KEY,
+    BOTH
 }

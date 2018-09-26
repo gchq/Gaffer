@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.store.operation.handler.join;
 
 import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
+import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.operation.util.join.JoinFunction;
-import uk.gov.gchq.gaffer.operation.util.join.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
     @Override
@@ -61,6 +64,9 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
 
         Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatchMethod(), operation.getMatchKey());
 
-        return operation.getMergeMethod().merge(joinResults);
+        if (operation.getMergeMethod() instanceof ElementMerge) {
+            ((ElementMerge) operation.getMergeMethod()).setSchema(store.getSchema());
+        }
+        return operation.getMergeMethod().merge((Set) joinResults);
     }
 }

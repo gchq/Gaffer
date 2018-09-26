@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.util.join;
+package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 public enum JoinType {
     FULL(FullJoin.class),
