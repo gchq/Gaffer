@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -113,6 +114,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.add.AddElementsFromCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
@@ -805,6 +807,7 @@ public abstract class Store {
     private void addCoreOpHandlers() {
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
+        addOperationHandler(AddElementsFromCsv.class, new AddElementsFromCsvHandler());
 
         // Get Elements
         addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
