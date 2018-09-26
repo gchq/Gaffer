@@ -136,7 +136,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String> {
         final CSVRecord csvRecord;
         try {
             csvRecord = new CSVParser(new StringReader(csv), getCsvFormat()).iterator().next();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 

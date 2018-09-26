@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.time;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -266,6 +267,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
+        @JsonSetter("timestamps")
         public Builder timestamps(final Instant... timestamps) {
             if (null == this.timestamps) {
                 this.timestamps = new ArrayList<>();

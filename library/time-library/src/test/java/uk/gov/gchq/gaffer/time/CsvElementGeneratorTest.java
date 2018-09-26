@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
@@ -64,8 +63,6 @@ public class CsvElementGeneratorTest {
                         .build());
 
 
-        System.out.println(new String(JSONSerialiser.serialise(generator, true)));
-
         // When
         final Iterable<? extends Element> elements = generator.apply(Arrays.asList(
                 "1,4,1254192988",
@@ -74,10 +71,6 @@ public class CsvElementGeneratorTest {
         ));
 
         // Then
-        for (Element element : elements) {
-            System.out.println(element);
-        }
-
         ElementUtil.assertElementEquals(Arrays.asList(
                 new Edge.Builder()
                         .group("Edge")
