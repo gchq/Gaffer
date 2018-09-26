@@ -58,12 +58,14 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
         mvn -q javadoc:javadoc -Pquick
+        rm -rf travis_wait*
         git checkout gh-pages
         rm -rf uk
         mv target/site/apidocs/* .
         git add .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
+        rm -rf travis_wait*
         git checkout master
 
         echo ""
@@ -83,6 +85,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         echo "Merging into develop and updating pom version"
         echo "--------------------------------------"
+        rm -rf travis_wait*
         git checkout develop
         git pull
         git merge master

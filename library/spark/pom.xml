@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.7.0-RC2-SNAPSHOT</version>
+        <version>1.7.0-RC3-SNAPSHOT</version>
     </parent>
 
     <artifactId>spark</artifactId>
