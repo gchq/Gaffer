@@ -43,21 +43,21 @@ public class CsvElementGeneratorTest {
                         .select("src").execute(new Identity()).project("SOURCE")
                         .select("dest").execute(new Identity()).project("DESTINATION")
                         .select("time").execute(new ToLong()).project("time")
-                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR)).project("timestamps")
+                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
                         .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
                         .select().execute(new SetValue(1)).project("count")
                         .build())
                 .entity("Entity", new ElementTransformer.Builder()
                         .select("src").execute(new Identity()).project("VERTEX")
                         .select("time").execute(new ToLong()).project("time")
-                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR)).project("timestamps")
+                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
                         .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
                         .select().execute(new SetValue(1)).project("count")
                         .build())
                 .entity("Entity", new ElementTransformer.Builder()
                         .select("dest").execute(new Identity()).project("VERTEX")
                         .select("time").execute(new ToLong()).project("time")
-                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR)).project("timestamps")
+                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
                         .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
                         .select().execute(new SetValue(1)).project("count")
                         .build());
@@ -79,7 +79,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192988L))
+                                .timestamp(Instant.ofEpochMilli(1254192988000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -90,7 +90,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192989L))
+                                .timestamp(Instant.ofEpochMilli(1254192989000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -101,7 +101,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192990L))
+                                .timestamp(Instant.ofEpochMilli(1254192990000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -111,7 +111,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192990L))
+                                .timestamp(Instant.ofEpochMilli(1254192990000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -121,7 +121,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192990L))
+                                .timestamp(Instant.ofEpochMilli(1254192990000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -131,7 +131,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192990L))
+                                .timestamp(Instant.ofEpochMilli(1254192990000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -141,7 +141,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192988L))
+                                .timestamp(Instant.ofEpochMilli(1254192988000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -151,7 +151,7 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192989L))
+                                .timestamp(Instant.ofEpochMilli(1254192989000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build(),
@@ -161,10 +161,11 @@ public class CsvElementGeneratorTest {
                         .property("count", 1)
                         .property("timestamps", new RBMBackedTimestampSet.Builder()
                                 .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
-                                .timestamp(Instant.ofEpochMilli(1254192990L))
+                                .timestamp(Instant.ofEpochMilli(1254192990000L))
                                 .build())
                         .property("timebucket", 1252800000L)
                         .build()
         ), elements);
     }
+
 }
