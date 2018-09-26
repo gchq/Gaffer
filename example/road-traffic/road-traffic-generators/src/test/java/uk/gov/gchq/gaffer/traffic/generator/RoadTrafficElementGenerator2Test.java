@@ -23,6 +23,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,9 +51,9 @@ public class RoadTrafficElementGenerator2Test {
             elements1 = Lists.newArrayList(generator1.apply(() -> new LineIterator(new InputStreamReader(inputStream))));
         }
         //TODO remove commented code
-//        JSONSerialiser.getMapper();
-//        SimpleClassNameCache.setUseFullNameForSerialisation(false);
-//        System.out.println(new String(JSONSerialiser.serialise(RoadTrafficCsvElementGenerator2.CSV_ELEMENT_GENERATOR, true)));
+        JSONSerialiser.getMapper();
+        SimpleClassNameCache.setUseFullNameForSerialisation(false);
+        System.out.println(new String(JSONSerialiser.serialise(RoadTrafficCsvElementGenerator2.CSV_ELEMENT_GENERATOR, false)));
         elements1.forEach(e -> e.removeProperty("hllp"));
         elements2.forEach(e -> e.removeProperty("hllp"));
         ElementUtil.assertElementEquals(elements1, elements2);

@@ -34,6 +34,7 @@ import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 import uk.gov.gchq.koryphe.util.DateUtil;
 
@@ -142,19 +143,17 @@ public class RoadTrafficCsvElementGenerator2 implements ElementGenerator<String>
                     .select("end-date").project("endDate")
                     .select("vehicle-counts").project("countByVehicleType")
                     .select("total-count").project("count")
-                    .build());
-
-    public static final HyperLogLogPlusElementGenerator HLLP_ELEMENT_GENERATOR = new HyperLogLogPlusElementGenerator()
-            .transformer(new ElementTransformer.Builder()
-                    .select("EDGE_GROUP").execute(new CollectionUtil.ToSingletonTreeSet()).project("edgeGroup")
-                    .select().execute(new SetValue(1L)).project("count")
-                    .build());
+                    .build())
+            .followOnGenerator(new HyperLogLogPlusElementGenerator()
+                    .transformer(new ElementTransformer.Builder()
+                            .select("EDGE_GROUP").execute(new CollectionUtil.ToSingletonTreeSet()).project("edgeGroup")
+                            .select().execute(new SetValue(1)).project("count")
+                            .select("count").execute(new ToLong()).project("count")
+                            .build()));
 
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> csvs) {
-        final Iterable<? extends Element> elements = CSV_ELEMENT_GENERATOR.apply(csvs);
-        final Iterable<? extends Element> elementsWithCardinalities = HLLP_ELEMENT_GENERATOR.apply(elements);
-        return elementsWithCardinalities;
+        return CSV_ELEMENT_GENERATOR.apply(csvs);
     }
 
     public static class ToDate extends KorypheFunction<String, Date> {

@@ -1,283 +1,155 @@
 {
   "class": "CsvElementGenerator",
   "header": [
-    "Region Name (GO)",
-    "ONS LACode",
-    "ONS LA Name",
-    "CP",
-    "S Ref E",
-    "S Ref N",
-    "Road",
-    "A-Junction",
-    "A Ref E",
-    "A Ref N",
-    "B-Junction",
-    "B Ref E",
-    "B Ref N",
-    "RCat",
-    "iDir",
-    "Year",
-    "dCount",
-    "Hour",
-    "PC",
-    "2WMV",
-    "CAR",
-    "BUS",
-    "LGV",
-    "HGVR2",
-    "HGVR3",
-    "HGVR4",
-    "HGVA3",
-    "HGVA5",
-    "HGVA6",
-    "HGV",
+    "Region Name (GO)", "ONS LACode", "ONS LA Name", "CP", "S Ref E", "S Ref N",
+    "Road", "A-Junction", "A Ref E", "A Ref N", "B-Junction", "B Ref E",
+    "B Ref N", "RCat", "iDir", "Year", "dCount", "Hour", "PC", "2WMV", "CAR",
+    "BUS", "LGV", "HGVR2", "HGVR3", "HGVR4", "HGVA3", "HGVA5", "HGVA6", "HGV",
     "AMV"
   ],
   "firstRow": 1,
   "allFieldsRequired": true,
-  "transformer": {
-    "functions": [
-      {
-        "selection": [
-          "Road",
-          "A-Junction"
-        ],
-        "function": {
-          "class": "Concat",
-          "separator": ":"
-        },
-        "projection": [
-          "A-Junction"
-        ]
-      },
-      {
-        "selection": [
-          "Road",
-          "B-Junction"
-        ],
-        "function": {
-          "class": "Concat",
-          "separator": ":"
-        },
-        "projection": [
-          "B-Junction"
-        ]
-      },
-      {
-        "selection": [
-          "A Ref E",
-          "A Ref N"
-        ],
-        "function": {
-          "class": "Concat",
-          "separator": ","
-        },
-        "projection": [
-          "A-Location"
-        ]
-      },
-      {
-        "selection": [
-          "B Ref E",
-          "B Ref N"
-        ],
-        "function": {
-          "class": "Concat",
-          "separator": ","
-        },
-        "projection": [
-          "B-Location"
-        ]
-      },
-      {
-        "selection": [
-          "PROPERTIES"
-        ],
-        "function": {
-          "class": "CreateRoadTrafficFreqMap"
-        },
-        "projection": [
-          "vehicle-counts"
-        ]
-      },
-      {
-        "selection": [
-          "vehicle-counts"
-        ],
-        "function": {
-          "class": "CallMethod",
-          "method": "getTotal"
-        },
-        "projection": [
-          "total-count"
-        ]
-      },
-      {
-        "selection": [
-          "dCount"
-        ],
-        "function": {
-          "class": "ToDate"
-        },
-        "projection": [
-          "dCount"
-        ]
-      },
-      {
-        "selection": [
-          "Hour"
-        ],
-        "function": {
-          "class": "ToInteger"
-        },
-        "projection": [
-          "Hour"
-        ]
-      },
-      {
-        "selection": [
-          "dCount",
-          "Hour"
-        ],
-        "function": {
-          "class": "AddGivenHours"
-        },
-        "projection": [
-          "start-date"
-        ]
-      },
-      {
-        "selection": [
-          "start-date"
-        ],
-        "function": {
-          "class": "AddHours",
-          "hours": 1
-        },
-        "projection": [
-          "end-date"
-        ]
-      }
-    ]
+  "csvValidator": {
+    "predicates": []
   },
+  "csvTransforms": [
+    {
+      "selection": ["Road", "A-Junction"],
+      "function": {
+        "class": "Concat",
+        "separator": ":"
+      },
+      "projection": ["A-Junction"]
+    }, {
+      "selection": ["Road", "B-Junction"],
+      "function": {
+        "class": "Concat",
+        "separator": ":"
+      },
+      "projection": ["B-Junction"]
+    }, {
+      "selection": ["A Ref E", "A Ref N"],
+      "function": {
+        "class": "Concat",
+        "separator": ","
+      },
+      "projection": ["A-Location"]
+    }, {
+      "selection": ["B Ref E", "B Ref N"],
+      "function": {
+        "class": "Concat",
+        "separator": ","
+      },
+      "projection": ["B-Location"]
+    }, {
+      "selection": ["PROPERTIES"],
+      "function": {
+        "class": "CreateRoadTrafficFreqMap"
+      },
+      "projection": ["vehicle-counts"]
+    }, {
+      "selection": ["vehicle-counts"],
+      "function": {
+        "class": "CallMethod",
+        "method": "getTotal"
+      },
+      "projection": ["total-count"]
+    }, {
+      "selection": ["dCount"],
+      "function": {
+        "class": "ToDate"
+      },
+      "projection": ["dCount"]
+    }, {
+      "selection": ["Hour"],
+      "function": {
+        "class": "ToInteger"
+      },
+      "projection": ["Hour"]
+    }, {
+      "selection": ["dCount", "Hour"],
+      "function": {
+        "class": "AddGivenHours"
+      },
+      "projection": ["start-date"]
+    }, {
+      "selection": ["start-date"],
+      "function": {
+        "class": "AddHours",
+        "hours": 1
+      },
+      "projection": ["end-date"]
+    }
+  ],
   "entities": [
     {
       "group": "JunctionUse",
       "functions": [
         {
-          "selection": [
-            "A-Junction"
-          ],
+          "selection": ["A-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "VERTEX"
-          ]
-        },
-        {
-          "selection": [
-            "start-date"
-          ],
+          "projection": ["VERTEX"]
+        }, {
+          "selection": ["start-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "startDate"
-          ]
-        },
-        {
-          "selection": [
-            "end-date"
-          ],
+          "projection": ["startDate"]
+        }, {
+          "selection": ["end-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "endDate"
-          ]
-        },
-        {
-          "selection": [
-            "vehicle-counts"
-          ],
+          "projection": ["endDate"]
+        }, {
+          "selection": ["vehicle-counts"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "countByVehicleType"
-          ]
-        },
-        {
-          "selection": [
-            "total-count"
-          ],
+          "projection": ["countByVehicleType"]
+        }, {
+          "selection": ["total-count"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "count"
-          ]
+          "projection": ["count"]
         }
       ]
-    },
-    {
+    }, {
       "group": "JunctionUse",
       "functions": [
         {
-          "selection": [
-            "B-Junction"
-          ],
+          "selection": ["B-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "VERTEX"
-          ]
-        },
-        {
-          "selection": [
-            "start-date"
-          ],
+          "projection": ["VERTEX"]
+        }, {
+          "selection": ["start-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "startDate"
-          ]
-        },
-        {
-          "selection": [
-            "end-date"
-          ],
+          "projection": ["startDate"]
+        }, {
+          "selection": ["end-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "endDate"
-          ]
-        },
-        {
-          "selection": [
-            "vehicle-counts"
-          ],
+          "projection": ["endDate"]
+        }, {
+          "selection": ["vehicle-counts"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "countByVehicleType"
-          ]
-        },
-        {
-          "selection": [
-            "total-count"
-          ],
+          "projection": ["countByVehicleType"]
+        }, {
+          "selection": ["total-count"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "count"
-          ]
+          "projection": ["count"]
         }
       ]
     }
@@ -287,304 +159,221 @@
       "group": "RegionContainsLocation",
       "functions": [
         {
-          "selection": [
-            "Region Name (GO)"
-          ],
+          "selection": ["Region Name (GO)"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "ONS LA Name"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["ONS LA Name"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "LocationContainsRoad",
       "functions": [
         {
-          "selection": [
-            "ONS LA Name"
-          ],
+          "selection": ["ONS LA Name"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "Road"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["Road"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "RoadHasJunction",
       "functions": [
         {
-          "selection": [
-            "Road"
-          ],
+          "selection": ["Road"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "A-Junction"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["A-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "RoadHasJunction",
       "functions": [
         {
-          "selection": [
-            "Road"
-          ],
+          "selection": ["Road"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "B-Junction"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["B-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "JunctionLocatedAt",
       "functions": [
         {
-          "selection": [
-            "A-Junction"
-          ],
+          "selection": ["A-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "A-Location"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["A-Location"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "JunctionLocatedAt",
       "functions": [
         {
-          "selection": [
-            "B-Junction"
-          ],
+          "selection": ["B-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "B-Location"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["B-Location"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
+          "projection": ["DIRECTED"]
         }
       ]
-    },
-    {
+    }, {
       "group": "RoadUse",
       "functions": [
         {
-          "selection": [
-            "A-Junction"
-          ],
+          "selection": ["A-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "SOURCE"
-          ]
-        },
-        {
-          "selection": [
-            "B-Junction"
-          ],
+          "projection": ["SOURCE"]
+        }, {
+          "selection": ["B-Junction"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "DESTINATION"
-          ]
-        },
-        {
+          "projection": ["DESTINATION"]
+        }, {
           "selection": [],
           "function": {
             "class": "SetValue",
             "value": true
           },
-          "projection": [
-            "DIRECTED"
-          ]
-        },
-        {
-          "selection": [
-            "start-date"
-          ],
+          "projection": ["DIRECTED"]
+        }, {
+          "selection": ["start-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "startDate"
-          ]
-        },
-        {
-          "selection": [
-            "end-date"
-          ],
+          "projection": ["startDate"]
+        }, {
+          "selection": ["end-date"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "endDate"
-          ]
-        },
-        {
-          "selection": [
-            "vehicle-counts"
-          ],
+          "projection": ["endDate"]
+        }, {
+          "selection": ["vehicle-counts"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "countByVehicleType"
-          ]
-        },
-        {
-          "selection": [
-            "total-count"
-          ],
+          "projection": ["countByVehicleType"]
+        }, {
+          "selection": ["total-count"],
           "function": {
             "class": "Identity"
           },
-          "projection": [
-            "count"
-          ]
+          "projection": ["count"]
         }
       ]
     }
-  ]
+  ],
+  "followOnGenerator": {
+    "class": "HyperLogLogPlusElementGenerator",
+    "transformer": {
+      "functions": [
+        {
+          "selection": ["EDGE_GROUP"],
+          "function": {
+            "class": "ToSingletonTreeSet"
+          },
+          "projection": ["edgeGroup"]
+        }, {
+          "selection": [],
+          "function": {
+            "class": "SetValue",
+            "value": 1
+          },
+          "projection": ["count"]
+        }, {
+          "selection": ["count"],
+          "function": {
+            "class": "ToLong"
+          },
+          "projection": ["count"]
+        }
+      ]
+    }
+  }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -35,6 +36,7 @@ import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Since("1.8.0")
 @Summary("Generates HyperLogLogPlus sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "hllpPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
@@ -82,6 +84,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         return this;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public Set<String> getPropertiesToCopy() {
         return propertiesToCopy;
     }
