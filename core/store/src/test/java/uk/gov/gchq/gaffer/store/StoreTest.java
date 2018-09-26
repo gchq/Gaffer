@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -469,6 +470,7 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
                 AddElements.class,
+                AddElementsFromCsv.class,
                 GetElements.class,
                 GetAdjacentIds.class,
                 GetAllElements.class,
@@ -574,6 +576,7 @@ public class StoreTest {
 
         final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
                 AddElements.class,
+                AddElementsFromCsv.class,
                 GetElements.class,
                 GetAdjacentIds.class,
                 GetAllElements.class,
