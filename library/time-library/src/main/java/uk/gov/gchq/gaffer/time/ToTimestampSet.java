@@ -39,9 +39,9 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     public ToTimestampSet() {
     }
 
-    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, boolean toMilliseconds){
+    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, boolean toMilliseconds) {
         this.bucket = bucket;
-        if(toMilliseconds){
+        if (toMilliseconds) {
             this.millisCorrection = 1000L;
         }
     }
@@ -68,5 +68,29 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
             timestampSet.add(Instant.ofEpochMilli(timestamp * millisCorrection));
         }
         return timestampSet;
+    }
+
+    public CommonTimeUtil.TimeBucket getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
+        this.bucket = bucket;
+    }
+
+    public long getMillisCorrection() {
+        return millisCorrection;
+    }
+
+    public void setMillisCorrection(final long millisCorrection) {
+        this.millisCorrection = millisCorrection;
+    }
+
+    public Integer getMaxSize() {
+        return maxSize;
+    }
+
+    public void setMaxSize(final Integer maxSize) {
+        this.maxSize = maxSize;
     }
 }
