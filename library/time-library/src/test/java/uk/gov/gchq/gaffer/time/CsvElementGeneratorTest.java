@@ -22,11 +22,11 @@ import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
+import uk.gov.gchq.gaffer.data.generator.CsvElementDef;
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
 
@@ -39,28 +39,29 @@ public class CsvElementGeneratorTest {
         // Given
         final CsvElementGenerator generator = new CsvElementGenerator()
                 .header("src", "dest", "time")
-                .edge("Edge", new ElementTransformer.Builder()
-                        .select("src").execute(new Identity()).project("SOURCE")
-                        .select("dest").execute(new Identity()).project("DESTINATION")
+                .transformer(new PropertiesTransformer.Builder()
                         .select("time").execute(new ToLong()).project("time")
                         .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
                         .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
                         .select().execute(new SetValue(1)).project("count")
                         .build())
-                .entity("Entity", new ElementTransformer.Builder()
-                        .select("src").execute(new Identity()).project("VERTEX")
-                        .select("time").execute(new ToLong()).project("time")
-                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
-                        .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
-                        .select().execute(new SetValue(1)).project("count")
-                        .build())
-                .entity("Entity", new ElementTransformer.Builder()
-                        .select("dest").execute(new Identity()).project("VERTEX")
-                        .select("time").execute(new ToLong()).project("time")
-                        .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
-                        .select("time").execute(new CommonTimeUtil.ToTimeBucket(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
-                        .select().execute(new SetValue(1)).project("count")
-                        .build());
+                .element(new CsvElementDef("Edge")
+                        .source("src")
+                        .destination("dest")
+                        .directed(false)
+                        .property("timestamps")
+                        .property("timebucket")
+                        .property("count"))
+                .element(new CsvElementDef("Entity")
+                        .vertex("src")
+                        .property("timestamps")
+                        .property("timebucket")
+                        .property("count"))
+                .element(new CsvElementDef("Entity")
+                        .vertex("dest")
+                        .property("timestamps")
+                        .property("timebucket")
+                        .property("count"));
 
 
         // When
