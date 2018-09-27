@@ -74,8 +74,12 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
         return bucket;
     }
 
-    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
-        this.bucket = bucket;
+//    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
+//        this.bucket = bucket;
+//    }
+
+    public void setBucket(final String bucket){
+        this.bucket = CommonTimeUtil.TimeBucket.valueOf(bucket);
     }
 
     public long getMillisCorrection() {
