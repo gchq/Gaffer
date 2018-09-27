@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -45,6 +46,8 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
 
     private String group = "Cardinality";
     private String hllpPropertyName = "hllp";
+    private String countProperty;
+    private String edgeGroupProperty;
 
     /**
      * The properties to copy from the Edge.
@@ -55,7 +58,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
     /**
      * Transforms the new cardinality entities.
      */
-    private ElementTransformer transformer = new ElementTransformer();
+    private ElementTransformer transformer;
 
     @Override
     public Iterable<Element> _apply(final Element element) {
@@ -151,6 +154,33 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         return this;
     }
 
+    public String getCountProperty() {
+        return countProperty;
+    }
+
+    public void setCountProperty(final String countProperty) {
+        this.countProperty = countProperty;
+    }
+
+    public HyperLogLogPlusElementGenerator countProperty(final String countProperty) {
+        this.countProperty = countProperty;
+        return this;
+    }
+
+    public String getEdgeGroupProperty() {
+        return edgeGroupProperty;
+    }
+
+    public void setEdgeGroupProperty(final String edgeGroupProperty) {
+        this.edgeGroupProperty = edgeGroupProperty;
+    }
+
+
+    public HyperLogLogPlusElementGenerator edgeGroupProperty(final String edgeGroupProperty) {
+        this.edgeGroupProperty = edgeGroupProperty;
+        return this;
+    }
+
     private Entity createEntity(final Object vertex, final Object adjVertex, final Edge edge) {
         final Entity entity = new Entity.Builder()
                 .group(group)
@@ -164,7 +194,15 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
                 entity.putProperty(key, value);
             }
         }
-        transformer.apply(entity);
+        if (null != countProperty) {
+            entity.putProperty(countProperty, 1L);
+        }
+        if (null != edgeGroupProperty) {
+            entity.putProperty(edgeGroupProperty, CollectionUtil.treeSet(edge.getGroup()));
+        }
+        if (null != transformer && null != transformer.getComponents()) {
+            transformer.apply(entity);
+        }
         entity.removeProperty("EDGE_GROUP");
         return entity;
     }

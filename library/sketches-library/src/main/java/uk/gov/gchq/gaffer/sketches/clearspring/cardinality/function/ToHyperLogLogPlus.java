@@ -40,7 +40,9 @@ public class ToHyperLogLogPlus extends KorypheFunction<Object, HyperLogLogPlus> 
     @Override
     public HyperLogLogPlus apply(final Object o) {
         final HyperLogLogPlus hllp = new HyperLogLogPlus(p, sp);
-        hllp.offer(o);
+        if (null != o) {
+            hllp.offer(o);
+        }
         return hllp;
     }
 

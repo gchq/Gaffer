@@ -18,11 +18,10 @@ package uk.gov.gchq.gaffer.traffic.generator;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
+import uk.gov.gchq.gaffer.data.generator.CsvElementDef;
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusElementGenerator;
@@ -32,9 +31,7 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.function.Concat;
-import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
-import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 import uk.gov.gchq.koryphe.util.DateUtil;
 
@@ -84,72 +81,51 @@ public class RoadTrafficCsvElementGenerator2 implements ElementGenerator<String>
                     .select("Road", "B-Junction").execute(concat(":")).project("B-Junction")
                     .select("A Ref E", "A Ref N").execute(new Concat()).project("A-Location")
                     .select("B Ref E", "B Ref N").execute(new Concat()).project("B-Location")
-                    .select("PROPERTIES").execute(new CreateRoadTrafficFreqMap()).project("vehicle-counts")
-                    .select("vehicle-counts").execute(new CallMethod("getTotal")).project("total-count")
+                    .select("PROPERTIES").execute(new CreateRoadTrafficFreqMap()).project("countByVehicleType")
+                    .select("countByVehicleType").execute(new CallMethod("getTotal")).project("total-count")
                     .select("dCount").execute(new ToDate())
                     .select("Hour").execute(new ToInteger())
-                    .select("dCount", "Hour").execute(new AddGivenHours()).project("start-date")
-                    .select("start-date").execute(new AddHours(1)).project("end-date")
+                    .select("dCount", "Hour").execute(new AddGivenHours()).project("startDate")
+                    .select("startDate").execute(new AddHours(1)).project("endDate")
                     .build())
-            .edge("RegionContainsLocation", new ElementTransformer.Builder()
-                    .select("Region Name (GO)").project("SOURCE")
-                    .select("ONS LA Name").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("LocationContainsRoad", new ElementTransformer.Builder()
-                    .select("ONS LA Name").project("SOURCE")
-                    .select("Road").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("RoadHasJunction", new ElementTransformer.Builder()
-                    .select("Road").project("SOURCE")
-                    .select("A-Junction").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("RoadHasJunction", new ElementTransformer.Builder()
-                    .select("Road").project("SOURCE")
-                    .select("B-Junction").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("JunctionLocatedAt", new ElementTransformer.Builder()
-                    .select("A-Junction").project("SOURCE")
-                    .select("A-Location").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("JunctionLocatedAt", new ElementTransformer.Builder()
-                    .select("B-Junction").project("SOURCE")
-                    .select("B-Location").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .build())
-            .edge("RoadUse", new ElementTransformer.Builder()
-                    .select("A-Junction").project("SOURCE")
-                    .select("B-Junction").project("DESTINATION")
-                    .select().execute(new SetValue(true)).project("DIRECTED")
-                    .select("start-date").project("startDate")
-                    .select("end-date").project("endDate")
-                    .select("vehicle-counts").project("countByVehicleType")
-                    .select("total-count").project("count")
-                    .build())
-            .entity("JunctionUse", new ElementTransformer.Builder()
-                    .select("A-Junction").project("VERTEX")
-                    .select("start-date").project("startDate")
-                    .select("end-date").project("endDate")
-                    .select("vehicle-counts").project("countByVehicleType")
-                    .select("total-count").project("count")
-                    .build())
-            .entity("JunctionUse", new ElementTransformer.Builder()
-                    .select("B-Junction").project("VERTEX")
-                    .select("start-date").project("startDate")
-                    .select("end-date").project("endDate")
-                    .select("vehicle-counts").project("countByVehicleType")
-                    .select("total-count").project("count")
-                    .build())
-            .followOnGenerator(new HyperLogLogPlusElementGenerator()
-                    .transformer(new ElementTransformer.Builder()
-                            .select("EDGE_GROUP").execute(new CollectionUtil.ToSingletonTreeSet()).project("edgeGroup")
-                            .select().execute(new SetValue(1)).project("count")
-                            .select("count").execute(new ToLong()).project("count")
-                            .build()));
+            .element(new CsvElementDef("RegionContainsLocation")
+                    .source("Region Name (GO)")
+                    .destination("ONS LA Name"))
+            .element(new CsvElementDef("LocationContainsRoad")
+                    .source("ONS LA Name")
+                    .destination("Road"))
+            .element(new CsvElementDef("RoadHasJunction")
+                    .source("Road")
+                    .destination("A-Junction"))
+            .element(new CsvElementDef("RoadHasJunction")
+                    .source("Road")
+                    .destination("B-Junction"))
+            .element(new CsvElementDef("JunctionLocatedAt")
+                    .source("A-Junction")
+                    .destination("A-Location"))
+            .element(new CsvElementDef("JunctionLocatedAt")
+                    .source("B-Junction")
+                    .destination("B-Location"))
+            .element(new CsvElementDef("RoadUse")
+                    .source("A-Junction")
+                    .destination("B-Junction")
+                    .property("startDate")
+                    .property("endDate")
+                    .property("countByVehicleType")
+                    .property("count", "total-count"))
+            .element(new CsvElementDef("JunctionUse")
+                    .vertex("A-Junction")
+                    .property("startDate")
+                    .property("endDate")
+                    .property("countByVehicleType")
+                    .property("count", "total-count"))
+            .element(new CsvElementDef("JunctionUse")
+                    .vertex("B-Junction")
+                    .property("startDate")
+                    .property("endDate")
+                    .property("countByVehicleType")
+                    .property("count", "total-count"))
+            .followOnGenerator(new HyperLogLogPlusElementGenerator().countProperty("count").edgeGroupProperty("edgeGroup"));
 
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> csvs) {
