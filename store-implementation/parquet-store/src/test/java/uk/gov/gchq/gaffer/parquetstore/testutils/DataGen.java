@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -56,7 +56,9 @@ public class DataGen {
         entity.putProperty("date", date);
         entity.putProperty("freqMap", freqMap);
         entity.putProperty("count", count);
-        entity.putProperty(TestTypes.VISIBILITY, visibility);
+        if (null != visibility) {
+            entity.putProperty(TestTypes.VISIBILITY, visibility);
+        }
         return entity;
     }
 
@@ -73,7 +75,9 @@ public class DataGen {
         edge.putProperty("date", date);
         edge.putProperty("freqMap", freqMap);
         edge.putProperty("count", count);
-        edge.putProperty(TestTypes.VISIBILITY, visibility);
+        if (null != visibility) {
+            edge.putProperty(TestTypes.VISIBILITY, visibility);
+        }
         return edge;
     }
 
@@ -83,6 +87,8 @@ public class DataGen {
                                                          final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
         final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(
                 group,
+                utils.getCoreProperties(group),
+                utils.getCorePropertiesForReversedEdges(),
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
                 utils.getColumnToPaths(group));
@@ -91,7 +97,7 @@ public class DataGen {
         for (final Map.Entry<String, Long> entry : freqMap.entrySet()) {
             map.put(entry.getKey(), entry.getValue());
         }
-        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(ParquetStoreConstants.VERTEX, vertex)));
+        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(ParquetStore.VERTEX, vertex)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("byte", aByte)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("double", aDouble)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("float", aFloat)));
@@ -101,7 +107,9 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
-        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
+        if (null != visibility) {
+            list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
+        }
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -115,6 +123,8 @@ public class DataGen {
                                                        final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
         final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(
                 group,
+                utils.getCoreProperties(group),
+                utils.getCorePropertiesForReversedEdges(),
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
                 utils.getColumnToPaths(group));
@@ -123,9 +133,9 @@ public class DataGen {
         for (final Map.Entry<String, Long> entry : freqMap.entrySet()) {
             map.put(entry.getKey(), entry.getValue());
         }
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.SOURCE, src)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DESTINATION, dst)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DIRECTED, directed)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStore.SOURCE, src)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStore.DESTINATION, dst)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStore.DIRECTED, directed)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("byte", aByte)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("double", aDouble)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("float", aFloat)));
@@ -135,7 +145,9 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
+        if (null != visibility) {
+            list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
+        }
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -143,7 +155,7 @@ public class DataGen {
         return new GenericRowWithSchema(objects, utils.getSparkSchema(group));
     }
 
-    private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size, final boolean withVisibilities) {
+    public static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
         String visibility = null;
 
@@ -181,7 +193,7 @@ public class DataGen {
         return edges;
     }
 
-    private static List<Element> generateBasicLongEntitys(final String group, final int size, final boolean withVisibilities) {
+    public static List<Element> generateBasicLongEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
         String visibility = null;
 
@@ -198,7 +210,7 @@ public class DataGen {
         return entities;
     }
 
-    private static List<Element> generateBasicLongEdges(final String group, final int size, final boolean withVisibilities) {
+    public static List<Element> generateBasicLongEdges(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
         String visibility = null;
 
@@ -219,7 +231,7 @@ public class DataGen {
         return edges;
     }
 
-    private static List<Element> generateBasicTypeValueEntitys(final String group, final int size, final boolean withVisibilities) {
+    public static List<Element> generateBasicTypeValueEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
         String visibility = null;
 

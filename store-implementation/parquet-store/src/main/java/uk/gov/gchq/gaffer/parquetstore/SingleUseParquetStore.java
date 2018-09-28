@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,54 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.parquetstore;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package uk.gov.gchq.gaffer.parquetstore;
 
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
+import java.util.Random;
 
 /**
- * A single use implementation of the {@link ParquetStore} that will delete the data directory upon initialisation of
- * the store. This is mainly used for testing purposes.
+ * A single use implementation of the {@link ParquetStore}. This is mainly used for testing purposes.
  */
 public class SingleUseParquetStore extends ParquetStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseParquetStore.class);
+    private Random random = new Random();
+    private long randomLong;
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        // Initialise has to be called first to ensure the properties are set.
-        super.initialise(graphId, schema, properties);
-        cleanUp();
+        randomLong = random.nextLong();
         super.initialise(graphId, schema, properties);
     }
 
-    private void cleanUp() throws StoreException {
-        String dataDir = "";
-        try {
-            dataDir = getDataDir();
-            deleteFolder(dataDir, getFS());
-        } catch (final IOException e) {
-            throw new StoreException("Exception deleting folder: " + dataDir, e);
-        }
+    @Override
+    public String getDataDir() {
+        return super.getDataDir() + "/" + randomLong;
     }
 
-    private void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        LOGGER.debug("Deleting folder {}", path);
-        Path dataDir = new Path(path);
-        if (fs.exists(dataDir)) {
-            fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
-        }
+    @Override
+    public String getTempFilesDir() {
+        return super.getTempFilesDir() + "/" + randomLong;
     }
 }
