@@ -19,7 +19,7 @@ public class ReduceTest extends OperationTest<Reduce> {
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(0)
-                .aggregationFunction(new Sum())
+                .aggregateFunction(new Sum())
                 .build();
 
         // Then
@@ -34,7 +34,7 @@ public class ReduceTest extends OperationTest<Reduce> {
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(0)
-                .aggregationFunction(new Sum())
+                .aggregateFunction(new Sum())
                 .build();
 
         // When
