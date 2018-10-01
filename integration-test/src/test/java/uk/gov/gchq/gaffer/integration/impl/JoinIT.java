@@ -75,7 +75,7 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldLeftKeyFullInnerJoinWithFlattenGettingKeys() throws OperationException {
+    public void shouldLeftKeyFullInnerJoin() throws OperationException {
         // Given
         final List<Element> expectedElements = Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4));
 
@@ -96,7 +96,7 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldRightKeyFullInnerJoinWithFlattenGettingKeys() throws OperationException, NoSuchFieldException {
+    public void shouldRightKeyFullInnerJoin() throws OperationException, NoSuchFieldException {
         // Given
         final List<Element> expectedResults = Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4));
 
@@ -105,7 +105,7 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ElementMatch("count"))
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -197,19 +197,24 @@ public class JoinIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(expectedElements, results);
+
+        // Reset schema
+        setStoreSchema(new Schema());
+        setup();
     }
 
     @Test
     public void shouldLeftKeyFullJoin() throws OperationException {
         // Given
-        final List<Element> expectedResults = inputElements;
+        final List<Element> expectedResults = new ArrayList<>(inputElements);
+        expectedResults.add(getJoinEntity(8));
 
         Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -223,14 +228,15 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldRightKeyFullJoin() throws OperationException {
         // Given
-        final List<Element> expectedResults = new ArrayList<>();
+        final List<Element> expectedResults = inputElements;
+        expectedResults.add(getJoinEntity(8));
 
         Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_INNER)
+                .joinType(JoinType.FULL)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -264,14 +270,14 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldLeftKeyOuterJoin() throws OperationException {
         // Given
-        final List<Element> expectedResults = new ArrayList<>();
+        final List<Element> expectedResults = new ArrayList<>(Arrays.asList(getJoinEntity(6)));
 
         Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -285,14 +291,14 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldRightKeyOuterJoin() throws OperationException {
         // Given
-        final List<Element> expectedResults = new ArrayList<>(Arrays.asList(getJoinEntity(1), getJoinEntity(2), getJoinEntity(3), getJoinEntity(4), getJoinEntity(8)));
+        final List<Element> expectedResults = new ArrayList<>(Arrays.asList(getJoinEntity(8)));
 
         Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -313,7 +319,7 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
@@ -334,7 +340,7 @@ public class JoinIT extends AbstractStoreIT {
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ElementMatch())
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
                 .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 

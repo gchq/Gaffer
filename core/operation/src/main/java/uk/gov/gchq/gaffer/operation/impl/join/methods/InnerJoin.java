@@ -23,16 +23,19 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class InnerJoin implements JoinFunction {
     @Override
     public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        Set resultSet = new HashSet<>();
+        Set<Map<Object, List<Object>>> resultSet = new HashSet<>();
         if (matchKey.equals(MatchKey.LEFT)) {
-            left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
+            left.stream().filter(listObj -> !match.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
+            //left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
         } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
+            right.stream().filter(listObj -> !match.matching(listObj, left).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
+            //right.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
         }
         return resultSet;
     }
