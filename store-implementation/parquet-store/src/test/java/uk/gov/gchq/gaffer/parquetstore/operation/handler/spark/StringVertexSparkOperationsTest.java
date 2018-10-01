@@ -16,33 +16,54 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import org.apache.spark.rdd.RDD;
 
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.StringVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
+    private final StringVertexOperationsTest svot = new StringVertexOperationsTest();
 
+    @Override
+    protected Schema getSchema() {
+        return TestUtils.gafferSchema("schemaUsingStringVertexType");
+    }
+
+    @Override
+    protected RDD<Element> getInputDataForGetAllElementsTest() {
+        final List<Element> elements = svot.getInputDataForGetAllElementsTest();
+        return TestUtils.getJavaSparkContext().parallelize(elements).rdd();
+    }
+
+    @Override
+    protected int getNumberOfItemsInInputDataForGetAllElementsTest() {
+        return svot.getInputDataForGetAllElementsTest().size();
+    }
+
+    @Override
+    protected List<Element> getResultsForGetAllElementsTest() {
+        return svot.getResultsForGetAllElementsTest();
+    }
+
+    @Override
+    protected List<ElementSeed> getSeeds() {
+        return svot.getSeeds();
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
+        return svot.getResultsForGetElementsWithSeedsRelatedTest();
+    }
+
+    /**
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
@@ -53,10 +74,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         return graph;
     }
 
-    @Override
-    protected Schema getSchema() {
-        return TestUtils.gafferSchema("schemaUsingStringVertexType");
-    }
+
 
     @Override
     protected JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities) {
@@ -105,6 +123,5 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
             expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2, visibility));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
-    }
-
+    }*/
 }
