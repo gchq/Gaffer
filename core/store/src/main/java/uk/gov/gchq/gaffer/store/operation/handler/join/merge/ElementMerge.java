@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,11 @@ public class ElementMerge implements Merge {
     }
 
     public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType) {
+        this.resultsWanted = resultsWanted;
+        this.mergeType = mergeType;
+    }
+
+    public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType, final Schema schema) {
         this.resultsWanted = resultsWanted;
         this.mergeType = mergeType;
         this.schema = schema;
@@ -74,12 +80,13 @@ public class ElementMerge implements Merge {
         if (null == schema) {
             throw new OperationException("Schema cannot be null");
         }
+        if (mergeType.equals(MergeType.AGAINST_KEY) && resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
+
+        }
         if (mergeType.equals(MergeType.NONE)) {
             return flatten(input);
-        } else if (mergeType.equals(MergeType.AGAINST_KEY)) {
-            return reduceAgainstKey(input);
-        } else if (mergeType.equals(MergeType.BOTH)) {
-            return reduceAll(input);
+        } else if (mergeType.equals(MergeType.AGAINST_KEY) || mergeType.equals(MergeType.BOTH)) {
+            return reduce(input);
         } else {
             return new ArrayList<>(input);
         }
@@ -105,55 +112,52 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List reduceAgainstKey(Set input) {
-        // Wanting both, reducing right, [E1]:[E1,E2] -> [E1, E3]
-        List results = new ArrayList<>();
-
+    private List reduce(Set input) {
+        List<Element> results = new ArrayList<>();
         for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
             for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
-                Element lhsElement = (Element) mapEntry.getKey();
-                final SchemaElementDefinition schemaElDef = schema.getElement(lhsElement.getGroup());
+                Element keyElement = (Element) mapEntry.getKey();
+                final SchemaElementDefinition schemaElDef = schema.getElement(keyElement.getGroup());
                 final ElementAggregator agg = schemaElDef.getIngestAggregator();
-                Element aggregatedElement = null;
-                for (Object rhsObject : mapEntry.getValue()) {
-                    if (null != aggregatedElement) {
-                        aggregatedElement = agg.apply(aggregatedElement, (Element) rhsObject);
-                    } else {
-                        aggregatedElement = (Element) rhsObject;
-                    }
-                }
-                if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
-                    results.add(lhsElement);
-                } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
-                    results.add(aggregatedElement);
-                } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
-                    results.add(lhsElement);
-                    results.add(aggregatedElement);
+                if (mergeType.equals(MergeType.AGAINST_KEY)) {
+                    results = reduceAgainstKey(keyElement, mapEntry.getValue(), agg);
+                } else if (mergeType.equals(MergeType.BOTH)) {
+                    results = reduceAll(keyElement, mapEntry.getValue(), agg);
                 }
             }
         }
-
         return results;
     }
 
-    private List<Element> reduceAll(Set input) {
-        // Wanting both, reducing both, [E1]:[E1,E2] -> [E4]
+    private List reduceAgainstKey(Element keyElement, List relatedElements, final ElementAggregator elementAggregator) {
+        Element aggregatedElement = null;
         List<Element> results = new ArrayList<>();
-        for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
-            Element aggregatedElement = null;
-            for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
-                Element lhsElement = (Element) mapEntry.getKey();
-                final SchemaElementDefinition schemaElDef = schema.getElement(lhsElement.getGroup());
-                final ElementAggregator agg = schemaElDef.getIngestAggregator();
-                if (null == aggregatedElement) {
-                    aggregatedElement = lhsElement;
-                }
-                for (Object rhsObject : mapEntry.getValue()) {
-                    aggregatedElement = agg.apply(aggregatedElement, (Element) rhsObject);
-                }
-                results.add(aggregatedElement);
+        for (Object rhsObject : relatedElements) {
+            if (null != aggregatedElement) {
+                aggregatedElement = elementAggregator.apply(aggregatedElement, (Element) rhsObject);
+            } else {
+                aggregatedElement = (Element) rhsObject;
             }
         }
+        if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
+            results.add(keyElement);
+        } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
+            results.add(aggregatedElement);
+        } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
+            results.add(keyElement);
+            results.add(aggregatedElement);
+        }
         return results;
+    }
+
+    private List<Element> reduceAll(Element keyElement, List relatedElements, final ElementAggregator elementAggregator) {
+        Element aggregatedElement = null;
+        if (null == aggregatedElement) {
+            aggregatedElement = keyElement;
+        }
+        for (Object rhsObject : relatedElements) {
+            aggregatedElement = elementAggregator.apply(aggregatedElement, (Element) rhsObject);
+        }
+        return Arrays.asList(aggregatedElement);
     }
 }
