@@ -32,10 +32,8 @@ public class InnerJoin implements JoinFunction {
         Set<Map<Object, List<Object>>> resultSet = new HashSet<>();
         if (matchKey.equals(MatchKey.LEFT)) {
             left.stream().filter(listObj -> !match.matching(listObj, right).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
-            //left.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
         } else if (matchKey.equals(MatchKey.RIGHT)) {
             right.stream().filter(listObj -> !match.matching(listObj, left).isEmpty()).forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
-            //right.forEach(listObj -> resultSet.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
         }
         return resultSet;
     }

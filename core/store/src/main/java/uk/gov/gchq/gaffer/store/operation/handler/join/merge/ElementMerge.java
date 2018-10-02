@@ -24,31 +24,23 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class ElementMerge implements Merge {
-    private ResultsWanted resultsWanted;
-    private MergeType mergeType;
+    private ResultsWanted resultsWanted = ResultsWanted.BOTH;
+    private MergeType mergeType = MergeType.AGAINST_KEY;
     private Schema schema;
 
     public ElementMerge() {
         this.resultsWanted = ResultsWanted.BOTH;
         this.mergeType = MergeType.AGAINST_KEY;
-        this.schema = null;
     }
 
     public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType) {
         this.resultsWanted = resultsWanted;
         this.mergeType = mergeType;
-    }
-
-    public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType, final Schema schema) {
-        this.resultsWanted = resultsWanted;
-        this.mergeType = mergeType;
-        this.schema = schema;
     }
 
     public ResultsWanted getResultsWanted() {
@@ -80,84 +72,75 @@ public class ElementMerge implements Merge {
         if (null == schema) {
             throw new OperationException("Schema cannot be null");
         }
-        if (mergeType.equals(MergeType.AGAINST_KEY) && resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
-
+        if (null == mergeType) {
+            throw new OperationException("A MergeType must be specified");
         }
+        if (null == resultsWanted) {
+            throw new OperationException("Please specify the results wanted using the ResultsWanted field");
+        }
+
         if (mergeType.equals(MergeType.NONE)) {
-            return flatten(input);
-        } else if (mergeType.equals(MergeType.AGAINST_KEY) || mergeType.equals(MergeType.BOTH)) {
-            return reduce(input);
+            return flatten((Set<Map<Element, List<Element>>>) input);
         } else {
-            return new ArrayList<>(input);
+            return reduce((Set<Map<Element, List<Element>>>) input);
         }
     }
 
-    private List flatten(Set input) {
-        // Flatten, [E1]:[E2,E3] -> [E1, E2, E3]
-        List results = new ArrayList<>();
-        for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
-            for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
-                Element lhsElement = (Element) mapEntry.getKey();
-                if (resultsWanted.equals(ResultsWanted.KEY_ONLY) || resultsWanted.equals(ResultsWanted.BOTH)) {
-                    results.add(lhsElement);
-                }
-                for (Object rhsObject : mapEntry.getValue()) {
-                    Element rhsElement = (Element) rhsObject;
-                    if (resultsWanted.equals(ResultsWanted.RELATED_ONLY) || resultsWanted.equals(ResultsWanted.BOTH)) {
-                        results.add(rhsElement);
-                    }
-                }
-            }
+    private List flatten(Set<Map<Element, List<Element>>> input) {
+        final List results = new ArrayList<>();
+        if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
+            input.forEach(map -> map.forEach((key, value) -> results.add(key)));
+        } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
+            input.forEach(map -> map.forEach((key, value) -> results.add(value)));
+        } else {
+            input.forEach(map -> map.forEach((key, value) -> {
+                results.add(key);
+                results.add(value);
+            }));
         }
         return results;
     }
 
-    private List reduce(Set input) {
+    private List reduce(Set<Map<Element, List<Element>>> input) {
         List<Element> results = new ArrayList<>();
-        for (Map<Object, List<Object>> item : (Iterable<? extends Map>) input) {
-            for (Map.Entry<Object, List<Object>> mapEntry : item.entrySet()) {
-                Element keyElement = (Element) mapEntry.getKey();
+        for (Map<Element, List<Element>> item : input) {
+            for (Map.Entry<Element, List<Element>> mapEntry : item.entrySet()) {
+                Element keyElement = mapEntry.getKey();
                 final SchemaElementDefinition schemaElDef = schema.getElement(keyElement.getGroup());
                 final ElementAggregator agg = schemaElDef.getIngestAggregator();
                 if (mergeType.equals(MergeType.AGAINST_KEY)) {
-                    results = reduceAgainstKey(keyElement, mapEntry.getValue(), agg);
+                    results.addAll(mergeAgainstKey(keyElement, mapEntry.getValue(), agg));
                 } else if (mergeType.equals(MergeType.BOTH)) {
-                    results = reduceAll(keyElement, mapEntry.getValue(), agg);
+                    results.add(aggregateElement(keyElement, mapEntry.getValue(), agg));
                 }
             }
         }
         return results;
     }
 
-    private List reduceAgainstKey(Element keyElement, List relatedElements, final ElementAggregator elementAggregator) {
-        Element aggregatedElement = null;
+    private List mergeAgainstKey(Element keyElement, List<Element> relatedElements, final ElementAggregator elementAggregator) {
         List<Element> results = new ArrayList<>();
-        for (Object rhsObject : relatedElements) {
-            if (null != aggregatedElement) {
-                aggregatedElement = elementAggregator.apply(aggregatedElement, (Element) rhsObject);
-            } else {
-                aggregatedElement = (Element) rhsObject;
-            }
-        }
+
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
             results.add(keyElement);
         } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
-            results.add(aggregatedElement);
+            results.add(aggregateElement(null, relatedElements, elementAggregator));
         } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
             results.add(keyElement);
-            results.add(aggregatedElement);
+            results.add(aggregateElement(null, relatedElements, elementAggregator));
         }
         return results;
     }
 
-    private List<Element> reduceAll(Element keyElement, List relatedElements, final ElementAggregator elementAggregator) {
-        Element aggregatedElement = null;
-        if (null == aggregatedElement) {
-            aggregatedElement = keyElement;
+    private Element aggregateElement(Element first, List<Element> relatedElements, final ElementAggregator elementAggregator) {
+        Element aggregatedElement = first;
+
+        for (Element element : relatedElements) {
+            aggregatedElement = aggregatedElement != null ? aggregatedElement : element;
+            if(!aggregatedElement.equals(element)) {
+                aggregatedElement = elementAggregator.apply(aggregatedElement, element);
+            }
         }
-        for (Object rhsObject : relatedElements) {
-            aggregatedElement = elementAggregator.apply(aggregatedElement, (Element) rhsObject);
-        }
-        return Arrays.asList(aggregatedElement);
+        return aggregatedElement;
     }
 }
