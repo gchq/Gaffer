@@ -86,7 +86,7 @@ public class ElementMerge implements Merge {
         }
     }
 
-    private List flatten(Set<Map<Element, List<Element>>> input) {
+    private List flatten(final Set<Map<Element, List<Element>>> input) {
         final List results = new ArrayList<>();
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
             input.forEach(map -> map.forEach((key, value) -> results.add(key)));
@@ -101,11 +101,11 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List reduce(Set<Map<Element, List<Element>>> input) {
-        List<Element> results = new ArrayList<>();
-        for (Map<Element, List<Element>> item : input) {
-            for (Map.Entry<Element, List<Element>> mapEntry : item.entrySet()) {
-                Element keyElement = mapEntry.getKey();
+    private List reduce(final Set<Map<Element, List<Element>>> input) {
+        final List<Element> results = new ArrayList<>();
+        for (final Map<Element, List<Element>> item : input) {
+            for (final Map.Entry<Element, List<Element>> mapEntry : item.entrySet()) {
+                final Element keyElement = mapEntry.getKey();
                 final SchemaElementDefinition schemaElDef = schema.getElement(keyElement.getGroup());
                 final ElementAggregator agg = schemaElDef.getIngestAggregator();
                 if (mergeType.equals(MergeType.AGAINST_KEY)) {
@@ -118,7 +118,7 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List mergeAgainstKey(Element keyElement, List<Element> relatedElements, final ElementAggregator elementAggregator) {
+    private List mergeAgainstKey(final Element keyElement, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
         List<Element> results = new ArrayList<>();
 
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
@@ -132,12 +132,12 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private Element aggregateElement(Element first, List<Element> relatedElements, final ElementAggregator elementAggregator) {
+    private Element aggregateElement(final Element first, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
         Element aggregatedElement = first;
 
-        for (Element element : relatedElements) {
+        for (final Element element : relatedElements) {
             aggregatedElement = aggregatedElement != null ? aggregatedElement : element;
-            if(!aggregatedElement.equals(element)) {
+            if (!aggregatedElement.equals(element)) {
                 aggregatedElement = elementAggregator.apply(aggregatedElement, element);
             }
         }

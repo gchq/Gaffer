@@ -39,7 +39,7 @@ public class FullInnerJoin implements JoinFunction {
 
     private Set getResultSet(final List startingList, final List secondaryList, final Match match) {
         Set resultSet = new HashSet<>();
-        for (Object listObject : startingList) {
+        for (final Object listObject : startingList) {
             List matchingObjects = match.matching(listObject, secondaryList);
             if (!matchingObjects.isEmpty()) {
                 resultSet.add(ImmutableMap.of(listObject, matchingObjects));

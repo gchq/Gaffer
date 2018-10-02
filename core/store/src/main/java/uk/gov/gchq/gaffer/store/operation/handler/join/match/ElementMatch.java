@@ -50,7 +50,7 @@ public class ElementMatch implements Match {
     public List matching(final Object testObject, final List testList) {
         List matches = new ArrayList<>();
 
-        for (Object entry : testList) {
+        for (final Object entry : testList) {
             if (elementEquality.test((Element) entry, (Element) testObject)) {
                 matches.add(((Element) entry).shallowClone());
             }

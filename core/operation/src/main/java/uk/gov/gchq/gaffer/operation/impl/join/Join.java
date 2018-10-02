@@ -67,7 +67,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         return matchMethod;
     }
 
-    public void setMatchMethod(Match matchMethod) {
+    public void setMatchMethod(final Match matchMethod) {
         this.matchMethod = matchMethod;
     }
 
@@ -83,7 +83,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         return joinType;
     }
 
-    public void setJoinType(JoinType joinType) {
+    public void setJoinType(final JoinType joinType) {
         this.joinType = joinType;
     }
 
@@ -133,27 +133,27 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
             super(new Join<>());
         }
 
-        public Builder<I, O> operation(Operation operation) {
+        public Builder<I, O> operation(final Operation operation) {
             _getOp().setOperation(operation);
             return _self();
         }
 
-        public Builder<I, O> matchMethod(Match matchMethod) {
+        public Builder<I, O> matchMethod(final Match matchMethod) {
             _getOp().setMatchMethod(matchMethod);
             return _self();
         }
 
-        public Builder<I, O> joinType(JoinType joinType) {
+        public Builder<I, O> joinType(final JoinType joinType) {
             _getOp().setJoinType(joinType);
             return _self();
         }
 
-        public Builder<I, O> mergeMethod(Merge mergeMethod) {
+        public Builder<I, O> mergeMethod(final Merge mergeMethod) {
             _getOp().setMergeMethod(mergeMethod);
             return _self();
         }
 
-        public Builder<I, O> matchKey(MatchKey matchKey) {
+        public Builder<I, O> matchKey(final MatchKey matchKey) {
             _getOp().setMatchKey(matchKey);
             return _self();
         }

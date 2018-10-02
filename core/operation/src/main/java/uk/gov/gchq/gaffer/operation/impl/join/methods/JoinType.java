@@ -32,7 +32,7 @@ public enum JoinType {
     public JoinFunction createInstance() {
         try {
             return className.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (final InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

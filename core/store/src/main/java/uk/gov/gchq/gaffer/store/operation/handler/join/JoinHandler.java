@@ -52,17 +52,17 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
         }
 
-        List leftList;
-        List rightList;
+        final List leftList;
+        final List rightList;
 
         try {
             leftList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
             rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
-        } catch (LimitExceededException e) {
+        } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
 
-        Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatchMethod(), operation.getMatchKey());
+        final Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatchMethod(), operation.getMatchKey());
 
         if (operation.getMergeMethod() instanceof ElementMerge) {
             ((ElementMerge) operation.getMergeMethod()).setSchema(store.getSchema());
