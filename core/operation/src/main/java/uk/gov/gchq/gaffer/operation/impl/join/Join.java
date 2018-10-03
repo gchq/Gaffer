@@ -36,13 +36,16 @@ import java.util.Map;
 /**
  * A {@code Join} Operation is used to join two Iterables together, specifying
  * a match and merge method.
+ * <p>
+ * Note: The input iterables are limited by default to 100,000 as these are read into memory as a Collection.
+ * This limit can be changed by adding specifying a collectionLimit in the Operation.
  *
  * @param <I> Iterable input type.
  * @param <O> Iterable output type.
  */
 @Since("1.7.0")
 @Summary("Joins two iterables based on a join type")
-@JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "options"}, alphabetic = true)
+@JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "collectionLimit", "options"}, alphabetic = true)
 public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
@@ -50,6 +53,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     private MatchKey matchKey;
     private Merge mergeMethod;
     private JoinType joinType;
+    private int collectionLimit;
     private Map<String, String> options;
 
     @Override
@@ -102,6 +106,14 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
         this.mergeMethod = mergeMethod;
     }
 
+    public Integer getCollectionLimit() {
+        return collectionLimit;
+    }
+
+    public void setCollectionLimit(final Integer collectionLimit) {
+        this.collectionLimit = collectionLimit;
+    }
+
     @Override
     public Join<I, O> shallowClone() throws CloneFailedException {
         return new Join.Builder<I, O>()
@@ -111,6 +123,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
                 .matchKey(matchKey)
                 .joinType(joinType)
                 .mergeMethod(mergeMethod)
+                .collectionLimit(collectionLimit)
                 .options(options)
                 .build();
     }
@@ -162,6 +175,11 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
 
         public Builder<I, O> matchKey(final MatchKey matchKey) {
             _getOp().setMatchKey(matchKey);
+            return _self();
+        }
+
+        public Builder<I, O> collectionLimit(final Integer collectionLimit) {
+            _getOp().setCollectionLimit(collectionLimit);
             return _self();
         }
 

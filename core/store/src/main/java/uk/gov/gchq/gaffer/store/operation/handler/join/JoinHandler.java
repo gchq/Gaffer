@@ -37,7 +37,15 @@ import java.util.Set;
 public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
     @Override
     public Iterable<? extends O> doOperation(final Join<I, O> operation, final Context context, final Store store) throws OperationException {
-        JoinFunction joinFunction = operation.getJoinType().createInstance();
+        final int limit = operation.getCollectionLimit() != null ? operation.getCollectionLimit() : 100000;
+
+        if (null == operation.getJoinType()) {
+            throw new OperationException("A join type must be specified");
+        }
+
+        if (null == operation.getMergeMethod()) {
+            throw new OperationException("A merge method must be specified");
+        }
 
         if (null == operation.getInput()) {
             operation.setInput(new ArrayList<>());
@@ -47,6 +55,7 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             throw new OperationException("You must specify an Iterable side to match on");
         }
 
+        JoinFunction joinFunction = operation.getJoinType().createInstance();
         Iterable<I> rightIterable = new ArrayList<>();
         if (operation.getOperation() instanceof Output) {
             rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
@@ -56,8 +65,8 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
         final List rightList;
 
         try {
-            leftList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, 100000, false));
-            rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, 100000, false));
+            leftList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, limit, false));
+            rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
         } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
