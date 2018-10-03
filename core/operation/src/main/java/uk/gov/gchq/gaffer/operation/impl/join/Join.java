@@ -53,7 +53,7 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     private MatchKey matchKey;
     private Merge mergeMethod;
     private JoinType joinType;
-    private int collectionLimit;
+    private Integer collectionLimit;
     private Map<String, String> options;
 
     @Override

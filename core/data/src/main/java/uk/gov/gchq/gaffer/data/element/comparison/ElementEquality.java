@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * An {@code ElementEquality} is a {@link KoryphePredicate2} that is can be
+ * An {@code ElementEquality} is a {@link KoryphePredicate2} that is
  * used to compare if two {@Element}s are equal.  Optional {@code GroupBy} properties
  * can be set, and will then be used within the comparison also.
  */
