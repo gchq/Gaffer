@@ -33,9 +33,16 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
+/**
+ * A {@code Join} Operation is used to join two Iterables together, specifying
+ * a match and merge method.
+ *
+ * @param <I> Iterable input type.
+ * @param <O> Iterable output type.
+ */
 @Since("1.7.0")
 @Summary("Joins two iterables based on a join type")
-@JsonPropertyOrder(value = {"input", "operation", "matchFunction", "joinType", "options"}, alphabetic = true)
+@JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "options"}, alphabetic = true)
 public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;

@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.merge;
 
+/**
+ * Used to specify which results are wanted from a {@link uk.gov.gchq.gaffer.operation.impl.join.merge.Merge}.
+ */
 public enum ResultsWanted {
     KEY_ONLY,
     RELATED_ONLY,

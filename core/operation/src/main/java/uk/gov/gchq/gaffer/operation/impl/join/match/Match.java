@@ -18,12 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl.join.match;
 
 import java.util.List;
 
-/**
- * This is used to return a List of Objects within the testList that match the testObject supplied.
- */
 public interface Match {
     /**
-     * Returns a list of matching Objects.
+     * Compares a list of Objects against a test Object and returns matched Objects.
      *
      * @param testObject Object to test against.
      * @param testList   List to test against.

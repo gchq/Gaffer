@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
 
+/**
+ * Used to specify how the {@link uk.gov.gchq.gaffer.operation.impl.join.merge.Merge} should be done.
+ */
 public enum MergeType {
     NONE,
     AGAINST_KEY,

@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,61 +79,57 @@ public class ElementMerge implements Merge {
         }
 
         if (mergeType.equals(MergeType.NONE)) {
-            return flatten((Set<Map<Element, List<Element>>>) input);
+            return noMerge((Set<Map<Element, List<Element>>>) input);
+        } else if (mergeType.equals(MergeType.AGAINST_KEY)) {
+            return mergeAgainstKey((Set<Map<Element, List<Element>>>) input);
+        } else if (mergeType.equals(MergeType.BOTH)) {
+            return mergeBoth((Set<Map<Element, List<Element>>>) input);
         } else {
-            return reduce((Set<Map<Element, List<Element>>>) input);
+            throw new OperationException("A valid MergeType must be specified");
         }
     }
 
-    private List flatten(final Set<Map<Element, List<Element>>> input) {
+    private List noMerge(final Set<Map<Element, List<Element>>> input) {
         final List results = new ArrayList<>();
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
-            input.forEach(map -> map.forEach((key, value) -> results.add(key)));
+            input.forEach(map -> map.forEach((keyElement, relatedList) -> results.add(keyElement)));
         } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
-            input.forEach(map -> map.forEach((key, value) -> results.add(value)));
-        } else {
-            input.forEach(map -> map.forEach((key, value) -> {
-                results.add(key);
-                results.add(value);
+            input.forEach(map -> map.forEach((keyElement, relatedList) -> results.addAll(relatedList)));
+        } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
+            input.forEach(map -> map.forEach((keyElement, relatedList) -> {
+                results.add(keyElement);
+                results.addAll(relatedList);
             }));
         }
         return results;
     }
 
-    private List reduce(final Set<Map<Element, List<Element>>> input) {
-        final List<Element> results = new ArrayList<>();
-        for (final Map<Element, List<Element>> item : input) {
-            for (final Map.Entry<Element, List<Element>> mapEntry : item.entrySet()) {
-                final Element keyElement = mapEntry.getKey();
-                final SchemaElementDefinition schemaElDef = schema.getElement(keyElement.getGroup());
-                final ElementAggregator agg = schemaElDef.getIngestAggregator();
-                if (mergeType.equals(MergeType.AGAINST_KEY)) {
-                    results.addAll(mergeAgainstKey(keyElement, mapEntry.getValue(), agg));
-                } else if (mergeType.equals(MergeType.BOTH)) {
-                    results.add(aggregateElement(keyElement, mapEntry.getValue(), agg));
-                }
-            }
+    private List mergeAgainstKey(final Set<Map<Element, List<Element>>> input) {
+        List<Element> results = new ArrayList<>();
+        if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
+            input.forEach((map -> map.forEach((keyElement, relatedList) -> results.add(keyElement))));
+        } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
+            input.forEach((map -> map.forEach((keyElement, relatedList) ->
+                    results.add(aggregateElement(null, relatedList, schema.getElement(keyElement.getGroup()).getIngestAggregator())))));
+        } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
+            input.forEach((map -> map.forEach((keyElement, relatedList) -> {
+                results.add(keyElement);
+                results.add(aggregateElement(null, relatedList, schema.getElement(keyElement.getGroup()).getIngestAggregator()));
+            })));
         }
         return results;
     }
 
-    private List mergeAgainstKey(final Element keyElement, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
-        List<Element> results = new ArrayList<>();
-
-        if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
-            results.add(keyElement);
-        } else if (resultsWanted.equals(ResultsWanted.RELATED_ONLY)) {
-            results.add(aggregateElement(null, relatedElements, elementAggregator));
-        } else if (resultsWanted.equals(ResultsWanted.BOTH)) {
-            results.add(keyElement);
-            results.add(aggregateElement(null, relatedElements, elementAggregator));
-        }
+    private List mergeBoth(final Set<Map<Element, List<Element>>> input) {
+        final List<Element> results = new ArrayList<>();
+        input.forEach((map -> map.forEach((keyElement, relatedList) ->
+                        results.add(aggregateElement(keyElement, relatedList, schema.getElement(keyElement.getGroup()).getIngestAggregator()))
+        )));
         return results;
     }
 
     private Element aggregateElement(final Element first, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
         Element aggregatedElement = first;
-
         for (final Element element : relatedElements) {
             aggregatedElement = aggregatedElement != null ? aggregatedElement : element;
             if (!aggregatedElement.equals(element)) {

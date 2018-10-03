@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.join.match;
 
 /**
- * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (Right)
+ * Used to specify whether the matching is done Left->Right (LEFT) or Right->Left (RIGHT)
  */
 public enum MatchKey {
     LEFT,
