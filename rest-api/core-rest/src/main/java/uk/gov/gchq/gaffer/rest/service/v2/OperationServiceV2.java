@@ -108,7 +108,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        final Pair<Object, String> resultAndJobId = _execute(operation);
+        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return Response.ok(resultAndJobId.getFirst())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -125,11 +125,12 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+        final Context context = userFactory.createContext();
 
         // write chunks to the chunked output object
         new Thread(() -> {
             try {
-                final Object result = _execute(opChain).getFirst();
+                final Object result = _execute(opChain, context).getFirst();
                 chunkResult(result, output);
             } finally {
                 CloseableUtil.close(output);
@@ -217,11 +218,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> Pair<O, String> _execute(final Operation operation) {
+    protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
-        final Context context = userFactory.createContext();
         preOperationHook(opChain, context);
 
         GraphResult<O> result;
