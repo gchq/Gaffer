@@ -11,10 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Nik Gil
- * Date: 5/10/2018
- */
+
 public class FreqMapPredicatorTest {
 
     private FreqMap freqMap;
