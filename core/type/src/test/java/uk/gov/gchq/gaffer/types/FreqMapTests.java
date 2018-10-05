@@ -19,11 +19,7 @@ package uk.gov.gchq.gaffer.types;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-import java.util.function.BiPredicate;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class FreqMapTests {
@@ -116,53 +112,5 @@ public class FreqMapTests {
 
         //then
         assertEquals(freqMap.get(key), expectedValue);
-    }
-
-    @Test
-    public void testRegexAndPredicates() {
-        freqMap.upsert("cat");
-        freqMap.upsert("cat");
-        freqMap.upsert("dog");
-        freqMap.upsert("cow");
-        freqMap.upsert("cow");
-        freqMap.upsert("catdog");
-        freqMap.upsert("catdog");
-        freqMap.upsert("catdog");
-        freqMap.upsert("cat");
-        freqMap.upsert("cat");
-
-        //Check regex works
-        FreqMap fRegex = freqMap.filterRegex("^\\wo\\w$");
-
-        assertEquals(fRegex.size(), 2);
-        assertFalse(fRegex.containsKey("cat"));
-        assertTrue(fRegex.containsKey("cow"));
-
-        //Again regex but in predicate form of key
-        FreqMap fPredicateString = freqMap.filterPredicate((s, aLong) -> s.matches("^\\wo\\w$"));
-
-        assertEquals(fRegex.size(), 2);
-        assertFalse(fRegex.containsKey("cat"));
-        assertTrue(fRegex.containsKey("cow"));
-
-        //Value predicate
-        FreqMap fPredicateLong = freqMap.filterPredicate((s, aLong) -> aLong > 1);
-
-        assertEquals(fPredicateLong.size(), 3);
-        assertFalse(fPredicateLong.containsKey("dog"));
-
-        //Both value and key
-        FreqMap fPredicateBoth = freqMap.filterPredicate((s, aLong) -> (s.matches("^\\wo\\w$") && aLong > 1));
-
-        assertEquals(fPredicateBoth.size(), 1);
-        assertFalse(fPredicateBoth.containsKey("dog"));
-        assertTrue(fPredicateBoth.containsKey("cow"));
-
-        //Tests to to see the freqMap was not manipulated itself
-        assertEquals(freqMap.size(), 4);
-        assertTrue(freqMap.containsKey("cat"));
-        assertTrue(freqMap.containsKey("dog"));
-        assertTrue(freqMap.containsKey("catdog"));
-        assertTrue(freqMap.containsKey("cow"));
     }
 }

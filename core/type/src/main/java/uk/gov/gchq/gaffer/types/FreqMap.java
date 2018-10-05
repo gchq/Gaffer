@@ -15,15 +15,10 @@
  */
 package uk.gov.gchq.gaffer.types;
 
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * {@code FreqMap} extends {@link HashMap} with String keys and Long values, adding an upsert operation.
@@ -71,30 +66,5 @@ public class FreqMap extends HashMap<String, Long> {
      */
     public void upsert(final String key) {
         upsert(key, 1L);
-    }
-
-    /**
-     * Creates a filtered copy of the map using a supplied regex pattern.
-     *
-     * @param regexPattern  A valid regex pattern as a string.
-     * @return  A new frequency map with only the filtered entries present.
-     */
-    public FreqMap filterRegex(final String regexPattern) {
-        return filterPredicate((s, l) -> s.matches(regexPattern));
-    }
-
-    /**
-     * Creates a filtered copy of the map using a supplied predicate.
-     *
-     * @param predicate  A valid predicate that can use one or both of the key-value pairings.
-     * @return  A new frequency map with only the filtered entries present.
-     */
-    public FreqMap filterPredicate(BiPredicate<String, Long> predicate) {
-        FreqMap f = new FreqMap();
-
-        this.entrySet().stream().filter(e -> predicate.test(e.getKey(), e.getValue()))
-                .forEach(e -> f.upsert(e.getKey(), e.getValue()));
-
-        return f;
     }
 }
