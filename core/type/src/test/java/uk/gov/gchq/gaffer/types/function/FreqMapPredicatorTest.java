@@ -7,9 +7,7 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class FreqMapPredicatorTest {
@@ -19,17 +17,6 @@ public class FreqMapPredicatorTest {
     @Before
     public void initFreqMap() {
         this.freqMap = new FreqMap();
-    }
-
-    @Test
-    public void testRegexAndPredicates() {
-        Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
-        BiPredicate<String, Long> longPredicate = (s,l) -> l > 1;
-        BiPredicate<String, Long> bothPredicate = (s,l) -> regex.test(s) && l > 1;
-
-        FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
-        FreqMapPredicator fLongPredicator = new FreqMapPredicator(longPredicate);
-        FreqMapPredicator fBothPredicator = new FreqMapPredicator(bothPredicate);
 
         freqMap.upsert("cat");
         freqMap.upsert("cat");
@@ -41,28 +28,78 @@ public class FreqMapPredicatorTest {
         freqMap.upsert("catdog");
         freqMap.upsert("cat");
         freqMap.upsert("cat");
+    }
 
-        //Check regex works
+    @Test
+    public void testKeyOnlyPredicate() {
+        //given
+        Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
+        FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
+
+        //when
         FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
+        //then
         assertEquals(fRegex.size(), 2);
         assertFalse(fRegex.containsKey("cat"));
         assertTrue(fRegex.containsKey("cow"));
+    }
 
-        //Value predicate
+    @Test
+    public void testValueOnlyPredicate() {
+        //given
+        BiPredicate<String, Long> longPredicate = (s,l) -> l > 1;
+        FreqMapPredicator fLongPredicator = new FreqMapPredicator(longPredicate);
+
+        //when
         FreqMap fPredicateLong = fLongPredicator.apply(freqMap);
 
+        //then
         assertEquals(fPredicateLong.size(), 3);
         assertFalse(fPredicateLong.containsKey("dog"));
+    }
 
-        //Both value and key
+    @Test
+    public void testKeyAndValuePredicate() {
+        //given
+        BiPredicate<String, Long> bothPredicate = (s,l) -> s.matches("^\\wo\\w$") && l > 1;
+        FreqMapPredicator fBothPredicator = new FreqMapPredicator(bothPredicate);
+
+        //when
         FreqMap fPredicateBoth = fBothPredicator.apply(freqMap);
 
+        //then
         assertEquals(fPredicateBoth.size(), 1);
         assertFalse(fPredicateBoth.containsKey("dog"));
         assertTrue(fPredicateBoth.containsKey("cow"));
+    }
 
-        //Tests to to see the freqMap was not manipulated itself
+    @Test
+    public void testNullPredicates() {
+        //given
+        Predicate<String> nullRegex = null;
+        BiPredicate<String, Long> nullBiPredicate = null;
+
+        //when
+        FreqMapPredicator nullRegPredicator = new FreqMapPredicator(nullRegex);
+        FreqMapPredicator nullBiPredicator = new FreqMapPredicator(nullBiPredicate);
+
+        //then
+        assertNull(nullRegPredicator.apply(freqMap));
+        assertNull(nullBiPredicator.apply(freqMap));
+    }
+
+    @Test
+    public void testMapMutability() {
+        //given
+        Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
+        FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
+
+        //when
+        // (this should result in the new map being size 2).
+        fRegexPredicator.apply(freqMap);
+
+        //then
         assertEquals(freqMap.size(), 4);
         assertTrue(freqMap.containsKey("cat"));
         assertTrue(freqMap.containsKey("dog"));
