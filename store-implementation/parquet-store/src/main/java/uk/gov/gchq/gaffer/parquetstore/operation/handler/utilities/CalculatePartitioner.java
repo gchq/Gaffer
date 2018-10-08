@@ -36,7 +36,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Calculates the {@link GraphPartitioner} from a snapshot directory containing all the Parquet files for a graph.
@@ -63,10 +66,13 @@ public class CalculatePartitioner {
             final List<PartitionKey> partitionKeys = new ArrayList<>();
             final Path groupPath = new Path(path, ParquetStore.GROUP + "=" + group);
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
+            final SortedSet<Path> sortedFiles = new TreeSet<>();
+            Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);
+            final Path[] sortedPaths = sortedFiles.toArray(new Path[]{});
             LOGGER.debug("Found {} files in {}", files.length, groupPath);
-            for (int i = 1; i < files.length; i++) { // NB Skip first file
-                LOGGER.debug("Reading first line of {}", files[i].getPath());
-                final ParquetReader<Element> reader = new ParquetElementReader.Builder<Element>(files[i].getPath())
+            for (int i = 1; i < sortedPaths.length; i++) { // NB Skip first file
+                LOGGER.debug("Reading first line of {}", sortedPaths[i]);
+                final ParquetReader<Element> reader = new ParquetElementReader.Builder<Element>(sortedPaths[i])
                         .isEntity(schema.getEntityGroups().contains(group))
                         .usingConverter(converter)
                         .build();
@@ -89,9 +95,13 @@ public class CalculatePartitioner {
             final List<PartitionKey> partitionKeys = new ArrayList<>();
             final Path groupPath = new Path(path, ParquetStore.REVERSED_GROUP + "=" + group);
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
-            for (int i = 1; i < files.length; i++) { // NB Skip first file
-                LOGGER.debug("Reading first line of {}", files[i].getPath());
-                final ParquetReader<Element> reader = new ParquetElementReader.Builder<Element>(files[i].getPath())
+            final SortedSet<Path> sortedFiles = new TreeSet<>();
+            Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);
+            final Path[] sortedPaths = sortedFiles.toArray(new Path[]{});
+            LOGGER.debug("Found {} files in {}", files.length, groupPath);
+            for (int i = 1; i < sortedPaths.length; i++) { // NB Skip first file
+                LOGGER.debug("Reading first line of {}", sortedPaths[i]);
+                final ParquetReader<Element> reader = new ParquetElementReader.Builder<Element>(sortedPaths[i])
                         .isEntity(false)
                         .usingConverter(converter)
                         .build();

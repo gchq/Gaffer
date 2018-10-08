@@ -97,13 +97,13 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  * stored as multiple or nested columns of primitive types.
  */
 public class ParquetStore extends Store {
-    public static final String GROUP = "GROUP";
+    public static final String GROUP = "group";
     public static final String VERTEX = IdentifierType.VERTEX.name();
     public static final String SOURCE = IdentifierType.SOURCE.name();
     public static final String DESTINATION = IdentifierType.DESTINATION.name();
     public static final String DIRECTED = IdentifierType.DIRECTED.name();
     public static final String SNAPSHOT = "snapshot";
-    public static final String REVERSED_GROUP = "REVERSED-" + GROUP;
+    public static final String REVERSED_GROUP = "reversed-" + GROUP;
     public static final String PARTITION = "partition";
     public static final int LENGTH_OF_PARTITION_NUMBER_IN_FILENAME = 7;
 

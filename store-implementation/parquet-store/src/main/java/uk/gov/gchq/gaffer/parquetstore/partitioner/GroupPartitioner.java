@@ -174,7 +174,7 @@ public class GroupPartitioner {
     private void checkSplitPointsAreOrdered(final List<PartitionKey> splitPoints) {
         for (int i = 1; i < splitPoints.size(); i++) {
             if (!(splitPoints.get(i - 1).compareTo(splitPoints.get(i)) < 0)) {
-                throw new IllegalArgumentException("The splitPoints must be in increasing order: found the " + (i - 1)
+                throw new IllegalArgumentException("The splitPoints must be in increasing order: for group " + group + " found the " + (i - 1)
                         + "th split point (" + splitPoints.get(i - 1) + ") was not less than the " + i + "th split point("
                         + splitPoints.get(i) + ")");
             }

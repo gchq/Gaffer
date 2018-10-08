@@ -82,7 +82,7 @@ public class QueryGeneratorTest {
         for (final String group : Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2, TestGroups.EDGE, TestGroups.EDGE_2)) {
             final Path groupFolderPath = new Path(snapshotFolder,  ParquetStore.GROUP + "=" + group);
             for (int partition = 0; partition < 10; partition++) {
-                final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+                final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 expected.add(new ParquetFileQuery(pathForPartitionFile, null, true));
             }
         }
@@ -96,7 +96,7 @@ public class QueryGeneratorTest {
         expected.clear();
         Path groupFolderPath = new Path(snapshotFolder,  ParquetStore.GROUP + "=" + TestGroups.EDGE);
         for (int partition = 0; partition < 10; partition++) {
-            final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+            final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, null, true));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
@@ -117,7 +117,7 @@ public class QueryGeneratorTest {
         // Then 3
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
-            final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+            final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10), true));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
@@ -138,7 +138,7 @@ public class QueryGeneratorTest {
         // Then 4
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
-            final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+            final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, null,false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
@@ -161,7 +161,7 @@ public class QueryGeneratorTest {
         // Then 5
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
-            final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+            final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10),false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));

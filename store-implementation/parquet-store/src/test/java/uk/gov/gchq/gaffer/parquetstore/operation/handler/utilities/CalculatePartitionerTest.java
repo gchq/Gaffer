@@ -60,7 +60,7 @@ public class CalculatePartitionerTest {
         for (final String group : Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2)) {
             final Path groupFolderPath = new Path(folder, ParquetStore.GROUP + "=" + group);
             for (int partition = 0; partition < 10; partition++) {
-                final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+                final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
                         .usingConverter(schemaUtils.getConverter(group))
                         .withType(schemaUtils.getParquetSchema(group))
@@ -92,7 +92,7 @@ public class CalculatePartitionerTest {
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
             final Path groupFolderPath = new Path(folder,ParquetStore.GROUP + "=" + group);
             for (int partition = 0; partition < 10; partition++) {
-                final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+                final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
                         .usingConverter(schemaUtils.getConverter(group))
                         .withType(schemaUtils.getParquetSchema(group))
@@ -125,9 +125,9 @@ public class CalculatePartitionerTest {
         //   ...
         //   source = i*10 + 9, destination = i*10 + 10
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
-            final Path groupFolderPath = new Path(folder, "REVERSED-group=" + group);
+            final Path groupFolderPath = new Path(folder, ParquetStore.REVERSED_GROUP + "=" + group);
             for (int partition = 0; partition < 10; partition++) {
-                final Path pathForPartitionFile = new Path(groupFolderPath, "partition-" + partition + ".parquet");
+                final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
                         .usingConverter(schemaUtils.getConverter(group))
                         .withType(schemaUtils.getParquetSchema(group))

@@ -69,7 +69,7 @@ public class AddElementsFromRDD {
         final Function<String, String> groupToSortedAggregatedNewData =
                 group -> tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/group=" + group + "/";
         final Function<String, String> groupToSortedAggregatedNewDataReversed =
-                group -> tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/REVERSED-group=" + group + "/";
+                group -> tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/reversed-group=" + group + "/";
 
         try {
             // Write data from input to unsorted files (for each partition of input, there will be one file per group)

@@ -38,10 +38,13 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
@@ -116,12 +119,14 @@ public class SortFullGroup implements Callable<OperationException> {
         final ExtractKeyFromRow extractKeyFromRow = new ExtractKeyFromRow(new HashSet<>(),
                 schemaUtils.getColumnToPaths(group), schemaUtils.getEntityGroups().contains(group), isReversed);
 
+        LOGGER.info("Sampling data from {} input files to identify split points for sorting", inputFilesThatExist.size());
         final List<Seq<Object>> rows = spark.read()
                 .option("mergeSchema", true)
                 .parquet(inputFilesThatExist.toArray(new String[]{}))
                 .javaRDD()
                 .map(extractKeyFromRow)
                 .takeSample(false, 10000, 1234567890L);
+        LOGGER.info("Obtained {} rows in the sample", rows.size());
 
         final TreeSet<Seq<Object>> sortedRows = new TreeSet<>(new SeqComparator());
         sortedRows.addAll(rows);
@@ -153,10 +158,12 @@ public class SortFullGroup implements Callable<OperationException> {
                 break;
             }
         }
+        LOGGER.info("Found {} split points", splitPoints.size());
 
         final SeqObjectPartitioner partitioner = new SeqObjectPartitioner(numberOfOutputFiles, splitPoints);
 
-        final JavaRDD<Row> x = spark.read()
+        LOGGER.info("Partitioning data using split points and sorting within partition, outputting to {}", outputDir);
+        final JavaRDD<Row> partitionedData = spark.read()
                 .option("mergeSchema", true)
                 .parquet(inputFilesThatExist.toArray(new String[]{}))
                 .javaRDD()
@@ -165,19 +172,29 @@ public class SortFullGroup implements Callable<OperationException> {
                 .partitionBy(partitioner)
                 .values();
 
-        spark.createDataFrame(x, schemaUtils.getSparkSchema(group))
+        spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group))
+                .write()
+                .parquet("/tmp/partitioned-group-" + new Random().nextLong() + "-" + group + "/");
+
+        spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group)).write().parquet("/tmp/df-group-" + group + new Random().nextLong());
+
+        spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group))
                 .sortWithinPartitions(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
                 .write()
                 .option("compression", "gzip")
                 .parquet(outputDir);
 
-        // Rename files, e.g. part-00000-*** to partition-0, removing empty files and adapting numbers accordingly
-        LOGGER.info("Renaming part-* files to partition-* files, removing empty files");
         final FileStatus[] sortedFiles = fs
                 .listStatus(new Path(outputDir), path -> path.getName().endsWith(".parquet"));
+        final SortedSet<Path> sortedSortedFiles = new TreeSet<>();
+        Arrays.stream(sortedFiles).map(f -> f.getPath()).forEach(sortedSortedFiles::add);
+        final Path[] sortedSortedPaths = sortedSortedFiles.toArray(new Path[]{});
+
+        // Rename files, e.g. part-00000-*** to partition-0, removing empty files and adapting numbers accordingly
+        LOGGER.info("Renaming part-* files to partition-* files, removing empty files (part-* files are in directory {})", outputDir);
         int counter = 0;
-        for (int i = 0; i < sortedFiles.length; i++) {
-            final Path path = sortedFiles[i].getPath();
+        for (int i = 0; i < sortedSortedPaths.length; i++) {
+            final Path path = sortedSortedPaths[i];
             final boolean isEmpty = isFileEmpty(path);
             if (isEmpty) {
                 LOGGER.debug("Deleting empty file {}", path);
@@ -185,7 +202,7 @@ public class SortFullGroup implements Callable<OperationException> {
             } else {
                 final Path newPath = new Path(outputDir + ParquetStore.getFile(counter));
                 LOGGER.debug("Renaming {} to {}", path, newPath);
-                fs.rename(sortedFiles[i].getPath(), newPath);
+                fs.rename(path, newPath);
                 // NB This automatically renames the .crc file as well
                 counter++;
             }
