@@ -31,7 +31,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void testKeyOnlyPredicate() {
+    public void shouldFilterKeysUsingRegexOnKey() {
         //given
         Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
         FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
@@ -46,7 +46,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void testValueOnlyPredicate() {
+    public void shouldFilterBasedOnValue() {
         //given
         BiPredicate<String, Long> longPredicate = (s,l) -> l > 1;
         FreqMapPredicator fLongPredicator = new FreqMapPredicator(longPredicate);
@@ -60,7 +60,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void testKeyAndValuePredicate() {
+    public void shouldFilterBasedOnKeyAndValue() {
         //given
         BiPredicate<String, Long> bothPredicate = (s,l) -> s.matches("^\\wo\\w$") && l > 1;
         FreqMapPredicator fBothPredicator = new FreqMapPredicator(bothPredicate);
@@ -75,7 +75,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void testNullPredicates() {
+    public void shouldHandleNulls() {
         //given
         Predicate<String> nullRegex = null;
         BiPredicate<String, Long> nullBiPredicate = null;
@@ -90,7 +90,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void testMapMutability() {
+    public void shouldNotMutateOriginalValue() {
         //given
         Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
         FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);

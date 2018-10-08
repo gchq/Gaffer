@@ -19,7 +19,7 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
     private BiPredicate<String, Long> predicate;
 
     /**
-     * Constructor for FreqMapPredicator.</br>
+     * Constructor for FreqMapPredicator.<br>
      * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield null.
      *
      * @param predicate The predicate for the key constraints of the map.
@@ -30,9 +30,9 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
     }
 
     /**
-     * Constructor for FreqMapPredicator.</br>
+     * Constructor for FreqMapPredicator.<br>
      * The predicate provided in this constructor does not need to utilize both
-     * key and value for testing.</br>
+     * key and value for testing.<br>
      * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield null.
      *
      * @param predicate The predicate for both key and value constraints.
@@ -43,7 +43,7 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
     }
 
     /**
-     * Creates a filtered copy of the map using a supplied predicate.</br>
+     * Creates a filtered copy of the map using a supplied predicate.<br>
      * Returns null if predicate supplied is null.
      *
      * @param map  The frequency map that is to be sorted through
