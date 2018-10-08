@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -36,7 +37,7 @@ public class SchemaUtilsTest {
     private SchemaUtils utils;
 
     @Before
-    public void setUp() throws StoreException {
+    public void setUp() {
         final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         utils = new SchemaUtils(schema);
     }
@@ -45,17 +46,16 @@ public class SchemaUtilsTest {
     public void cleanUp() {
         utils = null;
     }
-
-
+    
     @Test
-    public void getColumnToSerialiserTest() throws SerialisationException {
+    public void getColumnToSerialiserTest() {
         final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser(TestGroups.EDGE);
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
-                columnToSerialiser.get(ParquetStoreConstants.SOURCE));
+                columnToSerialiser.get(ParquetStore.SOURCE));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
-                columnToSerialiser.get(ParquetStoreConstants.DESTINATION));
+                columnToSerialiser.get(ParquetStore.DESTINATION));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser",
-                columnToSerialiser.get(ParquetStoreConstants.DIRECTED));
+                columnToSerialiser.get(ParquetStore.DIRECTED));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser",
                 columnToSerialiser.get("byte"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser",

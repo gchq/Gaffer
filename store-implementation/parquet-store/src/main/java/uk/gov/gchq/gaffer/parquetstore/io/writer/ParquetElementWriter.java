@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import java.io.IOException;
 
 /**
- * This class is the Parquet writer that will write out {@link Element}'s to a specific Parquet file.
+ * A {@link ParquetWriter} for writing {@link Element}s to a Parquet file.
  */
 public class ParquetElementWriter extends ParquetWriter<Element> {
 
@@ -52,7 +52,6 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
 
     public static class Builder extends ParquetWriter.Builder<Element, Builder> {
         private MessageType type = null;
-        private boolean isEntity = true;
         private GafferGroupObjectConverter converter = null;
         private StructType sparkSchema = null;
 
@@ -62,11 +61,6 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
 
         public Builder withType(final MessageType type) {
             this.type = type;
-            return this;
-        }
-
-        public Builder isEntity(final boolean isEntity) {
-            this.isEntity = isEntity;
             return this;
         }
 
@@ -87,7 +81,7 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
 
         @Override
         protected WriteSupport<Element> getWriteSupport(final Configuration conf) {
-            return new ElementWriteSupport(type, isEntity, converter, sparkSchema);
+            return new ElementWriteSupport(type, converter, sparkSchema);
         }
     }
 }

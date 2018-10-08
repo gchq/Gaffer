@@ -15,6 +15,6 @@
  */
 
 /**
- * Utility classes used by the parquet store.
+ * Utility classes used by the Parquet store.
  */
 package uk.gov.gchq.gaffer.parquetstore.utils;
