@@ -2,12 +2,16 @@ package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 public class FreqMapPredicatorTest {
@@ -48,7 +52,7 @@ public class FreqMapPredicatorTest {
     @Test
     public void shouldFilterBasedOnValue() {
         //given
-        BiPredicate<String, Long> longPredicate = (s,l) -> l > 1;
+        BiPredicate<String, Long> longPredicate = (s, l) -> l > 1;
         FreqMapPredicator fLongPredicator = new FreqMapPredicator(longPredicate);
 
         //when
@@ -62,7 +66,7 @@ public class FreqMapPredicatorTest {
     @Test
     public void shouldFilterBasedOnKeyAndValue() {
         //given
-        BiPredicate<String, Long> bothPredicate = (s,l) -> s.matches("^\\wo\\w$") && l > 1;
+        BiPredicate<String, Long> bothPredicate = (s, l) -> s.matches("^\\wo\\w$") && l > 1;
         FreqMapPredicator fBothPredicator = new FreqMapPredicator(bothPredicate);
 
         //when

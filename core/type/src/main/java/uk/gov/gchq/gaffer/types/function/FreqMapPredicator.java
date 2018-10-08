@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2018 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -24,9 +39,10 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
      *
      * @param predicate The predicate for the key constraints of the map.
      */
-    public FreqMapPredicator(Predicate<String> predicate) {
-        if(predicate != null)
+    public FreqMapPredicator(final Predicate<String> predicate) {
+        if (predicate != null) {
             this.predicate = (s, aLong) -> predicate.test(s);
+        }
     }
 
     /**
@@ -37,23 +53,25 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
      *
      * @param predicate The predicate for both key and value constraints.
      */
-    public FreqMapPredicator(BiPredicate<String, Long> predicate) {
-        if(predicate != null)
+    public FreqMapPredicator(final BiPredicate<String, Long> predicate) {
+        if (predicate != null) {
             this.predicate = predicate;
+        }
     }
 
     /**
      * Creates a filtered copy of the map using a supplied predicate.<br>
      * Returns null if predicate supplied is null.
      *
-     * @param map  The frequency map that is to be sorted through
-     * @return  A new frequency map with only the filtered entries present.
+     * @param map The frequency map that is to be sorted through
+     * @return A new frequency map with only the filtered entries present.
      */
-    private FreqMap filterPredicate(FreqMap map) {
-        if(predicate == null)
+    private FreqMap filterPredicate(final FreqMap map) {
+        if (predicate == null) {
             return null;
+        }
 
-        FreqMap f = new FreqMap();
+        final FreqMap f = new FreqMap();
 
         map.entrySet().stream().filter(e -> predicate.test(e.getKey(), e.getValue()))
                 .forEach(e -> f.upsert(e.getKey(), e.getValue()));
@@ -62,7 +80,7 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
     }
 
     @Override
-    public FreqMap apply(FreqMap freqMap) {
+    public FreqMap apply(final FreqMap freqMap) {
         return filterPredicate(freqMap);
     }
 }
