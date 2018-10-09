@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * An {@code ElementEquality} is a {@link KoryphePredicate2} that is
- * used to compare if two {@Element}s are equal.  Optional {@code GroupBy} properties
+ * used to compare if two {@link Element}s are equal.  Optional {@code GroupBy} properties
  * can be set, and will then be used within the comparison also.
  */
 public class ElementEquality extends KoryphePredicate2<Element, Element> {
