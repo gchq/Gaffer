@@ -135,7 +135,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             try {
                 final Object result = _execute(opChain, context).getFirst();
                 chunkResult(result, output);
-            } catch (final UnauthorisedException e) {
+            } catch (final Exception e) {
                 throw new RuntimeException(e);
             } finally {
                 CloseableUtil.close(output);
@@ -157,14 +157,25 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         // If there was an UnauthorisedException thrown return 500
         if (null != threadException[0]) {
-            return Response.status(INTERNAL_SERVER_ERROR)
-                    .entity(new Error.ErrorBuilder()
-                            .status(Status.FORBIDDEN)
-                            .statusCode(403)
-                            .simpleMessage(threadException[0].getMessage())
-                            .build())
-                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                    .build();
+            if (threadException.getClass().equals(UnauthorisedException.class)) {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.FORBIDDEN)
+                                .statusCode(403)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            } else {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.INTERNAL_SERVER_ERROR)
+                                .statusCode(500)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
         }
 
         // Return ok output
