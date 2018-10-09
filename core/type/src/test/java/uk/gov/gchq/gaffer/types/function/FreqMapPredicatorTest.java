@@ -3,14 +3,18 @@ package uk.gov.gchq.gaffer.types.function;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.koryphe.impl.predicate.Regex;
 
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -35,13 +39,13 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void shouldFilterKeysUsingRegexOnKey() {
+    public void shouldFilterMap() {
         //given
-        Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
-        FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
+        final Regex predicate = new Regex("^\\wo\\w$");
+        final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
         //when
-        FreqMap fRegex = fRegexPredicator.apply(freqMap);
+        final FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
         //then
         assertEquals(fRegex.size(), 2);
@@ -50,54 +54,22 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void shouldFilterBasedOnValue() {
-        //given
-        BiPredicate<String, Long> longPredicate = (s, l) -> l > 1;
-        FreqMapPredicator fLongPredicator = new FreqMapPredicator(longPredicate);
-
-        //when
-        FreqMap fPredicateLong = fLongPredicator.apply(freqMap);
-
-        //then
-        assertEquals(fPredicateLong.size(), 3);
-        assertFalse(fPredicateLong.containsKey("dog"));
-    }
-
-    @Test
-    public void shouldFilterBasedOnKeyAndValue() {
-        //given
-        BiPredicate<String, Long> bothPredicate = (s, l) -> s.matches("^\\wo\\w$") && l > 1;
-        FreqMapPredicator fBothPredicator = new FreqMapPredicator(bothPredicate);
-
-        //when
-        FreqMap fPredicateBoth = fBothPredicator.apply(freqMap);
-
-        //then
-        assertEquals(fPredicateBoth.size(), 1);
-        assertFalse(fPredicateBoth.containsKey("dog"));
-        assertTrue(fPredicateBoth.containsKey("cow"));
-    }
-
-    @Test
     public void shouldHandleNulls() {
         //given
-        Predicate<String> nullRegex = null;
-        BiPredicate<String, Long> nullBiPredicate = null;
+        final FreqMapPredicator nullRegPredicator = new FreqMapPredicator(null);
 
         //when
-        FreqMapPredicator nullRegPredicator = new FreqMapPredicator(nullRegex);
-        FreqMapPredicator nullBiPredicator = new FreqMapPredicator(nullBiPredicate);
+        final FreqMap map = nullRegPredicator.apply(freqMap);
 
         //then
-        assertNull(nullRegPredicator.apply(freqMap));
-        assertNull(nullBiPredicator.apply(freqMap));
+        assertThat(map, is(freqMap));
     }
 
     @Test
     public void shouldNotMutateOriginalValue() {
         //given
-        Predicate<String> regex = (s) -> s.matches("^\\wo\\w$");
-        FreqMapPredicator fRegexPredicator = new FreqMapPredicator(regex);
+        final Regex predicate = new Regex("^\\wo\\w$");
+        final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
         //when
         // (this should result in the new map being size 2).
@@ -109,5 +81,31 @@ public class FreqMapPredicatorTest {
         assertTrue(freqMap.containsKey("dog"));
         assertTrue(freqMap.containsKey("catdog"));
         assertTrue(freqMap.containsKey("cow"));
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        //given
+        final FreqMapPredicator nullPredicator = new FreqMapPredicator();
+        final FreqMapPredicator regexPredicator = new FreqMapPredicator(new Regex("^\\wo\\w$"));
+
+        //when
+        final String json = new String(JSONSerialiser.serialise(nullPredicator, true));
+        final String json2 = new String(JSONSerialiser.serialise(regexPredicator, false));
+
+        //then
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"%n" +
+                "}"), json);
+
+        JsonAssert.assertEquals("{\"class\":\"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"," +
+                "\"predicate\":{\"class\":\"uk.gov.gchq.koryphe.impl.predicate.Regex\",\"value\":" +
+                "{\"java.util.regex.Pattern\":\"^\\\\wo\\\\w$\"}}}", json2);
+
+        final FreqMapPredicator deserializedNull = JSONSerialiser.deserialise(json, FreqMapPredicator.class);
+        final FreqMapPredicator deserializedRegex = JSONSerialiser.deserialise(json2, FreqMapPredicator.class);
+
+        assertEquals(deserializedNull.apply(freqMap).size(), freqMap.size());
+        assertEquals(deserializedRegex.apply(freqMap).size(), 2);
     }
 }

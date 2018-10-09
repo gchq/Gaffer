@@ -19,62 +19,58 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.predicate.Regex;
 
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.io.Serializable;
 
 /**
  * A {@code FreqMapPredicator} is a {@link KorypheFunction} that extracts a
- * a clone of the current frequency map provided a valid predicate or bipredicate.
+ * a clone of the current frequency map provided a valid {@link uk.gov.gchq.koryphe.impl.predicate.Regex}.
  */
 @Since("1.7.0")
 @Summary("Returns a frequency map based on the predicate provided")
-public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
+public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap>
+implements Serializable {
 
-    private BiPredicate<String, Long> predicate;
+    private Regex predicate;
+
 
     /**
      * Constructor for FreqMapPredicator.<br>
-     * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield null.
+     * As an empty constructor, null is defaulted for the predicate.<br>
      *
-     * @param predicate The predicate for the key constraints of the map.
+     * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield a clone of the input map.
      */
-    public FreqMapPredicator(final Predicate<String> predicate) {
-        if (predicate != null) {
-            this.predicate = (s, aLong) -> predicate.test(s);
-        }
+    public FreqMapPredicator() {
+        predicate = null;
     }
 
     /**
      * Constructor for FreqMapPredicator.<br>
-     * The predicate provided in this constructor does not need to utilize both
-     * key and value for testing.<br>
-     * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield null.
+     * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield a clone of the input map.
      *
      * @param predicate The predicate for both key and value constraints.
      */
-    public FreqMapPredicator(final BiPredicate<String, Long> predicate) {
-        if (predicate != null) {
-            this.predicate = predicate;
-        }
+    public FreqMapPredicator(final Regex predicate) {
+        this.predicate = predicate;
     }
 
     /**
      * Creates a filtered copy of the map using a supplied predicate.<br>
-     * Returns null if predicate supplied is null.
+     * Returns a copy of the map if predicate supplied is null.
      *
      * @param map The frequency map that is to be sorted through
      * @return A new frequency map with only the filtered entries present.
      */
     private FreqMap filterPredicate(final FreqMap map) {
-        if (predicate == null) {
-            return null;
-        }
-
         final FreqMap f = new FreqMap();
 
-        map.entrySet().stream().filter(e -> predicate.test(e.getKey(), e.getValue()))
-                .forEach(e -> f.upsert(e.getKey(), e.getValue()));
+        if (predicate == null) {
+            map.forEach(f::upsert);
+        } else {
+            map.entrySet().stream().filter(e -> predicate.test(e.getKey()))
+                    .forEach(e -> f.upsert(e.getKey(), e.getValue()));
+        }
 
         return f;
     }
@@ -82,5 +78,14 @@ public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap> {
     @Override
     public FreqMap apply(final FreqMap freqMap) {
         return filterPredicate(freqMap);
+    }
+
+    //Serialization purposes
+    public Regex getPredicate() {
+        return predicate;
+    }
+
+    public void setPredicate(final Regex predicate) {
+        this.predicate = predicate;
     }
 }
