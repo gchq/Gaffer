@@ -151,8 +151,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         // Sleep to check exception will be caught
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (final InterruptedException e) {
+            return Response.status(INTERNAL_SERVER_ERROR)
+                    .entity(new Error.ErrorBuilder()
+                            .status(Status.INTERNAL_SERVER_ERROR)
+                            .statusCode(500)
+                            .simpleMessage(e.getMessage())
+                            .build())
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         }
 
         // If there was an UnauthorisedException thrown return 403, else return a 500
