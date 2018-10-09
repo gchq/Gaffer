@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -57,6 +58,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -116,29 +118,59 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
-    public ChunkedOutput<String> executeChunked(final Operation operation) {
+    public Response executeChunked(final Operation operation) {
         return executeChunkedChain(OperationChain.wrap(operation));
     }
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+    public Response executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
+        final Throwable[] threadException = new Throwable[1];
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
         final Context context = userFactory.createContext();
 
-        // write chunks to the chunked output object
-        new Thread(() -> {
+        // create thread to write chunks to the chunked output object
+        Thread thread = new Thread(() -> {
             try {
                 final Object result = _execute(opChain, context).getFirst();
                 chunkResult(result, output);
+            } catch (final UnauthorisedException e) {
+                throw new RuntimeException(e);
             } finally {
                 CloseableUtil.close(output);
                 CloseableUtil.close(opChain);
             }
-        }).start();
+        });
 
-        return output;
+        // By default threads throw nothing, so set the ExceptionHandler
+        thread.setUncaughtExceptionHandler((thread1, exception) -> threadException[0] = exception.getCause());
+
+        thread.start();
+
+        // Sleep to check exception will be caught
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // If there was an UnauthorisedException thrown return 500
+        if (null != threadException[0]) {
+            return Response.status(INTERNAL_SERVER_ERROR)
+                    .entity(new Error.ErrorBuilder()
+                            .status(Status.INTERNAL_SERVER_ERROR)
+                            .statusCode(500)
+                            .simpleMessage(threadException[0].getMessage())
+                            .build())
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        }
+
+        // Return ok output
+        return Response.ok(output)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
