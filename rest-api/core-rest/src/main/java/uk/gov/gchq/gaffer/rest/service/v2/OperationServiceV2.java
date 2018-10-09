@@ -155,7 +155,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             e.printStackTrace();
         }
 
-        // If there was an UnauthorisedException thrown return 500
+        // If there was an UnauthorisedException thrown return 403, else return a 500
         if (null != threadException[0]) {
             if (threadException.getClass().equals(UnauthorisedException.class)) {
                 return Response.status(INTERNAL_SERVER_ERROR)
