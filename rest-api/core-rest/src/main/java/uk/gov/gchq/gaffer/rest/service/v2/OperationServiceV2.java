@@ -159,8 +159,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         if (null != threadException[0]) {
             return Response.status(INTERNAL_SERVER_ERROR)
                     .entity(new Error.ErrorBuilder()
-                            .status(Status.INTERNAL_SERVER_ERROR)
-                            .statusCode(500)
+                            .status(Status.FORBIDDEN)
+                            .statusCode(403)
                             .simpleMessage(threadException[0].getMessage())
                             .build())
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
