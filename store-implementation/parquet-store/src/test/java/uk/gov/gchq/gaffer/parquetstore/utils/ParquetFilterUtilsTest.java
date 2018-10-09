@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -42,6 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,17 +54,16 @@ import java.util.Set;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
-/**
- * This class tests the functionality of the ParquetFilterUtils methods
- */
 public class ParquetFilterUtilsTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
-    public void buildPathToFilterMap() throws StoreException, SerialisationException, OperationException {
+    public void buildPathToFilterMap() throws IOException, OperationException, StoreException {
+        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final ParquetStore store = new ParquetStore();
         final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-        final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties();
-        store.initialise("buildPathToFilterMap", gafferSchema, storeProperties);
+        store.initialise("buildPathToFilterMap", gafferSchema, properties);
         final ParquetFilterUtils parquetFilterUtils = new ParquetFilterUtils(store);
         
         final ElementFilter filter = new ElementFilter.Builder()
@@ -116,5 +120,4 @@ public class ParquetFilterUtilsTest {
         final Object[] actualPaths = pathToFilterMap.keySet().stream().map(Path::getName).toArray();
         assertThat(expectedPaths, containsInAnyOrder(actualPaths));
     }
-            
 }

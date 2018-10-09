@@ -39,6 +39,7 @@ import java.util.Map;
  *
  * @see Builder
  */
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public interface MapReduce {
     Map<String, String> getInputMapperPairs();
 
@@ -105,7 +106,6 @@ public interface MapReduce {
 
     void setMaxReduceTasks(final Integer maxReduceTasks);
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     boolean isUseProvidedSplits();
 
     void setUseProvidedSplits(boolean useProvidedSplits);

@@ -25,6 +25,7 @@ public class TestTypes {
     public static final String DIRECTED_TRUE = "directed.true";
     public static final String PROP_STRING = "prop.string";
     public static final String PROP_INTEGER = "prop.integer";
+    public static final String PROP_LONG = "prop.long";
     public static final String PROP_INTEGER_2 = "prop.integer.2";
     public static final String PROP_COUNT = "prop.count";
     public static final String PROP_MAP = "prop.map";

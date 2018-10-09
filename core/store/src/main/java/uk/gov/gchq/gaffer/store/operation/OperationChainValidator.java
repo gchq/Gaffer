@@ -24,11 +24,14 @@ import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
+import java.util.Set;
 
 /**
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
@@ -77,12 +80,7 @@ public class OperationChainValidator {
                 output = ((Output) operation).getClass();
             }
         } else {
-            final Operation firstOp;
-            if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
-                firstOp = ((OperationChain<?>) operation).getOperations().get(0);
-            } else {
-                firstOp = operation;
-            }
+            final Operation firstOp = getFirstOperation(operation);
             if (firstOp instanceof Input) {
                 final Class<?> outputType = OperationUtil.getOutputType(input);
                 final Class<?> inputType = OperationUtil.getInputType(((Input) firstOp));
@@ -101,6 +99,16 @@ public class OperationChainValidator {
             }
         }
         return output;
+    }
+
+    protected Operation getFirstOperation(final Operation operation) {
+        final Operation firstOp;
+        if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
+            firstOp = ((OperationChain<?>) operation).getOperations().get(0);
+        } else {
+            firstOp = operation;
+        }
+        return firstOp;
     }
 
     /**
@@ -152,7 +160,7 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof GraphFilters) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, store.getTraits());
+            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
@@ -164,5 +172,9 @@ public class OperationChainValidator {
 
     protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return store.getSchema();
+    }
+
+    protected Set<StoreTrait> getStoreTraits(final Store store) {
+        return store.getTraits();
     }
 }

@@ -81,6 +81,10 @@ public class JSONSerialiser {
     public static final String JSON_SERIALISER_MODULES = "gaffer.serialiser.json.modules";
     public static final String DEFAULT_SERIALISER_CLASS_NAME = JSONSerialiser.class.getName();
 
+    public static final String STRICT_JSON = "gaffer.serialiser.json.strict";
+    public static final boolean STRICT_JSON_DEFAULT = false;
+    private static final String STRICT_JSON_DEFAULT_STR = Boolean.toString(STRICT_JSON_DEFAULT);
+
     public static final String FILTER_FIELDS_BY_NAME = "filterFieldsByName";
 
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
@@ -135,7 +139,28 @@ public class JSONSerialiser {
         SimpleClassNameCache.addSimpleClassNames(includeSubtypes, classes);
     }
 
+    /**
+     * Update the json serialiser with the provided custom properties.
+     *
+     * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
+     * @param jsonSerialiserModules any extra json serialiser modules required
+     * @deprecated use {@link #update(String, String, Boolean)} instead
+     */
+    @Deprecated
     public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
+        update(jsonSerialiserClass, jsonSerialiserModules, null);
+    }
+
+    /**
+     * Update the json serialiser with the provided custom properties.
+     *
+     * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
+     * @param jsonSerialiserModules any extra json serialiser modules required
+     * @param strictJson            true if strict json conversion should be used
+     */
+    public static void update(final String jsonSerialiserClass,
+                              final String jsonSerialiserModules,
+                              final Boolean strictJson) {
         if (StringUtils.isNotBlank(jsonSerialiserModules)) {
             final String modulesCsv = new StringDeduplicateConcat().apply(
                     System.getProperty(JSON_SERIALISER_MODULES),
@@ -147,6 +172,11 @@ public class JSONSerialiser {
         if (null != jsonSerialiserClass) {
             System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
         }
+
+        if (null != strictJson) {
+            System.setProperty(STRICT_JSON, strictJson.toString());
+        }
+
         update();
     }
 
@@ -174,6 +204,12 @@ public class JSONSerialiser {
                 newInstance.mapper.registerModules(modules);
             }
         }
+
+        newInstance.mapper.configure(
+                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                Boolean.parseBoolean(System.getProperty(STRICT_JSON, STRICT_JSON_DEFAULT_STR))
+        );
+
         instance = newInstance;
         LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
     }
@@ -185,6 +221,9 @@ public class JSONSerialiser {
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
         mapper.registerModule(CloseableIterableDeserializer.getModule());
+
+        // Allow unknown properties. This will help to avoid conflicts between Gaffer versions.
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, STRICT_JSON_DEFAULT);
 
         // Using the deprecated version for compatibility with older versions of jackson
         mapper.registerModule(new JSR310Module());

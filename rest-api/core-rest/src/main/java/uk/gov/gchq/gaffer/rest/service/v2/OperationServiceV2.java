@@ -18,39 +18,51 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
+import uk.gov.gchq.gaffer.graph.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
+import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSerialisedFieldClasses;
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
@@ -76,6 +88,20 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response getOperations() {
         return Response.ok(graphFactory.getGraph().getSupportedOperations())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response getOperationDetails() {
+        Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
+        List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
+
+        for (final Class<? extends Operation> supportedOperation : supportedOperations) {
+            supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation));
+        }
+
+        return Response.ok(supportedClassesAsOperationDetail)
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -120,7 +146,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(getOperationClass(className)))
+                return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -152,7 +178,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(getExampleJson(getOperationClass(className)))
+            return Response.ok(generateExampleJson(getOperationClass(className)))
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         } catch (final ClassNotFoundException e) {
@@ -198,9 +224,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         final Context context = userFactory.createContext();
         preOperationHook(opChain, context);
 
-        O result;
+        GraphResult<O> result;
         try {
-            result = graphFactory.getGraph().execute(opChain, context);
+            result = graphFactory.getGraph().execute(new GraphRequest<>(opChain, context));
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
             if (null != e.getMessage()) {
@@ -217,7 +243,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
         }
 
-        return new Pair<>(result, context.getJobId());
+        return new Pair<>(result.getResult(), result.getContext().getJobId());
     }
 
     protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
@@ -241,8 +267,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
+    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
@@ -254,15 +279,67 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
+    private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+        Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
+        List<OperationField> operationFields = new ArrayList<>();
+
+        for (final String fieldString : fieldsToClassMap.keySet()) {
+            boolean required = false;
+            String summary = null;
+            Field field = null;
+            Set<String> enumOptions = null;
+
+            try {
+                field = opClass.getDeclaredField(fieldString);
+            } catch (final NoSuchFieldException e) {
+                // Ignore, we will just assume it isn't required
+            }
+
+            if (null != field) {
+                required = null != field.getAnnotation(Required.class);
+                summary = getSummaryValue(field.getType());
+
+                if (field.getType().isEnum()) {
+                    enumOptions = Stream
+                            .of(field.getType().getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.toSet());
+                }
+            }
+            operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
+        }
+
+        return operationFields;
+    }
+
+    private String getOperationOutputType(final Operation operation) {
+        String outputClass = null;
+        if (operation instanceof Output) {
+            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+        }
+        return outputClass;
+    }
+
+    private static String getSummaryValue(final Class<?> opClass) {
+        final Summary summary = opClass.getAnnotation(Summary.class);
+        return null != summary && null != summary.value() ? summary.value() : null;
+    }
+
     /**
      * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
      */
     private class OperationField {
         private final String name;
+        private final String summary;
+        private String className;
+        private Set<String> options;
         private final boolean required;
 
-        OperationField(final String name, final boolean required) {
+        OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
             this.name = name;
+            this.summary = summary;
+            this.className = className;
+            this.options = options;
             this.required = required;
         }
 
@@ -270,8 +347,63 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             return name;
         }
 
+        public String getSummary() {
+            return summary;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public Set<String> getOptions() {
+            return options;
+        }
+
         public boolean isRequired() {
             return required;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationField that = (OperationField) o;
+
+            return new EqualsBuilder()
+                    .append(required, that.required)
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(className, that.className)
+                    .append(options, that.options)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(className)
+                    .append(options)
+                    .append(required)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("className", className)
+                    .append("options", options)
+                    .append("required", required)
+                    .toString();
         }
     }
 
@@ -279,25 +411,33 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
      * class.
      */
-    private class OperationDetail {
+    protected class OperationDetail {
         private final String name;
+        private final String summary;
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
+        private final String outputClassName;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
-                this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
-            } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                this.exampleJson = generateExampleJson(opClass);
+            } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
+            this.outputClassName = getOperationOutputType(exampleJson);
         }
 
         public String getName() {
             return name;
+        }
+
+        public String getSummary() {
+            return summary;
         }
 
         public List<OperationField> getFields() {
@@ -312,18 +452,51 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             return exampleJson;
         }
 
-        private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            return Arrays.stream(opClass.getDeclaredFields())
-                    .map(f -> {
-                        boolean required = false;
-                        final Required[] annotations = f.getAnnotationsByType(Required.class);
+        public String getOutputClassName() {
+            return outputClassName;
+        }
 
-                        if (null != annotations && annotations.length > 0) {
-                            required = true;
-                        }
-                        return new OperationField(f.getName(), required);
-                    })
-                    .collect(Collectors.toList());
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationDetail that = (OperationDetail) o;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(fields, that.fields)
+                    .append(next, that.next)
+                    .append(exampleJson, that.exampleJson)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(fields)
+                    .append(next)
+                    .append(exampleJson)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("fields", fields)
+                    .append("next", next)
+                    .append("exampleJson", exampleJson)
+                    .toString();
         }
     }
 }

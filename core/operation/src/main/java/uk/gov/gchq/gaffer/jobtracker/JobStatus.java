@@ -15,9 +15,12 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * Denotes the status of a Gaffer job.
  */
+@Summary("The status of a job")
 public enum JobStatus {
 
     /**

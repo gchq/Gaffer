@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ import java.util.Set;
  */
 @JsonPropertyOrder(value = {"class", "input", "key"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Exports to a cache backed by a Gaffer graph")
 public class ExportToGafferResultCache<T> implements
         ExportTo<T> {
     private String key;

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.export.graph.handler;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -61,35 +62,18 @@ public class GraphDelegate {
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
     public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
-        return createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
+        return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
+    }
+
+    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+        return createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
     public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
-        final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
-
-        validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
-
-        final Schema resolvedSchema = resolveSchema(store, schema, parentSchemaIds, existingGraphPair);
-        final StoreProperties resolvedStoreProperties = resolveStoreProperties(store, storeProperties, parentStorePropertiesId, existingGraphPair);
-
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(graphId)
-                        .library(graphLibrary)
-                        .addHooks(hooks)
-                        .build())
-                .addSchema(resolvedSchema)
-                .storeProperties(resolvedStoreProperties)
-                .addToLibrary(false)
-                .build();
-    }
-
-    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -98,28 +82,19 @@ public class GraphDelegate {
         final Schema resolvedSchema = resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
         final StoreProperties resolvedStoreProperties = resolveStorePropertiesForGraph(store, storeProperties, parentStorePropertiesId, existingGraphPair);
 
-        return new Graph.Builder()
+        return new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
                         .library(graphLibrary)
                         .addHooks(hooks)
                         .build())
-                .addSchema(resolvedSchema)
-                .storeProperties(resolvedStoreProperties)
-                .addToLibrary(false)
+                .schema(resolvedSchema)
+                .properties(resolvedStoreProperties)
                 .build();
     }
 
-    private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
-        StoreProperties resultProps;
-        if (null != existingGraphPair) {
-            // If there is an existing graph then ignore any user provided properties and just use the existing properties
-            resultProps = existingGraphPair.getSecond();
-        } else {
-            final GraphLibrary graphLibrary = store.getGraphLibrary();
-            resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
-        }
-        return resultProps;
+    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+        return createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks).getGraph();
     }
 
     protected StoreProperties resolveStorePropertiesForGraph(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
@@ -132,18 +107,6 @@ public class GraphDelegate {
             resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
         }
         return resultProps;
-    }
-
-    private static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
-        Schema resultSchema;
-        if (null != existingGraphPair) {
-            // If there is an existing graph then ignore any user provided schemas and just use the existing schema
-            resultSchema = existingGraphPair.getFirst();
-        } else {
-            final GraphLibrary graphLibrary = store.getGraphLibrary();
-            resultSchema = (null == graphLibrary) ? schema : graphLibrary.resolveSchema(schema, parentSchemaIds);
-        }
-        return resultSchema;
     }
 
     protected Schema resolveSchemaForGraph(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
@@ -321,8 +284,16 @@ public class GraphDelegate {
             return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
         }
 
+        public GraphSerialisable createGraphSerialisable() {
+            return new GraphDelegate().createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
+        }
+
+        public GraphSerialisable buildGraphSerialisable() {
+            return createGraphSerialisable();
+        }
+
         public Graph build() {
-            return _self().createGraph();
+            return createGraph();
         }
     }
 
@@ -343,8 +314,11 @@ public class GraphDelegate {
         public Graph createGraph() {
             return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks);
         }
+
+        @Override
+        public GraphSerialisable createGraphSerialisable() {
+            return new GraphDelegate().createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks);
+        }
     }
 
 }
-
-

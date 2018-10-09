@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:1.3.0):
+Koryphe (uk.gov.gchq.koryphe:koryphe:1.5.0):
 
 - Apache License, Version 2.0
 
@@ -59,7 +59,7 @@ Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
 - Apache License, Version 2.0
 
 
-Datasketches (com.yahoo.sketches:sketches-core:0.9.1):
+Datasketches (com.yahoo.sketches:sketches-core:0.11.0):
 
 - Apache License, Version 2.0
 

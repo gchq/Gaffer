@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.jsonSerialisation;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -289,7 +290,7 @@ public class JSONSerialiserTest {
     }
 
     @Test
-    public void shouldUpdateInstanceWithCustomSerialiserAndModules() throws Exception {
+    public void shouldUpdateInstanceWithCustomProperties() throws Exception {
         // Given
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
@@ -302,6 +303,7 @@ public class JSONSerialiserTest {
                 mock(Module.class)
         );
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
+        System.setProperty(JSONSerialiser.STRICT_JSON, "false");
 
         // When
         JSONSerialiser.update();
@@ -311,10 +313,11 @@ public class JSONSerialiserTest {
         assertSame(TestCustomJsonSerialiser1.mapper, JSONSerialiser.getMapper());
         verify(TestCustomJsonSerialiser1.mapper).registerModules(TestCustomJsonModules1.modules);
         verify(TestCustomJsonSerialiser1.mapper).registerModules(TestCustomJsonModules2.modules);
+        verify(TestCustomJsonSerialiser1.mapper).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Test
-    public void shouldUpdateInstanceTwiceWithCustomSerialiserAndModules() throws Exception {
+    public void shouldUpdateInstanceTwiceWithCustomProperties() throws Exception {
         // Given
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         TestCustomJsonSerialiser2.mapper = mock(ObjectMapper.class);
@@ -328,22 +331,50 @@ public class JSONSerialiserTest {
         );
 
         // When - initial update
-        JSONSerialiser.update(TestCustomJsonSerialiser1.class.getName(), TestCustomJsonModules1.class.getName());
+        JSONSerialiser.update(TestCustomJsonSerialiser1.class.getName(), TestCustomJsonModules1.class.getName(), false);
 
         // Then
         assertEquals(TestCustomJsonSerialiser1.class, JSONSerialiser.getInstance().getClass());
         assertSame(TestCustomJsonSerialiser1.mapper, JSONSerialiser.getMapper());
         verify(TestCustomJsonSerialiser1.mapper).registerModules(TestCustomJsonModules1.modules);
         verify(TestCustomJsonSerialiser1.mapper, never()).registerModules(TestCustomJsonModules2.modules);
+        verify(TestCustomJsonSerialiser1.mapper).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // When - second update
-        JSONSerialiser.update(TestCustomJsonSerialiser2.class.getName(), TestCustomJsonModules2.class.getName());
+        JSONSerialiser.update(TestCustomJsonSerialiser2.class.getName(), TestCustomJsonModules2.class.getName(), true);
 
         // Then
         assertEquals(TestCustomJsonSerialiser2.class, JSONSerialiser.getInstance().getClass());
         assertSame(TestCustomJsonSerialiser2.mapper, JSONSerialiser.getMapper());
         verify(TestCustomJsonSerialiser2.mapper).registerModules(TestCustomJsonModules1.modules);
         verify(TestCustomJsonSerialiser2.mapper).registerModules(TestCustomJsonModules2.modules);
+        verify(TestCustomJsonSerialiser2.mapper).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+    }
+
+    @Test
+    public void shouldDeserialiseClassWithUnknownFields() throws Exception {
+        // Given
+        JSONSerialiser.update(null, null, false);
+
+        // When
+        final TestPojo pojo = JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class);
+
+        // Then
+        assertEquals("value", pojo.field);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDeserialiseClassWithUnknownFieldsWhenStrict() {
+        // Given
+        JSONSerialiser.update(null, null, true);
+
+        // When / Then
+        try {
+            JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class);
+            fail("Exception expected");
+        } catch (final SerialisationException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("Unrecognized field \"unknown\""));
+        }
     }
 
     protected void deserialiseSecond(final Pair<Object, byte[]> pair) throws SerialisationException {
@@ -387,5 +418,9 @@ public class JSONSerialiserTest {
         public List<Module> getModules() {
             return modules;
         }
+    }
+
+    private static final class TestPojo {
+        public String field;
     }
 }

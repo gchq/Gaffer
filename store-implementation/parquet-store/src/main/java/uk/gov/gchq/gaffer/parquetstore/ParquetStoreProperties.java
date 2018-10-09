@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String SPARK_MASTER = "spark.master";
     public static final String PARQUET_SKIP_VALIDATION = "parquet.skip_validation";
 
-
-    // Default values
-    private static final String DATA_DIR_DEFAULT = "parquet_data";
-    private static final String TEMP_FILES_DIR_DEFAULT = ".gaffer/temp_parquet_data";
+    // Default values - NB No default values for DATA_DIR or TEMP_FILES_DIR to
+    // avoid the inadvertent storage of data in unexpected folders.
     private static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT = "4194304"; //4MB
     private static final String PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT = "1048576"; //1MB
     public static final String PARQUET_AGGREGATE_ON_INGEST_DEFAULT = "true";
@@ -83,7 +81,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     public String getDataDir() {
-        return get(DATA_DIR, DATA_DIR_DEFAULT);
+        return get(DATA_DIR);
     }
 
     public void setDataDir(final String dir) {
@@ -91,7 +89,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     public String getTempFilesDir() {
-        return get(TEMP_FILES_DIR, TEMP_FILES_DIR_DEFAULT);
+        return get(TEMP_FILES_DIR);
     }
 
     public void setTempFilesDir(final String dir) {

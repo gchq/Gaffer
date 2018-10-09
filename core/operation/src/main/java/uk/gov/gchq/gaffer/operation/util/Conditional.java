@@ -46,6 +46,11 @@ public class Conditional {
         this.transform = transform;
     }
 
+    public Conditional shallowClone() {
+        final Operation transformClone = null != transform ? transform.shallowClone() : null;
+        return new Conditional(predicate, transformClone);
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Operation getTransform() {
         return transform;

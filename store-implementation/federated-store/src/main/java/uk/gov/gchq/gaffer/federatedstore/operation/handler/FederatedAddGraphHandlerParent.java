@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
@@ -53,22 +54,23 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
 
-        final Graph graph;
+        final GraphSerialisable graphSerialisable;
         try {
-            graph = _makeGraph(operation, store);
+            graphSerialisable = _makeGraph(operation, store);
         } catch (final Exception e) {
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
-        addGenericHandler((FederatedStore) store, graph);
-
         try {
-            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), operation.isDisabledByDefault(), graph);
+            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), operation.isDisabledByDefault(), graphSerialisable);
         } catch (final StorageException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (final Exception e) {
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
+
+        addGenericHandler((FederatedStore) store, graphSerialisable.getGraph());
+
         return null;
     }
 
@@ -91,7 +93,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         }
     }
 
-    protected Graph _makeGraph(final OP operation, final Store store) {
+    protected GraphSerialisable _makeGraph(final OP operation, final Store store) {
         return new GraphDelegate.Builder()
                 .store(store)
                 .graphId(operation.getGraphId())
@@ -99,6 +101,6 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                 .storeProperties(operation.getStoreProperties())
                 .parentSchemaIds(operation.getParentSchemaIds())
                 .parentStorePropertiesId(operation.getParentPropertiesId())
-                .build();
+                .buildGraphSerialisable();
     }
 }

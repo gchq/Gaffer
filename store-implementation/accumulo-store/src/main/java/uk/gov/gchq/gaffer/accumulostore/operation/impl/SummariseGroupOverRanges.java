@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Gets summarised Elements for each group")
 public class SummariseGroupOverRanges
         implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
@@ -50,7 +52,7 @@ public class SummariseGroupOverRanges
         SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
@@ -72,12 +74,12 @@ public class SummariseGroupOverRanges
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -114,7 +116,7 @@ public class SummariseGroupOverRanges
     public SummariseGroupOverRanges shallowClone() {
         return new SummariseGroupOverRanges.Builder()
                 .input(input)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .view(view)
                 .directedType(directedType)
                 .options(options)

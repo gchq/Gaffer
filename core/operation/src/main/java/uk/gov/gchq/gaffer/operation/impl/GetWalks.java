@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
@@ -53,16 +54,19 @@ import java.util.stream.Collectors;
  */
 @JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
 @Since("1.1.0")
+@Summary("Walks around the Graph, returning the full walks taken")
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiEntityIdInput,
         Operations<OperationChain<Iterable<Element>>> {
 
     public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
+    public static final int DEFAULT_RESULTS_LIMIT = 1000000;
+
     private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
-    private Integer resultsLimit = 1000000;
+    private Integer resultsLimit = DEFAULT_RESULTS_LIMIT;
 
     @Override
     public Iterable<? extends EntityId> getInput() {
@@ -96,9 +100,6 @@ public class GetWalks implements
 
         if (getEdgeOperations < 1) {
             result.addError("No hops were provided. " + HOP_DEFINITION);
-        } else if (getEdgeOperations > operations.size()) {
-            result.addError("One or more operation chains contains multiple hops. " +
-                    "Each hop should be defined in a separate operation chain object");
         } else {
             int i = 0;
             for (final OperationChain<Iterable<Element>> operation : operations) {
@@ -115,9 +116,12 @@ public class GetWalks implements
                     }
                 }
 
-                if (getNumberOfGetEdgeOperations(operation) < 1 && i < (operations.size() - 1)) {
+                if (getNumberOfGetEdgeOperationsWithoutRepeats(operation) < 1 && i < (operations.size() - 1)) {
                     // An operation does not contain a hop
                     result.addError("All operations must contain a single hop. Operation " + i + " does not contain a hop. The only exception is the last operation, which is allowed to just fetch Entities. " + HOP_DEFINITION);
+                } else if (getNumberOfGetEdgeOperationsWithoutRepeats(operation) > 1) {
+                    // An operation does not contain a hop
+                    result.addError("All operations must contain a single hop. Operation " + i + " contains multiple hops.");
                 }
 
                 i++;
@@ -134,7 +138,9 @@ public class GetWalks implements
 
     private int getNumberOfGetEdgeOperations(final Operation op) {
         int hops = 0;
-        if (op instanceof Operations) {
+        if (op instanceof While) {
+            hops += (((While) op).getMaxRepeats() * getNumberOfGetEdgeOperations(((While) op).getOperation()));
+        } else if (op instanceof Operations) {
             hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
@@ -148,6 +154,27 @@ public class GetWalks implements
     private int getNumberOfGetEdgeOperations(final Iterable<? extends Operation> ops) {
         return Streams.toStream(ops)
                 .mapToInt(this::getNumberOfGetEdgeOperations)
+                .sum();
+    }
+
+    private int getNumberOfGetEdgeOperationsWithoutRepeats(final Operation op) {
+        int hops = 0;
+        if (op instanceof While) {
+            hops += getNumberOfGetEdgeOperationsWithoutRepeats(((While) op).getOperation());
+        } else if (op instanceof Operations) {
+            hops += getNumberOfGetEdgeOperationsWithoutRepeats(((Operations<?>) op).getOperations());
+        } else if (op instanceof GetElements) {
+            final GetElements getElements = (GetElements) op;
+            if (null != getElements.getView() && getElements.getView().hasEdges()) {
+                hops += 1;
+            }
+        }
+        return hops;
+    }
+
+    private int getNumberOfGetEdgeOperationsWithoutRepeats(final Iterable<? extends Operation> ops) {
+        return Streams.toStream(ops)
+                .mapToInt(this::getNumberOfGetEdgeOperationsWithoutRepeats)
                 .sum();
     }
 

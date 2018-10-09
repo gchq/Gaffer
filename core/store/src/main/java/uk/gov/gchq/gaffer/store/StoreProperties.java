@@ -73,6 +73,7 @@ public class StoreProperties implements Cloneable {
 
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
+    public static final String STRICT_JSON = JSONSerialiser.STRICT_JSON;
 
     public static final String ADMIN_AUTH = "gaffer.store.admin.auth";
 
@@ -446,6 +447,15 @@ public class StoreProperties implements Cloneable {
 
     public void setJsonSerialiserModules(final String modules) {
         set(JSON_SERIALISER_MODULES, modules);
+    }
+
+    public Boolean getStrictJson() {
+        final String strictJson = get(STRICT_JSON);
+        return null == strictJson ? null : Boolean.parseBoolean(strictJson);
+    }
+
+    public void setStrictJson(final Boolean strictJson) {
+        set(STRICT_JSON, null == strictJson ? null : Boolean.toString(strictJson));
     }
 
     public String getAdminAuth() {

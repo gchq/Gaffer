@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Gets a DataFrame of elements")
 public class GetDataFrameOfElements implements
         Output<Dataset<Row>>,
         GraphFilters {

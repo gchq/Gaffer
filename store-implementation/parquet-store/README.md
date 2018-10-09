@@ -14,17 +14,17 @@ limitations under the License.
 
 # Parquet Store User Guide
 
-1. [Introduction](./README.md#introduction)
-2. [Use cases](./README.md#use-cases)
-3. [Properties file](./README.md#properties-file)
-4. [Schema](./README.md#schema)
-5. [Inserting data](./README.md#inserting-data)
-6. [Queries](./README.md#queries)
+1. [Introduction](#introduction)
+2. [Use cases](#use-cases)
+3. [Properties file](#properties-file)
+4. [Schema](#schema)
+5. [Inserting data](#inserting-data)
+6. [Queries](#queries)
 7. [Optimisations](README.md#optimisations)
-7. [Troubleshooting](./README.md#troubleshooting)
-8. [Implementation details](./README.md#implementation-details)
-   - [Graph folder structure](./README.md#graph-folder-structure)
-   - [High level operations process](./README.md#high-level-operations-process)
+7. [Troubleshooting](#troubleshooting)
+8. [Implementation details](#implementation-details)
+   - [Graph folder structure](#graph-folder-structure)
+   - [High level operations process](#high-level-operations-process)
 
 ## Notice
 This store is experimental, the API is unstable and may require breaking changes.

@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,6 +39,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+
+import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
 
 /**
  * <p>
@@ -63,6 +66,7 @@ import java.util.function.Predicate;
  * @see If.Builder
  */
 @Since("1.4.0")
+@Summary("Conditionally runs an operation or an alternative operation")
 @JsonPropertyOrder(value = {"input", "condition", "conditional", "then", "otherwise", "options"}, alphabetic = true)
 public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Operations<Operation> {
     private Boolean condition;
@@ -78,14 +82,25 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
 
     @Override
     public If<I, O> shallowClone() throws CloneFailedException {
-        return new If.Builder<I, O>()
+        If.Builder<I, O> builder = new If.Builder<I, O>()
                 .input(getInput())
                 .condition(condition)
                 .conditional(conditional)
                 .then(then)
                 .otherwise(otherwise)
-                .options(options)
-                .build();
+                .options(options);
+
+        if (null != conditional) {
+            builder = builder.conditional(conditional.shallowClone());
+        }
+        if (null != then) {
+            builder = builder.then(then.shallowClone());
+        }
+        if (null != otherwise) {
+            builder = builder.then(otherwise.shallowClone());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -178,15 +193,15 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
             return false;
         }
 
-        final If filter = (If) obj;
+        final If ifOp = (If) obj;
 
         return new EqualsBuilder()
-                .append(getInput(), filter.getInput())
-                .append(condition, filter.condition)
-                .append(conditional, filter.conditional)
-                .append(then, filter.then)
-                .append(otherwise, filter.otherwise)
-                .append(options, filter.options)
+                .append(getInput(), ifOp.getInput())
+                .append(condition, ifOp.condition)
+                .append(conditional, ifOp.conditional)
+                .append(then, ifOp.then)
+                .append(otherwise, ifOp.otherwise)
+                .append(options, ifOp.options)
                 .isEquals();
     }
 
@@ -214,14 +229,6 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
                 .toString();
     }
 
-    private Operation extractNextOp(final Iterator<Operation> itr) {
-        final Operation nextOp = itr.next();
-        if (!(nextOp instanceof Operations) || !((Operations) nextOp).getOperations().isEmpty()) {
-            return nextOp;
-        }
-
-        return null;
-    }
 
     public static final class Builder<I, O>
             extends Operation.BaseBuilder<If<I, O>, Builder<I, O>>

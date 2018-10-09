@@ -55,11 +55,15 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.Reduce;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -86,6 +90,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -94,6 +99,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -301,7 +307,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, store.createContext(user));
+        store.execute(addElements, context);
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -509,6 +515,9 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Validation
+                ValidateOperationChain.class,
+
                 // Algorithm
                 GetWalks.class,
 
@@ -527,6 +536,11 @@ public class StoreTest {
                 GetSchema.class,
                 Map.class,
                 If.class,
+                GetTraits.class,
+                While.class,
+                ToSingletonList.class,
+                ForEach.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
@@ -603,6 +617,9 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Validation
+                ValidateOperationChain.class,
+
                 // Algorithm
                 GetWalks.class,
 
@@ -619,8 +636,13 @@ public class StoreTest {
                 Limit.class,
                 DiscardOutput.class,
                 GetSchema.class,
+                GetTraits.class,
                 Map.class,
                 If.class,
+                While.class,
+                ToSingletonList.class,
+                ForEach.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
@@ -698,7 +720,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
+        final JobDetail resultJobDetail = store.executeJob(opChain, context);
 
         // Then
         Thread.sleep(1000);
@@ -725,7 +747,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
+        final JobDetail resultJobDetail = store.executeJob(opChain, context);
 
         // Then
         Thread.sleep(1000);
@@ -906,12 +928,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public Context createContext(final User user) {
-            super.createContext(user);
-            return context;
         }
 
         @Override

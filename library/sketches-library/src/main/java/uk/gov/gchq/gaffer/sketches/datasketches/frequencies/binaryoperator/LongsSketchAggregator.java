@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 import com.yahoo.sketches.frequencies.LongsSketch;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link LongsSketch}s and merges them together using {@link LongsSketch#merge(LongsSketch)}.
  */
 @Since("1.0.0")
+@Summary("Aggregates LongSketches objects")
 public class LongsSketchAggregator extends KorypheBinaryOperator<LongsSketch> {
 
     @Override

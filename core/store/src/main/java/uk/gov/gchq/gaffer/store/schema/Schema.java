@@ -197,6 +197,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * @throws SchemaException if validation fails then a SchemaException is thrown.
      */
     public ValidationResult validate() throws SchemaException {
+
         final ValidationResult result = new ValidationResult();
         for (final String edgeGroup : getEdgeGroups()) {
             if (null != getEntity(edgeGroup)) {
@@ -218,6 +219,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
             result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
+
         return result;
     }
 
@@ -321,6 +323,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends ElementDefinitions.BaseBuilder<Schema, SchemaEntityDefinition, SchemaEdgeDefinition, CHILD_CLASS> {
+
         public BaseBuilder() {
             super(new Schema());
         }

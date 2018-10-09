@@ -20,6 +20,7 @@ import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -27,6 +28,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * using a {@link Union}.
  */
 @Since("1.0.0")
+@Summary("Aggregates Sketches using a Union")
 public class SketchAggregator extends KorypheBinaryOperator<Sketch> {
 
     @Override

@@ -45,10 +45,14 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.operation.impl.Reduce;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
+import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -74,6 +78,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -82,6 +87,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
@@ -93,7 +99,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.AddStorePropertiesToLibraryHan
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
@@ -101,7 +109,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
@@ -129,6 +140,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToSingletonListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -170,6 +182,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
      * to be stored and how to aggregate the elements.
@@ -252,7 +265,11 @@ public abstract class Store {
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
         if (null != storeProperties) {
-            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(), storeProperties.getJsonSerialiserModules());
+            JSONSerialiser.update(
+                    storeProperties.getJsonSerialiserClass(),
+                    storeProperties.getJsonSerialiserModules(),
+                    storeProperties.getStrictJson()
+            );
         } else {
             JSONSerialiser.update();
         }
@@ -622,6 +639,10 @@ public abstract class Store {
         return new OperationChainValidator(new ViewValidator());
     }
 
+    public OperationChainValidator getOperationChainValidator() {
+        return opChainValidator;
+    }
+
     public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
@@ -721,7 +742,7 @@ public abstract class Store {
         }
     }
 
-    protected OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
         return operationHandlers.get(opClass);
     }
 
@@ -838,6 +859,9 @@ public abstract class Store {
         addOperationHandler(OperationChain.class, getOperationChainHandler());
         addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
 
+        // OperationChain validation
+        addOperationHandler(ValidateOperationChain.class, new ValidateOperationChainHandler());
+
         // Walk tracking
         addOperationHandler(GetWalks.class, new GetWalksHandler());
 
@@ -852,6 +876,10 @@ public abstract class Store {
         addOperationHandler(GetSchema.class, new GetSchemaHandler());
         addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
         addOperationHandler(If.class, new IfHandler());
+        addOperationHandler(While.class, new WhileHandler());
+        addOperationHandler(ForEach.class, new ForEachHandler());
+        addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
+        addOperationHandler(Reduce.class, new ReduceHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());
@@ -863,6 +891,8 @@ public abstract class Store {
             addOperationHandler(AddSchemaToLibrary.class, new AddSchemaToLibraryHandler());
             addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
         }
+
+        addOperationHandler(GetTraits.class, new GetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {

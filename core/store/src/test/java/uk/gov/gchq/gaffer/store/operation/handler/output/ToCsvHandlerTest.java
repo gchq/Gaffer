@@ -83,10 +83,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         assertEquals(Arrays.asList(
-                "Foo,vertex1,1,A Constant",
-                "Foo,vertex2,A Constant",
-                "Bar,source1,1,A Constant",
-                "Bar,source2,A Constant"
+                "Foo,vertex1,,1,A Constant",
+                "Foo,vertex2,,,A Constant",
+                "Bar,,source1,1,A Constant",
+                "Bar,,source2,,A Constant"
         ), resultList);
     }
 
@@ -139,10 +139,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         assertEquals(Arrays.asList(
-                "\"Foo\",\"vertex1\",\"1\",\"A Constant\"",
-                "\"Foo\",\"vertex2\",\"A Constant\"",
-                "\"Bar\",\"source1\",\"1\",\"A Constant\"",
-                "\"Bar\",\"source2\",\"A Constant\""
+                "\"Foo\",\"vertex1\",,\"1\",\"A Constant\"",
+                "\"Foo\",\"vertex2\",,,\"A Constant\"",
+                "\"Bar\",,\"source1\",\"1\",\"A Constant\"",
+                "\"Bar\",,\"source2\",,\"A Constant\""
         ), resultList);
     }
 
@@ -196,10 +196,10 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         assertEquals(Arrays.asList(
-                "Foo,vertex1-with comma,1,A Constant",
-                "Foo,vertex2,A Constant",
-                "Bar,source1-with comma,1,A Constant",
-                "Bar,source2,A Constant"
+                "Foo,vertex1-with comma,,1,A Constant",
+                "Foo,vertex2,,,A Constant",
+                "Bar,,source1-with comma,1,A Constant",
+                "Bar,,source2,,A Constant"
         ), resultList);
     }
 
@@ -253,10 +253,10 @@ public class ToCsvHandlerTest {
         final List<String> resultList = Lists.newArrayList(results);
         assertEquals(Arrays.asList(
                 "Group Label,Vertex Label,Source Label,Count Label,Some constant value",
-                "Foo,vertex1,1,A Constant",
-                "Foo,vertex2,A Constant",
-                "Bar,source1,1,A Constant",
-                "Bar,source2,A Constant"
+                "Foo,vertex1,,1,A Constant",
+                "Foo,vertex2,,,A Constant",
+                "Bar,,source1,1,A Constant",
+                "Bar,,source2,,A Constant"
         ), resultList);
     }
 

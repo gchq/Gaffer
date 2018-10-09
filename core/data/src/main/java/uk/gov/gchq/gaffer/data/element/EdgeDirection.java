@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * Enumerated type denoting the directionality of an {@link Edge}.
  */
+@Summary("The direction of an edge")
 public enum EdgeDirection {
     /**
      * The edge is directed.

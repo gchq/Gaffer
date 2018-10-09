@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -164,7 +165,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, store.createContext(new User()));
+        store.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -225,7 +226,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, store.createContext(new User()));
+        store.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -286,7 +287,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, store.createContext(new User()));
+        store.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -354,7 +355,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, store.createContext(new User()));
+        store.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
