@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * A {@code FreqMapPredicator} is a {@link KorypheFunction} that extracts a
- * a clone of the current frequency map provided a valid {@link uk.gov.gchq.koryphe.impl.predicate.Regex}.
+ * a clone of the current frequency map provided a valid {@link uk.gov.gchq.koryphe.predicate.KoryphePredicate}.
  */
 @Since("1.7.0")
 @Summary("Returns a frequency map based on the predicate provided")
@@ -48,7 +48,7 @@ implements Serializable {
      * Constructor for FreqMapPredicator.<br>
      * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield a clone of the input map.
      *
-     * @param predicate The predicate for both key and value constraints.
+     * @param predicate The predicate for keys.
      */
     public FreqMapPredicator(final KoryphePredicate<String> predicate) {
         this.predicate = predicate;
