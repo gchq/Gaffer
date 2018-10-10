@@ -258,7 +258,7 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldLeftKeyFullInnerJoinWithReduceGettingRelated() throws Exception {
+    public void shouldLeftKeyFullInnerJoinWithMergeGettingRelated() throws Exception {
         // Given
         List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_4, 1), getJoinEntity(TestGroups.ENTITY_4, 2), getJoinEntity(TestGroups.ENTITY_4, 3), getJoinEntity(TestGroups.ENTITY_4, 4), getJoinEntity(TestGroups.ENTITY_4, 6)));
 
@@ -288,7 +288,7 @@ public class JoinIT extends AbstractStoreIT {
                 .joinType(JoinType.FULL_INNER)
                 .matchKey(MatchKey.LEFT)
                 .matchMethod(new ElementMatch())
-                .mergeMethod(new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.AGAINST_KEY))
+                .mergeMethod(new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.RELATED_ONLY))
                 .build();
 
         // When
@@ -326,6 +326,4 @@ public class JoinIT extends AbstractStoreIT {
                 .property(TestPropertyNames.COUNT, Long.parseLong(countProperty.toString()))
                 .build();
     }
-
-
 }

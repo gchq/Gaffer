@@ -19,17 +19,15 @@ package uk.gov.gchq.gaffer.operation.impl.join.methods;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
-
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class FullOuterJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        Set resultSet = new HashSet<>();
-        resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
-        resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
-        return resultSet;
+    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
+        List resultList = new ArrayList<>();
+        resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+        resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.LEFT));
+        return resultList;
     }
 }

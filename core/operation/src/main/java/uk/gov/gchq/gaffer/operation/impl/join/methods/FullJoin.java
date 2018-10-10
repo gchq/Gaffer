@@ -19,24 +19,22 @@ package uk.gov.gchq.gaffer.operation.impl.join.methods;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
-
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public Iterable join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        Set resultSet = new HashSet<>();
+    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
+        List resultList = new ArrayList<>();
         if (matchKey.equals(MatchKey.LEFT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, match, MatchKey.LEFT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.LEFT));
+            resultList.addAll(new InnerJoin().join(left, right, match, MatchKey.LEFT));
+            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.RIGHT));
         } else if (matchKey.equals(MatchKey.RIGHT)) {
-            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.RIGHT));
-            resultSet.addAll((Set) new InnerJoin().join(left, right, match, MatchKey.RIGHT));
-            resultSet.addAll((Set) new OuterJoin().join(left, right, match, MatchKey.LEFT));
+            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.RIGHT));
+            resultList.addAll(new InnerJoin().join(left, right, match, MatchKey.RIGHT));
+            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.LEFT));
         }
-        return resultSet;
+        return resultList;
     }
 }

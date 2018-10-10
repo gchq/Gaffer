@@ -21,6 +21,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
  */
 public enum MergeType {
     NONE,
-    AGAINST_KEY,
+    RELATED_ONLY,
     BOTH
 }

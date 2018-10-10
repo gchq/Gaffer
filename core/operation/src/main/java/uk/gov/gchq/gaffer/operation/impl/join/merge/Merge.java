@@ -19,15 +19,14 @@ package uk.gov.gchq.gaffer.operation.impl.join.merge;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.util.List;
-import java.util.Set;
 
 public interface Merge {
     /**
      * Merges a Set of Objects.
      *
-     * @param input The input set of Objects.
+     * @param input The input Iterable of Objects.
      * @return List containing the merged Objects.
      * @throws OperationException If the merge fails.
      */
-    List merge(final Set input) throws OperationException;
+    List merge(final Iterable input) throws OperationException;
 }

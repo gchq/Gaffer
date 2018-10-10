@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -34,14 +33,19 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ElementMergeTest {
     final Entity testEntity = getEntity(3);
     final Entity testEntity1 = getEntity(5);
     final Entity testEntity2 = getEntity(7);
+    final Entity testEntity3 = getEntity(9);
+
+    final List inputList = Arrays.asList(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)),
+            ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)),
+            ImmutableMap.of(testEntity2, Arrays.asList(testEntity2, testEntity3)));
 
     final Schema schemaNoAggregation = new Schema.Builder()
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -63,106 +67,114 @@ public class ElementMergeTest {
 
     @Test
     public void shouldFlattenGettingKeys() throws OperationException {
-        final List<Element> expectedMergedElements = Arrays.asList(testEntity);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(testEntity, testEntity, testEntity2);
 
         final ElementMerge merger = new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE);
         merger.setSchema(schemaNoAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(1, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
-    public void shouldFlattenGettingRelatedElements() throws OperationException {
-        final List<Element> expectedMergedElements = Arrays.asList(testEntity1, testEntity2);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
+    public void shouldFlattenGettingRelatedOnly() throws OperationException {
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(testEntity1, testEntity2, testEntity1, testEntity2, testEntity2, testEntity3);
 
         final ElementMerge merger = new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.NONE);
         merger.setSchema(schemaNoAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(2, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
     public void shouldFlattenGettingBoth() throws OperationException {
-        final List<Element> expectedMergedElements = Arrays.asList(testEntity, testEntity1, testEntity2);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(testEntity, testEntity, testEntity, testEntity1, testEntity2, testEntity2, testEntity2, testEntity2, testEntity3);
 
         final ElementMerge merger = new ElementMerge(ResultsWanted.BOTH, MergeType.NONE);
         merger.setSchema(schemaNoAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(3, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
     public void shouldMergeAgainstKeyGettingRelatedElements() throws OperationException {
-        final Entity expectedEntity = getEntity(12);
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(getEntity(12), getEntity(12), getEntity(16));
 
-        final List<Element> expectedMergedElements = Arrays.asList(expectedEntity);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
-
-        final ElementMerge merger = new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.AGAINST_KEY);
+        final ElementMerge merger = new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.RELATED_ONLY);
         merger.setSchema(schemaWithAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(1, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
     public void shouldMergeAgainstKeyGettingBoth() throws OperationException {
-        final Entity expectedEntity = getEntity(12);
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(testEntity, getEntity(12), testEntity, getEntity(12), testEntity2, getEntity(16));
 
-        final List<Element> expectedMergedElements = Arrays.asList(testEntity, expectedEntity);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
-
-        final ElementMerge merger = new ElementMerge(ResultsWanted.BOTH, MergeType.AGAINST_KEY);
+        final ElementMerge merger = new ElementMerge(ResultsWanted.BOTH, MergeType.RELATED_ONLY);
         merger.setSchema(schemaWithAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(2, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
     public void shouldMergeAgainstKeyGettingKeys() throws OperationException {
-        final List<Element> expectedMergedElements = Arrays.asList(testEntity);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
+        // Given
+        final List<Element> expectedMergedElements = Arrays.asList(testEntity, testEntity, testEntity2);
 
-        final ElementMerge merger = new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.AGAINST_KEY);
+        final ElementMerge merger = new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.RELATED_ONLY);
         merger.setSchema(schemaWithAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(1, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     @Test
     public void shouldMergeBothGettingAll() throws OperationException {
-        final Entity expectedEntity = getEntity(15);
-
-        final List<Element> expectedMergedElements = Arrays.asList(expectedEntity);
-        final Set mergeInputSet = Sets.newHashSet(ImmutableMap.of(testEntity, Arrays.asList(testEntity1, testEntity2)));
+        // Then
+        final List<Element> expectedMergedElements = Arrays.asList(getEntity(15), getEntity(15), getEntity(23));
 
         final ElementMerge merger = new ElementMerge(ResultsWanted.BOTH, MergeType.BOTH);
         merger.setSchema(schemaWithAggregation);
 
-        final List mergeResults = merger.merge(mergeInputSet);
+        // When
+        final List mergeResults = merger.merge(inputList);
 
-        assertEquals(1, mergeResults.size());
-        assertEquals(expectedMergedElements, mergeResults);
+        // Then
+        assertEquals(expectedMergedElements.size(), mergeResults.size());
+        assertTrue(mergeResults.containsAll(expectedMergedElements));
     }
 
     private Entity getEntity(final Integer countProperty) {

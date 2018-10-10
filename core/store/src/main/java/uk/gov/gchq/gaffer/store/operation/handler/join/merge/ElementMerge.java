@@ -25,16 +25,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ElementMerge implements Merge {
     private ResultsWanted resultsWanted = ResultsWanted.BOTH;
-    private MergeType mergeType = MergeType.AGAINST_KEY;
+    private MergeType mergeType = MergeType.RELATED_ONLY;
     private Schema schema;
 
     public ElementMerge() {
-        this.resultsWanted = ResultsWanted.BOTH;
-        this.mergeType = MergeType.AGAINST_KEY;
     }
 
     public ElementMerge(final ResultsWanted resultsWanted, final MergeType mergeType) {
@@ -67,7 +64,7 @@ public class ElementMerge implements Merge {
     }
 
     @Override
-    public List merge(final Set input) throws OperationException {
+    public List merge(final Iterable input) throws OperationException {
         if (null == schema) {
             throw new OperationException("Schema cannot be null");
         }
@@ -79,17 +76,17 @@ public class ElementMerge implements Merge {
         }
 
         if (mergeType.equals(MergeType.NONE)) {
-            return noMerge((Set<Map<Element, List<Element>>>) input);
-        } else if (mergeType.equals(MergeType.AGAINST_KEY)) {
-            return mergeAgainstKey((Set<Map<Element, List<Element>>>) input);
+            return noMerge((List<Map<Element, List<Element>>>) input);
+        } else if (mergeType.equals(MergeType.RELATED_ONLY)) {
+            return mergeRelatedOnly((List<Map<Element, List<Element>>>) input);
         } else if (mergeType.equals(MergeType.BOTH)) {
-            return mergeBoth((Set<Map<Element, List<Element>>>) input);
+            return mergeBoth((List<Map<Element, List<Element>>>) input);
         } else {
             throw new OperationException("A valid MergeType must be specified");
         }
     }
 
-    private List noMerge(final Set<Map<Element, List<Element>>> input) {
+    private List noMerge(final List<Map<Element, List<Element>>> input) {
         final List results = new ArrayList<>();
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
             input.forEach(map -> map.forEach((keyElement, relatedList) -> results.add(keyElement)));
@@ -104,7 +101,7 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List mergeAgainstKey(final Set<Map<Element, List<Element>>> input) {
+    private List mergeRelatedOnly(final List<Map<Element, List<Element>>> input) {
         List<Element> results = new ArrayList<>();
         if (resultsWanted.equals(ResultsWanted.KEY_ONLY)) {
             input.forEach((map -> map.forEach((keyElement, relatedList) -> results.add(keyElement))));
@@ -120,7 +117,7 @@ public class ElementMerge implements Merge {
         return results;
     }
 
-    private List mergeBoth(final Set<Map<Element, List<Element>>> input) {
+    private List mergeBoth(final List<Map<Element, List<Element>>> input) {
         final List<Element> results = new ArrayList<>();
         input.forEach((map -> map.forEach((keyElement, relatedList) ->
                         results.add(aggregateElement(keyElement, relatedList, schema.getElement(keyElement.getGroup()).getIngestAggregator()))
@@ -129,12 +126,13 @@ public class ElementMerge implements Merge {
     }
 
     private Element aggregateElement(final Element first, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
-        Element aggregatedElement = first;
+        Element aggregatedElement = null;
+        if(null != first) {
+            aggregatedElement = first.shallowClone();
+        }
+
         for (final Element element : relatedElements) {
-            aggregatedElement = aggregatedElement != null ? aggregatedElement : element;
-            if (!aggregatedElement.equals(element)) {
-                aggregatedElement = elementAggregator.apply(aggregatedElement, element);
-            }
+            aggregatedElement = elementAggregator.apply(aggregatedElement, element.shallowClone());
         }
         return aggregatedElement;
     }

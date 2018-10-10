@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
     @Override
@@ -76,6 +75,6 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
         if (operation.getMergeMethod() instanceof ElementMerge) {
             ((ElementMerge) operation.getMergeMethod()).setSchema(store.getSchema());
         }
-        return operation.getMergeMethod().merge((Set) joinResults);
+        return operation.getMergeMethod().merge(joinResults);
     }
 }
