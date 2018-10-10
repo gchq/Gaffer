@@ -6,6 +6,9 @@
       "auths": {
         "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
           "EnhancedUser"
+        ],
+        "uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList": [
+          "ListUser"
         ]
       }
     }

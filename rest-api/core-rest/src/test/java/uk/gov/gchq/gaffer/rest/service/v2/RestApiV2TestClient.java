@@ -59,6 +59,15 @@ public class RestApiV2TestClient extends RestApiTestClient {
         return executeOperationChunked(opChain);
     }
 
+    public Response executeOperationChainChunkedWithHeaders(final OperationChain opChain, final String authHeaderVal) throws IOException {
+        startServer();
+        return client.target(uriString)
+                .path("/graph/operations/execute/chunked")
+                .request()
+                .header("Authorization", authHeaderVal)
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), APPLICATION_JSON_TYPE));
+    }
+
     @Override
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();

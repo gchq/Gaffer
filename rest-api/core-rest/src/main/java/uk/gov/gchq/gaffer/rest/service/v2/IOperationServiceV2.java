@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
-import org.glassfish.jersey.server.ChunkedOutput;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -114,10 +113,10 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    ChunkedOutput<String> executeChunked(@ApiParam(value = "The operation to be performed, returning a chunked output") final Operation operation);
+    Response executeChunked(@ApiParam(value = "The operation to be performed, returning a chunked output") final Operation operation);
 
     @SuppressFBWarnings
-    ChunkedOutput<String> executeChunkedChain(@ApiParam(value = "The operation chain to be performed, returning a chunked output") final OperationChain opChain);
+    Response executeChunkedChain(@ApiParam(value = "The operation chain to be performed, returning a chunked output") final OperationChain opChain);
 
     @GET
     @Path("/{className}")
