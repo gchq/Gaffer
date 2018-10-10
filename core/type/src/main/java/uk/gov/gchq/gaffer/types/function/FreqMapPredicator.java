@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
-import uk.gov.gchq.koryphe.impl.predicate.Regex;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.io.Serializable;
 
@@ -32,8 +32,7 @@ import java.io.Serializable;
 public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap>
 implements Serializable {
 
-    private Regex predicate;
-
+    private KoryphePredicate<String> predicate;
 
     /**
      * Constructor for FreqMapPredicator.<br>
@@ -51,7 +50,7 @@ implements Serializable {
      *
      * @param predicate The predicate for both key and value constraints.
      */
-    public FreqMapPredicator(final Regex predicate) {
+    public FreqMapPredicator(final KoryphePredicate<String> predicate) {
         this.predicate = predicate;
     }
 
@@ -80,12 +79,11 @@ implements Serializable {
         return filterPredicate(freqMap);
     }
 
-    //Serialization purposes
-    public Regex getPredicate() {
+    public KoryphePredicate<String> getPredicate() {
         return predicate;
     }
 
-    public void setPredicate(final Regex predicate) {
+    public void setPredicate(final KoryphePredicate<String> predicate) {
         this.predicate = predicate;
     }
 }
