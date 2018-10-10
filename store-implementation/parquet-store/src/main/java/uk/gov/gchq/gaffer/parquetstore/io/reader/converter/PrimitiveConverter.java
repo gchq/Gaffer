@@ -33,7 +33,10 @@ public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConve
     private final String expectedType;
     private final String originalType;
 
-    public PrimitiveConverter(final Map<String, Object[]> parquetColumnToObject, final String expectedType, final String[] columnPath, final OriginalType originalType) {
+    public PrimitiveConverter(final Map<String, Object[]> parquetColumnToObject,
+                              final String expectedType,
+                              final String[] columnPath,
+                              final OriginalType originalType) {
         super();
         this.parquetColumnToObject = parquetColumnToObject;
         this.expectedType = expectedType;

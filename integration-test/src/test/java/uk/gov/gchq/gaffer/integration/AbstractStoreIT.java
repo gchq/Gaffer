@@ -178,7 +178,8 @@ public abstract class AbstractStoreIT {
         createGraph();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
+            assumeTrue("Skipping test as the store does not implement all required traits (it does not implement " + requiredTrait + ").",
+                    graph.hasTrait(requiredTrait));
         }
     }
 
