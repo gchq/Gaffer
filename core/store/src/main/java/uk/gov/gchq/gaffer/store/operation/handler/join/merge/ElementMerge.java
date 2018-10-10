@@ -127,7 +127,7 @@ public class ElementMerge implements Merge {
 
     private Element aggregateElement(final Element first, final List<Element> relatedElements, final ElementAggregator elementAggregator) {
         Element aggregatedElement = null;
-        if(null != first) {
+        if (null != first) {
             aggregatedElement = first.shallowClone();
         }
 
