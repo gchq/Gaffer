@@ -19,6 +19,9 @@ package uk.gov.gchq.gaffer.operation.impl;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
@@ -26,6 +29,7 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 public class JoinTest extends OperationTest<Join> {
     @Override
@@ -37,6 +41,10 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(Arrays.asList(1, 2, 3), op.getInput());
         assertTrue(op.getOperation() instanceof GetAllElements);
         assertEquals(JoinType.INNER, op.getJoinType());
+        assertTrue(op.getMatchMethod() instanceof Match);
+        assertEquals(MatchKey.LEFT, op.getMatchKey());
+        assertTrue(op.getMergeMethod() instanceof Merge);
+        assertTrue(op.getCollectionLimit().equals(10));
     }
 
     @Override
@@ -59,7 +67,11 @@ public class JoinTest extends OperationTest<Join> {
         return new Join.Builder<>()
                 .input(Arrays.asList(1, 2, 3))
                 .operation(new GetAllElements.Builder().build())
+                .matchMethod(mock(Match.class))
+                .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
+                .mergeMethod(mock(Merge.class))
+                .collectionLimit(10)
                 .build();
     }
 }

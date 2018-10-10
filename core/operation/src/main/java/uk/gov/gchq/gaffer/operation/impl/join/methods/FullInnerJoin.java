@@ -28,15 +28,15 @@ public class FullInnerJoin implements JoinFunction {
     @Override
     public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
         if (matchKey.equals(MatchKey.LEFT)) {
-            return getResultSet(left, right, match);
+            return getResultList(left, right, match);
         } else if (matchKey.equals(MatchKey.RIGHT)) {
-            return getResultSet(right, left, match);
+            return getResultList(right, left, match);
         } else {
             return new ArrayList<>();
         }
     }
 
-    private List getResultSet(final List startingList, final List secondaryList, final Match match) {
+    private List getResultList(final List startingList, final List secondaryList, final Match match) {
         List resultList = new ArrayList<>();
         for (final Object listObject : startingList) {
             List matchingObjects = match.matching(listObject, secondaryList);

@@ -114,5 +114,4 @@ public class ElementEqualityTest {
         // When / Then
         assertFalse(elementEquality.test(testEntity1, testEntity2));
     }
-
 }

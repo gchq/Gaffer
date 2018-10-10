@@ -17,33 +17,34 @@
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class InnerJoinTest extends JoinFunctionTest {
     @Override
-    protected Set<Map<Element, List<Element>>> getExpectedLeftKeyResults() {
-        return Sets.newHashSet(
+    protected List<Map<Element, List<Element>>> getExpectedLeftKeyResults() {
+        return Arrays.asList(
                 ImmutableMap.of(getElement(1), Collections.singletonList(getElement(1))),
                 ImmutableMap.of(getElement(2), Collections.singletonList(getElement(2))),
                 ImmutableMap.of(getElement(3), Collections.singletonList(getElement(3))),
-                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4))));
+                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4)))
+        );
     }
 
     @Override
-    protected Set<Map<Element, List<Element>>> getExpectedRightKeyResults() {
-        return Sets.newHashSet(
+    protected List<Map<Element, List<Element>>> getExpectedRightKeyResults() {
+        return Arrays.asList(
                 ImmutableMap.of(getElement(1), Collections.singletonList(getElement(1))),
                 ImmutableMap.of(getElement(2), Collections.singletonList(getElement(2))),
                 ImmutableMap.of(getElement(3), Collections.singletonList(getElement(3))),
-                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4))));
+                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4)))
+        );
     }
 
     @Override

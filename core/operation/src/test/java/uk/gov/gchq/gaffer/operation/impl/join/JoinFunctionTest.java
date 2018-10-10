@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,9 +70,9 @@ public abstract class JoinFunctionTest {
                 .build();
     }
 
-    protected abstract Set<Map<Element, List<Element>>> getExpectedLeftKeyResults();
+    protected abstract List<Map<Element, List<Element>>> getExpectedLeftKeyResults();
 
-    protected abstract Set<Map<Element, List<Element>>> getExpectedRightKeyResults();
+    protected abstract List<Map<Element, List<Element>>> getExpectedRightKeyResults();
 
     protected abstract JoinFunction getJoinFunction();
 
