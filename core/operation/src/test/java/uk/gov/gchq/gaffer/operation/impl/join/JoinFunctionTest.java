@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class JoinFunctionTest {
     private List<Element> leftInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(4), getElement(10));
@@ -47,7 +48,8 @@ public abstract class JoinFunctionTest {
 
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT);
 
-        assertEquals(getExpectedLeftKeyResults(), result);
+        assertEquals(getExpectedLeftKeyResults().size(), ((List) result).size());
+        assertTrue(((List) result).containsAll(getExpectedLeftKeyResults()));
     }
 
     @Test
@@ -58,7 +60,8 @@ public abstract class JoinFunctionTest {
 
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT);
 
-        assertEquals(getExpectedRightKeyResults(), result);
+        assertEquals(getExpectedRightKeyResults().size(), ((List)result).size());
+        assertTrue(((List) result).containsAll(getExpectedRightKeyResults()));
     }
 
     protected Element getElement(final Integer countProperty) {
