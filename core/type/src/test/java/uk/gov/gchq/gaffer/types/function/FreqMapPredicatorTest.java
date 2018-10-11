@@ -9,11 +9,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.impl.predicate.Regex;
 
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -39,7 +36,7 @@ public class FreqMapPredicatorTest {
     }
 
     @Test
-    public void shouldFilterMap() {
+    public void shouldFilterMapWithMultipleResults() {
         //given
         final Regex predicate = new Regex("^\\wo\\w$");
         final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
@@ -49,8 +46,22 @@ public class FreqMapPredicatorTest {
 
         //then
         assertEquals(fRegex.size(), 2);
-        assertFalse(fRegex.containsKey("cat"));
         assertTrue(fRegex.containsKey("cow"));
+        assertTrue(fRegex.containsKey("dog"));
+    }
+
+    @Test
+    public void shouldFilterMapWithSingleResult() {
+        //given
+        final Regex predicate = new Regex("^c.*o.*g$");
+        final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
+
+        //when
+        final FreqMap fRegex = fRegexPredicator.apply(freqMap);
+
+        //then
+        assertEquals(fRegex.size(), 1);
+        assertTrue(fRegex.containsKey("catdog"));
     }
 
     @Test
@@ -72,10 +83,13 @@ public class FreqMapPredicatorTest {
         final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
         //when
-        // (this should result in the new map being size 2).
-        fRegexPredicator.apply(freqMap);
+        final FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
         //then
+        assertEquals(fRegex.size(), 2);
+        assertTrue(fRegex.containsKey("cow"));
+        assertTrue(fRegex.containsKey("dog"));
+
         assertEquals(freqMap.size(), 4);
         assertTrue(freqMap.containsKey("cat"));
         assertTrue(freqMap.containsKey("dog"));
