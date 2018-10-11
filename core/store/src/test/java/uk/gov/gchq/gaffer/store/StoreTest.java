@@ -56,11 +56,14 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.GetVariable;
+import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
+import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -545,7 +548,12 @@ public class StoreTest {
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -647,7 +655,12 @@ public class StoreTest {
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
