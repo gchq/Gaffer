@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.google.common.collect.Sets;
@@ -102,6 +104,7 @@ public interface Operation extends Closeable {
      * other properties required for the operation to be executed. Note these options will probably not be interpreted
      * in the same way by every store implementation.
      */
+    @JsonIgnore
     Map<String, String> getOptions();
 
     /**
@@ -109,6 +112,7 @@ public interface Operation extends Closeable {
      *                other properties required for the operation to be executed. Note these options will probably not be interpreted
      *                in the same way by every store implementation.
      */
+    @JsonSetter
     void setOptions(final Map<String, String> options);
 
     /**
