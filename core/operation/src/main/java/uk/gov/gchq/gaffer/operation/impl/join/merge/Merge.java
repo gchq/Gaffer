@@ -16,10 +16,16 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.merge;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.util.List;
 
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonSimpleClassName(includeSubtypes = true)
 public interface Merge {
     /**
      * Merges a Set of Objects.

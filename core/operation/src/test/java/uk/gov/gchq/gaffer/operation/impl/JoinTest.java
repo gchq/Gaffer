@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
@@ -25,11 +26,11 @@ import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class JoinTest extends OperationTest<Join> {
     @Override
@@ -67,11 +68,31 @@ public class JoinTest extends OperationTest<Join> {
         return new Join.Builder<>()
                 .input(Arrays.asList(1, 2, 3))
                 .operation(new GetAllElements.Builder().build())
-                .matchMethod(mock(Match.class))
+                .matchMethod(new TestMatch())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(mock(Merge.class))
+                .mergeMethod(new TestMerge())
                 .collectionLimit(10)
                 .build();
+    }
+
+    /**
+     * private copy of the ElementMatch class using the count property to match by.
+     */
+    public static class TestMatch implements Match{
+        @Override
+        public List matching(final Object testObject, final List testList) {
+            return testList;
+        }
+    }
+
+    /**
+     * private copy of the ElementMatch class using the count property to match by.
+     */
+    public static class TestMerge implements Merge {
+        @Override
+        public List merge(final Iterable input) throws OperationException {
+            return (List) input;
+        }
     }
 }

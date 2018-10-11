@@ -16,8 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.match;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
+
 import java.util.List;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonSimpleClassName(includeSubtypes = true)
 public interface Match {
     /**
      * Compares a list of Objects against a test Object and returns matched Objects.
