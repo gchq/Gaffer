@@ -113,5 +113,4 @@ public class FreqMapTests {
         //then
         assertEquals(freqMap.get(key), expectedValue);
     }
-
 }
