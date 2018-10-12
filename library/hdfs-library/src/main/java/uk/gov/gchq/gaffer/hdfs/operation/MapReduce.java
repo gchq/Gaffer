@@ -39,6 +39,7 @@ import java.util.Map;
  *
  * @see Builder
  */
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public interface MapReduce {
     Map<String, String> getInputMapperPairs();
 
@@ -105,7 +106,6 @@ public interface MapReduce {
 
     void setMaxReduceTasks(final Integer maxReduceTasks);
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     boolean isUseProvidedSplits();
 
     void setUseProvidedSplits(boolean useProvidedSplits);
@@ -131,6 +131,11 @@ public interface MapReduce {
 
         default B addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
             _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
+            return _self();
+        }
+
+        default B addInputMapperPair(final String inputPath, final Class<?> mapperGeneratorClass) {
+            _getOp().addInputMapperPair(inputPath, mapperGeneratorClass.getName());
             return _self();
         }
 

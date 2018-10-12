@@ -91,10 +91,12 @@ public class OperationAuthoriser implements GraphHook {
         Collections.addAll(allAuths, auths);
     }
 
+    @JsonIgnore
     public Map<Class<?>, Set<String>> getAuths() {
         return Collections.unmodifiableMap(auths);
     }
 
+    @JsonIgnore
     public void setAuths(final Map<Class<?>, Set<String>> auths) {
         this.auths.clear();
         this.allAuths.clear();

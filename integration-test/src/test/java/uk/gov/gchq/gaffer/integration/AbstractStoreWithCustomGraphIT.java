@@ -15,7 +15,9 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.After;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -23,17 +25,24 @@ import org.junit.rules.TestName;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
@@ -41,6 +50,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
@@ -54,8 +64,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -65,6 +77,8 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreWithCustomGraphIT {
+    protected static final int DUPLICATES = 2;
+
     protected static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
 
     // Identifier prefixes
@@ -100,22 +114,23 @@ public abstract class AbstractStoreWithCustomGraphIT {
     public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
-    protected static Graph graph;
     protected static Schema storeSchema = new Schema();
     protected static StoreProperties storeProperties;
     protected static String singleTestMethod;
-
     protected Map<EntityId, Entity> entities;
+    protected List<Entity> duplicateEntities;
+
     protected Map<EdgeId, Edge> edges;
+    private List<Edge> duplicateEdges;
 
     protected final Map<String, User> userMap = new HashMap<>();
+    protected static Graph graph;
     protected User user = new User();
 
     @Rule
     public TestName name = new TestName();
     private static Map<? extends Class<? extends AbstractStoreWithCustomGraphIT>, String> skippedTests;
     private static Map<? extends Class<? extends AbstractStoreWithCustomGraphIT>, Map<String, String>> skipTestMethods;
-
     protected String originalMethodName;
     private Method method;
 
@@ -157,11 +172,24 @@ public abstract class AbstractStoreWithCustomGraphIT {
     public void setup() throws Exception {
         initialise();
         validateTest();
+        _setup();
+    }
+
+    protected void _setup() throws Exception {
+        // Override if required;
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        graph = null;
     }
 
     protected void initialise() throws Exception {
         entities = createEntities();
+        duplicateEntities = duplicate(entities.values());
+
         edges = createEdges();
+        duplicateEdges = duplicate(edges.values());
 
         originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
@@ -349,11 +377,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .build();
     }
 
-    @After
-    public void tearDown() {
-        graph = null;
-    }
-
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .input(getEntities().values())
@@ -368,8 +391,48 @@ public abstract class AbstractStoreWithCustomGraphIT {
         return entities;
     }
 
+    public List<Entity> getIngestSummarisedEntities() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEntities), schema));
+    }
+
+    public List<Entity> getQuerySummarisedEntities() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final View view = new Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
+                .build();
+        return getQuerySummarisedEntities(view);
+    }
+
+    public List<Entity> getQuerySummarisedEntities(final View view) {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final List<Entity> ingestSummarisedEntities = getIngestSummarisedEntities();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEntities, schema, view));
+    }
+
     public Map<EdgeId, Edge> getEdges() {
         return edges;
+    }
+
+    public List<Edge> getIngestSummarisedEdges() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEdges), schema));
+    }
+
+    public List<Edge> getQuerySummarisedEdges() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final View view = new Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
+                .build();
+        return getQuerySummarisedEdges(view);
+    }
+
+    public List<Edge> getQuerySummarisedEdges(final View view) {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final List<Edge> ingestSummarisedEdges = getIngestSummarisedEdges();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEdges, schema, view));
     }
 
     public Entity getEntity(final Object vertex) {
@@ -382,6 +445,10 @@ public abstract class AbstractStoreWithCustomGraphIT {
 
     protected Map<EdgeId, Edge> createEdges() {
         return createDefaultEdges();
+    }
+
+    protected Iterable<Edge> getDuplicateEdges() {
+        return duplicateEdges;
     }
 
     public static Map<EdgeId, Edge> createDefaultEdges() {
@@ -437,6 +504,18 @@ public abstract class AbstractStoreWithCustomGraphIT {
         return createDefaultEntities();
     }
 
+    protected Iterable<Entity> getDuplicateEntities() {
+        return duplicateEntities;
+    }
+
+    private <T> List<T> duplicate(final Iterable<T> items) {
+        final List<T> duplicates = new ArrayList<>();
+        for (int i = 0; i < DUPLICATES; i++) {
+            Iterables.addAll(duplicates, items);
+        }
+        return duplicates;
+    }
+
     public static Map<EntityId, Entity> createDefaultEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
@@ -479,8 +558,27 @@ public abstract class AbstractStoreWithCustomGraphIT {
         entities.put(ElementSeed.createSeed(element), element);
     }
 
-    protected User getUser() {
+    protected <T> List<T> jsonClone(final Iterable<T> items) {
+        return Streams.toStream(items).map(this::jsonClone).collect(Collectors.toList());
+    }
+
+    protected <T> T jsonClone(final T item) {
+        try {
+            return (T) JSONSerialiser.deserialise(JSONSerialiser.serialise(item), item.getClass());
+        } catch (final SerialisationException e) {
+            throw new RuntimeException("Unable to clone item: " + item);
+        }
+    }
+
+    public User getUser() {
         return user;
     }
 
+    public void execute(final Operation op) throws OperationException {
+        graph.execute(op, user);
+    }
+
+    public <T> T execute(final Output<T> op) throws OperationException {
+        return graph.execute(op, user);
+    }
 }

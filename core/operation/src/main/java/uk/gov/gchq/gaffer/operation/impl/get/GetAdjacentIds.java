@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collections;
 import java.util.Map;
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Performs a single hop down related edges")
 public class GetAdjacentIds implements
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiEntityIdInput,
@@ -49,7 +51,7 @@ public class GetAdjacentIds implements
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
 
     @Override
     public View getView() {
@@ -108,12 +110,12 @@ public class GetAdjacentIds implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -123,7 +125,7 @@ public class GetAdjacentIds implements
                 .input(input)
                 .directedType(directedType)
                 .options(options)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .build();
     }
 

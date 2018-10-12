@@ -53,26 +53,23 @@ import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
  * list.
  * <p>
  * To use this class to test a new data loading operation, extend it and implement
- * the {@link AbstractLoaderIT#createOperation(Iterable)} and {@link AbstractLoaderIT#configure(Iterable)}
+ * the {@link AbstractLoaderIT#addElements(Iterable)}}
  * methods.
  *
  * @param <T> the type of the {@link Operation} being tested
  */
 @RunWith(Parameterized.class)
 public abstract class ParameterizedLoaderIT<T extends Operation> extends AbstractLoaderIT<T> {
+    private static final User DEFAULT_USER = new User("privileged", Sets.newHashSet("public", "private"));
 
     private final Schema schema;
     private final SchemaLoader loader;
 
-    private final User defaultUser = new User("privileged", Sets.newHashSet("public", "private"));
-
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
         final Map<String, User> userMap = new HashMap<>();
-
         userMap.put("basic", new User("basic", Sets.newHashSet("public")));
         userMap.put("privileged", new User("privileged", Sets.newHashSet("public", "private")));
-
         return Arrays.asList(new Object[][]{
                 {FULL_SCHEMA, new FullSchemaLoader(), userMap},
                 {VISIBILITY_SCHEMA, new VisibilitySchemaLoader(), userMap},
@@ -85,7 +82,7 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
         this.schema = schema.getSchema();
         this.loader = loader;
         this.userMap.putAll(userMap);
-        this.user = defaultUser;
+        this.user = DEFAULT_USER;
     }
 
     @Override

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 import org.roaringbitmap.RoaringBitmap;
 
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * Bitmaps are aggregated using a bitwise OR operation.
  */
 @Since("1.0.0")
+@Summary("Aggregates RoaringBitmaps")
 public class RoaringBitmapAggregator extends KorypheBinaryOperator<RoaringBitmap> {
     @Override
     protected RoaringBitmap _apply(final RoaringBitmap a, final RoaringBitmap b) {

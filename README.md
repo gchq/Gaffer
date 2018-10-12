@@ -41,7 +41,7 @@ Gaffer is under active development. Version 1.0 of Gaffer was released in Octobe
 License
 -------
 
-Gaffer is licensed under the Apache 2 license.
+Gaffer is licensed under the Apache 2 license and is covered by [Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/).
 
 Getting Started
 ---------------
@@ -102,6 +102,6 @@ Contributing
 
 We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/other/ways-of-working.html). In brief:
 
-- Sign the [GCHQ Contributor Licence Agreement](https://github.com/gchq/Gaffer/wiki/GCHQ-OSS-Contributor-License-Agreement-V1.0);
+- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer);
 - Push your changes to a fork;
 - Submit a pull request.

@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collection;
@@ -56,7 +57,9 @@ import static uk.gov.gchq.gaffer.operation.util.OperationUtil.extractNextOp;
  * which will need altering using {@link While#setMaxRepeats(int)}.</p>
  */
 @Since("1.5.0")
+@Summary("Repeatedly executes an operation while a condition is met")
 @JsonPropertyOrder(value = {"class", "input", "conditional", "operation", "maxRepeats", "options"}, alphabetic = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         Operations<Operation> {
 
@@ -177,7 +180,6 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         return conditional;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public int getMaxRepeats() {
         return maxRepeats;
     }

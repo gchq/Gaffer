@@ -109,7 +109,10 @@ public final class TypeReferenceImpl {
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
-    public static class MapStringSet extends TypeReference<java.util.Map<String, Set<Object>>> {
+    public static class MapStringObject extends TypeReference<java.util.Map<java.lang.String, java.lang.Object>> {
+    }
+
+    public static class MapStringSet extends TypeReference<java.util.Map<java.lang.String, java.util.Set<java.lang.Object>>> {
     }
 
     public static class Operations extends TypeReference<Set<Class<uk.gov.gchq.gaffer.operation.Operation>>> {
@@ -158,5 +161,9 @@ public final class TypeReferenceImpl {
     }
 
     public static class IterableWalk extends TypeReference<Iterable<Walk>> {
+    }
+
+    public static class ValidationResult extends TypeReference<uk.gov.gchq.koryphe.ValidationResult> {
+
     }
 }

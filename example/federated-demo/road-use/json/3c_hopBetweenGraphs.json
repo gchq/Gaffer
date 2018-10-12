@@ -1,0 +1,21 @@
+{
+  "operations": [
+    {
+      "class": "GetAdjacentIds",
+      "input": [
+        "M32"
+      ],
+      "includeIncomingOutGoing": "OUTGOING",
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadJunctions"
+      }
+    },
+    {
+      "class": "GetElements",
+      "includeIncomingOutGoing": "OUTGOING",
+      "options": {
+        "gaffer.federatedstore.operation.graphIds": "roadUse"
+      }
+    }
+  ]
+}

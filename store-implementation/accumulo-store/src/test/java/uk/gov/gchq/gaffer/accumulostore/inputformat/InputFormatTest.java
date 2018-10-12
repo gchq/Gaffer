@@ -51,6 +51,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -75,6 +76,7 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
+
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
@@ -302,7 +304,7 @@ public class InputFormatTest {
 
     private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements.Builder().input(data).build(), store.createContext(new User()));
+            store.execute(new AddElements.Builder().input(data).build(), new Context());
         } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }

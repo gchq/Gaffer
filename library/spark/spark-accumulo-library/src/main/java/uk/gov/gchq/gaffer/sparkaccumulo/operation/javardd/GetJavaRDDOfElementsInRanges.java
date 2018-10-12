@@ -30,18 +30,20 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
+@Summary("Gets the JavaRDD of Elements with a range")
 public class GetJavaRDDOfElementsInRanges implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, JavaRDD<Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
@@ -63,12 +65,12 @@ public class GetJavaRDDOfElementsInRanges implements
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -105,7 +107,7 @@ public class GetJavaRDDOfElementsInRanges implements
     public GetJavaRDDOfElementsInRanges shallowClone() {
         return new GetJavaRDDOfElementsInRanges.Builder()
                 .input(input)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .view(view)
                 .directedType(directedType)
                 .options(options)

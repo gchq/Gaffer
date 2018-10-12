@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
@@ -34,15 +35,9 @@ public class AddElementsLoaderIT extends ParameterizedLoaderIT<AddElements> {
     }
 
     @Override
-    public void configure(final Iterable<? extends Element> elements) {
-        // Empty
+    protected void addElements(final Iterable<? extends Element> input) throws OperationException {
+        graph.execute(new AddElements.Builder()
+                .input(input)
+                .build(), getUser());
     }
-
-    @Override
-    public AddElements createOperation(final Iterable<? extends Element> elements) {
-        return new AddElements.Builder()
-                .input(elements)
-                .build();
-    }
-
 }

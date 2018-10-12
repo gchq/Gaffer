@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
@@ -95,6 +96,107 @@ public class UpdateViewHookTest {
     }
 
     //***** preExecute TESTS *****//
+
+    @Test
+    public void shouldNotAddExtraGroupsToUsersView() throws Exception {
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("entity1")
+                                .edge("edge1")
+                                .build())
+                        .build())
+                .build();
+        updateViewHook.setViewToMerge(new View.Builder()
+                .entity("entity2")
+                .edge("edge2")
+                .build());
+        updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
+
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet("entity1"), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
+    }
+
+    @Test
+    public void shouldNotAddExtraGroupsToUsersViewInGetAdjacentIds() throws Exception {
+        opChain = new OperationChain.Builder()
+                .first(new GetAdjacentIds.Builder()
+                        .view(new View.Builder()
+                                .edge("edge1")
+                                .build())
+                        .build())
+                .build();
+        updateViewHook.setViewToMerge(new View.Builder()
+                .entity("entity2")
+                .edge("edge2")
+                .build());
+        updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
+
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
+    }
+
+    @Test
+    public void shouldAddExtraGroupsToUsersView() throws Exception {
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .entity("entity1")
+                                .edge("edge1")
+                                .build())
+                        .build())
+                .build();
+        updateViewHook.setViewToMerge(new View.Builder()
+                .entity("entity2")
+                .edge("edge2")
+                .build());
+        updateViewHook.setAddExtraGroups(true);
+        updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
+
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet("entity1", "entity2"), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1", "edge2"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
+    }
+
+    @Test
+    public void shouldNotAddExtraGroupsToEmptyUsersView() throws Exception {
+        opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .view(new View())
+                        .build())
+                .build();
+        updateViewHook.setViewToMerge(new View.Builder()
+                .entity("entity2")
+                .edge("edge2")
+                .build());
+        updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
+
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet(), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
+    }
 
     @Test
     public void shouldNotMergeWithWrongUser() throws Exception {

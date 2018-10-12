@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.Properties;
@@ -34,6 +36,7 @@ import java.util.Properties;
  * @see StoreProperties
  */
 @Since("1.5.0")
+@Summary("Adds StoreProperties to the GraphLibrary")
 public class AddStorePropertiesToLibrary implements Operation {
 
     @Required
@@ -67,10 +70,12 @@ public class AddStorePropertiesToLibrary implements Operation {
                 .build();
     }
 
+    @JsonIgnore
     public StoreProperties getStoreProperties() {
         return storeProperties;
     }
 
+    @JsonIgnore
     public void setStoreProperties(final StoreProperties properties) {
         this.storeProperties = properties;
     }

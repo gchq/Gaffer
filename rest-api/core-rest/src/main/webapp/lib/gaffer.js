@@ -15,8 +15,7 @@
  */
 
 function getVersion() {
-    var footer = document.getElementById("swagger-ui-container").children[1].children[2].innerText
-    return footer.substr(footer.lastIndexOf(':') + 2, 2);
+    return $('#swagger-ui-container').find(".footer").text().split(/[\s,:]+/)[7];
 }
 
 function addExampleButtons(){
@@ -160,6 +159,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
 
 function initFromProperties(onPropertiesLoad) {
     var onSuccess = function(properties) {
+        updateFooter(properties);
         updateTitle(properties);
         updateDescription(properties);
         updateBanner(properties);
@@ -186,6 +186,15 @@ function updateTitle(properties) {
         $('#' + id).text(value);
         document.title = value;
     });
+}
+
+function updateFooter(properties) {
+    updateElementWithId("swagger-ui-container", "gaffer.version", properties, function(value, id) {
+        var footer = $('#' + id).find(".footer")
+        var footerText = footer.text();
+        var newFooterText = footerText.substring(0, footerText.indexOf("]")) + ", gaffer version: " + value + " ]";
+        footer.text(newFooterText);
+    })
 }
 
 function updateBanner(properties) {

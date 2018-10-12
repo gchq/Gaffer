@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -310,29 +311,29 @@ public class AccumuloSingleIDRetrieverTest {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             elements.add(new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("" + i)
-                    .build()
+                            .group(TestGroups.ENTITY)
+                            .vertex("" + i)
+                            .build()
             );
 
             elements.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("" + i)
-                    .dest("B")
-                    .directed(false)
-                    .build()
+                            .group(TestGroups.EDGE)
+                            .source("" + i)
+                            .dest("B")
+                            .directed(false)
+                            .build()
             );
 
             elements.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("" + i)
-                    .dest("C")
-                    .directed(true)
-                    .build()
+                            .group(TestGroups.EDGE)
+                            .source("" + i)
+                            .dest("C")
+                            .directed(true)
+                            .build()
             );
         }
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), store.createContext(new User()));
+            store.execute(new AddElements.Builder().input(elements).build(), new Context(new User()));
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

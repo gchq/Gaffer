@@ -232,6 +232,10 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         @JsonSetter("edges")
         public CHILD_CLASS edges(final Map<String, EDGE_DEF> edges) {
             elementDefs.getEdges().clear();
+            return addEdges(edges);
+        }
+
+        public CHILD_CLASS addEdges(final Map<String, EDGE_DEF> edges) {
             if (null != edges) {
                 elementDefs.getEdges().putAll(edges);
             }
@@ -256,6 +260,10 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         @JsonSetter("entities")
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
             elementDefs.getEntities().clear();
+            return addEntities(entities);
+        }
+
+        public CHILD_CLASS addEntities(final Map<String, ENTITY_DEF> entities) {
             if (null != entities) {
                 elementDefs.getEntities().putAll(entities);
             }
