@@ -22,10 +22,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -40,9 +38,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.MergeType;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ResultsWanted;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -255,51 +250,6 @@ public class JoinIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
-    }
-
-    @Test
-    public void shouldLeftKeyFullInnerJoinWithMergeGettingRelated() throws Exception {
-        // Given
-        List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_4, 1), getJoinEntity(TestGroups.ENTITY_4, 2), getJoinEntity(TestGroups.ENTITY_4, 3), getJoinEntity(TestGroups.ENTITY_4, 4), getJoinEntity(TestGroups.ENTITY_4, 6)));
-
-        final Entity expectedEntity = getJoinEntity(TestGroups.ENTITY_4, 18);
-        final List<Element> expectedElements = new ArrayList<>(Arrays.asList(expectedEntity, expectedEntity, expectedEntity, expectedEntity, expectedEntity));
-        final GetElements rhsGetElementsOperation = new GetElements.Builder()
-                .input(new EntitySeed(VERTEX_PREFIXES[0] + 0))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY_4)
-                        .build())
-                .build();
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY_4, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
-                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
-                        .aggregator(new ElementAggregator.Builder().select(TestPropertyNames.COUNT).execute(new Sum()).build())
-                        .build())
-                .build();
-        setStoreSchema(schema);
-        setup();
-        addJoinEntityElements(TestGroups.ENTITY_4);
-
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElements)
-                .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_INNER)
-                .matchKey(MatchKey.LEFT)
-                .matchMethod(new ElementMatch())
-                .mergeMethod(new ElementMerge(ResultsWanted.RELATED_ONLY, MergeType.RELATED_ONLY))
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
-
-        // Then
-        ElementUtil.assertElementEquals(expectedElements, results);
-
-        // Reset schema
-        setStoreSchema(new Schema());
-        setup();
     }
 
     private void addJoinEntityElements(final String group) {

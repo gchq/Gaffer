@@ -21,6 +21,7 @@ import org.junit.AfterClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GeneratorsIT;
+import uk.gov.gchq.gaffer.integration.impl.JoinIT;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 
@@ -29,6 +30,7 @@ public class ProxyStoreITs extends AbstractStoreITs {
 
     public ProxyStoreITs() {
         super(STORE_PROPERTIES);
+        skipTest(JoinIT.class, "The output type reference doesn't deserialise the output correctly");
         skipTest(GeneratorsIT.class, "The output type reference doesn't deserialise the domain object correctly");
     }
 
