@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities;
 
 import org.apache.hadoop.fs.Path;
@@ -44,11 +45,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Used to retrieve the elements from a single file and put the elements into a shared {@link java.util.concurrent.ConcurrentLinkedQueue}
+ * Used to retrieve the elements from a single file and put the elements into a shared
+ * {@link java.util.concurrent.ConcurrentLinkedQueue}.
  */
 public class RetrieveElementsFromFile implements Callable<OperationException> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveElementsFromFile.class);
+
     private final Path filePath;
     private final FilterPredicate filter;
     private final byte[] jsonGafferSchema;
@@ -64,9 +66,15 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final Authorisations auths;
     private final String visibility;
 
-    public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidatorsAndFiltersApplying,
-                                    final boolean skipValidation, final View view, final User user) {
+    public RetrieveElementsFromFile(final Path filePath,
+                                    final FilterPredicate filter,
+                                    final Schema gafferSchema,
+                                    final ConcurrentLinkedQueue<Element> queue,
+                                    final boolean needsValidatorsAndFiltersApplying,
+                                    final boolean skipValidation,
+                                    final View view,
+                                    final User user) {
+        LOGGER.info("Creating RetrieveElementsFromFile for path {} with predicate {}", filePath, filter);
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
@@ -142,6 +150,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             }
             fileReader.close();
         } catch (final IOException ignore) {
+            LOGGER.error("IOException reading file", ignore);
             // ignore as this file does not exist
         }
         return null;
@@ -150,7 +159,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private ParquetReader<Element> openParquetReader() throws IOException {
         final boolean isEntity = schemaUtils.getEntityGroups().contains(group);
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
-        LOGGER.debug("Opening a new Parquet reader for file: {}", filePath);
+        LOGGER.debug("Opening a new Parquet reader for file {}", filePath);
         if (null != filter) {
             return new ParquetElementReader.Builder<Element>(filePath)
                     .isEntity(isEntity)

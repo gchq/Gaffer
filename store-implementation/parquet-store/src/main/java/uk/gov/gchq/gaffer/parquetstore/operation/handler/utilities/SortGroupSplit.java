@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,116 +15,96 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities;
 
-import org.apache.hadoop.conf.Configuration;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
-import scala.collection.Seq;
-import scala.collection.Seq$;
-import scala.collection.mutable.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * This class is used to sort the data for a single split of a group by loading in the /aggregate/split folder within a group
+ * This class is used to sort the data for a single split of a group by loading in the /aggregate/split folder within a group.
  */
 public class SortGroupSplit implements Callable<OperationException> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortGroupSplit.class);
 
-    private static final String AGGREGATED = "/aggregated";
-    private static final String SORTED = "/sorted";
-    private static final String SPLIT = "/split";
-    private final String inputDir;
+    private final List<String> inputFiles;
     private final String outputDir;
-    private final Map<String, String[]> columnToPaths;
-    private final boolean isEntity;
     private final SparkSession spark;
-    private final String column;
+    private final FileSystem fs;
+    private final List<String> sortColumns;
 
-    public SortGroupSplit(final String group,
-                          final String column,
-                          final ParquetStore store,
+    public SortGroupSplit(final FileSystem fs,
                           final SparkSession spark,
-                          final int splitNumber) throws SerialisationException {
-        final String tempFileDir = store.getTempFilesDir();
-        this.column = column;
-        final SchemaElementDefinition groupGafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
-        this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
-        this.spark = spark;
-        this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
-        if (isEntity) {
-            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir) + AGGREGATED + SPLIT + splitNumber;
-            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir) + SORTED + SPLIT + splitNumber;
-        } else {
-            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir) + AGGREGATED + SPLIT + splitNumber;
-            this.outputDir = ParquetStore.getGroupDirectory(group, column, tempFileDir) + SORTED + SPLIT + splitNumber;
+                          final List<String> sortColumns,
+                          final String inputDir,
+                          final String outputDir) throws IOException {
+        this.fs = fs;
+        this.sortColumns = sortColumns;
+        if (!this.fs.exists(new Path(inputDir))) {
+            throw new IOException("Input directory " + inputDir + " does not exist");
         }
+        final FileStatus[] fileStatuses = this.fs
+                .listStatus(new Path(inputDir), file1 -> file1.getName().endsWith(".parquet"));
+        if (0 == fileStatuses.length) {
+            LOGGER.info("Not performing SortGroupSplit for inputDir {} as it contains no Parquet files");
+        }
+        this.inputFiles = new ArrayList<>();
+        for (final FileStatus file : fileStatuses) {
+            this.inputFiles.add(file.getPath().toString());
+        }
+        this.outputDir = outputDir;
+        this.spark = spark;
+    }
+
+    public SortGroupSplit(final FileSystem fs,
+                          final SparkSession spark,
+                          final List<String> sortColumns,
+                          final List<String> inputFiles,
+                          final String outputDir) {
+        this.fs = fs;
+        this.spark = spark;
+        this.sortColumns = sortColumns;
+        this.inputFiles = inputFiles;
+        this.outputDir = outputDir;
     }
 
     @Override
-    public OperationException call() {
-        try {
-            // Sort data
-            final String firstSortColumn;
-            final Builder<String, Seq<String>> groupBySeq = Seq$.MODULE$.newBuilder();
-            final Map<String, String[]> groupPaths = columnToPaths;
-            if (isEntity) {
-                final String[] vertexPaths = groupPaths.get(ParquetStoreConstants.VERTEX);
-                firstSortColumn = vertexPaths[0];
-                if (vertexPaths.length > 1) {
-                    for (int i = 1; i < vertexPaths.length; i++) {
-                        groupBySeq.$plus$eq(vertexPaths[i]);
-                    }
-                }
-            } else {
-                final String[] srcPaths = groupPaths.get(ParquetStoreConstants.SOURCE);
-                final String[] destPaths = groupPaths.get(ParquetStoreConstants.DESTINATION);
-                if (ParquetStoreConstants.SOURCE.equals(column)) {
-                    firstSortColumn = srcPaths[0];
-                    if (srcPaths.length > 1) {
-                        for (int i = 1; i < srcPaths.length; i++) {
-                            groupBySeq.$plus$eq(srcPaths[i]);
-                        }
-                    }
-                    for (final String destPath : destPaths) {
-                        groupBySeq.$plus$eq(destPath);
-                    }
-                } else {
-                    firstSortColumn = destPaths[0];
-                    if (destPaths.length > 1) {
-                        for (int i = 1; i < destPaths.length; i++) {
-                            groupBySeq.$plus$eq(destPaths[i]);
-                        }
-                    }
-                    for (final String srcPath : srcPaths) {
-                        groupBySeq.$plus$eq(srcPath);
-                    }
-                }
-                groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
-            }
+    public OperationException call() throws IOException {
+        final String firstSortColumn = sortColumns.get(0);
+        final List<String> otherSortColumns = sortColumns.subList(1, sortColumns.size());
 
-            final FileSystem fs = FileSystem.get(new Configuration());
-            if (fs.exists(new Path(inputDir))) {
-                spark.read()
-                        .option("mergeSchema", true)
-                        .parquet(inputDir)
-                        .sort(firstSortColumn, groupBySeq.result())
-                        .coalesce(1)
-                        .write()
-                        .option("compression", "gzip")
-                        .parquet(outputDir);
+        final List<String> inputFilesThatExist = new ArrayList<>();
+        for (final String file : inputFiles) {
+            if (!fs.exists(new Path(file))) {
+                LOGGER.info("Ignoring file {} as it does not exist", file);
+            } else {
+                inputFilesThatExist.add(file);
             }
-        } catch (final IOException e) {
-            return new OperationException("IOException occurred during aggregation and sorting of data", e);
         }
+        if (inputFilesThatExist.isEmpty()) {
+            LOGGER.info("Not sorting data for group {} as list of input files that exist is empty");
+            return null;
+        }
+
+        LOGGER.info("Sorting data in files {} by columns {} to one file in output directory {}",
+                StringUtils.join(inputFilesThatExist, ','), StringUtils.join(sortColumns, ','), outputDir);
+        spark.read()
+                .option("mergeSchema", true)
+                .parquet(inputFilesThatExist.toArray(new String[]{}))
+                .sort(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
+                .coalesce(1)
+                .write()
+                .option("compression", "gzip")
+                .parquet(outputDir);
         return null;
     }
 }

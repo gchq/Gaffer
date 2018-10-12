@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.io.writer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -24,9 +25,7 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
@@ -35,11 +34,10 @@ import java.util.Map;
 
 /**
  * This class provides the required {@link WriteSupport} to write out {@link Element}s to Parquet files. This is used to
- * pass in the spark schema to the Parquet extra metadata (which will speed up the reading of the Parquet files by Spark).
+ * pass the Spark schema into the Parquet extra metadata (which will speed up the reading of the Parquet files by Spark).
  */
 public class ElementWriteSupport extends WriteSupport<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementWriteSupport.class);
-    private boolean isEntity;
     private GafferGroupObjectConverter converter;
     private MessageType schema = null;
     private ElementWriter elementWriter;
@@ -48,9 +46,10 @@ public class ElementWriteSupport extends WriteSupport<Element> {
     public ElementWriteSupport() {
     }
 
-    ElementWriteSupport(final MessageType schema, final boolean isEntity, final GafferGroupObjectConverter converter, final StructType sparkSchema) {
+    ElementWriteSupport(final MessageType schema,
+                        final GafferGroupObjectConverter converter,
+                        final StructType sparkSchema) {
         this.schema = schema;
-        this.isEntity = isEntity;
         this.converter = converter;
         this.sparkSchema = sparkSchema;
     }
@@ -70,15 +69,11 @@ public class ElementWriteSupport extends WriteSupport<Element> {
     }
 
     @Override
-    public void write(final Element record) {
+    public void write(final Element element) {
         try {
-            if (isEntity) {
-                elementWriter.write((Entity) record);
-            } else {
-                elementWriter.write((Edge) record);
-            }
+            elementWriter.writeElement(element);
         } catch (final SerialisationException e) {
-            LOGGER.warn(e.getMessage());
+            LOGGER.warn("SerialisationException whilst writing element: {}", e.getMessage());
         }
     }
 }

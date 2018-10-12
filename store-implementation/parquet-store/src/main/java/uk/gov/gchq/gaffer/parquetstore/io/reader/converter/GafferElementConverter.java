@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is used by the {@link uk.gov.gchq.gaffer.parquetstore.io.reader.ElementRecordMaterialiser} to materialises
+ * This class is used by the {@link uk.gov.gchq.gaffer.parquetstore.io.reader.ElementRecordMaterialiser} to materialise
  * each element based on the objects added to the 'parquetColumnToObject' field by the {@link PrimitiveConverter}'s.
  */
 public class GafferElementConverter extends GroupConverter {

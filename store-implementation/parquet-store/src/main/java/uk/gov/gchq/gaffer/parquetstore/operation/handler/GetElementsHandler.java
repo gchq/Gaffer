@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,13 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.ParquetElementRetriever;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Iterator;
 
 /**
- * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetElements} operation on the
- * {@link ParquetStore}.
+ * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link ParquetStore}.
  */
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
 
@@ -46,7 +44,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         final CloseableIterable<? extends Element> result;
         final Iterable<? extends ElementId> input = operation.getInput();
         if (null == input) {
-            throw new OperationException("Operation input is undefined - please specify an input.");
+            throw new OperationException("Operation input is null - please specify an input.");
         } else {
             final Iterator<? extends ElementId> inputIter = input.iterator();
             if (inputIter.hasNext()) {
@@ -66,18 +64,8 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
 
     private CloseableIterable<Element> doOperation(final GetElements operation,
                                                    final ParquetStore store,
-                                                   final User user) throws OperationException {
-        try {
-            return new ParquetElementRetriever(operation.getView(),
-                    store,
-                    operation.getDirectedType(),
-                    operation.getIncludeIncomingOutGoing(),
-                    operation.getSeedMatching(),
-                    operation.getInput(),
-                    user);
-        } catch (final StoreException e) {
-            throw new OperationException("Failed to getGroup elements", e);
-        }
+                                                   final User user) {
+        return new ParquetElementRetriever(store, operation, user);
     }
 }
 
