@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.data.element.Element;
+import scala.Option;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateAndSortTempData;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculateSplitPointsFromIndex;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculateSplitPointsFromIterable;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.GenerateIndices;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateAndSortData;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CallableResult;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.WriteUnsortedData;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.Partition;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation.GraphPartitionerSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
@@ -46,15 +47,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-
-import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.createThreadPool;
-import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
@@ -66,104 +65,194 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation,
                             final Context context,
                             final Store store) throws OperationException {
-        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
-        final ParquetStore parquetStore = (ParquetStore) store;
-        SparkParquetUtils.configureSparkForAddElements(spark, parquetStore.getProperties());
-        addElements(operation, parquetStore, spark);
+        addElements(operation, context, (ParquetStore) store);
         return null;
     }
 
-    private void addElements(final AddElements addElementsOperation, final ParquetStore store, final SparkSession spark)
-            throws OperationException {
+    private void addElements(final AddElements addElementsOperation,
+                             final Context context,
+                             final ParquetStore store) throws OperationException {
+        // Set up
+        final FileSystem fs = store.getFS();
+        final Schema schema = store.getSchema();
+        final SchemaUtils schemaUtils = store.getSchemaUtils();
+        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
+        final ExecutorService threadPool = createThreadPool(spark, store.getProperties());
+        final GraphPartitioner currentGraphPartitioner = store.getGraphPartitioner();
+        SparkParquetUtils.configureSparkForAddElements(spark, store.getProperties());
+
+        // Write data from addElementsOperation split by group and partition (NB this uses the existing partitioner -
+        // adding elements using this operation does not effect the partitions).
+        final String tmpDirectory = store.getTempFilesDir();
+        final BiFunction<String, Integer, String> directoryForGroupAndPartitionId = (group, partitionId) ->
+                tmpDirectory
+                        + "/unsorted_unaggregated_new"
+                        + "/group=" + group
+                        + "/partition=" + partitionId;
+        final BiFunction<String, Integer, String> directoryForGroupAndPartitionIdForReversedEdges = (group, partitionId) ->
+                tmpDirectory
+                        + "/unsorted_unaggregated_new"
+                        + "/reversed-group=" + group
+                        + "/partition=" + partitionId;
+        LOGGER.info("Calling WriteUnsortedData to add elements");
+        LOGGER.info("currentGraphPartitioner is {}", currentGraphPartitioner);
+        new WriteUnsortedData(store, currentGraphPartitioner,
+                directoryForGroupAndPartitionId, directoryForGroupAndPartitionIdForReversedEdges)
+                .writeElements(addElementsOperation.getInput());
+
+        // For every group and partition, aggregate the new data with the old data and then sort
+        final BiFunction<String, Integer, String> directoryForSortedResultsForGroupAndPartitionId = (group, partitionId) ->
+                tmpDirectory
+                        + "/sorted_new_old_merged"
+                        + "/group=" + group
+                        + "/partition=" + partitionId;
+        final BiFunction<String, Integer, String> directoryForSortedResultsForGroupAndPartitionIdForReversedEdges = (group, partitionId) ->
+                tmpDirectory
+                        + "/sorted_new_old_merged"
+                        + "/REVERSED-group=" + group
+                        + "/partition=" + partitionId;
+        final List<Callable<CallableResult>> tasks = new ArrayList<>();
+        for (final String group : schema.getGroups()) {
+            final List<Partition> partitions = currentGraphPartitioner.getGroupPartitioner(group).getPartitions();
+            for (final Partition partition : partitions) {
+                final List<String> inputFiles = new ArrayList<>();
+                // New data
+                inputFiles.add(directoryForGroupAndPartitionId.apply(group, partition.getPartitionId()));
+                // Old data
+                inputFiles.add(store.getFile(group, partition));
+                final String outputDir = directoryForSortedResultsForGroupAndPartitionId.apply(group, partition.getPartitionId());
+                final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
+                        group, group + "-" + partition.getPartitionId(), false, spark);
+                tasks.add(task);
+                LOGGER.info("Created AggregateAndSortData task for group {}, partition {}", group, partition.getPartitionId());
+            }
+        }
+        for (final String group : schema.getEdgeGroups()) {
+            final List<Partition> partitions = currentGraphPartitioner.getGroupPartitionerForReversedEdges(group).getPartitions();
+            for (final Partition partition : partitions) {
+                final List<String> inputFiles = new ArrayList<>();
+                // New data
+                inputFiles.add(directoryForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId()));
+                // Old data
+                inputFiles.add(store.getFileForReversedEdges(group, partition));
+                final String outputDir = directoryForSortedResultsForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId());
+                final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
+                        group, "reversed-" + group + "-" + partition.getPartitionId(), true, spark);
+                tasks.add(task);
+                LOGGER.info("Created AggregateAndSortData task for reversed edge group {}, partition {}", group, partition.getPartitionId());
+            }
+        }
         try {
-            final FileSystem fs = store.getFS();
-            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-            final Schema gafferSchema = store.getSchema();
-            final String rootDataDirString = store.getDataDir();
-            final String tempDirString = store.getTempFilesDir();
-            final Path tempDir = new Path(tempDirString);
-            if (fs.exists(tempDir)) {
-                fs.delete(tempDir, true);
-                LOGGER.warn("Temp data directory '{}' has been deleted.", tempDirString);
+            LOGGER.info("Invoking {} AggregateAndSortData tasks", tasks.size());
+            final List<Future<CallableResult>> futures = threadPool.invokeAll(tasks);
+            for (final Future<CallableResult> future : futures) {
+                final CallableResult result = future.get();
+                LOGGER.info("Result {} from task", result);
             }
-            // Write the data out
-            LOGGER.info("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
-            final Iterable<? extends Element> input = addElementsOperation.getInput();
-            final ExecutorService pool = createThreadPool(spark, parquetStoreProperties);
-            final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
-            final Map<String, Map<Object, Integer>> groupToSplitPoints;
-            final GraphIndex index = store.getGraphIndex();
-            if (null == index) {
-                groupToSplitPoints = new HashMap<>();
-                for (final String group : gafferSchema.getEdgeGroups()) {
-                    tasks.add(new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
-                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, false));
+
+        } catch (final InterruptedException e) {
+            throw new OperationException("InterruptedException running AggregateAndSortData tasks", e);
+        } catch (final ExecutionException e) {
+            throw new OperationException("ExecutionException running AggregateAndSortData tasks", e);
+        }
+
+        try {
+            // Move results to a new snapshot directory (the -tmp at the end allows us to add data to the directory,
+            // and then when this is all finished we rename the directory to remove the -tmp; this allows us to make
+            // the replacement of the old data with the new data an atomic operation and ensures that a get operation
+            // against the store will not read the directory when only some of the data has been moved there).
+            final long snapshot = System.currentTimeMillis();
+            final String newDataDir = store.getDataDir() + "/" + ParquetStore.getSnapshotPath(snapshot) + "-tmp";
+            LOGGER.info("Moving aggregated and sorted data to new snapshot directory {}", newDataDir);
+            fs.mkdirs(new Path(newDataDir));
+            for (final String group : schema.getGroups()) {
+                final Path groupDir = new Path(newDataDir, "group=" + group);
+                fs.mkdirs(groupDir);
+                LOGGER.info("Created directory {}", groupDir);
+            }
+            for (final String group : schema.getEdgeGroups()) {
+                final Path groupDir = new Path(newDataDir, ParquetStore.REVERSED_GROUP + "=" + group);
+                fs.mkdirs(groupDir);
+                LOGGER.info("Created directory {}", groupDir);
+            }
+            for (final String group : schema.getGroups()) {
+                final String groupDir = newDataDir + "/group=" + group;
+                final List<Partition> partitions = currentGraphPartitioner.getGroupPartitioner(group).getPartitions();
+                for (final Partition partition : partitions) {
+                    final Path outputDir = new Path(directoryForSortedResultsForGroupAndPartitionId.apply(group, partition.getPartitionId()));
+                    if (!fs.exists(outputDir)) {
+                        LOGGER.info("Not moving data for group {}, partition id {} as the outputDir {} does not exist",
+                                group, partition.getPartitionId(), outputDir);
+                    } else {
+                        // One .parquet file and one .parquet.crc file
+                        final FileStatus[] status = fs.listStatus(outputDir, path -> path.getName().endsWith(".parquet"));
+                        if (1 != status.length) {
+                            LOGGER.error("Didn't find one Parquet file in path {} (found {} files)", outputDir, status.length);
+                            throw new OperationException("Expected to find one Parquet file in path " + outputDir
+                                    + " (found " + status.length + " files)");
+                        } else {
+                            final Path destination = new Path(groupDir, ParquetStore.getFile(partition.getPartitionId()));
+                            LOGGER.info("Renaming {} to {}", status[0].getPath(), destination);
+                            fs.rename(status[0].getPath(), destination);
+                        }
+                    }
                 }
-                for (final String group : gafferSchema.getEntityGroups()) {
-                    tasks.add(new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
-                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, true));
+            }
+            for (final String group : schema.getEdgeGroups()) {
+                final String groupDir = newDataDir + "/reversed-group=" + group;
+                final List<Partition> partitions = currentGraphPartitioner.getGroupPartitionerForReversedEdges(group).getPartitions();
+                for (final Partition partition : partitions) {
+                    final Path outputDir = new Path(directoryForSortedResultsForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId()));
+                    if (!fs.exists(outputDir)) {
+                        LOGGER.info("Not moving data for reversed edge group {}, partition id {} as the outputDir {} does not exist",
+                                group, partition.getPartitionId(), outputDir);
+                    } else {
+                        // One .parquet file and one .parquet.crc file
+                        final FileStatus[] status = fs.listStatus(outputDir, path -> path.getName().endsWith(".parquet"));
+                        if (1 != status.length) {
+                            LOGGER.error("Didn't find one Parquet file in path {} (found {} files)", outputDir, status.length);
+                            throw new OperationException("Expected to find one Parquet file in path " + outputDir
+                                    + " (found " + status.length + " files)");
+                        } else {
+                            final Path destination = new Path(groupDir, ParquetStore.getFile(partition.getPartitionId()));
+                            LOGGER.info("Renaming {} to {}", status[0].getPath(), destination);
+                            fs.rename(status[0].getPath(), destination);
+                        }
+                    }
                 }
-                invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
-            } else {
-                groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
             }
 
-            final Iterator<? extends Element> inputIter = input.iterator();
-            new WriteUnsortedData(store, groupToSplitPoints).writeElements(inputIter);
-            if (inputIter instanceof CloseableIterator) {
-                ((CloseableIterator) inputIter).close();
-            }
-            if (input instanceof CloseableIterable) {
-                ((CloseableIterable) input).close();
-            }
-            LOGGER.debug("Finished writing the input Parquet data to {}", tempDirString);
-            // Use to Spark read in all the data, aggregate and sort it
-            LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
-            new AggregateAndSortTempData(store, spark, groupToSplitPoints, pool);
-            pool.shutdown();
-            LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}/sorted", tempDirString);
-            // Generate the file based index
-            LOGGER.debug("Starting to write the indexes");
-            final GraphIndex newGraphIndex = new GenerateIndices(store, spark).getGraphIndex();
-            LOGGER.debug("Finished writing the indexes");
-            try {
-                moveDataToDataDir(store, fs, rootDataDirString, tempDirString, newGraphIndex);
-                tidyUp(fs, tempDirString);
-            } catch (final IOException | StoreException e) {
-                throw new OperationException("Failed to reload the indices", e);
-            }
-        } catch (final IOException e) {
-            throw new OperationException("IOException: Failed to connect to the file system", e);
-        } catch (final StoreException e) {
-            throw new OperationException(e.getMessage(), e);
-        }
-
-    }
-
-    private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String dataDirString, final String tempDataDirString, final GraphIndex newGraphIndex) throws StoreException, IOException {
-        // Move data from temp to data
-        final long snapshot = System.currentTimeMillis();
-        final String destPath = dataDirString + "/" + snapshot;
-        LOGGER.debug("Creating directory {}", destPath);
-        fs.mkdirs(new Path(destPath).getParent());
-        final String tempPath = tempDataDirString + "/" + ParquetStoreConstants.SORTED;
-        if (fs.exists(new Path(tempPath))) {
-            LOGGER.debug("Renaming {} to {}", tempPath, destPath);
-            fs.rename(new Path(tempPath), new Path(destPath));
-        }
-        // Reload indices
-        newGraphIndex.setSnapshotTimestamp(snapshot);
-        store.setGraphIndex(newGraphIndex);
-    }
-
-    private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {
-        Path tempDir = new Path(tempDataDirString);
-        fs.delete(tempDir, true);
-        LOGGER.debug("Temp data directory '{}' has been deleted.", tempDataDirString);
-        while (fs.listStatus(tempDir.getParent()).length == 0) {
-            tempDir = tempDir.getParent();
-            LOGGER.debug("Empty directory '{}' has been deleted.", tempDataDirString);
-            fs.delete(tempDir, true);
+            // Delete temporary data directory
+            LOGGER.info("Deleting temporary directory {}", tmpDirectory);
+            fs.delete(new Path(tmpDirectory), true);
+            // Write out graph partitioner (unchanged from previous one)
+            final Path newGraphPartitionerPath = new Path(newDataDir + "/graphPartitioner");
+            final FSDataOutputStream stream = fs.create(newGraphPartitionerPath);
+            LOGGER.info("Writing graph partitioner to {}", newGraphPartitionerPath);
+            new GraphPartitionerSerialiser().write(currentGraphPartitioner, stream);
+            stream.close();
+            // Move snapshot-tmp directory to snapshot
+            final String directoryWithoutTmp = newDataDir.substring(0, newDataDir.lastIndexOf("-tmp"));
+            LOGGER.info("Renaming {} to {}", newDataDir, directoryWithoutTmp);
+            fs.rename(new Path(newDataDir), new Path(directoryWithoutTmp));
+            // Set snapshot on store to new value
+            LOGGER.info("Updating latest snapshot on store to {}", snapshot);
+            store.setLatestSnapshot(snapshot);
+        } catch (final IOException | StoreException e) {
+            throw new OperationException("IOException moving results files into new snapshot directory", e);
         }
     }
+
+    private static ExecutorService createThreadPool(final SparkSession spark, final ParquetStoreProperties storeProperties) {
+        final int numberOfThreads;
+        final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
+        if (sparkDriverCores.nonEmpty()) {
+            numberOfThreads = Integer.parseInt(sparkDriverCores.get());
+        } else {
+            numberOfThreads = storeProperties.getThreadsAvailable();
+        }
+        LOGGER.debug("Created thread pool of size {}", numberOfThreads);
+        return Executors.newFixedThreadPool(numberOfThreads);
+    }
+
 }

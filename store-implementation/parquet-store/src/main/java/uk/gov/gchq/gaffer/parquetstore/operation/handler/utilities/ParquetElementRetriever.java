@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,25 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities;
 
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
-import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.parquetstore.query.ParquetQuery;
+import uk.gov.gchq.gaffer.parquetstore.query.QueryGenerator;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
@@ -51,46 +44,22 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
+ * Converts the inputs for get element operations to a mapping of files to Parquet filters which is
  * then looped over to retrieve the filtered Elements.
  */
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
-    private static final String THERE_ARE_NO_RESULTS_FOR_THIS_QUERY = "There are no results for this query";
-    private final View view;
-    private final DirectedType directedType;
-    private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
-
-    /**
-     * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
-     */
-    private final SeedMatching.SeedMatchingType seedMatchingType;
-
-    private final Iterable<? extends ElementId> seeds;
-    private final ParquetFilterUtils parquetFilterUtils;
-    private GraphIndex graphIndex;
-    private final ParquetStoreProperties properties;
-    private final Schema gafferSchema;
+    private final ParquetStore store;
+    private final Operation operation;
     private final User user;
 
-    public ParquetElementRetriever(final View view,
-                                   final ParquetStore store,
-                                   final DirectedType directedType,
-                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                   final SeedMatching.SeedMatchingType seedMatchingType,
-                                   final Iterable<? extends ElementId> seeds,
-                                   final User user) throws OperationException, StoreException {
-        this.view = view;
-        this.gafferSchema = store.getSchema();
-        this.directedType = directedType;
-        this.includeIncomingOutgoingType = includeIncomingOutgoingType;
-        this.seedMatchingType = seedMatchingType;
-        this.seeds = seeds;
-        this.graphIndex = store.getGraphIndex();
-        this.parquetFilterUtils = new ParquetFilterUtils(store);
-        this.properties = store.getProperties();
+    public ParquetElementRetriever(final ParquetStore store, final Operation operation, final User user) {
+        if (!(operation instanceof GetElements) && !(operation instanceof GetAllElements)) {
+            throw new IllegalArgumentException("Only operations of type GetElements and GetAllElements are supported");
+        }
+        this.store = store;
+        this.operation = operation;
         this.user = user;
     }
 
@@ -100,8 +69,11 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     @Override
     public CloseableIterator<Element> iterator() {
-        return new ParquetIterator(view, directedType, includeIncomingOutgoingType,
-                seedMatchingType, seeds, parquetFilterUtils, graphIndex, properties, gafferSchema, user);
+        try {
+            return new ParquetIterator(store, operation, user);
+        } catch (final OperationException e) {
+            throw new RuntimeException("Exception in iterator()", e);
+        }
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -109,41 +81,40 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         private List<Future<OperationException>> runningTasks;
         private ExecutorService executorServicePool;
 
-        protected ParquetIterator(final View view,
-                                  final DirectedType directedType,
-                                  final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                  final SeedMatching.SeedMatchingType seedMatchingType,
-                                  final Iterable<? extends ElementId> seeds,
-                                  final ParquetFilterUtils parquetFilterUtils,
-                                  final GraphIndex graphIndex,
-                                  final ParquetStoreProperties properties,
-                                  final Schema gafferSchema,
-                                  final User user) {
+        protected ParquetIterator(final ParquetStore store, final Operation operation, final User user) throws OperationException {
+            final QueryGenerator queryGenerator = new QueryGenerator(store);
+            final View view;
+            if (operation instanceof GetAllElements) {
+                view = ((GetAllElements) operation).getView();
+            } else {
+                view = ((GetElements) operation).getView();
+            }
             try {
-                if (null != graphIndex) {
-                    parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
-                    final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
-                    LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
-                    if (!pathToFilterMap.isEmpty()) {
-                        queue = new ConcurrentLinkedQueue<>();
-                        executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
-                        final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
-                        tasks.addAll(pathToFilterMap.entrySet().stream().map(entry -> new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, parquetFilterUtils.needsValidatorsAndFiltersApplying(), properties.getSkipValidation(), view, user)).collect(Collectors.toList()));
-                        runningTasks = executorServicePool.invokeAll(tasks);
-                    } else {
-                        LOGGER.debug(THERE_ARE_NO_RESULTS_FOR_THIS_QUERY);
-                    }
+                final ParquetQuery parquetQuery = queryGenerator.getParquetQuery(operation);
+                LOGGER.debug("Created ParquetQuery {}", parquetQuery);
+                if (!parquetQuery.isEmpty()) {
+                    queue = new ConcurrentLinkedQueue<>();
+                    executorServicePool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
+                    final List<RetrieveElementsFromFile> tasks = new ArrayList<>();
+                    tasks.addAll(parquetQuery.getAllParquetFileQueries()
+                            .stream()
+                            .map(entry -> new RetrieveElementsFromFile(entry.getFile(), entry.getFilter(),
+                                    store.getSchema(), queue, !entry.isFullyApplied(),
+                                    store.getProperties().getSkipValidation(), view, user))
+                            .collect(Collectors.toList()));
+                    LOGGER.info("Invoking {} RetrieveElementsFromFile tasks", tasks.size());
+                    runningTasks = executorServicePool.invokeAll(tasks);
                 } else {
-                    LOGGER.debug("Can not perform a Get operation when there is no index set, which is " +
-                            "indicative of there being no data or the data ingest failed.");
+                    LOGGER.warn("No paths found - there will be no results from this query");
                 }
-            } catch (final OperationException | SerialisationException e) {
+            } catch (final IOException | OperationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
+                throw new OperationException("Exception creating ParquetIterator", e);
             } catch (final InterruptedException e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error("InterruptedException in ParquetIterator {}", e.getMessage());
+                throw new OperationException("InterruptedException in ParquetIterator", e);
             }
         }
-
 
         @Override
         public boolean hasNext() {
@@ -185,7 +156,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             runningTasks.removeAll(completedTasks);
             return runningTasks.isEmpty();
         }
-
 
         @Override
         public Element next() throws NoSuchElementException {
