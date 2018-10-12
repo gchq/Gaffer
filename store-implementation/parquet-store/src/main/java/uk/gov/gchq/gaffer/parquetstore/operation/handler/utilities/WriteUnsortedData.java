@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,124 +23,198 @@ import org.apache.spark.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
+import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
- * Takes an {@link Iterator} of {@link Element}'s and writes the elements out into Parquet files split into directories for each group.
+ * Takes an {@link Iterable} of {@link Element}s and writes the elements out into Parquet files split into directories
+ * for each group.
  */
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private String tempFilesDir;
     private final SchemaUtils schemaUtils;
-    private final Map<String, Map<Integer, ParquetWriter<Element>>> groupSplitToWriter;
-    private final Map<String, Map<Object, Integer>> groupToSplitPoints;
+    private final Map<String, Map<Integer, ParquetWriter<Element>>> groupToPartitionIdToWriter;
+    private final Map<String, Map<Integer, ParquetWriter<Element>>> groupToPartitionIdToWriterForReversedEdges;
+    private final GraphPartitioner graphPartitioner;
+    private final BiFunction<String, Integer, String> fileNameForGroupAndPartitionId;
+    private final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges;
 
-    public WriteUnsortedData(final ParquetStore store, final Map<String, Map<Object, Integer>> groupToSplitPoints) {
-        this(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
+    public WriteUnsortedData(final ParquetStore store,
+                             final GraphPartitioner graphPartitioner,
+                             final BiFunction<String, Integer, String> fileNameForGroupAndPartitionId,
+                             final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges)
+            throws OperationException {
+        this(store.getTempFilesDir(),
+                store.getSchemaUtils(),
+                graphPartitioner,
+                fileNameForGroupAndPartitionId,
+                fileNameForGroupAndPartitionIdForReversedEdges);
     }
 
-    public WriteUnsortedData(final String tempFilesDir, final SchemaUtils schemaUtils,
-                             final Map<String, Map<Object, Integer>> groupToSplitPoints) {
+    public WriteUnsortedData(final String tempFilesDir,
+                             final SchemaUtils schemaUtils,
+                             final GraphPartitioner graphPartitioner,
+                             final BiFunction<String, Integer, String> fileNameForGroupAndPartitionId,
+                             final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges)
+            throws OperationException {
         this.tempFilesDir = tempFilesDir;
         this.schemaUtils = schemaUtils;
-        this.groupToSplitPoints = groupToSplitPoints;
-        this.groupSplitToWriter = new HashMap<>();
+        this.graphPartitioner = graphPartitioner;
+        this.fileNameForGroupAndPartitionId = fileNameForGroupAndPartitionId;
+        this.fileNameForGroupAndPartitionIdForReversedEdges = fileNameForGroupAndPartitionIdForReversedEdges;
+        this.groupToPartitionIdToWriter = new HashMap<>();
+        this.groupToPartitionIdToWriterForReversedEdges = new HashMap<>();
+        // Validate that graphPartitioner contains a partitioner for every group
+        for (final String group : schemaUtils.getGroups()) {
+            if (null == this.graphPartitioner.getGroupPartitioner(group)) {
+                throw new OperationException("graphPartitioner does not contain a partitioner for group " + group);
+            }
+        }
+        // Validate that graphPartitioner contains a partitioner for the reversed version of every edge group
+        for (final String group : schemaUtils.getEdgeGroups()) {
+            if (null == this.graphPartitioner.getGroupPartitionerForReversedEdges(group)) {
+                throw new OperationException("graphPartitioner does not contain a partitioner for the reversed version of edge group " + group);
+            }
+        }
     }
 
-    public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
+    public void writeElements(final Iterable<? extends Element> elements) throws OperationException {
+        // Initialise maps from groups to partition id to writers
+        for (final String group : schemaUtils.getGroups()) {
+            groupToPartitionIdToWriter.put(group, new HashMap<>());
+        }
+        for (final String group : schemaUtils.getEdgeGroups()) {
+            groupToPartitionIdToWriterForReversedEdges.put(group, new HashMap<>());
+        }
         try {
             // Write elements
+            LOGGER.info("Writing unsorted elements");
             _writeElements(elements);
-        } catch (final IOException | OperationException e) {
+            LOGGER.info("Finished writing unsorted elements");
+        } catch (final IOException e) {
             throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
         } finally {
             // Close the writers
-            for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupSplitToWriter.values()) {
-                for (final ParquetWriter<Element> writer : splitToWriter.values()) {
-                    try {
-                        writer.close();
-                    } catch (final IOException ignored) {
-                        // ignored
-                    }
+            try {
+                for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupToPartitionIdToWriter.values()) {
+                    closeWriters(splitToWriter);
+                }
+                for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupToPartitionIdToWriterForReversedEdges.values()) {
+                    closeWriters(splitToWriter);
+                }
+            } catch (final IOException e) {
+                throw new OperationException("IOException closing writers", e);
+            }
+        }
+    }
+
+    private void closeWriters(final Map<Integer, ParquetWriter<Element>> writers) throws IOException {
+        for (final ParquetWriter<Element> writer : writers.values()) {
+            LOGGER.debug("Closing writer {}", writer);
+            writer.close();
+        }
+    }
+
+    private void _writeElements(final Iterable<? extends Element> elements) throws IOException {
+        for (final Element element : elements) {
+            if (!schemaUtils.getGroups().contains(element.getGroup())) {
+                LOGGER.warn("Skipped the addition of an Element of group {} as that group does not exist in the schema.",
+                        element.getGroup());
+                continue;
+            }
+            writeElement(element);
+            if (element instanceof Edge) {
+                final Edge edge = (Edge) element;
+                if (!edge.getSource().equals(edge.getDestination())) {
+                    writeEdgeReversed((Edge) element);
                 }
             }
         }
-    }
-
-    private void _writeElements(final Iterator<? extends Element> elements) throws OperationException, IOException {
-        while (elements.hasNext()) {
-            final Element element = elements.next();
-            final String group = element.getGroup();
-            ParquetWriter<Element> writer = null;
-            final Map<Integer, ParquetWriter<Element>> splitToWriter;
-            if (groupSplitToWriter.containsKey(group)) {
-                splitToWriter = groupSplitToWriter.get(group);
-            } else {
-                splitToWriter = new HashMap<>();
-                groupSplitToWriter.put(group, splitToWriter);
-            }
-            if (schemaUtils.getEntityGroups().contains(group)) {
-                writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Entity) element).getVertex(), group, ParquetStoreConstants.VERTEX);
-            } else if (schemaUtils.getEdgeGroups().contains(group)) {
-                writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Edge) element).getSource(), group, ParquetStoreConstants.SOURCE);
-            }
-            if (null != writer) {
-                writer.write(element);
-            } else {
-                LOGGER.warn("Skipped the adding of an Element with Group = {} as that group does not exist in the schema.", group);
-            }
+        if (elements instanceof CloseableIterable) {
+            ((CloseableIterable<? extends Element>) elements).close();
         }
     }
 
-    private ParquetWriter<Element> getWriter(final Map<Integer, ParquetWriter<Element>> splitToWriter,
-                                             final Map<Object, Integer> splitPoints,
-                                             final Object gafferObject, final String group, final String column) throws IOException {
-        final Object[] splits = splitPoints.keySet().toArray();
-        final int searchResult = Arrays.binarySearch(splits, gafferObject);
-        final int split;
-        if (searchResult < 0) {
-            if (searchResult == -1) {
-                split = 0;
-            } else {
-                split = -searchResult - 2;
+    private void writeElement(final Element element) throws IOException {
+        final String group = element.getGroup();
+        final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
+        // Get partition
+        final PartitionKey partitionKey = new PartitionKey(converter.corePropertiesToParquetObjects(element));
+        final int partition = graphPartitioner.getGroupPartitioner(group).getPartitionId(partitionKey);
+        // Get writer
+        final ParquetWriter<Element> writer = getWriter(partition, group, false);
+        if (null != writer) {
+            writer.write(element);
+        } else {
+            LOGGER.warn("Skipped the addition of an Element of group {} as that group does not exist in the schema.", group);
+        }
+    }
+
+    private void writeEdgeReversed(final Edge edge) throws IOException {
+        // Also write out edges partitioned as in the directory sorted by destination
+        final String group = edge.getGroup();
+        final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
+        // Get partition
+        final PartitionKey partitionKey = new PartitionKey(converter.corePropertiesToParquetObjectsForReversedEdge(edge));
+        final int partition = graphPartitioner.getGroupPartitionerForReversedEdges(group).getPartitionId(partitionKey);
+        // Get writer
+        final ParquetWriter<Element> writer = getWriter(partition, group, true);
+        if (null != writer) {
+            writer.write(edge);
+        } else {
+            LOGGER.warn("Skipped the addition of an Element of group {} as that group does not exist in the schema.", group);
+        }
+    }
+
+
+    private ParquetWriter<Element> getWriter(final int partition,
+                                             final String group,
+                                             final boolean reversed) throws IOException {
+        ParquetWriter<Element> writer;
+        if (!reversed) {
+            writer = groupToPartitionIdToWriter.get(group).get(partition);
+            if (null == writer) {
+                writer = buildWriter(group, reversed, partition);
             }
+            groupToPartitionIdToWriter.get(group).put(partition, writer);
         } else {
-            split = searchResult;
-        }
-        if (split < 0) {
-            LOGGER.error("split = {}: searchResult = {}: splits = {}: object = {}", split, searchResult, Arrays.toString(splits), gafferObject);
-        }
-        final boolean isEntity = ParquetStoreConstants.VERTEX.equals(column);
-        final ParquetWriter<Element> writer;
-        if (!splitToWriter.containsKey(split)) {
-            writer = buildWriter(group, column, isEntity, split);
-            splitToWriter.put(split, writer);
-        } else {
-            writer = splitToWriter.get(split);
+            writer = groupToPartitionIdToWriterForReversedEdges.get(group).get(partition);
+            if (null == writer) {
+                writer = buildWriter(group, reversed, partition);
+            }
+            groupToPartitionIdToWriterForReversedEdges.get(group).put(partition, writer);
         }
         return writer;
     }
 
-    private ParquetWriter<Element> buildWriter(final String group, final String column, final boolean isEntity, final int splitNumber) throws IOException {
-        LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + splitNumber);
-        final Path filePath = new Path(ParquetStore.getGroupDirectory(group, column,
-                tempFilesDir) + "/raw/split" + splitNumber + "/part-" + TaskContext.getPartitionId() + ".parquet");
-
-        return new ParquetElementWriter.Builder(filePath)
-                .isEntity(isEntity)
+    private ParquetWriter<Element> buildWriter(final String group,
+                                               final boolean reversed,
+                                               final Integer partitionId) throws IOException {
+        final String filename;
+        if (!reversed) {
+            filename = fileNameForGroupAndPartitionId.apply(group, partitionId)
+                    + "/part-" + TaskContext.getPartitionId() + ".parquet";
+        } else {
+            filename = fileNameForGroupAndPartitionIdForReversedEdges.apply(group, partitionId)
+                    + "/part-" + TaskContext.getPartitionId() + ".parquet";
+        }
+        final Path writerPath = new Path(filename);
+        LOGGER.info("Creating a new writer for group {}, partition id {} in path {}", group, partitionId, writerPath);
+        return new ParquetElementWriter.Builder(writerPath)
                 .withType(schemaUtils.getParquetSchema(group))
                 .usingConverter(schemaUtils.getConverter(group))
                 .withCompressionCodec(CompressionCodecName.UNCOMPRESSED)

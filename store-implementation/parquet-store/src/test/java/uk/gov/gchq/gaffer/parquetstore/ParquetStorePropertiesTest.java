@@ -31,7 +31,7 @@ public class ParquetStorePropertiesTest {
     private ParquetStoreProperties props;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         props = new ParquetStoreProperties();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.io.writer;
 
 import org.apache.parquet.io.api.Binary;
@@ -21,30 +22,40 @@ import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.Type;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class writes the Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}'s to Parquet files.
+ * This class writes the Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s to Parquet files.
  */
 public class ElementWriter {
+    private static final String KEY_VALUE = "key_value";
+    private static final String LIST = "list";
+
     private final RecordConsumer recordConsumer;
     private final GroupType schema;
     private final GafferGroupObjectConverter converter;
-    private static final String KEY_VALUE = "key_value";
-    private static final String LIST = "list";
 
     public ElementWriter(final RecordConsumer recordConsumer, final GroupType schema,
                          final GafferGroupObjectConverter converter) {
         this.recordConsumer = recordConsumer;
         this.schema = schema;
         this.converter = converter;
+    }
+
+    public void writeElement(final Element element) throws SerialisationException {
+        if (element instanceof Entity) {
+            write((Entity) element);
+        } else {
+            write((Edge) element);
+        }
     }
 
     public void write(final Entity entity) throws SerialisationException {
@@ -62,15 +73,15 @@ public class ElementWriter {
     }
 
     private int writeEntity(final Entity entity, final GroupType type) throws SerialisationException {
-        return writeGafferObject(ParquetStoreConstants.VERTEX, entity.getVertex(), type, 0);
+        return writeGafferObject(ParquetStore.VERTEX, entity.getVertex(), type, 0);
     }
 
     private int writeEdge(final Edge edge, final GroupType type) throws SerialisationException {
-        int currentFieldIndex = writeGafferObject(ParquetStoreConstants.SOURCE, edge.getSource(), type, 0);
-        currentFieldIndex = writeGafferObject(ParquetStoreConstants.DESTINATION, edge.getDestination(), type, currentFieldIndex);
-        recordConsumer.startField(ParquetStoreConstants.DIRECTED, currentFieldIndex);
+        int currentFieldIndex = writeGafferObject(ParquetStore.SOURCE, edge.getSource(), type, 0);
+        currentFieldIndex = writeGafferObject(ParquetStore.DESTINATION, edge.getDestination(), type, currentFieldIndex);
+        recordConsumer.startField(ParquetStore.DIRECTED, currentFieldIndex);
         recordConsumer.addBoolean(edge.getDirectedType().isDirected());
-        recordConsumer.endField(ParquetStoreConstants.DIRECTED, currentFieldIndex);
+        recordConsumer.endField(ParquetStore.DIRECTED, currentFieldIndex);
         return currentFieldIndex + 1;
     }
 
