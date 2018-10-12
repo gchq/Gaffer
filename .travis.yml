@@ -34,10 +34,10 @@ env:
     - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
 before_install: ./cd/before_install.sh
-install: travis_wait 45 ./cd/install.sh
+install: ./cd/install.sh
 script:
-  - travis_wait 45 ./cd/verify.sh
+  - ./cd/verify.sh
   - ./cd/deploy.sh
-after_success: travis_wait 45 ./cd/after_success.sh
+after_success: ./cd/after_success.sh
 
 before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
