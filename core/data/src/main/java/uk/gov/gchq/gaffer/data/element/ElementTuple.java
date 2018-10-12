@@ -28,6 +28,9 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
  * This class allows Elements to be used with the function module whilst minimising dependencies.
  */
 public class ElementTuple implements Tuple<String> {
+    public static final String ELEMENT = "ELEMENT";
+    public static final String PROPERTIES = "PROPERTIES";
+
     private Element element;
 
     public ElementTuple() {
@@ -47,6 +50,14 @@ public class ElementTuple implements Tuple<String> {
 
     @Override
     public Object get(final String reference) {
+        if (ELEMENT.equals(reference)) {
+            return element;
+        }
+
+        if (PROPERTIES.equals(reference)) {
+            return element.getProperties();
+        }
+
         final IdentifierType idType = IdentifierType.fromName(reference);
         if (null == idType) {
             return element.getProperty(reference);
@@ -62,6 +73,14 @@ public class ElementTuple implements Tuple<String> {
 
     @Override
     public void put(final String reference, final Object value) {
+        if (ELEMENT.equals(reference)) {
+            throw new IllegalArgumentException("You are not allowed to set an entire Element on this ElementTuple");
+        }
+
+        if (PROPERTIES.equals(reference)) {
+            element.copyProperties(((Properties) value));
+        }
+
         final IdentifierType idType = IdentifierType.fromName(reference);
 
         if (null == idType) {

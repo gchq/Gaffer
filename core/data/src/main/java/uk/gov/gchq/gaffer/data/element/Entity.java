@@ -90,6 +90,8 @@ public class Entity extends Element implements EntityId {
     @Override
     public Object getIdentifier(final IdentifierType identifierType) {
         switch (identifierType) {
+            case GROUP:
+                return getGroup();
             case VERTEX:
                 return getVertex();
             default:
@@ -100,6 +102,9 @@ public class Entity extends Element implements EntityId {
     @Override
     public void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
+            case GROUP:
+                setGroup((String) value);
+                break;
             case VERTEX:
                 vertex = value;
                 break;
@@ -134,6 +139,11 @@ public class Entity extends Element implements EntityId {
     @Override
     public Entity emptyClone() {
         return new Entity(this.getGroup(), this.getVertex());
+    }
+
+    @Override
+    public Entity shallowClone() {
+        return (Entity) super.shallowClone();
     }
 
     @Override

@@ -25,8 +25,9 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
- * An operation handler for {@link While} operations.
  * <p>
+ * An operation handler for {@link While} operations.
+ * </p>
  * The default handler has a maxRepeats field that can be overridden by system
  * administrators. The default value is set to 1000. To update this value,
  * create an operation declarations JSON file containing the While operation
@@ -46,7 +47,6 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * </pre>
  * and then register a path to the json file in your store properties
  * using the key gaffer.store.operation.declarations.
- * <p>
  */
 public class WhileHandler implements OutputOperationHandler<While<Object, Object>, Object> {
     private int maxRepeats = While.MAX_REPEATS;

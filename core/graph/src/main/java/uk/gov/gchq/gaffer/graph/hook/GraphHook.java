@@ -47,12 +47,12 @@ public interface GraphHook {
      * @param opChain the {@link OperationChain} being executed. This can be modified/optimised in any GraphHook.
      * @param context the {@link Context} in which the operation chain was executed. The context also holds a reference to the original operation chain.
      */
-    void preExecute(final OperationChain<?> opChain, final Context context);
+    default void preExecute(final OperationChain<?> opChain, final Context context) {
+    }
 
     /**
      * Called from {@link uk.gov.gchq.gaffer.graph.Graph} after an {@link OperationChain}
      * is executed.
-     * NOTE - if you do not wish to use this method you must still implement it and just return the result unmodified.
      *
      * @param result  the result from the operation chain
      * @param opChain the {@link OperationChain} that was executed. This can be modified/optimised in any GraphHook.
@@ -60,14 +60,15 @@ public interface GraphHook {
      * @param <T>     the result type
      * @return result object
      */
-    <T> T postExecute(final T result,
-                      final OperationChain<?> opChain,
-                      final Context context);
+    default <T> T postExecute(final T result,
+                              final OperationChain<?> opChain,
+                              final Context context) {
+        return result;
+    }
 
     /**
      * Called from {@link uk.gov.gchq.gaffer.graph.Graph} if an error occurs whilst
      * executing the {@link OperationChain}.
-     * NOTE - if you do not wish to use this method you must still implement it and just return the result unmodified.
      *
      * @param <T>     the result type
      * @param result  the result from the operation chain - likely to be null.
@@ -76,8 +77,10 @@ public interface GraphHook {
      * @param e       the exception
      * @return result object
      */
-    <T> T onFailure(final T result,
-                    final OperationChain<?> opChain,
-                    final Context context,
-                    final Exception e);
+    default <T> T onFailure(final T result,
+                            final OperationChain<?> opChain,
+                            final Context context,
+                            final Exception e) {
+        return result;
+    }
 }

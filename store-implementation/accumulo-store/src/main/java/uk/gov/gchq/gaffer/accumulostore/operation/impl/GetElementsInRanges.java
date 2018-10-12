@@ -49,7 +49,7 @@ public class GetElementsInRanges
         SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
@@ -71,12 +71,12 @@ public class GetElementsInRanges
 
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     @Override
@@ -113,7 +113,7 @@ public class GetElementsInRanges
     public GetElementsInRanges shallowClone() {
         return new GetElementsInRanges.Builder()
                 .input(input)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .view(view)
                 .directedType(directedType)
                 .options(options)

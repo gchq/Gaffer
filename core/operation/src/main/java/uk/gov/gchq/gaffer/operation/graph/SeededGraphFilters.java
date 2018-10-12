@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
+import uk.gov.gchq.koryphe.Summary;
+
 /**
  * A {@code SeededGraphFilters} operation is a {@link GraphFilters} operation with
  * the addition of filtering for {@link IncludeIncomingOutgoingType}s.
@@ -42,6 +44,7 @@ public interface SeededGraphFilters extends GraphFilters {
      * direction of the {@link uk.gov.gchq.gaffer.data.element.Edge}s during
      * the operation.
      */
+    @Summary("Should the edges point towards, or away from your seeds")
     enum IncludeIncomingOutgoingType {
         EITHER, INCOMING, OUTGOING
     }

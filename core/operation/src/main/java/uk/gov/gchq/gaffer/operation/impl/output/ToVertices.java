@@ -97,6 +97,7 @@ public class ToVertices implements
         this.options = options;
     }
 
+    @Summary("Choose whether to extract the edge vertices")
     public enum EdgeVertices {
         NONE,
         SOURCE,
@@ -104,6 +105,7 @@ public class ToVertices implements
         BOTH
     }
 
+    @Summary("Choose whether to extract vertices based on how the seeds match the edges")
     public enum UseMatchedVertex {
         IGNORE,
         EQUAL,

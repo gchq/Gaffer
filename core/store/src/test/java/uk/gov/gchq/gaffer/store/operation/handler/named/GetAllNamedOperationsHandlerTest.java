@@ -49,7 +49,7 @@ public class GetAllNamedOperationsHandlerTest {
 
     private final NamedOperationDetail expectedOperationDetailWithInputType = new NamedOperationDetail.Builder()
             .operationName("exampleOp")
-            .inputType("I_ITEM[]")
+            .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
             .creatorId(User.UNKNOWN_USER_ID)
             .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
             .readers(new ArrayList<>())

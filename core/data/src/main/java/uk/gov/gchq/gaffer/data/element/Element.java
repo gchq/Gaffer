@@ -143,6 +143,12 @@ public abstract class Element implements ElementId {
     @JsonIgnore
     public abstract Element emptyClone();
 
+    public Element shallowClone() {
+        final Element element = emptyClone();
+        element.setProperties(getProperties().clone());
+        return element;
+    }
+
     @JsonIgnore
     public abstract Object getIdentifier(final IdentifierType identifierType);
 

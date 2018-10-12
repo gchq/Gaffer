@@ -18,22 +18,30 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
+import uk.gov.gchq.gaffer.graph.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -47,7 +55,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -99,7 +110,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        final Pair<Object, String> resultAndJobId = _execute(operation);
+        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return Response.ok(resultAndJobId.getFirst())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -107,28 +118,77 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
-    public ChunkedOutput<String> executeChunked(final Operation operation) {
+    public Response executeChunked(final Operation operation) {
         return executeChunkedChain(OperationChain.wrap(operation));
     }
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+    public Response executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
+        final Throwable[] threadException = new Throwable[1];
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+        final Context context = userFactory.createContext();
 
-        // write chunks to the chunked output object
-        new Thread(() -> {
+        // create thread to write chunks to the chunked output object
+        Thread thread = new Thread(() -> {
             try {
-                final Object result = _execute(opChain).getFirst();
+                final Object result = _execute(opChain, context).getFirst();
                 chunkResult(result, output);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
             } finally {
                 CloseableUtil.close(output);
                 CloseableUtil.close(opChain);
             }
-        }).start();
+        });
 
-        return output;
+        // By default threads throw nothing, so set the ExceptionHandler
+        thread.setUncaughtExceptionHandler((thread1, exception) -> threadException[0] = exception.getCause());
+
+        thread.start();
+
+        // Sleep to check exception will be caught
+        try {
+            Thread.sleep(1000);
+        } catch (final InterruptedException e) {
+            return Response.status(INTERNAL_SERVER_ERROR)
+                    .entity(new Error.ErrorBuilder()
+                            .status(Status.INTERNAL_SERVER_ERROR)
+                            .statusCode(500)
+                            .simpleMessage(e.getMessage())
+                            .build())
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        }
+
+        // If there was an UnauthorisedException thrown return 403, else return a 500
+        if (null != threadException[0]) {
+            if (threadException.getClass().equals(UnauthorisedException.class)) {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.FORBIDDEN)
+                                .statusCode(403)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            } else {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.INTERNAL_SERVER_ERROR)
+                                .statusCode(500)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
+        }
+
+        // Return ok output
+        return Response.ok(output)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -208,16 +268,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> Pair<O, String> _execute(final Operation operation) {
+    protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
-        final Context context = userFactory.createContext();
         preOperationHook(opChain, context);
 
-        O result;
+        GraphResult<O> result;
         try {
-            result = graphFactory.getGraph().execute(opChain, context);
+            result = graphFactory.getGraph().execute(new GraphRequest<>(opChain, context));
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
             if (null != e.getMessage()) {
@@ -234,7 +293,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
         }
 
-        return new Pair<>(result, context.getJobId());
+        return new Pair<>(result.getResult(), result.getContext().getJobId());
     }
 
     protected void chunkResult(final Object result, final ChunkedOutput<String> output) {
@@ -276,7 +335,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         for (final String fieldString : fieldsToClassMap.keySet()) {
             boolean required = false;
+            String summary = null;
             Field field = null;
+            Set<String> enumOptions = null;
 
             try {
                 field = opClass.getDeclaredField(fieldString);
@@ -285,18 +346,31 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             }
 
             if (null != field) {
-                final Required[] annotations = field.getAnnotationsByType(Required.class);
+                required = null != field.getAnnotation(Required.class);
+                summary = getSummaryValue(field.getType());
 
-                if (null != annotations && annotations.length > 0) {
-                    required = true;
+                if (field.getType().isEnum()) {
+                    enumOptions = Stream
+                            .of(field.getType().getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.toSet());
                 }
             }
-            operationFields.add(new OperationField(fieldString, required, fieldsToClassMap.get(fieldString)));
+            operationFields.add(new OperationField(fieldString, summary, fieldsToClassMap.get(fieldString), enumOptions, required));
         }
+
         return operationFields;
     }
 
-    private static String getOperationSummaryValue(final Class<? extends Operation> opClass) {
+    private String getOperationOutputType(final Operation operation) {
+        String outputClass = null;
+        if (operation instanceof Output) {
+            outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
+        }
+        return outputClass;
+    }
+
+    private static String getSummaryValue(final Class<?> opClass) {
         final Summary summary = opClass.getAnnotation(Summary.class);
         return null != summary && null != summary.value() ? summary.value() : null;
     }
@@ -306,25 +380,80 @@ public class OperationServiceV2 implements IOperationServiceV2 {
      */
     private class OperationField {
         private final String name;
+        private final String summary;
         private String className;
+        private Set<String> options;
         private final boolean required;
 
-        OperationField(final String name, final boolean required, final String className) {
+        OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
             this.name = name;
-            this.required = required;
+            this.summary = summary;
             this.className = className;
+            this.options = options;
+            this.required = required;
         }
 
         public String getName() {
             return name;
         }
 
-        public boolean isRequired() {
-            return required;
+        public String getSummary() {
+            return summary;
         }
 
         public String getClassName() {
             return className;
+        }
+
+        public Set<String> getOptions() {
+            return options;
+        }
+
+        public boolean isRequired() {
+            return required;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationField that = (OperationField) o;
+
+            return new EqualsBuilder()
+                    .append(required, that.required)
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(className, that.className)
+                    .append(options, that.options)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(className)
+                    .append(options)
+                    .append(required)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("className", className)
+                    .append("options", options)
+                    .append("required", required)
+                    .toString();
         }
     }
 
@@ -338,10 +467,11 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final List<OperationField> fields;
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
+        private final String outputClassName;
 
         OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
-            this.summary = getOperationSummaryValue(opClass);
+            this.summary = getSummaryValue(opClass);
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
@@ -349,6 +479,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             } catch (final IllegalAccessException | InstantiationException e) {
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
+            this.outputClassName = getOperationOutputType(exampleJson);
         }
 
         public String getName() {
@@ -369,6 +500,53 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         public Operation getExampleJson() {
             return exampleJson;
+        }
+
+        public String getOutputClassName() {
+            return outputClassName;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final OperationDetail that = (OperationDetail) o;
+
+            return new EqualsBuilder()
+                    .append(name, that.name)
+                    .append(summary, that.summary)
+                    .append(fields, that.fields)
+                    .append(next, that.next)
+                    .append(exampleJson, that.exampleJson)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(name)
+                    .append(summary)
+                    .append(fields)
+                    .append(next)
+                    .append(exampleJson)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("name", name)
+                    .append("summary", summary)
+                    .append("fields", fields)
+                    .append("next", next)
+                    .append("exampleJson", exampleJson)
+                    .toString();
         }
     }
 }

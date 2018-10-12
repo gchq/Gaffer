@@ -82,7 +82,7 @@ public class JSONSerialiser {
     public static final String DEFAULT_SERIALISER_CLASS_NAME = JSONSerialiser.class.getName();
 
     public static final String STRICT_JSON = "gaffer.serialiser.json.strict";
-    public static final boolean STRICT_JSON_DEFAULT = true;
+    public static final boolean STRICT_JSON_DEFAULT = false;
     private static final String STRICT_JSON_DEFAULT_STR = Boolean.toString(STRICT_JSON_DEFAULT);
 
     public static final String FILTER_FIELDS_BY_NAME = "filterFieldsByName";

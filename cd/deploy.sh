@@ -10,6 +10,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
     git checkout master
     mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version
     POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
+    KORYPHE_POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=koryphe.version | grep -v '\['`
     echo "POM_VERSION = $POM_VERSION"
     if [[ "$POM_VERSION" == *SNAPSHOT ]]; then
         if [ -z "$GITHUB_TOKEN" ]; then
@@ -40,6 +41,12 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "Tagging version $RELEASE_VERSION"
         echo "--------------------------------------"
         mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
+
+        # Updating version properties in core-rest to update SystemProperties
+        sed -i'' -e 's/^gaffer.version=.*/gaffer.version='$RELEASE_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
+        sed -i'' -e 's/^koryphe.version=.*/koryphe.version='$KORYPHE_POM_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
+        rm -f rest-api/core-rest/src/main/resources/version.properties-e
+
         git commit -a -m "prepare release $artifactId-$RELEASE_VERSION"
         git tag $artifactId-$RELEASE_VERSION
         git push origin --tags
@@ -51,11 +58,14 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
         mvn -q javadoc:javadoc -Pquick
+        rm -rf travis_wait*
         git checkout gh-pages
         rm -rf uk
         mv target/site/apidocs/* .
+        git add .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
+        rm -rf travis_wait*
         git checkout master
 
         echo ""
@@ -75,10 +85,14 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         echo "Merging into develop and updating pom version"
         echo "--------------------------------------"
+        rm -rf travis_wait*
         git checkout develop
         git pull
         git merge master
         mvn release:update-versions -B
+        NEW_GAFFER_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=pom.version | grep -v '\['`
+        sed -i'' -e 's/^gaffer.version=.*/gaffer.version='$NEW_GAFFER_VERSION'/' rest-api/core-rest/src/main/resources/version.properties
+        rm -f rest-api/core-rest/src/main/resources/version.properties-e
         git commit -a -m "prepare for next development iteration"
         git push
     else

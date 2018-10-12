@@ -65,8 +65,6 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                         "  \"groupId\" : \"groupId\",%n" +
                         "  \"bootstrapServers\" : [ \"server1\", \"server2\" ],%n" +
                         "  \"parallelism\" : 2,%n" +
-                        "  \"validate\" : true,%n" +
-                        "  \"skipInvalidElements\" : false,%n" +
                         "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.generator.TestGeneratorImpl\"%n" +
                         "}").getBytes(),
                 json);

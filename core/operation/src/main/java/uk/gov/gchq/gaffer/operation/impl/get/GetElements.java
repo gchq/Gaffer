@@ -18,7 +18,10 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -49,7 +52,7 @@ import java.util.Map;
  * <li>Edges when their source, destination matches the EdgeId where the DirectedType of the EdgeId is {@code DirectedType.EITHER}</li>
  * <li>Edges when their source or destination match the EntityId's vertex</li>
  * </ul>
- * inOutType - what type of edges to include
+ * includeIncomingOutGoing - what type of edges to include
  * <ul>
  * <li>{@code IncludeIncomingOutgoingType.INCOMING} - only returns edges where the destination matches the vertex of EntityId</li>
  * <li>{@code IncludeIncomingOutgoingType.OUTGOING} - only returns edges where the source matches the vertex of EntityId</li>
@@ -70,9 +73,16 @@ public class GetElements implements
         MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
+
+    /**
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation.
+     */
     private SeedMatchingType seedMatching;
+
     private View view;
-    private IncludeIncomingOutgoingType inOutType;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing;
     private DirectedType directedType;
     private Iterable<? extends ElementId> input;
     private Map<String, String> options;
@@ -83,19 +93,27 @@ public class GetElements implements
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
     /**
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     *
      * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
      * matched to the identifiers in the graph.
      * @see SeedMatchingType
+     * @deprecated use a {@link View} instead to specify whether
+     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     * See filtering documentation
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      */
+    @Deprecated
     @Override
     public SeedMatchingType getSeedMatching() {
         return seedMatching;
@@ -104,14 +122,14 @@ public class GetElements implements
     /**
      * Gets the incomingOutGoingType for this operation which is used for filtering Edges.
      *
-     * @return inOutType an {@link IncludeIncomingOutgoingType}
+     * @return includeIncomingOutGoing an {@link IncludeIncomingOutgoingType}
      * that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
      * filtered out in the operation.
      * @see IncludeIncomingOutgoingType
      */
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
+        return includeIncomingOutGoing;
     }
 
     /**
@@ -124,7 +142,7 @@ public class GetElements implements
      */
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
+        this.includeIncomingOutGoing = inOutType;
     }
 
     /**
@@ -228,11 +246,58 @@ public class GetElements implements
         return new GetElements.Builder()
                 .seedMatching(seedMatching)
                 .view(view)
-                .inOutType(inOutType)
+                .inOutType(includeIncomingOutGoing)
                 .directedType(directedType)
                 .input(input)
                 .options(options)
                 .build();
+    }
+
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final GetElements getElements = (GetElements) obj;
+
+        return new EqualsBuilder()
+                .append(seedMatching, getElements.seedMatching)
+                .append(view, getElements.view)
+                .append(includeIncomingOutGoing, getElements.includeIncomingOutGoing)
+                .append(directedType, getElements.directedType)
+                .append(input, getElements.input)
+                .append(options, getElements.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(67, 23)
+                .append(options)
+                .append(input)
+                .append(directedType)
+                .append(includeIncomingOutGoing)
+                .append(view)
+                .append(seedMatching)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("options", options)
+                .append("input", input)
+                .append("includeIncomingOutGoing", includeIncomingOutGoing)
+                .append("view", view)
+                .append("seedMatching", seedMatching)
+                .append("directedType", directedType)
+                .toString();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>

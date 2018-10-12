@@ -282,10 +282,10 @@ public class DefaultScoreResolverTest {
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
         final ScoreResolver mockResolver = mock(NamedOperationScoreResolver.class);
-        final ScoreResolver mockResolver1 = mock(NamedOperationScoreResolver.class);
+        final ScoreResolver mockResolver1 = mock(DefaultScoreResolver.class);
 
-        final GetElements op1 = mock(GetElements.class);
-        final AddElements op2 = mock(AddElements.class);
+        final GetElements op1 = new GetElements();
+        final AddElements op2 = new AddElements();
         final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
         opScores.put(GetElements.class, 2);
 
