@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.api.java.JavaSparkContext;
@@ -25,9 +26,9 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -45,6 +46,7 @@ import java.util.TreeSet;
 public class TestUtils {
     public static TreeSet<String> MERGED_TREESET = getMergedTreeSet();
     public static FreqMap MERGED_FREQMAP = getMergedFreqMap();
+    public static FreqMap DOUBLED_MERGED_FREQMAP = getDoubledMergedFreqMap();
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
 
@@ -77,7 +79,7 @@ public class TestUtils {
 
     public static Schema gafferSchema(final String schemaFolder) {
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(TestUtils.class, schemaFolder));
-        final SchemaOptimiser schemaOptimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        final SchemaOptimiser schemaOptimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStore.SERIALISERS));
         return schemaOptimiser.optimise(schema, true);
     }
 
@@ -111,6 +113,14 @@ public class TestUtils {
         return f;
     }
 
+    private static FreqMap getDoubledMergedFreqMap() {
+        final FreqMap f = new FreqMap();
+        f.upsert("A", 4L);
+        f.upsert("B", 2L);
+        f.upsert("C", 2L);
+        return f;
+    }
+
     public static FreqMap getFreqMap1() {
         final FreqMap f = new FreqMap();
         f.upsert("A", 1L);
@@ -118,10 +128,24 @@ public class TestUtils {
         return f;
     }
 
+    public static FreqMap getDoubledFreqMap1() {
+        final FreqMap f = new FreqMap();
+        f.upsert("A", 2L);
+        f.upsert("B", 2L);
+        return f;
+    }
+
     public static FreqMap getFreqMap2() {
         final FreqMap f = new FreqMap();
         f.upsert("A", 1L);
         f.upsert("C", 1L);
+        return f;
+    }
+
+    public static FreqMap getDoubledFreqMap2() {
+        final FreqMap f = new FreqMap();
+        f.upsert("A", 2L);
+        f.upsert("C", 2L);
         return f;
     }
 
@@ -194,4 +218,6 @@ public class TestUtils {
         }
         return elementList;
     }
+
+
 }
