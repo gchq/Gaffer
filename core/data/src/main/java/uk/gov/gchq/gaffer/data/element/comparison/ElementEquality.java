@@ -40,7 +40,7 @@ public class ElementEquality extends KoryphePredicate2<Element, Element> {
     }
 
     public ElementEquality(final Set<String> groupByProperties) {
-        this.groupByProperties = groupByProperties;
+        this.groupByProperties.addAll(groupByProperties);
     }
 
     public ElementEquality(final String... groupByProperties) {

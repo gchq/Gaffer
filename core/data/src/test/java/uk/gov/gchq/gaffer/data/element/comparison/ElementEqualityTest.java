@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -23,6 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -44,6 +48,18 @@ public class ElementEqualityTest {
 
         // When / Then
         assertTrue(elementEquality.test(testEntity1, testEntity2));
+    }
+
+    @Test
+    public void shouldStaySameWithUpdatedSet() {
+        // Given
+        final Set<String> groupBys = Sets.newHashSet("one", "two");
+
+        final ElementEquality elementEquality = new ElementEquality(groupBys);
+
+        groupBys.remove("two");
+
+        assertEquals(Sets.newHashSet("one", "two"), elementEquality.getGroupByProperties());
     }
 
     @Test

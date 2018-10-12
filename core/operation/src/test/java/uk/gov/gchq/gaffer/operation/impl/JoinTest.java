@@ -68,18 +68,18 @@ public class JoinTest extends OperationTest<Join> {
         return new Join.Builder<>()
                 .input(Arrays.asList(1, 2, 3))
                 .operation(new GetAllElements.Builder().build())
-                .matchMethod(new TestMatch())
+                .matchMethod(new TestMatchImpl())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(new TestMerge())
+                .mergeMethod(new TestMergeImpl())
                 .collectionLimit(10)
                 .build();
     }
 
     /**
-     * private copy of the ElementMatch class using the count property to match by.
+     * Copy of the ElementMatch class using the count property to match by.
      */
-    public static class TestMatch implements Match{
+    public static class TestMatchImpl implements Match{
         @Override
         public List matching(final Object testObject, final List testList) {
             return testList;
@@ -87,9 +87,9 @@ public class JoinTest extends OperationTest<Join> {
     }
 
     /**
-     * private copy of the ElementMatch class using the count property to match by.
+     * Copy of the ElementMatch class using the count property to match by.
      */
-    public static class TestMerge implements Merge {
+    public static class TestMergeImpl implements Merge {
         @Override
         public List merge(final Iterable input) throws OperationException {
             return (List) input;
