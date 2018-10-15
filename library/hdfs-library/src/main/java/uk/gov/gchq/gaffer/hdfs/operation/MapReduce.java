@@ -134,6 +134,11 @@ public interface MapReduce {
             return _self();
         }
 
+        default B addInputMapperPair(final String inputPath, final Class<?> mapperGeneratorClass) {
+            _getOp().addInputMapperPair(inputPath, mapperGeneratorClass.getName());
+            return _self();
+        }
+
         default B outputPath(final String outputPath) {
             _getOp().setOutputPath(outputPath);
             return _self();

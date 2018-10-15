@@ -16,6 +16,12 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+/**
+ * Test schema types for use in Gaffer test classes.
+ *
+ * @deprecated Please use the equivalent TestTypes class in the store module
+ */
+@Deprecated
 public class TestTypes {
     public static final String TIMESTAMP = "timestamp";
     public static final String TIMESTAMP_2 = "timestamp2";

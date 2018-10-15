@@ -26,9 +26,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-
 public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final LongVertexOperationsTest lvot = new LongVertexOperationsTest();
 
