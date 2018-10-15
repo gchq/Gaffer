@@ -60,6 +60,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetVariable;
 import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
@@ -541,6 +542,7 @@ public class StoreTest {
                 If.class,
                 GetTraits.class,
                 While.class,
+                Join.class,
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
@@ -648,6 +650,7 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+                Join.class,
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
