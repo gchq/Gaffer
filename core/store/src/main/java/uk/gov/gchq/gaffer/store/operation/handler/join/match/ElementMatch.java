@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementEquality;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementJoinComparator;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 
 import java.util.ArrayList;
@@ -28,22 +28,22 @@ import java.util.Set;
  * Tests for matches for Elements within a Join Operation, groupBy properties can be optionally specified.
  */
 public class ElementMatch implements Match {
-    private ElementEquality elementEquality;
+    private ElementJoinComparator elementJoinComparator;
 
     public ElementMatch() {
-        elementEquality = new ElementEquality();
+        elementJoinComparator = new ElementJoinComparator();
     }
 
     public ElementMatch(final String... groupByProperties) {
-        elementEquality = new ElementEquality(groupByProperties);
+        elementJoinComparator = new ElementJoinComparator(groupByProperties);
     }
 
     public ElementMatch(final Set<String> groupByProperties) {
-        elementEquality = new ElementEquality(groupByProperties);
+        elementJoinComparator = new ElementJoinComparator(groupByProperties);
     }
 
     public void setElementGroupByProperties(final Set<String> groupByProperties) {
-        elementEquality.setGroupByProperties(groupByProperties);
+        elementJoinComparator.setGroupByProperties(groupByProperties);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ElementMatch implements Match {
         List matches = new ArrayList<>();
 
         for (final Object entry : testList) {
-            if (elementEquality.test((Element) entry, (Element) testObject)) {
+            if (elementJoinComparator.test((Element) entry, (Element) testObject)) {
                 matches.add(((Element) entry).shallowClone());
             }
         }

@@ -44,10 +44,10 @@ public class ElementEqualityTest {
 
         final Entity testEntity2 = testEntity1.shallowClone();
 
-        ElementEquality elementEquality = new ElementEquality();
+        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
-        assertTrue(elementEquality.test(testEntity1, testEntity2));
+        assertTrue(elementJoinComparator.test(testEntity1, testEntity2));
     }
 
     @Test
@@ -55,11 +55,11 @@ public class ElementEqualityTest {
         // Given
         final Set<String> groupBys = Sets.newHashSet("one", "two");
 
-        final ElementEquality elementEquality = new ElementEquality(groupBys);
+        final ElementJoinComparator elementJoinComparator = new ElementJoinComparator(groupBys);
 
         groupBys.remove("two");
 
-        assertEquals(Sets.newHashSet("one", "two"), elementEquality.getGroupByProperties());
+        assertEquals(Sets.newHashSet("one", "two"), elementJoinComparator.getGroupByProperties());
     }
 
     @Test
@@ -79,10 +79,10 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 5L)
                 .build();
 
-        ElementEquality elementEquality = new ElementEquality();
+        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
-        assertTrue(elementEquality.test(testEntity1, testEntity2));
+        assertTrue(elementJoinComparator.test(testEntity1, testEntity2));
     }
 
     @Test
@@ -102,10 +102,10 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 3L)
                 .build();
 
-        ElementEquality elementEquality = new ElementEquality();
+        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
-        assertFalse(elementEquality.test(testEntity1, testEntity2));
+        assertFalse(elementJoinComparator.test(testEntity1, testEntity2));
     }
 
     @Test
@@ -125,9 +125,9 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 5L)
                 .build();
 
-        ElementEquality elementEquality = new ElementEquality("count");
+        ElementJoinComparator elementJoinComparator = new ElementJoinComparator("count");
 
         // When / Then
-        assertFalse(elementEquality.test(testEntity1, testEntity2));
+        assertFalse(elementJoinComparator.test(testEntity1, testEntity2));
     }
 }

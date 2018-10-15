@@ -28,22 +28,22 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * An {@code ElementEquality} is a {@link KoryphePredicate2} that is
+ * An {@code ElementJoinComparator} is a {@link KoryphePredicate2} that is
  * used to compare if two {@link Element}s are equal.  Optional {@code GroupBy} properties
  * can be set, and will then be used within the comparison also.
  */
-public class ElementEquality extends KoryphePredicate2<Element, Element> {
+public class ElementJoinComparator extends KoryphePredicate2<Element, Element> {
     private Set<String> groupByProperties = new HashSet<>();
 
 
-    public ElementEquality() {
+    public ElementJoinComparator() {
     }
 
-    public ElementEquality(final Set<String> groupByProperties) {
+    public ElementJoinComparator(final Set<String> groupByProperties) {
         this.groupByProperties.addAll(groupByProperties);
     }
 
-    public ElementEquality(final String... groupByProperties) {
+    public ElementJoinComparator(final String... groupByProperties) {
         this.groupByProperties = Sets.newHashSet(groupByProperties);
     }
 

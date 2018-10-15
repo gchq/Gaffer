@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementEquality;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementJoinComparator;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
@@ -86,10 +86,10 @@ public abstract class JoinFunctionTest {
         @Override
         public List matching(final Object testObject, final List testList) {
             List matches = new ArrayList<>();
-            ElementEquality elementEquality = new ElementEquality(TestPropertyNames.COUNT);
+            ElementJoinComparator elementJoinComparator = new ElementJoinComparator(TestPropertyNames.COUNT);
 
             for (Object entry : testList) {
-                if (elementEquality.test((Element) entry, (Element) testObject)) {
+                if (elementJoinComparator.test((Element) entry, (Element) testObject)) {
                     matches.add(((Element) entry).shallowClone());
                 }
             }
