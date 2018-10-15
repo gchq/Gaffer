@@ -16,189 +16,271 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
-import org.junit.Before;
-
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
-import uk.gov.gchq.koryphe.impl.predicate.Or;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
-
-    @Before
-    public void setup() throws IOException, OperationException {
-        graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
-    }
 
     @Override
     protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
-    private static Iterable<? extends Element> getElements() {
+    @Override
+    public List<Element> getInputDataForGetAllElementsTest() {
         return DataGen.generate300TypeValueElements(false);
     }
 
     @Override
-    protected void setupSeeds() {
-        seedsList = new ArrayList<>(4);
-        seedsList.add(new EntitySeed(new TypeValue("type0", "vrt10")));
-        seedsList.add(new EntitySeed(new TypeValue("type2", "src17")));
-        seedsList.add(new EdgeSeed(new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true));
-        seedsList.add(new EdgeSeed(new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false));
+    public List<ElementSeed> getSeeds() {
+        final List<ElementSeed> seeds = new ArrayList<>();
+        seeds.add(new EntitySeed(new TypeValue("type0", "vrt10")));
+        seeds.add(new EntitySeed(new TypeValue("type2", "src17")));
+        seeds.add(new EdgeSeed(new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true));
+        return seeds;
     }
 
     @Override
-    protected void setupView() {
-        view = new View.Builder()
+    protected List<ElementSeed> getSeedsThatWontAppear() {
+        final List<ElementSeed> seeds = new ArrayList<>();
+        seeds.add(new EntitySeed(new TypeValue("type0", "vrt10000")));
+        seeds.add(new EntitySeed(new TypeValue("abc", "def")));
+        seeds.add(new EdgeSeed(new TypeValue("abc", "def"), new TypeValue("type0", "src0"), true));
+        return seeds;
+    }
+
+    @Override
+    protected View getView() {
+        return new View.Builder()
                 .edge(TestGroups.EDGE,
                         new ViewElementDefinition.Builder()
                                 .preAggregationFilter(
                                         new ElementFilter.Builder()
-                                                .select("treeSet", "double")
+                                                .select("double")
                                                 .execute(
-                                                        new Or.Builder()
-                                                                .select(0)
-                                                                .execute(new Not<>(new IsEqual(TestUtils.MERGED_TREESET)))
-                                                                .select(1)
-                                                                .execute(new IsMoreThan(3.0, true))
-                                                                .build())
+                                                        new IsMoreThan(3.0, true))
                                                 .build())
                                 .build())
                 .entity(TestGroups.ENTITY,
                         new ViewElementDefinition.Builder()
                                 .preAggregationFilter(
                                         new ElementFilter.Builder()
-                                                .select(ParquetStoreConstants.VERTEX + "_type")
-                                                .execute(new IsEqual("type0"))
+                                                .select(ParquetStore.VERTEX)
+                                                .execute(
+                                                        new Not<>(new IsEqual(new TypeValue("type0", "vrt10"))))
                                                 .build())
-                                .transientProperty(ParquetStoreConstants.VERTEX + "_type", String.class)
                                 .build())
                 .build();
     }
 
     @Override
-    protected void checkData(final Graph graph, final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(175);
-        final List<Element> actual = new ArrayList<>(175);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
+    public List<Element> getResultsForGetAllElementsTest() {
+        final List<Element> results = new ArrayList<>();
         for (int x = 0; x < 25; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
-            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, ""));
-
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2, ""));
-
-            expected.add(DataGen.getEntity(TestGroups.ENTITY, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         }
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        DataGen.generateBasicTypeValueEntitys(TestGroups.ENTITY_2, 50, false)
+                .stream()
+                .forEach(results::add);
+        StreamSupport
+                .stream(getInputDataForGetAllElementsTest().spliterator(), false)
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE_2))
+                .map(e -> (Edge) e)
+                .forEach(results::add);
+        return results;
     }
 
     @Override
-    protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(9);
-        final List<Element> actual = new ArrayList<>(9);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'a', 0.2, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, TestUtils.MERGED_TREESET, 71L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.5, 6f, TestUtils.MERGED_TREESET, 11L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, TestUtils.MERGED_TREESET, 71L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY_2, new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    protected List<Element> getResultsForGetAllElementsWithViewTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetAllElementsTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE))
+                .map(e -> (Edge) e)
+                .filter(e -> ((Double) e.getProperty("double")) >= 3.0)
+                .forEach(results::add);
+        getResultsForGetAllElementsTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.ENTITY))
+                .map(e -> (Entity) e)
+                .filter(e -> !e.getVertex().equals(new TypeValue("type0", "vrt10")))
+                .forEach(results::add);
+        return results;
     }
 
     @Override
-    protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(21);
-        final List<Element> actual = new ArrayList<>(21);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type0", "src15"), new TypeValue("type0", "dst16"), false, (byte) 'a', 3.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type0", "src15"), new TypeValue("type0", "dst16"), true, (byte) 'b', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type0", "src20"), new TypeValue("type0", "dst21"), false, (byte) 'a', 4.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type0", "src20"), new TypeValue("type0", "dst21"), true, (byte) 'b', 4.3, 6f, TestUtils.MERGED_TREESET, 125L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src16"), new TypeValue("type1", "dst17"), false, (byte) 'a', 3.2, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src16"), new TypeValue("type1", "dst17"), true, (byte) 'b', 3.5, 6f, TestUtils.MERGED_TREESET, 101L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src21"), new TypeValue("type1", "dst22"), false, (byte) 'a', 4.2, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type1", "src21"), new TypeValue("type1", "dst22"), true, (byte) 'b', 4.5, 6f, TestUtils.MERGED_TREESET, 131L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'a', 3.4000000000000004, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src22"), new TypeValue("type2", "dst23"), false, (byte) 'a', 4.4, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src22"), new TypeValue("type2", "dst23"), true, (byte) 'b', 4.7, 6f, TestUtils.MERGED_TREESET, 137L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type3", "src18"), new TypeValue("type3", "dst19"), false, (byte) 'a', 3.6, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type3", "src18"), new TypeValue("type3", "dst19"), true, (byte) 'b', 3.9, 6f, TestUtils.MERGED_TREESET, 113L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type3", "src23"), new TypeValue("type3", "dst24"), false, (byte) 'a', 4.6000000000000005, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type3", "src23"), new TypeValue("type3", "dst24"), true, (byte) 'b', 4.9, 6f, TestUtils.MERGED_TREESET, 143L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type4", "src14"), new TypeValue("type4", "dst15"), true, (byte) 'b', 3.1, 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type4", "src19"), new TypeValue("type4", "dst20"), false, (byte) 'a', 3.8000000000000003, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type4", "src19"), new TypeValue("type4", "dst20"), true, (byte) 'b', 4.1000000000000005, 6f, TestUtils.MERGED_TREESET, 119L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type4", "src24"), new TypeValue("type4", "dst25"), false, (byte) 'a', 4.800000000000001, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type4", "src24"), new TypeValue("type4", "dst25"), true, (byte) 'b', 5.1000000000000005, 6f, TestUtils.MERGED_TREESET, 149L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
-
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    protected List<Element> getResultsForGetAllElementsWithDirectedTypeTest() {
+        return getResultsForGetAllElementsTest().stream()
+                .filter(e -> e instanceof Entity || ((Edge) e).isDirected())
+                .collect(Collectors.toList());
     }
 
     @Override
-    protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(1);
-        final List<Element> actual = new ArrayList<>(1);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
+    protected List<Element> getResultsForGetAllElementsAfterTwoAdds() {
+        final List<Element> results = new ArrayList<>();
+        for (int x = 0; x < 25; x++) {
+            final String type = "type" + (x % 5);
+            final TypeValue src = new TypeValue(type, "src" + x);
+            final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
+            final TypeValue vrt = new TypeValue(type, "vrt" + x);
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, true, (byte) 'b', 2.0 * ((0.2 * x) + 0.3), 12f, TestUtils.MERGED_TREESET, 2L * ((6L * x) + 5L), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 2.0 * 0.2 * x, 4f, TestUtils.getTreeSet1(), 2L * 5L, (short) 12, TestUtils.DATE, TestUtils.getDoubledFreqMap1(), 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 2.0 * 0.3, 8f, TestUtils.getTreeSet2(), 2L * 6L * x, (short) 14, TestUtils.DATE1, TestUtils.getDoubledFreqMap2(), 2, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, vrt, (byte) 'b', 2.0 * 0.5, 14f, TestUtils.MERGED_TREESET, 2L * ((5L * x) + (6L * x)), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
         }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, ""));
+        // Elements for non-aggregating groups need to be added twice
+        for (int i = 0; i < 2; i++) {
+            getResultsForGetAllElementsTest().stream()
+                    .filter(e -> e.getGroup().equals(TestGroups.ENTITY_2) || e.getGroup().equals(TestGroups.EDGE_2))
+                    .forEach(results::add);
+        }
+        return results;
+    }
 
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    @Override
+    public List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
+        final List<Element> results = new ArrayList<>();
+        // Results from type0-vrt10 seed
+        final TypeValue t0v10 = new TypeValue("type0", "vrt10");
+        results.add(DataGen.getEntity(TestGroups.ENTITY, t0v10, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * 10) + (6L * 10), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY_2, t0v10, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * 10, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY_2, t0v10, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 10, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
+        // Results from type2-src17 seed
+        final TypeValue t2s17 = new TypeValue("type2", "src17");
+        final TypeValue t2d18 = new TypeValue("type2", "dst18");
+        results.add(DataGen.getEdge(TestGroups.EDGE, t2s17, t2d18, true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, t2s17, t2d18, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 17, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, t2s17, t2d18, false, (byte) 'a', 3.4000000000000004, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t2s17, t2d18, true, (byte) 'a', 0.2 * 17, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t2s17, t2d18, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 17, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t2s17, t2d18, false, (byte) 'a', 0.2 * 17, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t2s17, t2d18, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 17, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        // Results from edge seed type1-src11, type1-dst12, true
+        final TypeValue t1s11 = new TypeValue("type1", "src11");
+        final TypeValue t1d12 = new TypeValue("type1", "dst12");
+        results.add(DataGen.getEdge(TestGroups.EDGE, t1s11, t1d12, true, (byte) 'b', 0.2 * 11 + 0.3, 6f, TestUtils.MERGED_TREESET, 5L + 6L * 11, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t1s11, t1d12, true, (byte) 'a', 0.2 * 11, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t1s11, t1d12, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 11, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsEqualTest() {
+        final List<Element> results = new ArrayList<>();
+        // Results from type0-vrt10 seed
+        final TypeValue t0v10 = new TypeValue("type0", "vrt10");
+        results.add(DataGen.getEntity(TestGroups.ENTITY, t0v10, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * 10) + (6L * 10), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY_2, t0v10, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * 10, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY_2, t0v10, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 10, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
+        // Results from type2-src17 seed
+//        final TypeValue t2s17 = new TypeValue("type2", "src17");
+//        final TypeValue t2d18 = new TypeValue("type2", "dst18");
+        // Results from edge seed type1-src11, type1-dst12, true
+        final TypeValue t1s11 = new TypeValue("type1", "src11");
+        final TypeValue t1d12 = new TypeValue("type1", "dst12");
+        results.add(DataGen.getEdge(TestGroups.EDGE, t1s11, t1d12, true, (byte) 'b', 0.2 * 11 + 0.3, 6f, TestUtils.MERGED_TREESET, 5L + 6L * 11, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t1s11, t1d12, true, (byte) 'a', 0.2 * 11, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE_2, t1s11, t1d12, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * 11, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsAndViewTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE))
+                .map(e -> (Edge) e)
+                .filter(e -> ((Double) e.getProperty("double")) >= 3.0)
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.ENTITY))
+                .map(e -> (Entity) e)
+                .filter(e -> !e.getVertex().equals(new TypeValue("type0", "vrt10")))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithInOutTypeOutgoingTest() {
+        final TypeValue t0v10 = new TypeValue("type0", "vrt10");
+        final TypeValue t2s17 = new TypeValue("type2", "src17");
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .filter(e -> e.getVertex().equals(t0v10) || e.getVertex().equals(t2s17))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> e.isDirected())
+                .filter(e -> e.getSource().equals(t0v10) || e.getSource().equals(t2s17))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> !e.isDirected())
+                .filter(e -> e.getSource().equals(t0v10) || e.getSource().equals(t2s17)
+                        || e.getDestination().equals(t0v10) || e.getDestination().equals(t2s17))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithInOutTypeIncomingTest() {
+        final TypeValue t0v10 = new TypeValue("type0", "vrt10");
+        final TypeValue t2s17 = new TypeValue("type2", "src17");
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .filter(e -> e.getVertex().equals(t0v10) || e.getVertex().equals(t2s17))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> e.isDirected())
+                .filter(e -> e.getDestination().equals(t0v10) || e.getDestination().equals(t2s17))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> !e.isDirected())
+                .filter(e -> e.getSource().equals(t0v10) || e.getSource().equals(t2s17)
+                        || e.getDestination().equals(t0v10) || e.getDestination().equals(t2s17))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected Edge getEdgeWithIdenticalSrcAndDst() {
+        final TypeValue t0v10 = new TypeValue("type0", "vrt10");
+        return DataGen.getEdge(TestGroups.EDGE_2, t0v10, t0v10, true, (byte) 'a', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
     }
 }
