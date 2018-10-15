@@ -16,75 +16,69 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
-import org.junit.Before;
-
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
-
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import java.util.stream.Collectors;
 
 public class StringVertexOperationsTest extends AbstractOperationsTest {
-
-    @Before
-    public void setup() throws IOException, OperationException {
-        graph = getGraph();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), USER);
-    }
 
     @Override
     protected Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
-    private static Iterable<? extends Element> getElements() {
+    @Override
+    public List<Element> getInputDataForGetAllElementsTest() {
         return DataGen.generate300StringElementsWithNullProperties(false);
     }
 
     @Override
-    protected void setupSeeds() {
-        seedsList = new ArrayList<>(6);
-        seedsList.add(new EntitySeed("src5"));
-        seedsList.add(new EntitySeed("dst15"));
-        seedsList.add(new EntitySeed("vert10"));
-        seedsList.add(new EdgeSeed("src13", "dst13", true));
-        seedsList.add(new EntitySeed("dst7"));
-        seedsList.add(new EntitySeed("src2"));
+    public List<ElementSeed> getSeeds() {
+        final List<ElementSeed> seeds = new ArrayList<>();
+        seeds.add(new EntitySeed("vert10"));
+        seeds.add(new EntitySeed("src5"));
+        seeds.add(new EntitySeed("dst15"));
+        seeds.add(new EdgeSeed("src13", "dst13", true));
+        return seeds;
     }
 
     @Override
-    protected void setupView() {
-        view = new View.Builder()
+    protected List<ElementSeed> getSeedsThatWontAppear() {
+        final List<ElementSeed> seeds = new ArrayList<>();
+        seeds.add(new EntitySeed("vert100"));
+        seeds.add(new EntitySeed("notpresentvert100"));
+        seeds.add(new EntitySeed(""));
+        return seeds;
+    }
+
+    @Override
+    protected View getView() {
+        return new View.Builder()
                 .edge(TestGroups.EDGE,
                         new ViewElementDefinition.Builder()
                                 .preAggregationFilter(
                                         new ElementFilter.Builder()
-                                                .select(ParquetStoreConstants.SOURCE)
+                                                .select(ParquetStore.SOURCE)
                                                 .execute(new Or<>(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
                                                 .build())
                                 .build())
@@ -92,7 +86,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                         new ViewElementDefinition.Builder()
                                 .preAggregationFilter(
                                         new ElementFilter.Builder()
-                                                .select(ParquetStoreConstants.VERTEX)
+                                                .select(ParquetStore.VERTEX)
                                                 .execute(
                                                         new Not<>(new IsMoreThan("vert12", false)))
                                                 .build())
@@ -101,131 +95,175 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    protected void checkData(final Graph graph, final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(150);
-        final List<Element> actual = new ArrayList<>(150);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
+    public List<Element> getResultsForGetAllElementsTest() {
+        final List<Element> results = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, ""));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, ""));
-
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, ""));
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, ""));
-
-            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2, ""));
-            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2, ""));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2, null));
         }
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        DataGen.generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY_2, 50, false)
+                .stream()
+                .forEach(results::add);
+        getInputDataForGetAllElementsTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE_2))
+                .map(e -> (Edge) e)
+                .forEach(results::add);
+        return results;
     }
 
     @Override
-    protected void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(20);
-        final List<Element> actual = new ArrayList<>(20);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src2", "dst2", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src2", "dst2", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src2", "dst2", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src2", "dst2", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src5", "dst5", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src5", "dst5", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src15", "dst15", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src15", "dst15", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src7", "dst7", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src7", "dst7", false, null, null, null, null, null, null, null, null, 2, ""));
-
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    protected List<Element> getResultsForGetAllElementsWithViewTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetAllElementsTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE))
+                .map(e -> (Edge) e)
+                .filter(e -> ((String) e.getSource()).compareTo("src12") <= 0 || ((String) e.getSource()).compareTo("src4") >= 0)
+                .forEach(results::add);
+        getResultsForGetAllElementsTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.ENTITY))
+                .map(e -> (Entity) e)
+                .filter(e -> !(((String) e.getVertex()).compareTo("vert12") > 0))
+                .forEach(results::add);
+        return results;
     }
 
     @Override
-    protected void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(41);
-        final List<Element> actual = new ArrayList<>(41);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
-        }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src0", "dst0", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src0", "dst0", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src1", "dst1", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src1", "dst1", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src10", "dst10", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src10", "dst10", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src11", "dst11", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src11", "dst11", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src12", "dst12", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src12", "dst12", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src14", "dst14", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src16", "dst16", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src17", "dst17", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src18", "dst18", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src19", "dst19", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src2", "dst2", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src20", "dst20", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src21", "dst21", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src22", "dst22", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src23", "dst23", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src24", "dst24", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src3", "dst3", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src4", "dst4", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src4", "dst4", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src6", "dst6", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src6", "dst6", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src8", "dst8", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src8", "dst8", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src9", "dst9", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src9", "dst9", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert0", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert1", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert11", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert12", null, null, null, null, null, null, null, null, 2, ""));
-
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    protected List<Element> getResultsForGetAllElementsWithDirectedTypeTest() {
+        return getResultsForGetAllElementsTest().stream()
+                .filter(e -> e instanceof Entity || ((Edge) e).isDirected())
+                .collect(Collectors.toList());
     }
 
     @Override
-    protected void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(7);
-        final List<Element> actual = new ArrayList<>(7);
-        final Iterator<? extends Element> dataIter = data.iterator();
-        assertTrue(dataIter.hasNext());
-        while (dataIter.hasNext()) {
-            actual.add(dataIter.next());
+    protected List<Element> getResultsForGetAllElementsAfterTwoAdds() {
+        final List<Element> results = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 4, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 4, null));
         }
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src2", "dst2", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", false, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", true, null, null, null, null, null, null, null, null, 2, ""));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, "src7", "dst7", false, null, null, null, null, null, null, null, null, 2, ""));
+        // Elements for non-aggregating groups need to be added twice
+        for (int i = 0; i < 2; i++) {
+            getResultsForGetAllElementsTest().stream()
+                    .filter(e -> e.getGroup().equals(TestGroups.ENTITY_2) || e.getGroup().equals(TestGroups.EDGE_2))
+                    .forEach(results::add);
+        }
+        return results;
+    }
 
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+    @Override
+    public List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
+        final List<Element> results = new ArrayList<>();
+        // Results from vert10 seed
+        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, null));
+        for (int i = 0; i < 2; i++) {
+            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, null, 1, null));
+        }
+        // Results from src5 seed
+        for (final boolean directed : Arrays.asList(true, false)) {
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", directed, null, null, null, null, null, null, null, null, 2, null));
+            for (int i = 0; i < 2; i++) {
+                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src5", "dst5", directed, null, null, null, null, null, null, null, null, 1, null));
+            }
+        }
+        // Results from dst15 seed
+        for (final boolean directed : Arrays.asList(true, false)) {
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", directed, null, null, null, null, null, null, null, null, 2, null));
+            for (int i = 0; i < 2; i++) {
+                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src15", "dst15", directed, null, null, null, null, null, null, null, null, 1, null));
+            }
+        }
+        // Results from edge seed src13, dst13, true
+        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, null));
+        for (int i = 0; i < 2; i++) {
+            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, null, 1, null));
+        }
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsEqualTest() {
+        final List<Element> results = new ArrayList<>();
+        // Results from vert10 seed
+        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, null));
+        for (int i = 0; i < 2; i++) {
+            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, null, 1, null));
+        }
+        // Results from edge seed src13, dst13, true
+        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, null));
+        for (int i = 0; i < 2; i++) {
+            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, null, 1, null));
+        }
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsAndViewTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.EDGE))
+                .map(e -> (Edge) e)
+                .filter(e -> ((String) e.getSource()).compareTo("src12") <= 0 || ((String) e.getSource()).compareTo("src4") >= 0)
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e.getGroup().equals(TestGroups.ENTITY))
+                .map(e -> (Entity) e)
+                .filter(e -> !(((String) e.getVertex()).compareTo("vert12") > 0))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithInOutTypeOutgoingTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .filter(e -> e.getVertex().equals("vert10") || e.getVertex().equals("src5") || e.getVertex().equals("dst15"))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> e.isDirected())
+                .filter(e -> e.getSource().equals("vert10") || e.getSource().equals("src5") || e.getSource().equals("dst15"))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> !e.isDirected())
+                .filter(e -> e.getSource().equals("vert10") || e.getSource().equals("src5") || e.getSource().equals("dst15")
+                        || e.getDestination().equals("vert10") || e.getDestination().equals("src5") || e.getDestination().equals("dst15"))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithInOutTypeIncomingTest() {
+        final List<Element> results = new ArrayList<>();
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Entity)
+                .map(e -> (Entity) e)
+                .filter(e -> e.getVertex().equals("vert10") || e.getVertex().equals("src5") || e.getVertex().equals("dst15"))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> e.isDirected())
+                .filter(e -> e.getDestination().equals("vert10") || e.getDestination().equals("src5") || e.getDestination().equals("dst15"))
+                .forEach(results::add);
+        getResultsForGetElementsWithSeedsRelatedTest().stream()
+                .filter(e -> e instanceof Edge)
+                .map(e -> (Edge) e)
+                .filter(e -> !e.isDirected())
+                .filter(e -> e.getSource().equals("vert10") || e.getSource().equals("src5") || e.getSource().equals("dst15")
+                        || e.getDestination().equals("vert10") || e.getDestination().equals("src5") || e.getDestination().equals("dst15"))
+                .forEach(results::add);
+        return results;
+    }
+
+    @Override
+    protected Edge getEdgeWithIdenticalSrcAndDst() {
+        return DataGen.getEdge(TestGroups.EDGE_2, "src", "src", true, (byte) 'a', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
     }
 }

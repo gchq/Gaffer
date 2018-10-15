@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -46,6 +47,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
@@ -97,9 +99,41 @@ public class ParquetStoreTest {
         expectedTraits.add(StoreTrait.INGEST_AGGREGATION);
         expectedTraits.add(StoreTrait.PRE_AGGREGATION_FILTERING);
         expectedTraits.add(StoreTrait.ORDERED);
-        expectedTraits.add(StoreTrait.STORE_VALIDATION);
-        expectedTraits.add(StoreTrait.VISIBILITY);
+//        expectedTraits.add(StoreTrait.STORE_VALIDATION);
+//        expectedTraits.add(StoreTrait.VISIBILITY);
         assertEquals(expectedTraits, store.getTraits());
+    }
+
+    @Test
+    public void testMissingDataDirectory() {
+        // Given
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        properties.setTempFilesDir("/tmp/tmpdata");
+
+        // When / Then
+        try {
+            ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+        } catch (final IllegalArgumentException e) {
+            // Expected
+            return;
+        }
+        fail("IllegalArgumentException should have been thrown");
+    }
+
+    @Test
+    public void testMissingTmpDataDirectory() {
+        // Given
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        properties.setDataDir("/tmp/data");
+
+        // When / Then
+        try {
+            ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+        } catch (final IllegalArgumentException e) {
+            // Expected
+            return;
+        }
+        fail("IllegalArgumentException should have been thrown");
     }
 
     @Test

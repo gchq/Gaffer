@@ -94,4 +94,57 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>full</id>
+                        <phase>${shaded.jar.phase}</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>full
+                            </shadedClassifierName>
+                            <artifactSet>
+                                <includes>
+                                    <include>uk.gov.gchq.koryphe*</include>
+                                    <include>uk.gov.gchq.gaffer*</include>
+                                    <include>org.slf4j:slf4j-api</include>
+                                    <include>com.google.guava*</include>
+                                    <include>org.apache.commons:commons-lang3
+                                    </include>
+                                    <include>com.fasterxml.jackson.*:*</include>
+                                    <include>com.clearspring.analytics:stream
+                                    </include>
+                                    <include>com.yahoo.*</include>
+                                    <include>io.github.lukehutch*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>utility
+                            </shadedClassifierName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
