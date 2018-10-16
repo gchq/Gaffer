@@ -69,7 +69,7 @@ public class Queries {
                 .then(hop("RoadHasJunction"))
                 .then(getEntities("JunctionUse")
                         .view(createView()
-                                .filter("startDate", inDateRange().start("2000/01/01").end("2001/01/01"))
+                                .filter("startDate", inDateRange("2000/01/01", "2001/01/01"))
                                 .summarise()
                                 .filter("countByVehicleType", predicateMap().key("BUS").predicate(isMoreThan().value(1000L)))
                                 .transform("countByVehicleType", freqMapExtractor().key("BUS"), "busCount")))

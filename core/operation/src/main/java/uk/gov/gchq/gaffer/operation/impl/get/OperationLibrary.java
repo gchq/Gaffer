@@ -197,7 +197,7 @@ public class OperationLibrary {
                 if (tmpInput instanceof Object[]) {
                     op.setInput(((Object[]) tmpInput));
                 } else if (tmpInput instanceof Iterable) {
-                    op.setInput(tmpInput);
+                    op.setInput((Iterable) tmpInput);
                 } else {
                     op.setInput(new Object[]{tmpInput});
                 }
