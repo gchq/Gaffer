@@ -92,6 +92,16 @@ public class GetElements implements
         return this;
     }
 
+    public GetElements incoming() {
+        setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
+        return this;
+    }
+
+    public GetElements either() {
+        setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.EITHER);
+        return this;
+    }
+
     public GetElements view(final View view) {
         this.view = new View.Builder()
                 .merge(this.view)

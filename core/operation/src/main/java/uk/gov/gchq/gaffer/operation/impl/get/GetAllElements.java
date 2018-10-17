@@ -43,9 +43,32 @@ import java.util.Map;
 public class GetAllElements implements
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {
-    private View view;
+    private View view = new View();
     private DirectedType directedType;
     private Map<String, String> options;
+
+    public GetAllElements view(final View view) {
+        this.view = new View.Builder()
+                .merge(this.view)
+                .merge(view)
+                .build();
+        return this;
+    }
+
+    public GetAllElements directed() {
+        setDirectedType(DirectedType.DIRECTED);
+        return this;
+    }
+
+    public GetAllElements undirected() {
+        setDirectedType(DirectedType.UNDIRECTED);
+        return this;
+    }
+
+    public GetAllElements either() {
+        setDirectedType(DirectedType.EITHER);
+        return this;
+    }
 
     @Override
     public View getView() {

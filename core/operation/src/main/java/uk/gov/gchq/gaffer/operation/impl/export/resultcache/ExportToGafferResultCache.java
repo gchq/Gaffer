@@ -44,6 +44,16 @@ public class ExportToGafferResultCache<T> implements
     private T input;
     private Map<String, String> options;
 
+    public ExportToGafferResultCache key(final String key) {
+        setKey(key);
+        return this;
+    }
+
+    public ExportToGafferResultCache opAuths(final Set<String> opAuths) {
+        setOpAuths(opAuths);
+        return this;
+    }
+
     @Override
     public String getKey() {
         return key;

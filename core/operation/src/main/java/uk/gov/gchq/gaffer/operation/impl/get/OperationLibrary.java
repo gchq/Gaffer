@@ -16,12 +16,25 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.map.SingletonMap;
+
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.While;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -30,7 +43,12 @@ import uk.gov.gchq.gaffer.operation.io.MultiElementIdInput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.operation.util.OperationUtil;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static uk.gov.gchq.gaffer.data.elementdefinition.view.View.createView;
 
@@ -63,6 +81,86 @@ public class OperationLibrary {
         return getElements();
     }
 
+    public static GetAllElements getAll() {
+        return getAllElements();
+    }
+
+    public static AddElements addElements() {
+        return new AddElements();
+    }
+
+    public static AddNamedView addNamedView(final String name, final View view, final List<String> writeAccessRoles) {
+        return new AddNamedView.Builder().name(name).view(view).writeAccessRoles(writeAccessRoles).build();
+    }
+
+    public static AddNamedView addNamedView(final String name, final View view, final String... writeAccessRoles) {
+        return new AddNamedView.Builder().name(name).view(view).writeAccessRoles(Lists.newArrayList(writeAccessRoles)).build();
+    }
+
+    public static Aggregate aggregate() {
+        return new Aggregate();
+    }
+
+    public static Aggregate aggregateEdge(final String group, final AggregatePair pair) {
+        return new Aggregate.Builder().edge(group, pair).build();
+    }
+
+    public static Aggregate aggregateEntity(final String group, final AggregatePair pair) {
+        return new Aggregate.Builder().entity(group, pair).build();
+    }
+
+    public static Aggregate aggregateEdges(final Map<String, AggregatePair> edges) {
+        return new Aggregate.Builder().edges(edges).build();
+    }
+
+    public static Aggregate aggregateEntities(final Map<String, AggregatePair> entities) {
+        return new Aggregate.Builder().entities(entities).build();
+    }
+
+    public static CountGroups countGroups() {
+        return new CountGroups();
+    }
+
+    public static DeleteNamedView deleteNamedView(final String viewName) {
+        return new DeleteNamedView.Builder().name(viewName).build();
+    }
+
+    public static ExportToGafferResultCache exportToGafferResult(final String key, final Set<String> opAuths) {
+        return new ExportToGafferResultCache().key(key).opAuths(opAuths);
+    }
+
+    public static ExportToSet exportToSet(final String key) {
+        return new ExportToSet().key(key);
+    }
+
+    public static Filter filterEdge(final String group, final ElementFilter filter) {
+        return filterEdges(new SingletonMap(group, filter));
+    }
+
+    public static Filter filterEntity(final String group, final ElementFilter filter) {
+        return filterEntities(new SingletonMap(group, filter));
+    }
+
+    public static Filter filterEdges(final Map<String, ElementFilter> edges) {
+        return new Filter.Builder().edges(edges).build();
+    }
+
+    public static Filter filterEntities(final Map<String, ElementFilter> entities) {
+        return new Filter.Builder().entities(entities).build();
+    }
+
+    public static Filter filterAllEdges(final ElementFilter filter) {
+        return new Filter.Builder().globalEdges(filter).build();
+    }
+
+    public static Filter filterAllEntities(final ElementFilter filter) {
+        return new Filter.Builder().globalEntities(filter).build();
+    }
+
+    public static Filter filterAllElements(final ElementFilter filter) {
+        return new Filter.Builder().globalEdges(filter).build();
+    }
+
     public static GetElements getEntities(final String... entities) {
         return get().view(createView().entities(entities));
     }
@@ -73,6 +171,10 @@ public class OperationLibrary {
 
     public static GetElements getElements() {
         return new GetElements();
+    }
+
+    public static GetAllElements getAllElements() {
+        return new GetAllElements();
     }
 
     public static <I, O> If<I, O> condition() {

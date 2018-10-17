@@ -51,6 +51,11 @@ public class CountGroups implements
     public CountGroups() {
     }
 
+    public CountGroups limit(final Integer limit) {
+        this.limit = limit;
+        return this;
+    }
+
     public CountGroups(final Integer limit) {
         this.limit = limit;
     }

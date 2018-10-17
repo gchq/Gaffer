@@ -51,6 +51,11 @@ public class AddElements implements
     private Iterable<? extends Element> elements;
     private Map<String, String> options;
 
+    public AddElements skipInvalid() {
+        setSkipInvalidElements(true);
+        return this;
+    }
+
     @Override
     public boolean isValidate() {
         return validate;

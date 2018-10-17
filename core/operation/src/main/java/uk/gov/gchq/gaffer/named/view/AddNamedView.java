@@ -197,6 +197,11 @@ public class AddNamedView implements Operation {
             return _self();
         }
 
+        public Builder writeAccessRoles(final List<String> roles) {
+            _getOp().getWriteAccessRoles().addAll(roles);
+            return _self();
+        }
+
         public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             _getOp().setParameters(parameters);
             return _self();
