@@ -101,7 +101,7 @@ public class FilterValidator extends FunctionValidator<Filter> {
         if (null != elementDef) {
             final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
             for (final TupleAdaptedPredicate<String, ?> component : components) {
-                final Map<String, String> properties = elementDef.getPropertyMap();
+                final Map<String, String> properties = elementDef.getOrderedPropertyMap();
                 if (!properties.isEmpty()) {
                     if (null == component.getPredicate()) {
                         result.addError(filter.getClass().getSimpleName() + " contains a null function.");

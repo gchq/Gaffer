@@ -123,7 +123,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                     unsafeRef.getTimestamp(),
                     unsafeRef.isDeleted(), true);
 
-            schemaGroupBy = schema.getElement(this.group).getGroupBy();
+            schemaGroupBy = schema.getElement(this.group).getOrderedGroupBy();
             this.groupBy = groupBy;
             hasNext = _hasNext();
         }
@@ -278,7 +278,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             final ViewElementDefinition elementDef = view.getElement(group);
             Set<String> groupBy = elementDef.getGroupBy();
             if (null == groupBy) {
-                groupBy = schema.getElement(group).getGroupBy();
+                groupBy = schema.getElement(group).getOrderedGroupBy();
             }
 
             final Iterator<Properties> iter = new KeyValueIterator(

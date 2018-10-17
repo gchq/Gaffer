@@ -140,7 +140,7 @@ public class SchemaUtils {
             columnsToSortBy.add(ParquetStore.DIRECTED);
         }
         // Add group-by properties
-        final List<String> groupByProperties = new ArrayList<>(gafferSchema.getElement(group).getGroupBy());
+        final List<String> groupByProperties = new ArrayList<>(gafferSchema.getElement(group).getOrderedGroupBy());
         for (final String groupByProperty : groupByProperties) {
             final String[] paths = groupPaths.get(groupByProperty);
             if (null != paths && paths.length > 0) {
@@ -259,7 +259,7 @@ public class SchemaUtils {
             schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(BooleanParquetSerialiser.class.getCanonicalName()), ParquetStore.DIRECTED)).append("\n");
         }
 
-        Map<String, String> propertyMap = groupGafferSchema.getPropertyMap();
+        Map<String, String> propertyMap = groupGafferSchema.getOrderedPropertyMap();
         for (final Map.Entry<String, String> entry : propertyMap.entrySet()) {
             if (entry.getKey().contains("_") || entry.getKey().contains(".")) {
                 throw new SchemaException("The ParquetStore does not support properties which contain the characters '_' or '.'");

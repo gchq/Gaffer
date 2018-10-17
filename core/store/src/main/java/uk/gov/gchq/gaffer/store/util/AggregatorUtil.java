@@ -321,10 +321,10 @@ public final class AggregatorUtil {
                     + " which was not found in the schema");
         }
         if (null == schema.getVisibilityProperty() || !elDef.containsProperty(schema.getVisibilityProperty())) {
-            return elDef.getGroupBy();
+            return elDef.getOrderedGroupBy();
         }
 
-        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getGroupBy());
+        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getOrderedGroupBy());
         groupBy.add(schema.getVisibilityProperty());
         return groupBy;
     }
@@ -343,7 +343,7 @@ public final class AggregatorUtil {
                 throw new IllegalArgumentException("Received group " + group
                         + " which was not found in the schema");
             }
-            groupBy = elDef.getGroupBy();
+            groupBy = elDef.getOrderedGroupBy();
         }
         return groupBy;
     }

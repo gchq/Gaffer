@@ -123,7 +123,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
-        for (final String propertyName : elementDefinition.getProperties()) {
+        for (final String propertyName : elementDefinition.getOrderedProperties()) {
             if (isStoredInValue(propertyName, elementDefinition)) {
                 serialiseSizeAndPropertyValue(propertyName, elementDefinition, properties, stream);
             }
@@ -145,7 +145,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             int delimiterPosition = 0;
             final int arrayLength = bytes.length;
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
-            final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+            final Iterator<String> propertyNames = elementDefinition.getOrderedProperties().iterator();
             while (propertyNames.hasNext() && delimiterPosition < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
@@ -261,7 +261,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
-        for (final String groupByPropertyName : elementDefinition.getGroupBy()) {
+        for (final String groupByPropertyName : elementDefinition.getOrderedGroupBy()) {
             serialiseSizeAndPropertyValue(groupByPropertyName, elementDefinition, properties, stream);
         }
 
@@ -301,7 +301,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             int delimiterPosition = 0;
             final int arrayLength = bytes.length;
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
-            final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
+            final Iterator<String> propertyNames = elementDefinition.getOrderedGroupBy().iterator();
             while (propertyNames.hasNext() && delimiterPosition < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
@@ -334,7 +334,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         BytesAndRange rtn = new BytesAndRange(bytes, 0, 0);
         if (isColumnQualifierBytesValid(bytes, numProps)) {
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
-            if (numProps == elementDefinition.getProperties().size()) {
+            if (numProps == elementDefinition.getOrderedProperties().size()) {
                 rtn = new BytesAndRange(bytes, 0, bytes.length);
             } else {
                 int delimiterPosition = 0;
@@ -500,7 +500,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
-        return !elementDef.getGroupBy().contains(propertyName)
+        return !elementDef.getOrderedGroupBy().contains(propertyName)
                 && !propertyName.equals(schema.getVisibilityProperty())
                 && !propertyName.equals(timestampProperty);
     }

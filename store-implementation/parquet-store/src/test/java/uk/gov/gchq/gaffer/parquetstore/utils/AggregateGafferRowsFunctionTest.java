@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -59,11 +58,11 @@ public class AggregateGafferRowsFunctionTest {
         final String group = "BasicEntity";
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final GafferGroupObjectConverter converter = utils.getConverter(group);
-        final String[] gafferProperties = new String[elementSchema.getProperties().size()];
-        elementSchema.getProperties().toArray(gafferProperties);
+        final String[] gafferProperties = new String[elementSchema.getOrderedProperties().size()];
+        elementSchema.getOrderedProperties().toArray(gafferProperties);
         final byte[] aggregatorJson = JSONSerialiser.serialise(elementSchema.getIngestAggregator());
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
+                true, elementSchema.getOrderedGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
         final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), null);
         final GenericRowWithSchema row2 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'c', 0.7, 4f, TestUtils.getTreeSet2(), 7L, (short) 4, TestUtils.DATE, TestUtils.getFreqMap2(), null);
         final Row merged = aggregator.call(row1, row2);
@@ -91,10 +90,10 @@ public class AggregateGafferRowsFunctionTest {
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final byte[] aggregatorJson = JSONSerialiser.serialise(elementSchema.getIngestAggregator());
         final GafferGroupObjectConverter converter = utils.getConverter(group);
-        final String[] gafferProperties = new String[elementSchema.getProperties().size()];
-        elementSchema.getProperties().toArray(gafferProperties);
+        final String[] gafferProperties = new String[elementSchema.getOrderedProperties().size()];
+        elementSchema.getOrderedProperties().toArray(gafferProperties);
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                false, elementSchema.getGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
+                false, elementSchema.getOrderedGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
         final GenericRowWithSchema row1 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), null);
         final GenericRowWithSchema row2 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, TestUtils.getTreeSet2(), 7L, (short) 4, TestUtils.DATE, TestUtils.getFreqMap2(), null);
         final Row merged = aggregator.call(row1, row2);

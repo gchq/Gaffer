@@ -78,7 +78,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                 aggregator = null;
             } else {
                 final String group = elementCell.getGroup();
-                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
+                final Set<String> schemaGroupBy = schema.getElement(group).getOrderedGroupBy();
                 final ViewElementDefinition elementDef = view.getElement(group);
                 final Set<String> groupBy = null != elementDef ? elementDef.getGroupBy() : null;
                 if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {

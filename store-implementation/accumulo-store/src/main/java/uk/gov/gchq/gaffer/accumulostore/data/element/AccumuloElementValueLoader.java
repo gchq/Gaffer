@@ -61,7 +61,7 @@ public abstract class AccumuloElementValueLoader implements ElementValueLoader {
         }
 
         final Properties props;
-        if (eDef.getGroupBy().contains(name)) {
+        if (eDef.getOrderedGroupBy().contains(name)) {
             props = elementConverter.getPropertiesFromColumnQualifier(group, key.getColumnQualifierData().getBackingArray());
         } else if (name.equals(schema.getVisibilityProperty())) {
             props = elementConverter.getPropertiesFromColumnVisibility(group, key.getColumnVisibilityData().getBackingArray());

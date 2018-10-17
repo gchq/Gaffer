@@ -51,7 +51,7 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(new HashSet<>());
+        given(elementDef.getOrderedProperties()).willReturn(new HashSet<>());
 
         // When
         final ValidationResult result = validator.validateComponentTypes(elementDef);
@@ -71,7 +71,7 @@ public class SchemaElementDefinitionValidatorTest {
             properties.add(identifierType.name());
 
             given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-            given(elementDef.getProperties()).willReturn(properties);
+            given(elementDef.getOrderedProperties()).willReturn(properties);
 
             // When
             final ValidationResult result = validator.validateComponentTypes(elementDef);
@@ -89,7 +89,7 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
 
         given(elementDef.getIdentifiers()).willReturn(Sets.newSet(IdentifierType.DESTINATION, IdentifierType.SOURCE));
-        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2));
+        given(elementDef.getOrderedProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2));
 
         given(elementDef.getIdentifierClass(IdentifierType.DESTINATION)).willReturn((Class) Double.class);
         given(elementDef.getIdentifierClass(IdentifierType.SOURCE)).willReturn((Class) Long.class);
@@ -110,7 +110,7 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1));
+        given(elementDef.getOrderedProperties()).willReturn(Sets.newSet(TestPropertyNames.PROP_1));
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willThrow(new IllegalArgumentException());
 
         // When
@@ -229,8 +229,8 @@ public class SchemaElementDefinitionValidatorTest {
                 .build();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getOrderedProperties()).willReturn(properties.keySet());
+        given(elementDef.getOrderedPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
@@ -288,8 +288,8 @@ public class SchemaElementDefinitionValidatorTest {
                 .build();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getOrderedProperties()).willReturn(properties.keySet());
+        given(elementDef.getOrderedPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
@@ -317,9 +317,9 @@ public class SchemaElementDefinitionValidatorTest {
         properties.put(TestPropertyNames.PROP_1, "int");
         properties.put(TestPropertyNames.PROP_2, "string");
 
-        given(elementDef.getGroupBy()).willReturn(groupBys);
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getOrderedGroupBy()).willReturn(groupBys);
+        given(elementDef.getOrderedProperties()).willReturn(properties.keySet());
+        given(elementDef.getOrderedPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
@@ -342,7 +342,7 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
+        given(elementDef.getOrderedPropertyMap()).willReturn(Collections.emptyMap());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getFullAggregator()).willReturn(null);
         given(elementDef.isAggregate()).willReturn(true);

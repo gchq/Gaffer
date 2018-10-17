@@ -63,7 +63,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getPropertyMap()
+            elementDef.getOrderedPropertyMap()
                     .put("new property", "string");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
@@ -78,7 +78,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getIdentifierMap()
+            elementDef.getOrderedIdentifierMap()
                     .put(IdentifierType.SOURCE, "string");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
@@ -95,7 +95,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getGroupBy().add("property");
+            elementDef.getOrderedGroupBy().add("property");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
             assertNotNull(e);
@@ -264,7 +264,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // Then
-        assertEquals(2, elementDef.getProperties().size());
+        assertEquals(2, elementDef.getOrderedProperties().size());
         assertEquals(Integer.class, elementDef.getPropertyClass(TestPropertyNames.PROP_1));
         assertEquals(Object.class, elementDef.getPropertyClass(TestPropertyNames.PROP_2));
         assertSame(validator, elementDef.getOriginalValidator());
@@ -783,11 +783,11 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // Then
-        assertEquals(2, mergedDef.getProperties().size());
+        assertEquals(2, mergedDef.getOrderedProperties().size());
         assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
         assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_2));
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_2)),
-                mergedDef.getGroupBy());
+                mergedDef.getOrderedGroupBy());
     }
 
     @Test

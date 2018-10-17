@@ -70,7 +70,7 @@ public class SchemaElementDefinitionValidator {
     protected ValidationResult validatePropertyNames(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
 
-        for (final String property : elementDef.getProperties()) {
+        for (final String property : elementDef.getOrderedProperties()) {
             if (ReservedPropertyNames.contains(property)) {
                 LOGGER.warn("Element definition contains a reserved property name {}. " +
                         "This may prevent some analytics from being used on this graph.", property);
@@ -110,7 +110,7 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
-        for (final String propertyName : elementDef.getProperties()) {
+        for (final String propertyName : elementDef.getOrderedProperties()) {
             if (null != IdentifierType.fromName(propertyName)) {
                 result.addError("Property name " + propertyName + " is a reserved word. Please use a different property name.");
             } else {
@@ -168,7 +168,7 @@ public class SchemaElementDefinitionValidator {
     private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
 
-        if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
+        if (null == elementDef.getOrderedPropertyMap() || elementDef.getOrderedPropertyMap().isEmpty()) {
             // if no properties then no aggregation should be provided
             if (null != aggregator && !aggregator.getComponents().isEmpty()) {
                 result.addError("Groups with no properties should not have any aggregators");
@@ -177,7 +177,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         if (!elementDef.isAggregate()) {
-            if (!elementDef.getGroupBy().isEmpty()) {
+            if (!elementDef.getOrderedGroupBy().isEmpty()) {
                 result.addError("Groups with aggregation disabled should not have groupBy properties.");
             }
             return result;
@@ -217,7 +217,7 @@ public class SchemaElementDefinitionValidator {
                                         + ", by aggregate function: " + adaptedFunction.getBinaryOperator().getClass().getName());
                                 break;
                             } else {
-                                final boolean newContainsGroupByProp = elementDef.getGroupBy().contains(key);
+                                final boolean newContainsGroupByProp = elementDef.getOrderedGroupBy().contains(key);
                                 if (null == containsGroupByProp) {
                                     containsGroupByProp = newContainsGroupByProp;
                                 } else if (newContainsGroupByProp != containsGroupByProp) {
@@ -233,7 +233,7 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
-        final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
+        final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getOrderedProperties());
         propertyNamesTmp.removeAll(aggregatedProperties);
         if (!propertyNamesTmp.isEmpty()) {
             result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "

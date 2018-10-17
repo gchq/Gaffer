@@ -230,8 +230,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected String getAnEntityPropertyName() {
         final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());
         String propertyName = null;
-        if (null != entityDef && !entityDef.getProperties().isEmpty()) {
-            propertyName = entityDef.getProperties().iterator().next();
+        if (null != entityDef && !entityDef.getOrderedProperties().isEmpty()) {
+            propertyName = entityDef.getOrderedProperties().iterator().next();
         }
 
         return propertyName;
@@ -244,8 +244,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .entrySet()) {
                 // Try and find an entity that has properties
                 if (null != entry.getValue()
-                        .getProperties() && !entry.getValue()
-                        .getProperties()
+                        .getOrderedProperties() && !entry.getValue()
+                        .getOrderedProperties()
                         .isEmpty()) {
                     return entry.getKey();
                 }
@@ -260,8 +260,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected String getAnEdgePropertyName() {
         final SchemaElementDefinition edgeDef = getSchema().getEdge(getAnEdgeGroup());
         final String propertyName;
-        if (null != edgeDef && !edgeDef.getProperties().isEmpty()) {
-            propertyName = edgeDef.getProperties().iterator().next();
+        if (null != edgeDef && !edgeDef.getOrderedProperties().isEmpty()) {
+            propertyName = edgeDef.getOrderedProperties().iterator().next();
         } else {
             propertyName = "examplePropertyName";
         }
@@ -275,8 +275,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .entrySet()) {
                 // Try and find an edge that has properties
                 if (null != entry.getValue()
-                        .getProperties() && !entry.getValue()
-                        .getProperties()
+                        .getOrderedProperties() && !entry.getValue()
+                        .getOrderedProperties()
                         .isEmpty()) {
                     return entry.getKey();
                 }
@@ -297,7 +297,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     }
 
     protected void populateProperties(final Element element, final SchemaElementDefinition elementDef, final int uniqueId) {
-        for (final String property : elementDef.getProperties()) {
+        for (final String property : elementDef.getOrderedProperties()) {
             element.putProperty(property, getExampleValue(elementDef.getPropertyClass(property), uniqueId));
         }
     }

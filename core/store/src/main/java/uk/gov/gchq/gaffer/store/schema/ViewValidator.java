@@ -149,7 +149,7 @@ public class ViewValidator {
         final ValidationResult result = new ValidationResult();
         final Set<String> viewGroupBy = viewElDef.getGroupBy();
         if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
-            final Set<String> schemaGroupBy = schemaElDef.getGroupBy();
+            final Set<String> schemaGroupBy = schemaElDef.getOrderedGroupBy();
             if (null != schemaGroupBy && schemaGroupBy.containsAll(viewGroupBy)) {
                 if (isStoreOrdered) {
                     final LinkedHashSet<String> schemaGroupBySubset = Sets.newLinkedHashSet(Iterables.limit(schemaGroupBy, viewGroupBy.size()));

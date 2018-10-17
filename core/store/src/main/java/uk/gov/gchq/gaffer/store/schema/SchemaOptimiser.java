@@ -103,8 +103,8 @@ public class SchemaOptimiser {
         final Set<String> groupByTypes = new HashSet<>();
         final Set<String> otherTypes = new HashSet<>();
         for (final SchemaElementDefinition elDef : schemaElements) {
-            for (final String property : elDef.getProperties()) {
-                if (elDef.getGroupBy().contains(property)) {
+            for (final String property : elDef.getOrderedProperties()) {
+                if (elDef.getOrderedGroupBy().contains(property)) {
                     groupByTypes.add(elDef.getPropertyTypeName(property));
                 } else {
                     otherTypes.add(elDef.getPropertyTypeName(property));

@@ -76,7 +76,7 @@ public class AggregateDataForGroup implements Callable<CallableResult>, Serializ
         this.groupByColumns = new HashSet<>(AggregatorUtil.getIngestGroupBy(group, schemaUtils.getGafferSchema()));
         this.columnToPaths = schemaUtils.getColumnToPaths(group);
         this.isEntity = schemaUtils.getGafferSchema().getEntityGroups().contains(group);
-        final Set<String> propertiesSet = schemaUtils.getGafferSchema().getElement(group).getProperties();
+        final Set<String> propertiesSet = schemaUtils.getGafferSchema().getElement(group).getOrderedProperties();
         this.gafferProperties = new String[propertiesSet.size()];
         propertiesSet.toArray(this.gafferProperties);
         this.aggregatorSerialisedToJson = JSONSerialiser.serialise(schemaUtils.getGafferSchema()

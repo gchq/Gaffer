@@ -269,12 +269,12 @@ public class MapImpl {
 
     private void addToGroupByMap(final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
-        groupToGroupByProperties.put(group, sed.getGroupBy());
+        groupToGroupByProperties.put(group, sed.getOrderedGroupBy());
         if (!aggregatedGroups.contains(group)) {
             groupsWithNoAggregation.add(group);
         }
-        final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());
-        nonGroupByProperties.removeAll(sed.getGroupBy());
+        final Set<String> nonGroupByProperties = new HashSet<>(sed.getOrderedProperties());
+        nonGroupByProperties.removeAll(sed.getOrderedGroupBy());
         groupToNonGroupByProperties.put(group, nonGroupByProperties);
     }
 }

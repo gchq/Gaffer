@@ -233,7 +233,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                     fullAggregatorCache.getComponents().addAll(aggregator.getComponents());
                 }
                 final Set<String> aggregatorProperties = getAggregatorProperties();
-                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                for (final Entry<String, String> entry : getOrderedPropertyMap().entrySet()) {
                     if (!aggregatorProperties.contains(entry.getKey())) {
                         addTypeAggregateFunction(fullAggregatorCache, entry.getKey(), entry.getValue());
                     }
@@ -261,7 +261,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                         }
                     }
                 }
-                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                for (final Entry<String, String> entry : getOrderedPropertyMap().entrySet()) {
                     if (!aggregatorProperties.contains(entry.getKey())) {
                         if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
                             addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
@@ -290,7 +290,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 if (null == viewAggregator) {
                     viewAggregatorProps = Collections.emptySet();
                 } else {
-                    int size = getPropertyMap().size() - mergedGroupBy.size();
+                    int size = getOrderedPropertyMap().size() - mergedGroupBy.size();
                     if (size < 0) {
                         size = 0;
                     }
@@ -301,7 +301,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                     }
                 }
                 if (null == aggregator) {
-                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    for (final Entry<String, String> entry : getOrderedPropertyMap().entrySet()) {
                         if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
                             addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
@@ -316,7 +316,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                         }
                     }
                     final Set<String> aggregatorProperties = getAggregatorProperties();
-                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    for (final Entry<String, String> entry : getOrderedPropertyMap().entrySet()) {
                         if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
                             addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
@@ -375,14 +375,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             if (null != validator) {
                 fullValidatorTmp.setComponents(new ArrayList<>(validator.getComponents()));
             }
-            for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
+            for (final Entry<IdentifierType, String> entry : getOrderedIdentifierMap().entrySet()) {
                 final String key = entry.getKey().name();
                 if (includeIsA) {
                     addIsAFunction(fullValidatorTmp, key, entry.getValue());
                 }
                 addTypeValidatorFunctions(fullValidatorTmp, key, entry.getValue());
             }
-            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+            for (final Entry<String, String> entry : getOrderedPropertyMap().entrySet()) {
                 final String key = entry.getKey();
                 if (includeIsA) {
                     addIsAFunction(fullValidatorTmp, key, entry.getValue());
@@ -413,7 +413,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @JsonIgnore
     public Iterable<TypeDefinition> getPropertyTypeDefs() {
-        return new TransformIterable<String, TypeDefinition>(getPropertyMap().values()) {
+        return new TransformIterable<String, TypeDefinition>(getOrderedPropertyMap().values()) {
             @Override
             public void close() {
             }
@@ -427,7 +427,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     public TypeDefinition getPropertyTypeDef(final String property) {
         if (containsProperty(property)) {
-            return getTypeDef(getPropertyMap().get(property));
+            return getTypeDef(getOrderedPropertyMap().get(property));
         }
 
         return null;
@@ -687,7 +687,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS groupBy(final String... propertyName) {
             if (null != propertyName) {
-                Collections.addAll(elDef.getGroupBy(), propertyName);
+                Collections.addAll(elDef.getOrderedGroupBy(), propertyName);
             }
             return self();
         }
@@ -716,9 +716,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
             if (null != elementDef) {
                 if (elDef.properties.isEmpty()) {
-                    elDef.properties.putAll(elementDef.getPropertyMap());
+                    elDef.properties.putAll(elementDef.getOrderedPropertyMap());
                 } else {
-                    for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
+                    for (final Entry<String, String> entry : elementDef.getOrderedPropertyMap().entrySet()) {
                         final String typeName = elDef.getPropertyTypeName(entry.getKey());
                         if (null == typeName) {
                             elDef.properties.put(entry.getKey(), entry.getValue());
@@ -729,9 +729,9 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 }
 
                 if (elDef.identifiers.isEmpty()) {
-                    elDef.identifiers.putAll(elementDef.getIdentifierMap());
+                    elDef.identifiers.putAll(elementDef.getOrderedIdentifierMap());
                 } else {
-                    for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
+                    for (final Entry<IdentifierType, String> entry : elementDef.getOrderedIdentifierMap().entrySet()) {
                         elDef.identifiers.put(entry.getKey(), entry.getValue());
                     }
                 }
@@ -780,7 +780,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
-            elDef.getProperties().forEach(PropertiesUtil::validateName);
+            elDef.getOrderedProperties().forEach(PropertiesUtil::validateName);
             elDef.lock();
             return elDef;
         }
