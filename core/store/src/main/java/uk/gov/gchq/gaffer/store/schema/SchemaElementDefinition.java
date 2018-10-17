@@ -123,18 +123,37 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return elementDefValidator.validate(this);
     }
 
+    /**
+     * @return a set of properties
+     * @deprecated Use the {@code GetOrderedProperties()} which returns a LinkedHashSet to ensure ordering.
+     */
+    @Deprecated
     @JsonIgnore
     public Set<String> getProperties() {
         return properties.keySet();
+    }
+
+    @JsonIgnore
+    public LinkedHashSet<String> getOrderedProperties() {
+        return new LinkedHashSet<>(properties.keySet());
     }
 
     public boolean containsProperty(final String propertyName) {
         return properties.containsKey(propertyName);
     }
 
-    @JsonGetter("properties")
+    /**
+     * @return a map of properties.
+     * @deprecated Use the {@code getOrderedPropertyMap()} which returns a LinkedHashMap to ensure ordering.
+     */
+    @Deprecated
     public Map<String, String> getPropertyMap() {
         return Collections.unmodifiableMap(properties);
+    }
+
+    @JsonGetter("properties")
+    public LinkedHashMap<String, String> getOrderedPropertyMap() {
+        return new LinkedHashMap<>(Collections.unmodifiableMap(properties));
     }
 
     @JsonIgnore
@@ -142,9 +161,19 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return identifiers.keySet();
     }
 
+    /**
+     * @return the identifier map.
+     * @deprecated Use the {@code getOrderedIdentifierMap()} which returns a LinkedHashMap to ensure ordering.
+     */
     @JsonIgnore
+    @Deprecated
     public Map<IdentifierType, String> getIdentifierMap() {
         return identifiers;
+    }
+
+    @JsonIgnore
+    public LinkedHashMap<IdentifierType, String> getOrderedIdentifierMap() {
+        return new LinkedHashMap<>(identifiers);
     }
 
     public boolean containsIdentifier(final IdentifierType identifierType) {
@@ -414,8 +443,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != typeName ? getTypeDef(typeName).getClazz() : null;
     }
 
+    /**
+     * @deprecated Use the {@code getOrderedGroupBy()} which returns a LinkedHashSet to ensure ordering.
+     */
+    @Deprecated
     public Set<String> getGroupBy() {
         return groupBy;
+    }
+
+    public LinkedHashSet<String> getOrderedGroupBy() {
+        return new LinkedHashSet<>(groupBy);
     }
 
     @JsonIgnore

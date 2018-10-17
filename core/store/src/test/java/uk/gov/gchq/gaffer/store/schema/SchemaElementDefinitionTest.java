@@ -35,6 +35,10 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -808,6 +812,54 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("property"));
         }
+    }
+
+    @Test
+    public void propertyKeysShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .property(TestPropertyNames.PROP_1, "string")
+                .build();
+
+        // When
+        Set propsSet = elementDef.getOrderedProperties();
+
+        assertTrue(propsSet instanceof LinkedHashSet);
+    }
+
+    @Test
+     public void propertiesShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .property(TestPropertyNames.PROP_1, "string")
+                .build();
+
+        // When
+        Map propsMap = elementDef.getOrderedPropertyMap();
+
+        assertTrue(propsMap instanceof LinkedHashMap);
+    }
+
+    @Test
+    public void groupBysShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .groupBy("groupBy")
+                .build();
+
+        // When
+        Set groupBySet = elementDef.getOrderedGroupBy();
+
+        assertTrue(groupBySet instanceof LinkedHashSet);
+    }
+
+    @Test
+    public void identifierMapShouldBeInstanceOfLinkedHashMap() {
+        final T elementDef = createBuilder()
+                .identifier(IdentifierType.DESTINATION, "testType")
+                .build();
+
+        // When
+        Map identifierMap = elementDef.getOrderedIdentifierMap();
+
+        assertTrue(identifierMap instanceof LinkedHashMap);
     }
 
     protected void setupSchema(final T elementDef) {
