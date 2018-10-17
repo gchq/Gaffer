@@ -42,11 +42,6 @@ public class ExportToSet<T> implements
     private T input;
     private Map<String, String> options;
 
-    public ExportToSet key(final String key) {
-        setKey(key);
-        return this;
-    }
-
     @Override
     public String getKey() {
         return key;

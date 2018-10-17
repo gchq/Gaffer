@@ -51,6 +51,11 @@ public class Validate implements
     private Iterable<? extends Element> input;
     private Map<String, String> options;
 
+    public Validate skipInvalid() {
+        setSkipInvalidElements(true);
+        return this;
+    }
+
     @Override
     public boolean isSkipInvalidElements() {
         return skipInvalidElements;

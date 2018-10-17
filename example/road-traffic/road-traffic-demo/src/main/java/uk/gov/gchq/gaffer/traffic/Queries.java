@@ -31,12 +31,12 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 
 import static uk.gov.gchq.gaffer.data.elementdefinition.view.View.createView;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.deduplicate;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.getEntities;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.hop;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.input;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.sort;
-import static uk.gov.gchq.gaffer.operation.impl.get.OperationLibrary.toCsv;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.deduplicate;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.getEntities;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.hop;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.input;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.sort;
+import static uk.gov.gchq.gaffer.operation.OperationLibrary.toCsv;
 import static uk.gov.gchq.gaffer.types.function.TypeFunctionLibrary.freqMapExtractor;
 import static uk.gov.gchq.koryphe.impl.predicate.PredicateLibrary.inDateRange;
 import static uk.gov.gchq.koryphe.impl.predicate.PredicateLibrary.isMoreThan;
