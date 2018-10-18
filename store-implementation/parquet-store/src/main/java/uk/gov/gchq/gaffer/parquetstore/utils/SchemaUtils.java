@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
-import org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetToSparkSchemaConverter;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +217,7 @@ public class SchemaUtils {
     }
 
     public StructType buildSparkSchema(final String group) {
-        final StructType sType = new ParquetSchemaConverter(false, false, false, false).convert(getParquetSchema(group));
+        final StructType sType = new ParquetToSparkSchemaConverter(false, false).convert(getParquetSchema(group));
         groupToSparkSchema.put(group, sType);
         return sType;
     }
