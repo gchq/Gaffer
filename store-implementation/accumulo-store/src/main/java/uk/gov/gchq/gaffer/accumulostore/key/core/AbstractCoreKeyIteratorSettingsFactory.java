@@ -202,7 +202,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 }
                 ViewElementDefinition viewElementDefinition = view.getEdge(edgeGroup);
                 if ((null != viewElementDefinition && null != viewElementDefinition.getGroupBy())
-                        && (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
+                        && (edgeDefinition.getOrderedGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
                     return true;
                 }
             }
@@ -215,7 +215,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 }
                 ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
                 if ((null != viewElementDefinition.getGroupBy())
-                        && (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
+                        && (entityDefinition.getOrderedGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
                     return true;
                 }
             }

@@ -112,7 +112,7 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
                 for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
                     final String[] selection = component.getSelection();
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
-                    final Map<String, String> properties = elementDef.getPropertyMap();
+                    final Map<String, String> properties = elementDef.getOrderedPropertyMap();
 
                     if (!properties.isEmpty()) {
                         if (null == component.getBinaryOperator()) {

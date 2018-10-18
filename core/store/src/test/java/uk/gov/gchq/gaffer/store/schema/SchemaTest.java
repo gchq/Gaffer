@@ -124,14 +124,14 @@ public class SchemaTest {
         assertNotNull(edgeDefinition);
         assertEquals(EDGE_DESCRIPTION, edgeDefinition.getDescription());
 
-        final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
+        final Map<String, String> propertyMap = edgeDefinition.getOrderedPropertyMap();
         assertEquals(3, propertyMap.size());
         assertEquals("prop.string", propertyMap.get(TestPropertyNames.PROP_2));
         assertEquals("prop.date", propertyMap.get(TestPropertyNames.DATE));
         assertEquals("timestamp", propertyMap.get(TestPropertyNames.TIMESTAMP));
 
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.DATE)),
-                edgeDefinition.getGroupBy());
+                edgeDefinition.getOrderedGroupBy());
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
@@ -192,7 +192,7 @@ public class SchemaTest {
         assertEquals(ENTITY_DESCRIPTION, entityDefinition.getDescription());
         assertTrue(entityDefinition.containsProperty(TestPropertyNames.PROP_1));
         type = entityDefinition.getPropertyTypeDef(TestPropertyNames.PROP_1);
-        assertEquals(0, entityDefinition.getGroupBy().size());
+        assertEquals(0, entityDefinition.getOrderedGroupBy().size());
         assertEquals(STRING_TYPE_DESCRIPTION, type.getDescription());
         assertEquals(String.class, type.getClazz());
         assertNull(type.getSerialiser());
@@ -455,13 +455,13 @@ public class SchemaTest {
 
         assertEquals(1, edges.size());
         final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
-        assertEquals(3, edgeGroup.getProperties().size());
+        assertEquals(3, edgeGroup.getOrderedProperties().size());
 
         final Map<String, SchemaEntityDefinition> entities = deserialisedSchema.getEntities();
 
         assertEquals(1, entities.size());
         final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
-        assertEquals(3, entityGroup.getProperties().size());
+        assertEquals(3, entityGroup.getOrderedProperties().size());
 
         assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
         assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
@@ -548,16 +548,16 @@ public class SchemaTest {
 
         // Then
         assertEquals(2, mergedSchema.getEdges().size());
-        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
-        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
-        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().size());
-        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().get(TestPropertyNames.PROP_2));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getOrderedPropertyMap().size());
+        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getOrderedPropertyMap().get(TestPropertyNames.PROP_1));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getOrderedPropertyMap().size());
+        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getOrderedPropertyMap().get(TestPropertyNames.PROP_2));
 
         assertEquals(2, mergedSchema.getEntities().size());
-        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().size());
-        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().get(TestPropertyNames.COUNT));
-        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().size());
-        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getOrderedPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getOrderedPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getOrderedPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getOrderedPropertyMap().get(TestPropertyNames.COUNT));
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
@@ -610,16 +610,16 @@ public class SchemaTest {
 
         // Then
         assertEquals(2, mergedSchema.getEdges().size());
-        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
-        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
-        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().size());
-        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().get(TestPropertyNames.PROP_2));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getOrderedPropertyMap().size());
+        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getOrderedPropertyMap().get(TestPropertyNames.PROP_1));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getOrderedPropertyMap().size());
+        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getOrderedPropertyMap().get(TestPropertyNames.PROP_2));
 
         assertEquals(2, mergedSchema.getEntities().size());
-        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().size());
-        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().get(TestPropertyNames.COUNT));
-        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().size());
-        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getOrderedPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getOrderedPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getOrderedPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getOrderedPropertyMap().get(TestPropertyNames.COUNT));
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
@@ -790,7 +790,7 @@ public class SchemaTest {
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
-                schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
+                schema.getEdge(TestGroups.EDGE_4).getOrderedProperties().toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -799,12 +799,12 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
-                schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
+                schema.getEdge(TestGroups.EDGE_5).getOrderedProperties().toArray());
 
         assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
         assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getOrderedGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getOrderedGroupBy().toArray());
 
         // Check entities
         assertArrayEquals(new String[]{
@@ -813,7 +813,7 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
                 schema.getEntity(TestGroups.ENTITY_4)
-                        .getProperties()
+                        .getOrderedProperties()
                         .toArray());
 
         // Check order of properties and overrides is from order of parents
@@ -824,13 +824,13 @@ public class SchemaTest {
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
                 schema.getEntity(TestGroups.ENTITY_5)
-                        .getProperties()
+                        .getOrderedProperties()
                         .toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getOrderedGroupBy().toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -864,7 +864,7 @@ public class SchemaTest {
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
-                schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
+                schema.getEdge(TestGroups.EDGE_4).getOrderedProperties().toArray());
 
         // Then - check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -873,7 +873,7 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
-                schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
+                schema.getEdge(TestGroups.EDGE_5).getOrderedProperties().toArray());
     }
 
     @Test
@@ -913,7 +913,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
-                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE_2).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -972,7 +972,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
-                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE_2).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -992,7 +992,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
-                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE_2).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -1011,7 +1011,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
-                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE_2).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -1031,7 +1031,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
-                schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE).getOrderedGroupBy().toArray());
     }
 
     @Test
@@ -1052,7 +1052,7 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
-                schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+                schema.getEdge(TestGroups.EDGE).getOrderedGroupBy().toArray());
     }
 
     @Test

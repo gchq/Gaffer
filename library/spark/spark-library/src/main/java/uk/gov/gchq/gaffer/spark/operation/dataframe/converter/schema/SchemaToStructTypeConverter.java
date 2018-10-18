@@ -160,7 +160,7 @@ public class SchemaToStructTypeConverter {
                 structFieldList.add(new StructField(DIRECTED_COL_NAME, DataTypes.BooleanType, true, Metadata.empty()));
                 structFieldList.add(new StructField(MATCHED_VERTEX_COL_NAME, DataTypes.StringType, true, Metadata.empty()));
             }
-            final Set<String> properties = elementDefn.getProperties();
+            final Set<String> properties = elementDefn.getOrderedProperties();
             for (final String property : properties) {
                 if (!ReservedPropertyNames.contains(property)) {
                     // Check if property is of a known type that can be handled by default

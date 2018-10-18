@@ -59,7 +59,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
             if (!hasValidation && def.hasValidation()) {
                 hasValidation = true;
             }
-            if (!hasGroupBy && CollectionUtils.isNotEmpty(def.getGroupBy())) {
+            if (!hasGroupBy && CollectionUtils.isNotEmpty(def.getOrderedGroupBy())) {
                 hasGroupBy = true;
             }
             if (hasGroupBy && hasValidation) {

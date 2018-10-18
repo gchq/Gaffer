@@ -298,12 +298,12 @@ public class FiltersToOperationConverter {
     private Set<String> getGroupsThatHaveProperty(final String property) {
         final Set<String> groups = new HashSet<>();
         for (final String entityGroup : schema.getEntityGroups()) {
-            if (schema.getEntity(entityGroup).getProperties().contains(property)) {
+            if (schema.getEntity(entityGroup).getOrderedProperties().contains(property)) {
                 groups.add(entityGroup);
             }
         }
         for (final String edgeGroup : schema.getEdgeGroups()) {
-            if (schema.getEdge(edgeGroup).getProperties().contains(property)) {
+            if (schema.getEdge(edgeGroup).getOrderedProperties().contains(property)) {
                 groups.add(edgeGroup);
             }
         }

@@ -57,7 +57,7 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
     }
 
     protected void serialiseProperties(final Properties properties, final SchemaElementDefinition elementDefinition, final ByteArrayOutputStream out) throws SerialisationException {
-        for (final String propertyName : elementDefinition.getProperties()) {
+        for (final String propertyName : elementDefinition.getOrderedProperties()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             final ToBytesSerialiser<Object> serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             LengthValueBytesSerialiserUtil.serialise(serialiser, properties.get(propertyName), out);
@@ -66,7 +66,7 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
 
     protected void deserialiseProperties(final byte[] bytes, final Properties properties, final SchemaElementDefinition elementDefinition, final int[] delimiter) throws SerialisationException {
         final int arrayLength = bytes.length;
-        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+        final Iterator<String> propertyNames = elementDefinition.getOrderedProperties().iterator();
         while (propertyNames.hasNext() && delimiter[0] < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);

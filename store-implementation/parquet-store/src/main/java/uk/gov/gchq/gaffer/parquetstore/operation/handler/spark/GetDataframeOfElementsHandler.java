@@ -51,7 +51,7 @@
 //    public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
 //                                    final Context context,
 //                                    final Store store) throws OperationException {
-//        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
+//        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getOrderedProperties());
 //        final User user = context.getUser();
 //        final Authorisations auths;
 //        final String visibility;

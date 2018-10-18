@@ -52,7 +52,7 @@ public interface ElementKey {
     }
 
     static ElementKey create(final Element element, final SchemaElementDefinition elementDef) {
-        return create(element, null != elementDef ? elementDef.getGroupBy() : null);
+        return create(element, null != elementDef ? elementDef.getOrderedGroupBy() : null);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")

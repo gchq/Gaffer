@@ -80,7 +80,7 @@ public class TransformValidator extends FunctionValidator<Transform> {
         if (null != elementDef) {
             final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
             for (final TupleAdaptedFunction<String, ?, ?> component : components) {
-                final Map<String, String> properties = elementDef.getPropertyMap();
+                final Map<String, String> properties = elementDef.getOrderedPropertyMap();
                 if (!properties.isEmpty()) {
                     if (null == component.getFunction()) {
                         result.addError(transformer.getClass().getSimpleName());

@@ -465,7 +465,7 @@ public abstract class Store {
                 lazyElement.getIdentifier(identifierType);
             }
 
-            for (final String propertyName : elementDefinition.getProperties()) {
+            for (final String propertyName : elementDefinition.getOrderedProperties()) {
                 lazyElement.getProperty(propertyName);
             }
         }
@@ -533,7 +533,7 @@ public abstract class Store {
             validationResult.add(schema.validate());
 
             getSchemaElements().forEach((key, value) -> value
-                    .getProperties()
+                    .getOrderedProperties()
                     .forEach(propertyName -> {
                         final Class propertyClass = value
                                 .getPropertyClass(propertyName);
@@ -592,7 +592,7 @@ public abstract class Store {
      */
     protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         for (final String property : schemaElementDefinitionEntry.getValue()
-                .getGroupBy()) {
+                .getOrderedGroupBy()) {
             final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
                     .getPropertyTypeDef(property);
             if (null != propertyTypeDef) {
@@ -608,7 +608,7 @@ public abstract class Store {
 
     protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         schemaElementDefinitionEntry.getValue()
-                .getProperties()
+                .getOrderedProperties()
                 .forEach(propertyName -> {
                     final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                     final Serialiser serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();

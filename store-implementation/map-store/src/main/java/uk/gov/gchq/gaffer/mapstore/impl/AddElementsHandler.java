@@ -131,7 +131,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
         // Copy properties that exist in the schema
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
-        for (final String property : elementDef.getProperties()) {
+        for (final String property : elementDef.getOrderedProperties()) {
             elementClone.putProperty(property, element.getProperty(property));
         }
 

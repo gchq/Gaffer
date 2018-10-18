@@ -73,7 +73,7 @@ public class ElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+        final Iterator<String> propertyNames = elementDefinition.getOrderedProperties().iterator();
         String propertyName;
         while (propertyNames.hasNext()) {
             propertyName = propertyNames.next();
@@ -114,7 +114,7 @@ public class ElementSerialisation {
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
+        final Iterator<String> propertyNames = elementDefinition.getOrderedProperties().iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
@@ -222,7 +222,7 @@ public class ElementSerialisation {
             throw new SerialisationException("Failed to serialise group to ByteArrayOutputStream", e);
         }
 
-        for (final String propertyName : elementDefinition.getGroupBy()) {
+        for (final String propertyName : elementDefinition.getOrderedGroupBy()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             try {
@@ -261,7 +261,7 @@ public class ElementSerialisation {
         int carriage = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
         final int arrayLength = bytes.length;
 
-        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
+        final Iterator<String> propertyNames = elementDefinition.getOrderedGroupBy().iterator();
         while (propertyNames.hasNext() && carriage < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
@@ -307,7 +307,7 @@ public class ElementSerialisation {
         }
 
         final int firstDelimiter = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
-        if (numProps == elementDefinition.getProperties().size()) {
+        if (numProps == elementDefinition.getOrderedProperties().size()) {
             final int length = bytes.length - firstDelimiter;
             final byte[] propertyBytes = new byte[length];
             System.arraycopy(bytes, firstDelimiter, propertyBytes, 0, length);
@@ -584,7 +584,7 @@ public class ElementSerialisation {
     }
 
     private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
-        return !elementDef.getGroupBy().contains(propertyName)
+        return !elementDef.getOrderedGroupBy().contains(propertyName)
                 && (null == timestampProperty || !propertyName.equals(timestampProperty));
     }
 

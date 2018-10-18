@@ -109,7 +109,7 @@ public abstract class AddElementsFromHdfsIT {
                         .source(defaultEdge1.getSource())
                         .destination(defaultEdge1.getDestination())
                         .directed(defaultEdge1.getDirected())
-                        .properties(defaultEdge1.getPropertyMap())
+                        .properties(defaultEdge1.getOrderedPropertyMap())
                         .aggregate(false)
                         .build())
                 .build();

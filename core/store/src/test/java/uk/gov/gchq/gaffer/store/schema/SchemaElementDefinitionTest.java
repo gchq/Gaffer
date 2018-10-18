@@ -35,6 +35,10 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -59,7 +63,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getPropertyMap()
+            elementDef.getOrderedPropertyMap()
                     .put("new property", "string");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
@@ -74,7 +78,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getIdentifierMap()
+            elementDef.getOrderedIdentifierMap()
                     .put(IdentifierType.SOURCE, "string");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
@@ -91,7 +95,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
 
         // When / Then
         try {
-            elementDef.getGroupBy().add("property");
+            elementDef.getOrderedGroupBy().add("property");
             fail("Exception expected");
         } catch (final UnsupportedOperationException e) {
             assertNotNull(e);
@@ -260,7 +264,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // Then
-        assertEquals(2, elementDef.getProperties().size());
+        assertEquals(2, elementDef.getOrderedProperties().size());
         assertEquals(Integer.class, elementDef.getPropertyClass(TestPropertyNames.PROP_1));
         assertEquals(Object.class, elementDef.getPropertyClass(TestPropertyNames.PROP_2));
         assertSame(validator, elementDef.getOriginalValidator());
@@ -779,11 +783,11 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // Then
-        assertEquals(2, mergedDef.getProperties().size());
+        assertEquals(2, mergedDef.getOrderedProperties().size());
         assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_1));
         assertNotNull(mergedDef.getPropertyTypeDef(TestPropertyNames.PROP_2));
         assertEquals(Sets.newLinkedHashSet(Collections.singletonList(TestPropertyNames.PROP_2)),
-                mergedDef.getGroupBy());
+                mergedDef.getOrderedGroupBy());
     }
 
     @Test
@@ -808,6 +812,54 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains("property"));
         }
+    }
+
+    @Test
+    public void propertyKeysShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .property(TestPropertyNames.PROP_1, "string")
+                .build();
+
+        // When
+        Set propsSet = elementDef.getOrderedProperties();
+
+        assertTrue(propsSet instanceof LinkedHashSet);
+    }
+
+    @Test
+     public void propertiesShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .property(TestPropertyNames.PROP_1, "string")
+                .build();
+
+        // When
+        Map propsMap = elementDef.getOrderedPropertyMap();
+
+        assertTrue(propsMap instanceof LinkedHashMap);
+    }
+
+    @Test
+    public void groupBysShouldBeInstanceOfLinkedHashSet() {
+        final T elementDef = createBuilder()
+                .groupBy("groupBy")
+                .build();
+
+        // When
+        Set groupBySet = elementDef.getOrderedGroupBy();
+
+        assertTrue(groupBySet instanceof LinkedHashSet);
+    }
+
+    @Test
+    public void identifierMapShouldBeInstanceOfLinkedHashMap() {
+        final T elementDef = createBuilder()
+                .identifier(IdentifierType.DESTINATION, "testType")
+                .build();
+
+        // When
+        Map identifierMap = elementDef.getOrderedIdentifierMap();
+
+        assertTrue(identifierMap instanceof LinkedHashMap);
     }
 
     protected void setupSchema(final T elementDef) {
