@@ -64,25 +64,8 @@ public class AggregationIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
-
-        // Add duplicate elements
-        graph.execute(new AddElements.Builder()
-                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
-                .build(), getUser());
-
-        graph.execute(new AddElements.Builder()
-                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
-                .build(), getUser());
-
-        // Edge with existing ids but directed
-        graph.execute(new AddElements.Builder()
-                .input(new Edge.Builder().group(TestGroups.EDGE)
-                        .source(NON_AGGREGATED_SOURCE)
-                        .dest(NON_AGGREGATED_DEST)
-                        .directed(true)
-                        .build())
-                .build(), getUser());
+        super.addDefaultElements();
+        addDuplicateElements();
     }
 
     @Test
@@ -252,5 +235,25 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(1, resultList.size());
         // aggregation is has been replaced with Product
         assertEquals(10100, resultList.get(0).getProperty(TestPropertyNames.INT));
+    }
+
+    private void addDuplicateElements() throws OperationException {
+        // Add duplicate elements
+        graph.execute(new AddElements.Builder()
+                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
+                .build(), getUser());
+
+        // Edge with existing ids but directed
+        graph.execute(new AddElements.Builder()
+                .input(new Edge.Builder().group(TestGroups.EDGE)
+                        .source(NON_AGGREGATED_SOURCE)
+                        .dest(NON_AGGREGATED_DEST)
+                        .directed(true)
+                        .build())
+                .build(), getUser());
     }
 }

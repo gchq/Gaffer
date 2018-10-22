@@ -80,14 +80,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
+    private final User user = new User();
+    final EntitySeed seedA = new EntitySeed("A");
+    final EntitySeed seedE = new EntitySeed("E");
 
     @Test
     public void shouldGetPaths() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -99,7 +99,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -114,9 +114,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithWhileRepeat() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -128,7 +125,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(new While.Builder<>()
                         .operation(operation)
                         .maxRepeats(2)
@@ -146,9 +143,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithWhile() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -161,7 +155,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(new While.Builder<>()
                         .conditional(
                                 new Conditional(
@@ -183,18 +177,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
     }
 
-    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
-        @Override
-        public Object apply(final Object obj) {
-            // Check the vertices have been extracted correctly.
-            assertTrue(obj instanceof Iterable);
-            for (final Object item : (Iterable) obj) {
-                assertFalse(item instanceof EntityId);
-            }
-            return obj;
-        }
-    }
-
     @Test
     public void shouldGetPathsWithPruning() throws Exception {
         // Given
@@ -202,10 +184,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
         properties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
         createGraph(properties);
         addDefaultElements();
-
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -217,7 +195,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -232,12 +210,9 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldReturnNoResultsWhenNoEntityResults() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(
                         new GetElements.Builder()
                                 .view(new View.Builder()
@@ -270,10 +245,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithEntities() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
 
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -292,7 +263,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(getElements, getElements, getEntities)
                 .build();
 
@@ -310,8 +281,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldThrowExceptionIfGetPathsWithHopContainingNoEdges() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -330,7 +299,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(getElements, getEntities, getElements)
                 .build();
 
@@ -346,10 +315,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithMultipleSeeds() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed1 = new EntitySeed("A");
-        final EntitySeed seed2 = new EntitySeed("E");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -361,7 +326,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed1, seed2)
+                .input(seedA, seedE)
                 .operations(operation, operation)
                 .build();
 
@@ -376,9 +341,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithMultipleEdgeTypes() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -393,7 +355,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -408,10 +370,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithMultipleSeedsAndMultipleEdgeTypes() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed1 = new EntitySeed("A");
-        final EntitySeed seed2 = new EntitySeed("E");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -426,7 +384,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed1, seed2)
+                .input(seedA, seedE)
                 .operations(operation, operation)
                 .build();
 
@@ -441,9 +399,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithLoops() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -458,7 +413,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation, operation)
                 .build();
 
@@ -473,9 +428,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithLoops_2() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -490,7 +442,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation, operation, operation)
                 .build();
 
@@ -505,9 +457,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithLoops_3() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -519,7 +468,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation, operation, operation)
                 .build();
 
@@ -535,9 +484,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithPreFiltering_1() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -566,7 +512,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operationChain)
                 .build();
 
@@ -582,9 +528,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -613,7 +556,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operationChain, operationChain)
                 .build();
 
@@ -628,9 +571,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     public void shouldGetPathsWithModifiedViews() throws OperationException {
         // Given
         createDefaultGraph();
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
 
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
@@ -646,7 +586,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -668,10 +608,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
 
         addDefaultElements();
 
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -682,7 +618,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -706,10 +642,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
 
         addDefaultElements();
 
-        final User user = new User();
-
-        final EntitySeed seed = new EntitySeed("A");
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -720,7 +652,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
-                .input(seed)
+                .input(seedA)
                 .operations(operation, operation)
                 .build();
 
@@ -729,6 +661,18 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
+    }
+
+    public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
+        @Override
+        public Object apply(final Object obj) {
+            // Check the vertices have been extracted correctly.
+            assertTrue(obj instanceof Iterable);
+            for (final Object item : (Iterable) obj) {
+                assertFalse(item instanceof EntityId);
+            }
+            return obj;
+        }
     }
 
     private Set<Entity> createEntitySet() {
@@ -947,6 +891,16 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
     }
 
+    @Override
+    protected void createDefaultGraph() {
+        super.createDefaultGraph();
+        try {
+            addDefaultElements();
+        } catch (final OperationException ex) {
+            fail("Error while adding elements to the graph: " + ex.getMessage());
+        }
+    }
+
     private String getPaths(final Iterable<Walk> walks) {
         final StringBuilder sb = new StringBuilder();
         for (final Walk walk : walks) {
@@ -957,15 +911,5 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
             sb.setLength(sb.length() - 1);
         }
         return sb.toString();
-    }
-
-    @Override
-    protected void createDefaultGraph() {
-        super.createDefaultGraph();
-        try {
-            addDefaultElements();
-        } catch (final OperationException ex) {
-            fail("Error while adding elements to the graph: " + ex.getMessage());
-        }
     }
 }

@@ -60,7 +60,7 @@ public class GeneratorsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @Test

@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -47,12 +47,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-public class PartAggregationIT extends AbstractStoreIT {
+import static org.junit.Assert.fail;
+
+public class PartAggregationIT extends AbstractStoreWithCustomGraphIT {
+
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
-        //Given
-        addDefaultElements();
-        addDefaultElements();
+        // Given
+        createDefaultGraph();
 
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
@@ -124,9 +126,8 @@ public class PartAggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     @Test
     public void shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation() throws OperationException {
-        //Given
-        addDefaultElements();
-        addDefaultElements();
+        // Given
+        createDefaultGraph();
 
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
@@ -367,5 +368,16 @@ public class PartAggregationIT extends AbstractStoreIT {
                 entityTransform2));
 
         return entities;
+    }
+
+    @Override
+    protected void createDefaultGraph() {
+        super.createDefaultGraph();
+        try {
+            addDefaultElements();
+            addDefaultElements();
+        } catch (final OperationException ex) {
+            fail("Error while adding elements to the graph: " + ex.getMessage());
+        }
     }
 }

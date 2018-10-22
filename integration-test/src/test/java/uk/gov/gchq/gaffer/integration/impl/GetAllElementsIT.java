@@ -59,7 +59,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
