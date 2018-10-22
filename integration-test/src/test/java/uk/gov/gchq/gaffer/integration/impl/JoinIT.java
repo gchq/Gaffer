@@ -69,6 +69,7 @@ public class JoinIT extends AbstractStoreWithCustomGraphIT {
     @Before
     public void setup() throws Exception {
         super.setup();
+        createDefaultGraph();
         addDefaultElements();
         addJoinEntityElements(TestGroups.ENTITY_3);
     }

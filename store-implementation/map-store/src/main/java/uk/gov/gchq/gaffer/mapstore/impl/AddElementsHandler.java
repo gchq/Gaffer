@@ -115,11 +115,15 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
         final GroupedProperties properties = new GroupedProperties(element.getGroup());
-        for (final String propertyName : mapImpl.getGroupByProperties(group)) {
-            elementWithGroupByProperties.putProperty(propertyName, element.getProperty(propertyName));
+        if (null != mapImpl.getGroupByProperties(group)) {
+            for (final String propertyName : mapImpl.getGroupByProperties(group)) {
+                elementWithGroupByProperties.putProperty(propertyName, element.getProperty(propertyName));
+            }
         }
-        for (final String propertyName : mapImpl.getNonGroupByProperties(group)) {
-            properties.put(propertyName, element.getProperty(propertyName));
+        if (null != mapImpl.getNonGroupByProperties(group)) {
+            for (final String propertyName : mapImpl.getNonGroupByProperties(group)) {
+                properties.put(propertyName, element.getProperty(propertyName));
+            }
         }
 
         mapImpl.addAggElement(elementWithGroupByProperties, properties);
