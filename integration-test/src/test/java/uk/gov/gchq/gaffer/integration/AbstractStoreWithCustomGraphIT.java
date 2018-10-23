@@ -77,7 +77,7 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreWithCustomGraphIT {
-    protected static final int DUPLICATES = 2;
+    protected static final int DUPLICATES = 1;
 
     protected static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
 
