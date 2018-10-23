@@ -43,7 +43,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -172,12 +171,7 @@ public class SortFullGroup implements Callable<OperationException> {
                 .partitionBy(partitioner)
                 .values();
 
-        spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group))
-                .write()
-                .parquet("/tmp/partitioned-group-" + new Random().nextLong() + "-" + group + "/");
-
-        spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group)).write().parquet("/tmp/df-group-" + group + new Random().nextLong());
-
+        LOGGER.info("Sorting data within partitions, outputting to {}", outputDir);
         spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group))
                 .sortWithinPartitions(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
                 .write()
