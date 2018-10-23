@@ -60,7 +60,7 @@ public class GraphHooksIT extends AbstractStoreIT {
         properties.setProperty("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties);
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @After
