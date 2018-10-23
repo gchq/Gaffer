@@ -202,6 +202,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @Test
     public void shouldGetElementsWithMatchedVertex() throws Exception {
         // Then
+        validateTraits();
         final View view = new Builder()
                 .edge(TestGroups.EDGE)
                 .build();
@@ -229,6 +230,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @VisibilityUser("basic")
     @Test
     public void shouldGetOnlyVisibleElements() throws Exception {
+        validateTraits();
         getAllElements();
     }
 
@@ -238,6 +240,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
+        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -257,6 +260,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
+        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -279,6 +283,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     @Test
     public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
+        validateTraits();
         // Then
         final View view = new Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
