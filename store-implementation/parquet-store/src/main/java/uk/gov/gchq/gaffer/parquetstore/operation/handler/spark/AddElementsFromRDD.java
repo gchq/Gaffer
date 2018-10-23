@@ -170,11 +170,16 @@ public class AddElementsFromRDD {
             // the replacement of the old data with the new data an atomic operation and ensures that a get operation
             // against the store will not read the directory when only some of the data has been moved there).
             final long snapshot = System.currentTimeMillis();
-            final String newDataDir = store.getDataDir() + "/" + ParquetStore.getSnapshotPath(snapshot) + "-tmp";
+            final String newDataDir = store.getDataDir() + "/" + ParquetStore.getSnapshotPath(snapshot) + "-tmp/";
             LOGGER.info("Moving aggregated and sorted data to new snapshot directory {}", newDataDir);
+            LOGGER.info("Making directory {}", newDataDir);
             fs.mkdirs(new Path(newDataDir));
-            fs.rename(new Path(tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/"),
-                    new Path(newDataDir));
+            final FileStatus[] fss = fs.listStatus(new Path(tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/"));
+            for (int i = 0; i < fss.length; i++) {
+                final Path destination = new Path(newDataDir, fss[i].getPath().getName());
+                fs.rename(fss[i].getPath(), destination);
+                LOGGER.info("Renamed {} to {}", fss[i].getPath(), destination);
+            }
 
             // Move snapshot-tmp directory to snapshot
             final String directoryWithoutTmp = newDataDir.substring(0, newDataDir.lastIndexOf("-tmp"));
