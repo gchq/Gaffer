@@ -115,7 +115,7 @@ public class AddElementsFromRDD {
      * For each group that requires aggregation, this method aggregates the new data that has been written out to file
      * with the existing data for that group.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} or a {@link SerialisationException} is thrown
      */
     private void aggregateNewAndOldData() throws OperationException {
         LOGGER.info("Creating AggregateDataForGroup tasks for groups that require aggregation");
@@ -155,7 +155,7 @@ public class AddElementsFromRDD {
      * call to {@link AddElementsFromRDD#aggregateNewAndOldData} is sorted. If the group does not require aggregation
      * then the existing data and the new data are sorted in one operation.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} is thrown
      */
     private void sort() throws OperationException {
         try {
@@ -186,7 +186,7 @@ public class AddElementsFromRDD {
     /**
      * Sorts all the edge groups by destination then source.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} is thrown
      */
     private void sortEdgeGroupsByDestination() throws OperationException {
         try {
@@ -212,7 +212,7 @@ public class AddElementsFromRDD {
      * @param reversed whether these are edges that need to be sorted by destination then source
      * @param inputFiles the input files
      * @param outputDir the directory to write the output to
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} is thrown
      */
     private void sort(final String group, final boolean reversed, final List<String> inputFiles, final String outputDir)
             throws OperationException {
@@ -238,7 +238,7 @@ public class AddElementsFromRDD {
     /**
      * Calculates the new graph partitioner and writes it to file.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} is thrown
      */
     private void calculateAndWritePartitioner() throws OperationException {
         // Create new graph partitioner
@@ -275,7 +275,7 @@ public class AddElementsFromRDD {
      * the replacement of the old data with the new data an atomic operation and ensures that a get operation
      * against the store will not read the directory when only some of the data has been moved there.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} or {@link StoreException} is thrown
      */
     private void createNewSnapshotDirectory() throws OperationException {
         final long snapshot = System.currentTimeMillis();
@@ -310,7 +310,7 @@ public class AddElementsFromRDD {
     /**
      * Deletes the temporary directory used for temporary data.
      *
-     * @throws OperationException
+     * @throws OperationException if an {@link IOException} is thrown
      */
     private void deleteTempDirectory() throws OperationException {
         LOGGER.info("Deleting temporary directory {}", new Path(tempDir));
