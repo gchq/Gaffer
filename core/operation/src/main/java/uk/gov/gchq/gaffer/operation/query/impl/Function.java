@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query.impl;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.query.IFunction;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Function extends ViewElementLevel3 implements IFunction {
+public class Function extends ViewElement implements IFunction {
 
     private KorypheFunction function;
 
@@ -34,7 +35,7 @@ public class Function extends ViewElementLevel3 implements IFunction {
     }
 
     @Override
-    public ViewElementLevel3 function4(String predicateClassName, Object... args) {
+    public ViewElement function(String predicateClassName, Object... args) {
         Class[] argClasses = new Class[args.length];
         for (int i = 0; i < args.length; i++) {
             argClasses[i] = args[i].getClass();
@@ -68,7 +69,7 @@ public class Function extends ViewElementLevel3 implements IFunction {
         }
 
         tidyUp();
-        return new ViewElementLevel3(this);
+        return new ViewElement(this);
     }
 
     protected void tidyUp() {

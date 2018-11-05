@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query.impl;
 
 
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.query.IFunction;
+import uk.gov.gchq.gaffer.operation.query.IPredicate;
+import uk.gov.gchq.gaffer.operation.query.IViewElement;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements ViewElement {
+public class ViewElement<OUT> extends ElementDirection<OUT> implements IViewElement {
 
     private String filterProp;
     private String propFrom;
@@ -36,10 +39,10 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
     private ElementTransformer.Builder elementTransformer;
 
 
-    public ViewElementLevel3(final OperationChain<OUT> outOperationChain) {
+    public ViewElement(final OperationChain<OUT> outOperationChain) {
         super(outOperationChain);
-        if (outOperationChain instanceof ViewElementLevel3) {
-            ViewElementLevel3 that = (ViewElementLevel3) outOperationChain;
+        if (outOperationChain instanceof ViewElement) {
+            ViewElement that = (ViewElement) outOperationChain;
             this.filterProp = that.filterProp;
             this.propFrom = that.propFrom;
             this.propTo = that.propTo;
@@ -50,13 +53,13 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
     }
 
     @Override
-    public IPredicate filter3(final String prop) {
+    public IPredicate filter(final String prop) {
         this.filterProp = prop;
-        return new Predicate4<>(this);
+        return new Predicate<>(this);
     }
 
     @Override
-    public ViewElementLevel3 groupBy3(final String... propX) {
+    public ViewElement groupBy(final String... propX) {
 
         ViewElementDefinition.Builder viewElementDefinitionBuilder;
         if (isNull(getViewElementDefinitionBuilder())) {
@@ -77,7 +80,7 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
     }
 
     @Override
-    public IFunction transform3(final String propA, final String propB) {
+    public IFunction transform(final String propA, final String propB) {
         this.propFrom = propA;
         this.propTo = propB;
 
@@ -88,7 +91,7 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
         return filterProp;
     }
 
-    protected ViewElementLevel3 clearFilterProp() {
+    protected ViewElement clearFilterProp() {
         this.filterProp = null;
         return this;
     }
@@ -159,7 +162,7 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
         return propFrom;
     }
 
-    protected ViewElementLevel3<OUT> clearPropFrom() {
+    protected ViewElement<OUT> clearPropFrom() {
         this.propFrom = null;
         return this;
     }
@@ -168,12 +171,12 @@ public class ViewElementLevel3<OUT> extends ElementDirection2<OUT> implements Vi
         return propTo;
     }
 
-    protected ViewElementLevel3<OUT> clearPropTo() {
+    protected ViewElement<OUT> clearPropTo() {
         this.propTo = null;
         return this;
     }
 
-    protected ViewElementLevel3<OUT> clearIsGroupBy() {
+    protected ViewElement<OUT> clearIsGroupBy() {
         this.isGroupBy = false;
         return this;
     }

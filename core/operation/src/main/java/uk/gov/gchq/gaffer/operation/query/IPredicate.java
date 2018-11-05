@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.query.impl.ViewElement;
 
-public interface BuildHack {
+public interface IPredicate {
 
-    OperationChain build();
+
+    ViewElement predicate(String predicateClassName, Object... args);
 }

@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.query.impl.QueryChain;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -160,7 +161,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     }
 
     @JsonSetter("operations")
-    void setOperationArray(final Operation[] operations) {
+    protected void setOperationArray(final Operation[] operations) {
         if (null != operations) {
             this.operations = Lists.newArrayList(operations);
         } else {
@@ -232,8 +233,8 @@ public class OperationChain<OUT> implements Output<OUT>,
                 .toHashCode();
     }
 
-    public QueryOperationChain1<OUT> query0() {
-        return new QueryOperationChain1<>(this);
+    public QueryChain<OUT> query() {
+        return new QueryChain<>(this);
     }
 
     /**

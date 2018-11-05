@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-public interface SubOperationChain<OUT> {
-    /**
-     * Used to close off the current Operation and move on to next operation.
-     * This removes the scope of specific operations modifiers in the java API.
-     *
-     * @return A starting point for a new sub operation chain.
-     */
+import uk.gov.gchq.gaffer.operation.query.impl.ViewElement;
 
-    <T extends SubOperationChain> T nextOperation();
+public interface IElementDirection extends IBuild {
+    ViewElement edge(String group1);
+    ViewElement entity(String group1);
 }

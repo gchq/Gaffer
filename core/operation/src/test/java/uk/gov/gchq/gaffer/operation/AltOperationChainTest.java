@@ -59,16 +59,16 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
-                .groupBy3("propX")
-                .filter3("propY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
-                .transform3("propA", "propB")
-                .function4("uk.gov.gchq.koryphe.impl.function.ToLong")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
+                .groupBy("propX")
+                .filter("propY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
+                .transform("propA", "propB")
+                .function("uk.gov.gchq.koryphe.impl.function.ToLong")
                 .build();
 
         compare(oldWay, newWay);
@@ -83,7 +83,7 @@ public class AltOperationChainTest {
     @Test
     public void shouldBuildNothingWhenEmpty() throws Exception {
         final OperationChain oldWay = new OperationChain();
-        final OperationChain newWay = new OperationChain().query0().build();
+        final OperationChain newWay = new OperationChain().query().build();
         compare(oldWay, newWay);
     }
 
@@ -95,8 +95,8 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
                 .build();
 
         compare(oldWay, newWay);
@@ -113,9 +113,9 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
                 .build();
 
         compare(oldWay, newWay);
@@ -133,10 +133,10 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .edge2("group2")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .edge("group2")
                 .build();
 
         compare(oldWay, newWay);
@@ -156,10 +156,10 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .groupBy3("propX")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .groupBy("propX")
                 .build();
 
         compare(oldWay, newWay);
@@ -180,11 +180,11 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .groupBy3("propX")
-                .groupBy3("propY")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .groupBy("propX")
+                .groupBy("propY")
                 .build();
 
         compare(oldWay, newWay);
@@ -207,12 +207,12 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
-                .groupBy3("propX")
+        OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
+                .groupBy("propX")
                 .build();
 
         compare(oldWay, newWay);
@@ -237,14 +237,14 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
-                .filter3("propXX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 111)
-                .groupBy3("propX")
+        OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
+                .filter("propXX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 111)
+                .groupBy("propX")
                 .build();
 
         compare(oldWay, newWay);
@@ -272,14 +272,14 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
-                .groupBy3("propX")
-                .filter3("propY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
+                .groupBy("propX")
+                .filter("propY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
                 .build();
 
         compare(oldWay, newWay);
@@ -308,16 +308,16 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propX")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
-                .groupBy3("propX")
-                .filter3("propY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
-                .filter3("propYY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 100)
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propX")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 11)
+                .groupBy("propX")
+                .filter("propY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
+                .filter("propYY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 100)
                 .build();
 
         compare(oldWay, newWay);
@@ -341,12 +341,12 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .groupBy3("propX")
-                .filter3("propY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .groupBy("propX")
+                .filter("propY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
                 .build();
 
         compare(oldWay, newWay);
@@ -369,11 +369,11 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .transform3("propA", "propB")
-                .function4("uk.gov.gchq.koryphe.impl.function.ToLong")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .transform("propA", "propB")
+                .function("uk.gov.gchq.koryphe.impl.function.ToLong")
                 .build();
 
         compare(oldWay, newWay);
@@ -399,13 +399,13 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .transform3("propA", "propB")
-                .function4("uk.gov.gchq.koryphe.impl.function.ToLong")
-                .transform3("propAA", "propBB")
-                .function4("uk.gov.gchq.koryphe.impl.function.ToLong")
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .transform("propA", "propB")
+                .function("uk.gov.gchq.koryphe.impl.function.ToLong")
+                .transform("propAA", "propBB")
+                .function("uk.gov.gchq.koryphe.impl.function.ToLong")
                 .build();
 
         compare(oldWay, newWay);
@@ -432,13 +432,13 @@ public class AltOperationChainTest {
                         .build())
                 .build();
 
-        final OperationChain newWay = new OperationChain().query0()
-                .getElements1("seed1")
-                .edge2("group1")
-                .filter3("propY")
-                .predicate4("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
-                .transform3("propA", "propB")
-                .function4("uk.gov.gchq.koryphe.impl.function.ToLong") //ok 1st // auto generate Function4 class with all function names (Ahhhh)
+        final OperationChain newWay = new OperationChain().query()
+                .getElements("seed1")
+                .edge("group1")
+                .filter("propY")
+                .predicate("uk.gov.gchq.koryphe.impl.predicate.IsLessThan", 10)
+                .transform("propA", "propB")
+                .function("uk.gov.gchq.koryphe.impl.function.ToLong") //ok 1st // auto generate Function4 class with all function names (Ahhhh)
                 .build();
         compare(oldWay, newWay);
     }

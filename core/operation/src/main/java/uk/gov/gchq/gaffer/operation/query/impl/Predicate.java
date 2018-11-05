@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query.impl;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.query.IPredicate;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Predicate4<OUT> extends ViewElementLevel3<OUT> implements IPredicate {
+public class Predicate<OUT> extends ViewElement<OUT> implements IPredicate {
 
     private KoryphePredicate predicate;
 
-    public Predicate4(final OperationChain<OUT> outFilter3) {
+    public Predicate(final OperationChain<OUT> outFilter3) {
         super(outFilter3);
-        if (outFilter3 instanceof Predicate4) {
-            Predicate4 that = (Predicate4) outFilter3;
+        if (outFilter3 instanceof Predicate) {
+            Predicate that = (Predicate) outFilter3;
             this.predicate = that.predicate;
         }
     }
 
-    public ViewElementLevel3 predicate4(String predicateClassName, Object... args) {
+    public ViewElement predicate(String predicateClassName, Object... args) {
         Class[] argClasses = new Class[args.length];
         for (int i = 0; i < args.length; i++) {
             argClasses[i] = args[i].getClass();
@@ -70,7 +71,7 @@ public class Predicate4<OUT> extends ViewElementLevel3<OUT> implements IPredicat
         }
 
         tidyUp();
-        return new ViewElementLevel3(this);
+        return new ViewElement(this);
     }
 
     @Override

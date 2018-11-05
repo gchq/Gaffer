@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-public interface ViewElement {
-    IPredicate filter3(String propX);
+public interface ISubOperationChain<OUT> {
 
-    ViewElementLevel3 groupBy3(String... propX);
-
-    IFunction transform3(String propA, String propB);
+    /**
+     * Used to close off the current Operation and move on to next operation.
+     * This removes the scope of specific operations modifiers in the java API.
+     *
+     * @return A starting point for a new sub operation chain.
+     */
+    <T extends ISubOperationChain> T nextOperation();
 }

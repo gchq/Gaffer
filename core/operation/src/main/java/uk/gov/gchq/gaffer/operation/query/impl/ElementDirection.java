@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query.impl;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.QueryOperationChain1;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.query.IElementDirection;
 
 import java.util.Objects;
 
-public class ElementDirection2<OUT> extends QueryOperationChain1<OUT> implements ElementDirection {
+public class ElementDirection<OUT> extends QueryChain<OUT> implements IElementDirection {
 
     private Elements element;
     private View.Builder viewBuilder;
@@ -32,10 +32,10 @@ public class ElementDirection2<OUT> extends QueryOperationChain1<OUT> implements
 
     private ViewElementDefinition.Builder viewElementDefinitionBuilder;
 
-    public ElementDirection2(final OperationChain<OUT> chain) {
+    public ElementDirection(final OperationChain<OUT> chain) {
         super(chain);
-        if (chain instanceof ElementDirection2) {
-            ElementDirection2 that = (ElementDirection2) chain;
+        if (chain instanceof ElementDirection) {
+            ElementDirection that = (ElementDirection) chain;
             this.element = that.element;
             this.viewBuilder = that.viewBuilder;
             this.group = that.group;
@@ -96,18 +96,18 @@ public class ElementDirection2<OUT> extends QueryOperationChain1<OUT> implements
     }
 
     @Override
-    public ViewElementLevel3 edge2(final String group) {
+    public ViewElement edge(final String group) {
         if (Objects.nonNull(this.group)) {
             localTidyUp();
         }
         this.element = Elements.edge;
         this.group = group;
-        return new ViewElementLevel3(this);
+        return new ViewElement(this);
     }
 
 
     @Override
-    public ViewElementLevel3 entity2(final String group1) {
+    public ViewElement entity(final String group1) {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
@@ -121,7 +121,7 @@ public class ElementDirection2<OUT> extends QueryOperationChain1<OUT> implements
         return viewElementDefinitionBuilder;
     }
 
-    public ElementDirection2 viewElementDefinitionBuilder(final ViewElementDefinition.Builder viewElementDefinitionBuilder) {
+    public ElementDirection viewElementDefinitionBuilder(final ViewElementDefinition.Builder viewElementDefinitionBuilder) {
         this.viewElementDefinitionBuilder = viewElementDefinitionBuilder;
         return this;
     }

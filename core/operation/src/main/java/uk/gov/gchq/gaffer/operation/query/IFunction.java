@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-public interface ElementDirection extends BuildHack {
-    ViewElementLevel3 edge2(String group1);
-    ViewElementLevel3 entity2(String group1);
+import uk.gov.gchq.gaffer.operation.query.impl.ViewElement;
+
+public interface IFunction {
+    ViewElement function(String predicateClassName, Object... args);
 }

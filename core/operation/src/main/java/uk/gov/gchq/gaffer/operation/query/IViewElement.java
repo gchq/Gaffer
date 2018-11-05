@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-public interface IPredicate {
+import uk.gov.gchq.gaffer.operation.query.impl.ViewElement;
 
+public interface IViewElement {
+    IPredicate filter(String propX);
 
-    ViewElementLevel3 predicate4(String predicateClassName, Object... args);
+    ViewElement groupBy(String... propX);
+
+    IFunction transform(String propA, String propB);
 }

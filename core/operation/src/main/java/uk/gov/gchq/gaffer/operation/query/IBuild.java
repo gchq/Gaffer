@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.subOperation;
+package uk.gov.gchq.gaffer.operation.query;
 
-public interface IFunction {
-    ViewElementLevel3 function4(String predicateClassName, Object... args);
+import uk.gov.gchq.gaffer.operation.OperationChain;
+
+public interface IBuild {
+
+    OperationChain build();
 }
