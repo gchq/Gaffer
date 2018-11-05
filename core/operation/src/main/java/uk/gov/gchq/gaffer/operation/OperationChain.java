@@ -232,6 +232,10 @@ public class OperationChain<OUT> implements Output<OUT>,
                 .toHashCode();
     }
 
+    public QueryOperationChain1<OUT> query0() {
+        return new QueryOperationChain1<>(this);
+    }
+
     /**
      * <p>
      * A {@code Builder} is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
