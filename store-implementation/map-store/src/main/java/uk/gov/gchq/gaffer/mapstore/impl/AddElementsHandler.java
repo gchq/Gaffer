@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,7 +35,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,12 +104,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         if (!mapImpl.isAggregationEnabled(element)) {
             elementForIndexing = addNonAggElement(element, schema, mapImpl);
         } else {
-            elementForIndexing = addAggElement(element, schema, mapImpl);
+            elementForIndexing = addAggElement(element, mapImpl);
         }
         return elementForIndexing;
     }
 
-    private Element addAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
+    private Element addAggElement(final Element element, final MapImpl mapImpl) {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
         final GroupedProperties properties = new GroupedProperties(element.getGroup());

@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,19 +37,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
-
 /**
  * Map data store implementation use by the Gaffer {@link uk.gov.gchq.gaffer.mapstore.MapStore}
  * class.
+ * <<<<<<< HEAD
  * <p>
+ * =======
+ * >>>>>>> gh-1934-npe-addElementsHandler-fix
  * This class can be thought of as an analogue to a conventional database. Internally,
  * different {@link Map} and {@link MultiMap} instances are used to keep track of
  * the stored elements and the relationships between those elements. This data store
  * is then abstracted again as a Gaffer {@link uk.gov.gchq.gaffer.store.Store} (by
  * the {@link uk.gov.gchq.gaffer.mapstore.MapStore} class) to give Gaffer-specific
  * functionality.
+ * <<<<<<< HEAD
  * <p>
+ * =======
+ * >>>>>>> gh-1934-npe-addElementsHandler-fix
  * The internal variables of this class are package-private. This allows operation
  * handlers for the {@link uk.gov.gchq.gaffer.mapstore.MapStore} to be placed in the
  * same package and get access to the maps, without exposing the internal state of
@@ -131,7 +134,7 @@ public class MapImpl {
     }
 
     void addAggElement(final Element elementWithGroupByProperties, final GroupedProperties properties) {
-        if (nonNull(aggElements.get(elementWithGroupByProperties.getGroup()))) {
+        if (null != aggElements.get(elementWithGroupByProperties.getGroup())) {
             aggElements.get(elementWithGroupByProperties.getGroup())
                     .merge(elementWithGroupByProperties, properties, propertyAggregator);
         }
@@ -254,7 +257,8 @@ public class MapImpl {
         return totalCount;
     }
 
-    private MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
+    private MapFactory createMapFactory(final Schema schema,
+                                        final MapStoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
         final String factoryClass = mapStoreProperties.getMapFactory();
         if (null == factoryClass) {
