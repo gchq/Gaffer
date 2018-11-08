@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
-
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
@@ -30,7 +29,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,16 +68,23 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         i--;
                         continue;
                     }
-                    final Pair<Put, Put> putPair = serialisation.getPuts(element);
-                    puts.add(putPair.getFirst());
-                    if (null != putPair.getSecond()) {
-                        i++;
-                        if (i >= batchSize) {
-                            executePuts(table, puts);
-                            puts = new ArrayList<>(batchSize);
-                            i = 0;
+                    try {
+                        final Pair<Put, Put> putPair = serialisation.getPuts(element);
+                        puts.add(putPair.getFirst());
+                        if (null != putPair.getSecond()) {
+                            i++;
+                            if (i >= batchSize) {
+                                executePuts(table, puts);
+                                puts = new ArrayList<>(batchSize);
+                                i = 0;
+                            }
+                            puts.add(putPair.getSecond());
                         }
-                        puts.add(putPair.getSecond());
+                    } catch (final Exception e) {
+                        if (addElementsOperation.isValidate() && !addElementsOperation.isSkipInvalidElements()) {
+                            throw e;
+                        }
+                        // otherwise just ignore the error
                     }
                 }
                 executePuts(table, puts);
