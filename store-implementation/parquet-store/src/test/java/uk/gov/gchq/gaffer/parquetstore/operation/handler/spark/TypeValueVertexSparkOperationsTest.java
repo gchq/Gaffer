@@ -26,9 +26,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-
 public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final TypeValueVertexOperationsTest tvvot = new TypeValueVertexOperationsTest();
 
@@ -63,7 +60,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         return tvvot.getResultsForGetElementsWithSeedsRelatedTest();
     }
 
-    /**
+    /*
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
