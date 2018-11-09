@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileAlreadyExistsException;
+import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
@@ -56,28 +59,47 @@ public class WriteData implements VoidFunction<Iterator<Element>> {
     public void call(final Iterator<Element> elements) throws Exception {
         final SchemaUtils schemaUtils = new SchemaUtils(Schema.fromJson(schemaAsJson));
         final int partitionId = TaskContext.getPartitionId();
+        final long taskAttemptId = TaskContext.get().taskAttemptId();
         final Map<String, ParquetWriter<Element>> groupToWriter = new HashMap<>();
+        final Map<String, Path> groupToWriterPath = new HashMap<>();
+
         for (final String group : schemaUtils.getGroups()) {
-            groupToWriter.put(group,
-                    buildWriter(group, groupToDirectory.get(group) + "/input-" + partitionId + ".parquet", schemaUtils));
+            groupToWriterPath.put(group, new Path(groupToDirectory.get(group) + "/input-" + partitionId + "-" + taskAttemptId + ".parquet"));
+            groupToWriter.put(group, buildWriter(group, groupToWriterPath.get(group), schemaUtils));
         }
         while (elements.hasNext()) {
             final Element element = elements.next();
             final String group = element.getGroup();
             groupToWriter.get(group).write(element);
         }
-        LOGGER.info("Finished writing elements for partition id {} to {}", partitionId, groupToDirectory);
+        LOGGER.info("Finished writing elements for partition id {} and task attempt id {} to {}",
+                partitionId, taskAttemptId, groupToDirectory);
         for (final ParquetWriter<Element> writer : groupToWriter.values()) {
             LOGGER.debug("Closing writer {}", writer);
             writer.close();
         }
+
+        LOGGER.info("Renaming output files from {} to {}",
+                "input-" + partitionId + "-" + taskAttemptId + ".parquet", "input-" + partitionId);
+        final FileContext fileContext = FileContext.getFileContext(new Configuration());
+        for (final String group : schemaUtils.getGroups()) {
+            final Path src = groupToWriterPath.get(group);
+            final String newName = "input-" + partitionId + ".parquet";
+            final Path dst = new Path(groupToDirectory.get(group) + "/" + newName);
+            try {
+                fileContext.rename(src, dst);
+                LOGGER.debug("Renamed {} to {}", src, dst);
+            } catch (final FileAlreadyExistsException e) {
+                // Another task got there first
+                LOGGER.debug("Not renaming {} to {} as the destination already exists", src, dst);
+            }
+        }
     }
 
     private ParquetWriter<Element> buildWriter(final String group,
-                                               final String filename,
+                                               final Path writerPath,
                                                final SchemaUtils schemaUtils)
             throws IOException {
-        final Path writerPath = new Path(filename);
         LOGGER.info("Creating a new writer for group {} at path {}", group, writerPath);
         return new ParquetElementWriter.Builder(writerPath)
                 .withType(schemaUtils.getParquetSchema(group))
