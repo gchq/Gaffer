@@ -41,12 +41,14 @@ import java.util.stream.Stream;
 /**
  * Map data store implementation use by the Gaffer {@link uk.gov.gchq.gaffer.mapstore.MapStore}
  * class.
+ * <p>
  * This class can be thought of as an analogue to a conventional database. Internally,
  * different {@link Map} and {@link MultiMap} instances are used to keep track of
  * the stored elements and the relationships between those elements. This data store
  * is then abstracted again as a Gaffer {@link uk.gov.gchq.gaffer.store.Store} (by
  * the {@link uk.gov.gchq.gaffer.mapstore.MapStore} class) to give Gaffer-specific
  * functionality.
+ * <p>
  * The internal variables of this class are package-private. This allows operation
  * handlers for the {@link uk.gov.gchq.gaffer.mapstore.MapStore} to be placed in the
  * same package and get access to the maps, without exposing the internal state of
