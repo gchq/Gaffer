@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
-
 /**
  * Map data store implementation use by the Gaffer {@link uk.gov.gchq.gaffer.mapstore.MapStore}
  * class.
@@ -131,7 +129,7 @@ public class MapImpl {
     }
 
     void addAggElement(final Element elementWithGroupByProperties, final GroupedProperties properties) {
-        if (nonNull(aggElements.get(elementWithGroupByProperties.getGroup()))) {
+        if (null != aggElements.get(elementWithGroupByProperties.getGroup())) {
             aggElements.get(elementWithGroupByProperties.getGroup())
                     .merge(elementWithGroupByProperties, properties, propertyAggregator);
         }
@@ -254,7 +252,8 @@ public class MapImpl {
         return totalCount;
     }
 
-    private MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
+    private MapFactory createMapFactory(final Schema schema,
+                                        final MapStoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
         final String factoryClass = mapStoreProperties.getMapFactory();
         if (null == factoryClass) {

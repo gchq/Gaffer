@@ -21,14 +21,15 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities.WriteData;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateDataForGroup;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitioner;
@@ -40,6 +41,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,143 +55,269 @@ import java.util.function.Function;
 public class AddElementsFromRDD {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDD.class);
 
-    void addElementsFromRDD(final JavaRDD<Element> input, final Context context, final ParquetStore store) throws OperationException {
-        final FileSystem fs = store.getFS();
-        final ParquetStoreProperties storeProperties = store.getProperties();
-        final SchemaUtils schemaUtils = store.getSchemaUtils();
-        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
-        SparkParquetUtils.configureSparkForAddElements(spark, storeProperties);
-        final String tempDir = store.getProperties().getTempFilesDir();
+    private final ParquetStore store;
+    private final Schema schema;
+    private final SchemaUtils schemaUtils;
+    private final FileSystem fs;
+    private final SparkSession spark;
+    private final String tempDir;
 
-        // Locations for intermediate files
+    AddElementsFromRDD(final Context context, final ParquetStore store) {
+        this.store = store;
+        this.schema = store.getSchema();
+        this.schemaUtils = store.getSchemaUtils();
+        this.fs = store.getFS();
+        this.spark = SparkContextUtil.getSparkSession(context, store.getProperties());
+        SparkParquetUtils.configureSparkForAddElements(spark, store.getProperties());
+        this.tempDir = store.getProperties().getTempFilesDir();
+    }
+
+    void addElementsFromRDD(final JavaRDD<Element> input) throws OperationException {
+        writeInputData(input);
+        aggregateNewAndOldData();
+        sort();
+        sortEdgeGroupsByDestination();
+        calculateAndWritePartitioner();
+        createNewSnapshotDirectory();
+        deleteTempDirectory();
+    }
+
+    void addElementsFromRDD(final RDD<Element> input) throws OperationException {
+        addElementsFromRDD(input.toJavaRDD());
+    }
+
+    private String getDirectory(final String group, final boolean sorted, final boolean aggregated, final boolean reversed) {
+        return tempDir
+                + "/AddElementsFromRDDTemp/"
+                + (sorted ? "sorted" : "unsorted")
+                + "_"
+                + (aggregated ? "aggregated" : "unaggregated")
+                + "_new/"
+                + (reversed ? "reversed-" : "")
+                + (null != group ? "group=" + group : "")
+                + "/";
+    }
+
+    /**
+     * Writes the provided {@link JavaRDD} of {@link Element}s to files split by group and partition. The data is
+     * written in the order the {@link JavaRDD} provides it, with no sorting or aggregation.
+     *
+     * @param input the JavaRDD of Elements
+     */
+    private void writeInputData(final JavaRDD<Element> input) {
+        LOGGER.info("Writing data for input RDD");
         final Function<String, String> groupToUnsortedUnaggregatedNewData =
-                group -> tempDir + "/AddElementsFromRDDTemp/unsorted_unaggregated_new/group=" + group + "/";
-        final Function<String, String> groupToUnsortedAggregatedNewData =
-                group -> tempDir + "/AddElementsFromRDDTemp/unsorted_aggregated_new/group=" + group + "/";
-        final Function<String, String> groupToSortedAggregatedNewData =
-                group -> tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/group=" + group + "/";
-        final Function<String, String> groupToSortedAggregatedNewDataReversed =
-                group -> tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/reversed-group=" + group + "/";
+                group -> getDirectory(group, false, false, false);
+        input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, schema));
+    }
 
-        try {
-            // Write data from input to unsorted files (for each partition of input, there will be one file per group)
-            LOGGER.info("Writing data for input RDD");
-            input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, store.getSchema()));
-
-            // Aggregate the new data and old data together (one job for each group)
-            for (final String group : schemaUtils.getGroups()) {
-                if (schemaUtils.getGafferSchema().getAggregatedGroups().contains(group)) {
-                    LOGGER.info("Creating AggregateDataForGroup task for group {}", group);
-                    final List<String> inputFiles = new ArrayList<>();
-                    final String groupDirectoryNewData = groupToUnsortedUnaggregatedNewData.apply(group);
-                    final FileStatus[] newData = fs
-                            .listStatus(new Path(groupDirectoryNewData), path -> path.getName().endsWith(".parquet"));
-                    Arrays.stream(newData).map(f -> f.getPath().toString()).forEach(inputFiles::add);
-                    final List<Path> existingData = store.getFilesForGroup(group);
-                    existingData.stream().map(p -> p.toString()).forEach(inputFiles::add);
-                    final String outputDir = groupToUnsortedAggregatedNewData.apply(group);
-                    LOGGER.info("AggregateDataForGroup task for group {} is being called ({} files as input, outputting to {})",
-                            group, inputFiles.size(), outputDir);
-                    new AggregateDataForGroup(fs, schemaUtils, group, inputFiles, outputDir, spark).call();
-                } else {
-                    LOGGER.info("Group {} does not require aggregation so not creating AggregateDataForGroup task", group);
-                }
+    /**
+     * For each group that requires aggregation, this method aggregates the new data that has been written out to file
+     * with the existing data for that group.
+     *
+     * @throws OperationException if an {@link IOException} or a {@link SerialisationException} is thrown
+     */
+    private void aggregateNewAndOldData() throws OperationException {
+        LOGGER.info("Creating AggregateDataForGroup tasks for groups that require aggregation");
+        for (final String group : schema.getAggregatedGroups()) {
+            LOGGER.info("Creating AggregateDataForGroup task for group {}", group);
+            final List<String> inputFiles = new ArrayList<>();
+            final String groupDirectoryNewData = getDirectory(group, false, false, false);
+            final FileStatus[] newData;
+            try {
+                newData = fs.listStatus(new Path(groupDirectoryNewData), path -> path.getName().endsWith(".parquet"));
+            } catch (final IOException e) {
+                throw new OperationException("IOException finding Parquet files in " + groupDirectoryNewData, e);
             }
+            Arrays.stream(newData).map(f -> f.getPath().toString()).forEach(inputFiles::add);
+            final List<Path> existingData;
+            try {
+                existingData = store.getFilesForGroup(group);
+            } catch (final IOException e) {
+                throw new OperationException("IOException finding files for group " + group, e);
+            }
+            existingData.stream().map(Path::toString).forEach(inputFiles::add);
+            final String outputDir = getDirectory(group, false, true, false);
+            final AggregateDataForGroup aggregateDataForGroup;
+            try {
+                aggregateDataForGroup = new AggregateDataForGroup(fs, schemaUtils, group, inputFiles, outputDir, spark);
+            } catch (final SerialisationException e) {
+                throw new OperationException("SerialisationException creating AggregateDataForGroup task", e);
+            }
+            LOGGER.info("AggregateDataForGroup task for group {} is being called ({} files as input, outputting to {})",
+                    group, inputFiles.size(), outputDir);
+            aggregateDataForGroup.call();
+        }
+    }
 
-            // Sort the data (one job for each group)
+    /**
+     * For each group, sorts the data. If the group requires aggregation then the aggregated data from the previous
+     * call to {@link AddElementsFromRDD#aggregateNewAndOldData} is sorted. If the group does not require aggregation
+     * then the existing data and the new data are sorted in one operation.
+     *
+     * @throws OperationException if an {@link IOException} is thrown
+     */
+    private void sort() throws OperationException {
+        try {
             for (final String group : schemaUtils.getGroups()) {
-                final List<String> sortColumns = schemaUtils.columnsToSortBy(group, false);
                 final List<String> inputFiles = new ArrayList<>();
-                final String outputDir = groupToSortedAggregatedNewData.apply(group);
+                final String outputDir = getDirectory(group, true, true, false);
                 if (schemaUtils.getGafferSchema().getAggregatedGroups().contains(group)) {
-                    final String inputDir = groupToUnsortedAggregatedNewData.apply(group);
+                    final String inputDir = getDirectory(group, false, true, false);
                     final FileStatus[] inputFilesFS = fs
                             .listStatus(new Path(inputDir), path -> path.getName().endsWith(".parquet"));
                     Arrays.stream(inputFilesFS).map(f -> f.getPath().toString()).forEach(inputFiles::add);
                 } else {
                     // Input is new data from groupToUnsortedUnaggregatedNewData and old data from existing snapshot directory
-                    final String groupDirectoryNewData = groupToUnsortedUnaggregatedNewData.apply(group);
-                    final FileStatus[] newData = fs.listStatus(new Path(groupDirectoryNewData), path -> path.getName().endsWith(".parquet"));
+                    final String groupDirectoryNewData = getDirectory(group, false, false, false);
+                    final FileStatus[] newData = fs
+                            .listStatus(new Path(groupDirectoryNewData), path -> path.getName().endsWith(".parquet"));
                     Arrays.stream(newData).map(f -> f.getPath().toString()).forEach(inputFiles::add);
                     final List<Path> existingData = store.getFilesForGroup(group);
                     existingData.stream().map(p -> p.toString()).forEach(inputFiles::add);
                 }
-                LOGGER.info("SortFullGroup task for group {} is being called ({} files as input, outputting to {})",
-                        group, inputFiles.size(), outputDir);
-                new SortFullGroup(group,
-                        schemaUtils.getEntityGroups().contains(group),
-                        false,
-                        schemaUtils,
-                        sortColumns,
-                        inputFiles,
-                        outputDir,
-                        store.getProperties().getAddElementsOutputFilesPerGroup(),
-                        spark,
-                        fs).call();
+                sort(group, false, inputFiles, outputDir);
             }
+        } catch (final IOException e) {
+            throw new OperationException("IOException sorting data", e);
+        }
+    }
 
+    /**
+     * Sorts all the edge groups by destination then source.
+     *
+     * @throws OperationException if an {@link IOException} is thrown
+     */
+    private void sortEdgeGroupsByDestination() throws OperationException {
+        try {
             // For each edge group, sort by destination to create reversed edges files
             for (final String group : schemaUtils.getEdgeGroups()) {
-                final List<String> sortColumns = schemaUtils.columnsToSortBy(group, true);
                 final List<String> inputFiles = new ArrayList<>();
-                final String inputDir = groupToSortedAggregatedNewData.apply(group);
+                final String inputDir = getDirectory(group, true, true, false);
                 final FileStatus[] inputFilesFS = fs
                         .listStatus(new Path(inputDir), path -> path.getName().endsWith(".parquet"));
                 Arrays.stream(inputFilesFS).map(f -> f.getPath().toString()).forEach(inputFiles::add);
-                final String outputDir = groupToSortedAggregatedNewDataReversed.apply(group);
-                new SortFullGroup(group,
-                        schemaUtils.getEntityGroups().contains(group),
-                        true,
-                        schemaUtils,
-                        sortColumns,
-                        inputFiles,
-                        outputDir,
-                        store.getProperties().getAddElementsOutputFilesPerGroup(),
-                        spark,
-                        fs).call();
-                LOGGER.info("SortFullGroup task for reversed edge group {} is being called ({} files as input, outputting to {})",
-                        group, inputFiles.size(), outputDir);
+                final String outputDir = getDirectory(group, true, true, true);
+                sort(group, true, inputFiles, outputDir);
             }
+        } catch (final IOException e) {
+            throw new OperationException("IOException sorting edge groups by destination", e);
+        }
+    }
 
-            // Create new graph partitioner
-            LOGGER.info("Calculating new GraphPartitioner");
-            final GraphPartitioner newPartitioner = new CalculatePartitioner(
-                    new Path(tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/"), store.getSchema(), fs).call();
-            LOGGER.info("New GraphPartitioner has partitions for {} groups, {} reversed edge groups",
-                    newPartitioner.getGroups().size(), newPartitioner.getGroupsForReversedEdges().size());
+    /**
+     * Sorts the provided data.
+     *
+     * @param group the group
+     * @param reversed whether these are edges that need to be sorted by destination then source
+     * @param inputFiles the input files
+     * @param outputDir the directory to write the output to
+     * @throws OperationException if an {@link IOException} is thrown
+     */
+    private void sort(final String group, final boolean reversed, final List<String> inputFiles, final String outputDir)
+            throws OperationException {
+        try {
+            final List<String> sortColumns = schemaUtils.columnsToSortBy(group, reversed);
+            LOGGER.info("SortFullGroup task for {} group {} is being called ({} files as input, outputting to {})",
+                    reversed ? "reversed" : "", group, inputFiles.size(), outputDir);
+            new SortFullGroup(group,
+                    schemaUtils.getEntityGroups().contains(group),
+                    reversed,
+                    schemaUtils,
+                    sortColumns,
+                    inputFiles,
+                    outputDir,
+                    store.getProperties().getAddElementsOutputFilesPerGroup(),
+                    spark,
+                    fs).call();
+        } catch (final IOException e) {
+            throw new OperationException("TODO");
+        }
+    }
 
-            // Write out graph partitioner
-            final Path newGraphPartitionerPath = new Path(tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/graphPartitioner");
+    /**
+     * Calculates the new graph partitioner and writes it to file.
+     *
+     * @throws OperationException if an {@link IOException} is thrown
+     */
+    private void calculateAndWritePartitioner() throws OperationException {
+        // Create new graph partitioner
+        LOGGER.info("Calculating new GraphPartitioner");
+        final GraphPartitioner newPartitioner;
+        try {
+            newPartitioner = new CalculatePartitioner(
+                    new Path(getDirectory(null, true, true, false)),
+                    store.getSchema(), fs).call();
+        } catch (final IOException e) {
+            throw new OperationException("IOException calculating new graph partitioner", e);
+        }
+        LOGGER.info("New GraphPartitioner has partitions for {} groups, {} reversed edge groups",
+                newPartitioner.getGroups().size(), newPartitioner.getGroupsForReversedEdges().size());
+
+        // Write out graph partitioner
+        Path newGraphPartitionerPath = null;
+        try {
+            newGraphPartitionerPath = new Path(getDirectory(null, true, true, false) + "graphPartitioner");
             final FSDataOutputStream stream = fs.create(newGraphPartitionerPath);
             LOGGER.info("Writing graph partitioner to {}", newGraphPartitionerPath);
             new GraphPartitionerSerialiser().write(newPartitioner, stream);
             stream.close();
+        } catch (final IOException e) {
+            throw new OperationException("IOException writing out graph partitioner to " + newGraphPartitionerPath, e);
+        }
+    }
 
-            // Move results to a new snapshot directory (the -tmp at the end allows us to add data to the directory,
-            // and then when this is all finished we rename the directory to remove the -tmp; this allows us to make
-            // the replacement of the old data with the new data an atomic operation and ensures that a get operation
-            // against the store will not read the directory when only some of the data has been moved there).
-            final long snapshot = System.currentTimeMillis();
-            final String newDataDir = store.getDataDir() + "/" + ParquetStore.getSnapshotPath(snapshot) + "-tmp";
-            LOGGER.info("Moving aggregated and sorted data to new snapshot directory {}", newDataDir);
+    /**
+     * Creates a new snapshot directory within the data directory in the store and moves the new data there.
+     *
+     * This is done by first creating the new snapshot directory with "-tmp" at the end, then all files are moved
+     * into that directory, and then the directory is renamed so that the "-tmp" is removed. This allows us to make
+     * the replacement of the old data with the new data an atomic operation and ensures that a get operation
+     * against the store will not read the directory when only some of the data has been moved there.
+     *
+     * @throws OperationException if an {@link IOException} or {@link StoreException} is thrown
+     */
+    private void createNewSnapshotDirectory() throws OperationException {
+        final long snapshot = System.currentTimeMillis();
+        final String newDataDir = store.getDataDir() + "/" + ParquetStore.getSnapshotPath(snapshot) + "-tmp/";
+        LOGGER.info("Moving aggregated and sorted data to new snapshot-tmp directory {}", newDataDir);
+        try {
             fs.mkdirs(new Path(newDataDir));
-            fs.rename(new Path(tempDir + "/AddElementsFromRDDTemp/sorted_aggregated_new/"),
-                    new Path(newDataDir));
+            final FileStatus[] fss = fs.listStatus(new Path(getDirectory(null, true, true, false)));
+            for (int i = 0; i < fss.length; i++) {
+                final Path destination = new Path(newDataDir, fss[i].getPath().getName());
+                fs.rename(fss[i].getPath(), destination);
+                LOGGER.debug("Renamed {} to {}", fss[i].getPath(), destination);
+            }
 
             // Move snapshot-tmp directory to snapshot
             final String directoryWithoutTmp = newDataDir.substring(0, newDataDir.lastIndexOf("-tmp"));
             LOGGER.info("Renaming {} to {}", newDataDir, directoryWithoutTmp);
             fs.rename(new Path(newDataDir), new Path(directoryWithoutTmp));
+        } catch (final IOException e) {
+            throw new OperationException("IOException moving files to new snapshot directory", e);
+        }
 
-            // Set snapshot on store to new value
-            LOGGER.info("Updating latest snapshot on store to {}", snapshot);
+        // Set snapshot on store to new value
+        LOGGER.info("Updating latest snapshot on store to {}", snapshot);
+        try {
             store.setLatestSnapshot(snapshot);
+        } catch (final StoreException e) {
+            throw new OperationException("StoreException setting the latest snapshot on the store to " + snapshot, e);
+        }
+    }
 
-            // Delete temporary data directory
-            LOGGER.info("Deleting temporary directory {}", new Path(tempDir));
+    /**
+     * Deletes the temporary directory used for temporary data.
+     *
+     * @throws OperationException if an {@link IOException} is thrown
+     */
+    private void deleteTempDirectory() throws OperationException {
+        LOGGER.info("Deleting temporary directory {}", new Path(tempDir));
+        try {
             fs.delete(new Path(tempDir), true);
-        } catch (final IOException | StoreException e) {
-            throw new OperationException("IOException adding elements from RDD", e);
+        } catch (final IOException e) {
+            throw new OperationException("IOException deleting temporary directory " + tempDir, e);
         }
     }
 }

@@ -31,7 +31,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     @Override
     public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store)
             throws OperationException {
-        new AddElementsFromRDD().addElementsFromRDD(operation.getInput().toJavaRDD(), context, (ParquetStore) store);
+        new AddElementsFromRDD(context, (ParquetStore) store).addElementsFromRDD(operation.getInput());
         return null;
     }
 }
