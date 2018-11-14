@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -35,27 +37,26 @@ import static org.mockito.Mockito.mock;
 public class GetVariablesHandlerTest {
     private final Store store = mock(Store.class);
     private final String key1 = "key1";
-    private final String val1 = "val1";
+    private final VariableDetail variableDetailVal1 = new VariableDetail.Builder().value("val1").build();
     private final String key2 = "key2";
-    private final String val2 = "val2";
+    private final VariableDetail variableDetailVal2 = new VariableDetail.Builder().value("val2").build();
     private final String key3 = "key3";
-    private final String val3 = "val3";
-
+    private final VariableDetail variableDetailVal3 = new VariableDetail.Builder().value("val3").build();
 
     @Test
     public void shouldGetAllVariableValuesWhenAllPresent() throws OperationException {
         final Context context = mock(Context.class);
-        given(context.getVariable(key1)).willReturn(val1);
-        given(context.getVariable(key2)).willReturn(val2);
-        given(context.getVariable(key3)).willReturn(val3);
+        given(context.getVariable(key1)).willReturn(variableDetailVal1);
+        given(context.getVariable(key2)).willReturn(variableDetailVal2);
+        given(context.getVariable(key3)).willReturn(variableDetailVal3);
 
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
-        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+        Map<String, VariableDetail> resultMap = handler.doOperation(op, context, store);
 
-        assertEquals(ImmutableMap.of(key1, val1, key2, val2, key3, val3), resultMap);
+        assertEquals(ImmutableMap.of(key1, variableDetailVal1, key2, variableDetailVal2, key3, variableDetailVal3), resultMap);
     }
 
     @Test
@@ -74,7 +75,7 @@ public class GetVariablesHandlerTest {
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
-        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+        Map<String, VariableDetail> resultMap = handler.doOperation(op, context, store);
 
         assertEquals(expected, resultMap);
     }
@@ -82,20 +83,20 @@ public class GetVariablesHandlerTest {
     @Test
     public void shouldReturnPartiallyFilledMapWhenSomeValuesPresent() throws OperationException {
         final Context context = mock(Context.class);
-        given(context.getVariable(key1)).willReturn(val1);
+        given(context.getVariable(key1)).willReturn(variableDetailVal1);
         given(context.getVariable(key2)).willReturn(null);
-        given(context.getVariable(key3)).willReturn(val3);
+        given(context.getVariable(key3)).willReturn(variableDetailVal3);
 
         Map expected = new HashMap<>();
-        expected.put(key1, val1);
+        expected.put(key1, variableDetailVal1);
         expected.put(key2, null);
-        expected.put(key3, val3);
+        expected.put(key3, variableDetailVal3);
 
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
-        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+        Map<String, VariableDetail> resultMap = handler.doOperation(op, context, store);
 
         assertEquals(expected, resultMap);
     }

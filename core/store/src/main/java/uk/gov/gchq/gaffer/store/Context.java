@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -39,7 +40,7 @@ public class Context {
     private final String jobId;
     private final Map<String, Object> config;
     private OperationChain<?> originalOpChain;
-    private Map<String, Object> variables;
+    private Map<String, VariableDetail> variables = new HashMap<>();
 
     /**
      * Map of exporter simple class name to exporter
@@ -65,6 +66,9 @@ public class Context {
         exporters.putAll(context.exporters);
         if (null != context.originalOpChain) {
             originalOpChain = context.originalOpChain.shallowClone();
+        }
+        if (null != context.getVariables()) {
+            variables = context.getVariables();
         }
     }
 
@@ -124,19 +128,19 @@ public class Context {
         return jobId;
     }
 
-    public Map<String, Object> getVariables() {
+    public Map<String, VariableDetail> getVariables() {
         return variables;
     }
 
-    public Object getVariable(final String key) {
+    public VariableDetail getVariable(final String key) {
         return variables.get(key);
     }
 
-    public void setVariables(final Map<String, Object> variables) {
+    public void setVariables(final Map<String, VariableDetail> variables) {
         this.variables = variables;
     }
 
-    public void setVariable(final String key, final Object value) {
+    public void setVariable(final String key, final VariableDetail value) {
         if (null != variables) {
             this.variables.put(key, value);
         } else {
@@ -144,7 +148,7 @@ public class Context {
         }
     }
 
-    public void addVariables(final Map<String, Object> variables) {
+    public void addVariables(final Map<String, VariableDetail> variables) {
         if (null != variables) {
             this.variables.putAll(variables);
         } else {

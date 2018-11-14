@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.impl.GetVariable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.mock;
 
 public class GetVariableHandlerTest {
     private final String varName = "varName";
-    private final String varVal = "varVal";
+    private final VariableDetail variableDetail = new VariableDetail.Builder().valueClass(Integer.class).value(1).build();
     private final Store store = mock(Store.class);
 
     @Test
@@ -39,11 +40,11 @@ public class GetVariableHandlerTest {
         final GetVariableHandler handler = new GetVariableHandler();
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
-        given(context.getVariable(varName)).willReturn(varVal);
+        given(context.getVariable(varName)).willReturn(variableDetail);
 
         final Object variableValueFromOp = handler.doOperation(op, context, store);
 
-        assertEquals(varVal, variableValueFromOp);
+        assertEquals(variableDetail, variableValueFromOp);
     }
 
     @Test

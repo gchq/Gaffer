@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -47,7 +48,7 @@ public class SetVariableTest extends OperationTest<SetVariable> {
     protected SetVariable getTestObject() {
         return new SetVariable.Builder()
                 .variableName("varName")
-                .input(varVal)
+                .input(new VariableDetail.Builder().valueClass(Integer.class).value(1).build())
                 .build();
     }
 }

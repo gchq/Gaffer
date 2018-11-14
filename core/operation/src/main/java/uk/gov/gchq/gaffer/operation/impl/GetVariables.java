@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
@@ -32,7 +33,7 @@ import java.util.Map;
 @Since("1.8.0")
 @Summary("Gets all variables from the Context variable map")
 @JsonPropertyOrder(value = {"variableNames", "options"}, alphabetic = true)
-public class GetVariables implements Output<Map<String, Object>> {
+public class GetVariables implements Output<Map<String, VariableDetail>> {
     private List<String> variableNames;
     private Map<String, String> options;
 
@@ -55,8 +56,8 @@ public class GetVariables implements Output<Map<String, Object>> {
     }
 
     @Override
-    public TypeReference<Map<String, Object>> getOutputTypeReference() {
-        return new TypeReferenceImpl.MapStringObject();
+    public TypeReference<Map<String, VariableDetail>> getOutputTypeReference() {
+        return new TypeReferenceImpl.MapStringVariableDetail();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class GetVariables implements Output<Map<String, Object>> {
 
     public static final class Builder
             extends Operation.BaseBuilder<GetVariables, Builder>
-            implements Output.Builder<GetVariables, Map<String, Object>, Builder> {
+            implements Output.Builder<GetVariables, Map<String, VariableDetail>, Builder> {
 
         public Builder() {
             super(new GetVariables());

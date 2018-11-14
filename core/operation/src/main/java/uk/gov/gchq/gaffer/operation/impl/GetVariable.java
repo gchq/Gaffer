@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
@@ -30,7 +31,7 @@ import java.util.Map;
 @Since("1.8.0")
 @Summary("Gets a variable from the Context variable map")
 @JsonPropertyOrder(value = {"variableName", "options"}, alphabetic = true)
-public class GetVariable implements Output<Object> {
+public class GetVariable implements Output<VariableDetail> {
     private String variableName;
     private Map<String, String> options;
 
@@ -43,8 +44,8 @@ public class GetVariable implements Output<Object> {
     }
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<VariableDetail> getOutputTypeReference() {
+        return new TypeReferenceImpl.VariableDetail();
     }
 
     @Override
@@ -66,7 +67,7 @@ public class GetVariable implements Output<Object> {
     }
 
     public static class Builder extends BaseBuilder<GetVariable, Builder> implements
-            Output.Builder<GetVariable, Object, Builder> {
+            Output.Builder<GetVariable, VariableDetail, Builder> {
         public Builder() {
             super(new GetVariable());
         }

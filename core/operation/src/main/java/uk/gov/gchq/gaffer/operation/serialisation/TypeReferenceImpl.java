@@ -112,6 +112,9 @@ public final class TypeReferenceImpl {
     public static class MapStringObject extends TypeReference<java.util.Map<java.lang.String, java.lang.Object>> {
     }
 
+    public static class MapStringVariableDetail extends TypeReference<java.util.Map<java.lang.String, uk.gov.gchq.gaffer.operation.VariableDetail>> {
+    }
+
     public static class MapStringSet extends TypeReference<java.util.Map<java.lang.String, java.util.Set<java.lang.Object>>> {
     }
 
@@ -164,6 +167,10 @@ public final class TypeReferenceImpl {
     }
 
     public static class ValidationResult extends TypeReference<uk.gov.gchq.koryphe.ValidationResult> {
+
+    }
+
+    public static class VariableDetail extends TypeReference<uk.gov.gchq.gaffer.operation.VariableDetail> {
 
     }
 }

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -36,16 +37,16 @@ public class SetVariableHandlerTest {
         final Context context = new Context(new User());
         final Store store = mock(Store.class);
         final String testVarName = "testVarName";
-        final int testVarValue = 4;
+        final VariableDetail variableDetail = new VariableDetail.Builder().valueClass(Integer.class).value(4).build();
 
         SetVariableHandler handler = new SetVariableHandler();
-        SetVariable op = new SetVariable.Builder().variableName(testVarName).input(testVarValue).build();
+        SetVariable op = new SetVariable.Builder().variableName(testVarName).input(variableDetail).build();
 
         // When
         handler.doOperation(op, context, store);
 
         // Then
-        assertTrue(context.getVariable(testVarName).equals(testVarValue));
-        assertTrue(context.getVariables().equals(ImmutableMap.of(testVarName, testVarValue)));
+        assertTrue(context.getVariable(testVarName).equals(variableDetail.getValue()));
+        assertTrue(context.getVariables().equals(ImmutableMap.of(testVarName, variableDetail.getValue())));
     }
 }

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.VariableDetail;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -29,18 +30,18 @@ import java.util.Map;
 @Since("1.8.0")
 @Summary("Sets a variable in the Context")
 @JsonPropertyOrder(value = {"input", "variableName", "options"}, alphabetic = true)
-public class SetVariable implements Input<Object> {
-    private Object input;
+public class SetVariable implements Input<VariableDetail> {
+    private VariableDetail input;
     private String variableName;
     private Map<String, String> options;
 
     @Override
-    public Object getInput() {
+    public VariableDetail getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Object input) {
+    public void setInput(final VariableDetail input) {
         this.input = input;
     }
 
@@ -73,7 +74,7 @@ public class SetVariable implements Input<Object> {
 
     public static final class Builder
             extends Operation.BaseBuilder<SetVariable, Builder>
-            implements Input.Builder<SetVariable, Object, Builder> {
+            implements Input.Builder<SetVariable, VariableDetail, Builder> {
         public Builder() {
             super(new SetVariable());
         }

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.VariablesResolver;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -38,13 +39,17 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
 
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
-
         prepareOperationChain(operationChain, context, store);
 
         Object result = null;
+        int x = 0;
         for (final Operation op : operationChain.getOperations()) {
-            updateOperationInput(op, result);
-            result = store.handleOperation(op, context);
+            VariablesResolver variablesResolver = new VariablesResolver();
+            OperationChain<OUT> chain2 = new OperationChain(variablesResolver.resolve(operationChain, context));
+            Operation updatedOp = chain2.getOperations().get(x);
+            updateOperationInput(updatedOp, result);
+            result = store.handleOperation(updatedOp, context);
+            x += 1;
         }
 
         return (OUT) result;
@@ -62,6 +67,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
+
         return optimisedOperationChain;
     }
 
