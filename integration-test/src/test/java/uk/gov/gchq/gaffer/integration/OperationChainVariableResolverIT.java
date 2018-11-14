@@ -46,47 +46,24 @@ public class OperationChainVariableResolverIT extends AbstractStoreIT {
     }
 
     @Test
-    public void test() throws OperationException {
-        GetElements getElements = new GetElements.Builder()
-                .input(new EntitySeed(SOURCE_1), new EntitySeed(DEST_2))
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
-
-        final Context context = new Context(getUser());
-
-        CloseableIterable<? extends Element> results = graph.execute(getElements, context);
-
-        ElementUtil.assertElementEquals(Arrays.asList(
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex(SOURCE_1)
-                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex(DEST_2)
-                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .build()
-                ),
-                results);
-    }
-
-    @Test
-    public void shouldPass() throws OperationException {
+    public void shouldSubstituteInStringVariableToGetElements() throws OperationException {
         final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new SetVariable.Builder()
-                        .variableName("testInputVar")
+                        .variableName("getElementsSeed")
                         .input(new VariableDetail.Builder()
                                 .valueClass(String.class)
                                 .value(SOURCE_1)
                                 .build())
                         .build())
+                .then(new SetVariable.Builder()
+                        .variableName("limitVal")
+                        .input(new VariableDetail.Builder()
+                                .valueClass(Long.class)
+                                .value(1L)
+                                .build())
+                        .build())
                 .then(new GetElements.Builder()
-                        .input("${testInputVar}", new EntitySeed(DEST_2))
+                        .input("${getElementsSeed}", new EntitySeed(DEST_2))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY)
                                 .build())
@@ -112,5 +89,47 @@ public class OperationChainVariableResolverIT extends AbstractStoreIT {
                         .build()
                 ),
                 results);
+    }
+
+    @Test
+    public void shouldSubstituteInLongVariableToLimitUsingJson() {
+        final String opChainString = "{\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\",\n" +
+                "  \"operations\" : [ {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.SetVariable\",\n" +
+                "    \"input\" : {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.VariableDetail\",\n" +
+                "      \"value\" : \"1-Source1\",\n" +
+                "      \"valueClass\" : \"java.lang.String\"\n" +
+                "    },\n" +
+                "    \"variableName\" : \"getElementsSeed\"\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.SetVariable\",\n" +
+                "    \"input\" : {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.VariableDetail\",\n" +
+                "      \"value\" : 1,\n" +
+                "      \"valueClass\" : \"java.lang.Long\"\n" +
+                "    },\n" +
+                "    \"variableName\" : \"limitVal\"\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\",\n" +
+                "    \"input\" : [ {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
+                "      \"vertex\" : \"${getElementsSeed}\"\n" +
+                "    }, {\n" +
+                "      \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",\n" +
+                "      \"vertex\" : \"2-Dest2\"\n" +
+                "    } ],\n" +
+                "    \"view\" : {\n" +
+                "      \"entities\" : {\n" +
+                "        \"BasicEntity\" : { }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }, {\n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.Limit\",\n" +
+                "    \"resultLimit\" : \"${param1}\",\n" +
+                "    \"truncate\" : true\n" +
+                "  } ]\n" +
+                "}";
     }
 }

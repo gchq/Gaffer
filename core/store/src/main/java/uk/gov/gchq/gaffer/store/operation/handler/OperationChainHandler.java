@@ -41,16 +41,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         prepareOperationChain(operationChain, context, store);
 
-        Object result = null;
-        int x = 0;
-        for (final Operation op : operationChain.getOperations()) {
-            VariablesResolver variablesResolver = new VariablesResolver();
-            OperationChain<OUT> chain2 = new OperationChain(variablesResolver.resolve(operationChain, context));
-            Operation updatedOp = chain2.getOperations().get(x);
-            updateOperationInput(updatedOp, result);
-            result = store.handleOperation(updatedOp, context);
-            x += 1;
-        }
+        Object result =  resolveAndRunOperationChain(operationChain, context, store);
 
         return (OUT) result;
     }
@@ -96,5 +87,17 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         if (null == ((Input) op).getInput()) {
             ((Input) op).setInput(result);
         }
+    }
+
+    private Object resolveAndRunOperationChain(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
+        Object result = null;
+
+        for (int i = 0; i < operationChain.getOperations().size(); i++) {
+            OperationChain<OUT> opChain = new OperationChain(VariablesResolver.resolve(operationChain, context));
+            Operation opWithResolvedVariables = opChain.getOperations().get(i);
+            updateOperationInput(opWithResolvedVariables, result);
+            result = store.handleOperation(opWithResolvedVariables, context);
+        }
+        return result;
     }
 }

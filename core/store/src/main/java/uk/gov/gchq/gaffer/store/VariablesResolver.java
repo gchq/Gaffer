@@ -38,12 +38,12 @@ import java.util.regex.Pattern;
 public class VariablesResolver {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
-    public List<Operation> resolve(final OperationChain<?> opChain, final Context context) {
+    public static List<Operation> resolve(final OperationChain<?> opChain, final Context context) {
         String opChainAsString = getOpChainAsString(opChain);
         return resolveOperationsVariables(opChainAsString, context);
     }
 
-    public List<Operation> resolveOperationsVariables(final String opChainInput, final Context context) {
+    public static List<Operation> resolveOperationsVariables(final String opChainInput, final Context context) {
         String opChainString = opChainInput;
         final Map<String, VariableDetail> variableMap = getAllVariableToVariableDetailMapFromOpChain(opChainString, context);
 
@@ -77,11 +77,11 @@ public class VariablesResolver {
         return opChain.getOperations();
     }
 
-    private String buildParamNameString(final String paramKey) {
+    private static String buildParamNameString(final String paramKey) {
         return "\"${" + paramKey + "}\"";
     }
 
-    private Map<String, VariableDetail> getAllVariableToVariableDetailMapFromOpChain(final String opChain, final Context context) {
+    private static Map<String, VariableDetail> getAllVariableToVariableDetailMapFromOpChain(final String opChain, final Context context) {
 
         final String patternString = "\\$\\{(.*?)\\}";
         final Pattern pattern = Pattern.compile(patternString);
@@ -94,11 +94,11 @@ public class VariablesResolver {
         return matches;
     }
 
-    private VariableDetail resolveVariableDetailFromVariableName(final String variableName, final Context context) {
-        return context.getVariable(variableName) != null ? context.getVariable(variableName) : null;
+    private static VariableDetail resolveVariableDetailFromVariableName(final String variableName, final Context context) {
+        return context.getVariable(variableName);
     }
 
-    private String getOpChainAsString(final OperationChain<?> opChain) {
+    private static String getOpChainAsString(final OperationChain<?> opChain) {
         try {
             return new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
         } catch (final SerialisationException se) {

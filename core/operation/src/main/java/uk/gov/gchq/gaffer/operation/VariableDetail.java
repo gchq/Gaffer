@@ -29,7 +29,6 @@ import java.io.Serializable;
 
 @JsonDeserialize(builder = VariableDetail.Builder.class)
 public class VariableDetail implements Serializable {
-    private static final long serialVersionUID = -883113279873631469L;
     private String description;
     private Object value;
     private Class valueClass;
