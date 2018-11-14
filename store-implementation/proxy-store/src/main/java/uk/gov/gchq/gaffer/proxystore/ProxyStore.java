@@ -270,6 +270,11 @@ public class ProxyStore extends AbstractStore {
     }
 
     @Override
+    protected final void addOpHandlers() {
+        super.addOpHandlers();
+    }
+
+    @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
     }

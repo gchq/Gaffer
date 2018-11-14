@@ -91,4 +91,12 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
             ((Input) op).setInput(result);
         }
     }
+
+    public OperationChainValidator getOpChainValidator() {
+        return opChainValidator;
+    }
+
+    public List<OperationChainOptimiser> getOpChainOptimisers() {
+        return opChainOptimisers;
+    }
 }
