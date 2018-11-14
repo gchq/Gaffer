@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
@@ -31,7 +31,7 @@ import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
  */
 public class GetJobDetailsHandler implements OutputOperationHandler<GetJobDetails, JobDetail> {
     @Override
-    public JobDetail doOperation(final GetJobDetails operation, final Context context, final Store store) throws OperationException {
+    public JobDetail doOperation(final GetJobDetails operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == store.getJobTracker()) {
             throw new OperationException("The Job Tracker has not been configured", SERVICE_UNAVAILABLE);
         }

@@ -18,15 +18,15 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetVariables;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GetVariablesHandler implements OperationHandler<GetVariables> {
     @Override
-    public Map<String, Object> doOperation(final GetVariables operation, final Context context, final Store store) throws OperationException {
+    public Map<String, Object> doOperation(final GetVariables operation, final Context context, final AbstractStore store) throws OperationException {
         final Map<String, Object> variableMap = new HashMap<>();
         for (final String key : operation.getVariableNames()) {
             variableMap.put(key, context.getVariable(key));

@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -61,19 +61,19 @@ public class GraphDelegate {
     public static final String GRAPH_ID = "graphId";
     public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
-    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public static Graph createGraph(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return new GraphDelegate().createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public GraphSerialisable createGraphSerialisable(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public Graph createGraphInstance(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         return createGraphInstance(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, null);
     }
 
-    public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public GraphSerialisable createGraphSerialisable(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -93,11 +93,11 @@ public class GraphDelegate {
                 .build();
     }
 
-    public Graph createGraphInstance(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
+    public Graph createGraphInstance(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
         return createGraphSerialisable(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, hooks).getGraph();
     }
 
-    protected StoreProperties resolveStorePropertiesForGraph(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+    protected StoreProperties resolveStorePropertiesForGraph(final AbstractStore store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         StoreProperties resultProps;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided properties and just use the existing properties
@@ -109,7 +109,7 @@ public class GraphDelegate {
         return resultProps;
     }
 
-    protected Schema resolveSchemaForGraph(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
+    protected Schema resolveSchemaForGraph(final AbstractStore store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
         Schema resultSchema;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided schemas and just use the existing schema
@@ -121,7 +121,7 @@ public class GraphDelegate {
         return resultSchema;
     }
 
-    public static void validate(final Store store, final String graphId,
+    public static void validate(final AbstractStore store, final String graphId,
                                 final Schema schema, final StoreProperties storeProperties,
                                 final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
@@ -134,7 +134,7 @@ public class GraphDelegate {
         validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
     }
 
-    public void validateGraph(final Store store, final String graphId,
+    public void validateGraph(final AbstractStore store, final String graphId,
                               final Schema schema, final StoreProperties storeProperties,
                               final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
@@ -147,7 +147,7 @@ public class GraphDelegate {
         validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
     }
 
-    public static void validate(final Store store, final String graphId,
+    public static void validate(final AbstractStore store, final String graphId,
                                 final Schema schema, final StoreProperties storeProperties,
                                 final List<String> parentSchemaIds, final String parentStorePropertiesId,
                                 final Pair<Schema, StoreProperties> existingGraphPair) {
@@ -157,7 +157,7 @@ public class GraphDelegate {
         }
     }
 
-    public void validateGraph(final Store store, final String graphId,
+    public void validateGraph(final AbstractStore store, final String graphId,
                               final Schema schema, final StoreProperties storeProperties,
                               final List<String> parentSchemaIds, final String parentStorePropertiesId,
                               final Pair<Schema, StoreProperties> existingGraphPair) {
@@ -167,7 +167,7 @@ public class GraphDelegate {
         }
     }
 
-    protected static ValidationResult validate(final Store store, final String graphId,
+    protected static ValidationResult validate(final AbstractStore store, final String graphId,
                                                final Schema schema, final StoreProperties storeProperties,
                                                final List<String> parentSchemaIds, final String parentStorePropertiesId,
                                                final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
@@ -239,7 +239,7 @@ public class GraphDelegate {
     }
 
     public abstract static class BaseBuilder<BUILDER extends BaseBuilder> {
-        protected Store store;
+        protected AbstractStore store;
         protected String graphId;
         protected Schema schema;
         protected StoreProperties storeProperties;
@@ -250,7 +250,7 @@ public class GraphDelegate {
             return (BUILDER) this;
         }
 
-        public BUILDER store(final Store store) {
+        public BUILDER store(final AbstractStore store) {
             this.store = store;
             return _self();
         }

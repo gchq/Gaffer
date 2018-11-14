@@ -32,9 +32,9 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.ElementValidator;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
@@ -83,7 +83,7 @@ public class ExportToGafferResultCacheHandlerTest {
                 .build();
 
         final Context context = new Context();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
 
@@ -112,7 +112,7 @@ public class ExportToGafferResultCacheHandlerTest {
                 .input(results)
                 .build();
         final Context context = new Context();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
@@ -121,7 +121,7 @@ public class ExportToGafferResultCacheHandlerTest {
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
-        final Store cacheStore = mock(Store.class);
+        final AbstractStore cacheStore = mock(AbstractStore.class);
         TestStore.mockStore = cacheStore;
 
         // When
@@ -140,7 +140,7 @@ public class ExportToGafferResultCacheHandlerTest {
     @Test
     public void shouldCreateCacheGraph() throws OperationException {
         // Given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final long timeToLive = 10000L;
 

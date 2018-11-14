@@ -19,8 +19,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.StreamMapIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  */
 public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
     @Override
-    public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
+    public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

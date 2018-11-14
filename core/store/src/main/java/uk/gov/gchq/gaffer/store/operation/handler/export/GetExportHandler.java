@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * Abstract class describing how to handle {@link GetExport} operations.
@@ -34,7 +34,7 @@ public abstract class GetExportHandler<EXPORT extends GetExport & Operation, EXP
     @Override
     public CloseableIterable<?> doOperation(final EXPORT export,
                                             final Context context,
-                                            final Store store,
+                                            final AbstractStore store,
                                             final EXPORTER exporter)
             throws OperationException {
         return getExport(export, exporter);

@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.generate;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 public class GenerateElementsHandler<OBJ> implements OutputOperationHandler<GenerateElements<OBJ>, Iterable<? extends Element>> {
     @Override
     public Iterable<? extends Element> doOperation(final GenerateElements<OBJ> operation,
-                                                   final Context context, final Store store)
+                                                   final Context context, final AbstractStore store)
             throws OperationException {
         return operation.getElementGenerator().apply(operation.getInput());
     }

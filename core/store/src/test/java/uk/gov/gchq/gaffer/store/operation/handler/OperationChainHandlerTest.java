@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -56,7 +56,7 @@ public class OperationChainHandlerTest {
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
         final StoreProperties storeProperties = new StoreProperties();
@@ -90,7 +90,7 @@ public class OperationChainHandlerTest {
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
         final StoreProperties storeProperties = new StoreProperties();
@@ -121,7 +121,7 @@ public class OperationChainHandlerTest {
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
         final StoreProperties storeProperties = new StoreProperties();

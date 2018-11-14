@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.Accum
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.SampleDataAndCreateSplitsFileTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
@@ -34,7 +34,7 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
 
     @Override
     public Void doOperation(final SampleDataForSplitPoints operation,
-                            final Context context, final Store store)
+                            final Context context, final AbstractStore store)
             throws OperationException {
         generateSplitsFromSampleData(operation, (AccumuloStore) store);
         return null;

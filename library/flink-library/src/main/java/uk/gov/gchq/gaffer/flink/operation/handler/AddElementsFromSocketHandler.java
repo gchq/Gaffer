@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
-    public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final AddElementsFromSocket op, final Context context, final AbstractStore store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         if (null != op.getParallelism()) {
             env.setParallelism(op.getParallelism());

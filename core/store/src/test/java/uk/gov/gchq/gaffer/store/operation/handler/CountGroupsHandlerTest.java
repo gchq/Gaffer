@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class CountGroupsHandlerTest {
     public void shouldReturnNoCountsIfElementsAreNull() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final CountGroups countGroups = mock(CountGroups.class);
         final Context context = new Context();
 
@@ -67,7 +67,7 @@ public class CountGroupsHandlerTest {
     public void shouldReturnGroupCountsWithoutLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final CountGroups countGroups = mock(CountGroups.class);
         final CloseableIterable elements = getElements();
         final Context context = new Context();
@@ -95,7 +95,7 @@ public class CountGroupsHandlerTest {
     public void shouldReturnAllGroupCountsWhenLessThanLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final CountGroups countGroups = mock(CountGroups.class);
         final CloseableIterable elements = getElements();
         final Integer limit = 10;
@@ -124,7 +124,7 @@ public class CountGroupsHandlerTest {
     public void shouldReturnGroupCountsUpToLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final CountGroups countGroups = mock(CountGroups.class);
         final CloseableIterable elements = getElements();
         final Integer limit = 3;

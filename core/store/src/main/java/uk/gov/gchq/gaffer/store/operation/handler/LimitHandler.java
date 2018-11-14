@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * An {@code LimitHandler} handles for {@link Limit} operations.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
  */
 public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
     @Override
-    public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

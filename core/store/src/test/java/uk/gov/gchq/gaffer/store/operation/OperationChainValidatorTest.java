@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -69,7 +69,7 @@ public class OperationChainValidatorTest {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
         given(schema.getElement(Mockito.anyString())).willReturn(null);
@@ -186,7 +186,7 @@ public class OperationChainValidatorTest {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
 

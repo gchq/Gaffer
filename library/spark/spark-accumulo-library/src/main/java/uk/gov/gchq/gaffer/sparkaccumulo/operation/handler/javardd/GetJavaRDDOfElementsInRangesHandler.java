@@ -32,15 +32,15 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.GetJavaRDDOfElementsInRanges;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 public class GetJavaRDDOfElementsInRangesHandler extends AbstractGetRDDHandler<GetJavaRDDOfElementsInRanges, JavaRDD<Element>> {
 
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfElementsInRanges operation,
                                         final Context context,
-                                        final Store store) throws OperationException {
+                                        final AbstractStore store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 

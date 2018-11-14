@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -72,11 +72,11 @@ public class GafferAdder implements Serializable {
     private final boolean skipInvalid;
     private final int maxQueueSize;
 
-    private transient Store store;
+    private transient AbstractStore store;
     private transient ConsumableBlockingQueue<Element> queue;
     private transient boolean restart;
 
-    public <OP extends Validatable & Operation> GafferAdder(final OP operation, final Store store) {
+    public <OP extends Validatable & Operation> GafferAdder(final OP operation, final AbstractStore store) {
         this.store = store;
         this.validate = operation.isValidate();
         this.skipInvalid = operation.isSkipInvalidElements();
@@ -89,7 +89,7 @@ public class GafferAdder implements Serializable {
 
     public void initialise() {
         if (null == store) {
-            store = Store.createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+            store = AbstractStore.createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
         }
     }
 

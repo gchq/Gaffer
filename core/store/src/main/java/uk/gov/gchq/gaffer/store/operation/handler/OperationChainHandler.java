@@ -19,8 +19,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -37,7 +37,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     private final List<OperationChainOptimiser> opChainOptimisers;
 
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
+    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
 
         prepareOperationChain(operationChain, context, store);
 
@@ -50,7 +50,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         return (OUT) result;
     }
 
-    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
+    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final AbstractStore store) {
         final ValidationResult validationResult = opChainValidator.validate(operationChain, context
                 .getUser(), store);
         if (!validationResult.isValid()) {

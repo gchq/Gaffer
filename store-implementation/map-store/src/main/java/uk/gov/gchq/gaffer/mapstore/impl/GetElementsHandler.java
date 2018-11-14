@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -43,7 +43,7 @@ public class GetElementsHandler
     @Override
     public CloseableIterable<Element> doOperation(final GetElements operation,
                                                   final Context context,
-                                                  final Store store) throws OperationException {
+                                                  final AbstractStore store) throws OperationException {
         return doOperation(operation, (MapStore) store);
     }
 

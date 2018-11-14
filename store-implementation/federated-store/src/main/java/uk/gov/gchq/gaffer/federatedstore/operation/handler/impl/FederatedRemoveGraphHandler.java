@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph> {
     @Override
-    public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final RemoveGraph operation, final Context context, final AbstractStore store) throws OperationException {
         try {
             ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
         } catch (final Exception e) {

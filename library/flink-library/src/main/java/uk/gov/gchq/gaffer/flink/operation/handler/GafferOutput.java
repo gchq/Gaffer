@@ -22,7 +22,7 @@ import org.apache.flink.configuration.Configuration;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public class GafferOutput extends RichOutputFormat<Element> {
     private static final long serialVersionUID = 1569145256866410621L;
     private final GafferAdder adder;
 
-    public <OP extends Validatable & Operation> GafferOutput(final OP validatable, final Store store) {
+    public <OP extends Validatable & Operation> GafferOutput(final OP validatable, final AbstractStore store) {
         this(new GafferAdder(validatable, store));
     }
 

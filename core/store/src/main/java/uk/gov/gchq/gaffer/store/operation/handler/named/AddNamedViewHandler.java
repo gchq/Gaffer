@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
@@ -51,12 +51,12 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be added to cache
      * @param context   the {@link Context}
-     * @param store     the {@link Store} the operation should be run on
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return null (since the output is void)
      * @throws OperationException if the addition to the cache fails
      */
     @Override
-    public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final AddNamedView operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getName() || operation.getName().isEmpty()) {
             throw new IllegalArgumentException("NamedView name must be set and not empty");
         }

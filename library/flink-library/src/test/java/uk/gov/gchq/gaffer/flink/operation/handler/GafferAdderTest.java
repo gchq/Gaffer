@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -42,7 +42,7 @@ public class GafferAdderTest {
     public void shouldAddElementsToStore() throws Exception {
         // Given
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
@@ -79,7 +79,7 @@ public class GafferAdderTest {
     public void shouldRestartAddElementsIfPauseInIngest() throws Exception {
         // Given
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
@@ -127,7 +127,7 @@ public class GafferAdderTest {
         // Given
         final int duplicates = 4;
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);

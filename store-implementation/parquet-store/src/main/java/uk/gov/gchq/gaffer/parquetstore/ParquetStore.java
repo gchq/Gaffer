@@ -90,7 +90,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 /**
- * An implementation of {@link Store} that uses Parquet files to store the {@link Element}s.
+ * An implementation of {@link uk.gov.gchq.gaffer.store.AbstractStore} that uses Parquet files to store the {@link Element}s.
  * <p>
  * It is designed to make the most of the Parquet file types by serialising the {@link Element}s using
  * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}s which also allows for Gaffer objects to be

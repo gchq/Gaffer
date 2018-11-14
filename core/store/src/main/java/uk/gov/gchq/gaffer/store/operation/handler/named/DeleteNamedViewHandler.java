@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
@@ -45,12 +45,12 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
      *
      * @param namedViewOp the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be removed
      * @param context     the {@link Context}
-     * @param store       the {@link Store} the operation should be run on
+     * @param store       the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return null (as output of this operation is void)
      * @throws OperationException thrown if the delete from cache fails
      */
     @Override
-    public Void doOperation(final DeleteNamedView namedViewOp, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final DeleteNamedView namedViewOp, final Context context, final AbstractStore store) throws OperationException {
         try {
             cache.deleteNamedView(namedViewOp.getName(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {

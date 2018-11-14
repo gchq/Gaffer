@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
@@ -45,12 +45,12 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
      *
      * @param operation the {@link GetAllNamedViews} {@link uk.gov.gchq.gaffer.operation.Operation}
      * @param context   the {@link Context}
-     * @param store     the {@link Store} the operation should be run on
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return namedViews the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView}s in the NamedViewCache
      * @throws OperationException if the GetAllNamedViews Operation fails
      */
     @Override
-    public CloseableIterable<NamedViewDetail> doOperation(final GetAllNamedViews operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<NamedViewDetail> doOperation(final GetAllNamedViews operation, final Context context, final AbstractStore store) throws OperationException {
         try {
             return cache.getAllNamedViews();
         } catch (final CacheOperationFailedException e) {

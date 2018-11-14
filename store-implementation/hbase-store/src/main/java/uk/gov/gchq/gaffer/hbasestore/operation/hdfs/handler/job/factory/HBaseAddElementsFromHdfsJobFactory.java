@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -44,12 +44,12 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseAddElementsFromHdfsJobFactory.class);
 
     @Override
-    public void prepareStore(final Store store) throws StoreException {
+    public void prepareStore(final AbstractStore store) throws StoreException {
         TableUtils.ensureTableExists(((HBaseStore) store));
     }
 
     @Override
-    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException {
         final JobConf jobConf = new JobConf(((HBaseStore) store).getConfiguration());
 
         LOGGER.info("Setting up job conf");
@@ -75,7 +75,7 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
     }
 
     @Override
-    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGeneratorClassName, operation.getOutputPath()));
 

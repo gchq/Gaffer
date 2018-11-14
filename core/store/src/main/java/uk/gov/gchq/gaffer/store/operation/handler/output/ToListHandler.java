@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<? extends T>> {
     @Override
-    public List<T> doOperation(final ToList<T> operation, final Context context, final Store store) throws OperationException {
+    public List<T> doOperation(final ToList<T> operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

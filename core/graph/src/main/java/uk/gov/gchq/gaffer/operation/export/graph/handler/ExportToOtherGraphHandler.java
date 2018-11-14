@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.export.graph.handler;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
@@ -30,7 +30,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
     }
 
     @Override
-    protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
+    protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final AbstractStore store) {
         return new OtherGraphExporter(context, new GraphForExportDelegate.Builder()
                 .store(store)
                 .graphId(export.getGraphId())

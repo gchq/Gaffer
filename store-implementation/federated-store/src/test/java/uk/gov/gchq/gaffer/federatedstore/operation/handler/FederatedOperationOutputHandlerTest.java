@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -88,10 +88,10 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
-        Store mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
+        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
+        AbstractStore mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
+        AbstractStore mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
@@ -121,10 +121,10 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
-        Store mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
+        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
+        AbstractStore mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
+        AbstractStore mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
@@ -153,7 +153,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStoreInner = Mockito.mock(Store.class);
+        AbstractStore mockStoreInner = Mockito.mock(AbstractStore.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
         given(mockStoreInner.getProperties()).willReturn(storeProperties);
         given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
@@ -179,7 +179,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStoreInner = Mockito.mock(Store.class);
+        AbstractStore mockStoreInner = Mockito.mock(AbstractStore.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
         given(mockStoreInner.getProperties()).willReturn(storeProperties);
         given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willReturn(null);
@@ -204,13 +204,13 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
-        Store mockStore3 = Mockito.mock(Store.class);
+        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
+        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
+        AbstractStore mockStore3 = Mockito.mock(AbstractStore.class);
         given(mockStore3.getSchema()).willReturn(unusedSchema);
         given(mockStore3.getProperties()).willReturn(storeProperties);
         given(mockStore3.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        AbstractStore mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
@@ -242,7 +242,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
     protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
 
-    private Graph getGraphWithMockStore(final Store mockStore) {
+    private Graph getGraphWithMockStore(final AbstractStore mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(TEST_GRAPH_ID)
@@ -252,8 +252,8 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
 
-    private Store getMockStore(final Schema unusedSchema, final StoreProperties storeProperties, final O willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
-        Store mockStore1 = Mockito.mock(Store.class);
+    private AbstractStore getMockStore(final Schema unusedSchema, final StoreProperties storeProperties, final O willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
+        AbstractStore mockStore1 = Mockito.mock(AbstractStore.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         given(mockStore1.getProperties()).willReturn(storeProperties);
         given(mockStore1.execute(any(OperationChain.class), any(Context.class))).willReturn(willReturn);

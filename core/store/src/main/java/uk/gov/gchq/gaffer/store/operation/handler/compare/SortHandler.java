@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
     private static final MaxHandler MAX_HANDLER = new MaxHandler();
 
     @Override
-    public Iterable<? extends Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final Sort operation, final Context context, final AbstractStore store) throws OperationException {
         // If there is no input or there are no comparators, we return null
         if (null == operation.getInput()
                 || null == operation.getComparators()

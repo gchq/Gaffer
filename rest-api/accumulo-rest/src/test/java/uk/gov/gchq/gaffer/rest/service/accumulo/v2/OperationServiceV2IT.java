@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationDetailPo
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 
 import javax.ws.rs.core.Response;
-
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;

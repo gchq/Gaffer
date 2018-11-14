@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.IfScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
@@ -69,12 +69,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
-     * @param store     the {@link Store} the operation should be run on
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return an Integer containing the score
      * @throws OperationException thrown if the property keys have not been set
      */
     @Override
-    public Integer doOperation(final ScoreOperationChain operation, final Context context, final Store store) throws OperationException {
+    public Integer doOperation(final ScoreOperationChain operation, final Context context, final AbstractStore store) throws OperationException {
         return getChainScore(operation.getOperationChain(), context.getUser());
 
     }

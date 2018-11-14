@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
 /**
@@ -33,7 +33,7 @@ public class ExportToSetHandler extends ExportToHandler<ExportToSet, SetExporter
     }
 
     @Override
-    protected SetExporter createExporter(final ExportToSet export, final Context context, final Store store) {
+    protected SetExporter createExporter(final ExportToSet export, final Context context, final AbstractStore store) {
         return new SetExporter();
     }
 }

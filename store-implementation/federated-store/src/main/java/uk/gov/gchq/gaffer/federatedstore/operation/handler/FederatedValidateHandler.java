@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 
@@ -43,7 +43,7 @@ public class FederatedValidateHandler  implements OutputOperationHandler<Validat
     @Override
     public Iterable<? extends Element> doOperation(final Validate operation,
                                                    final Context context,
-                                                   final Store store)
+                                                   final AbstractStore store)
             throws OperationException {
         return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
     }

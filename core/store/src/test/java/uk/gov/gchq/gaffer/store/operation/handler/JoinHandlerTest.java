@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.join.JoinHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
 
-    private final Store store = mock(Store.class);
+    private final AbstractStore store = mock(AbstractStore.class);
     private final Context context = new Context(new User());
 
     @Test

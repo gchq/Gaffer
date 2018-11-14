@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.io.ByteArrayInputStream;
@@ -41,7 +41,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
     protected abstract String getOutputPath(final OP operation);
 
     @Override
-    public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final OP operation, final Context context, final AbstractStore store) throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }

@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -61,7 +61,7 @@ public class FilterHandlerTest {
 
     private List<Element> input;
     private List<Element> expected;
-    private Store store;
+    private AbstractStore store;
     private Context context;
     private FilterHandler handler;
 
@@ -69,7 +69,7 @@ public class FilterHandlerTest {
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();
-        store = mock(Store.class);
+        store = mock(AbstractStore.class);
         context = new Context();
         handler = new FilterHandler();
 

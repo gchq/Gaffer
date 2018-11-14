@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.ParquetElementRetriever;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -34,7 +34,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
                                                             final Context context,
-                                                            final Store store) {
+                                                            final AbstractStore store) {
         return doOperation(operation, (ParquetStore) store, context.getUser());
     }
 

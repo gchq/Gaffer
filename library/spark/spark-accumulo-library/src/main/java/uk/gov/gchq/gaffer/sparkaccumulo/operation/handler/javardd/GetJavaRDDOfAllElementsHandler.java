@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * A handler for the {@link GetJavaRDDOfAllElements} operation. This simply uses the operation
@@ -47,7 +47,7 @@ public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJav
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
-                                        final Store store) throws OperationException {
+                                        final AbstractStore store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 

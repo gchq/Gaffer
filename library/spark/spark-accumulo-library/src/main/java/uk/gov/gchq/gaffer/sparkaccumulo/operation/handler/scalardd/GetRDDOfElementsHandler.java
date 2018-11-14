@@ -31,15 +31,15 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfElements, RDD<Element>> {
 
     @Override
     public RDD<Element> doOperation(final GetRDDOfElements operation,
                                     final Context context,
-                                    final Store store)
+                                    final AbstractStore store)
             throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }

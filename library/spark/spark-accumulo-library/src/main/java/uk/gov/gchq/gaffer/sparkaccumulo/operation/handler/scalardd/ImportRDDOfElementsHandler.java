@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
@@ -40,7 +40,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
 
     @Override
-    public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final ImportRDDOfElements operation, final Context context, final AbstractStore store) throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }

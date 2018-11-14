@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SetVariable;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertTrue;
@@ -34,7 +34,7 @@ public class SetVariableHandlerTest {
     public void shouldSetVariableInContext() throws OperationException {
         // Given
         final Context context = new Context(new User());
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final String testVarName = "testVarName";
         final int testVarValue = 4;
 

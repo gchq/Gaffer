@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -49,12 +49,12 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     public static final String INGEST_HDFS_DATA_GENERATOR_S_OUTPUT_S = "Ingest HDFS data: Generator = %s, output = %s";
 
     @Override
-    public void prepareStore(final Store store) throws StoreException {
+    public void prepareStore(final AbstractStore store) throws StoreException {
         TableUtils.ensureTableExists(((AccumuloStore) store));
     }
 
     @Override
-    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
@@ -86,7 +86,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     }
 
     @Override
-    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
+    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final AbstractStore store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGenerator, operation.getOutputPath()));
 

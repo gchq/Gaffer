@@ -81,7 +81,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
  * <p>
- * An HBase implementation of a Gaffer {@link Store}
+ * An HBase implementation of a Gaffer {@link uk.gov.gchq.gaffer.store.AbstractStore}
  * </p>
  * <p>
  * The key detail of the HBase implementation is that any Edge inserted by a

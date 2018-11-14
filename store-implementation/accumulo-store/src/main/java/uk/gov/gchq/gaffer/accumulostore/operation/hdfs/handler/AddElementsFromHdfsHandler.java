@@ -37,8 +37,8 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsToo
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
@@ -49,7 +49,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final Store store)
+                            final Context context, final AbstractStore store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;

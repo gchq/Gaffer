@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,13 +33,13 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends Store> implements OutputOperationHandler<SampleElementsForSplitPoints<T>, List<T>> {
+public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends AbstractStore> implements OutputOperationHandler<SampleElementsForSplitPoints<T>, List<T>> {
     public static final int MAX_SAMPLED_ELEMENTS_DEFAULT = 10000000;
 
     private int maxSampledElements = MAX_SAMPLED_ELEMENTS_DEFAULT;
 
     @Override
-    public List<T> doOperation(final SampleElementsForSplitPoints<T> operation, final Context context, final Store store) throws OperationException {
+    public List<T> doOperation(final SampleElementsForSplitPoints<T> operation, final Context context, final AbstractStore store) throws OperationException {
         final S typedStore = (S) store;
 
         validate(operation, typedStore);

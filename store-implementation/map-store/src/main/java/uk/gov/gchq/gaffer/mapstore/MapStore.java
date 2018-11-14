@@ -49,7 +49,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
+ * An implementation of {@link uk.gov.gchq.gaffer.store.AbstractStore} that uses any class that implements Java's {@link java.util.Map} interface to
  * store the {@link Element}s. The {@link Element} objects are stored in memory, i.e . no serialisation is performed.
  * <p>
  * It is designed to support efficient aggregation of properties. The key of the Map is the {@link Element} with any

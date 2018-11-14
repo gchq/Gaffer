@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +40,7 @@ public class GetAllJobDetailsHandlerTest {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
         final GetAllJobDetails operation = mock(GetAllJobDetails.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
         given(store.getJobTracker()).willReturn(null);
@@ -59,7 +59,7 @@ public class GetAllJobDetailsHandlerTest {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
         final GetAllJobDetails operation = mock(GetAllJobDetails.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final JobTracker jobTracker = mock(JobTracker.class);
         final User user = mock(User.class);
         final CloseableIterable<JobDetail> jobsDetails = mock(CloseableIterable.class);

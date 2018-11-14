@@ -47,8 +47,8 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.Utils;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
     @Override
     public RDD<Element> doOperation(final GetRDDOfAllElements operation,
                                     final Context context,
-                                    final Store store)
+                                    final AbstractStore store)
             throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }

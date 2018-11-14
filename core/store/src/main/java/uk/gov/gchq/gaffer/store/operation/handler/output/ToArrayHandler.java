@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.lang.reflect.Array;
@@ -52,7 +52,7 @@ import java.util.Set;
 public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     @Override
-    public T[] doOperation(final ToArray<T> operation, final Context context, final Store store) throws OperationException {
+    public T[] doOperation(final ToArray<T> operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput() || Iterables.isEmpty(operation.getInput())) {
             return null;
         }

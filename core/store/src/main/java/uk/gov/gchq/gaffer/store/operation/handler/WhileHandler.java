@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.While;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
@@ -54,7 +54,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
     @Override
     public Object doOperation(final While operation,
                               final Context context,
-                              final Store store) throws OperationException {
+                              final AbstractStore store) throws OperationException {
         validateMaxRepeats(operation);
 
         Object input = operation.getInput();
@@ -76,7 +76,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
         }
     }
 
-    public Object doDelegateOperation(final Object input, final Operation delegate, final Context context, final Store store) throws OperationException {
+    public Object doDelegateOperation(final Object input, final Operation delegate, final Context context, final AbstractStore store) throws OperationException {
         updateOperationInput(delegate, input);
         return getResultsOrNull(delegate, context, store);
     }
@@ -84,7 +84,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
     public boolean isSatisfied(final Object input,
                                final While operation,
                                final Context context,
-                               final Store store) throws OperationException {
+                               final AbstractStore store) throws OperationException {
         final boolean satisfied;
         if (null == operation.getConditional()) {
             satisfied = null == operation.isCondition() || operation.isCondition();

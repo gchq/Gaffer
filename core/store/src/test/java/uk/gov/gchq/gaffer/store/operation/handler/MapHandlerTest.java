@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.mock;
 
 public class MapHandlerTest {
     private Context context;
-    private Store store;
+    private AbstractStore store;
     private Function<Integer, Integer> function;
     private Integer input;
 
@@ -97,7 +97,7 @@ public class MapHandlerTest {
     @Before
     public void setup() {
         context = mock(Context.class);
-        store = mock(Store.class);
+        store = mock(AbstractStore.class);
         function = mock(Function.class);
         input = 3;
 

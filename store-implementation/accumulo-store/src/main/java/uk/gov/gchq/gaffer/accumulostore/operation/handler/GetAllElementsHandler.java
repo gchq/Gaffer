@@ -23,15 +23,15 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final AbstractStore store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }

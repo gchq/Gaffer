@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
 /**
@@ -40,7 +40,7 @@ public class GetSetExportHandler extends GetExportHandler<GetSetExport, SetExpor
     }
 
     @Override
-    public SetExporter createExporter(final GetSetExport export, final Context context, final Store store) {
+    public SetExporter createExporter(final GetSetExport export, final Context context, final AbstractStore store) {
         return new SetExporter();
     }
 }

@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -51,7 +51,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AggregateHandlerTest {
-    private final Store store = mock(Store.class);
+    private final AbstractStore store = mock(AbstractStore.class);
     private final Context context = new Context();
     private final AggregateHandler handler = new AggregateHandler();
 
@@ -223,7 +223,7 @@ public class AggregateHandlerTest {
                         .build())
                 .build();
 
-        final Store store1 = mock(Store.class);
+        final AbstractStore store1 = mock(AbstractStore.class);
         final List<Element> input1 = new ArrayList<>();
         final Set<Element> expected1 = new HashSet<>();
         final Map<String, AggregatePair> edges1 = new HashMap<>();

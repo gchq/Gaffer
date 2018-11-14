@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Set;
@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? extends T>> {
     @Override
-    public Set<T> doOperation(final ToSet<T> operation, final Context context, final Store store) throws OperationException {
+    public Set<T> doOperation(final ToSet<T> operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

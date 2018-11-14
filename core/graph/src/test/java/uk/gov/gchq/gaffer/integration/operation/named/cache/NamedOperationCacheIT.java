@@ -16,8 +16,8 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.mock;
 public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
     private final Properties cacheProps = new Properties();
-    private final Store store = mock(Store.class);
+    private final AbstractStore store = mock(AbstractStore.class);
     private final String adminAuth = "admin auth";
     private final StoreProperties properties = new StoreProperties();
 
@@ -104,7 +104,7 @@ public class NamedOperationCacheIT {
     private void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(properties);
 
         // when
@@ -131,7 +131,7 @@ public class NamedOperationCacheIT {
 
     private void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(properties);
 
         new AddNamedOperationHandler().doOperation(add, context, store);
@@ -154,7 +154,7 @@ public class NamedOperationCacheIT {
 
     private void shouldAllowUpdatingOfNamedOperations() throws OperationException {
         // given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final StoreProperties storeProps = mock(StoreProperties.class);
         given(store.getProperties()).willReturn(storeProps);
 
@@ -194,7 +194,7 @@ public class NamedOperationCacheIT {
 
     private void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         given(store.getProperties()).willReturn(properties);
 
         new AddNamedOperationHandler().doOperation(add, context, store);

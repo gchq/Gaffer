@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 
@@ -35,7 +35,7 @@ import java.util.List;
 
 public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
     @Override
-    public Iterable<? extends O> doOperation(final Join<I, O> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends O> doOperation(final Join<I, O> operation, final Context context, final AbstractStore store) throws OperationException {
         final int limit = operation.getCollectionLimit() != null ? operation.getCollectionLimit() : 100000;
 
         if (null == operation.getJoinType()) {

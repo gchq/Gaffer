@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
 
     @Override
-    public Long doOperation(final Count operation, final Context context, final Store store)
+    public Long doOperation(final Count operation, final Context context, final AbstractStore store)
             throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Count operation has null iterable of items");

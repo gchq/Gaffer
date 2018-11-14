@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
@@ -84,7 +84,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
 
@@ -119,7 +119,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
 
@@ -159,7 +159,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties storeProperties = new StoreProperties();
@@ -209,7 +209,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties storeProperties = new StoreProperties();
@@ -260,7 +260,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreResolver scoreResolver1 = mock(DefaultScoreResolver.class);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties storeProperties = mock(StoreProperties.class);
@@ -309,7 +309,7 @@ public class ScoreOperationChainHandlerTest {
         handler.setScoreResolvers(resolvers);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties properties = mock(StoreProperties.class);
@@ -344,7 +344,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreResolver scoreResolver = mock(NamedOperationScoreResolver.class);
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties properties = mock(StoreProperties.class);
@@ -397,7 +397,7 @@ public class ScoreOperationChainHandlerTest {
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
 
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
         final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
         final StoreProperties properties = mock(StoreProperties.class);

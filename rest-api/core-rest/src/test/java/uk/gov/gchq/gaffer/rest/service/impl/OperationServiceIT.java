@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

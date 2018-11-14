@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.List;
 public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O>, Iterable<? extends O>> {
 
     @Override
-    public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final AbstractStore store) throws OperationException {
         if (null == forEach.getOperation()) {
             throw new OperationException("Operation cannot be null");
         }
@@ -53,7 +53,7 @@ public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O
         return results;
     }
 
-    private O executeOperation(final Operation operation, final Context context, final Store store) throws OperationException {
+    private O executeOperation(final Operation operation, final Context context, final AbstractStore store) throws OperationException {
         final O result;
         if (operation instanceof Output) {
             result = store.execute((Output<O>) operation, context);

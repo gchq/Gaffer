@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -59,7 +59,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private final Store store = mock(Store.class);
+    private final AbstractStore store = mock(AbstractStore.class);
     private final User user = new User.Builder().opAuths("auth1", "auth2").build();
     private GraphLibrary graphLibrary;
     private Schema schema = new Schema.Builder().build();

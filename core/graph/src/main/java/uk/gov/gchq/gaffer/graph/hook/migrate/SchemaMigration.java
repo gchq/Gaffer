@@ -42,7 +42,7 @@ import java.util.function.Function;
  * A {@link SchemaMigration} {@link GraphHook} allows an admin to set migration mappings
  * that are then applied on any {@link Operation} with output and an {@link OperationView}.
  * <p>
- * To make use of this {@link SchemaMigration} the implemented {@link uk.gov.gchq.gaffer.store.Store} must have the Transform trait.
+ * To make use of this {@link SchemaMigration} the implemented {@link uk.gov.gchq.gaffer.store.AbstractStore} must have the Transform trait.
  * <p>
  * <b>NOTE: This is currently experimental and may not function perfectly.</b>
  * </p>

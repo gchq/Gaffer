@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
@@ -44,12 +44,12 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
-     * @param store     the {@link Store} the operation should be run on
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return null (as output of this operation is void)
      * @throws OperationException thrown if the user doesn't have permission to delete the NamedOperation
      */
     @Override
-    public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final DeleteNamedOperation operation, final Context context, final AbstractStore store) throws OperationException {
         try {
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {

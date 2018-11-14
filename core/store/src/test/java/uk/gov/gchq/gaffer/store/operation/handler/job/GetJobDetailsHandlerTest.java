@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +39,7 @@ public class GetJobDetailsHandlerTest {
         // Given
         final GetJobDetailsHandler handler = new GetJobDetailsHandler();
         final GetJobDetails operation = mock(GetJobDetails.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final User user = mock(User.class);
 
         given(store.getJobTracker()).willReturn(null);
@@ -61,7 +61,7 @@ public class GetJobDetailsHandlerTest {
         final GetJobDetails operation = new GetJobDetails.Builder()
                 .jobId(jobId)
                 .build();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final JobTracker jobTracker = mock(JobTracker.class);
         final User user = mock(User.class);
         final JobDetail jobsDetail = mock(JobDetail.class);
@@ -82,7 +82,7 @@ public class GetJobDetailsHandlerTest {
         // Given
         final GetJobDetailsHandler handler = new GetJobDetailsHandler();
         final GetJobDetails operation = new GetJobDetails();
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final JobTracker jobTracker = mock(JobTracker.class);
         final User user = mock(User.class);
         final JobDetail jobsDetail = mock(JobDetail.class);

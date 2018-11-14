@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 import org.apache.hadoop.io.Writable;
 
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 
 public interface SampleDataForSplitPointsJobFactory extends JobFactory<SampleDataForSplitPoints> {
     String PROPORTION_TO_SAMPLE = "proportion_to_sample";
@@ -29,5 +29,5 @@ public interface SampleDataForSplitPointsJobFactory extends JobFactory<SampleDat
 
     byte[] createSplit(final Writable key, final Writable value);
 
-    int getExpectedNumberOfSplits(final Store store);
+    int getExpectedNumberOfSplits(final AbstractStore store);
 }

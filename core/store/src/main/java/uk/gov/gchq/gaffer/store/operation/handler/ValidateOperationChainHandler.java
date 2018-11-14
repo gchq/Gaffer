@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -34,16 +34,16 @@ public class ValidateOperationChainHandler implements OutputOperationHandler<Val
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.io.Output} operation to be executed
      * @param context   the operation chain context, containing the user who executed the operation
-     * @param store     the {@link Store} the operation should be run on
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
      * @return the {@link ValidationResult}
      * @throws OperationException if an error occurs handling the operation.
      */
     @Override
-    public ValidationResult doOperation(final ValidateOperationChain operation, final Context context, final Store store) throws OperationException {
+    public ValidationResult doOperation(final ValidateOperationChain operation, final Context context, final AbstractStore store) throws OperationException {
         return validateOperationChain(operation.getOperationChain(), context.getUser(), store);
     }
 
-    private ValidationResult validateOperationChain(final OperationChain operationChain, final User user, final Store store) {
+    private ValidationResult validateOperationChain(final OperationChain operationChain, final User user, final AbstractStore store) {
         return store.getOperationChainValidator().validate(operationChain, user, store);
     }
 }

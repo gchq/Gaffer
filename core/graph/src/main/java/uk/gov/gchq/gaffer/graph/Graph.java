@@ -40,8 +40,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -65,8 +65,8 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * The Graph separates the user from the {@link Store}. It holds an instance of
- * the {@link Store} and
+ * The Graph separates the user from the {@link uk.gov.gchq.gaffer.store.AbstractStore}. It holds an instance of
+ * the {@link uk.gov.gchq.gaffer.store.AbstractStore} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
  * </p>
  * <p>
@@ -94,22 +94,22 @@ public final class Graph {
     /**
      * The instance of the store.
      */
-    private final Store store;
+    private final AbstractStore store;
 
     private GraphConfig config;
 
     /**
-     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
+     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.AbstractStore}
      * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param config a {@link GraphConfig} used to store the configuration for
      *               a
      *               Graph.
-     * @param store  a {@link Store} used to store the elements and handle
+     * @param store  a {@link uk.gov.gchq.gaffer.store.AbstractStore} used to store the elements and handle
      *               operations.
      */
-    private Graph(final GraphConfig config, final Store store) {
+    private Graph(final GraphConfig config, final AbstractStore store) {
         this.config = config;
         this.store = store;
     }
@@ -346,7 +346,7 @@ public final class Graph {
     }
 
     /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store}
+     * Returns all the {@link StoreTrait}s for the contained {@link uk.gov.gchq.gaffer.store.AbstractStore}
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
@@ -411,7 +411,7 @@ public final class Graph {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
-        private Store store;
+        private AbstractStore store;
         private StoreProperties properties;
         private Schema schema;
         private List<String> parentSchemaIds;
@@ -773,7 +773,7 @@ public final class Graph {
             return this;
         }
 
-        public Builder store(final Store store) {
+        public Builder store(final AbstractStore store) {
             this.store = store;
             return this;
         }
@@ -972,7 +972,7 @@ public final class Graph {
 
         private void updateStore(final GraphConfig config) {
             if (null == store) {
-                store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
+                store = AbstractStore.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
                     || (null != properties && !properties.equals(store.getProperties()))) {

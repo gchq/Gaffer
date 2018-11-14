@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
@@ -31,7 +31,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  */
 public class IfHandler implements OutputOperationHandler<If<Object, Object>, Object> {
     @Override
-    public Object doOperation(final If operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final If operation, final Context context, final AbstractStore store) throws OperationException {
         final Object input = operation.getInput();
 
         boolean computedCondition;

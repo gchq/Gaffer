@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser;
 import org.apache.hadoop.mapreduce.Job;
 
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 
 import java.io.IOException;
 
@@ -34,8 +34,8 @@ public interface JobInitialiser {
      *
      * @param job       the {@link Job} to be initialised
      * @param operation the {@link MapReduce} containing configuration.
-     * @param store     the {@link Store} that will handle the {@link uk.gov.gchq.gaffer.operation.Operation}
+     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} that will handle the {@link uk.gov.gchq.gaffer.operation.Operation}
      * @throws IOException if IO issues occur
      */
-    void initialiseJob(final Job job, final MapReduce operation, final Store store) throws IOException;
+    void initialiseJob(final Job job, final MapReduce operation, final AbstractStore store) throws IOException;
 }

@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
@@ -39,7 +39,7 @@ public class SplitStoreFromIterableHandler implements OperationHandler<SplitStor
 
     @Override
     public Void doOperation(final SplitStoreFromIterable<String> operation,
-                            final Context context, final Store store) throws OperationException {
+                            final Context context, final AbstractStore store) throws OperationException {
         doOperation(operation, ((AccumuloStore) store));
         return null;
     }

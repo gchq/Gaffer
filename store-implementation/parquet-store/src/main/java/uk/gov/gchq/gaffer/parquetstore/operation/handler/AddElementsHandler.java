@@ -23,7 +23,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.Option;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,8 +38,8 @@ import uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation.GraphPartitione
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -64,7 +63,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     @Override
     public Void doOperation(final AddElements operation,
                             final Context context,
-                            final Store store) throws OperationException {
+                            final AbstractStore store) throws OperationException {
         addElements(operation, context, (ParquetStore) store);
         return null;
     }

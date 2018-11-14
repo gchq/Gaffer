@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -34,7 +34,7 @@ public class GetAdjacentIdsHandler
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentIds operation,
                                                      final Context context,
-                                                     final Store store) throws OperationException {
+                                                     final AbstractStore store) throws OperationException {
         throw new UnsupportedOperationException("The ParquetStore does not implement " + operation.getClass().getSimpleName() + " yet.");
     }
 }

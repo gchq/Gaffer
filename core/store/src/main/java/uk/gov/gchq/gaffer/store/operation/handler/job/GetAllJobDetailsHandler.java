@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
@@ -32,7 +32,7 @@ import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
  */
 public class GetAllJobDetailsHandler implements OutputOperationHandler<GetAllJobDetails, CloseableIterable<JobDetail>> {
     @Override
-    public CloseableIterable<JobDetail> doOperation(final GetAllJobDetails operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<JobDetail> doOperation(final GetAllJobDetails operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == store.getJobTracker()) {
             throw new OperationException("The Job Tracker has not been configured", SERVICE_UNAVAILABLE);
         }

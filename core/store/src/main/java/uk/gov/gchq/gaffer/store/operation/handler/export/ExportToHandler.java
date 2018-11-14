@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.export;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +35,7 @@ public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends 
     @Override
     public Object doOperation(final EXPORT export,
                               final Context context,
-                              final Store store,
+                              final AbstractStore store,
                               final EXPORTER exporter)
             throws OperationException {
         final Iterable<?> inputItr = wrapInIterable(export.getInput());

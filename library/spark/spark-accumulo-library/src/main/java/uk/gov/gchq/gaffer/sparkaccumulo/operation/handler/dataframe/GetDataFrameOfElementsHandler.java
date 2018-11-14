@@ -21,8 +21,8 @@ import org.apache.spark.sql.Row;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
 
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
-                                    final Store store) throws OperationException {
+                                    final AbstractStore store) throws OperationException {
         return doOperation(operation, context, (AccumuloStore) store);
     }
 

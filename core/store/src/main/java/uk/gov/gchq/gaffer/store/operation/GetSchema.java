@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * A {@code GetSchema} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
- * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.Store}.
+ * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.AbstractStore}.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.1.0")

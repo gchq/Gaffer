@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -34,7 +34,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected Schema getSchema(final Operation operation, final User user, final Store store) {
+    protected Schema getSchema(final Operation operation, final User user, final AbstractStore store) {
         return ((FederatedStore) store).getSchema(operation, user);
     }
 }

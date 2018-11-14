@@ -19,8 +19,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.util.StreamTransformIterable;
 import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
@@ -35,7 +35,7 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
     private final FunctionValidator<Transform> validator = new TransformValidator();
 
     @Override
-    public Iterable<? extends Element> doOperation(final Transform operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final Transform operation, final Context context, final AbstractStore store) throws OperationException {
         return doOperation(operation, store.getSchema());
     }
 

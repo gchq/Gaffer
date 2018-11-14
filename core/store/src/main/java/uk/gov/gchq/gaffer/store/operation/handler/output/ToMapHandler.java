@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<? extends Map<String, Object>>> {
     @Override
-    public Iterable<? extends Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends Map<String, Object>> doOperation(final ToMap operation, final Context context, final AbstractStore store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

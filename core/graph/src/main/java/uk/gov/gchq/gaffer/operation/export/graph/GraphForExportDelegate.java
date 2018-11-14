@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -30,7 +30,7 @@ import java.util.Set;
 public class GraphForExportDelegate extends GraphDelegate {
 
     @Override
-    public StoreProperties resolveStorePropertiesForGraph(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+    public StoreProperties resolveStorePropertiesForGraph(final AbstractStore store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         StoreProperties resultProps = super.resolveStorePropertiesForGraph(store, properties, parentStorePropertiesId, existingGraphPair);
         if (null == resultProps) {
             // If no properties have been provided then default to using the store properties
@@ -40,7 +40,7 @@ public class GraphForExportDelegate extends GraphDelegate {
     }
 
     @Override
-    public Schema resolveSchemaForGraph(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
+    public Schema resolveSchemaForGraph(final AbstractStore store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
         Schema resultSchema = super.resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
         if (null == resultSchema) {
             // If no schemas have been provided then default to using the store schema
@@ -50,7 +50,7 @@ public class GraphForExportDelegate extends GraphDelegate {
     }
 
     @Override
-    public void validateGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+    public void validateGraph(final AbstractStore store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
         ValidationResult result = super.validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
 
         Set<String> errors = result.getErrors();

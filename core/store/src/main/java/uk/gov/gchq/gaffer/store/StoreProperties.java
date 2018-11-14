@@ -114,7 +114,7 @@ public class StoreProperties implements Cloneable {
         updateStorePropertiesClass();
     }
 
-    protected StoreProperties(final Properties props, final Class<? extends Store> storeClass) {
+    protected StoreProperties(final Properties props, final Class<? extends AbstractStore> storeClass) {
         this(props);
         if (null == getStoreClass()) {
             setStoreClass(storeClass);
@@ -128,14 +128,14 @@ public class StoreProperties implements Cloneable {
     }
 
 
-    protected StoreProperties(final Class<? extends Store> storeClass) {
+    protected StoreProperties(final Class<? extends AbstractStore> storeClass) {
         this();
         if (null == getStoreClass()) {
             setStoreClass(storeClass);
         }
     }
 
-    protected StoreProperties(final Path propFileLocation, final Class<? extends Store> storeClass) {
+    protected StoreProperties(final Path propFileLocation, final Class<? extends AbstractStore> storeClass) {
         this(propFileLocation);
         if (null == getStoreClass()) {
             setStoreClass(storeClass);
@@ -324,7 +324,7 @@ public class StoreProperties implements Cloneable {
     }
 
     @JsonIgnore
-    public void setStoreClass(final Class<? extends Store> storeClass) {
+    public void setStoreClass(final Class<? extends AbstractStore> storeClass) {
         setStoreClass(storeClass.getName());
     }
 

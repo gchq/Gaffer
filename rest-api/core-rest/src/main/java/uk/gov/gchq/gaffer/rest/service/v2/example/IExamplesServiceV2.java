@@ -31,7 +31,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  * Each example method should return a populated {@link Operation} which can be used to call the
  * corresponding IOperationService method.
  * <p>
- * Ideally the example should work against any {@link uk.gov.gchq.gaffer.store.Store} with any set of schemas
+ * Ideally the example should work against any {@link uk.gov.gchq.gaffer.store.AbstractStore} with any set of schemas
  * and properties, however this may not be possible in all cases - but it should at least give a starting point for
  * constructing a valid {@link Operation}.
  */

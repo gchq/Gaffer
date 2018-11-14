@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Set;
 
 /**
- * {@link TypeReference} implementations for use by the {@link Store} class.
+ * {@link TypeReference} implementations for use by the {@link uk.gov.gchq.gaffer.store.AbstractStore} class.
  */
 public final class TypeReferenceStoreImpl {
     public static class Schema extends TypeReference<uk.gov.gchq.gaffer.store.schema.Schema> {

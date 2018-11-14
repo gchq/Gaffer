@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  */
 public class CountAllElementsDefaultViewHandler implements OutputOperationHandler<CountAllElementsDefaultView, Long> {
     @Override
-    public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
+    public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final AbstractStore store)
             throws OperationException {
         return doOperation((MapStore) store);
     }

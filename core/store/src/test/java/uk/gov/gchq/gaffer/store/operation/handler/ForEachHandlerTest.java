@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class ForEachHandlerTest {
     @Test
     public void shouldThrowExceptionWithNullOperation() {
         // Given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final Context context = new Context(new User());
         final ForEach op = new ForEach.Builder<>()
                 .operation(null)
@@ -62,7 +62,7 @@ public class ForEachHandlerTest {
     @Test
     public void shouldThrowExceptionWithNullInput() {
         // Given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final Context context = new Context(new User());
         final ForEach op = new ForEach.Builder<>()
                 .operation(new GetElements())
@@ -81,7 +81,7 @@ public class ForEachHandlerTest {
     @Test
     public void shouldExecuteAndReturnExpected() throws OperationException {
         // Given
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
         final Context context = new Context(new User());
 
         final InputOutput op = mock(InputOutput.class);

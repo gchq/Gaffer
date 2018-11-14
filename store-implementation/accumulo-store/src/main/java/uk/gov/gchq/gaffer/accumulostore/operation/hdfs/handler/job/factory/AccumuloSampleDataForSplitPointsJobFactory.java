@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
      * @throws IOException for IO issues
      */
     @Override
-    public List<Job> createJobs(final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    public List<Job> createJobs(final SampleDataForSplitPoints operation, final AbstractStore store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
         Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
@@ -104,7 +104,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
     }
 
     @Override
-    public int getExpectedNumberOfSplits(final Store store) {
+    public int getExpectedNumberOfSplits(final AbstractStore store) {
         final AccumuloStore accumuloStore = (AccumuloStore) store;
 
         int numberTabletServers;
@@ -120,7 +120,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
     }
 
     @Override
-    public JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    public JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
@@ -150,7 +150,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
     }
 
     @Override
-    public void setupJob(final Job job, final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    public void setupJob(final Job job, final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGeneratorClassName, new Path(operation.getOutputPath())));
 
@@ -177,7 +177,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         job.setOutputValueClass(Value.class);
     }
 
-    protected void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    protected void setupOutput(final Job job, final SampleDataForSplitPoints operation, final AbstractStore store) throws IOException {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
         if (null != operation.getCompressionCodec()) {

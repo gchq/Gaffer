@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
+import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
@@ -82,7 +82,7 @@ public class WhileHandlerTest {
         final GetAdjacentIds delegateClone2 = mock(GetAdjacentIds.class);
         final GetAdjacentIds delegateClone3 = mock(GetAdjacentIds.class);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
 
@@ -125,7 +125,7 @@ public class WhileHandlerTest {
         final GetElements delegateClone2 = mock(GetElements.class);
         final GetElements delegateClone3 = mock(GetElements.class);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
 
@@ -166,7 +166,7 @@ public class WhileHandlerTest {
         final boolean condition = false;
         final Operation delegate = mock(GetElements.class);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final While operation = new While.Builder<>()
                 .input(input)
@@ -191,7 +191,7 @@ public class WhileHandlerTest {
         final int maxRepeats = 2500;
         final Operation delegate = mock(GetElements.class);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final While operation = new While.Builder<>()
                 .input(input)
@@ -218,7 +218,7 @@ public class WhileHandlerTest {
         final Object input = new EntitySeed();
         final Conditional conditional = new Conditional(predicate);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final While operation = new While.Builder<>()
                 .input(input)
@@ -255,7 +255,7 @@ public class WhileHandlerTest {
         final Predicate predicate = new IsMoreThan(2);
         final Conditional conditional = new Conditional(predicate, transform);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final GetElements getElements = mock(GetElements.class);
 
@@ -294,7 +294,7 @@ public class WhileHandlerTest {
         final Predicate predicate = new IsMoreThan(5);
         final Conditional conditional = new Conditional(predicate, transform);
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final GetElements getElements = mock(GetElements.class);
 
@@ -321,7 +321,7 @@ public class WhileHandlerTest {
                 .input(new Edge.Builder().build())
                 .build();
         final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
+        final AbstractStore store = mock(AbstractStore.class);
 
         final While operation = new While.Builder<>()
                 .operation(addElements)
