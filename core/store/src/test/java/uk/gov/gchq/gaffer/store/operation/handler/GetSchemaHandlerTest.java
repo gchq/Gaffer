@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 public class GetSchemaHandlerTest {
     private GetSchemaHandler handler;
     private Schema schema;
-    private AbstractStore store;
+    private Store store;
     private Context context;
     private User user;
     private StoreProperties properties;
@@ -51,7 +51,7 @@ public class GetSchemaHandlerTest {
     @Before
     public void setup() {
         handler = new GetSchemaHandler();
-        store = mock(AbstractStore.class);
+        store = mock(Store.class);
         context = mock(Context.class);
         user = mock(User.class);
         properties = new StoreProperties();

@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  */
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override
-    public Schema doOperation(final GetSchema operation, final Context context, final AbstractStore store) throws OperationException {
+    public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }

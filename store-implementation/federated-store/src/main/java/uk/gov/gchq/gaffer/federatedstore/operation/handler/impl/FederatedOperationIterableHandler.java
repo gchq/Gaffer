@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class FederatedOperationIterableHandler<OP extends Output<O>, O extends Iterable> extends FederatedOperationOutputHandler<OP, O> {
     @Override
-    protected O mergeResults(final List<O> results, final OP operation, final Context context, final AbstractStore store) {
+    protected O mergeResults(final List<O> results, final OP operation, final Context context, final Store store) {
         if (results.isEmpty()) {
             return (O) new EmptyClosableIterable<>();
         }

@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 
@@ -39,7 +39,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP
 
 public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, CloseableIterable<O_ITEM>> {
     @Override
-    public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final AbstractStore store) throws OperationException {
+    public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) throws OperationException {
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<Object> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
@@ -63,7 +63,7 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
         return mergeResults(results, operation, context, store);
     }
 
-    protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final AbstractStore store) {
+    protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {
         if (Void.class.equals(operation.getOperationChain().getOutputClass())) {
             return null;
         }

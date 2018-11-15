@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.export.graph.handler;
 import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
     }
 
     @Override
-    protected OtherGraphExporter createExporter(final ExportToOtherAuthorisedGraph export, final Context context, final AbstractStore store) {
+    protected OtherGraphExporter createExporter(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
         return new OtherGraphExporter(context, new AuthorisedGraphForExportDelegate.Builder()
                 .store(store)
                 .graphId(export.getGraphId())

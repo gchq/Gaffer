@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.proxystore.operation.handler;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -28,12 +28,12 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * The default behaviour must be overridden by the {@link ProxyStore} to ensure
  * that the operation chain is executed via the REST API.
  *
- * @param <OUT> the ouptut type of the operation chain
+ * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
 
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
+    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         return ((ProxyStore) store).executeOpChainViaUrl(operationChain, context);
     }
 }

@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
@@ -63,7 +63,7 @@ public class AddNamedOperationHandlerTest {
     private Context context = new Context(new User.Builder()
             .userId("test user")
             .build());
-    private AbstractStore store = mock(AbstractStore.class);
+    private Store store = mock(Store.class);
 
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)

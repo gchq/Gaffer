@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
@@ -59,7 +59,7 @@ public class AddNamedViewHandlerTest {
             .userId(testUserId)
             .build());
 
-    private AbstractStore store = mock(AbstractStore.class);
+    private Store store = mock(Store.class);
 
     View view;
 

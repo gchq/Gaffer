@@ -22,8 +22,8 @@ import org.apache.hadoop.fs.Path;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.SplitStoreFromFileHandler;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class HdfsSplitStoreFromFileHandler extends SplitStoreFromFileHandler {
     @Override
     public List<String> getSplits(final SplitStoreFromFile operation,
                                   final Context context,
-                                  final AbstractStore store) throws OperationException {
+                                  final Store store) throws OperationException {
         try {
             return super.getSplits(operation, context, store);
         } catch (final OperationException e) {

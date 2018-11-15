@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
@@ -49,7 +49,7 @@ public class ServicePortalOperationChainHandler<OUT> extends OperationChainHandl
     }
 
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
+    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         try {
             if (store instanceof ProxyStore) {
                 switch (getServicePortalOption(operationChain)) {
@@ -84,7 +84,7 @@ public class ServicePortalOperationChainHandler<OUT> extends OperationChainHandl
         return isNull(options) ? UNPROCESSED : options.get(SERVICE_PORTAL_STORE_OPERATION_CHAIN_HANDLER);
     }
 
-    private OUT unprocessedLogic(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
+    private OUT unprocessedLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         List<Operation> operations = operationChain.getOperations();
 
         ArrayList<OperationChain> listOfOpChain = Lists.<OperationChain>newArrayList();
@@ -122,11 +122,11 @@ public class ServicePortalOperationChainHandler<OUT> extends OperationChainHandl
         return store.executeOpChainViaUrl(operationChain, context);
     }
 
-    private OUT handlersLogic(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
+    private OUT handlersLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         return super.doOperation(operationChain, context, store);
     }
 
-    private OUT resolvedLogic(final OperationChain<OUT> operationChain, final Context context, final AbstractStore store) throws OperationException {
+    private OUT resolvedLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
         Object out = null;
         for (final Operation operation : operationChain.getOperations()) {
             if (operation instanceof OperationChain) {

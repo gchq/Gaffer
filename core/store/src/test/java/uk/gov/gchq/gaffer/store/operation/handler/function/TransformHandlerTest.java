@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.mock;
 public class TransformHandlerTest {
     private List<Element> input;
     private List<Element> expected;
-    private AbstractStore store;
+    private Store store;
     private Context context;
     private TransformHandler handler;
     private Schema schema;
@@ -63,7 +63,7 @@ public class TransformHandlerTest {
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();
-        store = mock(AbstractStore.class);
+        store = mock(Store.class);
         context = new Context();
         handler = new TransformHandler();
         schema = new Schema.Builder()

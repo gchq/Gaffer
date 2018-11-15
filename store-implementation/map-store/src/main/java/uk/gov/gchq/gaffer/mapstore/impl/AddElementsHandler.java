@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -47,7 +47,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
 
     @Override
-    public Void doOperation(final AddElements addElements, final Context context, final AbstractStore store) throws OperationException {
+    public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
         Iterable<? extends Element> elements = addElements.getInput();
         if (addElements.isValidate()) {
             elements = new ValidatedElements(elements, store.getSchema(), addElements.isSkipInvalidElements());

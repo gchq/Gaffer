@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 
 public class ValidateOperationChainHandlerTest {
 
-    private final AbstractStore store = mock(AbstractStore.class);
+    private final Store store = mock(Store.class);
     private final Context context = new Context(new User());
 
     @Test

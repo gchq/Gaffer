@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -71,10 +71,10 @@ public class FederatedOperationHandlerTest {
         final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
-        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore3 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore4 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore1 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore2 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore3 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore4 = getMockStore(unusedSchema, storeProperties);
 
         Graph graph1 = getGraphWithMockStore(mockStore1);
         Graph graph2 = getGraphWithMockStore(mockStore2);
@@ -110,10 +110,10 @@ public class FederatedOperationHandlerTest {
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
-        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore3 = getMockStore(unusedSchema, storeProperties);
-        AbstractStore mockStore4 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore1 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore2 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore3 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore4 = getMockStore(unusedSchema, storeProperties);
 
         Graph graph1 = getGraphWithMockStore(mockStore1);
         Graph graph3 = getGraphWithMockStore(mockStore3);
@@ -133,15 +133,15 @@ public class FederatedOperationHandlerTest {
         verify(mockStore4, never()).execute(eq(opChainClone), any(Context.class));
     }
 
-    private Graph getGraphWithMockStore(final AbstractStore mockStore) {
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
     }
 
-    private AbstractStore getMockStore(final Schema unusedSchema, final StoreProperties storeProperties) {
-        AbstractStore mockStore1 = mock(AbstractStore.class);
+    private Store getMockStore(final Schema unusedSchema, final StoreProperties storeProperties) {
+        Store mockStore1 = mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         given(mockStore1.getProperties()).willReturn(storeProperties);
         return mockStore1;
@@ -158,7 +158,7 @@ public class FederatedOperationHandlerTest {
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        AbstractStore mockStoreInner = getMockStore(unusedSchema, storeProperties);
+        Store mockStoreInner = getMockStore(unusedSchema, storeProperties);
         given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
 
         FederatedStore mockStore = mock(FederatedStore.class);
@@ -185,9 +185,9 @@ public class FederatedOperationHandlerTest {
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        AbstractStore mockStore1 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore1 = getMockStore(unusedSchema, storeProperties);
         given(mockStore1.execute(any(OperationChain.class), eq(context))).willReturn(1);
-        AbstractStore mockStore2 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore2 = getMockStore(unusedSchema, storeProperties);
         given(mockStore2.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
 
         FederatedStore mockStore = mock(FederatedStore.class);

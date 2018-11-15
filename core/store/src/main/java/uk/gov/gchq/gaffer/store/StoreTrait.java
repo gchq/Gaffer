@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * A {@code StoreTrait} defines functionality for {@link uk.gov.gchq.gaffer.store.AbstractStore} implementations.
+ * A {@code StoreTrait} defines functionality for {@link uk.gov.gchq.gaffer.store.Store} implementations.
  */
 @Summary("The features of the Gaffer store - i.e does it support query aggregation?")
 public enum StoreTrait {

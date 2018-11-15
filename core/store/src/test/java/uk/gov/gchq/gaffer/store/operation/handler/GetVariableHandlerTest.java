@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetVariable;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 public class GetVariableHandlerTest {
     private final String varName = "varName";
     private final String varVal = "varVal";
-    private final AbstractStore store = mock(AbstractStore.class);
+    private final Store store = mock(Store.class);
 
     @Test
     public void shouldGetVariableWhenExists() throws OperationException {

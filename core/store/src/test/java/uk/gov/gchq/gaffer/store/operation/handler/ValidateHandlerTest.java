@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -42,7 +42,7 @@ public class ValidateHandlerTest {
     public void shouldReturnNullIfElementsAreNull() throws OperationException {
         // Given
         final ValidateHandler handler = new ValidateHandler();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
         given(validate.getInput()).willReturn(null);
         final Context context = new Context();
@@ -58,7 +58,7 @@ public class ValidateHandlerTest {
     public void shouldValidatedElements() throws OperationException {
         // Given
         final ValidateHandler handler = new ValidateHandler();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
         final Element elm1 = mock(Element.class);
         final Iterable elements = Collections.singletonList(elm1);

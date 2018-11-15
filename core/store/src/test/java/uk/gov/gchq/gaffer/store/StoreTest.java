@@ -60,6 +60,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetVariable;
 import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
@@ -87,7 +88,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
-import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
@@ -176,7 +176,7 @@ public class StoreTest {
         schemaOptimiser = mock(SchemaOptimiser.class);
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
-        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(AbstractStore.class))).willReturn(new ValidationResult());
+        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
@@ -406,7 +406,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final LazyEntity lazyElement = mock(LazyEntity.class);
         final Entity entity = mock(Entity.class);
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
         given(lazyElement.getElement()).willReturn(entity);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -731,7 +731,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
 
@@ -758,7 +758,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
 
@@ -783,7 +783,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
         // When
@@ -808,7 +808,7 @@ public class StoreTest {
                 mock(Module.class)
         );
 
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         final Schema schema = new Schema();
 
         // When
@@ -823,7 +823,7 @@ public class StoreTest {
     @Test
     public void shouldSetAndGetGraphLibrary() {
         // Given
-        final AbstractStore store = new StoreImpl();
+        final Store store = new StoreImpl();
         final GraphLibrary graphLibrary = mock(GraphLibrary.class);
 
         // When

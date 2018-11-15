@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -51,7 +51,7 @@ public class OperationChainValidator {
      * @param store          the target store
      * @return the {@link ValidationResult}
      */
-    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final AbstractStore store) {
+    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
@@ -65,7 +65,7 @@ public class OperationChainValidator {
         return validationResult;
     }
 
-    protected Class<? extends Output> validate(final Operation operation, final User user, final AbstractStore store, final ValidationResult validationResult, final Class<? extends Output> input) {
+    protected Class<? extends Output> validate(final Operation operation, final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
         validationResult.add(operation.validate());
         final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
         validateViews(operation, user, store, validationResult);
@@ -73,7 +73,7 @@ public class OperationChainValidator {
         return output;
     }
 
-    protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final AbstractStore store, final Class<? extends Output> input) {
+    protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final Store store, final Class<? extends Output> input) {
         Class<? extends Output> output = input;
         if (null == input) {
             if (operation instanceof Output) {
@@ -116,14 +116,14 @@ public class OperationChainValidator {
      * @param validationResult the validation result
      * @param schemaNotUsed    the unused schema
      * @param store            the store
-     * @deprecated use {@link #validateComparables(Operation, User, AbstractStore, ValidationResult)} instead
+     * @deprecated use {@link #validateComparables(Operation, User, Store, ValidationResult)} instead
      */
     @Deprecated
-    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final AbstractStore store) {
+    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
         validateComparables(op, null, store, validationResult);
     }
 
-    protected void validateComparables(final Operation op, final User user, final AbstractStore store, final ValidationResult validationResult) {
+    protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof ElementComparison) {
             final Schema schema = getSchema(op, user, store);
             for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
@@ -150,14 +150,14 @@ public class OperationChainValidator {
      * @param validationResult the validation result
      * @param schemaNotUsed    the unused schema
      * @param store            the store
-     * @deprecated use {@link #validateViews(Operation, User, AbstractStore, ValidationResult)} instead
+     * @deprecated use {@link #validateViews(Operation, User, Store, ValidationResult)} instead
      */
     @Deprecated
-    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final AbstractStore store) {
+    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
         validateViews(op, null, store, validationResult);
     }
 
-    protected void validateViews(final Operation op, final User user, final AbstractStore store, final ValidationResult validationResult) {
+    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof GraphFilters) {
             final Schema schema = getSchema(op, user, store);
             final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
@@ -170,11 +170,11 @@ public class OperationChainValidator {
         }
     }
 
-    protected Schema getSchema(final Operation operation, final User user, final AbstractStore store) {
+    protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return store.getSchema();
     }
 
-    protected Set<StoreTrait> getStoreTraits(final AbstractStore store) {
+    protected Set<StoreTrait> getStoreTraits(final Store store) {
         return store.getTraits();
     }
 }

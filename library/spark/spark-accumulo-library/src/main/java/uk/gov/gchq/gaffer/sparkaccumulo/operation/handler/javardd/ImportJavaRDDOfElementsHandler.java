@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements> {
@@ -40,7 +40,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
     private static final String FAILURE_PATH = "failurePath";
 
     @Override
-    public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final AbstractStore store) throws OperationException {
+    public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final Store store) throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }

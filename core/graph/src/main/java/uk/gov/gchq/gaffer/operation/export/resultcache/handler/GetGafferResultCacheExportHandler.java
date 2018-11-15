@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
 /**
@@ -46,14 +46,14 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     }
 
     @Override
-    protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final AbstractStore store) {
+    protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final Store store) {
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
                 context, jobId, createGraph(store),
                 visibility, null);
     }
 
-    protected Graph createGraph(final AbstractStore store) {
+    protected Graph createGraph(final Store store) {
         return GafferResultCacheUtil.createGraph(graphId, cacheStorePropertiesPath, timeToLive);
     }
 

@@ -20,7 +20,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public interface JobFactory<O extends MapReduce> {
      * @return The created job.
      * @throws IOException for IO issues.
      */
-    default List<Job> createJobs(final O operation, final AbstractStore store) throws IOException {
+    default List<Job> createJobs(final O operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
         Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
@@ -76,7 +76,7 @@ public interface JobFactory<O extends MapReduce> {
      * @return The JobConf.
      * @throws IOException For IO issues.
      */
-    JobConf createJobConf(final O operation, final String mapperGeneratorClassName, final AbstractStore store) throws IOException;
+    JobConf createJobConf(final O operation, final String mapperGeneratorClassName, final Store store) throws IOException;
 
     /**
      * Sets up all parts of the Job to be used on the add from hdfs.
@@ -87,5 +87,5 @@ public interface JobFactory<O extends MapReduce> {
      * @param store           The store.
      * @throws IOException For IO issues.
      */
-    void setupJob(final Job job, final O operation, final String mapperGenerator, final AbstractStore store) throws IOException;
+    void setupJob(final Job job, final O operation, final String mapperGenerator, final Store store) throws IOException;
 }

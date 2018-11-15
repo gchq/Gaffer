@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.serviceportalstore;
 
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.serviceportalstore.handler.AddGraphHandler;
 import uk.gov.gchq.gaffer.serviceportalstore.handler.ServicePortalOperationChainHandler;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -34,6 +36,7 @@ public class ServicePortalStore extends ProxyStore {
     @Override
     protected void addAdditionalOperationHandlers() {
         super.addAdditionalOperationHandlers();
+        addOperationHandler(AddGraph.class, new AddGraphHandler());
     }
 
     @Override

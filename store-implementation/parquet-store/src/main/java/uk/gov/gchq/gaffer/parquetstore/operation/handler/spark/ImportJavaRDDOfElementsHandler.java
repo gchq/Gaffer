@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements> {
 
     @Override
-    public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final AbstractStore store)
+    public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final Store store)
             throws OperationException {
         new AddElementsFromRDD(context, (ParquetStore) store).addElementsFromRDD(operation.getInput());
         return null;

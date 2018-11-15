@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.List;
 
@@ -34,11 +34,11 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsTool.class);
 
     private final AddElementsFromHdfs operation;
-    private final AbstractStore store;
+    private final Store store;
     private final AddElementsFromHdfsJobFactory jobFactory;
     private final Configuration config = new Configuration();
 
-    public AddElementsFromHdfsTool(final AddElementsFromHdfsJobFactory jobFactory, final AddElementsFromHdfs operation, final AbstractStore store) {
+    public AddElementsFromHdfsTool(final AddElementsFromHdfsJobFactory jobFactory, final AddElementsFromHdfs operation, final Store store) {
         this.operation = operation;
         this.store = store;
         this.jobFactory = jobFactory;

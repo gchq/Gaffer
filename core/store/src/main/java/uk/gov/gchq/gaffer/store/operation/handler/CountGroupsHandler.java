@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * A {@code CountGroupsHandler} handles {@link CountGroups} operations.
@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.store.Context;
 public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
     @Override
     public GroupCounts doOperation(final CountGroups operation,
-                                   final Context context, final AbstractStore store)
+                                   final Context context, final Store store)
             throws OperationException {
         final GroupCounts groupCounts = new GroupCounts();
         try {

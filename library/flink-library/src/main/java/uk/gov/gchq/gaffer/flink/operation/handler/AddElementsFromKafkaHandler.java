@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Properties;
@@ -48,7 +48,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
     private static final String FLINK_KAFKA_GROUP_ID = "group.id";
 
     @Override
-    public Object doOperation(final AddElementsFromKafka op, final Context context, final AbstractStore store) throws OperationException {
+    public Object doOperation(final AddElementsFromKafka op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         if (null != op.getParallelism()) {
             env.setParallelism(op.getParallelism());

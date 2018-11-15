@@ -36,8 +36,8 @@ import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -79,7 +79,7 @@ public class ExportToOtherGraphHandlerTest {
     public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private final AbstractStore store = mock(AbstractStore.class);
+    private final Store store = mock(Store.class);
     private final Schema schema = new Schema.Builder().build();
     private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
@@ -138,7 +138,7 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertNotNull(exporter);
 
-        TestStore.mockStore = mock(AbstractStore.class);
+        TestStore.mockStore = mock(Store.class);
         final Iterable elements = mock(Iterable.class);
         exporter.add("key", elements);
         final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);

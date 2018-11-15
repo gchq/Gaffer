@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
 /**
  * A {@code StoreException} is a fairly generic exception for a wide range of issues occurred in a
- * {@link uk.gov.gchq.gaffer.store.AbstractStore}.
+ * {@link uk.gov.gchq.gaffer.store.Store}.
  */
 public class StoreException extends GafferCheckedException {
     private static final long serialVersionUID = -4128226949832820609L;

@@ -42,8 +42,8 @@ import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
     private boolean prune = true;
 
     @Override
-    public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final AbstractStore store) throws OperationException {
+    public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
         // Check input
         if (null == getWalks.getInput()) {
             return null;
@@ -174,7 +174,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                                           final List<?> seeds,
                                           final Integer resultLimit,
                                           final Context context,
-                                          final AbstractStore store,
+                                          final Store store,
                                           final int hops,
                                           final AdjacencyMaps adjacencyMaps,
                                           final EntityMaps entityMaps) throws OperationException {
@@ -224,7 +224,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                                      final List<?> seeds,
                                      final Integer resultLimit,
                                      final Context context,
-                                     final AbstractStore store,
+                                     final Store store,
                                      final int hops,
                                      final AdjacencyMaps adjacencyMaps,
                                      final EntityMaps entityMaps) throws OperationException {
@@ -258,7 +258,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                                                final List<?> seeds,
                                                final Integer resultLimit,
                                                final Context context,
-                                               final AbstractStore store) throws OperationException {
+                                               final Store store) throws OperationException {
 
         final Output<Iterable<Element>> convertedOp = new OperationChain.Builder()
                 .first(new ToEntitySeeds.Builder()

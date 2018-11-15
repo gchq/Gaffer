@@ -26,6 +26,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import scala.collection.Seq;
 
 import uk.gov.gchq.gaffer.data.element.Element;

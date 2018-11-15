@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * A handler for {@link AddGraphWithHooks} operation for the FederatedStore.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.AbstractStore;
  */
 public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> {
     @Override
-    protected GraphSerialisable _makeGraph(final AddGraphWithHooks operation, final AbstractStore store) {
+    protected GraphSerialisable _makeGraph(final AddGraphWithHooks operation, final Store store) {
         return new GraphDelegate.Builder()
                 .store(store)
                 .graphId(operation.getGraphId())

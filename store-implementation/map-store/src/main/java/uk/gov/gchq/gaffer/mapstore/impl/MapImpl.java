@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * This class can be thought of as an analogue to a conventional database. Internally,
  * different {@link Map} and {@link MultiMap} instances are used to keep track of
  * the stored elements and the relationships between those elements. This data store
- * is then abstracted again as a Gaffer {@link uk.gov.gchq.gaffer.store.AbstractStore} (by
+ * is then abstracted again as a Gaffer {@link uk.gov.gchq.gaffer.store.Store} (by
  * the {@link uk.gov.gchq.gaffer.mapstore.MapStore} class) to give Gaffer-specific
  * functionality.
  *

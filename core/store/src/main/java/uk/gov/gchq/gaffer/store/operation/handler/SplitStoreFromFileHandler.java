@@ -20,8 +20,8 @@ import org.apache.commons.io.FileUtils;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +30,13 @@ import java.util.List;
 public class SplitStoreFromFileHandler implements OperationHandler<SplitStoreFromFile> {
     @Override
     public Void doOperation(final SplitStoreFromFile operation,
-                            final Context context, final AbstractStore store) throws OperationException {
+                            final Context context, final Store store) throws OperationException {
         final List<String> splits = getSplits(operation, context, store);
         splitStoreFromIterable(splits, context, store);
         return null;
     }
 
-    public List<String> getSplits(final SplitStoreFromFile operation, final Context context, final AbstractStore store) throws OperationException {
+    public List<String> getSplits(final SplitStoreFromFile operation, final Context context, final Store store) throws OperationException {
         if (!store.isSupported(SplitStoreFromIterable.class)) {
             throw new UnsupportedOperationException(
                     SplitStoreFromFile.class.getSimpleName()
@@ -58,7 +58,7 @@ public class SplitStoreFromFileHandler implements OperationHandler<SplitStoreFro
         }
     }
 
-    public void splitStoreFromIterable(final Iterable<String> splits, final Context context, final AbstractStore store) throws OperationException {
+    public void splitStoreFromIterable(final Iterable<String> splits, final Context context, final Store store) throws OperationException {
         if (!store.isSupported(SplitStoreFromIterable.class)) {
             throw new UnsupportedOperationException(
                     SplitStoreFromFile.class.getSimpleName()

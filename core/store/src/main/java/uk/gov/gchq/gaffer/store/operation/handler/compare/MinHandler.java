@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Comparator;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class MinHandler implements OutputOperationHandler<Min, Element> {
     @Override
-    public Element doOperation(final Min operation, final Context context, final AbstractStore store) throws OperationException {
+    public Element doOperation(final Min operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null
         if (null == operation.getInput()
                 || null == operation.getComparators()

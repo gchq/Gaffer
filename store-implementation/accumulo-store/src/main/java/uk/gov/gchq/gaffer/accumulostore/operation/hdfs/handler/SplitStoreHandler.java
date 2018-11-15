@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class SplitStoreHandler implements OperationHandler<SplitStore> {
     @Override
     public Void doOperation(final SplitStore operation,
-                            final Context context, final AbstractStore store) throws OperationException {
+                            final Context context, final Store store) throws OperationException {
         store.execute(
                 new SplitStoreFromFile.Builder()
                         .inputPath(operation.getInputPath())

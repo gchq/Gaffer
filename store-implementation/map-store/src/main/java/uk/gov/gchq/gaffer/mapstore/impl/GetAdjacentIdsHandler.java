@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -50,7 +50,7 @@ public class GetAdjacentIdsHandler implements
     @Override
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
                                                              final Context context,
-                                                             final AbstractStore store) throws OperationException {
+                                                             final Store store) throws OperationException {
         return doOperation(operation, (MapStore) store);
     }
 

@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.koryphe.util.IterableUtil;
@@ -57,12 +57,12 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
-     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
+     * @param store     the {@link Store} the operation should be run on
      * @return an iterable of NamedOperations
      * @throws OperationException thrown if the cache has not been initialized in the operation declarations file
      */
     @Override
-    public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final AbstractStore store) throws OperationException {
+    public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
         final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
         return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
     }

@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public abstract class ExportOperationHandler<EXPORT extends Export & Operation, EXPORTER extends Exporter> implements OperationHandler<EXPORT> {
     @Override
     public Object doOperation(final EXPORT export,
-                              final Context context, final AbstractStore store)
+                              final Context context, final Store store)
             throws OperationException {
         EXPORTER exporter = context.getExporter(getExporterClass());
         if (null == exporter) {
@@ -49,7 +49,7 @@ public abstract class ExportOperationHandler<EXPORT extends Export & Operation, 
 
     protected abstract Class<EXPORTER> getExporterClass();
 
-    protected abstract EXPORTER createExporter(final EXPORT export, final Context context, final AbstractStore store);
+    protected abstract EXPORTER createExporter(final EXPORT export, final Context context, final Store store);
 
-    protected abstract Object doOperation(final EXPORT export, final Context context, final AbstractStore store, final EXPORTER exporter) throws OperationException;
+    protected abstract Object doOperation(final EXPORT export, final Context context, final Store store, final EXPORTER exporter) throws OperationException;
 }

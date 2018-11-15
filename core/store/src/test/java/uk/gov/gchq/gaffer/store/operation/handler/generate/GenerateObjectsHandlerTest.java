@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -38,7 +38,7 @@ public class GenerateObjectsHandlerTest {
     public void shouldReturnObjects() throws OperationException {
         // Given
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final GenerateObjects<String> operation = mock(GenerateObjects.class);
         final Iterable elements = mock(Iterable.class);
         final Function<Iterable<? extends Element>, Iterable<? extends String>> objGenerator = mock(ObjectGenerator.class);

@@ -22,14 +22,14 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
 public class GafferSink extends RichSinkFunction<Element> {
     private static final long serialVersionUID = 1569145256866410621L;
     private final GafferAdder adder;
 
-    public <OP extends Validatable & Operation> GafferSink(final OP validatable, final AbstractStore store) {
+    public <OP extends Validatable & Operation> GafferSink(final OP validatable, final Store store) {
         this(new GafferAdder(validatable, store));
     }
 
