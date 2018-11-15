@@ -22,14 +22,14 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<ImportAccumuloKeyValueFiles> {
     @Override
     public Void doOperation(final ImportAccumuloKeyValueFiles operation,
-                            final Context context, final AbstractStore store)
+                            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, (AccumuloStore) store);
         return null;

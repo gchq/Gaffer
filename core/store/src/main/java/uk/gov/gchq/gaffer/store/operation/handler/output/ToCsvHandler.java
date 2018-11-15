@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Collections;
@@ -31,7 +31,7 @@ import java.util.Collections;
  */
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
-    public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final AbstractStore store) throws OperationException {
+    public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

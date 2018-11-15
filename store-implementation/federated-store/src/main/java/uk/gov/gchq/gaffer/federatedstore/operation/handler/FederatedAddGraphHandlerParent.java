@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -46,7 +46,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
     public static final String USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S = "User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties: %s";
 
     @Override
-    public Void doOperation(final OP operation, final Context context, final AbstractStore store) throws OperationException {
+    public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
         final User user = context.getUser();
         boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
@@ -93,7 +93,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         }
     }
 
-    protected GraphSerialisable _makeGraph(final OP operation, final AbstractStore store) {
+    protected GraphSerialisable _makeGraph(final OP operation, final Store store) {
         return new GraphDelegate.Builder()
                 .store(store)
                 .graphId(operation.getGraphId())

@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
@@ -45,7 +45,7 @@ import java.util.List;
 public class AddElementsHandler implements OperationHandler<AddElements> {
     @Override
     public Void doOperation(final AddElements operation,
-                            final Context context, final AbstractStore store)
+                            final Context context, final Store store)
             throws OperationException {
         addElements(operation, (HBaseStore) store);
         return null;

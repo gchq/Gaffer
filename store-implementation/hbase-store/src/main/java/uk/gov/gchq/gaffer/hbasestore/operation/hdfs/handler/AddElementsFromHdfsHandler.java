@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.hbasestore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final AbstractStore store)
+                            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, (HBaseStore) store);
         return null;

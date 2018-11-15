@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
     @Override
-    public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final AbstractStore store) throws OperationException {
+    public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final Store store) throws OperationException {
         throw new UnsupportedOperationException("The named operation: " + operation.getOperationName() + " was not found.");
     }
 }

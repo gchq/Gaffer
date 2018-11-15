@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
@@ -65,7 +65,7 @@ public class GetAllNamedOperationsHandlerTest {
             .writers(new ArrayList<>())
             .build();
 
-    private AbstractStore store = mock(AbstractStore.class);
+    private Store store = mock(Store.class);
 
     @AfterClass
     public static void tearDown() {

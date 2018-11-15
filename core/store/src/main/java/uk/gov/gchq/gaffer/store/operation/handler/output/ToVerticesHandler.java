@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.UseMatchedVertex;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.function.Function;
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
 
     @Override
-    public Iterable<Object> doOperation(final ToVertices operation, final Context context, final AbstractStore store) throws OperationException {
+    public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }

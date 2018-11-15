@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
@@ -84,7 +84,7 @@ public class GetGafferResultCacheExportHandlerTest {
                 .build();
 
         final Context context = new Context();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
 
@@ -113,7 +113,7 @@ public class GetGafferResultCacheExportHandlerTest {
                 .key("key")
                 .build();
         final Context context = new Context();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
 
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
@@ -122,7 +122,7 @@ public class GetGafferResultCacheExportHandlerTest {
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
-        final AbstractStore cacheStore = mock(AbstractStore.class);
+        final Store cacheStore = mock(Store.class);
         TestStore.mockStore = cacheStore;
 
         // When
@@ -141,7 +141,7 @@ public class GetGafferResultCacheExportHandlerTest {
     @Test
     public void shouldCreateCacheGraph() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final long timeToLive = 10000L;
         final GetGafferResultCacheExportHandler handler = new GetGafferResultCacheExportHandler();
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);

@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 
@@ -29,5 +29,5 @@ public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFro
      * @param store The store.
      * @throws StoreException If an error occurs.
      */
-    void prepareStore(final AbstractStore store) throws StoreException;
+    void prepareStore(final Store store) throws StoreException;
 }

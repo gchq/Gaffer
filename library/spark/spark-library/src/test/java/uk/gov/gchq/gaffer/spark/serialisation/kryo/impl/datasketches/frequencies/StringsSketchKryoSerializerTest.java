@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
-
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.Assert.assertEquals;

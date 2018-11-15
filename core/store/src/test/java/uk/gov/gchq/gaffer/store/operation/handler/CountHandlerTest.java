@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -34,7 +34,7 @@ public class CountHandlerTest {
     public void shouldReturnCount() throws OperationException {
         // Given
         final CountHandler handler = new CountHandler();
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Count count = mock(Count.class);
         final CloseableIterable<Element> elements = CountGroupsHandlerTest.getElements();
         final Context context = new Context();

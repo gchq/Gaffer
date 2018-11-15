@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -39,7 +39,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
 
     public static final String TEST_PROPS_ID = "testPropsId";
     public static final String TEST_STORE_ID = "testStoreId";
-    private AbstractStore store;
+    private Store store;
     private StoreProperties props;
 
     @Before

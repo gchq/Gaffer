@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends AbstractStore> {
+public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends Store> {
     protected Schema schema = new Schema.Builder()
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex(TestTypes.ID_STRING)

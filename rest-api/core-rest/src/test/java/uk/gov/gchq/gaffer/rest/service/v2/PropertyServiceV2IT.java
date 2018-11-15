@@ -23,6 +23,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;

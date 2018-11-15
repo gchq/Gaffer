@@ -21,8 +21,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,7 +35,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
     private Set<StoreTrait> currentTraits;
 
     @Override
-    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final AbstractStore store) throws OperationException {
+    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
         if (!operation.isCurrentTraits()) {
             return store.getTraits();
         }
@@ -46,7 +46,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
         return currentTraits;
     }
 
-    private Set<StoreTrait> createCurrentTraits(final AbstractStore store) {
+    private Set<StoreTrait> createCurrentTraits(final Store store) {
         final Set<StoreTrait> traits = Sets.newHashSet(store.getTraits());
         final Schema schema = store.getSchema();
         final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values());

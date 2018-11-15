@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class TextJobInitialiser implements JobInitialiser {
     }
 
     @Override
-    public void initialiseJob(final Job job, final MapReduce operation, final AbstractStore store)
+    public void initialiseJob(final Job job, final MapReduce operation, final Store store)
             throws IOException {
         initialiseInput(job, operation);
     }

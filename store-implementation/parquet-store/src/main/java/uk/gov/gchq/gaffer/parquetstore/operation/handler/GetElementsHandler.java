@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.ParquetElementRetriever;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -40,7 +40,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final Context context,
-                                                            final AbstractStore store) throws OperationException {
+                                                            final Store store) throws OperationException {
         final CloseableIterable<? extends Element> result;
         final Iterable<? extends ElementId> input = operation.getInput();
         if (null == input) {

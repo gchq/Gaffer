@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.integration.graph;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -38,7 +41,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -83,15 +86,15 @@ public abstract class SchemaHidingIT {
 
     protected abstract void cleanUp();
 
-    protected AbstractStore createStore(final Schema schema) throws IOException {
-        return AbstractStore.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+    protected Store createStore(final Schema schema) throws IOException {
+        return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
-        final AbstractStore fullStore = createStore(createFullSchema());
+        final Store fullStore = createStore(createFullSchema());
         final Graph fullGraph = new Builder()
                 .store(fullStore)
                 .build();
@@ -133,7 +136,7 @@ public abstract class SchemaHidingIT {
                 USER);
 
         // Create a graph with a hidden group backed by the same store
-        final AbstractStore filteredStore = createStore(createFilteredSchema());
+        final Store filteredStore = createStore(createFilteredSchema());
         final Graph filteredGraph = new Builder()
                 .store(filteredStore)
                 .build();

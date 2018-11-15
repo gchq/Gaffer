@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -45,7 +45,7 @@ public class GetTraitsHandlerTest {
 
     public static final String STORE_ID = "StoreId";
     public static final String STRING = "string";
-    private AbstractStore store;
+    private Store store;
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 

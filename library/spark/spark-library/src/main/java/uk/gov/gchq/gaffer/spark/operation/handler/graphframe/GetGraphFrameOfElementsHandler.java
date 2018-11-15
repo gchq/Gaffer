@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.spark.utils.scala.DataFrameUtil;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Set;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<GetGraphFrameOfElements, GraphFrame> {
     @Override
-    public GraphFrame doOperation(final GetGraphFrameOfElements operation, final Context context, final AbstractStore store) throws OperationException {
+    public GraphFrame doOperation(final GetGraphFrameOfElements operation, final Context context, final Store store) throws OperationException {
         final GetDataFrameOfElements getDataFrame = new GetDataFrameOfElements.Builder()
                 .converters(operation.getConverters())
                 .view(operation.getView())

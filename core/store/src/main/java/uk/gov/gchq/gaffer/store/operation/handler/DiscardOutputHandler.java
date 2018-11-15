@@ -18,15 +18,15 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * A {@code DiscardOutputHandler} handles {@link DiscardOutput} operations.
  */
 public class DiscardOutputHandler implements OperationHandler<DiscardOutput> {
     @Override
-    public Void doOperation(final DiscardOutput operation, final Context context, final AbstractStore store)
+    public Void doOperation(final DiscardOutput operation, final Context context, final Store store)
             throws OperationException {
         return null;
     }

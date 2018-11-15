@@ -42,8 +42,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -73,12 +73,16 @@ import java.util.Set;
  * The ProxyStore is simply a Gaffer store which delegates all operations to a Gaffer
  * REST API.
  */
-public class ProxyStore extends AbstractStore {
+public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
     private Set<StoreTrait> traits;
     private Schema schema;
     private Set<Class<? extends Operation>> supportedOperations;
+
+    public ProxyStore() {
+        super(false);
+    }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override

@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * Utilities for Operation Handlers.
@@ -75,7 +75,7 @@ public final class OperationHandlerUtil {
      * @return the results or null
      * @throws OperationException if the store fails to execute the operation.
      */
-    public static Object getResultsOrNull(final Operation op, final Context context, final AbstractStore store) throws OperationException {
+    public static Object getResultsOrNull(final Operation op, final Context context, final Store store) throws OperationException {
         if (op instanceof Output) {
             return store.execute((Output) op, context);
         } else {

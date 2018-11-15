@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -47,11 +47,11 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataAndCreateSplitsFileTool.class);
 
     private final SampleDataForSplitPoints operation;
-    private final AbstractStore store;
+    private final Store store;
     private final SampleDataForSplitPointsJobFactory jobFactory;
     private final int expectedNumberOfSplits;
 
-    public SampleDataAndCreateSplitsFileTool(final SampleDataForSplitPointsJobFactory jobFactory, final SampleDataForSplitPoints operation, final AbstractStore store) {
+    public SampleDataAndCreateSplitsFileTool(final SampleDataForSplitPointsJobFactory jobFactory, final SampleDataForSplitPoints operation, final Store store) {
         this.operation = operation;
         this.store = store;
         this.jobFactory = jobFactory;

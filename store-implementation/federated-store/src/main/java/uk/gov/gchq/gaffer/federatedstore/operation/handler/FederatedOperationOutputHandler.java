@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipF
 public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> implements OutputOperationHandler<OP, O> {
 
     @Override
-    public O doOperation(final OP operation, final Context context, final AbstractStore store) throws OperationException {
+    public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
@@ -68,5 +68,5 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         }
     }
 
-    protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final AbstractStore store);
+    protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final Store store);
 }

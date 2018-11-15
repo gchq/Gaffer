@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -62,7 +62,7 @@ public class GafferResultCacheExporterTest {
     private final Context context = new Context(user);
     private final String jobId = context.getJobId();
     private final String key = "key";
-    private final AbstractStore store = mock(AbstractStore.class);
+    private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
     private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);

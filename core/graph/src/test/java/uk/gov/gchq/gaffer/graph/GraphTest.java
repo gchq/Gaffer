@@ -66,7 +66,6 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -305,7 +304,7 @@ public class GraphTest {
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOperation() throws OperationException, IOException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -329,7 +328,7 @@ public class GraphTest {
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteOutputOperation() throws OperationException, IOException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -353,7 +352,7 @@ public class GraphTest {
     @Test
     public void shouldCreateNewContextInstanceWhenExecuteJob() throws OperationException, IOException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -378,7 +377,7 @@ public class GraphTest {
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted() throws OperationException, IOException {
         // Given
         final Exception exception = mock(RuntimeException.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
@@ -407,7 +406,7 @@ public class GraphTest {
     public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted() throws OperationException, IOException {
         // Given
         final Exception exception = mock(RuntimeException.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
@@ -435,7 +434,7 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -466,7 +465,7 @@ public class GraphTest {
     @Test
     public void shouldCallAllGraphHooksBeforeJobExecuted() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -499,7 +498,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
@@ -544,7 +543,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
@@ -583,7 +582,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
@@ -622,7 +621,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -662,7 +661,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
@@ -711,7 +710,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -756,7 +755,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -796,7 +795,7 @@ public class GraphTest {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
         final JobDetail result3 = mock(JobDetail.class);
@@ -852,7 +851,7 @@ public class GraphTest {
 
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema();
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
@@ -895,7 +894,7 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getProperties()).willReturn(new StoreProperties());
 
@@ -940,7 +939,7 @@ public class GraphTest {
     @Test
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
@@ -966,7 +965,7 @@ public class GraphTest {
     @Test
     public void shouldGetSchemaFromStoreIfSchemaIsEmpty() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
@@ -994,7 +993,7 @@ public class GraphTest {
     public void shouldSetGraphViewOnOperationAndDelegateDoOperationToStore()
             throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = new View.Builder()
@@ -1032,7 +1031,7 @@ public class GraphTest {
     public void shouldNotSetGraphViewOnOperationWhenOperationViewIsNotNull
             () throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View opView = mock(View.class);
@@ -1065,7 +1064,7 @@ public class GraphTest {
     @Test
     public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet() throws OperationException {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
@@ -1151,7 +1150,7 @@ public class GraphTest {
     @Test
     public void shouldDelegateGetNextOperationsToStore() {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
@@ -1174,7 +1173,7 @@ public class GraphTest {
     @Test
     public void shouldDelegateIsSupportedToStore() {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
@@ -1195,7 +1194,7 @@ public class GraphTest {
     @Test
     public void shouldDelegateGetSupportedOperationsToStore() {
         // Given
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
@@ -1397,7 +1396,7 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        TestStore.mockStore = mock(AbstractStore.class);
+        TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final GraphHook graphHook1 = mock(GraphHook.class);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver();
@@ -1422,7 +1421,7 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        TestStore.mockStore = mock(AbstractStore.class);
+        TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final GraphHook graphHook1 = mock(GraphHook.class);
         final Log4jLogger graphHook2 = mock(Log4jLogger.class);
@@ -1769,7 +1768,7 @@ public class GraphTest {
     @Test
     public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException {
         // Given
-        final AbstractStore store = new TestStore();
+        final Store store = new TestStore();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)

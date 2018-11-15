@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

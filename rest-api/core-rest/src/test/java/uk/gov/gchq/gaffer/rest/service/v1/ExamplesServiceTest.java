@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
-import uk.gov.gchq.gaffer.store.AbstractStore;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -79,7 +79,7 @@ public class ExamplesServiceTest {
                         .build())
                 .build();
 
-        final AbstractStore store = mock(AbstractStore.class);
+        final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getOriginalSchema()).willReturn(schema);

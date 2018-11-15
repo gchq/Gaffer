@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
@@ -53,12 +53,12 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
      *
      * @param operation the {@link Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
-     * @param store     the {@link uk.gov.gchq.gaffer.store.AbstractStore} the operation should be run on
+     * @param store     the {@link Store} the operation should be run on
      * @return null (since the output is void)
      * @throws OperationException if the operation on the cache fails
      */
     @Override
-    public Void doOperation(final AddNamedOperation operation, final Context context, final AbstractStore store) throws OperationException {
+    public Void doOperation(final AddNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
             final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChainAsString())

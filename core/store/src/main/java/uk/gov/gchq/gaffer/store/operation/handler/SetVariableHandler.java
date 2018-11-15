@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SetVariable;
-import uk.gov.gchq.gaffer.store.AbstractStore;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 public class SetVariableHandler implements OperationHandler<SetVariable> {
     @Override
-    public Void doOperation(final SetVariable operation, final Context context, final AbstractStore store) throws OperationException {
+    public Void doOperation(final SetVariable operation, final Context context, final Store store) throws OperationException {
         context.setVariable(operation.getVariableName(), operation.getInput());
         return null;
     }

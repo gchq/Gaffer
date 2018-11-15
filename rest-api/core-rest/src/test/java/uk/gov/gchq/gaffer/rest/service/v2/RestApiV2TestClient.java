@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV2;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
