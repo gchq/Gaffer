@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore;
+package uk.gov.gchq.gaffer.cache;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * Type safe cache, adding and getting is guaranteed to be same type.
+ * @param <V> The type of values to add and get.
+ */
 public class Cache<V> {
     public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
     protected String cacheServiceName;
@@ -72,18 +73,18 @@ public class Cache<V> {
     }
 
     /**
-     * Delete the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID from the cache.
+     * Delete the value related to the specified ID from the cache.
      *
-     * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to be deleted
+     * @param key the ID of the key to be deleted
      */
-    public void deleteFromCache(final String graphId) {
-        CacheServiceLoader.getService().removeFromCache(cacheServiceName, graphId);
+    public void deleteFromCache(final String key) {
+        CacheServiceLoader.getService().removeFromCache(cacheServiceName, key);
     }
 
     /**
-     * Get the cache for the FederatedStore.
+     * Get the cache.
      *
-     * @return the FederatedStore cache
+     * @return ICache
      */
     public ICache getCache() {
         if (CacheServiceLoader.getService() != null) {
