@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -59,7 +60,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
@@ -275,7 +275,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        // no operation handlers to add.
+        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
