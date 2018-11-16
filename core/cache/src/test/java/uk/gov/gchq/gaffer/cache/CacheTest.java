@@ -88,7 +88,7 @@ public class CacheTest {
 
     @Test
     public void shouldGetCacheServiceName() throws CacheOperationException {
-        assertEquals("serviceName1", cache.getCacheServiceName());
+        assertEquals("serviceName1", cache.getCacheName());
     }
 
     @Test

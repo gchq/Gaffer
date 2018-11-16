@@ -27,27 +27,27 @@ import java.util.Set;
  */
 public class Cache<V> {
     public static final String ERROR_ADDING_KEY_TO_CACHE_KEY_S = "Error adding key to cache. key: %s";
-    protected String cacheServiceName;
+    protected String cacheName;
 
-    public Cache(final String cacheServiceName) {
-        this.cacheServiceName = cacheServiceName;
+    public Cache(final String cacheName) {
+        this.cacheName = cacheName;
     }
 
     public V getFromCache(final String key) {
-        return CacheServiceLoader.getService().getFromCache(cacheServiceName, key);
+        return CacheServiceLoader.getService().getFromCache(cacheName, key);
     }
 
-    public String getCacheServiceName() {
-        return cacheServiceName;
+    public String getCacheName() {
+        return cacheName;
     }
 
     protected void addToCache(final String key, final V value, final boolean overwrite) throws CacheOperationException {
         final ICacheService service = CacheServiceLoader.getService();
         try {
             if (overwrite) {
-                service.putInCache(getCacheServiceName(), key, value);
+                service.putInCache(getCacheName(), key, value);
             } else {
-                service.putSafeInCache(getCacheServiceName(), key, value);
+                service.putSafeInCache(getCacheName(), key, value);
             }
         } catch (final CacheOperationException e) {
             throw new CacheOperationException(String.format(ERROR_ADDING_KEY_TO_CACHE_KEY_S, key), e);
@@ -55,7 +55,7 @@ public class Cache<V> {
     }
 
     public Set<String> getAllKeys() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheServiceName);
+        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
         return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
@@ -65,7 +65,7 @@ public class Cache<V> {
      * @throws CacheOperationException if there was an error trying to clear the cache
      */
     public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(cacheServiceName);
+        CacheServiceLoader.getService().clearCache(cacheName);
     }
 
     public boolean contains(final String graphId) {
@@ -78,7 +78,7 @@ public class Cache<V> {
      * @param key the ID of the key to be deleted
      */
     public void deleteFromCache(final String key) {
-        CacheServiceLoader.getService().removeFromCache(cacheServiceName, key);
+        CacheServiceLoader.getService().removeFromCache(cacheName, key);
     }
 
     /**
@@ -88,7 +88,7 @@ public class Cache<V> {
      */
     public ICache getCache() {
         if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(cacheServiceName);
+            return CacheServiceLoader.getService().getCache(cacheName);
         } else {
             return null;
         }
