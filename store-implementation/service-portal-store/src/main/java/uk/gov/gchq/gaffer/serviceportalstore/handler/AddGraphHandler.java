@@ -71,7 +71,7 @@ public class AddGraphHandler implements OperationHandler<AddGraph> {
         /*
          * this is tightly coupled with the graphOfGraph schema
          */
-        for (String graphAuth : graphAuths) {
+        for (final String graphAuth : graphAuths) {
             elements.add(new Edge.Builder()
                     .group("canAccess")
                     .source(graphAuth)

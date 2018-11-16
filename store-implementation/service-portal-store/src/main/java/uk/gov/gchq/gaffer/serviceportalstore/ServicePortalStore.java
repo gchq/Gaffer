@@ -36,6 +36,7 @@ public class ServicePortalStore extends ProxyStore {
     @Override
     protected void addAdditionalOperationHandlers() {
         super.addAdditionalOperationHandlers();
+        addOperationHandler(OperationChain.class, new ServicePortalOperationChainHandler(opChainValidator, opChainOptimisers));
         addOperationHandler(AddGraph.class, new AddGraphHandler());
     }
 
