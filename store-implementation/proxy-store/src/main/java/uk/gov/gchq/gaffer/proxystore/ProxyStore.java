@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -275,7 +276,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        // no operation handlers to add.
+        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
