@@ -185,7 +185,7 @@ public class SortFullGroup implements Callable<OperationException> {
         final FileStatus[] sortedFiles = fs
                 .listStatus(new Path(outputDir), path -> path.getName().endsWith(".parquet"));
         final SortedSet<Path> sortedSortedFiles = new TreeSet<>();
-        Arrays.stream(sortedFiles).map(f -> f.getPath()).forEach(sortedSortedFiles::add);
+        Arrays.stream(sortedFiles).map(FileStatus::getPath).forEach(sortedSortedFiles::add);
         final Path[] sortedSortedPaths = sortedSortedFiles.toArray(new Path[]{});
 
         // Rename files, e.g. part-00000-*** to partition-0, removing empty files and adapting numbers accordingly

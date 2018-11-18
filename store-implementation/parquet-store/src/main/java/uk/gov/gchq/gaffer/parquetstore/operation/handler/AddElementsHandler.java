@@ -95,7 +95,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         + "/reversed-group=" + group
                         + "/partition=" + partitionId;
         LOGGER.info("Calling WriteUnsortedData to add elements");
-        LOGGER.info("currentGraphPartitioner is {}", currentGraphPartitioner);
+        LOGGER.trace("currentGraphPartitioner is {}", currentGraphPartitioner);
         new WriteUnsortedData(store, currentGraphPartitioner,
                 directoryForGroupAndPartitionId, directoryForGroupAndPartitionIdForReversedEdges)
                 .writeElements(addElementsOperation.getInput());
