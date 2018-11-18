@@ -122,7 +122,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 inputFiles.add(store.getFile(group, partition));
                 final String outputDir = directoryForSortedResultsForGroupAndPartitionId.apply(group, partition.getPartitionId());
                 final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
-                        group, group + "-" + partition.getPartitionId(), false, spark);
+                        group, group + "-" + partition.getPartitionId(), false, store.getProperties().getCompressionCodecName(), spark);
                 tasks.add(task);
                 LOGGER.info("Created AggregateAndSortData task for group {}, partition {}", group, partition.getPartitionId());
             }
@@ -137,7 +137,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 inputFiles.add(store.getFileForReversedEdges(group, partition));
                 final String outputDir = directoryForSortedResultsForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId());
                 final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
-                        group, "reversed-" + group + "-" + partition.getPartitionId(), true, spark);
+                        group, "reversed-" + group + "-" + partition.getPartitionId(), true, store.getProperties().getCompressionCodecName(), spark);
                 tasks.add(task);
                 LOGGER.info("Created AggregateAndSortData task for reversed edge group {}, partition {}", group, partition.getPartitionId());
             }
