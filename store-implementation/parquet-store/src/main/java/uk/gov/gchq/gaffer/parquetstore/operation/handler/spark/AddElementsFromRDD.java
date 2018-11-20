@@ -108,7 +108,7 @@ public class AddElementsFromRDD {
         LOGGER.info("Writing data for input RDD");
         final Function<String, String> groupToUnsortedUnaggregatedNewData =
                 group -> getDirectory(group, false, false, false);
-        input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, schema));
+        input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, schema, store.getProperties().getCompressionCodecName()));
     }
 
     /**
@@ -228,6 +228,7 @@ public class AddElementsFromRDD {
                     inputFiles,
                     outputDir,
                     store.getProperties().getAddElementsOutputFilesPerGroup(),
+                    store.getProperties().getCompressionCodecName(),
                     spark,
                     fs).call();
         } catch (final IOException e) {
