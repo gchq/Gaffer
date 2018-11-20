@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -68,6 +69,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 /**
  * Gaffer {@code ProxyStore} implementation.
  * <p>
@@ -92,7 +95,6 @@ public class ProxyStore extends Store {
         client = createClient();
         schema = fetchSchema();
         traits = fetchTraits();
-        supportedOperations = fetchOperations();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -113,12 +115,23 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        return supportedOperations;
+        if (isNull(supportedOperations)) {
+            HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+            try {
+                allSupportedOperations.addAll(fetchOperations());
+            } catch (final StoreException e) {
+                throw new RuntimeException(e);
+            }
+            allSupportedOperations.addAll(super.getSupportedOperations());
+            this.supportedOperations = Collections.unmodifiableSet(allSupportedOperations);
+        }
+
+        return this.supportedOperations;
     }
 
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        return supportedOperations.contains(operationClass);
+        return getSupportedOperations().contains(operationClass);
     }
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
