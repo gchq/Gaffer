@@ -21,9 +21,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -44,7 +42,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -54,12 +51,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractOperationsTest {
     @Rule
@@ -243,6 +243,26 @@ public abstract class AbstractOperationsTest {
         final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
         results.close();
         assertThat(expected, containsInAnyOrder(actual.toArray()));
+    }
+
+    @Test
+    public void getElementsOnEmptyGraph() throws IOException, OperationException {
+        // Given (test on a graph on which add has been called with an empty list and
+        // on a graph on which add has never been called)
+        final Graph graph1 = getGraph();
+        final Graph graph2 = getGraph();
+        final List<Element> elements = new ArrayList<>();
+        graph1.execute(new AddElements.Builder().input(elements).build(), USER);
+
+        // When
+        final CloseableIterable<? extends Element> results1 = graph1
+                .execute(new GetElements.Builder().input(getSeeds()).build(), USER);
+        final CloseableIterable<? extends Element> results2 = graph2
+                .execute(new GetElements.Builder().input(getSeeds()).build(), USER);
+
+        // Then
+        assertFalse(results1.iterator().hasNext());
+        assertFalse(results2.iterator().hasNext());
     }
 
     @Test
