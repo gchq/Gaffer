@@ -55,13 +55,17 @@ public class WriteData implements VoidFunction<Iterator<Element>> {
 
     private final HashMap<String, String> groupToDirectory; // NB Specify as HashMap, not Map, as needs to be Serializable
     private final byte[] schemaAsJson;
+    private final CompressionCodecName compressionCodecName;
 
-    public WriteData(final Function<String, String> groupToDirectory, final Schema schema) {
+    public WriteData(final Function<String, String> groupToDirectory,
+                     final Schema schema,
+                     final CompressionCodecName compressionCodecName) {
         this.groupToDirectory = new HashMap<>();
         for (final String group : schema.getGroups()) {
             this.groupToDirectory.put(group, groupToDirectory.apply(group));
         }
         this.schemaAsJson = schema.toCompactJson();
+        this.compressionCodecName = compressionCodecName;
     }
 
     @Override
@@ -132,7 +136,7 @@ public class WriteData implements VoidFunction<Iterator<Element>> {
         return new ParquetElementWriter.Builder(writerPath)
                 .withType(schemaUtils.getParquetSchema(group))
                 .usingConverter(schemaUtils.getConverter(group))
-                .withCompressionCodec(CompressionCodecName.UNCOMPRESSED)
+                .withCompressionCodec(compressionCodecName)
                 .withSparkSchema(schemaUtils.getSparkSchema(group))
                 .build();
     }

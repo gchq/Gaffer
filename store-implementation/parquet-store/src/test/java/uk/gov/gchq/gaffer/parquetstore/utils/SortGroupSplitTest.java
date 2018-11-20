@@ -23,6 +23,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Assert;
@@ -107,7 +108,7 @@ public class SortGroupSplitTest {
         sortColumns.add("date");
 
         // When
-        new SortGroupSplit(fs, sparkSession, sortColumns, inputDir, outputDir).call();
+        new SortGroupSplit(fs, sparkSession, sortColumns, inputDir, outputDir, CompressionCodecName.GZIP).call();
 
         // Then
         //  - Check output directory exists and contains one Parquet file

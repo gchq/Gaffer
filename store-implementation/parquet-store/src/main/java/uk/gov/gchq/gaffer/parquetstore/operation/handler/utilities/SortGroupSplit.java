@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ public class SortGroupSplit implements Callable<OperationException> {
 
     private final List<String> inputFiles;
     private final String outputDir;
+    private final CompressionCodecName compressionCodecName;
     private final SparkSession spark;
     private final FileSystem fs;
     private final List<String> sortColumns;
@@ -46,7 +48,8 @@ public class SortGroupSplit implements Callable<OperationException> {
                           final SparkSession spark,
                           final List<String> sortColumns,
                           final String inputDir,
-                          final String outputDir) throws IOException {
+                          final String outputDir,
+                          final CompressionCodecName compressionCodecName) throws IOException {
         this.fs = fs;
         this.sortColumns = sortColumns;
         if (!this.fs.exists(new Path(inputDir))) {
@@ -63,18 +66,21 @@ public class SortGroupSplit implements Callable<OperationException> {
         }
         this.outputDir = outputDir;
         this.spark = spark;
+        this.compressionCodecName = compressionCodecName;
     }
 
     public SortGroupSplit(final FileSystem fs,
                           final SparkSession spark,
                           final List<String> sortColumns,
                           final List<String> inputFiles,
-                          final String outputDir) {
+                          final String outputDir,
+                          final CompressionCodecName compressionCodecName) {
         this.fs = fs;
         this.spark = spark;
         this.sortColumns = sortColumns;
         this.inputFiles = inputFiles;
         this.outputDir = outputDir;
+        this.compressionCodecName = compressionCodecName;
     }
 
     @Override
@@ -103,7 +109,7 @@ public class SortGroupSplit implements Callable<OperationException> {
                 .sort(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
                 .coalesce(1)
                 .write()
-                .option("compression", "gzip")
+                .option("compression", compressionCodecName.name())
                 .parquet(outputDir);
         return null;
     }
