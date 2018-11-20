@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class AggregateAndSortData implements Callable<CallableResult> {
     private final String group;
     private final String id; // Used in the logging statements so that users of this class can provide some context as to what is being done
     private final boolean reversed;
+    private final CompressionCodecName compressionCodecName;
     private final SparkSession sparkSession;
     private final Set<String> groupsWithAggregation;
 
@@ -56,6 +58,7 @@ public class AggregateAndSortData implements Callable<CallableResult> {
                                 final String group,
                                 final String id,
                                 final boolean reversed,
+                                final CompressionCodecName compressionCodecName,
                                 final SparkSession sparkSession) {
         this.schemaUtils = schemaUtils;
         this.fs = fs;
@@ -65,6 +68,7 @@ public class AggregateAndSortData implements Callable<CallableResult> {
         this.id = id;
         this.reversed = reversed;
         this.sparkSession = sparkSession;
+        this.compressionCodecName = compressionCodecName;
         this.groupsWithAggregation = new HashSet<>(this.schemaUtils.getGafferSchema().getAggregatedGroups());
     }
 
@@ -75,7 +79,7 @@ public class AggregateAndSortData implements Callable<CallableResult> {
         if (!groupsWithAggregation.contains(group)) {
             LOGGER.info("Sorting data for group {} and id {} ({} input files, results will be stored in {})",
                     group, id, files.size(), sortedFiles);
-            new SortGroupSplit(fs, sparkSession, schemaUtils.columnsToSortBy(group, reversed), files, sortedFiles).call();
+            new SortGroupSplit(fs, sparkSession, schemaUtils.columnsToSortBy(group, reversed), files, sortedFiles, compressionCodecName).call();
         } else {
             final String aggregatedFiles = outputDir + AGGREGATED;
             LOGGER.info("Aggregating data for group {} and id {} ({} input files, results will be stored in {})",
@@ -85,7 +89,7 @@ public class AggregateAndSortData implements Callable<CallableResult> {
                 LOGGER.info("Sorting aggregated data for group {} and id {} (results will be written to {})",
                         group, id, sortedFiles);
                 new SortGroupSplit(fs, sparkSession, schemaUtils.columnsToSortBy(group, reversed),
-                        aggregatedFiles, sortedFiles).call();
+                        aggregatedFiles, sortedFiles, compressionCodecName).call();
                 LOGGER.info("Deleting aggregated files in {} for group {} and {}", aggregatedFiles, group, id);
                 fs.delete(new Path(aggregatedFiles), true);
             } else {

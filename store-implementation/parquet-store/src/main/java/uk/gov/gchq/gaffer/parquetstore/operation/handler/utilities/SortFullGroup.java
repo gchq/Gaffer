@@ -21,6 +21,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -62,6 +63,7 @@ public class SortFullGroup implements Callable<OperationException> {
     private final List<String> inputFiles;
     private final String outputDir;
     private final int numberOfOutputFiles;
+    private CompressionCodecName compressionCodecName;
     private final SparkSession spark;
     private final FileSystem fs;
 
@@ -73,6 +75,7 @@ public class SortFullGroup implements Callable<OperationException> {
                          final List<String> inputFiles,
                          final String outputDir,
                          final int numberOfOutputFiles,
+                         final CompressionCodecName compressionCodecName,
                          final SparkSession spark,
                          final FileSystem fs) {
         this.group = group;
@@ -84,6 +87,7 @@ public class SortFullGroup implements Callable<OperationException> {
         this.inputFiles = inputFiles;
         this.outputDir = outputDir;
         this.numberOfOutputFiles = numberOfOutputFiles;
+        this.compressionCodecName = compressionCodecName;
         this.spark = spark;
         this.fs = fs;
     }
@@ -175,7 +179,7 @@ public class SortFullGroup implements Callable<OperationException> {
         spark.createDataFrame(partitionedData, schemaUtils.getSparkSchema(group))
                 .sortWithinPartitions(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
                 .write()
-                .option("compression", "gzip")
+                .option("compression", compressionCodecName.name())
                 .parquet(outputDir);
 
         final FileStatus[] sortedFiles = fs

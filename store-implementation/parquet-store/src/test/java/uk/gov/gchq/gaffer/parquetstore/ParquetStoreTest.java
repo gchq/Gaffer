@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,21 @@
 package uk.gov.gchq.gaffer.parquetstore;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.parquet.format.converter.ParquetMetadataConverter;
+import org.apache.parquet.hadoop.ParquetFileReader;
+import org.apache.parquet.hadoop.metadata.BlockMetaData;
+import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
+import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,6 +44,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -42,8 +54,10 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -175,6 +189,64 @@ public class ParquetStoreTest {
         assertTrue(iter.hasNext());
         assertEquals(knownEntity, iter.next());
         assertFalse(iter.hasNext());
+    }
+
+    @Test
+    public void shouldCorrectlyUseCompressionOption() throws Exception {
+        for (final String compressionType : Sets.newHashSet("GZIP", "SNAPPY", "UNCOMPRESSED")) {
+            // Given
+            final Schema schema = new Schema.Builder()
+                    .type("int", new TypeDefinition.Builder()
+                            .clazz(Integer.class)
+                            .serialiser(new IntegerParquetSerialiser())
+                            .build())
+                    .type("string", new TypeDefinition.Builder()
+                            .clazz(String.class)
+                            .serialiser(new StringParquetSerialiser())
+                            .build())
+                    .entity("entity", new SchemaEntityDefinition.Builder()
+                            .vertex("string")
+                            .property("property1", "int")
+                            .aggregate(false)
+                            .build())
+                    .edge("edge", new SchemaEdgeDefinition.Builder()
+                            .source("string")
+                            .destination("string")
+                            .property("property2", "int")
+                            .aggregate(false)
+                            .build())
+                    .vertexSerialiser(new StringParquetSerialiser())
+                    .build();
+            final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
+            parquetStoreProperties.setCompressionCodecName(compressionType);
+            final ParquetStore parquetStore = (ParquetStore) ParquetStore.createStore("graphId", schema, parquetStoreProperties);
+            final List<Element> elements = new ArrayList<>();
+            elements.add(new Entity.Builder()
+                    .group("entity")
+                    .vertex("A")
+                    .property("property1", 1)
+                    .build());
+            elements.add(new Edge.Builder()
+                    .group("edge")
+                    .source("B")
+                    .dest("C")
+                    .property("property2", 100)
+                    .build());
+
+            // When
+            final AddElements add = new AddElements.Builder().input(elements).build();
+            parquetStore.execute(add, new Context());
+
+            // Then
+            final List<Path> files = parquetStore.getFilesForGroup("entity");
+            for (final Path path : files) {
+                final ParquetMetadata parquetMetadata = ParquetFileReader
+                        .readFooter(new Configuration(), path, ParquetMetadataConverter.NO_FILTER);
+                for (final BlockMetaData blockMetadata : parquetMetadata.getBlocks()) {
+                    blockMetadata.getColumns().forEach(c -> assertEquals(compressionType, c.getCodec().name()));
+                }
+            }
+        }
     }
 
     private Graph getGraph() throws IOException {
