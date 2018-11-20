@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -67,6 +68,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new Graph to the federated store")
+@JsonInclude(Include.NON_DEFAULT)
 public class AddGraph implements FederatedOperation {
     @Required
     private String graphId;
@@ -126,10 +128,12 @@ public class AddGraph implements FederatedOperation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
+    @JsonIgnore
     public StoreProperties getStoreProperties() {
         return storeProperties;
     }
 
+    @JsonIgnore
     public void setStoreProperties(final StoreProperties properties) {
         this.storeProperties = properties;
     }
@@ -142,7 +146,6 @@ public class AddGraph implements FederatedOperation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
-    @JsonInclude(Include.NON_DEFAULT)
     public boolean isDisabledByDefault() {
         return disabledByDefault;
     }

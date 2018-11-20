@@ -556,7 +556,8 @@ public class GetElementsIT extends AbstractStoreIT {
                 .directedType(directedType)
                 .inOutType(inOutType)
                 .view(viewBuilder.build())
-                .seedMatching(seedMatching).build();
+                .seedMatching(seedMatching)
+                .build();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, user);

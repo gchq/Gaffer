@@ -67,6 +67,7 @@ public class AddNamedOperation implements Operation {
         this.overwriteFlag = overwriteFlag;
     }
 
+    @JsonIgnore
     public void setOperationChain(final String operationChain) {
         this.operations = operationChain;
     }
@@ -90,6 +91,7 @@ public class AddNamedOperation implements Operation {
         }
     }
 
+    @JsonIgnore
     public void setOperationChain(final OperationChain operationChain) {
         try {
             if (operationChain instanceof OperationChainDAO) {

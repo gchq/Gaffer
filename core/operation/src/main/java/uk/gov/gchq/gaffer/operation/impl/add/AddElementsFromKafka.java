@@ -42,6 +42,7 @@ import java.util.function.Function;
 @JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "consumeAs", "elementGenerator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds elements from Kafka")
+@JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 public class AddElementsFromKafka implements
         Operation,
         Validatable {
@@ -135,7 +136,6 @@ public class AddElementsFromKafka implements
         this.skipInvalidElements = skipInvalidElements;
     }
 
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     public Class<?> getConsumeAs() {
         return consumeAs;
     }

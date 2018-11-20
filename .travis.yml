@@ -10,6 +10,9 @@ sudo: false
 matrix:
   fast_finish: true
 
+
+if: (branch == master && type == push) || (branch == develop && type == push) || (branch != master && type == pull_request)
+
 env:
   matrix:
   - RELEASE=true

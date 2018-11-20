@@ -16,34 +16,54 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import org.apache.spark.rdd.RDD;
 
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.TypeValueVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.types.TypeValue;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsTest {
+    private final TypeValueVertexOperationsTest tvvot = new TypeValueVertexOperationsTest();
 
+    @Override
+    protected Schema getSchema() {
+        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
+    }
+
+    @Override
+    protected RDD<Element> getInputDataForGetAllElementsTest() {
+        final List<Element> elements = tvvot.getInputDataForGetAllElementsTest();
+        return TestUtils.getJavaSparkContext().parallelize(elements).rdd();
+    }
+
+    @Override
+    protected int getNumberOfItemsInInputDataForGetAllElementsTest() {
+        return tvvot.getInputDataForGetAllElementsTest().size();
+    }
+
+    @Override
+    protected List<Element> getResultsForGetAllElementsTest() {
+        return tvvot.getResultsForGetAllElementsTest();
+    }
+
+    @Override
+    protected List<ElementSeed> getSeeds() {
+        return tvvot.getSeeds();
+    }
+
+    @Override
+    protected List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
+        return tvvot.getResultsForGetElementsWithSeedsRelatedTest();
+    }
+
+    /**
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
@@ -52,11 +72,6 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
                 .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
                 .build(), USER);
         return graph;
-    }
-
-    @Override
-    protected Schema getSchema() {
-        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
     @Override
@@ -114,5 +129,5 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
             expected.add(DataGen.getEntity(TestGroups.ENTITY_2, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, visibility));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
-    }
+    }*/
 }

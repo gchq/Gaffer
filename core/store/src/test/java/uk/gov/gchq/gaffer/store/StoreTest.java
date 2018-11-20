@@ -55,11 +55,18 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.GetVariable;
+import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.Reduce;
+import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -87,6 +94,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -511,6 +519,9 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Validation
+                ValidateOperationChain.class,
+
                 // Algorithm
                 GetWalks.class,
 
@@ -531,11 +542,20 @@ public class StoreTest {
                 If.class,
                 GetTraits.class,
                 While.class,
+                Join.class,
+                ToSingletonList.class,
+                ForEach.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -607,6 +627,9 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Validation
+                ValidateOperationChain.class,
+
                 // Algorithm
                 GetWalks.class,
 
@@ -627,11 +650,20 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+                Join.class,
+                ToSingletonList.class,
+                ForEach.class,
+                Reduce.class,
 
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
