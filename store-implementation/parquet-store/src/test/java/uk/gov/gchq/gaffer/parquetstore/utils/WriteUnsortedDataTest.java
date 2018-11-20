@@ -23,6 +23,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -100,8 +101,9 @@ public class WriteUnsortedDataTest {
                 tempFilesDir + "/GROUP=" + group + "/split-" + partitionId;
         final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdge = (group, partitionId) ->
                 tempFilesDir + "/REVERSED-GROUP=" + group + "/split-" + partitionId;
-        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, schemaUtils, graphPartitioner,
-                fileNameForGroupAndPartitionId, fileNameForGroupAndPartitionIdForReversedEdge);
+        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, CompressionCodecName.GZIP,
+                schemaUtils, graphPartitioner, fileNameForGroupAndPartitionId,
+                fileNameForGroupAndPartitionIdForReversedEdge);
 
         // When
         writeUnsortedData.writeElements(elements);
@@ -230,8 +232,9 @@ public class WriteUnsortedDataTest {
                 tempFilesDir + "/GROUP=" + group + "/split-" + partitionId;
         final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdge = (group, partitionId) ->
                 tempFilesDir + "/REVERSED-GROUP=" + group + "/split-" + partitionId;
-        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, schemaUtils, graphPartitioner,
-                fileNameForGroupAndPartitionId, fileNameForGroupAndPartitionIdForReversedEdge);
+        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, CompressionCodecName.GZIP,
+                schemaUtils, graphPartitioner, fileNameForGroupAndPartitionId,
+                fileNameForGroupAndPartitionIdForReversedEdge);
 
         // When
         writeUnsortedData.writeElements(elements);
@@ -374,8 +377,9 @@ public class WriteUnsortedDataTest {
                 tempFilesDir + "/GROUP=" + group + "/split-" + partitionId;
         final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdge = (group, partitionId) ->
                 tempFilesDir + "/REVERSED-GROUP=" + group + "/split-" + partitionId;
-        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, schemaUtils, graphPartitioner,
-                fileNameForGroupAndPartitionId, fileNameForGroupAndPartitionIdForReversedEdge);
+        final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(tempFilesDir, CompressionCodecName.GZIP,
+                schemaUtils, graphPartitioner, fileNameForGroupAndPartitionId,
+                fileNameForGroupAndPartitionIdForReversedEdge);
 
         // When
         writeUnsortedData.writeElements(elements);
