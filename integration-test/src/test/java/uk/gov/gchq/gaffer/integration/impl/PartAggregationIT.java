@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -30,7 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -47,15 +48,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import static org.junit.Assert.fail;
+public class PartAggregationIT extends AbstractStoreIT {
 
-public class PartAggregationIT extends AbstractStoreWithCustomGraphIT {
+    @Before
+    @Override
+    public void setup() throws Exception {
+        super.setup();
+        createDefaultGraph();
+        // Add Elements twice
+        addDefaultElements();
+        addDefaultElements();
+    }
 
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
-        // Given
-        createDefaultGraph();
-
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new GetAllElements(), getUser());
@@ -126,9 +132,6 @@ public class PartAggregationIT extends AbstractStoreWithCustomGraphIT {
     @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     @Test
     public void shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation() throws OperationException {
-        // Given
-        createDefaultGraph();
-
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new GetAllElements.Builder()
@@ -368,16 +371,5 @@ public class PartAggregationIT extends AbstractStoreWithCustomGraphIT {
                 entityTransform2));
 
         return entities;
-    }
-
-    @Override
-    protected void createDefaultGraph() {
-        super.createDefaultGraph();
-        try {
-            addDefaultElements();
-            addDefaultElements();
-        } catch (final OperationException ex) {
-            fail("Error while adding elements to the graph: " + ex.getMessage());
-        }
     }
 }

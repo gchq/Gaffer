@@ -54,27 +54,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void setup() throws Exception {
         super.setup();
         addDefaultElements();
-
-        final Collection<Element> elements = Arrays.asList(
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source(VERTEX + SOURCE)
-                        .dest(VERTEX + DEST)
-                        .directed(true)
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .property(TestPropertyNames.TRANSIENT_1, "test")
-                        .build(),
-
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex(VERTEX)
-                        .property(TestPropertyNames.TRANSIENT_1, "test")
-                        .build()
-        );
-
-        graph.execute(new AddElements.Builder()
-                .input(elements)
-                .build(), getUser());
+        addAdditionalElements();
     }
 
     /**
@@ -213,5 +193,28 @@ public class TransformationIT extends AbstractStoreIT {
         for (final Element result : results) {
             assertEquals("A1,[3]", ((Entity) result).getVertex());
         }
+    }
+
+    private void addAdditionalElements() throws OperationException {
+        final Collection<Element> elements = Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX + SOURCE)
+                        .dest(VERTEX + DEST)
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build(),
+
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build()
+        );
+
+        graph.execute(new AddElements.Builder()
+                .input(elements)
+                .build(), getUser());
     }
 }

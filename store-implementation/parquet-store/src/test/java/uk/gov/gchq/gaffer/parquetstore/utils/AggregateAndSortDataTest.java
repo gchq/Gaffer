@@ -23,6 +23,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Assert;
@@ -103,7 +104,7 @@ public class AggregateAndSortDataTest {
         final String outputFolder = testFolder.newFolder().getAbsolutePath() + "/aggregated";
 
         // When
-        new AggregateAndSortData(schemaUtils, fs, inputFiles, outputFolder, TestGroups.ENTITY, "test",false, sparkSession)
+        new AggregateAndSortData(schemaUtils, fs, inputFiles, outputFolder, TestGroups.ENTITY, "test", false, CompressionCodecName.GZIP, sparkSession)
                 .call();
 
         // Then

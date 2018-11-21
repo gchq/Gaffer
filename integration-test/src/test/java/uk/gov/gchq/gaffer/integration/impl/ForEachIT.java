@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 
 import java.util.Arrays;
@@ -51,7 +50,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class ForEachIT extends AbstractStoreIT {
-    final User user = new User();
 
     @Override
     @Before
@@ -69,7 +67,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, user);
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         ElementUtil.assertElementEquals(Sets.newHashSet((ElementId) null), results);
@@ -85,7 +83,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Long> output = graph.execute(op, user);
+        final Iterable<? extends Long> output = graph.execute(op, getUser());
 
         // Then
         assertEquals(Arrays.asList(3, 2, 0), Lists.newArrayList(output));
@@ -113,7 +111,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, user));
+        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
         assertEquals(1, results.size());
@@ -143,7 +141,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, user));
+        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
         assertEquals(1, results.size());
