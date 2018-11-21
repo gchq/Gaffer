@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -31,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,8 +44,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
             "A1");
 
     @Override
-    @Before
-    public void setup() throws Exception {
+    public void _setup() throws Exception {
         super.setup();
         super.addDefaultElements();
     }
@@ -101,7 +98,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                                     final IncludeIncomingOutgoingType inOutType,
                                     final DirectedType directedType
     )
-            throws IOException, OperationException {
+            throws OperationException {
         // Given
         final User user = new User();
         final List<EntityId> seeds = new ArrayList<>();

@@ -53,7 +53,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -80,15 +79,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
-    private final User user = new User();
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
+
+    @Override
+    public void _setup() {
+        createDefaultGraph();
+    }
 
     @Test
     public void shouldGetPaths() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -104,7 +105,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -113,8 +114,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithWhileRepeat() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -133,7 +132,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -142,8 +141,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithWhile() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -171,7 +168,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -200,7 +197,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -209,8 +206,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldReturnNoResultsWhenNoEntityResults() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetWalks op = new GetWalks.Builder()
                 .input(seedA)
                 .operations(
@@ -235,7 +230,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertEquals(0, Lists.newArrayList(results).size());
@@ -244,8 +239,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithEntities() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -268,7 +261,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final List<Walk> results = Lists.newArrayList(graph.execute(op, user));
+        final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -280,8 +273,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldThrowExceptionIfGetPathsWithHopContainingNoEdges() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements getEntities = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -305,7 +296,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
 
         // When / Then
         try {
-            Lists.newArrayList(graph.execute(op, user));
+            Lists.newArrayList(graph.execute(op, getUser()));
         } catch (final Exception e) {
             assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
         }
@@ -314,8 +305,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithMultipleSeeds() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -331,7 +320,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
@@ -340,8 +329,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithMultipleEdgeTypes() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -360,7 +347,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
@@ -369,8 +356,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithMultipleSeedsAndMultipleEdgeTypes() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -389,7 +374,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
@@ -398,8 +383,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithLoops() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -418,7 +401,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDA,AEFC")));
@@ -427,8 +410,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithLoops_2() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -447,7 +428,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
@@ -456,8 +437,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithLoops_3() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -473,18 +452,16 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AAAAA")));
     }
 
-    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     public void shouldGetPathsWithPreFiltering_1() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -517,18 +494,16 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED")));
     }
 
-    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .view(new View.Builder()
@@ -561,7 +536,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
@@ -570,8 +545,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     @Test
     public void shouldGetPathsWithModifiedViews() throws OperationException {
         // Given
-        createDefaultGraph();
-
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
@@ -591,7 +564,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -623,7 +596,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertEquals(1, Lists.newArrayList(results).size());
@@ -657,7 +630,7 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));

@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 public abstract class StandaloneIT {
 
-    protected Graph createGraph() throws Exception {
+    protected Graph createGraph() {
         return new Graph.Builder()
                 .config(createGraphConfig())
                 .storeProperties(createStoreProperties())
@@ -32,7 +32,7 @@ public abstract class StandaloneIT {
                 .build();
     }
 
-    protected Graph createGraph(final Schema schema) throws Exception {
+    protected Graph createGraph(final Schema schema) {
         return new Graph.Builder()
                 .config(createGraphConfig())
                 .storeProperties(createStoreProperties())

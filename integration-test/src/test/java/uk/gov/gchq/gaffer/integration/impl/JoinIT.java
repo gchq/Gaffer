@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -40,21 +40,13 @@ import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.MergeType;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ResultsWanted;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
-import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
-import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
-import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TreeSet;
 
-public class JoinIT extends AbstractStoreWithCustomGraphIT {
+public class JoinIT extends AbstractStoreIT {
     private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4), getJoinEntity(TestGroups.ENTITY_3, 6)));
     private List<Element> innerJoinElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4)));
 
@@ -69,8 +61,6 @@ public class JoinIT extends AbstractStoreWithCustomGraphIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        createDefaultGraph();
-        addDefaultElements();
         addJoinEntityElements(TestGroups.ENTITY_3);
     }
 
@@ -96,7 +86,7 @@ public class JoinIT extends AbstractStoreWithCustomGraphIT {
     }
 
     @Test
-    public void shouldRightKeyFullInnerJoin() throws OperationException, NoSuchFieldException {
+    public void shouldRightKeyFullInnerJoin() throws OperationException {
         // Given
         final List<Element> expectedResults = Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4));
 
@@ -264,6 +254,18 @@ public class JoinIT extends AbstractStoreWithCustomGraphIT {
         ElementUtil.assertElementEquals(expectedResults, results);
     }
 
+    @Override
+    protected Schema createSchema() {
+        return new Schema.Builder().merge(createDefaultSchema())
+                .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
+    }
+
     private void addJoinEntityElements(final String group) {
         for (int i = 1; i <= 4; i++) {
             final Entity entity = getJoinEntity(group, i);
@@ -286,69 +288,6 @@ public class JoinIT extends AbstractStoreWithCustomGraphIT {
                 .vertex(VERTEX_PREFIXES[0] + 0)
                 .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                 .property(TestPropertyNames.COUNT, Long.parseLong(countProperty.toString()))
-                .build();
-    }
-
-    @Override
-    protected Schema createSchema() {
-        return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(TestTypes.DIRECTED_EITHER, new TypeDefinition.Builder()
-                        .clazz(Boolean.class)
-                        .build())
-                .type(TestTypes.PROP_SET_STRING, new TypeDefinition.Builder()
-                        .clazz(TreeSet.class)
-                        .aggregateFunction(new CollectionConcat<>())
-                        .build())
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .aggregateFunction(new Max())
-                        .build())
-                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .aggregateFunction(new Sum())
-                        .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .aggregateFunction(new Max())
-                        .build())
-                .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .aggregateFunction(new Max())
-                        .validateFunctions(new AgeOff(AGE_OFF_TIME))
-                        .build())
-                .type(TestTypes.PROP_INTEGER_2, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .aggregateFunction(new Max())
-                        .validateFunctions(new IsLessThan(10))
-                        .build())
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
-                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
-                        .groupBy(TestPropertyNames.INT)
-                        .build())
-                .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
-                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
-                        .aggregate(false)
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(TestTypes.DIRECTED_EITHER)
-                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
-                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
-                        .groupBy(TestPropertyNames.INT)
-                        .build())
-                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
-                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
-                        .build())
                 .build();
     }
 }

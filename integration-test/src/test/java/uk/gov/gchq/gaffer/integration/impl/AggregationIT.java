@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +69,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
-    public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateIdenticalElements() throws OperationException {
         // Given
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed(AGGREGATED_SOURCE))
@@ -101,7 +100,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
-    public void shouldAggregateElementsWithNoGroupBy() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateElementsWithNoGroupBy() throws OperationException {
         // Given
         final String vertex = "testVertex1";
         final long timestamp = System.currentTimeMillis();
@@ -195,8 +194,8 @@ public class AggregationIT extends AbstractStoreIT {
         );
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
     @Test
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
     public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
         edge1.putProperty(TestPropertyNames.INT, 100);
