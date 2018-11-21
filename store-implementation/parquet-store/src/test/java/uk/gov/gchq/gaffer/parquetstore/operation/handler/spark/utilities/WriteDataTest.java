@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -88,7 +89,7 @@ public class WriteDataTest {
                 .dest("C")
                 .property("property2", 100)
                 .build());
-        final WriteData writeData = new WriteData(groupToDirectory, schema);
+        final WriteData writeData = new WriteData(groupToDirectory, schema, CompressionCodecName.GZIP);
         final FileSystem fileSystem = FileSystem.get(new Configuration());
 
         // When

@@ -45,6 +45,7 @@ import java.util.function.BiFunction;
  */
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
+    private final CompressionCodecName compressionCodecName;
     private String tempFilesDir;
     private final SchemaUtils schemaUtils;
     private final Map<String, Map<Integer, ParquetWriter<Element>>> groupToPartitionIdToWriter;
@@ -59,6 +60,7 @@ public class WriteUnsortedData {
                              final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges)
             throws OperationException {
         this(store.getTempFilesDir(),
+                store.getProperties().getCompressionCodecName(),
                 store.getSchemaUtils(),
                 graphPartitioner,
                 fileNameForGroupAndPartitionId,
@@ -66,12 +68,14 @@ public class WriteUnsortedData {
     }
 
     public WriteUnsortedData(final String tempFilesDir,
+                             final CompressionCodecName compressionCodecName,
                              final SchemaUtils schemaUtils,
                              final GraphPartitioner graphPartitioner,
                              final BiFunction<String, Integer, String> fileNameForGroupAndPartitionId,
                              final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges)
             throws OperationException {
         this.tempFilesDir = tempFilesDir;
+        this.compressionCodecName = compressionCodecName;
         this.schemaUtils = schemaUtils;
         this.graphPartitioner = graphPartitioner;
         this.fileNameForGroupAndPartitionId = fileNameForGroupAndPartitionId;
@@ -217,7 +221,7 @@ public class WriteUnsortedData {
         return new ParquetElementWriter.Builder(writerPath)
                 .withType(schemaUtils.getParquetSchema(group))
                 .usingConverter(schemaUtils.getConverter(group))
-                .withCompressionCodec(CompressionCodecName.UNCOMPRESSED)
+                .withCompressionCodec(compressionCodecName)
                 .withSparkSchema(schemaUtils.getSparkSchema(group))
                 .build();
     }
