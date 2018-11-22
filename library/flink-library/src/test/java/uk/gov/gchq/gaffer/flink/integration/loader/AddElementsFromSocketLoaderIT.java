@@ -21,31 +21,60 @@ import org.junit.After;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.integration.impl.loader.ParameterizedLoaderIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
 
-public class AddElementsFromSocketLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromSocket> {
+public class AddElementsFromSocketLoaderIT extends ParameterizedLoaderIT<AddElementsFromSocket> {
 
     final String hostname = "localhost";
     final int[] port = new int[1];
     ServerSocket server = null;
 
-    @Override
-    protected Iterable<? extends Element> getInputElements() {
-        return getEntities().values();
+    @After
+    public void after() throws IOException {
+        if (null != server) {
+            server.close();
+            server = null;
+        }
+    }
+
+    public AddElementsFromSocketLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
+        super(schema, loader, userMap);
+        StoreProperties props = getStoreProperties();
+        props.addOperationDeclarationPaths("../../library/flink-library/src/main/resources/FlinkOperationDeclarations.json");
+        setStoreProperties(props);
     }
 
     @Override
-    protected void configure(final Iterable<? extends Element> elements) throws Exception {
-        MapStore.resetStaticMap();
+    protected void addElements(final Iterable<? extends Element> input) throws OperationException {
+        try {
+            configure(input);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
 
+        graph.execute(new AddElementsFromSocket.Builder()
+                .generator(GeneratorImpl.class)
+                .parallelism(1)
+                .validate(false)
+                .skipInvalidElements(false)
+                .hostname(hostname)
+                .port(port[0])
+                .build(), getUser());
+    }
+
+    private void configure(final Iterable<? extends Element> elements) throws Exception {
         server = new ServerSocket(0);
         port[0] = server.getLocalPort();
 
@@ -57,7 +86,7 @@ public class AddElementsFromSocketLoaderIT extends AbstractStandaloneLoaderIT<Ad
 
                 for (final Element element : elements) {
                     if (element instanceof Entity) {
-                        builder.append(((Entity) element).getVertex()"\n");
+                        builder.append(((Entity) element).getVertex() + "\n");
                     }
                 }
                 out.write(StringUtil.toBytes(builder.toString()));
@@ -65,30 +94,5 @@ public class AddElementsFromSocketLoaderIT extends AbstractStandaloneLoaderIT<Ad
                 throw new RuntimeException();
             }
         }).start();
-    }
-
-    @Override
-    protected AddElementsFromSocket createOperation(final Iterable<? extends Element> elements) {
-        return new AddElementsFromSocket.Builder()
-                .generator(GeneratorImpl.class)
-                .parallelism(1)
-                .validate(false)
-                .skipInvalidElements(false)
-                .hostname(hostname)
-                .port(port[0])
-                .build();
-    }
-
-    @Override
-    public StoreProperties createStoreProperties() {
-        return StoreProperties.loadStoreProperties("mapStore.properties");
-    }
-
-    @After
-    public void after() throws IOException {
-        if (null != server) {
-            server.close();
-            server = null;
-        }
     }
 }

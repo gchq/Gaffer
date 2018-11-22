@@ -11,11 +11,6 @@
 
     <artifactId>flink-library</artifactId>
 
-    <properties>
-        <flink.version>1.4.1</flink.version>
-        <kafka.version>0.10.0.0</kafka.version>
-        <apache.curator.version>2.11.1</apache.curator.version>
-    </properties>
     <dependencies>
         <!--Gaffer dependencies-->
         <dependency>
@@ -148,8 +143,9 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>map-store</artifactId>
+            <artifactId>integration-test</artifactId>
             <version>${project.parent.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 

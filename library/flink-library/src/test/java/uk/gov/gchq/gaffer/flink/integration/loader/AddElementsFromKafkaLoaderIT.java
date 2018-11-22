@@ -21,7 +21,6 @@ import kafka.server.KafkaServer;
 import kafka.utils.MockTime;
 import kafka.utils.TestUtils;
 import org.apache.curator.test.TestingServer;
-import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.After;
@@ -29,43 +28,52 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.integration.impl.loader.AbstractStandaloneLoaderIT;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.integration.impl.loader.ParameterizedLoaderIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<AddElementsFromKafka> {
+public class AddElementsFromKafkaLoaderIT extends ParameterizedLoaderIT<AddElementsFromKafka> {
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Rule
-    public final RetryRule rule = new RetryRule();
 
     private KafkaProducer<Integer, String> producer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
     private String bootstrapServers;
+
+    public AddElementsFromKafkaLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
+        super(schema, loader, userMap);
+        StoreProperties props = getStoreProperties();
+        props.addOperationDeclarationPaths("../../library/flink-library/src/main/resources/FlinkOperationDeclarations.json");
+        setStoreProperties(props);
+    }
+
+    @Override
+    protected void addElements(final Iterable<? extends Element> input) throws OperationException {
+        try {
+            configure();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+        add(input);
+    }
 
     @After
     public void cleanUp() throws IOException {
@@ -82,30 +90,9 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
         }
     }
 
-    @Override
-    protected Iterable<? extends Element> getInputElements() {
-        return getEntities().values();
-    }
+    private void configure() throws Exception {
 
-    @Override
-    protected Map<EntityId, Entity> createEntities() {
-        final Map<EntityId, Entity> entities = new HashMap<>();
-        for (int i = 0; i <= 10; i) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j]i);
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
-                addToMap(entity, entities);
-            }
-        }
-
-        return entities;
-    }
-
-    @Override
-    protected void configure(final Iterable<? extends Element> elements) throws Exception {
-        MapStore.resetStaticMap();
-
-        bootstrapServers = "localhost:" getOpenPort();
+        bootstrapServers = "localhost:" + getOpenPort();
 
         // Create zookeeper server
         zkServer = new TestingServer(-1, createZookeeperTmpDir());
@@ -115,14 +102,21 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
         kafkaServer = TestUtils.createServer(new KafkaConfig(serverProperties()), new MockTime());
     }
 
-    @Override
-    protected void addElements(final Graph graph) throws Exception {
-        final AddElementsFromKafka op = createOperation(input);
+    protected void add(final Iterable<? extends Element> input) {
+        final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
+                .generator(String.class, GeneratorImpl.class)
+                .parallelism(1)
+                .validate(false)
+                .skipInvalidElements(false)
+                .topic(UUID.randomUUID().toString())
+                .bootstrapServers(bootstrapServers)
+                .groupId("groupId")
+                .build();
 
         new Thread(() -> {
             try {
                 Thread.sleep(10000);
-                graph.execute(op, new User());
+                graph.execute(op, getUser());
             } catch (final OperationException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -150,20 +144,11 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
         }).start();
 
         // Wait....
-        Thread.sleep(30000);
-    }
-
-    @Override
-    protected AddElementsFromKafka createOperation(final Iterable<? extends Element> elements) {
-        return new AddElementsFromKafka.Builder()
-                .generator(String.class, GeneratorImpl.class)
-                .parallelism(1)
-                .validate(false)
-                .skipInvalidElements(false)
-                .topic(UUID.randomUUID().toString())
-                .bootstrapServers(bootstrapServers)
-                .groupId("groupId")
-                .build();
+        try {
+            Thread.sleep(30000);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private File createZookeeperTmpDir() throws IOException {
@@ -184,7 +169,7 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
         Properties props = new Properties();
         props.put("zookeeper.connect", zkServer.getConnectString());
         props.put("broker.id", "0");
-        props.setProperty("listeners", "PLAINTEXT://"bootstrapServers);
+        props.setProperty("listeners", "PLAINTEXT://" + bootstrapServers);
         return props;
     }
 
@@ -194,11 +179,5 @@ public class AddElementsFromKafkaLoaderIT extends AbstractStandaloneLoaderIT<Add
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    @Override
-    public StoreProperties createStoreProperties() {
-        return MapStoreProperties.loadStoreProperties("mapStore.properties");
     }
 }
