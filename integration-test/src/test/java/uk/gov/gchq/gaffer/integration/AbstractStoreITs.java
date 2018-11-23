@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Runs the full suite of gaffer store integration tests. To run the tests against
@@ -115,7 +114,6 @@ public abstract class AbstractStoreITs {
     }
 
     public static class StoreTestSuite extends Suite {
-        private Consumer<String> cleanUpFunction;
 
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
