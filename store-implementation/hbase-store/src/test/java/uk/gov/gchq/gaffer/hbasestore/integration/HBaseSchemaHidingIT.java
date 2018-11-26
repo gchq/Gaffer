@@ -43,7 +43,7 @@ public class HBaseSchemaHidingIT extends SchemaHidingIT {
                     createFullSchema(),
                     storeProps
             );
-            TableUtils.dropAllTables(store.getConnection());
+            TableUtils.dropTable(store);
         } catch (final Exception e) {
             // ignore exceptions
         }
