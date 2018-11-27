@@ -17,12 +17,19 @@ package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
+import uk.gov.gchq.gaffer.hbasestore.SingleUseHBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 public class StandaloneHBaseStoreITs extends HBaseStoreITs {
     private static final HBaseProperties STORE_PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
 
-    public StandaloneHBaseStoreITs() throws StoreException {
+    public StandaloneHBaseStoreITs() {
         super(STORE_PROPERTIES);
+        try {
+            TableUtils.dropAllTables(new SingleUseHBaseStore().getConnection());
+        } catch (final StoreException e) {
+            // ignore any errors that occur when dropping test tables
+        }
     }
 }
