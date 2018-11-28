@@ -50,7 +50,7 @@ public class ApplicationConfigV2 extends ApplicationConfig {
         final BeanConfig beanConfig = new BeanConfig();
 
         String basePath = System.getProperty(SystemProperty.BASE_PATH, SystemProperty.BASE_PATH_DEFAULT);
-        if (!basePath.startsWith("/")) {
+        if (basePath.length() > 0 && !basePath.startsWith("/")) {
             basePath = "/" + basePath;
         }
 
