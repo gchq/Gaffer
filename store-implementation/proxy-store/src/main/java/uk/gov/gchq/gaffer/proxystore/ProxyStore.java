@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -108,9 +109,13 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
-        }, null));
+        try {
+            URL url = getProperties().getGafferUrl("graph/operations");
+            return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
+            }, null));
+        } catch (final StoreException e) {
+            throw new StoreException("failed to fetch operations from remote graph", e);
+        }
     }
 
     @Override
@@ -120,7 +125,7 @@ public class ProxyStore extends Store {
             try {
                 allSupportedOperations.addAll(fetchOperations());
             } catch (final StoreException e) {
-                throw new RuntimeException(e);
+                throw new GafferRuntimeException("Failed resolve supported operations from remote store", e);
             }
             allSupportedOperations.addAll(super.getSupportedOperations());
             this.supportedOperations = Collections.unmodifiableSet(allSupportedOperations);
