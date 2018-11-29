@@ -1231,9 +1231,8 @@
         <profile>
             <id>travis</id>
             <properties>
-                <!-- The sparkaccumulo integration and parquetstore Spark tests don't run on Travis CI -->
-                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java,**/parquetstore/operation/handler/spark/*SparkOperationsTest.java,**/parquetstore/operation/handler/*OperationsTest.java
-                </exclude.tests>
+                <!-- The sparkaccumulo integration tests don't run on Travis CI -->
+                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java</exclude.tests>
             </properties>
             <build>
                 <plugins>
