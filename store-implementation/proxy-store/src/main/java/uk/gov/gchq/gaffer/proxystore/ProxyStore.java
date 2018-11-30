@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -69,8 +70,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
-
 /**
  * Gaffer {@code ProxyStore} implementation.
  * <p>
@@ -80,9 +79,7 @@ import static java.util.Objects.isNull;
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
-    private Set<StoreTrait> traits;
     private Schema schema;
-    private Set<Class<? extends Operation>> supportedOperations;
 
     public ProxyStore() {
         super(false);
@@ -94,7 +91,6 @@ public class ProxyStore extends Store {
         setProperties(properties);
         client = createClient();
         schema = fetchSchema();
-        traits = fetchTraits();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -108,25 +104,25 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
-        }, null));
+        try {
+            URL url = getProperties().getGafferUrl("graph/operations");
+            return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
+            }, null));
+        } catch (final StoreException e) {
+            throw new StoreException("failed to fetch operations from remote graph", e);
+        }
     }
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        if (isNull(supportedOperations)) {
-            HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
-            try {
-                allSupportedOperations.addAll(fetchOperations());
-            } catch (final StoreException e) {
-                throw new RuntimeException(e);
-            }
-            allSupportedOperations.addAll(super.getSupportedOperations());
-            this.supportedOperations = Collections.unmodifiableSet(allSupportedOperations);
+        HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+        try {
+            allSupportedOperations.addAll(fetchOperations());
+        } catch (final StoreException e) {
+            throw new GafferRuntimeException("Failed resolve supported operations from remote store", e);
         }
-
-        return this.supportedOperations;
+        allSupportedOperations.addAll(super.getSupportedOperations());
+        return Collections.unmodifiableSet(allSupportedOperations);
     }
 
     @Override
@@ -134,16 +130,21 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
-        if (null == newTraits) {
-            newTraits = new HashSet<>(0);
-        } else {
-            // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            newTraits.remove(StoreTrait.VISIBILITY);
+    @Override
+    public Set<StoreTrait> getTraits() {
+        try {
+            final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
+            Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
+            if (null == newTraits) {
+                newTraits = new HashSet<>(0);
+            } else {
+                // This proxy store cannot handle visibility due to the simple rest api using a default user.
+                newTraits.remove(StoreTrait.VISIBILITY);
+            }
+            return newTraits;
+        } catch (final StoreException e) {
+            throw new GafferRuntimeException("Failed resolve traits from remote store", e);
         }
-        return newTraits;
     }
 
     protected Schema fetchSchema() throws
@@ -295,11 +296,6 @@ public class ProxyStore extends Store {
     @Override
     public Schema getSchema() {
         return schema;
-    }
-
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return traits;
     }
 
     @Override
