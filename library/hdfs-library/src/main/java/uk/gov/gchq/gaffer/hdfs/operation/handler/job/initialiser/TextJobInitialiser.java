@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * An {@code AvroJobInitialiser} is an {@link JobInitialiser} that
- * initialises the provided {@link Job} to handle text input data.
+ * A {@link JobInitialiser} that initialises the provided {@link Job} to handle text input data.
  */
 public class TextJobInitialiser implements JobInitialiser {
 

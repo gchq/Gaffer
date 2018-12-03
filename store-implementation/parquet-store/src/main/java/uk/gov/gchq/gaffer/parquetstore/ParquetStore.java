@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.parquetstore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.GetDataframeOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitioner;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.GroupPartitioner;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.Partition;
+import uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation.GraphPartitionerSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ArrayListStringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DateParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FloatParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FreqMapParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.HashSetStringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.InLineHyperLogLogPlusParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ShortParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TreeSetStringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeSubTypeValueParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
-import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
-import uk.gov.gchq.gaffer.spark.operation.handler.graphframe.GetGraphFrameOfElementsHandler;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -58,35 +77,69 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
  * An implementation of {@link Store} that uses Parquet files to store the {@link Element}s.
  * <p>
  * It is designed to make the most of the Parquet file types by serialising the {@link Element}s using
- * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}'s which also allows for Gaffer objects to be
+ * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}s which also allows for Gaffer objects to be
  * stored as multiple or nested columns of primitive types.
  */
 public class ParquetStore extends Store {
+    public static final String GROUP = "group";
+    public static final String VERTEX = IdentifierType.VERTEX.name();
+    public static final String SOURCE = IdentifierType.SOURCE.name();
+    public static final String DESTINATION = IdentifierType.DESTINATION.name();
+    public static final String DIRECTED = IdentifierType.DIRECTED.name();
+    public static final String SNAPSHOT = "snapshot";
+    public static final String REVERSED_GROUP = "reversed-" + GROUP;
+    public static final String PARTITION = "partition";
+    public static final int LENGTH_OF_PARTITION_NUMBER_IN_FILENAME = 7;
+
+    @SuppressFBWarnings("MS_MUTABLE_ARRAY")
+    public static final Serialiser[] SERIALISERS = new Serialiser[]{
+            new StringParquetSerialiser(),
+            new ByteParquetSerialiser(),
+            new IntegerParquetSerialiser(),
+            new LongParquetSerialiser(),
+            new BooleanParquetSerialiser(),
+            new DateParquetSerialiser(),
+            new DoubleParquetSerialiser(),
+            new FloatParquetSerialiser(),
+            new InLineHyperLogLogPlusParquetSerialiser(),
+            new ShortParquetSerialiser(),
+            new TypeValueParquetSerialiser(),
+            new FreqMapParquetSerialiser(),
+            new TreeSetStringParquetSerialiser(),
+            new TypeSubTypeValueParquetSerialiser(),
+            new ArrayListStringParquetSerialiser(),
+            new HashSetStringParquetSerialiser(),
+            new JavaSerialiser()
+    };
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStore.class);
     private static final Set<StoreTrait> TRAITS =
             Collections.unmodifiableSet(Sets.newHashSet(
                     ORDERED,
-                    VISIBILITY,
+//                    VISIBILITY,
                     INGEST_AGGREGATION,
-                    PRE_AGGREGATION_FILTERING,
-                    STORE_VALIDATION
+                    PRE_AGGREGATION_FILTERING
+//                    STORE_VALIDATION
             ));
 
-    private GraphIndex graphIndex;
+    private GraphPartitioner graphPartitioner;
+    private long currentSnapshot;
     private SchemaUtils schemaUtils;
     private FileSystem fs;
 
@@ -104,14 +157,120 @@ public class ParquetStore extends Store {
             throw new StoreException("The ParquetStoreProperties must contain a non-null temporary data directory ("
                     + ParquetStoreProperties.TEMP_FILES_DIR + ")");
         }
+        LOGGER.info("Initialising ParquetStore for graph id {}", graphId);
         super.initialise(graphId, schema, parquetStoreProperties);
         try {
             fs = FileSystem.get(new Configuration());
+            schemaUtils = new SchemaUtils(getSchema());
+            initialise();
+            loadGraphPartitioner();
         } catch (final IOException e) {
             throw new StoreException("Could not connect to the file system", e);
         }
-        schemaUtils = new SchemaUtils(getSchema());
-        loadIndex();
+    }
+
+    public static String getSnapshotPath(final long snapshot) {
+        return SNAPSHOT + "=" + snapshot;
+    }
+
+    private void initialise() throws IOException, StoreException {
+        // If data directory is empty or does not exist then this is the first time the store has been created.
+        final Path dataDirPath = new Path(getDataDir());
+        if (!fs.exists(dataDirPath) || 0 == fs.listStatus(dataDirPath).length) {
+            LOGGER.info("Data directory {} doesn't exist or is empty so initialising directory structure", dataDirPath);
+            currentSnapshot = System.currentTimeMillis();
+            LOGGER.info("Initialising snapshot id to {}", currentSnapshot);
+            final Path snapshotPath = new Path(dataDirPath, getSnapshotPath(currentSnapshot));
+            LOGGER.info("Creating snapshot directory {}", snapshotPath);
+            fs.mkdirs(snapshotPath);
+            LOGGER.info("Creating group directories under {}", snapshotPath);
+            for (final String group : getSchema().getGroups()) {
+                final Path groupDir = new Path(snapshotPath, GROUP + "=" + group);
+                fs.mkdirs(groupDir);
+                LOGGER.info("Created directory {}", groupDir);
+            }
+            LOGGER.info("Creating group directories for reversed edges under {}", snapshotPath);
+            for (final String group : getSchema().getEdgeGroups()) {
+                final Path groupDir = new Path(snapshotPath, REVERSED_GROUP + "=" + group);
+                fs.mkdirs(groupDir);
+                LOGGER.info("Created directory {}", groupDir);
+            }
+            LOGGER.info("Creating GraphPartitioner with 0 split points for each group");
+            graphPartitioner = new GraphPartitioner();
+            for (final String group : getSchema().getGroups()) {
+                graphPartitioner.addGroupPartitioner(group, new GroupPartitioner(group, new ArrayList<>()));
+            }
+            for (final String group : getSchema().getEdgeGroups()) {
+                graphPartitioner.addGroupPartitionerForReversedEdges(group, new GroupPartitioner(group, new ArrayList<>()));
+            }
+            LOGGER.info("Writing GraphPartitioner to snapshot directory");
+            final FSDataOutputStream dataOutputStream = fs.create(getGraphPartitionerPath());
+            new GraphPartitionerSerialiser().write(graphPartitioner, dataOutputStream);
+            dataOutputStream.close();
+            LOGGER.info("Wrote GraphPartitioner to file {}", getGraphPartitionerPath().toString());
+        } else {
+            LOGGER.info("Data directory {} exists and is non-empty, validating a snapshot directory exists", dataDirPath);
+            final FileStatus[] fileStatuses = fs.listStatus(dataDirPath, f -> f.getName().startsWith(SNAPSHOT + "="));
+            final List<FileStatus> directories = Arrays.stream(fileStatuses).filter(f -> f.isDirectory()).collect(Collectors.toList());
+            if (0 == directories.size()) {
+                LOGGER.error("Data directory {} should contain a snapshot directory", dataDirPath);
+                throw new StoreException("Data directory should contain a snapshot directory");
+            }
+            final long snapshot = getLatestSnapshot();
+            final String snapshotPath = dataDirPath + "/" + SNAPSHOT + "=" + snapshot;
+            LOGGER.info("Latest snapshot directory in data directory {} is {}", dataDirPath, snapshot);
+            LOGGER.info("Verifying snapshot directory contains the correct directories");
+            for (final String group : getSchema().getGroups()) {
+                final Path groupDir = new Path(snapshotPath, GROUP + "=" + group);
+                if (!fs.exists(groupDir)) {
+                    LOGGER.error("Directory {} should exist", groupDir);
+                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + snapshotPath);
+                }
+            }
+            for (final String group : getSchema().getEdgeGroups()) {
+                final Path groupDir = new Path(snapshotPath, REVERSED_GROUP + "=" + group);
+                if (!fs.exists(groupDir)) {
+                    LOGGER.error("Directory {} should exist", groupDir);
+                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + snapshotPath);
+                }
+            }
+        }
+    }
+
+    public Path getGraphPartitionerPath() {
+        return new Path(getProperties().getDataDir() + "/" + SNAPSHOT + "=" + currentSnapshot, "graphPartitioner");
+    }
+
+    private void loadGraphPartitioner() throws StoreException {
+        final String dataDir = getDataDir();
+        try {
+            if (fs.exists(new Path(dataDir))) {
+                this.currentSnapshot = getLatestSnapshot(dataDir);
+                LOGGER.info("Setting currentSnapshot to {}", this.currentSnapshot);
+                final Path path = getGraphPartitionerPath();
+                if (!fs.exists(path)) {
+                    LOGGER.info("Graph partitioner does not exist in {} so creating it", path);
+                    final GraphPartitioner partitioner =
+                            new CalculatePartitioner(new Path(dataDir + "/" + getSnapshotPath(this.currentSnapshot)), getSchema(), fs).call();
+                    LOGGER.info("Writing graph partitioner to {}", path);
+                    final FSDataOutputStream stream = fs.create(path);
+                    new GraphPartitionerSerialiser().write(partitioner, stream);
+                    stream.close();
+                }
+                LOGGER.info("Loading graph partitioner from path {}", path);
+                loadGraphPartitioner(path);
+            } else {
+                throw new StoreException("Data directory " + dataDir + " does not exist - store is in an inconsistent state");
+            }
+        } catch (final IOException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+    }
+
+    private void loadGraphPartitioner(final Path graphPartitionerPath) throws IOException {
+        final FSDataInputStream stream = fs.open(graphPartitionerPath);
+        this.graphPartitioner = new GraphPartitionerSerialiser().read(stream);
+        stream.close();
     }
 
     public FileSystem getFS() {
@@ -128,27 +287,56 @@ public class ParquetStore extends Store {
     }
 
     public String getDataDir() {
-        return getProperties().getDataDir() + "/" + getGraphId();
+        return getProperties().getDataDir();
     }
 
     public String getTempFilesDir() {
-        return getProperties().getTempFilesDir() + "/" + getGraphId();
+        return getProperties().getTempFilesDir();
     }
 
-    public void setGraphIndex(final GraphIndex graphIndex) {
-        this.graphIndex = graphIndex;
+    public String getFile(final String group, final Partition partition) {
+        return getFile(group, partition.getPartitionId());
     }
 
-    public GraphIndex getGraphIndex() {
-        return graphIndex;
+    public String getFile(final String group, final Integer partitionId) {
+        return getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GROUP + "=" + group
+                + "/" + getFile(partitionId);
     }
 
-    public static String getGroupDirectory(final String group, final String column, final String rootDir) {
-        if (ParquetStoreConstants.VERTEX.equals(column) || ParquetStoreConstants.SOURCE.equals(column)) {
-            return rootDir + "/" + ParquetStoreConstants.GRAPH + "/" + ParquetStoreConstants.GROUP + "=" + group;
-        } else {
-            return rootDir + "/sortedBy=" + column + "/" + ParquetStoreConstants.GROUP + "=" + group;
+    public static String getFile(final Integer partitionId) {
+        return PARTITION + "-" + zeroPad("" + partitionId) + ".parquet";
+    }
+
+    private static String zeroPad(final String input) {
+        final StringBuilder temp = new StringBuilder(input);
+        while (temp.length() < LENGTH_OF_PARTITION_NUMBER_IN_FILENAME) {
+            temp.insert(0, "0");
         }
+        return temp.toString();
+    }
+
+    public String getFileForReversedEdges(final String group, final Partition partition) {
+        return getFileForReversedEdges(group, partition.getPartitionId());
+    }
+
+    public String getFileForReversedEdges(final String group, final Integer partitionId) {
+        return getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + REVERSED_GROUP + "=" + group
+                + "/" + getFile(partitionId);
+    }
+
+    public List<Path> getFilesForGroup(final String group) throws IOException {
+        final Path dir = new Path(getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GROUP + "=" + group);
+        final FileStatus[] files = fs.listStatus(dir, path -> path.getName().endsWith(".parquet"));
+        return Arrays
+                .stream(files)
+                .map(FileStatus::getPath)
+                .collect(Collectors.toList());
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
@@ -184,10 +372,10 @@ public class ParquetStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
+//        addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
         addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
-        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());
+//        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());
     }
 
     @Override
@@ -197,7 +385,7 @@ public class ParquetStore extends Store {
 
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
-        return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        return new SchemaOptimiser(new SerialisationFactory(SERIALISERS));
     }
 
     @Override
@@ -212,25 +400,22 @@ public class ParquetStore extends Store {
         validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
-    private void loadIndex() throws StoreException {
-        final String rootDir = getDataDir();
-        try {
-            if (fs.exists(new Path(rootDir))) {
-                graphIndex = new GraphIndex();
-                final long snapshot = getLatestSnapshot(rootDir);
-                graphIndex.readGroups(schemaUtils, rootDir + "/" + snapshot, fs);
-                graphIndex.setSnapshotTimestamp(snapshot);
-            }
-        } catch (final IOException e) {
-            throw new StoreException(e.getMessage());
-        }
+    public long getLatestSnapshot() throws StoreException {
+        return getLatestSnapshot(getDataDir());
+    }
+
+    public void setLatestSnapshot(final long snapshot) throws StoreException {
+        // TODO validate that a directory with this name exists
+        LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
+        this.currentSnapshot = snapshot;
+        loadGraphPartitioner();
     }
 
     private long getLatestSnapshot(final String rootDir) throws StoreException {
         long latestSnapshot = 0L;
         try {
             for (final FileStatus status : fs.listStatus(new Path(rootDir))) {
-                final long currentSnapshot = Long.parseLong(status.getPath().getName());
+                final long currentSnapshot = Long.parseLong(status.getPath().getName().replace("snapshot=", ""));
                 if (latestSnapshot < currentSnapshot) {
                     latestSnapshot = currentSnapshot;
                 }
@@ -241,10 +426,7 @@ public class ParquetStore extends Store {
         return latestSnapshot;
     }
 
-    private void checkForOptimisedConfig(final SparkConf conf, final String key, final Class<?> optimalClass) {
-        final String value = conf.get(key, null);
-        if (null == value || !optimalClass.getName().equals(value)) {
-            LOGGER.warn("For the best performance you should set the spark config '{}' = '{}'", key, optimalClass.getName());
-        }
+    public GraphPartitioner getGraphPartitioner() {
+        return graphPartitioner;
     }
 }

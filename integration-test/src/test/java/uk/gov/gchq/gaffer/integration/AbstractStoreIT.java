@@ -178,7 +178,8 @@ public abstract class AbstractStoreIT {
         createGraph();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
+            assumeTrue("Skipping test as the store does not implement all required traits (it does not implement " + requiredTrait + ").",
+                    graph.hasTrait(requiredTrait));
         }
     }
 
@@ -248,6 +249,12 @@ public abstract class AbstractStoreIT {
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
                         .groupBy(TestPropertyNames.INT)
+                        .build())
+                .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
+                        .aggregate(false)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -340,9 +347,9 @@ public abstract class AbstractStoreIT {
                     .source(SOURCE_DIR + i)
                     .dest(DEST_DIR + i)
                     .directed(true)
+                    .property(TestPropertyNames.INT, 1)
+                    .property(TestPropertyNames.COUNT, 1L)
                     .build();
-            edgeDir.putProperty(TestPropertyNames.INT, 1);
-            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
             addToMap(edgeDir, edges);
         }
 
@@ -357,30 +364,45 @@ public abstract class AbstractStoreIT {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
-                entity.putProperty(TestPropertyNames.COUNT, 1L);
-                entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+                final Entity entity = new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX_PREFIXES[j] + i)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                        .build();
                 addToMap(entity, entities);
             }
 
-            final Entity secondEntity = new Entity(TestGroups.ENTITY, SOURCE + i);
-            secondEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            secondEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+            final Entity secondEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                    .build();
             addToMap(secondEntity, entities);
 
-            final Entity thirdEntity = new Entity(TestGroups.ENTITY, DEST + i);
-            thirdEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            thirdEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+            final Entity thirdEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                    .build();
             addToMap(thirdEntity, entities);
 
-            final Entity fourthEntity = new Entity(TestGroups.ENTITY, SOURCE_DIR + i);
-            fourthEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            fourthEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+            final Entity fourthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(SOURCE_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                    .build();
             addToMap(fourthEntity, entities);
 
-            final Entity fifthEntity = new Entity(TestGroups.ENTITY, DEST_DIR + i);
-            fifthEntity.putProperty(TestPropertyNames.COUNT, 1L);
-            fifthEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+            final Entity fifthEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(DEST_DIR + i)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                    .build();
             addToMap(fifthEntity, entities);
         }
 

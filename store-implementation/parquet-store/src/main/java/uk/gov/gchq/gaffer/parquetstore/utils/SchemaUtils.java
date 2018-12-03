@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
-import org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetToSparkSchemaConverter;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -34,13 +34,15 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This class is responsible for converting a Gaffer {@link Schema} to an Parquet {@link MessageType} per group
+ * This class is responsible for converting a Gaffer {@link Schema} to a Parquet {@link MessageType} per group
  * and to a Spark schema (a {@link StructType} per group). It also provides a central place to get all the mappings from
  * Gaffer Properties to columns, aggregator's to columns, serialiser's to columns, etc.
  */
@@ -68,14 +70,90 @@ public class SchemaUtils {
         }
     }
 
-    public MessageType getParquetSchema(final String group) throws SerialisationException {
+    public MessageType getParquetSchema(final String group) {
         return groupToParquetSchema.get(group);
     }
 
-    private void buildGroupColumnToPaths() throws SerialisationException {
+    private void buildGroupColumnToPaths() {
         for (final String group : getGroups()) {
             groupColumnToPaths.put(group, _getColumnToPaths(group));
         }
+    }
+
+    public List<String> getCoreProperties(final String group) {
+        final List<String> properties = new ArrayList<>();
+        if (getEntityGroups().contains(group)) {
+            properties.add(ParquetStore.VERTEX);
+        } else {
+            properties.add(ParquetStore.SOURCE);
+            properties.add(ParquetStore.DESTINATION);
+            properties.add(ParquetStore.DIRECTED);
+        }
+        return properties;
+    }
+
+    public List<String> getCorePropertiesForReversedEdges() {
+        final List<String> properties = new ArrayList<>();
+        properties.add(ParquetStore.DESTINATION);
+        properties.add(ParquetStore.SOURCE);
+        properties.add(ParquetStore.DIRECTED);
+        return properties;
+    }
+
+    public List<String> columnsToSortBy(final String group, final boolean reversed) {
+        final boolean isEntity = getGafferSchema().getEntityGroups().contains(group);
+        final Map<String, String[]> columnToPaths = getColumnToPaths(group);
+        final List<String> columnsToSortBy = new ArrayList<>();
+        final Map<String, String[]> groupPaths = columnToPaths;
+        if (isEntity) {
+            final String[] vertexPaths = groupPaths.get(ParquetStore.VERTEX);
+            columnsToSortBy.add(vertexPaths[0]);
+            if (vertexPaths.length > 1) {
+                for (int i = 1; i < vertexPaths.length; i++) {
+                    columnsToSortBy.add(vertexPaths[i]);
+                }
+            }
+        } else {
+            final String[] srcPaths = groupPaths.get(ParquetStore.SOURCE);
+            final String[] destPaths = groupPaths.get(ParquetStore.DESTINATION);
+            if (!reversed) {
+                columnsToSortBy.add(srcPaths[0]);
+                if (srcPaths.length > 1) {
+                    for (int i = 1; i < srcPaths.length; i++) {
+                        columnsToSortBy.add(srcPaths[i]);
+                    }
+                }
+                for (final String destPath : destPaths) {
+                    columnsToSortBy.add(destPath);
+                }
+            } else {
+                columnsToSortBy.add(destPaths[0]);
+                if (destPaths.length > 1) {
+                    for (int i = 1; i < destPaths.length; i++) {
+                        columnsToSortBy.add(destPaths[i]);
+                    }
+                }
+                for (final String srcPath : srcPaths) {
+                    columnsToSortBy.add(srcPath);
+                }
+            }
+            columnsToSortBy.add(ParquetStore.DIRECTED);
+        }
+        // Add group-by properties
+        final List<String> groupByProperties = new ArrayList<>(gafferSchema.getElement(group).getGroupBy());
+        for (final String groupByProperty : groupByProperties) {
+            final String[] paths = groupPaths.get(groupByProperty);
+            if (null != paths && paths.length > 0) {
+                columnsToSortBy.add(paths[0]);
+                if (paths.length > 1) {
+                    for (int i = 1; i < paths.length; i++) {
+                        columnsToSortBy.add(paths[i]);
+                    }
+                }
+            }
+        }
+        LOGGER.debug("Columns to sort by for group {} and reversed {} are {}", group, reversed, columnsToSortBy);
+        return columnsToSortBy;
     }
 
     /**
@@ -89,7 +167,7 @@ public class SchemaUtils {
         return groupColumnToPaths.get(group);
     }
 
-    private Map<String, String[]> _getColumnToPaths(final String group) throws SerialisationException {
+    private Map<String, String[]> _getColumnToPaths(final String group) {
         final Map<String, String[]> columnToPaths = new HashMap<>();
         for (final String[] paths : getParquetSchema(group).getPaths()) {
             final String firstPath = paths[0];
@@ -122,11 +200,15 @@ public class SchemaUtils {
         return columnToPaths;
     }
 
-    public String[] getPaths(final String group, final String column) throws SerialisationException {
+    public String[] getPaths(final String group, final String column) {
         return getColumnToPaths(group).get(column);
     }
 
-    private void buildSparkSchemas() throws SerialisationException {
+    public Map<String, GafferGroupObjectConverter> getGroupToObjectConverter() {
+        return groupToObjectConverter;
+    }
+
+    private void buildSparkSchemas() {
         for (final String group : gafferSchema.getGroups()) {
             groupToSparkSchema.put(group, buildSparkSchema(group));
         }
@@ -134,13 +216,13 @@ public class SchemaUtils {
         LOGGER.debug("Spark schema is: {}", groupToSparkSchema);
     }
 
-    public StructType buildSparkSchema(final String group) throws SerialisationException {
-        final StructType sType = new ParquetSchemaConverter(false, false, false, false).convert(getParquetSchema(group));
+    public StructType buildSparkSchema(final String group) {
+        final StructType sType = new ParquetToSparkSchemaConverter(false, false).convert(getParquetSchema(group));
         groupToSparkSchema.put(group, sType);
         return sType;
     }
 
-    public StructType getSparkSchema(final String group) throws SerialisationException {
+    public StructType getSparkSchema(final String group) {
         return groupToSparkSchema.get(group);
     }
 
@@ -162,19 +244,19 @@ public class SchemaUtils {
         }
         if (isEntity) {
             groupGafferSchema = gafferSchema.getEntity(group);
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.VERTEX)).append("\n");
-            addGroupColumnToSerialiser(group, ParquetStoreConstants.VERTEX, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStore.VERTEX)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStore.VERTEX, serialiser);
         } else {
             groupGafferSchema = gafferSchema.getEdge(group);
 
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.SOURCE)).append("\n");
-            addGroupColumnToSerialiser(group, ParquetStoreConstants.SOURCE, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStore.SOURCE)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStore.SOURCE, serialiser);
 
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.DESTINATION)).append("\n");
-            addGroupColumnToSerialiser(group, ParquetStoreConstants.DESTINATION, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStore.DESTINATION)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStore.DESTINATION, serialiser);
 
-            addGroupColumnToSerialiser(group, ParquetStoreConstants.DIRECTED, BooleanParquetSerialiser.class.getCanonicalName());
-            schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(BooleanParquetSerialiser.class.getCanonicalName()), ParquetStoreConstants.DIRECTED)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStore.DIRECTED, BooleanParquetSerialiser.class.getCanonicalName());
+            schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(BooleanParquetSerialiser.class.getCanonicalName()), ParquetStore.DIRECTED)).append("\n");
         }
 
         Map<String, String> propertyMap = groupGafferSchema.getPropertyMap();
@@ -182,15 +264,14 @@ public class SchemaUtils {
             if (entry.getKey().contains("_") || entry.getKey().contains(".")) {
                 throw new SchemaException("The ParquetStore does not support properties which contain the characters '_' or '.'");
             }
-            TypeDefinition type = gafferSchema.getType(entry.getValue());
+            final TypeDefinition type = gafferSchema.getType(entry.getValue());
             addGroupColumnToSerialiser(group, entry.getKey(), type.getSerialiserClass());
             schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(type.getSerialiserClass()), entry.getKey())).append("\n");
         }
         schemaString.append("}");
         String parquetSchemaString = schemaString.toString();
         final MessageType parquetSchema = MessageTypeParser.parseMessageType(parquetSchemaString);
-        LOGGER.debug("Generated Parquet schema:");
-        LOGGER.debug(parquetSchemaString);
+        LOGGER.debug("Generated Parquet schema: " + parquetSchemaString);
         return parquetSchema;
     }
 
@@ -274,22 +355,18 @@ public class SchemaUtils {
         return gafferSchema;
     }
 
-    public GafferGroupObjectConverter getConverter(final String group) throws SerialisationException {
+    public GafferGroupObjectConverter getConverter(final String group) {
         return groupToObjectConverter.get(group);
     }
 
     private void buildConverters() {
         for (final String group : gafferSchema.getGroups()) {
-            final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(group, getColumnToSerialiser(group),
-                    getSerialisers(), getColumnToPaths(group));
+            final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(group,
+                    getCoreProperties(group),
+                    getCorePropertiesForReversedEdges(),
+                    getColumnToSerialiser(group), getSerialisers(),
+                    getColumnToPaths(group));
             groupToObjectConverter.put(group, converter);
         }
-    }
-
-    public View getEmptyView() {
-        final View.Builder viewBuilder = new View.Builder();
-        viewBuilder.entities(getEntityGroups());
-        viewBuilder.edges(getEdgeGroups());
-        return viewBuilder.build();
     }
 }

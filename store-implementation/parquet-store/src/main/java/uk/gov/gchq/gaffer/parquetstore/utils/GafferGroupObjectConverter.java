@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.mutable.WrappedArray;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.query.ParquetEdgeSeed;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
@@ -50,25 +55,90 @@ public class GafferGroupObjectConverter implements Serializable {
     private final Map<String, Serialiser> columnToSerialiser;
     private final Map<String, String[]> columnToPaths;
     private final String group;
+    private final List<String> coreProperties;
+    private final List<String> corePropertiesForReversedEdges;
 
-    /**
-     * Constructor to set up the converter ready to convert between the Gaffer, Spark and Parquet types.
-     *
-     * @param group                      The Gaffer Group name
-     * @param columnToSerialiserName     A mapping from Gaffer column to serialiser name
-     * @param serialiserNameToSerialiser A mapping from serialiser name to serialiser object
-     * @param columnToPaths              A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
-     */
-    public GafferGroupObjectConverter(final String group, final Map<String, String> columnToSerialiserName,
+    public GafferGroupObjectConverter(final String group,
+                                      final List<String> coreProperties,
+                                      final List<String> corePropertiesForReversedEdges,
+                                      final Map<String, String> columnToSerialiserName,
                                       final Map<String, Serialiser> serialiserNameToSerialiser,
                                       final Map<String, String[]> columnToPaths) {
         this.group = group;
+        this.coreProperties = coreProperties;
+        this.corePropertiesForReversedEdges = corePropertiesForReversedEdges;
         // TODO move this logic building the direct column to serialiser to the SchemaUtils class
         this.columnToSerialiser = new HashMap<>();
         for (final Map.Entry<String, String> entry : columnToSerialiserName.entrySet()) {
             this.columnToSerialiser.put(entry.getKey(), serialiserNameToSerialiser.get(entry.getValue()));
         }
         this.columnToPaths = columnToPaths;
+    }
+
+    public List<String> getCoreProperties() {
+        return coreProperties;
+    }
+
+    public ParquetEdgeSeed edgeIdToParquetObjects(final EdgeId edgeId) throws SerialisationException {
+        final List<Pair<String, Object>> gafferColumnsAndObjects = new ArrayList<>();
+        gafferColumnsAndObjects.add(new Pair<>(ParquetStore.SOURCE, edgeId.getSource()));
+        gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DESTINATION, edgeId.getDestination()));
+        if (edgeId.getDirectedType().equals(DirectedType.DIRECTED)) {
+            gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DIRECTED, true));
+        } else if (edgeId.getDirectedType().equals(DirectedType.UNDIRECTED)) {
+            gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DIRECTED, false));
+        }
+        // If edgeId.getDirectedType() is DirectedType.EITHER then don't add it.
+        final List<Pair<String, Object>> gafferColumnsAndObjectsSource = new ArrayList<>();
+        gafferColumnsAndObjectsSource.add(new Pair<>(ParquetStore.SOURCE, edgeId.getSource()));
+        final List<Pair<String, Object>> gafferColumnsAndObjectsDestination = new ArrayList<>();
+        gafferColumnsAndObjectsDestination.add(new Pair<>(ParquetStore.DESTINATION, edgeId.getDestination()));
+        return new ParquetEdgeSeed(edgeId, gafferObjectsToParquetObjects(gafferColumnsAndObjectsSource), gafferObjectsToParquetObjects(gafferColumnsAndObjectsDestination), edgeId.getDirectedType());
+    }
+
+    public Object[] corePropertiesToParquetObjects(final Element element) throws SerialisationException {
+        final List<Pair<String, Object>> gafferColumnsAndObjects = new ArrayList<>();
+        for (final String s : coreProperties) {
+            if (s.equals(ParquetStore.VERTEX)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.VERTEX, ((Entity) element).getVertex()));
+            } else if (s.equals(ParquetStore.SOURCE)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.SOURCE, ((Edge) element).getSource()));
+            } else if (s.equals(ParquetStore.DESTINATION)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DESTINATION, ((Edge) element).getDestination()));
+            } else if (s.equals(ParquetStore.DIRECTED)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DIRECTED, ((Edge) element).isDirected()));
+            } else {
+                throw new SerialisationException("Unexpected property " + s + " in conversion of core properties to Parquet objects");
+            }
+        }
+        return gafferObjectsToParquetObjects(gafferColumnsAndObjects);
+    }
+
+    public Object[] corePropertiesToParquetObjectsForReversedEdge(final Edge edge) throws SerialisationException {
+        final List<Pair<String, Object>> gafferColumnsAndObjects = new ArrayList<>();
+        for (final String s : corePropertiesForReversedEdges) {
+            if (s.equals(ParquetStore.SOURCE)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.SOURCE, edge.getSource()));
+            } else if (s.equals(ParquetStore.DESTINATION)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DESTINATION, edge.getDestination()));
+            } else if (s.equals(ParquetStore.DIRECTED)) {
+                gafferColumnsAndObjects.add(new Pair<>(ParquetStore.DIRECTED, edge.isDirected()));
+            } else {
+                throw new SerialisationException("Unexpected property " + s + " in conversion of core properties to Parquet objects");
+            }
+        }
+        return gafferObjectsToParquetObjects(gafferColumnsAndObjects);
+    }
+
+    public Object[] gafferObjectsToParquetObjects(final List<Pair<String, Object>> gafferColumnsAndObjects) throws SerialisationException {
+        final List<Object> parquetObjectsList = new ArrayList<>();
+        for (final Pair<String, Object> pair : gafferColumnsAndObjects) {
+            final Object[] objects = gafferObjectToParquetObjects(pair.getFirst(), pair.getSecond());
+            for (final Object o : objects) {
+                parquetObjectsList.add(o);
+            }
+        }
+        return parquetObjectsList.toArray();
     }
 
     /**
@@ -246,7 +316,8 @@ public class GafferGroupObjectConverter implements Serializable {
      * @return an Element containing the objects from the parquetColumnToObject
      * @throws SerialisationException if the parquet objects can not be de-serialised
      */
-    public Element buildElementFromParquetObjects(final Map<String, Object[]> parquetColumnToObject, final boolean isEntity) throws SerialisationException {
+    public Element buildElementFromParquetObjects(final Map<String, Object[]> parquetColumnToObject,
+                                                  final boolean isEntity) throws SerialisationException {
         final Element e;
         if (isEntity) {
             e = new Entity(group);
@@ -306,17 +377,17 @@ public class GafferGroupObjectConverter implements Serializable {
             }
             if (null != gafferObject) {
                 if (isEntity) {
-                    if (ParquetStoreConstants.VERTEX.equals(column)) {
+                    if (ParquetStore.VERTEX.equals(column)) {
                         ((Entity) e).setVertex(gafferObject);
                     } else {
                         e.putProperty(column, gafferObject);
                     }
                 } else {
-                    if (ParquetStoreConstants.SOURCE.equals(column)) {
+                    if (ParquetStore.SOURCE.equals(column)) {
                         src = gafferObject;
-                    } else if (ParquetStoreConstants.DESTINATION.equals(column)) {
+                    } else if (ParquetStore.DESTINATION.equals(column)) {
                         dst = gafferObject;
-                    } else if (ParquetStoreConstants.DIRECTED.equals(column)) {
+                    } else if (ParquetStore.DIRECTED.equals(column)) {
                         isDir = (boolean) gafferObject;
                     } else {
                         e.putProperty(column, gafferObject);

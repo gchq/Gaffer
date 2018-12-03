@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.7.0</version>
+    <version>1.7.1-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -41,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests />
+        <exclude.tests/>
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -49,7 +49,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.version>2.11</scala.version>
-        <scala.minor.version>2.11.8</scala.minor.version>
+        <scala.minor.version>2.11.12</scala.minor.version>
 
         <!-- Dependency version properties -->
         <junit.version>4.12</junit.version>
@@ -68,7 +68,7 @@
         <jackson.version>${jackson.compile.version}</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
-        <datasketches.version>0.11.0</datasketches.version>
+        <datasketches.version>0.12.0</datasketches.version>
         <commons-codec.version>1.6</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.4</commons-io.version>
@@ -77,8 +77,8 @@
         <commons-math.version>2.1</commons-math.version>
         <commons-math3.version>3.4.1</commons-math3.version>
         <curator.version>2.6.0</curator.version>
-        <findbugs.version>3.0.1</findbugs.version>
-        <httpcomponents.version>4.3.3</httpcomponents.version>
+        <findbugs.version>3.0.2</findbugs.version>
+        <httpcomponents.version>4.4</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <jcs.version>2.1</jcs.version>
@@ -96,7 +96,7 @@
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
         <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
         <dependency.plugin.version>2.10</dependency.plugin.version>
-        <findbugs.plugin.version>3.0.3</findbugs.plugin.version>
+        <findbugs.plugin.version>3.0.5</findbugs.plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
@@ -1231,8 +1231,8 @@
         <profile>
             <id>travis</id>
             <properties>
-                <!-- The sparkaccumulo integration tests don't run on Travis CI -->
-                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java
+                <!-- The sparkaccumulo integration and parquetstore Spark tests don't run on Travis CI -->
+                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java,**/parquetstore/operation/handler/spark/*SparkOperationsTest.java,**/parquetstore/operation/handler/*OperationsTest.java
                 </exclude.tests>
             </properties>
             <build>
