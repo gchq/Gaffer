@@ -30,7 +30,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final LongVertexOperationsTest lvot = new LongVertexOperationsTest();
 
     @Override
-    protected Schema getSchema() {
+    protected Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
@@ -67,7 +67,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 //        final Graph graph = getGraph(getSchema(), properties, "LongVertexSparkOperationsTest");
 //        graph.execute(new ImportJavaRDDOfElements.Builder()
 //                .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
-//                .build(), USER);
+//                .build(), user);
 //        return graph;
 //    }
 //

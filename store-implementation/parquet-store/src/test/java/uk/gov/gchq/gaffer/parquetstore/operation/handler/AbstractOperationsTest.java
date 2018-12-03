@@ -31,8 +31,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -43,7 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
@@ -52,22 +53,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public abstract class AbstractOperationsTest {
+public abstract class AbstractOperationsTest extends StandaloneIT {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    protected static User USER = new User();
-
-    protected abstract Schema getSchema();
+    protected User user = getUser();
 
     protected abstract List<Element> getInputDataForGetAllElementsTest();
 
@@ -97,53 +93,50 @@ public abstract class AbstractOperationsTest {
 
     protected abstract Edge getEdgeWithIdenticalSrcAndDst();
 
-    protected Graph getGraph() throws IOException {
-        return getGraph(TestUtils.getParquetStoreProperties(testFolder));
+    @Override
+    public User getUser() {
+        return new User();
     }
 
-    protected Graph getGraph(final ParquetStoreProperties storeProperties) {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(storeProperties)
-                .build();
+    @Override
+    public StoreProperties createStoreProperties() {
+        try {
+            return TestUtils.getParquetStoreProperties(testFolder);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void getAllElementsTest() throws IOException, OperationException {
+    public void getAllElementsTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
-                new GetAllElements.Builder().build(), USER);
+                new GetAllElements.Builder().build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), results);
     }
 
     @Test
-    public void getAllElementsOnEmptyGraph() throws IOException, OperationException {
+    public void getAllElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = getGraph();
-        final Graph graph2 = getGraph();
+        final Graph graph1 = createGraph();
+        final Graph graph2 = createGraph();
         final List<Element> elements = new ArrayList<>();
-        graph1.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final View view = getView();
         final CloseableIterable<? extends Element> results1 = graph1
-                .execute(new GetAllElements.Builder().view(view).build(), USER);
+                .execute(new GetAllElements.Builder().view(view).build(), user);
         final CloseableIterable<? extends Element> results2 = graph2
-                .execute(new GetAllElements.Builder().view(view).build(), USER);
+                .execute(new GetAllElements.Builder().view(view).build(), user);
 
         // Then
         assertFalse(results1.iterator().hasNext());
@@ -151,114 +144,99 @@ public abstract class AbstractOperationsTest {
     }
 
     @Test
-    public void getAllElementsWithViewTest() throws IOException, OperationException {
+    public void getAllElementsWithViewTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final View view = getView();
         final CloseableIterable<? extends Element> results = graph
-                .execute(new GetAllElements.Builder().view(view).build(), USER);
+                .execute(new GetAllElements.Builder().view(view).build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsWithViewTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsWithViewTest(), results);
     }
 
     @Test
-    public void getAllElementsWithDirectedTypeTest() throws IOException, OperationException {
+    public void getAllElementsWithDirectedTypeTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final CloseableIterable<? extends Element> results = graph
-                .execute(new GetAllElements.Builder().directedType(DirectedType.DIRECTED).build(), USER);
+                .execute(new GetAllElements.Builder().directedType(DirectedType.DIRECTED).build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsWithDirectedTypeTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsWithDirectedTypeTest(), results);
     }
 
     @Test
-    public void getAllElementsAfterTwoAddElementsTest() throws IOException, OperationException {
+    public void getAllElementsAfterTwoAddElementsTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsAfterTwoAdds();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsAfterTwoAdds(), results);
     }
 
     @Test
-    public void getAllElementsAfterElementsAddedSeparatelyByGroup() throws IOException, OperationException {
+    public void getAllElementsAfterElementsAddedSeparatelyByGroup() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         final List<Entity> entities = elements.stream().filter(e -> e instanceof Entity).map(e -> (Entity) e).collect(Collectors.toList());
         final List<Edge> edges = elements.stream().filter(e -> e instanceof Edge).map(e -> (Edge) e).collect(Collectors.toList());
-        graph.execute(new AddElements.Builder().input(entities).build(), USER);
-        graph.execute(new AddElements.Builder().input(edges).build(), USER);
+        graph.execute(new AddElements.Builder().input(entities).build(), user);
+        graph.execute(new AddElements.Builder().input(edges).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), results);
     }
 
     @Test
-    public void getAllElementsOnGraphRecreatedFromExistingGraph() throws IOException, OperationException {
+    public void getAllElementsOnGraphRecreatedFromExistingGraph() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final ParquetStoreProperties storeProperties = (ParquetStoreProperties) graph.getStoreProperties();
-        final Graph graph2 = getGraph(storeProperties);
+        final Graph graph2 = createGraph(storeProperties);
         final CloseableIterable<? extends Element> results = graph2.execute(
-                new GetAllElements.Builder().build(), USER);
+                new GetAllElements.Builder().build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), results);
     }
 
     @Test
-    public void getElementsOnEmptyGraph() throws IOException, OperationException {
+    public void getElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = getGraph();
-        final Graph graph2 = getGraph();
+        final Graph graph1 = createGraph();
+        final Graph graph2 = createGraph();
         final List<Element> elements = new ArrayList<>();
-        graph1.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final CloseableIterable<? extends Element> results1 = graph1
-                .execute(new GetElements.Builder().input(getSeeds()).build(), USER);
+                .execute(new GetElements.Builder().input(getSeeds()).build(), user);
         final CloseableIterable<? extends Element> results2 = graph2
-                .execute(new GetElements.Builder().input(getSeeds()).build(), USER);
+                .execute(new GetElements.Builder().input(getSeeds()).build(), user);
 
         // Then
         assertFalse(results1.iterator().hasNext());
@@ -266,25 +244,24 @@ public abstract class AbstractOperationsTest {
     }
 
     @Test
-    public void getElementsEmptySeedsTest() throws IOException, OperationException {
+    public void getElementsEmptySeedsTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
 
         // When
         final CloseableIterable<? extends Element> results = graph
-                .execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), USER);
+                .execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), user);
 
         // Then
         assertFalse(results.iterator().hasNext());
-        results.close();
     }
 
     @Test
-    public void getElementsWithSeedsRelatedTest() throws IOException, OperationException {
+    public void getElementsWithSeedsRelatedTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
@@ -292,21 +269,18 @@ public abstract class AbstractOperationsTest {
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
-                        .build(), USER);
+                        .build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetElementsWithSeedsRelatedTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsRelatedTest(), results);
     }
 
     @Test
-    public void getElementsWithSeedsEqualTest() throws IOException, OperationException {
+    public void getElementsWithSeedsEqualTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
@@ -314,58 +288,51 @@ public abstract class AbstractOperationsTest {
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.EQUAL)
-                        .build(), USER);
+                        .build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetElementsWithSeedsEqualTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsEqualTest(), results);
     }
 
     @Test
-    public void getElementsWithMissingSeedsTest() throws IOException, OperationException {
+    public void getElementsWithMissingSeedsTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeedsThatWontAppear();
         final CloseableIterable<? extends Element> results = graph
-                .execute(new GetElements.Builder().input(seeds).seedMatching(SeedMatching.SeedMatchingType.EQUAL).build(), USER);
+                .execute(new GetElements.Builder().input(seeds).seedMatching(SeedMatching.SeedMatchingType.EQUAL).build(), user);
 
         // Then
         assertFalse(results.iterator().hasNext());
-        results.close();
     }
 
     @Test
-    public void getElementsWithSeedsAndViewTest() throws IOException, OperationException {
+    public void getElementsWithSeedsAndViewTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
         final View view = getView();
         final CloseableIterable<? extends Element> results = graph
-                .execute(new GetElements.Builder().input(seeds).view(view).build(), USER);
+                .execute(new GetElements.Builder().input(seeds).view(view).build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetElementsWithSeedsAndViewTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsAndViewTest(), results);
     }
 
     @Test
-    public void getElementsWithPostAggregationFilterTest() throws IOException, OperationException {
+    public void getElementsWithPostAggregationFilterTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
@@ -379,7 +346,7 @@ public abstract class AbstractOperationsTest {
 
         // When / Then
         try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
@@ -389,11 +356,11 @@ public abstract class AbstractOperationsTest {
     }
 
     @Test
-    public void getElementsWithPostTransformFilterTest() throws IOException, OperationException {
+    public void getElementsWithPostTransformFilterTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
@@ -407,7 +374,7 @@ public abstract class AbstractOperationsTest {
 
         // When / Then
         try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
@@ -417,11 +384,11 @@ public abstract class AbstractOperationsTest {
     }
 
     @Test
-    public void getElementsWithInOutTypeTest() throws IOException, OperationException {
+    public void getElementsWithInOutTypeTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When 1
         final List<ElementSeed> seeds = getSeeds().stream().filter(e -> e instanceof EntitySeed).collect(Collectors.toList());
@@ -429,37 +396,31 @@ public abstract class AbstractOperationsTest {
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
-                        .build(), USER);
+                        .build(), user);
 
         // Then 1
-        List<Element> expected = getResultsForGetElementsWithInOutTypeOutgoingTest();
-        List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithInOutTypeOutgoingTest(), results);
 
         // When 2
         results = graph.execute(new GetElements.Builder()
                 .input(seeds)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
-                .build(), USER);
+                .build(), user);
 
         // Then 2
-        expected = getResultsForGetElementsWithInOutTypeIncomingTest();
-        actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithInOutTypeIncomingTest(), results);
     }
 
     @Test
-    public void deduplicateEdgeWhenSrcAndDstAreEqualTest() throws IOException, OperationException {
+    public void deduplicateEdgeWhenSrcAndDstAreEqualTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final Edge edge = getEdgeWithIdenticalSrcAndDst();
-        graph.execute(new AddElements.Builder().input(edge).build(), USER);
+        graph.execute(new AddElements.Builder().input(edge).build(), user);
 
         // When1
         CloseableIterable<? extends Element> results = graph.execute(
-                new GetAllElements.Builder().build(), USER);
+                new GetAllElements.Builder().build(), user);
 
         // Then1
         Iterator<? extends Element> resultsIterator = results.iterator();
@@ -469,7 +430,7 @@ public abstract class AbstractOperationsTest {
         results.close();
 
         // When2
-        results = graph.execute(new GetElements.Builder().input(new EntitySeed(edge.getSource())).build(), USER);
+        results = graph.execute(new GetElements.Builder().input(new EntitySeed(edge.getSource())).build(), user);
 
         // Then2
         resultsIterator = results.iterator();
