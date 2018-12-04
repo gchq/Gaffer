@@ -40,6 +40,14 @@ public abstract class StandaloneIT {
                 .build();
     }
 
+    protected Graph createGraph(final StoreProperties storeProperties) {
+        return new Graph.Builder()
+                .config(createGraphConfig())
+                .storeProperties(storeProperties)
+                .addSchema(createSchema())
+                .build();
+    }
+
     protected GraphConfig createGraphConfig() {
         return new GraphConfig.Builder()
                 .graphId("graphId")

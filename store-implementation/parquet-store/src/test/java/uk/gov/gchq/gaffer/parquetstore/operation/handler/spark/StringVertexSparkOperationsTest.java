@@ -30,7 +30,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     private final StringVertexOperationsTest svot = new StringVertexOperationsTest();
 
     @Override
-    protected Schema getSchema() {
+    protected Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
@@ -67,7 +67,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
-                .build(), USER);
+                .build(), user);
         return graph;
     }
 

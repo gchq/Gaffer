@@ -30,7 +30,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     private final TypeValueVertexOperationsTest tvvot = new TypeValueVertexOperationsTest();
 
     @Override
-    protected Schema getSchema() {
+    protected Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
@@ -67,7 +67,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         final Graph graph = getGraph(getSchema(), properties, "TypeValueVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
-                .build(), USER);
+                .build(), user);
         return graph;
     }
 

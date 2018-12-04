@@ -54,7 +54,7 @@ import static org.junit.Assert.assertThat;
 
 public class QueryGeneratorTest {
 
-    private Schema schema = new LongVertexOperationsTest().getSchema();
+    private Schema schema = new LongVertexOperationsTest().createSchema();
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);

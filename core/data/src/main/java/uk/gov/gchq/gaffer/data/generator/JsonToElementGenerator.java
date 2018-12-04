@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.generator;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -30,7 +31,7 @@ public class JsonToElementGenerator implements OneToOneElementGenerator<String> 
         try {
             return JSONSerialiser.deserialise(json, Element.class);
         } catch (final SerialisationException ex) {
-            throw new IllegalArgumentException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage());
+            throw new GafferRuntimeException("Unable to process JSON string: " + json + ". Message: " + ex.getMessage());
         }
     }
 }

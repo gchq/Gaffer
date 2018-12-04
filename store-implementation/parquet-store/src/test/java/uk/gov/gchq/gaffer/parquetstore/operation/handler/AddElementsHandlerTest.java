@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,7 +48,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -103,7 +109,6 @@ public class AddElementsHandlerTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(i % 2 == 0 ? 0.4 : 0.2, results[i].getAs("double"), 0.01);
             assertEquals(i % 2 == 0 ? 8f : 6f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * (i / 2), (long) results[i].getAs("long"));
             assertEquals(i % 2 == 0 ? 14 : 12, (int) results[i].getAs("short"));
@@ -183,7 +188,6 @@ public class AddElementsHandlerTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(i % 2 == 0 ? 0.4 : 0.2, results[i].getAs("double"), 0.01);
             assertEquals(i % 2 == 0 ? 8f : 6f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * (i / 2), (long) results[i].getAs("long"));
             assertEquals(i % 2 == 0 ? 14 : 12, (int) results[i].getAs("short"));
@@ -291,14 +295,13 @@ public class AddElementsHandlerTest {
         assertEquals(edge.getDestination(), row.getAs(ParquetStore.DESTINATION));
         assertEquals(edge.isDirected(), row.getAs(ParquetStore.DIRECTED));
         assertEquals(edge.getProperty("byte"), ((byte[]) row.getAs("byte"))[0]);
-        assertEquals((double) edge.getProperty("double"), row.getAs("double"), 0.01);
         assertEquals((float) edge.getProperty("float"), row.getAs("float"), 0.01F);
         assertArrayEquals(((TreeSet<String>) edge.getProperty("treeSet")).toArray(),
                 (String[]) ((WrappedArray<String>) row.getAs("treeSet")).array());
         assertEquals(edge.getProperty("long"), row.getAs("long"));
         assertEquals(edge.getProperty("short").toString(), row.getAs("short").toString());
         assertEquals(((Date) edge.getProperty("date")).getTime(), (long) row.getAs("date"));
-        assertEquals(JavaConversions$.MODULE$.mapAsScalaMap((Map<?,?>) edge.getProperty("freqMap")),
+        assertEquals(JavaConversions$.MODULE$.mapAsScalaMap((Map<?, ?>) edge.getProperty("freqMap")),
                 row.getAs("freqMap"));
         assertEquals(edge.getProperty("count"), (int) row.getAs("count"));
     }
@@ -306,14 +309,13 @@ public class AddElementsHandlerTest {
     private void checkEntityGroup2(final Entity entity, final Row row) {
         assertEquals(entity.getVertex(), row.getAs(ParquetStore.VERTEX));
         assertEquals(entity.getProperty("byte"), ((byte[]) row.getAs("byte"))[0]);
-        assertEquals((double) entity.getProperty("double"), row.getAs("double"), 0.01);
         assertEquals((float) entity.getProperty("float"), row.getAs("float"), 0.01F);
         assertArrayEquals(((TreeSet<String>) entity.getProperty("treeSet")).toArray(),
                 (String[]) ((WrappedArray<String>) row.getAs("treeSet")).array());
         assertEquals(entity.getProperty("long"), row.getAs("long"));
         assertEquals((short) entity.getProperty("short"), (int) row.getAs("short"));
         assertEquals(((Date) entity.getProperty("date")).getTime(), (long) row.getAs("date"));
-        assertEquals(JavaConversions$.MODULE$.mapAsScalaMap((Map<?,?>) entity.getProperty("freqMap")),
+        assertEquals(JavaConversions$.MODULE$.mapAsScalaMap((Map<?, ?>) entity.getProperty("freqMap")),
                 row.getAs("freqMap"));
         assertEquals(entity.getProperty("count"), (int) row.getAs("count"));
     }
@@ -390,7 +392,6 @@ public class AddElementsHandlerTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(i % 2 == 0 ? 0.8 : 0.4, results[i].getAs("double"), 0.01);
             assertEquals(i % 2 == 0 ? 16f : 12f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * 2 * (i / 2), (long) results[i].getAs("long"));
             assertEquals(i % 2 == 0 ? 28 : 24, (int) results[i].getAs("short"));
@@ -528,7 +529,6 @@ public class AddElementsHandlerTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(i % 2 == 0 ? 0.8 : 0.4, results[i].getAs("double"), 0.01);
             assertEquals(i % 2 == 0 ? 16f : 12f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * 2 * (i / 2), (long) results[i].getAs("long"));
             assertEquals(i % 2 == 0 ? 28 : 24, (int) results[i].getAs("short"));
