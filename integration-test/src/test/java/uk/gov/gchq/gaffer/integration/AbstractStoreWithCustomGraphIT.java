@@ -198,7 +198,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
         method = this.getClass().getMethod(originalMethodName);
     }
 
-    protected void validateTest() throws Exception {
+    protected void validateTest() {
         assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
         assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));

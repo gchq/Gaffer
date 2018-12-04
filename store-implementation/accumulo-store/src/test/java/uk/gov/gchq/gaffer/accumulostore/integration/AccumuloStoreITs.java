@@ -32,5 +32,6 @@ public class AccumuloStoreITs extends AbstractStoreITs {
         super(storeProperties);
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
         addExtraTest(AddElementsFromFileLoaderIT.class);
+        singleTest(AddElementsFromFileLoaderIT.class);
     }
 }
