@@ -24,8 +24,9 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -34,24 +35,17 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-
-public abstract class AbstractSparkOperationsTest {
+public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    protected static User USER = new User();
-
-    protected abstract Schema getSchema();
+    protected User user = getUser();
 
     protected abstract RDD<Element> getInputDataForGetAllElementsTest();
 
@@ -69,52 +63,47 @@ public abstract class AbstractSparkOperationsTest {
 
 //    protected abstract JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities);
 
-    protected Graph getGraph() throws IOException {
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(TestUtils.getParquetStoreProperties(testFolder))
-                .build();
+    @Override
+    public User getUser() {
+        return new User();
     }
 
-    protected Graph getGraph(final int numOutputFiles) throws IOException {
+    @Override
+    public StoreProperties createStoreProperties() {
+        try {
+            return TestUtils.getParquetStoreProperties(testFolder);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected Graph createGraph(final int numOutputFiles) throws IOException {
         final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
         storeProperties.setAddElementsOutputFilesPerGroup(numOutputFiles);
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(storeProperties)
-                .build();
+        return createGraph(storeProperties);
     }
 
     @Test
-    public void getAllElementsAfterImportElementsFromRDDTest() throws IOException, OperationException {
+    public void getAllElementsAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), USER);
+        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(
-                new GetAllElements.Builder().build(), USER);
+                new GetAllElements.Builder().build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetAllElementsTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), results);
     }
 
     @Test
-    public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTest() throws IOException, OperationException {
+    public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Graph graph = createGraph();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), USER);
+        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
@@ -122,22 +111,19 @@ public abstract class AbstractSparkOperationsTest {
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
-                        .build(), USER);
+                        .build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetElementsWithSeedsRelatedTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsRelatedTest(), results);
     }
 
     @Test
     public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTestWhenMoreFilesThanElements() throws IOException, OperationException {
         // Given
         final int numFiles = 2 * getNumberOfItemsInInputDataForGetAllElementsTest();
-        final Graph graph = getGraph(numFiles);
+        final Graph graph = createGraph(numFiles);
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), USER);
+        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
@@ -145,20 +131,17 @@ public abstract class AbstractSparkOperationsTest {
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
-                        .build(), USER);
+                        .build(), user);
 
         // Then
-        final List<Element> expected = getResultsForGetElementsWithSeedsRelatedTest();
-        final List<Element> actual = StreamSupport.stream(results.spliterator(), false).collect(Collectors.toList());
-        results.close();
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsRelatedTest(), results);
     }
 
 //    @Test
 //    public void getDataFrameOfElementsTest() throws IOException, OperationException, StoreException {
 //        final Graph graph = genData(false);
 //        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-//                .build(), USER);
+//                .build(), user);
 //        checkGetDataFrameOfElements(data, false);
 //    }
 //
@@ -173,7 +156,7 @@ public abstract class AbstractSparkOperationsTest {
 //                .build();
 //        try {
 //            graph.execute(new GetDataFrameOfElements.Builder()
-//                    .view(view).build(), USER);
+//                    .view(view).build(), user);
 //            fail();
 //        } catch (final OperationException e) {
 //            assertEquals("Views are not supported by this operation yet", e.getMessage());
@@ -186,7 +169,7 @@ public abstract class AbstractSparkOperationsTest {
 //    public void getDataFrameOfElementsWithVisibilitiesTest() throws OperationException, StoreException, IOException {
 //        final Graph graph = genData(true);
 //        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-//                .build(), USER);
+//                .build(), user);
 //        checkGetDataFrameOfElements(data, true);
 //    }
 
@@ -203,7 +186,7 @@ public abstract class AbstractSparkOperationsTest {
 //                .storeProperties(parquetStoreProperties)
 //                .build();
 //
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), USER);
+//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), user);
 //
 //        assertEquals(0, data.count());
 //    }

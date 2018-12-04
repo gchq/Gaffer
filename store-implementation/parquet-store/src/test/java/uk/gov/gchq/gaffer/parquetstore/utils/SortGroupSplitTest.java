@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -70,10 +71,10 @@ public class SortGroupSplitTest {
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
         for (int i = 9; i >= 0; i--) {
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 7f,
                     TestUtils.MERGED_TREESET, 11L * i, (short) 13, new Date(200000L), TestUtils.MERGED_FREQMAP,
                     2, null));
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 7f,
                     TestUtils.MERGED_TREESET, 11L * i, (short) 13, new Date(100000L), TestUtils.MERGED_FREQMAP,
                     2, null));
         }
@@ -85,10 +86,10 @@ public class SortGroupSplitTest {
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
         for (int i = 19; i >= 10; i--) {
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 7f,
                     TestUtils.MERGED_TREESET, 11L * i, (short) 13, new Date(200000L), TestUtils.MERGED_FREQMAP,
                     2, null));
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 7f,
                     TestUtils.MERGED_TREESET, 11L * i, (short) 13, new Date(100000L), TestUtils.MERGED_FREQMAP,
                     2, null));
         }
@@ -123,7 +124,6 @@ public class SortGroupSplitTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(0.5, results[i].getAs("double"), 0.01);
             assertEquals(7f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * (i / 2), (long) results[i].getAs("long"));
             assertEquals(13, (int) results[i].getAs("short"));

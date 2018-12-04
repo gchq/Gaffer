@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,11 +59,11 @@ public class GeneratorsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @Test
-    public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
+    public void shouldConvertToDomainObjects() throws OperationException {
         // Given
         final OperationChain<Iterable<? extends DomainObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -89,7 +88,7 @@ public class GeneratorsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldConvertFromDomainObjects() throws OperationException, UnsupportedEncodingException {
+    public void shouldConvertFromDomainObjects() throws OperationException {
         // Given
         final OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<DomainObject>()

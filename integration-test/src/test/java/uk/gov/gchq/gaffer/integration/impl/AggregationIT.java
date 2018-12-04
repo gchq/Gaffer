@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,30 +63,13 @@ public class AggregationIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
-
-        // Add duplicate elements
-        graph.execute(new AddElements.Builder()
-                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
-                .build(), getUser());
-
-        graph.execute(new AddElements.Builder()
-                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
-                .build(), getUser());
-
-        // Edge with existing ids but directed
-        graph.execute(new AddElements.Builder()
-                .input(new Edge.Builder().group(TestGroups.EDGE)
-                        .source(NON_AGGREGATED_SOURCE)
-                        .dest(NON_AGGREGATED_DEST)
-                        .directed(true)
-                        .build())
-                .build(), getUser());
+        super.addDefaultElements();
+        addDuplicateElements();
     }
 
     @Test
     @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
-    public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateIdenticalElements() throws OperationException {
         // Given
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed(AGGREGATED_SOURCE))
@@ -118,7 +100,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
-    public void shouldAggregateElementsWithNoGroupBy() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateElementsWithNoGroupBy() throws OperationException {
         // Given
         final String vertex = "testVertex1";
         final long timestamp = System.currentTimeMillis();
@@ -212,8 +194,8 @@ public class AggregationIT extends AbstractStoreIT {
         );
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
     @Test
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
     public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
         edge1.putProperty(TestPropertyNames.INT, 100);
@@ -252,5 +234,25 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(1, resultList.size());
         // aggregation is has been replaced with Product
         assertEquals(10100, resultList.get(0).getProperty(TestPropertyNames.INT));
+    }
+
+    private void addDuplicateElements() throws OperationException {
+        // Add duplicate elements
+        graph.execute(new AddElements.Builder()
+                .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
+                .build(), getUser());
+
+        // Edge with existing ids but directed
+        graph.execute(new AddElements.Builder()
+                .input(new Edge.Builder().group(TestGroups.EDGE)
+                        .source(NON_AGGREGATED_SOURCE)
+                        .dest(NON_AGGREGATED_DEST)
+                        .directed(true)
+                        .build())
+                .build(), getUser());
     }
 }

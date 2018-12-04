@@ -48,7 +48,13 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -63,6 +69,7 @@ public class WriteUnsortedDataTest {
     private static Date DATE2;
     private static Date DATE3;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     static {
         DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
@@ -256,7 +263,7 @@ public class WriteUnsortedDataTest {
         //  - Each split file should contain the data for that split in the order it was written
         for (final String group : new HashSet<>(Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2))) {
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-0",
-                    group, true, false,null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
+                    group, true, false, null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
                     elements, schemaUtils);
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-1",
                     group, true, false, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
@@ -264,7 +271,7 @@ public class WriteUnsortedDataTest {
         }
         for (final String group : new HashSet<>(Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2))) {
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-0",
-                    group, false, false,null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
+                    group, false, false, null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
                     elements, schemaUtils);
             testSplitFileContainsCorrectData(tempFilesDir + "/REVERSED-GROUP=" + group + "/split-0",
                     group, false, true, null,
@@ -401,7 +408,7 @@ public class WriteUnsortedDataTest {
         //  - Each split file should contain the data for that split in the order it was written
         for (final String group : new HashSet<>(Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2))) {
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-0",
-                    group, true,false, null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
+                    group, true, false, null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
                     elements, schemaUtils);
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-1",
                     group, true, false, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
@@ -412,7 +419,7 @@ public class WriteUnsortedDataTest {
         }
         for (final String group : new HashSet<>(Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2))) {
             testSplitFileContainsCorrectData(tempFilesDir + "/GROUP=" + group + "/split-0",
-                    group, false, false,null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
+                    group, false, false, null, graphPartitioner.getGroupPartitioner(group).getIthPartitionKey(0),
                     elements, schemaUtils);
             testSplitFileContainsCorrectData(tempFilesDir + "/REVERSED-GROUP=" + group + "/split-0",
                     group, false, true, null, graphPartitioner.getGroupPartitionerForReversedEdges(group).getIthPartitionKey(0),
@@ -466,7 +473,6 @@ public class WriteUnsortedDataTest {
                                               final Date date,
                                               final short multiplier) {
         final Edge edge = createEdgeForEdgeGroup(source, destination, directed, date);
-        edge.putProperty("double", ((double) edge.getProperty("double")) * multiplier);
         edge.putProperty("float", ((float) edge.getProperty("float")) * multiplier);
         edge.putProperty("long", ((long) edge.getProperty("long")) * multiplier);
         edge.putProperty("short", (short) ((short) edge.getProperty("short")) * multiplier);
@@ -488,10 +494,9 @@ public class WriteUnsortedDataTest {
 
     private static void addPropertiesOtherThanVertexAndDate(final Element element) {
         element.putProperty("byte", (byte) 50);
-        element.putProperty("double", 50D);
         element.putProperty("float", 50F);
         element.putProperty("treeSet", TestUtils.getTreeSet1());
-        element.putProperty("long",50L);
+        element.putProperty("long", 50L);
         element.putProperty("short", (short) 50);
         element.putProperty("freqMap", TestUtils.getFreqMap1());
         element.putProperty("count", 100);
@@ -573,14 +578,14 @@ public class WriteUnsortedDataTest {
     private List<Element> getData(final long num) {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, i, (byte) 1, 1.0D, 2.0F, TestUtils.getTreeSet1(),
+            data.add(DataGen.getEntity(TestGroups.ENTITY, i, (byte) 1, 2.0F, TestUtils.getTreeSet1(),
                     5L, (short) 6, new Date(), TestUtils.getFreqMap1(), 1, null));
-            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, (byte) 2, 3.0D, 4.0F,
+            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, (byte) 2, 4.0F,
                     TestUtils.getTreeSet2(), 6L, (short) 7, new Date(), TestUtils.getFreqMap2(), 1, null));
-            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 1, true, (byte) 1, 1.0D, 2.0F,
-                    TestUtils.getTreeSet1(),5L, (short) 6, new Date(), TestUtils.getFreqMap1(), 1, null));
-            data.add(DataGen.getEdge(TestGroups.EDGE_2, num - i, 1L, true, (byte) 1, 1.0D, 2.0F,
-                    TestUtils.getTreeSet1(),5L, (short) 6, new Date(), TestUtils.getFreqMap1(), 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 1, true, (byte) 1, 2.0F,
+                    TestUtils.getTreeSet1(), 5L, (short) 6, new Date(), TestUtils.getFreqMap1(), 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE_2, num - i, 1L, true, (byte) 1, 2.0F,
+                    TestUtils.getTreeSet1(), 5L, (short) 6, new Date(), TestUtils.getFreqMap1(), 1, null));
         }
         return data;
     }

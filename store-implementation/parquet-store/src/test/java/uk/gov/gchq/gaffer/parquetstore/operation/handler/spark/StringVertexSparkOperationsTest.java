@@ -26,14 +26,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final StringVertexOperationsTest svot = new StringVertexOperationsTest();
 
     @Override
-    protected Schema getSchema() {
+    protected Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
@@ -63,14 +60,14 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         return svot.getResultsForGetElementsWithSeedsRelatedTest();
     }
 
-    /**
+    /*
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
         final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))
-                .build(), USER);
+                .build(), user);
         return graph;
     }
 

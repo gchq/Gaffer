@@ -256,8 +256,9 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
-        public void timestamps(final Collection<Instant> timestamps) {
+        public Builder timestamps(final Collection<Instant> timestamps) {
             this.timestamps = timestamps;
+            return this;
         }
 
         public RBMBackedTimestampSet build() {

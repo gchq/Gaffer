@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +48,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @Test
@@ -101,7 +100,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                                     final IncludeIncomingOutgoingType inOutType,
                                     final DirectedType directedType
     )
-            throws IOException, OperationException {
+            throws OperationException {
         // Given
         final User user = new User();
         final List<EntityId> seeds = new ArrayList<>();

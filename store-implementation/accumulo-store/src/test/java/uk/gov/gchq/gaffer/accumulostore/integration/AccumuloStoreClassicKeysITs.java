@@ -17,9 +17,8 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 
-public class AccumuloStoreClassicKeysITs extends AbstractStoreITs {
+public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
 
     public AccumuloStoreClassicKeysITs() {

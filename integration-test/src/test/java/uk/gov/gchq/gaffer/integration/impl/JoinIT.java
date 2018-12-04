@@ -34,10 +34,13 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.MergeType;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ResultsWanted;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +61,6 @@ public class JoinIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
         addJoinEntityElements(TestGroups.ENTITY_3);
     }
 
@@ -84,7 +86,7 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldRightKeyFullInnerJoin() throws OperationException, NoSuchFieldException {
+    public void shouldRightKeyFullInnerJoin() throws OperationException {
         // Given
         final List<Element> expectedResults = Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4));
 
@@ -250,6 +252,18 @@ public class JoinIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
+    }
+
+    @Override
+    protected Schema createSchema() {
+        return new Schema.Builder().merge(createDefaultSchema())
+                .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
     }
 
     private void addJoinEntityElements(final String group) {
