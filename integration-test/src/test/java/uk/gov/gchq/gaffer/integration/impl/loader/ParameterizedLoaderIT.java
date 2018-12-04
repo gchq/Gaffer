@@ -83,7 +83,6 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
         this.loader = loader;
         this.userMap.putAll(userMap);
         this.user = DEFAULT_USER;
-        validateTest();
     }
 
     @Override

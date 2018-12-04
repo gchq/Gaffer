@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.flink.integration.loader.AddElementsFromFileLoaderIT;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 
@@ -31,7 +30,5 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
         super(storeProperties);
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
-        addExtraTest(AddElementsFromFileLoaderIT.class);
-        singleTest(AddElementsFromFileLoaderIT.class);
     }
 }

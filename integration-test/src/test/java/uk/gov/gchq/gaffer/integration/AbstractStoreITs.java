@@ -30,7 +30,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,8 +48,7 @@ public abstract class AbstractStoreITs {
     private final Collection<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests;
     private final Map<Class<? extends AbstractStoreWithCustomGraphIT>, String> skipTests = new HashMap<>();
     private final Map<Class<? extends AbstractStoreWithCustomGraphIT>, Map<String, String>> skipTestMethods = new HashMap<>();
-    private Class<? extends AbstractStoreWithCustomGraphIT> singleTestClass;
-    private String singleTestMethod;
+    private Map<Class<? extends AbstractStoreWithCustomGraphIT>, String> singleTests = new HashMap<>();
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests) {
         this.schema = schema;
@@ -68,12 +69,19 @@ public abstract class AbstractStoreITs {
     }
 
     public void singleTest(final Class<? extends AbstractStoreWithCustomGraphIT> testClass) {
-        singleTest(testClass, null);
+        singleTests.put(testClass, null);
     }
 
-    public void singleTest(final Class<? extends AbstractStoreWithCustomGraphIT> testClass, final String testMethod) {
-        this.singleTestClass = testClass;
-        this.singleTestMethod = testMethod;
+    public void singleTest(final Class<? extends AbstractStoreWithCustomGraphIT> testClass, final String method) {
+        singleTests.put(testClass, method);
+    }
+
+    public void singleTests(final List<Class<? extends AbstractStoreWithCustomGraphIT>> testClasses) {
+        testClasses.forEach(testClass -> singleTests.put(testClass, null));
+    }
+
+    public void singleTests(final Map<Class<? extends AbstractStoreWithCustomGraphIT>, String> testClasses) {
+        singleTests.putAll(testClasses);
     }
 
     public Schema getStoreSchema() {
@@ -86,6 +94,10 @@ public abstract class AbstractStoreITs {
 
     public void addExtraTest(final Class<? extends AbstractStoreWithCustomGraphIT> extraTest) {
         extraTests.add(extraTest);
+    }
+
+    public void addExtraTests(final List<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests) {
+        extraTests.addAll(extraTests);
     }
 
     public Collection<? extends Class> getExtraTests() {
@@ -128,19 +140,22 @@ public abstract class AbstractStoreITs {
             AbstractStoreWithCustomGraphIT.setStoreProperties(runner.getStoreProperties());
             AbstractStoreWithCustomGraphIT.setSkipTests(runner.getSkipTests());
             AbstractStoreWithCustomGraphIT.setSkipTestMethods(runner.getSkipTestMethods());
-            AbstractStoreWithCustomGraphIT.setSingleTestMethod(runner.singleTestMethod);
+            AbstractStoreWithCustomGraphIT.setSingleTestMethod(runner.singleTests.get(clazz));
         }
 
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
-            if (null == runner.singleTestClass) {
+            if (runner.singleTests.isEmpty()) {
                 final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = new Reflections(AbstractStoreWithCustomGraphIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreWithCustomGraphIT.class);
                 keepPublicConcreteClasses(classes);
                 classes.addAll((Collection<? extends Class<? extends AbstractStoreWithCustomGraphIT>>) runner.getExtraTests());
                 return classes.toArray(new Class[classes.size()]);
+            } else {
+                final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = new HashSet<>();
+                classes.addAll(runner.singleTests.keySet());
+                return classes.toArray(new Class[classes.size()]);
             }
-
-            return new Class[]{runner.singleTestClass};
+            //return new Class[]{runner.singleTestClass};
         }
 
         private static void keepPublicConcreteClasses(final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes) {

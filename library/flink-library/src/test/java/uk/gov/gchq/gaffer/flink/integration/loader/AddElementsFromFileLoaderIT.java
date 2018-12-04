@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+//TODO - Run on Accumulo
 public class AddElementsFromFileLoaderIT extends ParameterizedLoaderIT<AddElementsFromFile> {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -74,7 +75,6 @@ public class AddElementsFromFileLoaderIT extends ParameterizedLoaderIT<AddElemen
             final String json = JSONSerialiser.createDefaultMapper().writeValueAsString(element);
             lines.add(json);
         }
-
         FileUtils.writeLines(file, lines);
     }
 }
