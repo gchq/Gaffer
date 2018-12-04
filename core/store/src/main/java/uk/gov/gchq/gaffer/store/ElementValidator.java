@@ -159,7 +159,7 @@ public class ElementValidator implements Validator<Element> {
         } else if (null != schema) {
             final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
             if (null == elementDef) {
-                validationResult.addError("No element definition found for : " + element.getGroup());
+                validationResult.addError("No element definition found for: " + element.getGroup());
             } else {
                 validationResult.add(elementDef.getValidator(includeIsA).testWithValidationResult(element));
             }
@@ -193,7 +193,7 @@ public class ElementValidator implements Validator<Element> {
         } else if (null != view) {
             final ViewElementDefinition elementDef = view.getElement(element.getGroup());
             if (null == elementDef) {
-                validationResult.addError("No element definition found for : " + element.getGroup());
+                validationResult.addError("No element definition found for: " + element.getGroup());
             } else {
                 final ElementFilter validator = getElementFilter(elementDef, filterType);
                 if (null != validator) {

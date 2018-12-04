@@ -33,9 +33,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
@@ -82,9 +82,9 @@ public class AggregateAndSortDataTest {
     public static List<Element> generateData() {
         final List<Element> data = new ArrayList<>();
         for (int i = 19; i >= 0; i--) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.1, 3f,
+            data.add(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 3f,
                     TestUtils.getTreeSet1(), 11L * i, (short) 6, new Date(200000L), TestUtils.getFreqMap1(), 1, null));
-            data.add(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.2, 4f,
+            data.add(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 4f,
                     TestUtils.getTreeSet2(), 11L * i, (short) 7, new Date(100000L), TestUtils.getFreqMap2(), 1, null));
         }
         return data;
@@ -118,7 +118,6 @@ public class AggregateAndSortDataTest {
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(i % 2 == 0 ? 0.4 : 0.2, results[i].getAs("double"), 0.01);
             assertEquals(i % 2 == 0 ? 8f : 6f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * (i / 2), (long) results[i].getAs("long"));
             assertEquals(i % 2 == 0 ? 14 : 12, (int) results[i].getAs("short"));

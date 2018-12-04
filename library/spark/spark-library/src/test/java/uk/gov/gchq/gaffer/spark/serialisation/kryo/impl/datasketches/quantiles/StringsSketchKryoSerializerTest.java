@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.ItemsSketch;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
+
 import java.util.Comparator;
 
 import static org.junit.Assert.assertEquals;

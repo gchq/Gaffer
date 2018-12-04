@@ -49,7 +49,7 @@ import java.util.stream.StreamSupport;
 public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
-    public Schema getSchema() {
+    public Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
@@ -122,10 +122,10 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     public List<Element> getResultsForGetAllElementsTest() {
         final List<Element> results = new ArrayList<>();
         for (long x = 0; x < 25; x++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-            results.add(DataGen.getEntity(TestGroups.ENTITY, x, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, x, (byte) 'b', 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         }
         DataGen.generateBasicLongEntitys(TestGroups.ENTITY_2, 50, false)
                 .stream()
@@ -141,11 +141,11 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Override
     protected List<Element> getResultsForGetAllElementsWithViewTest() {
         final List<Element> results = new ArrayList<>();
-        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 3.1, 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 0L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 0L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 1L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 11L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 0L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 0L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 1L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 11L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         return results;
     }
 
@@ -160,10 +160,10 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     protected List<Element> getResultsForGetAllElementsAfterTwoAdds() {
         final List<Element> results = new ArrayList<>();
         for (long x = 0; x < 25; x++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', 2.0 * ((0.2 * x) + 0.3), 12f, TestUtils.MERGED_TREESET, 2L * ((6L * x) + 5L), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 2.0 * 0.2 * x, 4f, TestUtils.getTreeSet1(), 2L * 5L, (short) 12, TestUtils.DATE, TestUtils.getDoubledFreqMap1(), 2, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 2.0 * 0.3, 8f, TestUtils.getTreeSet2(), 2L * 6L * x, (short) 14, TestUtils.DATE1, TestUtils.getDoubledFreqMap2(), 2, null));
-            results.add(DataGen.getEntity(TestGroups.ENTITY, x, (byte) 'b', 2.0 * 0.5, 14f, TestUtils.MERGED_TREESET, 2L * ((5L * x) + (6L * x)), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', 12f, TestUtils.MERGED_TREESET, 2L * ((6L * x) + 5L), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 4f, TestUtils.getTreeSet1(), 2L * 5L, (short) 12, TestUtils.DATE, TestUtils.getDoubledFreqMap1(), 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 8f, TestUtils.getTreeSet2(), 2L * 6L * x, (short) 14, TestUtils.DATE1, TestUtils.getDoubledFreqMap2(), 2, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, x, (byte) 'b', 14f, TestUtils.MERGED_TREESET, 2L * ((5L * x) + (6L * x)), (short) 26, TestUtils.DATE, TestUtils.DOUBLED_MERGED_FREQMAP, 4, null));
         }
         // Elements for non-aggregating groups need to be added twice
         for (int i = 0; i < 2; i++) {
@@ -179,24 +179,24 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         final Set<Long> vertices = new HashSet<>();
         vertices.addAll(Lists.newArrayList(5L, 10L, 15L, 13L, 14L, 2L, 3L));
         final List<Element> results = new ArrayList<>();
-        results.add(DataGen.getEdge(TestGroups.EDGE, 2L, 3L, true, (byte) 'b', 0.7, 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'a', 1.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 30L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, true, (byte) 'b', 1.3, 6f, TestUtils.MERGED_TREESET, 35L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'a', 2.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 60L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, true, (byte) 'b', 2.3, 6f, TestUtils.MERGED_TREESET, 65L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 13L, 14L, true, (byte) 'b', 2.9, 6f, TestUtils.MERGED_TREESET, 83L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'a', 3.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 90L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 3L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 33L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 5L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 55L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 10L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 13L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 143L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 14L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 154L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 15L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 165L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 2L, 3L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 30L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 35L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 60L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 65L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 13L, 14L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 83L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 90L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 3L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 33L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 5L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 55L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 10L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 13L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 143L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 14L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 154L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 15L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 165L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         DataGen.generateBasicLongEntitys(TestGroups.ENTITY_2, 50, false)
                 .stream()
                 .filter(e -> vertices.contains(((Entity) e).getVertex()))
@@ -210,15 +210,15 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
                         || (e.getSource().equals(13L) && e.getDestination().equals(14L) && e.isDirected())
                         || (e.getSource().equals(2L) && e.getDestination().equals(3L) && e.isDirected()))
                 .forEach(results::add);
-        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'a', 0.8, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 24L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, true, (byte) 'b', 1.1, 6f, TestUtils.MERGED_TREESET, 29L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'a', 1.8, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 54L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, true, (byte) 'b', 2.1, 6f, TestUtils.MERGED_TREESET, 59L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'a', 2.8000000000000003, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 84L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 3.1, 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 24L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 29L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 54L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 59L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'a', 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'b', 4f, TestUtils.getTreeSet2(), 84L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         return results;
     }
 
@@ -227,11 +227,11 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         final Set<Long> vertices = new HashSet<>();
         vertices.addAll(Lists.newArrayList(5L, 10L, 15L));
         final List<Element> results = new ArrayList<>();
-        results.add(DataGen.getEdge(TestGroups.EDGE, 2L, 3L, true, (byte) 'b', 0.7, 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 13L, 14L, true, (byte) 'b', 2.9, 6f, TestUtils.MERGED_TREESET, 83L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 5L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 55L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 10L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 15L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 165L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 2L, 3L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 13L, 14L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 83L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 5L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 55L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 10L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 15L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 165L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         DataGen.generateBasicLongEntitys(TestGroups.ENTITY_2, 50, false)
                 .stream()
                 .filter(e -> vertices.contains(((Entity) e).getVertex()))
@@ -249,9 +249,9 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     @Override
     protected List<Element> getResultsForGetElementsWithSeedsAndViewTest() {
         final List<Element> results = new ArrayList<>();
-        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 3.1, 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
-        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, 2L, (byte) 'b', 7f, TestUtils.MERGED_TREESET, 22L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         return results;
     }
 
@@ -276,7 +276,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
                 .filter(e -> e.getSource().equals(5L) || e.getSource().equals(10L) || e.getSource().equals(15L)
                         || e.getDestination().equals(5L) || e.getDestination().equals(10L) || e.getDestination().equals(15L))
                 .forEach(results::add);
-       return results;
+        return results;
     }
 
     @Override
@@ -305,6 +305,6 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     protected Edge getEdgeWithIdenticalSrcAndDst() {
-        return DataGen.getEdge(TestGroups.EDGE_2, 100L, 100L, true, (byte) 'a', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
+        return DataGen.getEdge(TestGroups.EDGE_2, 100L, 100L, true, (byte) 'a', 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
     }
 }

@@ -1,0 +1,20 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "count": "prop.int"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "count": "prop.int"
+      }
+    }
+  }
+}

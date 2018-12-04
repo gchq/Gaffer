@@ -24,11 +24,11 @@ public class CountGroupsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        super.addDefaultElements();
     }
 
     @Test
-    public void shouldCountGroupsOfElements() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElements() throws OperationException {
         // Given
         final User user = new User();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
@@ -49,7 +49,7 @@ public class CountGroupsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldCountGroupsOfElementsWhenLessElementsThanLimit() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElementsWhenLessElementsThanLimit() throws OperationException {
         // Given
         final User user = new User();
         final Integer limit = getEntities().size() + getEdges().size() + 1;
@@ -71,7 +71,7 @@ public class CountGroupsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldCountGroupsOfElementsWhenMoreElementsThanLimit() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElementsWhenMoreElementsThanLimit() throws OperationException {
         // Given
         final User user = new User();
         final int limit = 5;

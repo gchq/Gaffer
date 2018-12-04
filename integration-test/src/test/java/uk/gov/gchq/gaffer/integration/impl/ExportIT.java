@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -51,34 +50,11 @@ public class ExportIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
-    }
-
-    /**
-     * Adds edges dest[X] -> source[X+1]
-     *
-     * @return map of edges
-     */
-    @Override
-    protected Map<EdgeId, Edge> createEdges() {
-        final Map<EdgeId, Edge> edges = super.createEdges();
-        for (int i = 0; i <= 10; i++) {
-            final Edge thirdEdge = new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(DEST_DIR + i)
-                    .dest(SOURCE_DIR + (i + 1))
-                    .directed(true)
-                    .build();
-            thirdEdge.putProperty(TestPropertyNames.INT, 1);
-            thirdEdge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(thirdEdge, edges);
-        }
-
-        return edges;
+        super.addDefaultElements();
     }
 
     @Test
-    public void shouldExportResultsInSet() throws OperationException, IOException {
+    public void shouldExportResultsInSet() throws OperationException {
         // Given
         final View edgesView = new View.Builder()
                 .edge(TestGroups.EDGE)
@@ -108,7 +84,7 @@ public class ExportIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldExportResultsToGafferCache() throws OperationException, IOException {
+    public void shouldExportResultsToGafferCache() throws OperationException {
         assumeTrue("Gaffer result cache has not been enabled for this store.", graph.isSupported(ExportToGafferResultCache.class));
 
         // Given
@@ -137,5 +113,28 @@ public class ExportIT extends AbstractStoreIT {
 
         // Then
         assertEquals(2, Sets.newHashSet(export).size());
+    }
+
+    /**
+     * Adds edges dest[X] -> source[X+1]
+     *
+     * @return map of edges
+     */
+    @Override
+    protected Map<EdgeId, Edge> createEdges() {
+        final Map<EdgeId, Edge> edges = super.createEdges();
+        for (int i = 0; i <= 10; i++) {
+            final Edge thirdEdge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(DEST_DIR + i)
+                    .dest(SOURCE_DIR + (i + 1))
+                    .directed(true)
+                    .build();
+            thirdEdge.putProperty(TestPropertyNames.INT, 1);
+            thirdEdge.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(thirdEdge, edges);
+        }
+
+        return edges;
     }
 }

@@ -75,7 +75,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.STORE_VALIDATION)
-    public void shouldRemoveInvalidElements() throws OperationException, InterruptedException {
+    public void shouldRemoveInvalidElements() throws OperationException {
         // Given
         final User user = new User();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);

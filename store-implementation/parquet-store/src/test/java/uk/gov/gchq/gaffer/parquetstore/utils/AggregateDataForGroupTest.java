@@ -35,7 +35,6 @@ import scala.collection.mutable.WrappedArray;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
@@ -69,9 +68,9 @@ public class AggregateDataForGroupTest {
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
         for (int i = 19; i >= 0; i--) {
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.1, 3f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 3f,
                     TestUtils.getTreeSet1(), 5L * i, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, "A"));
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.2, 4f,
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 4f,
                     TestUtils.getTreeSet2(), 6L * i, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, "A"));
         }
         writer.close();
@@ -105,7 +104,6 @@ public class AggregateDataForGroupTest {
         for (int i = 0; i < 20; i++) {
             assertEquals((long) i, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
-            assertEquals(0.6, results[i].getAs("double"), 0.01);
             assertEquals(14f, results[i].getAs("float"), 0.01f);
             assertEquals(11L * 2 * i, (long) results[i].getAs("long"));
             assertEquals(26, (int) results[i].getAs("short"));

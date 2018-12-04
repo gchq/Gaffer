@@ -81,10 +81,10 @@ public class ElementUtil {
                 }
             }
 
-            assertTrue("\nMissing entities:\n" + missingEntities.toString()
-                            + "\nUnexpected entities:\n" + incorrectEntities.toString()
-                            + "\nMissing edges:\n" + missingEdges.toString()
-                            + "\nUnexpected edges:\n" + incorrectEdges.toString(),
+            assertTrue("\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
+                            + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
+                            + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
+                            + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString(),
                     missingEntities.isEmpty() && incorrectEntities.isEmpty()
                             && missingEdges.isEmpty() && incorrectEdges.isEmpty());
         }

@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -58,7 +58,6 @@ import static org.junit.Assert.assertTrue;
 
 public class VisibilityIT extends AbstractStoreIT {
 
-    private static final User USER_DEFAULT = new User();
     private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
             .build();
     private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
@@ -78,13 +77,13 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
                 .build();
-        graph.execute(addElements, USER_DEFAULT);
+        graph.execute(addElements, getUser());
 
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -101,7 +100,6 @@ public class VisibilityIT extends AbstractStoreIT {
                     .get(TestTypes.VISIBILITY)
                     .toString(), isEmptyString());
         }
-
         iterable.close();
     }
 
@@ -117,13 +115,13 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
                 .build();
-        graph.execute(addElements, USER_DEFAULT);
+        graph.execute(addElements, getUser());
 
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -152,13 +150,13 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
                 .build();
-        graph.execute(addElements, USER_DEFAULT);
+        graph.execute(addElements, getUser());
 
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -190,13 +188,13 @@ public class VisibilityIT extends AbstractStoreIT {
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
                 .build();
-        graph.execute(addElements, USER_DEFAULT);
+        graph.execute(addElements, getUser());
 
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 

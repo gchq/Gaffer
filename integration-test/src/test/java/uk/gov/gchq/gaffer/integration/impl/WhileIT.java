@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -36,12 +35,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class WhileIT extends AbstractStoreIT {
-
-    @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-    }
 
     @Test
     public void shouldRepeatedlyAddElements() throws OperationException {

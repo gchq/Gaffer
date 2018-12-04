@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
-    protected Schema getSchema() {
+    protected Schema createSchema() {
         return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
@@ -98,9 +98,9 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     public List<Element> getResultsForGetAllElementsTest() {
         final List<Element> results = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, null));
-            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, 2, null));
         }
         DataGen.generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY_2, 50, false)
                 .stream()
@@ -139,9 +139,9 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     protected List<Element> getResultsForGetAllElementsAfterTwoAdds() {
         final List<Element> results = new ArrayList<>();
         for (int i = 0; i < 25; i++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 4, null));
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 4, null));
-            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, 4, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, 4, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, 4, null));
         }
         // Elements for non-aggregating groups need to be added twice
         for (int i = 0; i < 2; i++) {
@@ -156,28 +156,28 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     public List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
         final List<Element> results = new ArrayList<>();
         // Results from vert10 seed
-        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, 2, null));
         for (int i = 0; i < 2; i++) {
-            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, null, 1, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, 1, null));
         }
         // Results from src5 seed
         for (final boolean directed : Arrays.asList(true, false)) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", directed, null, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src5", "dst5", directed, null, null, null, null, null, null, null, 2, null));
             for (int i = 0; i < 2; i++) {
-                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src5", "dst5", directed, null, null, null, null, null, null, null, null, 1, null));
+                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src5", "dst5", directed, null, null, null, null, null, null, null, 1, null));
             }
         }
         // Results from dst15 seed
         for (final boolean directed : Arrays.asList(true, false)) {
-            results.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", directed, null, null, null, null, null, null, null, null, 2, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE, "src15", "dst15", directed, null, null, null, null, null, null, null, 2, null));
             for (int i = 0; i < 2; i++) {
-                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src15", "dst15", directed, null, null, null, null, null, null, null, null, 1, null));
+                results.add(DataGen.getEdge(TestGroups.EDGE_2, "src15", "dst15", directed, null, null, null, null, null, null, null, 1, null));
             }
         }
         // Results from edge seed src13, dst13, true
-        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, 2, null));
         for (int i = 0; i < 2; i++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, null, 1, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, 1, null));
         }
         return results;
     }
@@ -186,14 +186,14 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     protected List<Element> getResultsForGetElementsWithSeedsEqualTest() {
         final List<Element> results = new ArrayList<>();
         // Results from vert10 seed
-        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, null, 2, null));
+        results.add(DataGen.getEntity(TestGroups.ENTITY, "vert10", null, null, null, null, null, null, null, 2, null));
         for (int i = 0; i < 2; i++) {
-            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, null, 1, null));
+            results.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert10", null, null, null, null, null, null, null, 1, null));
         }
         // Results from edge seed src13, dst13, true
-        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, null, 2, null));
+        results.add(DataGen.getEdge(TestGroups.EDGE, "src13", "dst13", true, null, null, null, null, null, null, null, 2, null));
         for (int i = 0; i < 2; i++) {
-            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, null, 1, null));
+            results.add(DataGen.getEdge(TestGroups.EDGE_2, "src13", "dst13", true, null, null, null, null, null, null, null, 1, null));
         }
         return results;
     }
@@ -264,6 +264,6 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     protected Edge getEdgeWithIdenticalSrcAndDst() {
-        return DataGen.getEdge(TestGroups.EDGE_2, "src", "src", true, (byte) 'a', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
+        return DataGen.getEdge(TestGroups.EDGE_2, "src", "src", true, (byte) 'a', 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null);
     }
 }
