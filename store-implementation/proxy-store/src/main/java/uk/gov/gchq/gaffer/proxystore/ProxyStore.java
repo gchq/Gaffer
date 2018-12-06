@@ -79,7 +79,6 @@ import java.util.Set;
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
-    private Set<StoreTrait> traits;
     private Schema schema;
 
     public ProxyStore() {
@@ -92,7 +91,8 @@ public class ProxyStore extends Store {
         setProperties(properties);
         client = createClient();
         schema = fetchSchema();
-        traits = fetchTraits();
+        //check if fetchTraits doesn't throw error.
+        fetchTraits();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -293,7 +293,11 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<StoreTrait> getTraits() {
-        return traits;
+        try {
+            return fetchTraits();
+        } catch (final StoreException e) {
+            throw new GafferRuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
