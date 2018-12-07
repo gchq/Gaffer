@@ -92,7 +92,12 @@ public class ProxyStore extends Store {
         client = createClient();
         schema = fetchSchema();
         //check if fetchTraits throws error.
-        fetchTraits();
+        try {
+            fetchTraits();
+        } catch (final Exception e) {
+            LOGGER.error("dev404: " + e.getMessage());
+            throw e;
+        }
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
