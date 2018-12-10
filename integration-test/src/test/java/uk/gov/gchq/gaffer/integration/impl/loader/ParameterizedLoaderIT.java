@@ -79,10 +79,14 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
     }
 
     public ParameterizedLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
-        this.schema = schema.getSchema();
-        this.loader = loader;
-        this.userMap.putAll(userMap);
-        this.user = DEFAULT_USER;
+        try {
+            this.schema = schema.getSchema();
+            this.loader = loader;
+            this.userMap.putAll(userMap);
+            this.user = DEFAULT_USER;
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
