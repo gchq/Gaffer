@@ -90,9 +90,9 @@ public class ProxyStore extends Store {
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
         client = createClient();
-        schema = fetchSchema();
-        //check if fetchTraits throws error.
-        fetchTraits();
+        schema = getRemoteSchema();
+        //check if getRemoteTraits throws error.
+        getRemoteTraits();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -128,7 +128,7 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits() throws StoreException {
+    protected Set<StoreTrait> getRemoteTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
@@ -140,8 +140,7 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema() throws
-            StoreException {
+    protected Schema getRemoteSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
@@ -294,7 +293,7 @@ public class ProxyStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         try {
-            return fetchTraits();
+            return getRemoteTraits();
         } catch (final StoreException e) {
             throw new GafferRuntimeException(e.getMessage(), e);
         }
