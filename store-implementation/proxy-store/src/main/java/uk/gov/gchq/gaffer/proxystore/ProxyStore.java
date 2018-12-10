@@ -95,7 +95,8 @@ public class ProxyStore extends Store {
         try {
             fetchTraits();
         } catch (final Exception e) {
-            LOGGER.error("dev404: " + e.getMessage());
+            System.out.println("dev404: " + e.getMessage());
+//            LOGGER.error("dev404: " + e.getMessage());
             throw e;
         }
 
