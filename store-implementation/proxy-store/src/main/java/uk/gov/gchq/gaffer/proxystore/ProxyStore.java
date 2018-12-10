@@ -91,8 +91,6 @@ public class ProxyStore extends Store {
         setProperties(properties);
         client = createClient();
         schema = getRemoteSchema();
-        //check if getRemoteTraits throws error.
-        getRemoteTraits();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
