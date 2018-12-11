@@ -130,10 +130,10 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
         for (final Operation operation : operationChain.getOperations()) {
             if (operation instanceof OperationChain) {
                 //noinspection unchecked
-                OperationChain<Object> chain = (OperationChain) operation;
+                OperationChain chain = (OperationChain) operation;
                 OperationHandlerUtil.updateOperationInput(chain, out);
                 if (TO_PROXY.equals(chain.getOptions().get(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
-                    return proxyLogic(operationChain, context, (ProxyStore) store);
+                    out = proxyLogic(chain, context, (ProxyStore) store);
                 } else {
                     //Generic is of type Object
                     out = new OperationChainHandler<>(getOpChainValidator(), getOpChainOptimisers()).doOperation(chain, context, store);

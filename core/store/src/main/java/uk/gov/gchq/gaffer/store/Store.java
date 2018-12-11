@@ -779,8 +779,7 @@ public abstract class Store {
 
     public Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
-        final OperationHandler<Operation> handler = getOperationHandler(
-                operation.getClass());
+        final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
         try {
             if (null != handler) {
