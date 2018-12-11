@@ -190,6 +190,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+    private final Boolean addCoreOpHandlers;
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -215,6 +216,11 @@ public abstract class Store {
     private String graphId;
 
     public Store() {
+        this(true);
+    }
+
+    public Store(final Boolean addCoreOpHandlers) {
+        this.addCoreOpHandlers = addCoreOpHandlers;
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.opChainValidator = createOperationChainValidator();
         this.schemaOptimiser = createSchemaOptimiser();
@@ -805,7 +811,9 @@ public abstract class Store {
     }
 
     private void addOpHandlers() {
-        addCoreOpHandlers();
+        if (addCoreOpHandlers) {
+            addCoreOpHandlers();
+        }
         addAdditionalOperationHandlers();
         addConfiguredOperationHandlers();
     }
