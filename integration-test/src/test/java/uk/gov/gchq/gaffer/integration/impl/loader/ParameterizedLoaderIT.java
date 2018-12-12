@@ -62,8 +62,8 @@ import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
 public abstract class ParameterizedLoaderIT<T extends Operation> extends AbstractLoaderIT<T> {
     private static final User DEFAULT_USER = new User("privileged", Sets.newHashSet("public", "private"));
 
-    private Schema schema;
-    private SchemaLoader loader;
+    private final Schema schema;
+    private final SchemaLoader loader;
 
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
@@ -79,14 +79,10 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
     }
 
     public ParameterizedLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
-        try {
-            this.schema = schema.getSchema();
-            this.loader = loader;
-            this.userMap.putAll(userMap);
-            this.user = DEFAULT_USER;
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.schema = schema.getSchema();
+        this.loader = loader;
+        this.userMap.putAll(userMap);
+        this.user = DEFAULT_USER;
     }
 
     @Override
