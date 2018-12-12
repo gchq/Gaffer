@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.store.Store;
 public class SetVariableHandler implements OperationHandler<SetVariable> {
     @Override
     public Void doOperation(final SetVariable operation, final Context context, final Store store) throws OperationException {
-        if(null == operation.getVariableName()){
+        if (null == operation.getVariableName()) {
             throw new IllegalArgumentException("Variable name cannot be null");
         }
 
-        if(null == operation.getInput()){
+        if (null == operation.getInput()) {
             throw new IllegalArgumentException("Variable input value cannot be null");
         }
 
