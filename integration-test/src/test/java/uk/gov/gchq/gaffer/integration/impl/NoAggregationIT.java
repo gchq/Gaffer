@@ -129,6 +129,7 @@ public class NoAggregationIT extends AbstractStoreIT {
                 .edge(TestGroups.EDGE,
                         new SchemaEdgeDefinition.Builder()
                                 .source(TestTypes.ID_STRING)
+                                .directed(TestTypes.DIRECTED_EITHER)
                                 .destination(TestTypes.ID_STRING)
                                 .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
                                 .aggregate(false)
@@ -141,6 +142,10 @@ public class NoAggregationIT extends AbstractStoreIT {
                         new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .aggregateFunction(null)
+                                .build())
+                .type(TestTypes.DIRECTED_EITHER,
+                        new TypeDefinition.Builder()
+                                .clazz(Boolean.class)
                                 .build())
                 .build();
     }
