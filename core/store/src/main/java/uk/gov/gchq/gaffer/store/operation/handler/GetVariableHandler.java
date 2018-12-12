@@ -24,6 +24,9 @@ import uk.gov.gchq.gaffer.store.Store;
 public class GetVariableHandler implements OperationHandler<GetVariable> {
     @Override
     public Object doOperation(final GetVariable operation, final Context context, final Store store) throws OperationException {
+        if (operation.getVariableName() == null) {
+            throw new IllegalArgumentException("Variable name cannot be null");
+        }
         return context.getVariable(operation.getVariableName());
     }
 }
