@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -35,27 +37,49 @@ public class GetVariableHandlerTest {
 
     @Test
     public void shouldGetVariableWhenExists() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         final GetVariableHandler handler = new GetVariableHandler();
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
         given(context.getVariable(varName)).willReturn(varVal);
 
+        // When
         final Object variableValueFromOp = handler.doOperation(op, context, store);
 
+        // Then
         assertEquals(varVal, variableValueFromOp);
     }
 
     @Test
     public void shouldReturnNullWhenVariableDoesntExist() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         final GetVariableHandler handler = new GetVariableHandler();
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
         given(context.getVariable(varName)).willReturn(null);
 
+        // When
         final Object variableValueFromOp = handler.doOperation(op, context, store);
 
+        // Then
         assertNull(variableValueFromOp);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenVariableKeyIsNull() throws OperationException {
+        // Given
+        final Context context = mock(Context.class);
+        final GetVariableHandler handler = new GetVariableHandler();
+        final GetVariable op = new GetVariable.Builder().variableName(null).build();
+
+        // When / Then
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable name cannot be null"));
+        }
     }
 }

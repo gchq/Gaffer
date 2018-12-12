@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class SetVariableHandlerTest {
@@ -47,5 +48,43 @@ public class SetVariableHandlerTest {
         // Then
         assertTrue(context.getVariable(testVarName).equals(testVarValue));
         assertTrue(context.getVariables().equals(ImmutableMap.of(testVarName, testVarValue)));
+    }
+
+    @Test
+    public void shouldThrowExceptionWithNullVariableKey() throws OperationException {
+        // Given
+        final Context context = new Context(new User());
+        final Store store = mock(Store.class);
+
+        SetVariableHandler handler = new SetVariableHandler();
+        SetVariable op = new SetVariable();
+
+        // When / Then
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable name cannot be null"));
+        }
+    }
+
+    @Test
+    public void shouldNotAllowNullInputVariableToBeAdded() throws OperationException {
+        // Given
+        final Context context = new Context(new User());
+        final Store store = mock(Store.class);
+        final String testVarName = "testVarName";
+        final Object testVarValue = null;
+
+        SetVariableHandler handler = new SetVariableHandler();
+        SetVariable op = new SetVariable.Builder().variableName(testVarName).input(testVarValue).build();
+
+        // When / Then
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable input value cannot be null"));
+        }
     }
 }
