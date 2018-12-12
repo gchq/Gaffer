@@ -99,4 +99,17 @@ public class GetVariablesHandlerTest {
 
         assertEquals(expected, resultMap);
     }
+
+    @Test
+    public void shouldReturnNothingWhenGetVariablesKeysAreNull() throws OperationException {
+        final Context context = mock(Context.class);
+
+        final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(null, null)).build();
+
+        final GetVariablesHandler handler = new GetVariablesHandler();
+
+        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+
+        assertEquals(new HashMap<>(), resultMap);
+    }
 }
