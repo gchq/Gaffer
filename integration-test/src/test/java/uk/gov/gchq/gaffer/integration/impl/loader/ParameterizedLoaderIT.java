@@ -65,10 +65,6 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
     private Schema schema;
     private SchemaLoader loader;
 
-    public ParameterizedLoaderIT() {
-
-    }
-
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> instancesToTest() {
         final Map<String, User> userMap = new HashMap<>();

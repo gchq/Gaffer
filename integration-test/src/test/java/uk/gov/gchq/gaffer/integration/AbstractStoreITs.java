@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreITs.StoreTestSuite;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,7 +119,12 @@ public abstract class AbstractStoreITs {
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
 
-            final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
+            final AbstractStoreITs runner;
+            try {
+                runner = clazz.asSubclass(AbstractStoreITs.class).getConstructor().newInstance();
+            } catch (final NoSuchMethodException | InvocationTargetException e) {
+                throw new InstantiationException("Exception: " + e);
+            }
             Schema storeSchema = runner.getStoreSchema();
             if (null == storeSchema) {
                 storeSchema = new Schema();
@@ -132,7 +138,12 @@ public abstract class AbstractStoreITs {
         }
 
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
-            final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
+            final AbstractStoreITs runner;
+            try {
+                runner = clazz.asSubclass(AbstractStoreITs.class).getConstructor().newInstance();
+            } catch (final NoSuchMethodException | InvocationTargetException e) {
+                throw new InstantiationException("Exception: " + e);
+            }
             if (null == runner.singleTestClass) {
                 final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = new Reflections(AbstractStoreWithCustomGraphIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreWithCustomGraphIT.class);
                 keepPublicConcreteClasses(classes);
