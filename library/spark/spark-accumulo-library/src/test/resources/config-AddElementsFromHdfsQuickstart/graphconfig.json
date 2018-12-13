@@ -1,0 +1,7 @@
+{
+  "graphId" : "example",
+  "library" : {
+    "class" : "uk.gov.gchq.gaffer.store.library.NoGraphLibrary"
+  },
+  "hooks" : [ ]
+}

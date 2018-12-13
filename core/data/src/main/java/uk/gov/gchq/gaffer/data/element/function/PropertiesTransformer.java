@@ -25,13 +25,14 @@ import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 
+import java.io.Serializable;
 import java.util.function.Function;
 
 /**
  * An {@code PropertiesTransformer} is a {@link Function} which applies a series of
  * transformations to an {@link Properties} object.
  */
-public class PropertiesTransformer extends TupleAdaptedFunctionComposite<String> {
+public class PropertiesTransformer extends TupleAdaptedFunctionComposite<String> implements Serializable {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 
     public Properties apply(final Properties properties) {

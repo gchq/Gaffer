@@ -43,6 +43,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +64,8 @@ import static java.util.Objects.requireNonNull;
         "followOnGenerator", "elementValidator"},
         alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class CsvElementGenerator implements OneToManyElementGenerator<String> {
+public class CsvElementGenerator implements OneToManyElementGenerator<String>, Serializable {
+    private static final long serialVersionUID = -821376598172364516L;
     private List<String> header = new ArrayList<>();
     private int firstRow = 0;
     private char delimiter = ',';
@@ -127,12 +129,14 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String> {
             }
 
             //TODO skipInvalid
-            if (!requiredFieldsResult.isValid()) {
-                throw new IllegalArgumentException("CSV is invalid: " + csv + "\n " + requiredFieldsResult.getErrorString());
-            }
-            if (null != csvValidator && null != csvValidator.getComponents() && !csvValidator.test(properties)) {
-                final ValidationResult result = csvValidator.testWithValidationResult(properties);
-                throw new IllegalArgumentException("CSV is invalid. " + csv + "\n " + result.getErrorString());
+            if(!skipInvalid){
+                if (!requiredFieldsResult.isValid()) {
+                    throw new IllegalArgumentException("CSV is invalid: " + csv + "\n " + requiredFieldsResult.getErrorString());
+                }
+                if (null != csvValidator && null != csvValidator.getComponents() && !csvValidator.test(properties)) {
+                    final ValidationResult result = csvValidator.testWithValidationResult(properties);
+                    throw new IllegalArgumentException("CSV is invalid. " + csv + "\n " + result.getErrorString());
+                }
             }
             transformer.apply(properties);
             return elements.stream().map(e -> transformCsvToElement(properties, e));
@@ -426,4 +430,5 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String> {
         this.followOnGenerator = followOnGenerator;
         return this;
     }
+
 }
