@@ -51,8 +51,7 @@ public class TransformationIT extends AbstractStoreIT {
 
     @Override
     @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
         addAdditionalElements();
     }

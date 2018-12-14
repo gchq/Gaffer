@@ -59,8 +59,8 @@ public class JoinIT extends AbstractStoreIT {
 
     @Override
     @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
+        createGraph(createSchema());
         addJoinEntityElements(TestGroups.ENTITY_3);
     }
 
@@ -254,7 +254,6 @@ public class JoinIT extends AbstractStoreIT {
         ElementUtil.assertElementEquals(expectedResults, results);
     }
 
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder().merge(createDefaultSchema())
                 .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()

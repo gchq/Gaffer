@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -162,17 +163,24 @@ public abstract class AbstractStoreWithCustomGraphIT {
         AbstractStoreWithCustomGraphIT.skipTestMethods = skipTestMethods;
     }
 
+    @BeforeClass
+    public static void setupGraph() {
+        createDefaultGraph();
+    }
+
     /**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
+     * Do not Override, use the _setup method if more is necessary
      *
      * @throws Exception should never be thrown
      */
     @Before
     public void setup() throws Exception {
         initialise();
-        validateTest();
         _setup();
+        applyVisibilityUser();
+        validateTest();
     }
 
     protected void _setup() throws Exception {
@@ -207,6 +215,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
         if (null != skippedMethods) {
             assumeTrue("Skipping test. Justification: " + skippedMethods.get(method.getName()), !skippedMethods.containsKey(originalMethodName));
         }
+        validateTraits();
     }
 
     protected void validateTraits() {
@@ -225,26 +234,25 @@ public abstract class AbstractStoreWithCustomGraphIT {
 
     protected void applyVisibilityUser() {
         if (!userMap.isEmpty()) {
-            for (final Annotation annotation : method.getDeclaredAnnotations()) {
-                if (annotation.annotationType().equals(VisibilityUser.class)) {
-                    final VisibilityUser userAnnotation = (VisibilityUser) annotation;
+            if(null != method.getDeclaredAnnotations()) {
+                for (final Annotation annotation : method.getDeclaredAnnotations()) {
+                    if (annotation.annotationType().equals(VisibilityUser.class)) {
+                        final VisibilityUser userAnnotation = (VisibilityUser) annotation;
 
-                    final User user = userMap.get(userAnnotation.value());
+                        final User user = userMap.get(userAnnotation.value());
 
-                    if (null != user) {
-                        this.user = user;
+                        if (null != user) {
+                            this.user = user;
+                        }
                     }
                 }
             }
         }
     }
 
-    protected void createDefaultGraph() {
+    protected static void createDefaultGraph() {
         graph = getGraphBuilder()
                 .build();
-
-        validateTraits();
-        applyVisibilityUser();
     }
 
     public void createGraph(final Schema schema) {
@@ -256,7 +264,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(schema)
                 .build();
 
-        validateTraits();
         applyVisibilityUser();
     }
 
@@ -268,7 +275,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(getStoreSchema())
                 .build();
 
-        validateTraits();
         applyVisibilityUser();
     }
 
@@ -281,7 +287,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(schema)
                 .build();
 
-        validateTraits();
         applyVisibilityUser();
     }
 
@@ -295,17 +300,16 @@ public abstract class AbstractStoreWithCustomGraphIT {
                 .addSchema(getStoreSchema())
                 .build();
 
-        validateTraits();
         applyVisibilityUser();
     }
 
-    protected Graph.Builder getGraphBuilder() {
+    protected static Graph.Builder getGraphBuilder() {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("integrationTestGraph")
                         .build())
                 .storeProperties(getStoreProperties())
-                .addSchema(createSchema())
+                .addSchema(createDefaultSchema())
                 .addSchema(getStoreSchema());
     }
 

@@ -22,8 +22,7 @@ public class CountGroupsIT extends AbstractStoreIT {
 
     @Override
     @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         super.addDefaultElements();
     }
 

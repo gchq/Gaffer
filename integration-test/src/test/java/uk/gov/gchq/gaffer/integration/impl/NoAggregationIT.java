@@ -46,9 +46,8 @@ public class NoAggregationIT extends AbstractStoreIT {
 
     @Before
     @Override
-    public void setup() throws Exception {
-        super.setup();
-        createDefaultGraph();
+    public void _setup() throws Exception {
+        createGraph(createSchema());
         addDuplicatedTestElements();
     }
 
@@ -117,7 +116,6 @@ public class NoAggregationIT extends AbstractStoreIT {
                 .build();
     }
 
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .entity(TestGroups.ENTITY,

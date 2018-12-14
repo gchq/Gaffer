@@ -31,9 +31,9 @@ public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
      *
      * @throws Exception should never be thrown
      */
+    @Override
     @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         createDefaultGraph();
     }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.integration;
 
+import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -30,15 +31,17 @@ import java.io.IOException;
 public class ParquetStoreITs extends AbstractStoreITs {
     private static final ParquetStoreProperties STORE_PROPERTIES =
             ParquetStoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public ParquetStoreITs() throws IOException {
         super(STORE_PROPERTIES);
-        final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
         testFolder.create();
         final String testFolderPath = testFolder.newFolder().getAbsolutePath();
         ((ParquetStoreProperties) getStoreProperties()).setDataDir(testFolderPath + "/data");
         ((ParquetStoreProperties) getStoreProperties()).setTempFilesDir(testFolderPath + "/tmpdata");
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
         skipTestMethod(PartAggregationIT.class, "shouldAggregateOnlyRequiredGroups", "Known bug with parquet store.");
+        //singleTest(VisibilityIT.class, "shouldAccessMultipleVisibilityGroups_and");
     }
 }

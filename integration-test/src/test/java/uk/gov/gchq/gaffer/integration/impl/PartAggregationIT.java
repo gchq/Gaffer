@@ -52,10 +52,9 @@ public class PartAggregationIT extends AbstractStoreIT {
 
     @Before
     @Override
-    public void setup() throws Exception {
-        super.setup();
-        createDefaultGraph();
+    public void _setup() throws Exception {
         // Add Elements twice
+        createGraph(createSchema());
         addDefaultElements();
         addDefaultElements();
     }
@@ -235,6 +234,10 @@ public class PartAggregationIT extends AbstractStoreIT {
     }
 
     @Override
+    public void createGraph(final Schema schema) {
+        super.createGraph(schema);
+    }
+
     protected Schema createSchema() {
         final Schema defaultSchema = super.createSchema();
 

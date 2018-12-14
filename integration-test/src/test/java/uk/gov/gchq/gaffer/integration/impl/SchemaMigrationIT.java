@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
@@ -331,9 +330,14 @@ public class SchemaMigrationIT extends AbstractStoreIT {
 
     @Before
     @Override
-    public void setup() throws Exception {
-        super.setup();
-        addDefaultElements();
+    public void _setup() throws Exception {
+        migration = createMigration();
+        createGraph(new GraphConfig.Builder()
+                .graphId("graph1")
+                .addHook(migration)
+                .build());
+        addExtraElements();
+
     }
 
     //--- Output NEW ---
@@ -613,21 +617,11 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .build(), new User());
 
         ElementUtil.assertElementEquals(Arrays.asList(
-                        EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW
+                EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW
                 ),
                 results);
     }
 
-    protected Graph.Builder getGraphBuilder() {
-        migration = createMigration();
-        return super.getGraphBuilder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .addHook(migration)
-                        .build());
-    }
-
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .entity("entityOld", new SchemaEntityDefinition.Builder()
@@ -715,8 +709,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 .build();
     }
 
-    @Override
-    public void addDefaultElements() throws OperationException {
+    public void addExtraElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_OP_CHAIN, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
                         EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,

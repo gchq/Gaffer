@@ -55,11 +55,10 @@ import static org.junit.Assert.assertThat;
 public class GraphHooksIT extends AbstractStoreIT {
     @Override
     @Before
-    public void setup() throws Exception {
+    public void _setup() throws Exception {
         final Properties properties = new Properties();
         properties.setProperty("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties);
-        super.setup();
         super.addDefaultElements();
     }
 

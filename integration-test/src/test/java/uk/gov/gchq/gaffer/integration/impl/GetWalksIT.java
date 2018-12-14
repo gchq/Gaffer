@@ -76,15 +76,15 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
 
     @Override
-    public void _setup() {
-        createDefaultGraph();
+    public void _setup() throws Exception {
+        createGraph(createSchema());
+        addDefaultElements();
     }
 
     @Test
@@ -791,7 +791,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build(), getUser());
     }
 
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -862,16 +861,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())
                 .build();
-    }
-
-    @Override
-    protected void createDefaultGraph() {
-        super.createDefaultGraph();
-        try {
-            addDefaultElements();
-        } catch (final OperationException ex) {
-            fail("Error while adding elements to the graph: " + ex.getMessage());
-        }
     }
 
     private String getPaths(final Iterable<Walk> walks) {

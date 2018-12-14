@@ -70,7 +70,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
     @Override
     protected void _setup() throws Exception {
-        super._setup();
         input = getInputElements();
         if (null == graph || !JsonUtil.equals(graph.getSchema().toCompactJson(), getSchema().toCompactJson())) {
             createGraph(getSchema());
@@ -200,7 +199,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     @Test
     public void shouldGetElementsWithMatchedVertex() throws Exception {
-        validateTraits();
         // Then
         final View view = new Builder()
                 .edge(TestGroups.EDGE)
@@ -229,7 +227,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @VisibilityUser("basic")
     @Test
     public void shouldGetOnlyVisibleElements() throws Exception {
-        validateTraits();
         getAllElements();
     }
 
@@ -239,7 +236,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
-        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -259,7 +255,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
-        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -282,7 +277,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     @Test
     public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
-        validateTraits();
         // Then
         final View view = new Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
