@@ -43,7 +43,7 @@ import java.util.Set;
 public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
-    private final Collection<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests;
+    private final Set<Class<? extends AbstractStoreWithCustomGraphIT>> tests = new Reflections(AbstractStoreWithCustomGraphIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreWithCustomGraphIT.class);
     private final Map<Class<? extends AbstractStoreWithCustomGraphIT>, String> skipTests = new HashMap<>();
     private final Map<Class<? extends AbstractStoreWithCustomGraphIT>, Map<String, String>> skipTestMethods = new HashMap<>();
     private Class<? extends AbstractStoreWithCustomGraphIT> singleTestClass;
@@ -52,7 +52,7 @@ public abstract class AbstractStoreITs {
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests) {
         this.schema = schema;
         this.storeProperties = storeProperties;
-        this.extraTests = extraTests;
+        this.tests.addAll(extraTests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreWithCustomGraphIT>> extraTests) {
@@ -60,7 +60,7 @@ public abstract class AbstractStoreITs {
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, new ArrayList<Class<? extends AbstractStoreWithCustomGraphIT>>());
+        this(storeProperties, schema, new ArrayList<>());
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
@@ -85,11 +85,11 @@ public abstract class AbstractStoreITs {
     }
 
     public void addExtraTest(final Class<? extends AbstractStoreWithCustomGraphIT> extraTest) {
-        extraTests.add(extraTest);
+        tests.add(extraTest);
     }
 
-    public Collection<? extends Class> getExtraTests() {
-        return extraTests;
+    public Set<Class<? extends AbstractStoreWithCustomGraphIT>> getTests() {
+        return tests;
     }
 
     public Map<? extends Class<? extends AbstractStoreWithCustomGraphIT>, String> getSkipTests() {
@@ -134,12 +134,10 @@ public abstract class AbstractStoreITs {
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
             if (null == runner.singleTestClass) {
-                final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = new Reflections(AbstractStoreWithCustomGraphIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreWithCustomGraphIT.class);
-                keepPublicConcreteClasses(classes);
-                classes.addAll((Collection<? extends Class<? extends AbstractStoreWithCustomGraphIT>>) runner.getExtraTests());
-                return classes.toArray(new Class[classes.size()]);
+                final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = runner.getTests();
+                 keepPublicConcreteClasses(classes);
+                 return classes.toArray(new Class[classes.size()]);
             }
-
             return new Class[]{runner.singleTestClass};
         }
 
