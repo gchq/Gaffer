@@ -29,6 +29,9 @@ import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.MapImpl;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -42,6 +45,9 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
@@ -123,6 +129,9 @@ public class MapStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(CountAllElementsDefaultView.class, new CountAllElementsDefaultViewHandler());
         addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
+        addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
+        addOperationHandler(NamedOperation.class, new NamedOperationHandler());
     }
 
     @Override
