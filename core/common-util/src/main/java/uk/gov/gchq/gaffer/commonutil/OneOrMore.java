@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -143,7 +144,7 @@ public class OneOrMore<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         if (null == collection) {
             if (null == singleItem) {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
 
             return Iterators.singletonIterator(singleItem);
