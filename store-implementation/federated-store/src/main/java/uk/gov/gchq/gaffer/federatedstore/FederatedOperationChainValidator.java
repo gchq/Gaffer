@@ -22,6 +22,12 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link ViewValidator}s using the Federated Store schemas.
@@ -36,5 +42,41 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     @Override
     protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return ((FederatedStore) store).getSchema(operation, user);
+    }
+
+    @Override
+    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
+        validateAllGraphsIdViews(op, user, store, validationResult, getGraphIds(op, user, (FederatedStore) store));
+    }
+
+    private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final Collection<String> graphIds) {
+        ValidationResult errors = new ValidationResult();
+        ValidationResult current = errors;
+
+        for (final String graphId : graphIds) {
+            current = new ValidationResult();
+            final Operation clone = op.shallowClone();
+            clone.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+            super.validateViews(clone, user, store, current);
+            if (current.isValid()) {
+                break;
+            } else {
+                errors.add(current);
+            }
+        }
+
+        if (!current.isValid()) {
+            validationResult.add(errors);
+        }
+    }
+
+    private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
+        return nonNull(op) && nonNull(getGraphIds(op)) && !getGraphIds(op).isEmpty()
+                ? Arrays.asList(getGraphIds(op).split(","))
+                : store.getAllGraphIds(user);
+    }
+
+    private String getGraphIds(final Operation op) {
+        return op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS);
     }
 }

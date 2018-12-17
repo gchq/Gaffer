@@ -1,0 +1,27 @@
+{
+  "entities": {
+    "entityB": {
+      "vertex": "vertex.int",
+      "properties": {
+        "property1": "simpleProperty"
+      }
+    }
+  },
+  "types": {
+    "vertex.int": {
+      "class": "java.lang.Integer"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      }
+    }
+  },
+  "vertexSerialiser": {
+    "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+  }
+}
