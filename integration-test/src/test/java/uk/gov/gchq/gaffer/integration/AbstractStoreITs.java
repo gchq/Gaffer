@@ -105,12 +105,9 @@ public abstract class AbstractStoreITs {
     }
 
     protected void skipTestMethod(final Class<? extends AbstractStoreWithCustomGraphIT> testClass, final String method, final String justification) {
-        Map<String, String> methods = skipTestMethods.get(testClass);
-        if (null == methods) {
-            methods = new HashMap<>();
-            skipTestMethods.put(testClass, methods);
-        }
-        methods.put(method, justification);
+        Map<String, String> classMethodsMap = skipTestMethods.get(testClass) != null ? skipTestMethods.get(testClass) : new HashMap<>();
+        classMethodsMap.put(method, justification);
+        skipTestMethods.put(testClass, classMethodsMap);
     }
 
     public static class StoreTestSuite extends Suite {
@@ -135,8 +132,8 @@ public abstract class AbstractStoreITs {
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
             if (null == runner.singleTestClass) {
                 final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = runner.getTests();
-                 keepPublicConcreteClasses(classes);
-                 return classes.toArray(new Class[classes.size()]);
+                keepPublicConcreteClasses(classes);
+                return classes.toArray(new Class[classes.size()]);
             }
             return new Class[]{runner.singleTestClass};
         }
