@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -60,7 +59,6 @@ public class AggregationIT extends AbstractStoreIT {
     private final String NON_AGGREGATED_DEST = DEST + NON_AGGREGATED_ID;
 
     @Override
-    @Before
     public void _setup() throws Exception {
         super.addDefaultElements();
         addDuplicateElements();

@@ -16,8 +16,6 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.Before;
-
 /**
  * Logic/config for setting up and running store integration tests.
  * All tests will be skipped if the storeProperties variable has not been set
@@ -32,9 +30,10 @@ public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
      * @throws Exception should never be thrown
      */
     @Override
-    @Before
     public void setup() throws Exception {
+        initialise();
         createDefaultGraph();
-        super.setup();
+        _setup();
+        validateTest();
     }
 }

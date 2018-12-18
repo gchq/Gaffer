@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -110,7 +109,6 @@ public class GetElementsIT extends AbstractStoreIT {
     public static final Collection<Object> ALL_SEED_VERTICES = getAllSeededVertices();
 
     @Override
-    @Before
     public void _setup() throws Exception {
         addDefaultElements();
     }

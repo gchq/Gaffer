@@ -54,7 +54,8 @@ public class ForEachIT extends AbstractStoreIT {
     @Override
     @Before
     public void _setup() throws Exception {
-        super.addDefaultElements();
+        super._setup();
+        addDefaultElements();
     }
 
     @Test

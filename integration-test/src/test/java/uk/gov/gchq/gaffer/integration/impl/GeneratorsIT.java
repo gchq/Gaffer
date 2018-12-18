@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -56,7 +55,6 @@ public class GeneratorsIT extends AbstractStoreIT {
     private static final String NEW_VERTEX = "newVertex";
 
     @Override
-    @Before
     public void _setup() throws Exception {
         super.addDefaultElements();
     }
