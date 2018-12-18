@@ -42,6 +42,5 @@ public class ParquetStoreITs extends AbstractStoreITs {
         ((ParquetStoreProperties) getStoreProperties()).setTempFilesDir(testFolderPath + "/tmpdata");
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
         skipTestMethod(PartAggregationIT.class, "shouldAggregateOnlyRequiredGroups", "Known bug with parquet store.");
-        //singleTest(VisibilityIT.class, "shouldAccessMultipleVisibilityGroups_and");
     }
 }
