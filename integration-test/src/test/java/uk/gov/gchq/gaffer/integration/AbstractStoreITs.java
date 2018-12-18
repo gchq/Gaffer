@@ -133,6 +133,9 @@ public abstract class AbstractStoreITs {
             if (null == runner.singleTestClass) {
                 final Set<Class<? extends AbstractStoreWithCustomGraphIT>> classes = runner.getTests();
                 keepPublicConcreteClasses(classes);
+                if (null != runner.getSkipTests()) {
+                    classes.removeAll(runner.getSkipTests().keySet());
+                }
                 return classes.toArray(new Class[classes.size()]);
             }
             return new Class[]{runner.singleTestClass};

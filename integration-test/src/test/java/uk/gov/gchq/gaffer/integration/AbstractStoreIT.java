@@ -32,8 +32,9 @@ public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
     @Override
     public void setup() throws Exception {
         initialise();
+        validateTest();
         createDefaultGraph();
         _setup();
-        validateTest();
+        validateTraits();
     }
 }

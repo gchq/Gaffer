@@ -230,11 +230,6 @@ public class PartAggregationIT extends AbstractStoreIT {
                 .build(), getUser());
     }
 
-    @Override
-    public void createGraph(final Schema schema) {
-        super.createGraph(schema);
-    }
-
     protected Schema createSchema() {
         final Schema defaultSchema = super.createSchema();
 

@@ -165,15 +165,16 @@ public abstract class AbstractStoreWithCustomGraphIT {
     /**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
-     * Do not Override, use the _setup method if more is necessary
+     * Do not override, use the _setup method if more is necessary
      *
      * @throws Exception should never be thrown
      */
     @Before
     public void setup() throws Exception {
         initialise();
-        _setup();
         validateTest();
+        _setup();
+        validateTraits();
     }
 
     protected void _setup() throws Exception {
@@ -205,10 +206,9 @@ public abstract class AbstractStoreWithCustomGraphIT {
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
         final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
-        if (null != skippedMethods) {
+        if (null != skippedMethods && !skippedMethods.isEmpty()) {
             assumeTrue("Skipping test. Justification: " + skippedMethods.get(method.getName()), !skippedMethods.containsKey(originalMethodName));
         }
-        validateTraits();
     }
 
     protected void validateTraits() {
