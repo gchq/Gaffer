@@ -18,21 +18,16 @@ package uk.gov.gchq.gaffer.parquetstore;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
-import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -44,6 +39,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -60,10 +58,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
 
 public class ParquetStoreTest {
@@ -148,6 +148,25 @@ public class ParquetStoreTest {
             return;
         }
         fail("IllegalArgumentException should have been thrown");
+    }
+
+    @Test
+    public void testSnapshotDirAlreadyExists() throws IOException {
+        //Given
+        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        testFolder.newFolder("snapshot=12345");
+        ParquetStore store = (ParquetStore)
+                ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+
+        // When / Then
+        try {
+            store.setLatestSnapshot(12345L);
+        } catch (StoreException e) {
+            //Expected
+            assertThat(e.getMessage(), containsString("snapshot already exists"));
+            return;
+        }
+        fail("StoreException should have been thrown as folder already exists");
     }
 
     @Test
