@@ -227,7 +227,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
 
     protected void applyVisibilityUser() {
         if (!userMap.isEmpty()) {
-            if(null != method.getDeclaredAnnotations()) {
+            if (null != method.getDeclaredAnnotations()) {
                 for (final Annotation annotation : method.getDeclaredAnnotations()) {
                     if (annotation.annotationType().equals(VisibilityUser.class)) {
                         final VisibilityUser userAnnotation = (VisibilityUser) annotation;
@@ -246,6 +246,8 @@ public abstract class AbstractStoreWithCustomGraphIT {
     protected void createDefaultGraph() {
         graph = getGraphBuilder()
                 .build();
+
+        applyVisibilityUser();
     }
 
     public void createGraph(final Schema schema) {
