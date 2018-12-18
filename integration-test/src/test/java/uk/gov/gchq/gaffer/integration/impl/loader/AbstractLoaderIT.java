@@ -133,6 +133,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     //                         Get Elements                         //
     //////////////////////////////////////////////////////////////////
     @Test
+    @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     public void shouldGetAllElements() throws Exception {
         // Then
         getAllElements();
@@ -160,6 +161,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     @Test
+    @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     public void shouldGetAllElementsWithExcludedProperties() throws Exception {
         // Given
         final View view = new Builder()
@@ -196,7 +198,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         assertFalse(results.iterator().hasNext());
     }
 
-    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldGetElementsWithMatchedVertex() throws Exception {
         // Then
@@ -274,7 +276,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
         // Then

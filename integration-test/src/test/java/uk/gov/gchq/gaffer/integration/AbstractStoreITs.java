@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Runs the full suite of gaffer store integration tests. To run the tests against
@@ -131,11 +132,13 @@ public abstract class AbstractStoreITs {
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
             if (null == runner.singleTestClass) {
-                final Set<Class<? extends AbstractStoreIT>> classes = runner.getTests();
+                Set<Class<? extends AbstractStoreIT>> classes = runner.getTests();
                 keepPublicConcreteClasses(classes);
                 if (null != runner.getSkipTests()) {
                     classes.removeAll(runner.getSkipTests().keySet());
                 }
+                // TODO currently loading and running Abstract tests, only with MapStoreITs
+                classes = classes.stream().filter(clazz2 -> !clazz2.getName().contains("Abstract")).collect(Collectors.toSet());
                 return classes.toArray(new Class[classes.size()]);
             }
             return new Class[]{runner.singleTestClass};
