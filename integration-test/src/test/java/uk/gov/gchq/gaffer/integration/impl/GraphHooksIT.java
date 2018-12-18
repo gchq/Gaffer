@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -46,17 +46,13 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class GraphHooksIT extends AbstractStoreWithCustomGraphIT {
+public class GraphHooksIT extends AbstractStoreIT {
     @Override
     public void _setup() throws Exception {
-        final Properties properties = new Properties();
-        properties.setProperty("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties);
         addDefaultElements();
     }
 

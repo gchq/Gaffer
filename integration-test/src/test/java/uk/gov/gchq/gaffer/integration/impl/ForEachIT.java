@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -48,7 +48,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ForEachIT extends AbstractStoreWithCustomGraphIT {
+public class ForEachIT extends AbstractStoreIT {
 
     @Override
     public void _setup() throws Exception {

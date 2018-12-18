@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -53,7 +53,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SchemaMigrationIT extends AbstractStoreWithCustomGraphIT {
+public class SchemaMigrationIT extends AbstractStoreIT {
 
     public static final Entity ENTITY_OLD = new Builder()
             .group("entityOld")
@@ -329,11 +329,6 @@ public class SchemaMigrationIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {
-        migration = createMigration();
-        createGraph(new GraphConfig.Builder()
-                .graphId("graph1")
-                .addHook(migration)
-                .build());
         addExtraElements();
     }
 
@@ -712,6 +707,15 @@ public class SchemaMigrationIT extends AbstractStoreWithCustomGraphIT {
                         EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
                         EDGE_NEW_AGG_BEFORE_POST_FILTER)
                 .build(), new User());
+    }
+
+    @Override
+    protected GraphConfig createGraphConfig() {
+        migration = createMigration();
+        return new GraphConfig.Builder()
+                .graphId("graph1")
+                .addHook(migration)
+                .build();
     }
 
     private SchemaMigration createMigration() {

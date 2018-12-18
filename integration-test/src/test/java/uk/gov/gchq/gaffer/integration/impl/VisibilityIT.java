@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -56,7 +56,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
-public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
+public class VisibilityIT extends AbstractStoreIT {
 
     private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
             .build();
@@ -327,6 +327,7 @@ public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
         iterable.close();
     }
 
+    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .merge(super.createSchema())

@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.integration.VisibilityUser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -65,7 +65,7 @@ import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
  *
  * @param <T> the operation implementation to test
  */
-public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreWithCustomGraphIT {
+public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreIT {
     protected Iterable<? extends Element> input;
 
     @Override

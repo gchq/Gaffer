@@ -23,7 +23,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -37,7 +37,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class GetAdjacentIdsIT extends AbstractStoreWithCustomGraphIT {
+public class GetAdjacentIdsIT extends AbstractStoreIT {
     private static final List<String> SEEDS = Arrays.asList(
             SOURCE_1, DEST_2, SOURCE_3, DEST_3,
             SOURCE_DIR_1, DEST_DIR_2, SOURCE_DIR_3, DEST_DIR_3,
