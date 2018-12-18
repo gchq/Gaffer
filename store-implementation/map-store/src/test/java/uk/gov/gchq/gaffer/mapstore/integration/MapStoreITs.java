@@ -25,6 +25,5 @@ public class MapStoreITs extends AbstractStoreITs {
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);
-        //skipTestMethod(AddElementsLoaderIT.class, "shouldGetAllElements", "MapStore needs to implement QUERY_AGGREGATION trait for this to work properly");
     }
 }

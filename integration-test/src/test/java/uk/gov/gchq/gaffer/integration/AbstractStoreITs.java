@@ -137,8 +137,7 @@ public abstract class AbstractStoreITs {
                 if (null != runner.getSkipTests()) {
                     classes.removeAll(runner.getSkipTests().keySet());
                 }
-                // TODO currently loading and running Abstract tests, only with MapStoreITs
-                classes = classes.stream().filter(clazz2 -> !clazz2.getName().contains("Abstract")).collect(Collectors.toSet());
+                classes = classes.stream().filter(clazz2 -> !Modifier.isAbstract(clazz2.getModifiers())).collect(Collectors.toSet());
                 return classes.toArray(new Class[classes.size()]);
             }
             return new Class[]{runner.singleTestClass};
