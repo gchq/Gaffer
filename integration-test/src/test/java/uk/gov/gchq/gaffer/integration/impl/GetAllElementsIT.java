@@ -53,7 +53,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class GetAllElementsIT extends AbstractStoreIT {
+public class GetAllElementsIT extends AbstractStoreWithCustomGraphIT {
     @Override
     public void _setup() throws Exception {
         addDefaultElements();

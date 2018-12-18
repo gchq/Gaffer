@@ -44,7 +44,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class FilteringIT extends AbstractStoreIT {
+public class FilteringIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {

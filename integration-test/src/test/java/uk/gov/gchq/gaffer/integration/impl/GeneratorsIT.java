@@ -49,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class GeneratorsIT extends AbstractStoreIT {
+public class GeneratorsIT extends AbstractStoreWithCustomGraphIT {
     private static final String NEW_SOURCE = "newSource";
     private static final String NEW_DEST = "newDest";
     private static final String NEW_VERTEX = "newVertex";

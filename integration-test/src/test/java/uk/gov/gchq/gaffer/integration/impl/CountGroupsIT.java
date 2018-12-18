@@ -16,7 +16,7 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class CountGroupsIT extends AbstractStoreIT {
+public class CountGroupsIT extends AbstractStoreWithCustomGraphIT {
     private static final String VERTEX = "vertex";
 
     @Override

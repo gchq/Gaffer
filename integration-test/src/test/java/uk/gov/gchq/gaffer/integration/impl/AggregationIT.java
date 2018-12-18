@@ -50,7 +50,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
-public class AggregationIT extends AbstractStoreIT {
+public class AggregationIT extends AbstractStoreWithCustomGraphIT {
     private final String AGGREGATED_SOURCE = SOURCE + 6;
     private final String AGGREGATED_DEST = DEST + 6;
 

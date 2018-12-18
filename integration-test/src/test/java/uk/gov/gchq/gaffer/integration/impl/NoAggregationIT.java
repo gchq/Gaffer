@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class NoAggregationIT extends AbstractStoreIT {
+public class NoAggregationIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {

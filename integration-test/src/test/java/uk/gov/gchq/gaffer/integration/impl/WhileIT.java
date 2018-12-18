@@ -34,7 +34,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class WhileIT extends AbstractStoreIT {
+public class WhileIT extends AbstractStoreWithCustomGraphIT {
 
     @Test
     public void shouldRepeatedlyAddElements() throws OperationException {

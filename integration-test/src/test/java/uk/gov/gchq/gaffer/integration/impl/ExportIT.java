@@ -43,7 +43,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
-public class ExportIT extends AbstractStoreIT {
+public class ExportIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {

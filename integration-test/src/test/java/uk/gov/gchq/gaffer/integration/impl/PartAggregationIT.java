@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-public class PartAggregationIT extends AbstractStoreIT {
+public class PartAggregationIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {

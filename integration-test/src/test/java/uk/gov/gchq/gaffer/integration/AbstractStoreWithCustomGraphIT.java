@@ -173,6 +173,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
     public void setup() throws Exception {
         initialise();
         validateTest();
+        createDefaultGraph();
         _setup();
         validateTraits();
     }

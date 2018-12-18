@@ -51,7 +51,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class GraphHooksIT extends AbstractStoreIT {
+public class GraphHooksIT extends AbstractStoreWithCustomGraphIT {
     @Override
     public void _setup() throws Exception {
         final Properties properties = new Properties();

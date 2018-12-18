@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StoreValidationIT extends AbstractStoreIT {
+public class StoreValidationIT extends AbstractStoreWithCustomGraphIT {
     private static final String VERTEX = "vertex";
 
     @Test

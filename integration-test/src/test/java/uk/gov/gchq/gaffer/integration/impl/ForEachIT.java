@@ -48,7 +48,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ForEachIT extends AbstractStoreIT {
+public class ForEachIT extends AbstractStoreWithCustomGraphIT {
 
     @Override
     public void _setup() throws Exception {

@@ -77,7 +77,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class GetWalksIT extends AbstractStoreIT {
+public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
 

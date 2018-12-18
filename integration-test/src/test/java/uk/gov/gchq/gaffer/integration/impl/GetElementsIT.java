@@ -61,7 +61,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
-public class GetElementsIT extends AbstractStoreIT {
+public class GetElementsIT extends AbstractStoreWithCustomGraphIT {
     // ElementId Seeds
     public static final Collection<ElementId> ENTITY_SEEDS_EXIST =
             Arrays.asList(

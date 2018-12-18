@@ -13,22 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 package uk.gov.gchq.gaffer.integration;
 
+*/
 /**
  * Logic/config for setting up and running store integration tests.
  * All tests will be skipped if the storeProperties variable has not been set
  * prior to running the tests.
- */
+ *//*
+
 public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
 
-    /**
+    */
+/**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
      *
      * @throws Exception should never be thrown
-     */
+     *//*
+
     @Override
     public void setup() throws Exception {
         initialise();
@@ -38,3 +43,4 @@ public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
         validateTraits();
     }
 }
+*/
