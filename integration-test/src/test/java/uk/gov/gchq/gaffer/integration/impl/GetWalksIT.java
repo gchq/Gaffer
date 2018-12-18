@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -77,13 +77,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
+public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
 
     @Override
     public void _setup() throws Exception {
-        createGraph(createSchema());
         addDefaultElements();
     }
 

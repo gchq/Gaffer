@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
@@ -28,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -57,21 +56,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
-public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
+public class VisibilityIT extends AbstractStoreIT {
 
     private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
             .build();
     private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
             .build();
 
-    @Override
-    public void _setup(){
-        createGraph(createSchema());
-    }
-
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMissingVisibilityGroups() throws OperationException, JsonProcessingException {
+    public void shouldAccessMissingVisibilityGroups() throws OperationException {
 
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
@@ -111,7 +105,7 @@ public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema() throws OperationException, JsonProcessingException {
+    public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema() throws OperationException {
         graph = createGraphWithNoVisibility();
 
         final Set<Element> elements = new HashSet<>();
@@ -146,7 +140,7 @@ public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessEmptyVisibilityGroups() throws OperationException, JsonProcessingException {
+    public void shouldAccessEmptyVisibilityGroups() throws OperationException {
 
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
@@ -185,7 +179,7 @@ public class VisibilityIT extends AbstractStoreWithCustomGraphIT {
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessNullVisibilityGroups() throws OperationException, JsonProcessingException {
+    public void shouldAccessNullVisibilityGroups() throws OperationException {
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
         entity1.putProperty(TestTypes.VISIBILITY, null);
