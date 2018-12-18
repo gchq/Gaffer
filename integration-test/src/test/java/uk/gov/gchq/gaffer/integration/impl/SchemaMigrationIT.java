@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -33,7 +32,7 @@ import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -54,7 +53,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SchemaMigrationIT extends AbstractStoreIT {
+public class SchemaMigrationIT extends AbstractStoreWithCustomGraphIT {
 
     public static final Entity ENTITY_OLD = new Builder()
             .group("entityOld")
@@ -328,7 +327,6 @@ public class SchemaMigrationIT extends AbstractStoreIT {
 
     private SchemaMigration migration;
 
-    @Before
     @Override
     public void _setup() throws Exception {
         migration = createMigration();
@@ -337,7 +335,6 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 .addHook(migration)
                 .build());
         addExtraElements();
-
     }
 
     //--- Output NEW ---

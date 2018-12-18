@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -42,9 +41,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class NoAggregationIT extends AbstractStoreIT {
+public class NoAggregationIT extends AbstractStoreWithCustomGraphIT {
 
-    @Before
     @Override
     public void _setup() throws Exception {
         createGraph(createSchema());

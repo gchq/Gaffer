@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -52,9 +51,7 @@ import static org.junit.Assert.assertEquals;
 public class ForEachIT extends AbstractStoreIT {
 
     @Override
-    @Before
     public void _setup() throws Exception {
-        super._setup();
         addDefaultElements();
     }
 

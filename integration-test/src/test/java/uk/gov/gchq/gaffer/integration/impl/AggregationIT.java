@@ -60,7 +60,7 @@ public class AggregationIT extends AbstractStoreIT {
 
     @Override
     public void _setup() throws Exception {
-        super.addDefaultElements();
+        addDefaultElements();
         addDuplicateElements();
     }
 

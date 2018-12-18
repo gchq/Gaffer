@@ -56,7 +56,7 @@ public class GeneratorsIT extends AbstractStoreIT {
 
     @Override
     public void _setup() throws Exception {
-        super.addDefaultElements();
+        addDefaultElements();
     }
 
     @Test

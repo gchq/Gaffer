@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
 public class FilteringIT extends AbstractStoreIT {
     @Override
     public void _setup() throws Exception {
-        super.addDefaultElements();
+        addDefaultElements();
     }
 
     @Test
