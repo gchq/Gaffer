@@ -58,6 +58,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @Override
     @Before
     public void _setup() throws Exception {
+        createDefaultGraph();
         super.addDefaultElements();
     }
 

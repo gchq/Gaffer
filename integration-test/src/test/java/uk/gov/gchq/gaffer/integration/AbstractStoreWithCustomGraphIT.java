@@ -19,7 +19,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -163,11 +162,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
         AbstractStoreWithCustomGraphIT.skipTestMethods = skipTestMethods;
     }
 
-    @BeforeClass
-    public static void setupGraph() {
-        createDefaultGraph();
-    }
-
     /**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
@@ -179,7 +173,6 @@ public abstract class AbstractStoreWithCustomGraphIT {
     public void setup() throws Exception {
         initialise();
         _setup();
-        applyVisibilityUser();
         validateTest();
     }
 
@@ -250,7 +243,7 @@ public abstract class AbstractStoreWithCustomGraphIT {
         }
     }
 
-    protected static void createDefaultGraph() {
+    protected void createDefaultGraph() {
         graph = getGraphBuilder()
                 .build();
     }
@@ -303,13 +296,13 @@ public abstract class AbstractStoreWithCustomGraphIT {
         applyVisibilityUser();
     }
 
-    protected static Graph.Builder getGraphBuilder() {
+    protected Graph.Builder getGraphBuilder() {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("integrationTestGraph")
                         .build())
                 .storeProperties(getStoreProperties())
-                .addSchema(createDefaultSchema())
+                .addSchema(createSchema())
                 .addSchema(getStoreSchema());
     }
 

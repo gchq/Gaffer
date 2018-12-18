@@ -64,6 +64,11 @@ public class VisibilityIT extends AbstractStoreIT {
     private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
             .build();
 
+    @Override
+    public void _setup(){
+        createGraph(createSchema());
+    }
+
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
     public void shouldAccessMissingVisibilityGroups() throws OperationException, JsonProcessingException {
@@ -328,7 +333,6 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .merge(super.createSchema())

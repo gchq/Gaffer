@@ -33,7 +33,11 @@ public abstract class AbstractStoreIT extends AbstractStoreWithCustomGraphIT {
      */
     @Override
     @Before
-    public void _setup() throws Exception {
+    public void setup() throws Exception {
+        initialise();
         createDefaultGraph();
+        _setup();
+        applyVisibilityUser();
+        validateTest();
     }
 }
