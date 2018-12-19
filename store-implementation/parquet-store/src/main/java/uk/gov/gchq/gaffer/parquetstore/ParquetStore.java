@@ -411,7 +411,7 @@ public class ParquetStore extends Store {
                 throw new StoreException(String.format("Failed setting currentSnapshot: '%s' does not exist", snapshotPath.toString()));
             }
         } catch (final IOException e) {
-            throw new StoreException(String.format("Failed setting currentSnapshot: '%s' cannot be found", getDataDir()), e);
+            throw new StoreException("IOException checking Path: ", e);
         }
 
         LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
