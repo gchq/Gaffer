@@ -107,8 +107,7 @@ public class ProxyStore extends Store {
     protected Set<Class<? extends Operation>> getRemoteSupportedOperations() {
         try {
             URL url = getProperties().getGafferUrl("graph/operations");
-            return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
-            }, null));
+            return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
         } catch (final StoreException e) {
             throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
         }

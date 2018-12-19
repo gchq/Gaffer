@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -58,9 +57,7 @@ public class JoinIT extends AbstractStoreIT {
             .build();
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addJoinEntityElements(TestGroups.ENTITY_3);
     }
 

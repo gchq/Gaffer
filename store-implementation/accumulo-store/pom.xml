@@ -176,7 +176,7 @@
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
-                                    <include>io.github.lukehutch*</include>
+                                    <include>io.github.classgraph:classgraph</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
