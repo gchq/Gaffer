@@ -67,6 +67,7 @@ import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SC
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_STRING;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ExportToOtherGraphHandlerTest {
 
@@ -253,8 +254,10 @@ public class ExportToOtherGraphHandlerTest {
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .type("vertex", String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
@@ -280,8 +283,10 @@ public class ExportToOtherGraphHandlerTest {
                         .edge("edge", new SchemaEdgeDefinition.Builder()
                                 .source("vertex")
                                 .destination("vertex")
+                                .directed(DIRECTED_EITHER)
                                 .build())
                         .type("vertex", String.class)
+                        .type(DIRECTED_EITHER, Boolean.class)
                         .build().toJson(false),
                 graph.getSchema().toJson(false));
         assertEquals(storeProperties, graph.getStoreProperties());
