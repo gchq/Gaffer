@@ -63,6 +63,7 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
         result.add(validatePropertyNames(elementDef));
+        result.add(validateDirection(elementDef));
 
         return result;
     }
@@ -162,6 +163,16 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
+        return result;
+    }
+
+    private ValidationResult validateDirection(final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
+        if (elementDef instanceof SchemaEdgeDefinition) {
+            if (null == elementDef.getIdentifierTypeName(IdentifierType.DIRECTED)) {
+                result.addError("\"directed\" must be set");
+            }
+        }
         return result;
     }
 

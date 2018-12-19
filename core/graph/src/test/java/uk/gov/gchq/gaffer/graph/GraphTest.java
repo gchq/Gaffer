@@ -114,6 +114,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
     private static final String GRAPH_ID = "graphId";
@@ -169,6 +170,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex")
                         .destination("vertex")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -184,6 +186,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex2")
                         .destination("vertex2")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -207,6 +210,7 @@ public class GraphTest {
                 .type("vertex4", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
 
@@ -1303,6 +1307,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex")
                         .destination("vertex")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -1318,6 +1323,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex2")
                         .destination("vertex2")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -1341,6 +1347,7 @@ public class GraphTest {
                 .type("vertex4", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
 
@@ -1780,6 +1787,7 @@ public class GraphTest {
                                 .aggregate(false)
                                 .source("vertex2")
                                 .destination("vertex2")
+                                .directed(DIRECTED_EITHER)
                                 .build())
                         .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                                 .clazz(Integer.class)
@@ -1787,6 +1795,7 @@ public class GraphTest {
                         .type("vertex2", new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .build())
+                        .type(DIRECTED_EITHER, Boolean.class)
                         .build())
                 .store(store)
                 .build();

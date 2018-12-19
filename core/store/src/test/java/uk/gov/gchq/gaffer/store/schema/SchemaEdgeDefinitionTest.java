@@ -25,6 +25,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<SchemaEdgeDefinition> {
     @Override
@@ -101,12 +102,14 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
         final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
                 .source("src")
                 .destination("dest")
+                .directed(DIRECTED_EITHER)
                 .build();
 
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, elementDef)
                 .type("src", String.class)
                 .type("dest", String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
