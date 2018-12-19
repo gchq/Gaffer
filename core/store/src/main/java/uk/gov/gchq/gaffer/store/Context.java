@@ -88,6 +88,7 @@ public class Context {
             this.config = config;
         }
         this.jobId = createJobId();
+        this.variables = new HashMap<>();
     }
 
     /**
