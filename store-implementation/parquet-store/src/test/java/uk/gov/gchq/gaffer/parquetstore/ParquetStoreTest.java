@@ -65,6 +65,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
@@ -76,9 +77,11 @@ public class ParquetStoreTest {
                     .clazz(String.class)
                     .build())
             .type(TestTypes.PROP_INTEGER, Integer.class)
+            .type(DIRECTED_EITHER, Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                     .source(TestTypes.ID_STRING)
                     .destination(TestTypes.ID_STRING)
+                    .directed(DIRECTED_EITHER)
                     .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
                     .aggregate(false)
                     .build())
@@ -223,6 +226,7 @@ public class ParquetStoreTest {
                             .clazz(String.class)
                             .serialiser(new StringParquetSerialiser())
                             .build())
+                    .type(DIRECTED_EITHER, Boolean.class)
                     .entity("entity", new SchemaEntityDefinition.Builder()
                             .vertex("string")
                             .property("property1", "int")
@@ -232,6 +236,7 @@ public class ParquetStoreTest {
                             .source("string")
                             .destination("string")
                             .property("property2", "int")
+                            .directed(DIRECTED_EITHER)
                             .aggregate(false)
                             .build())
                     .vertexSerialiser(new StringParquetSerialiser())

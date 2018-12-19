@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -50,9 +49,7 @@ public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
         addAdditionalElements();
     }

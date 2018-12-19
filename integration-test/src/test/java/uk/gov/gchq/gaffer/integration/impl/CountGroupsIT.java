@@ -1,6 +1,5 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -21,10 +20,8 @@ public class CountGroupsIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-        super.addDefaultElements();
+    public void _setup() throws Exception {
+        addDefaultElements();
     }
 
     @Test
