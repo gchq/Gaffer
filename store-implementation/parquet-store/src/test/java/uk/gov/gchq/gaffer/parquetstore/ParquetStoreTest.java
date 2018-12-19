@@ -18,21 +18,16 @@ package uk.gov.gchq.gaffer.parquetstore;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
-import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -44,6 +39,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -61,10 +59,11 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
@@ -76,9 +75,11 @@ public class ParquetStoreTest {
                     .clazz(String.class)
                     .build())
             .type(TestTypes.PROP_INTEGER, Integer.class)
+            .type(DIRECTED_EITHER, Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                     .source(TestTypes.ID_STRING)
                     .destination(TestTypes.ID_STRING)
+                    .directed(DIRECTED_EITHER)
                     .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
                     .aggregate(false)
                     .build())
@@ -204,6 +205,7 @@ public class ParquetStoreTest {
                             .clazz(String.class)
                             .serialiser(new StringParquetSerialiser())
                             .build())
+                    .type(DIRECTED_EITHER, Boolean.class)
                     .entity("entity", new SchemaEntityDefinition.Builder()
                             .vertex("string")
                             .property("property1", "int")
@@ -213,6 +215,7 @@ public class ParquetStoreTest {
                             .source("string")
                             .destination("string")
                             .property("property2", "int")
+                            .directed(DIRECTED_EITHER)
                             .aggregate(false)
                             .build())
                     .vertexSerialiser(new StringParquetSerialiser())
