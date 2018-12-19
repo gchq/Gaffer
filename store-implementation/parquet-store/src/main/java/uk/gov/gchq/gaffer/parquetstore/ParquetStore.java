@@ -405,15 +405,18 @@ public class ParquetStore extends Store {
     }
 
     public void setLatestSnapshot(final long snapshot) throws StoreException {
-        Path snapshotPath = new Path(getDataDir(), getSnapshotPath(snapshot));
+        final Path snapshotPath = new Path(getDataDir(), getSnapshotPath(snapshot));
         try {
-            fs.exists(snapshotPath);
-            LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
-            this.currentSnapshot = snapshot;
-            loadGraphPartitioner();
+            if (!fs.exists(snapshotPath)) {
+                throw new StoreException(String.format("Failed setting currentSnapshot: '%s' does not exist", snapshotPath.toString()));
+            }
         } catch (final IOException e) {
-            throw new StoreException(String.format("Failed setting currentSnapshot to '%s': snapshot already exists", snapshotPath.toString()));
+            throw new StoreException(String.format("Failed setting currentSnapshot: '%s' cannot be found", getDataDir()), e);
         }
+
+        LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
+        this.currentSnapshot = snapshot;
+        loadGraphPartitioner();
     }
 
     private long getLatestSnapshot(final String rootDir) throws StoreException {

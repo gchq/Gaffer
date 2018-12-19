@@ -24,6 +24,7 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -154,22 +155,37 @@ public class ParquetStoreTest {
     }
 
     @Test
-    public void testSnapshotDirAlreadyExists() throws IOException {
+    public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
         //Given
         final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
-        testFolder.newFolder(store.getDataDir() + ParquetStore.getSnapshotPath(12345L));
 
         // When / Then
         try {
             store.setLatestSnapshot(12345L);
         } catch (StoreException e) {
             //Expected
-            assertThat(e.getMessage(), containsString("snapshot already exists"));
+            assertThat(e.getMessage(), containsString("does not exist"));
             return;
         }
         fail("StoreException should have been thrown as folder already exists");
+    }
+
+    @Test
+    public void shouldNotFailSettingSnapshotWhenSnapshotExists() throws IOException {
+        //Given
+        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        ParquetStore store = (ParquetStore)
+                ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+        testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
+
+        // When / Then
+        try {
+            store.setLatestSnapshot(12345L);
+        } catch (StoreException e) {
+            fail("StoreException should not have been thrown. Message is:\n" + e.getMessage());
+        }
     }
 
     @Test
