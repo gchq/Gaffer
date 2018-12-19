@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -50,11 +49,8 @@ import java.util.TreeSet;
 
 public class PartAggregationIT extends AbstractStoreIT {
 
-    @Before
     @Override
-    public void setup() throws Exception {
-        super.setup();
-        createDefaultGraph();
+    public void _setup() throws Exception {
         // Add Elements twice
         addDefaultElements();
         addDefaultElements();
