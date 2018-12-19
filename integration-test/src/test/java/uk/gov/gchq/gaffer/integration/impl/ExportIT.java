@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -47,10 +46,8 @@ import static org.junit.Assume.assumeTrue;
 public class ExportIT extends AbstractStoreIT {
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-        super.addDefaultElements();
+    public void _setup() throws Exception {
+        addDefaultElements();
     }
 
     @Test

@@ -102,8 +102,7 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
-        }, null));
+        return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
     }
 
     @Override

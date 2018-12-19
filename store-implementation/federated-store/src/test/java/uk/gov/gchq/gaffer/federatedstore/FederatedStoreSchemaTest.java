@@ -41,6 +41,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
@@ -87,6 +88,7 @@ public class FederatedStoreSchemaTest {
         String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
                 .edge("e1", getProp("prop1"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -102,6 +104,7 @@ public class FederatedStoreSchemaTest {
         String bSchema1ID = "bSchema";
         final Schema bSchema = new Schema.Builder()
                 .edge("e1", getProp("prop2"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -130,11 +133,13 @@ public class FederatedStoreSchemaTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.add("a", new Schema.Builder()
                 .edge("e1", getProp("prop1"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
         library.add("b", new Schema.Builder()
                 .edge("e1", getProp("prop2"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
@@ -163,11 +168,13 @@ public class FederatedStoreSchemaTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.add("a", new Schema.Builder()
                 .edge("e1", getProp("prop1"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
         library.add("b", new Schema.Builder()
                 .edge("e1", getProp("prop2"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
@@ -194,6 +201,7 @@ public class FederatedStoreSchemaTest {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
                 .destination(STRING)
+                .directed(DIRECTED_EITHER)
                 .property(propName, STRING)
                 .build();
     }
