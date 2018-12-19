@@ -28,9 +28,11 @@ public class GetVariablesHandler implements OperationHandler<GetVariables> {
     @Override
     public Map<String, Object> doOperation(final GetVariables operation, final Context context, final Store store) throws OperationException {
         final Map<String, Object> variableMap = new HashMap<>();
-        for (final String key : operation.getVariableNames()) {
-            if (null != key) {
-                variableMap.put(key, context.getVariable(key));
+        if (null != operation.getVariableNames()) {
+            for (final String key : operation.getVariableNames()) {
+                if (null != key) {
+                    variableMap.put(key, context.getVariable(key));
+                }
             }
         }
         return variableMap;

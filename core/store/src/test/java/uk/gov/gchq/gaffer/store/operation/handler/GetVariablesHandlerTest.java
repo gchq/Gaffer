@@ -112,4 +112,17 @@ public class GetVariablesHandlerTest {
 
         assertEquals(new HashMap<>(), resultMap);
     }
+
+    @Test
+    public void shouldReturnEmptyMapWhenGetVariablesNamesIsNull() throws OperationException {
+        final Context context = mock(Context.class);
+
+        final GetVariables op = new GetVariables.Builder().variableNames(null).build();
+
+        final GetVariablesHandler handler = new GetVariablesHandler();
+
+        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+
+        assertEquals(new HashMap<>(), resultMap);
+    }
 }
