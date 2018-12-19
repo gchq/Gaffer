@@ -154,9 +154,9 @@ public class ParquetStoreTest {
     public void testSnapshotDirAlreadyExists() throws IOException {
         //Given
         final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
-        testFolder.newFolder("snapshot=12345");
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+        testFolder.newFolder(store.getDataDir() + ParquetStore.getSnapshotPath(12345L));
 
         // When / Then
         try {
