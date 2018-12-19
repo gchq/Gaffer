@@ -19,7 +19,6 @@ import org.junit.Before;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -29,8 +28,7 @@ public class MapStoreITs extends AbstractStoreITs {
             MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
     public MapStoreITs() {
-        this(STORE_PROPERTIES);
-        skipTestMethod(AddElementsLoaderIT.class, "shouldGetAllElements", "MapStore needs to implement QUERY_AGGREGATION trait for this to work properly");
+        super(STORE_PROPERTIES);
     }
 
     protected MapStoreITs(final StoreProperties storeProperties) {

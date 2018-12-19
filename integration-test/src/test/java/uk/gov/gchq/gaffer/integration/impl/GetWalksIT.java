@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -76,15 +76,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
+public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
     final EntitySeed seedE = new EntitySeed("E");
 
     @Override
-    public void _setup() {
-        createDefaultGraph();
+    public void _setup() throws Exception {
+        addDefaultElements();
     }
 
     @Test
@@ -791,7 +790,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                 .build(), getUser());
     }
 
-    @Override
     protected Schema createSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -862,16 +860,6 @@ public class GetWalksIT extends AbstractStoreWithCustomGraphIT {
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())
                 .build();
-    }
-
-    @Override
-    protected void createDefaultGraph() {
-        super.createDefaultGraph();
-        try {
-            addDefaultElements();
-        } catch (final OperationException ex) {
-            fail("Error while adding elements to the graph: " + ex.getMessage());
-        }
     }
 
     private String getPaths(final Iterable<Walk> walks) {
