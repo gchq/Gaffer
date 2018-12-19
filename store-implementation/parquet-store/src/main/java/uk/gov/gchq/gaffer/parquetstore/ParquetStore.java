@@ -411,7 +411,7 @@ public class ParquetStore extends Store {
             LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
             this.currentSnapshot = snapshot;
             loadGraphPartitioner();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(String.format("Failed setting currentSnapshot to '%s': snapshot already exists", snapshotPath.toString()));
         }
     }
