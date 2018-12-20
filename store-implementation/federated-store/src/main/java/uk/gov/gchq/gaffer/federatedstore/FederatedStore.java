@@ -95,6 +95,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * @see Store
  * @see Graph
  */
+@Since("1.0.0")
 public class FederatedStore extends Store {
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
