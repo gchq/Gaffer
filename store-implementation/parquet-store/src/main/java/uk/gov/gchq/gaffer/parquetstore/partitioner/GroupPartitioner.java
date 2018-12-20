@@ -89,13 +89,13 @@ public class GroupPartitioner {
      * @return a list of all the partition ids which could contain data matching the provided partial key
      */
     public List<Integer> getPartitionIds(final Object[] partialKey) {
-        final int partitionKeyLength = splitPoints.isEmpty() ? 0 : splitPoints.get(0).getLength();
         if (null == partialKey) {
             throw new IllegalArgumentException("getPartitionIds cannot be called with null partialKey");
         }
-        if (0 == splitPoints.size()) {
+        if (splitPoints.isEmpty()) {
             return Collections.singletonList(0);
         }
+        final int partitionKeyLength = splitPoints.get(0).getLength();
         if (partialKey.length == partitionKeyLength) {
             return getPartitionIdsSameLengthKey(partialKey);
         }
