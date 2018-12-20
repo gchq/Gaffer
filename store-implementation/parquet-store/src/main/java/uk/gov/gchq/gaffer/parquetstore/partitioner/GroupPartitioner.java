@@ -37,7 +37,6 @@ public class GroupPartitioner {
     private final String group;
     private final List<PartitionKey> splitPoints;
     private final List<Partition> partitions;
-    private final int partitionKeyLength;
 
     public GroupPartitioner(final String group, final List<PartitionKey> splitPoints) {
         this.group = group;
@@ -45,7 +44,6 @@ public class GroupPartitioner {
         checkSplitPointsAreOrdered(splitPoints);
         this.splitPoints = splitPoints;
         this.partitions = computePartitions();
-        this.partitionKeyLength = splitPoints.isEmpty() ? 0 : splitPoints.get(0).getLength();
     }
 
     public String getGroup() {
@@ -91,6 +89,7 @@ public class GroupPartitioner {
      * @return a list of all the partition ids which could contain data matching the provided partial key
      */
     public List<Integer> getPartitionIds(final Object[] partialKey) {
+        final int partitionKeyLength = splitPoints.isEmpty() ? 0 : splitPoints.get(0).getLength();
         if (null == partialKey) {
             throw new IllegalArgumentException("getPartitionIds cannot be called with null partialKey");
         }
@@ -208,7 +207,6 @@ public class GroupPartitioner {
                 .append("group", group)
                 .append("splitPoints", splitPoints)
                 .append("partitions", partitions)
-                .append("partitionKeyLength", partitionKeyLength)
                 .toString();
     }
 
@@ -228,7 +226,6 @@ public class GroupPartitioner {
                 .append(group, other.group)
                 .append(splitPoints, other.splitPoints)
                 .append(partitions, other.partitions)
-                .append(partitionKeyLength, other.partitionKeyLength)
                 .isEquals();
     }
 
@@ -238,7 +235,6 @@ public class GroupPartitioner {
                 .append(group)
                 .append(splitPoints)
                 .append(partitions)
-                .append(partitionKeyLength)
                 .toHashCode();
     }
 }
