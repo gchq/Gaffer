@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -84,7 +83,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -114,6 +112,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
     private static final String GRAPH_ID = "graphId";
@@ -169,6 +168,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex")
                         .destination("vertex")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -184,6 +184,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex2")
                         .destination("vertex2")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -207,6 +208,7 @@ public class GraphTest {
                 .type("vertex4", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
 
@@ -1265,7 +1267,7 @@ public class GraphTest {
     }
 
     private void writeToFile(final String schemaFile, final File dir) throws IOException {
-        Files.copy(new SchemaStreamSupplier(schemaFile), new File(dir + "/" + schemaFile));
+        Files.copy(new File(getClass().getResource("/schema/" + schemaFile).getPath()), new File(dir + "/" + schemaFile));
     }
 
     @Test
@@ -1303,6 +1305,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex")
                         .destination("vertex")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -1318,6 +1321,7 @@ public class GraphTest {
                         .aggregate(false)
                         .source("vertex2")
                         .destination("vertex2")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -1341,6 +1345,7 @@ public class GraphTest {
                 .type("vertex4", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
 
@@ -1780,6 +1785,7 @@ public class GraphTest {
                                 .aggregate(false)
                                 .source("vertex2")
                                 .destination("vertex2")
+                                .directed(DIRECTED_EITHER)
                                 .build())
                         .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                                 .clazz(Integer.class)
@@ -1787,6 +1793,7 @@ public class GraphTest {
                         .type("vertex2", new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .build())
+                        .type(DIRECTED_EITHER, Boolean.class)
                         .build())
                 .store(store)
                 .build();
@@ -1930,19 +1937,6 @@ public class GraphTest {
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;
-        }
-    }
-
-    private static final class SchemaStreamSupplier implements InputSupplier<InputStream> {
-        private final String schemaFile;
-
-        private SchemaStreamSupplier(final String schemaFile) {
-            this.schemaFile = schemaFile;
-        }
-
-        @Override
-        public InputStream getInput() throws IOException {
-            return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
         }
     }
 

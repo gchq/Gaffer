@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
     @Test
@@ -54,8 +55,10 @@ public class GetElementsInRangesIT {
                 .edge("EDGE", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .type("string", String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
         final AccumuloProperties propsByteEntity = new AccumuloProperties();

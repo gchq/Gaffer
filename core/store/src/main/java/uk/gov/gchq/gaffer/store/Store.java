@@ -71,6 +71,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -104,6 +105,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetAsElementsFromEndpointHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
@@ -190,6 +192,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+    private final Boolean addCoreOpHandlers;
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -215,6 +218,11 @@ public abstract class Store {
     private String graphId;
 
     public Store() {
+        this(true);
+    }
+
+    public Store(final Boolean addCoreOpHandlers) {
+        this.addCoreOpHandlers = addCoreOpHandlers;
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.opChainValidator = createOperationChainValidator();
         this.schemaOptimiser = createSchemaOptimiser();
@@ -805,7 +813,9 @@ public abstract class Store {
     }
 
     private void addOpHandlers() {
-        addCoreOpHandlers();
+        if (addCoreOpHandlers) {
+            addCoreOpHandlers();
+        }
         addAdditionalOperationHandlers();
         addConfiguredOperationHandlers();
     }
@@ -889,6 +899,7 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
+        addOperationHandler(GetAsElementsFromEndpoint.class, new GetAsElementsFromEndpointHandler());
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());

@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.integration.AbstractStoreWithCustomGraphIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.integration.VisibilityUser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -65,12 +65,11 @@ import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
  *
  * @param <T> the operation implementation to test
  */
-public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreWithCustomGraphIT {
+public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreIT {
     protected Iterable<? extends Element> input;
 
     @Override
     protected void _setup() throws Exception {
-        super._setup();
         input = getInputElements();
         if (null == graph || !JsonUtil.equals(graph.getSchema().toCompactJson(), getSchema().toCompactJson())) {
             createGraph(getSchema());
@@ -134,6 +133,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     //                         Get Elements                         //
     //////////////////////////////////////////////////////////////////
     @Test
+    @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     public void shouldGetAllElements() throws Exception {
         // Then
         getAllElements();
@@ -161,6 +161,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     @Test
+    @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     public void shouldGetAllElementsWithExcludedProperties() throws Exception {
         // Given
         final View view = new Builder()
@@ -197,10 +198,9 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         assertFalse(results.iterator().hasNext());
     }
 
-    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldGetElementsWithMatchedVertex() throws Exception {
-        validateTraits();
         // Then
         final View view = new Builder()
                 .edge(TestGroups.EDGE)
@@ -229,7 +229,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @VisibilityUser("basic")
     @Test
     public void shouldGetOnlyVisibleElements() throws Exception {
-        validateTraits();
         getAllElements();
     }
 
@@ -239,7 +238,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
-        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -259,7 +257,6 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
-        validateTraits();
         // Then
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -279,10 +276,9 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
-        validateTraits();
         // Then
         final View view = new Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
