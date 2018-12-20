@@ -15,10 +15,12 @@
  */
 package uk.gov.gchq.gaffer.store;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
@@ -36,8 +38,11 @@ import java.util.UUID;
 public class Context {
     private final User user;
     private final String jobId;
+    private String parentJobId;
+    private Repeat repeat;
     private final Map<String, Object> config;
     private OperationChain<?> originalOpChain;
+    private Map<String, Object> variables;
 
     /**
      * Map of exporter simple class name to exporter
@@ -49,7 +54,7 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, new HashMap<>());
+        this(user, null, new HashMap<>());
     }
 
     /**
@@ -59,11 +64,15 @@ public class Context {
      * @param context the context to shallow clone.
      */
     public Context(final Context context) {
-        this(null != context ? context.user : null, null != context ? context.config : null);
+        this(null != context ? context.user : null, null != context ? context.repeat : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
         if (null != context.originalOpChain) {
             originalOpChain = context.originalOpChain.shallowClone();
         }
+    }
+
+    public Context(final User user, final Repeat repeat) {
+        this(user, repeat, new HashMap<>());
     }
 
     /**
@@ -75,11 +84,14 @@ public class Context {
         return new Context(this);
     }
 
-    private Context(final User user, final Map<String, Object> config) {
+    private Context(final User user, final Repeat repeat, final Map<String, Object> config) {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
         this.user = user;
+        if (null != repeat) {
+            this.repeat = repeat;
+        }
         if (null == config) {
             this.config = new HashMap<>();
         } else {
@@ -92,16 +104,20 @@ public class Context {
      * Constructs a context with a provided job ID
      *
      * @param user   the user
+     * @param repeat the {@link Repeat} config for scheduled jobs
      * @param config the config
      * @param jobId  the job ID
      * @deprecated this should not be used. You should let the Context automatically set the job ID.
      */
     @Deprecated
-    private Context(final User user, final Map<String, Object> config, final String jobId) {
+    private Context(final User user, final Repeat repeat, final Map<String, Object> config, final String jobId) {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
         this.user = user;
+        if (null != repeat) {
+            this.repeat = repeat;
+        }
         if (null == config) {
             this.config = new HashMap<>();
         } else {
@@ -120,6 +136,50 @@ public class Context {
 
     public final String getJobId() {
         return jobId;
+    }
+
+    public String getParentJobId() {
+        return parentJobId;
+    }
+
+    public void setParentJobId(final String parentJobId) {
+        this.parentJobId = parentJobId;
+    }
+
+    public Map<String, Object> getVariables() {
+        return variables;
+    }
+
+    public Object getVariable(final String key) {
+        return variables.get(key);
+    }
+
+    public void setVariables(final Map<String, Object> variables) {
+        this.variables = variables;
+    }
+
+    public void setRepeat(final Repeat repeat) {
+        this.repeat = repeat;
+    }
+
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setVariable(final String key, final Object value) {
+        if (null != variables) {
+            this.variables.put(key, value);
+        } else {
+            setVariables(ImmutableMap.of(key, value));
+        }
+    }
+
+    public void addVariables(final Map<String, Object> variables) {
+        if (null != variables) {
+            this.variables.putAll(variables);
+        } else {
+            setVariables(variables);
+        }
     }
 
     public Collection<Exporter> getExporters() {
@@ -191,6 +251,7 @@ public class Context {
                 .append(originalOpChain, context.originalOpChain)
                 .append(exporters, context.exporters)
                 .append(config, context.config)
+                .append(variables, context.variables)
                 .isEquals();
     }
 
@@ -202,6 +263,7 @@ public class Context {
                 .append(originalOpChain)
                 .append(exporters)
                 .append(config)
+                .append(variables)
                 .toHashCode();
     }
 
@@ -213,6 +275,7 @@ public class Context {
                 .append("originalOpChain", originalOpChain)
                 .append("exporters", exporters)
                 .append("config", config)
+                .append("variables", variables)
                 .toString();
     }
 
@@ -222,7 +285,9 @@ public class Context {
 
     public static class Builder {
         private User user = new User();
+        private Repeat repeat;
         private final Map<String, Object> config = new HashMap<>();
+        private final Map<String, Object> variables = new HashMap<>();
         private String jobId;
 
         public Builder user(final User user) {
@@ -243,13 +308,28 @@ public class Context {
             return this;
         }
 
+        public Builder repeat(final Repeat repeat) {
+            this.repeat = repeat;
+            return this;
+        }
+
         public Builder config(final String key, final Object value) {
             this.config.put(key, value);
             return this;
         }
 
+        public Builder variables(final Map<String, Object> variables) {
+            this.variables.putAll(variables);
+            return this;
+        }
+
+        public Builder variable(final String key, final Object value) {
+            this.variables.put(key, value);
+            return this;
+        }
+
         public Context build() {
-            return new Context(user, config, jobId);
+            return new Context(user, repeat, config, jobId);
         }
     }
 }

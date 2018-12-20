@@ -42,6 +42,11 @@ public class FreqMap extends HashMap<String, Long> {
         super(initialCapacity, loadFactor);
     }
 
+    public FreqMap(final String initialKey) {
+        super();
+        upsert(initialKey);
+    }
+
     /**
      * Adds a new key and value to the map if the key is not already there.
      * If the key is already there, the value supplied is added to the existing value for the key and the result is inserted into the map.

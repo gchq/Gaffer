@@ -22,11 +22,11 @@ import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,14 +38,21 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>> {
     private static final long serialVersionUID = -5811180619204002981L;
     private final Set<String> groupByColumns;
 
-    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity) {
-        this.groupByColumns = new HashSet<>();
+    public ExtractKeyFromRow(final Set<String> groupByColumns,
+                             final Map<String, String[]> columnToPaths,
+                             final boolean isEntity,
+                             final boolean isReversed) {
+        this.groupByColumns = new LinkedHashSet<>();
         if (isEntity) {
-            addGroupByColumns(columnToPaths, ParquetStoreConstants.VERTEX);
+            addGroupByColumns(columnToPaths, ParquetStore.VERTEX);
+        } else if (!isReversed) {
+            addGroupByColumns(columnToPaths, ParquetStore.SOURCE);
+            addGroupByColumns(columnToPaths, ParquetStore.DESTINATION);
+            this.groupByColumns.add(ParquetStore.DIRECTED);
         } else {
-            addGroupByColumns(columnToPaths, ParquetStoreConstants.SOURCE);
-            addGroupByColumns(columnToPaths, ParquetStoreConstants.DESTINATION);
-            this.groupByColumns.add(ParquetStoreConstants.DIRECTED);
+            addGroupByColumns(columnToPaths, ParquetStore.DESTINATION);
+            addGroupByColumns(columnToPaths, ParquetStore.SOURCE);
+            this.groupByColumns.add(ParquetStore.DIRECTED);
         }
         for (final String col : columnToPaths.keySet()) {
             if (groupByColumns.contains(col)) {
@@ -66,7 +73,7 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>> {
     }
 
     @Override
-    public Seq<Object> call(final Row row) throws Exception {
+    public Seq<Object> call(final Row row) {
         final Builder<Object, Seq<Object>> key = Seq$.MODULE$.newBuilder();
         for (final String column : groupByColumns) {
             final Object columnValue = row.getAs(column);

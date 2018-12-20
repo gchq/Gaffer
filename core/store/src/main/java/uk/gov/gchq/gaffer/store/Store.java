@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -46,10 +48,13 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.GetVariable;
+import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
+import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -68,10 +73,13 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
@@ -100,8 +108,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetAsElementsFromEndpointHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
@@ -110,6 +121,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
@@ -124,9 +136,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.CancelScheduledJobHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.join.JoinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
@@ -153,6 +167,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -161,8 +176,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -182,6 +195,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+    private final Boolean addCoreOpHandlers;
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -203,10 +217,14 @@ public abstract class Store {
     private GraphLibrary library;
 
     private JobTracker jobTracker;
-    private ExecutorService executorService;
     private String graphId;
 
     public Store() {
+        this(true);
+    }
+
+    public Store(final Boolean addCoreOpHandlers) {
+        this.addCoreOpHandlers = addCoreOpHandlers;
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.opChainValidator = createOperationChainValidator();
         this.schemaOptimiser = createSchemaOptimiser();
@@ -260,7 +278,7 @@ public abstract class Store {
         optimiseSchema();
         validateSchemas();
         addOpHandlers();
-        addExecutorService();
+        addExecutorService(properties);
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
@@ -374,7 +392,12 @@ public abstract class Store {
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        final Runnable runnable = () -> {
+        if (null != context.getRepeat() && !initialJobDetail.getStatus().equals(JobStatus.CANCELLED)) {
+            scheduleJob(initialJobDetail, context);
+            return addOrUpdateJobDetail(operationChain, context, null, JobStatus.SCHEDULED_PARENT);
+        }
+
+        ExecutorService.getService().execute(() -> {
             try {
                 handleOperation(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
@@ -385,15 +408,13 @@ public abstract class Store {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
-        };
-
-        executorService.execute(runnable);
+        });
 
         return initialJobDetail;
     }
 
     public void runAsync(final Runnable runnable) {
-        executorService.execute(runnable);
+        ExecutorService.getService().execute(runnable);
     }
 
     public JobTracker getJobTracker() {
@@ -747,12 +768,14 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
-                .getUser()
-                .getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getParentJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg, context.getRepeat());
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());
+            if (newJobDetail.getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
+                context.setRepeat(null);
+            }
+
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
@@ -760,7 +783,26 @@ public abstract class Store {
                         .getUser());
             }
         }
+
         return newJobDetail;
+    }
+
+    private void scheduleJob(final JobDetail parentJobDetail, final Context context) {
+        ExecutorService.getService().scheduleAtFixedRate(() -> {
+            final OperationChain operationChain;
+            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            try {
+                operationChain = JSONSerialiser.deserialise(parentJobDetail.getOpChain().getBytes(CommonConstants.UTF_8), OperationChainDAO.class);
+                final Context newContext = context.shallowClone();
+                newContext.setParentJobId(parentJobDetail.getJobId());
+                executeJob(operationChain, newContext);
+            } catch (final OperationException | IOException e) {
+                throw new RuntimeException("Exception within scheduled job", e);
+            }
+        }, context.getRepeat().getInitialDelay(), context.getRepeat().getRepeatPeriod(), context.getRepeat().getTimeUnit());
     }
 
     public Object handleOperation(final Operation operation, final Context context) throws
@@ -786,18 +828,14 @@ public abstract class Store {
         return result;
     }
 
-    private void addExecutorService() {
-        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
-        LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
-        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount, runnable -> {
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            return thread;
-        });
+    private void addExecutorService(final StoreProperties properties) {
+        ExecutorService.initialise(properties.getJobExecutorThreadCount());
     }
 
     private void addOpHandlers() {
-        addCoreOpHandlers();
+        if (addCoreOpHandlers) {
+            addCoreOpHandlers();
+        }
         addAdditionalOperationHandlers();
         addConfiguredOperationHandlers();
     }
@@ -880,6 +918,14 @@ public abstract class Store {
         addOperationHandler(ForEach.class, new ForEachHandler());
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
+        addOperationHandler(Join.class, new JoinHandler());
+        addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
+        addOperationHandler(GetAsElementsFromEndpoint.class, new GetAsElementsFromEndpointHandler());
+
+        // Context variables
+        addOperationHandler(SetVariable.class, new SetVariableHandler());
+        addOperationHandler(GetVariable.class, new GetVariableHandler());
+        addOperationHandler(GetVariables.class, new GetVariablesHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

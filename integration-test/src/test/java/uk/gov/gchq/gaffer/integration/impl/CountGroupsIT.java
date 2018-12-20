@@ -1,6 +1,5 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -21,14 +20,12 @@ public class CountGroupsIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
     }
 
     @Test
-    public void shouldCountGroupsOfElements() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElements() throws OperationException {
         // Given
         final User user = new User();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
@@ -49,7 +46,7 @@ public class CountGroupsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldCountGroupsOfElementsWhenLessElementsThanLimit() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElementsWhenLessElementsThanLimit() throws OperationException {
         // Given
         final User user = new User();
         final Integer limit = getEntities().size() + getEdges().size() + 1;
@@ -71,7 +68,7 @@ public class CountGroupsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldCountGroupsOfElementsWhenMoreElementsThanLimit() throws OperationException, InterruptedException {
+    public void shouldCountGroupsOfElementsWhenMoreElementsThanLimit() throws OperationException {
         // Given
         final User user = new User();
         final int limit = 5;

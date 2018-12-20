@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
-            StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
+            StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);

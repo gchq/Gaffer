@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -63,5 +64,6 @@ public class ServletLifecycleListener implements ServletContextListener {
     public void contextDestroyed(final ServletContextEvent servletContextEvent) {
         LOGGER.info("Server shutting down - releasing resources");
         CacheServiceLoader.shutdown();
+        ExecutorService.shutdown();
     }
 }

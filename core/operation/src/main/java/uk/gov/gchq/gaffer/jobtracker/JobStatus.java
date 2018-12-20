@@ -36,5 +36,15 @@ public enum JobStatus {
     /**
      * An error occured while executing the Gaffer job.
      */
-    FAILED
+    FAILED,
+
+    /**
+     * The Gaffer job is a parent job to a scheduled job(s).
+     */
+    SCHEDULED_PARENT,
+
+    /**
+     * The Gaffer job is cancelled (to be used for scheduled jobs).
+     */
+    CANCELLED
 }

@@ -56,11 +56,14 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
+import uk.gov.gchq.gaffer.operation.impl.GetVariable;
+import uk.gov.gchq.gaffer.operation.impl.GetVariables;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
+import uk.gov.gchq.gaffer.operation.impl.SetVariable;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -80,10 +83,13 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
+import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
@@ -127,7 +133,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -383,7 +388,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new SetVariable.Builder().variableName("aVariable").input("inputString").build();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise("graphId", schema, properties);
@@ -538,14 +543,22 @@ public class StoreTest {
                 If.class,
                 GetTraits.class,
                 While.class,
+                Join.class,
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
+                CancelScheduledJob.class,
+                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -640,14 +653,22 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 While.class,
+                Join.class,
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
+                CancelScheduledJob.class,
+                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,
                 Transform.class,
-                Aggregate.class
+                Aggregate.class,
+
+                // Context variables
+                SetVariable.class,
+                GetVariable.class,
+                GetVariables.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -705,9 +726,9 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJob() throws OperationException, InterruptedException, StoreException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -735,9 +756,9 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, InterruptedException, StoreException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -762,7 +783,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldGetJobTracker() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -882,6 +903,14 @@ public class StoreTest {
         }
 
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
             return super.getOperationHandler(opClass);
         }
 
