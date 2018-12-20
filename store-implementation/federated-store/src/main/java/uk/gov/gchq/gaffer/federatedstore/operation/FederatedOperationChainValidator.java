@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore;
+package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
