@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -43,7 +44,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
     @Test
-    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
         final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -55,7 +57,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
 
         // When
-        String json = new String(JSONSerialiser.serialise(addNamedOperation, true));
+        String json = null;
+        try {
+            json = new String(JSONSerialiser.serialise(addNamedOperation, true));
+        } catch (SerialisationException e) {
+            fail("Json Serialisation failed. Error is: " + e.getMessage());
+        }
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -135,8 +142,11 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Override
     protected AddNamedOperation getTestObject() {
-        return new AddNamedOperation.Builder()
-                .operationChain(OPERATION_CHAIN)
-                .build();
+        return new AddNamedOperation();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("operations");
     }
 }

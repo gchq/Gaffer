@@ -64,7 +64,6 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
     private Map<String, String> options;
 
     public FederatedOperationChain() {
-        this(new OperationChain());
     }
 
     public FederatedOperationChain(final Operation... operations) {
@@ -126,7 +125,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
     }
 
     private void setOperationChain(final OperationChain operationChain) {
-        if (null == operationChain) {
+        if (null == operationChain || operationChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("operationChain is required");
         }
         this.operationChain = operationChain;
@@ -178,7 +177,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
             Operation.BaseBuilder<FederatedOperationChain<I, O_ITEM>, Builder<I, O_ITEM>>
             implements InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, CloseableIterable<O_ITEM>, Builder<I, O_ITEM>> {
         public Builder() {
-            super(new FederatedOperationChain<>(new OperationChain()));
+            super(new FederatedOperationChain<>());
         }
 
         public Builder<I, O_ITEM> operationChain(final OperationChain operationChain) {

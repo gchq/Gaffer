@@ -90,10 +90,6 @@ public class WhileTest extends OperationTest<While> {
 
     @Override
     protected While getTestObject() {
-        return new While.Builder<>()
-                .input(new EntitySeed(2))
-                .conditional(new Exists())
-                .operation(new GetAdjacentIds())
-                .build();
+        return new While();
     }
 }

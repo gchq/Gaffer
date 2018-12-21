@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
-public class FilterTest extends OperationTest {
+public class FilterTest extends OperationTest<Filter> {
     @Override
     @Test
     public void builderShouldCreatePopulatedOperation() {
