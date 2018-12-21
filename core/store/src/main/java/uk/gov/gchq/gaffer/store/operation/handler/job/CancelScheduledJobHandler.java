@@ -29,7 +29,7 @@ public class CancelScheduledJobHandler implements OperationHandler<CancelSchedul
         if (null == store.getJobTracker()) {
             throw new OperationException("JobTracker not enabled");
         }
-        if(null == operation.getJobId()) {
+        if (null == operation.getJobId()) {
             throw new OperationException("job id must be specified");
         }
 
