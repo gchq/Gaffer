@@ -768,7 +768,7 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getParentJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg, context.getRepeat());
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getParentJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());

@@ -67,7 +67,6 @@ public class JobSchedulerIT extends AbstractStoreIT {
 
     @Test
     public void shouldCancelScheduledJob() throws Exception {
-        // TODO - write job that is then cancelled
         // Given
         final Entity inputEntity = new Entity.Builder()
                 .group(TestGroups.ENTITY)

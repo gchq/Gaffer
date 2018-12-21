@@ -16,13 +16,25 @@
 
 package uk.gov.gchq.gaffer.operation.impl.job;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
+/**
+ * A {@code GetAsElementsFromEndpoint} is an {@link Operation} that will use the provided {@code ElementGenerator} to
+ * convert a String (JSON or otherwise) from a specified endpoint.
+ */
+@JsonPropertyOrder(value = {"jobId"}, alphabetic = true)
+@Since("1.9.0")
+@Summary("Cancels a scheduled job")
 public class CancelScheduledJob implements Operation {
+    @Required
     private String jobId;
     private Map<String, String> options;
 
@@ -35,7 +47,7 @@ public class CancelScheduledJob implements Operation {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public CancelScheduledJob shallowClone() throws CloneFailedException {
         return new CancelScheduledJob.Builder()
                 .jobId(jobId)
                 .options(options)

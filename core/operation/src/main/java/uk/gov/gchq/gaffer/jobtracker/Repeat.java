@@ -73,7 +73,6 @@ public class Repeat {
         return new EqualsBuilder()
                 .append(initialDelay, repeat.initialDelay)
                 .append(repeatPeriod, repeat.repeatPeriod)
-                .append(repeatPeriod, repeat.repeatPeriod)
                 .append(timeUnit, repeat.timeUnit)
                 .isEquals();
     }

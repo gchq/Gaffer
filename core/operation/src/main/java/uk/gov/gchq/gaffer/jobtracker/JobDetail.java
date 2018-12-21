@@ -63,44 +63,14 @@ public class JobDetail implements Serializable {
     }
 
     public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                this.opChain = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
-        }
-
-        this.jobId = jobId;
-        this.userId = userId;
-        this.startTime = System.currentTimeMillis();
-        this.status = jobStatus;
-        this.description = description;
+        this(jobId, null, userId, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                this.opChain = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
-        }
-
-        this.jobId = jobId;
-        this.userId = userId;
-        this.startTime = System.currentTimeMillis();
-        this.status = jobStatus;
-        this.description = description;
+    public JobDetail(final String jobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, userId, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
         try {
             if (opChain instanceof OperationChainDAO) {
                 this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
@@ -121,7 +91,6 @@ public class JobDetail implements Serializable {
     }
 
     public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
-
         this.opChain = opChain;
         this.jobId = jobId;
         this.userId = userId;

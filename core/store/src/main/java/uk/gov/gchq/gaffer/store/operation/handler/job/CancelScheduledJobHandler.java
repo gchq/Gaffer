@@ -29,6 +29,9 @@ public class CancelScheduledJobHandler implements OperationHandler<CancelSchedul
         if (null == store.getJobTracker()) {
             throw new OperationException("JobTracker not enabled");
         }
+        if(null == operation.getJobId()) {
+            throw new OperationException("job id must be specified");
+        }
 
         if (store.getJobTracker().getJob(operation.getJobId(), context.getUser()).getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
             store.getJobTracker().getJob(operation.getJobId(), context.getUser()).setStatus(JobStatus.CANCELLED);
