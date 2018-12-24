@@ -87,4 +87,25 @@ public class SetVariableHandlerTest {
             assertTrue(e.getMessage().contains("Variable input value cannot be null"));
         }
     }
+
+    @Test
+    public void setTwoVarsWithoutFailure() throws OperationException {
+        // Given
+        final Context context = new Context(new User());
+        final Store store = mock(Store.class);
+
+        SetVariableHandler handler = new SetVariableHandler();
+        SetVariable op = new SetVariable.Builder()
+                .variableName("testVarName")
+                .input("varVal")
+                .build();
+        SetVariable op1 = new SetVariable.Builder()
+                .variableName("testVarName1")
+                .input("varVal1")
+                .build();
+
+        // When / Then
+        handler.doOperation(op, context, store);
+        handler.doOperation(op1, context, store);
+    }
 }
