@@ -109,10 +109,11 @@ public class SetVariableHandlerTest {
                 .input(varVal1)
                 .build();
 
-        // When / Then
+        // When
         handler.doOperation(op, context, store);
         handler.doOperation(op1, context, store);
 
+        // Then
         assertEquals(2, context.getVariables().size());
         assertEquals(ImmutableMap.of(varName, varVal, varName1, varVal1), context.getVariables());
     }
