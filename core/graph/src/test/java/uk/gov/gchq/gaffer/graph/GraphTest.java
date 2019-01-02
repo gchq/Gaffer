@@ -1123,7 +1123,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
