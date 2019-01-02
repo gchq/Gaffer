@@ -101,6 +101,20 @@ public class GetVariablesHandlerTest {
     }
 
     @Test
+    public void shouldReturnEmptyMapWhenGetVariablesIsNull() throws OperationException {
+        //Given
+        final Context context = mock(Context.class);
+        final GetVariables op = new GetVariables.Builder().variableNames(null).build();
+        final GetVariablesHandler handler = new GetVariablesHandler();
+
+        //When
+        final Map<String, Object> resultMap = handler.doOperation(op, context, store);
+
+        //Then
+        assertEquals(new HashMap<>(), resultMap);
+    }
+
+    @Test
     public void shouldReturnNothingWhenGetVariablesKeysAreNull() throws OperationException {
         final Context context = mock(Context.class);
 
