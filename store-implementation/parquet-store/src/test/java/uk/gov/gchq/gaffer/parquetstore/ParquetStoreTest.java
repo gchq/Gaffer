@@ -24,6 +24,7 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -58,8 +59,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
@@ -149,6 +152,40 @@ public class ParquetStoreTest {
             return;
         }
         fail("IllegalArgumentException should have been thrown");
+    }
+
+    @Test
+    public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
+        //Given
+        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        ParquetStore store = (ParquetStore)
+                ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+
+        // When / Then
+        try {
+            store.setLatestSnapshot(12345L);
+        } catch (StoreException e) {
+            //Expected
+            assertThat(e.getMessage(), containsString("does not exist"));
+            return;
+        }
+        fail("StoreException should have been thrown as folder already exists");
+    }
+
+    @Test
+    public void shouldNotFailSettingSnapshotWhenSnapshotExists() throws IOException {
+        //Given
+        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        ParquetStore store = (ParquetStore)
+                ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
+        testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
+
+        // When / Then
+        try {
+            store.setLatestSnapshot(12345L);
+        } catch (StoreException e) {
+            fail("StoreException should not have been thrown. Message is:\n" + e.getMessage());
+        }
     }
 
     @Test
