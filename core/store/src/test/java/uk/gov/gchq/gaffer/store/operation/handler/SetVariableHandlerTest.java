@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -93,19 +94,26 @@ public class SetVariableHandlerTest {
         // Given
         final Context context = new Context(new User());
         final Store store = mock(Store.class);
+        final String varName = "testVarName";
+        final String varVal = "varVal";
+        final String varName1 = "testVarName1";
+        final String varVal1 = "varVal1";
 
         SetVariableHandler handler = new SetVariableHandler();
         SetVariable op = new SetVariable.Builder()
-                .variableName("testVarName")
-                .input("varVal")
+                .variableName(varName)
+                .input(varVal)
                 .build();
         SetVariable op1 = new SetVariable.Builder()
-                .variableName("testVarName1")
-                .input("varVal1")
+                .variableName(varName1)
+                .input(varVal1)
                 .build();
 
         // When / Then
         handler.doOperation(op, context, store);
         handler.doOperation(op1, context, store);
+
+        assertEquals(2, context.getVariables().size());
+        assertEquals(ImmutableMap.of(varName, varVal, varName1, varVal1), context.getVariables());
     }
 }
