@@ -71,6 +71,7 @@ public class VisibilityIT extends AbstractStoreIT {
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
 
         // Do NOT add an explicit visibility property
+        // entity1.putProperty(AccumuloPropertyNames.VISIBILITY, "");
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()

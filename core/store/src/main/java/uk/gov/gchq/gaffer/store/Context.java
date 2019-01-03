@@ -19,7 +19,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
@@ -256,7 +255,6 @@ public class Context {
 
     public static class Builder {
         private User user = new User();
-        private Repeat repeat;
         private final Map<String, Object> config = new HashMap<>();
         private final Map<String, Object> variables = new HashMap<>();
         private String jobId;

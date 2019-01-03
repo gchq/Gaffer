@@ -437,7 +437,7 @@ public abstract class Store {
             }
         }
 
-        /*final JobDetail initialJobDetail = jobDetail;*/
+        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
         ExecutorService.getService().execute(() -> {
             try {
@@ -451,7 +451,7 @@ public abstract class Store {
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
         });
-        return jobDetail;
+        return initialJobDetail;
     }
 
     public void runAsync(final Runnable runnable) {
@@ -824,7 +824,6 @@ public abstract class Store {
                         .getUser());
             }
         }
-
         return newJobDetail;
     }
 
