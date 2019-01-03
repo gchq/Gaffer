@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
 
@@ -53,18 +51,6 @@ import static org.mockserver.model.HttpResponse.response;
 
 public class JobSchedulerIT extends AbstractStoreIT {
 
-    @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-    }
-
-    @Before
-    public void checkNoElementsInGraph() throws Exception {
-        CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context());
-        Assert.assertFalse(results.iterator().hasNext());
-    }
-
     @Test
     public void shouldCancelScheduledJob() throws Exception {
         // Given
@@ -72,7 +58,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
                 .group(TestGroups.ENTITY)
                 .vertex("vertex")
                 .build();
-        final Repeat repeat = new Repeat(2, 2, TimeUnit.SECONDS);
+        final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new AddElements.Builder()
                         .input(inputEntity)
@@ -89,7 +75,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
         assertFalse(resultsAfterNoAdd.iterator().hasNext());
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
-        Thread.sleep(3000);
+        // sleep because the job is scheduled
+        Thread.sleep(200);
 
         // When
         CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
@@ -100,7 +87,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // When
         graph.execute(new CancelScheduledJob.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
 
-        Thread.sleep(2000);
+        // sleep because the job is scheduled
+        Thread.sleep(1800);
 
         parentJobDetail = graph.execute(new GetJobDetails.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
 
@@ -126,7 +114,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
         final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
         final Entity firstEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[0]).build();
         final Entity secondEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[1]).build();
-        final Repeat repeat = new Repeat(3, 3, TimeUnit.SECONDS);
+        final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
 
         final GetAsElementsFromEndpoint getAsElementsFromEndpoint = new GetAsElementsFromEndpoint.Builder()
                 .endpoint(endpointString)
@@ -154,7 +142,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
         CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
         assertFalse(resultsAfterNoAdd.iterator().hasNext());
 
-        Thread.sleep(5000);
+        // sleep because the job is scheduled
+        Thread.sleep(200);
 
         // Check it has been run once with the first Elements
         CloseableIterable<? extends Element> resultsAfterOneAdd = graph.execute(new GetAllElements(), new Context(user));
@@ -174,8 +163,10 @@ public class JobSchedulerIT extends AbstractStoreIT {
                                 "  }\n" +
                                 "]"));
 
+        // sleep because the job is scheduled
+        Thread.sleep(1800);
+
         // Check it has been run twice and now has all elements
-        Thread.sleep(4000);
         CloseableIterable<? extends Element> resultsAfterTwoAdd = graph.execute(new GetAllElements(), new Context(user));
         ElementUtil.assertElementEquals(Arrays.asList(firstEndpointEntity, secondEndpointEntity), resultsAfterTwoAdd);
     }
@@ -187,7 +178,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
                 .group(TestGroups.ENTITY)
                 .vertex("vertex")
                 .build();
-        final Repeat repeat = new Repeat(2, 100, TimeUnit.SECONDS);
+        final Repeat repeat = new Repeat(1, 100, TimeUnit.SECONDS);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new AddElements.Builder()
                         .input(inputEntity)
@@ -204,8 +195,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
         assertFalse(resultsAfterNoAdd.iterator().hasNext());
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
-        // zzzzzzzzzzzzzzzz
-        Thread.sleep(3000);
+        // sleep because the job is scheduled
+        Thread.sleep(1000);
 
         // When
         CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
@@ -217,7 +208,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
     @Test
     public void shouldThrowExceptionOnIncorrectlyConfiguredJob() throws Exception {
         // Given
-        final Repeat repeat = new Repeat(1, 30, TimeUnit.SECONDS);
+        final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
         // Incorrectly configured Job
         final OperationChain opChain = new OperationChain.Builder().first(new Limit<>()).build();
         final Context context = new Context(user, repeat);
@@ -228,7 +219,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Then
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
-        Thread.sleep(2000);
+        // sleep because the job is scheduled
+        Thread.sleep(200);
 
         // Given / When
         CloseableIterable<JobDetail> jobDetailList = graph.execute(new GetAllJobDetails(), context);
@@ -255,7 +247,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Then
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
-        Thread.sleep(2000);
+        Thread.sleep(200);
 
         // Given / When
         CloseableIterable<JobDetail> jobDetailList = graph.execute(new GetAllJobDetails(), context);

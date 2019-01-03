@@ -27,8 +27,8 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * A {@code GetAsElementsFromEndpoint} is an {@link Operation} that will use the provided {@code ElementGenerator} to
- * convert a String (JSON or otherwise) from a specified endpoint.
+ * A {@code CancelScheduledJob} is an {@link Operation} that will use the provided {@code jobId} to
+ * cancel the job, if it is scheduled.
  */
 @JsonPropertyOrder(value = {"jobId"}, alphabetic = true)
 @Since("1.9.0")
