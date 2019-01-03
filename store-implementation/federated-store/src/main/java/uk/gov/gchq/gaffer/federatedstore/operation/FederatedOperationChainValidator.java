@@ -28,7 +28,11 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -51,25 +55,57 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         validateAllGraphsIdViews(op, user, store, validationResult, getGraphIds(op, user, (FederatedStore) store));
     }
 
+    /**
+     * If the given view is valid for at least 1 of the graphIds, then view is valid and exit.
+     * Else none are valid, return all the errors within the validation result.
+     *
+     * @param op               The operation with view to test
+     * @param user             The requesting user
+     * @param store            The current store
+     * @param validationResult The result of validation
+     * @param graphIds         The graphs to test the view against
+     */
     private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final Collection<String> graphIds) {
-        ValidationResult errors = new ValidationResult();
-        ValidationResult current = errors;
+        ValidationResult savedResult = new ValidationResult();
+        ValidationResult currentResult = null;
+
+        final Operation clonedOp = shallowCloneWithDeepOptions(op);
 
         for (final String graphId : graphIds) {
-            current = new ValidationResult();
-            final Operation clone = op.shallowClone();
-            clone.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
-            super.validateViews(clone, user, store, current);
-            if (current.isValid()) {
+            currentResult = new ValidationResult();
+            clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+            super.validateViews(clonedOp, user, store, currentResult);
+            if (currentResult.isValid()) {
+                //If any graph has a valid View, break with valid current result
                 break;
             } else {
-                errors.add(current);
+                savedResult.add(currentResult);
             }
         }
 
-        if (!current.isValid()) {
-            validationResult.add(errors);
+        //What state did the for loop exit with?
+        if (currentResult != null && !currentResult.isValid()) {
+            validationResult.addError("View is not valid for graphIds:" + graphIds.stream().collect(Collectors.joining(",", "[", "]")));
+            //If invalid, no graphs views where valid, so add all saved errors.
+            validationResult.add(savedResult);
         }
+    }
+
+    /**
+     * Return a clone of the given operations with a deep clone of options.
+     *
+     * Because op.shallowClone() is used it can't be guaranteed that original options won't be modified.
+     * So a deep clone of the options is made for the shallow clone of the operation.
+     *
+     * @param op the operation to clone
+     * @return a clone of the operation with a deep clone of options.
+     */
+    private Operation shallowCloneWithDeepOptions(final Operation op) {
+        final Operation cloneForValidation = op.shallowClone();
+        final Map<String, String> options = op.getOptions();
+        final Map<String, String> optionsDeepClone = isNull(options) ? null : new HashMap<>(options);
+        cloneForValidation.setOptions(optionsDeepClone);
+        return cloneForValidation;
     }
 
     private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
