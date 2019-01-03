@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,11 +51,8 @@ public class GetAsElementsFromEndpointHandler implements OperationHandler<GetAsE
 
     private String getJsonFromEndpoint(final String endpoint) throws OperationException {
         final StringBuffer response = new StringBuffer();
-        try {
-            final InputStream inputStream = new URL(endpoint).openStream();
+        try (final BufferedReader in = new BufferedReader(new InputStreamReader(new URL(endpoint).openStream()))) {
             String readLine;
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(inputStream));
             while ((readLine = in.readLine()) != null) {
                 response.append(readLine);
             }

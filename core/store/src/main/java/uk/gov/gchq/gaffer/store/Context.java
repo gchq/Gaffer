@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -171,7 +170,7 @@ public class Context {
         if (null != variables) {
             this.variables.put(key, value);
         } else {
-            setVariables(ImmutableMap.of(key, value));
+            setVariables(Collections.singletonMap(key, value));
         }
     }
 
