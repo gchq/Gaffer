@@ -37,8 +37,6 @@ import java.util.UUID;
 public class Context {
     private final User user;
     private final String jobId;
-    private String parentJobId;
-    private Repeat repeat;
     private final Map<String, Object> config;
     private OperationChain<?> originalOpChain;
     private Map<String, Object> variables;
@@ -53,7 +51,7 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, null, new HashMap<>());
+        this(user, new HashMap<>());
     }
 
     /**
@@ -63,15 +61,11 @@ public class Context {
      * @param context the context to shallow clone.
      */
     public Context(final Context context) {
-        this(null != context ? context.user : null, null != context ? context.repeat : null, null != context ? context.config : null);
+        this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
         if (null != context.originalOpChain) {
             originalOpChain = context.originalOpChain.shallowClone();
         }
-    }
-
-    public Context(final User user, final Repeat repeat) {
-        this(user, repeat, new HashMap<>());
     }
 
     /**
@@ -83,14 +77,11 @@ public class Context {
         return new Context(this);
     }
 
-    private Context(final User user, final Repeat repeat, final Map<String, Object> config) {
+    private Context(final User user, final Map<String, Object> config) {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
         this.user = user;
-        if (null != repeat) {
-            this.repeat = repeat;
-        }
         if (null == config) {
             this.config = new HashMap<>();
         } else {
@@ -104,20 +95,16 @@ public class Context {
      * Constructs a context with a provided job ID
      *
      * @param user   the user
-     * @param repeat the {@link Repeat} config for scheduled jobs
      * @param config the config
      * @param jobId  the job ID
      * @deprecated this should not be used. You should let the Context automatically set the job ID.
      */
     @Deprecated
-    private Context(final User user, final Repeat repeat, final Map<String, Object> config, final String jobId) {
+    private Context(final User user, final Map<String, Object> config, final String jobId) {
         if (null == user) {
             throw new IllegalArgumentException("User is required");
         }
         this.user = user;
-        if (null != repeat) {
-            this.repeat = repeat;
-        }
         if (null == config) {
             this.config = new HashMap<>();
         } else {
@@ -138,14 +125,6 @@ public class Context {
         return jobId;
     }
 
-    public String getParentJobId() {
-        return parentJobId;
-    }
-
-    public void setParentJobId(final String parentJobId) {
-        this.parentJobId = parentJobId;
-    }
-
     public Map<String, Object> getVariables() {
         return variables;
     }
@@ -156,14 +135,6 @@ public class Context {
 
     public void setVariables(final Map<String, Object> variables) {
         this.variables = variables;
-    }
-
-    public void setRepeat(final Repeat repeat) {
-        this.repeat = repeat;
-    }
-
-    public Repeat getRepeat() {
-        return repeat;
     }
 
     public void setVariable(final String key, final Object value) {
@@ -308,11 +279,6 @@ public class Context {
             return this;
         }
 
-        public Builder repeat(final Repeat repeat) {
-            this.repeat = repeat;
-            return this;
-        }
-
         public Builder config(final String key, final Object value) {
             this.config.put(key, value);
             return this;
@@ -329,7 +295,7 @@ public class Context {
         }
 
         public Context build() {
-            return new Context(user, repeat, config, jobId);
+            return new Context(user, config, jobId);
         }
     }
 }

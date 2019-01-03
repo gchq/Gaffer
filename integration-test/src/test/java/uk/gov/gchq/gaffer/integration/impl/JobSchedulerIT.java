@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.JsonToElementGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
@@ -50,60 +51,6 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 public class JobSchedulerIT extends AbstractStoreIT {
-
-    @Test
-    public void shouldCancelScheduledJob() throws Exception {
-        // Given
-        final Entity inputEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex")
-                .build();
-        final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
-        final OperationChain opChain = new OperationChain.Builder()
-                .first(new AddElements.Builder()
-                        .input(inputEntity)
-                        .build())
-                .build();
-
-        final Context context = new Context(user, repeat);
-
-        // When
-        JobDetail parentJobDetail = graph.executeJob(opChain, context);
-        CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
-
-        // Then
-        assertFalse(resultsAfterNoAdd.iterator().hasNext());
-        assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
-
-        // sleep because the job is scheduled
-        Thread.sleep(200);
-
-        // When
-        CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
-
-        // Then
-        ElementUtil.assertElementEquals(Collections.singletonList(inputEntity), results);
-
-        // When
-        graph.execute(new CancelScheduledJob.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
-
-        // sleep because the job is scheduled
-        Thread.sleep(1800);
-
-        parentJobDetail = graph.execute(new GetJobDetails.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
-
-        assertEquals(JobStatus.CANCELLED, parentJobDetail.getStatus());
-
-        CloseableIterable<JobDetail> allJobs = graph.execute(new GetAllJobDetails.Builder().build(), new Context(user));
-
-        int childJobsRun = 0;
-        for (JobDetail job : allJobs) {
-            if (null != job.getParentJobId() && job.getParentJobId().equals(parentJobDetail.getJobId())) {
-                childJobsRun += 1;
-            }
-        }
-        assertEquals(1, childJobsRun);
-    }
 
     @Test
     public void shouldRunScheduledJob() throws Exception {
@@ -136,7 +83,8 @@ public class JobSchedulerIT extends AbstractStoreIT {
 
         // setup and schedule job
         final OperationChain opChain = new OperationChain.Builder().first(getAsElementsFromEndpoint).then(new AddElements()).build();
-        graph.executeJob(opChain, new Context(user, repeat));
+
+        graph.executeJob(new Job(repeat, opChain), new Context(user));
 
         // Check nothing in graph at the moment
         CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
@@ -172,6 +120,55 @@ public class JobSchedulerIT extends AbstractStoreIT {
     }
 
     @Test
+    public void shouldCancelScheduledJob() throws Exception {
+        // Given
+        final Entity inputEntity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex")
+                .build();
+        final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new AddElements.Builder()
+                        .input(inputEntity)
+                        .build())
+                .build();
+
+        final Job job = new Job(repeat, opChain);
+
+        // When
+        JobDetail parentJobDetail = graph.executeJob(job, new Context(user));
+
+        // sleep because the job is scheduled
+        Thread.sleep(200);
+
+        // When
+        CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
+
+        // Then
+        ElementUtil.assertElementEquals(Collections.singletonList(inputEntity), results);
+
+        // When
+        graph.execute(new CancelScheduledJob.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
+
+        // sleep because the job is scheduled
+        Thread.sleep(1800);
+
+        parentJobDetail = graph.execute(new GetJobDetails.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
+
+        assertEquals(JobStatus.CANCELLED, parentJobDetail.getStatus());
+
+        CloseableIterable<JobDetail> allJobs = graph.execute(new GetAllJobDetails.Builder().build(), new Context(user));
+
+        int childJobsRun = 0;
+        for (JobDetail job2 : allJobs) {
+            if (null != job2.getParentJobId() && job2.getParentJobId().equals(parentJobDetail.getJobId())) {
+                childJobsRun += 1;
+            }
+        }
+        assertEquals(1, childJobsRun);
+    }
+
+    @Test
     public void shouldRunSimpleScheduledJobThatRunsOnce() throws Exception {
         // Given
         final Entity inputEntity = new Entity.Builder()
@@ -185,10 +182,10 @@ public class JobSchedulerIT extends AbstractStoreIT {
                         .build())
                 .build();
 
-        final Context context = new Context(user, repeat);
+        final Context context = new Context(user);
 
         // When
-        JobDetail parentJobDetail = graph.executeJob(opChain, context);
+        JobDetail parentJobDetail = graph.executeJob(new Job(repeat, opChain), context);
         CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
 
         // Then
@@ -211,10 +208,10 @@ public class JobSchedulerIT extends AbstractStoreIT {
         final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
         // Incorrectly configured Job
         final OperationChain opChain = new OperationChain.Builder().first(new Limit<>()).build();
-        final Context context = new Context(user, repeat);
+        final Context context = new Context(user);
 
         // When
-        JobDetail parentJobDetail = graph.executeJob(opChain, context);
+        JobDetail parentJobDetail = graph.executeJob(new Job(repeat, opChain), context);
 
         // Then
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
@@ -239,10 +236,10 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Given
         final Repeat repeat = new Repeat(0, 30, TimeUnit.SECONDS);
         final OperationChain opChain = new OperationChain.Builder().first(new Limit<>(3)).build();
-        final Context context = new Context(user, repeat);
+        final Context context = new Context(user);
 
         // When
-        JobDetail parentJobDetail = graph.executeJob(opChain, context);
+        JobDetail parentJobDetail = graph.executeJob(new Job(repeat, opChain), context);
 
         // Then
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());

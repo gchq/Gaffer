@@ -23,10 +23,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import javax.ws.rs.Consumes;
@@ -95,7 +94,7 @@ public interface IJobServiceV2 {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
-    Response executeJob(final OperationChainDAO opChain, final Repeat repeat) throws OperationException;
+    Response executeJob(final Job job) throws OperationException;
 
     @GET
     @ApiOperation(value = "Get the details of all jobs",

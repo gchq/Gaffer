@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 
@@ -34,7 +36,9 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
     @Test
     public void shouldCorrectlyDoScheduledJob() throws IOException {
         // When
-        final Response response = client.scheduleJob(new GetAllElements(), new Repeat(2, 2, TimeUnit.SECONDS));
+        final Repeat repeat = new Repeat(2, 2, TimeUnit.SECONDS);
+        Job job = new Job(repeat, new OperationChain.Builder().first(new GetAllElements()).build());
+        final Response response = client.scheduleJob(job);
 
         // Then
         // TODO - assert something to make this test useful

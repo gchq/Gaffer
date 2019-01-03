@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
@@ -371,10 +372,56 @@ public abstract class Store {
         return executeJob(OperationChain.wrap(operation), context);
     }
 
+    public JobDetail executeJob(final Job job, final Context context) throws OperationException {
+        final JobDetail jobDetail = addOrUpdateJobDetail(job.getOpChainAsOperationChain(), context, null, JobStatus.RUNNING);
+        jobDetail.setRepeat(job.getRepeat());
+        return executeJob(jobDetail, context);
+    }
+
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
-        if (null == jobTracker) {
-            throw new OperationException("Running jobs has not configured.");
+        return executeJob(addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING), context);
+    }
+
+    private JobDetail executeJob(final JobDetail jobDetail, final Context context) throws OperationException {
+        if (null != jobDetail.getRepeat()) {
+            // scheduled
+            scheduleJob(jobDetail, context);
+            return addOrUpdateJobDetail(jobDetail.getOpChainAsOperationChain(), context, null, JobStatus.SCHEDULED_PARENT);
+        } else {
+            // just run the job as normal
+            return runJob(jobDetail, context);
         }
+    }
+
+    private JobDetail scheduleJob(final JobDetail parentJobDetail, final Context context) throws OperationException {
+        if (null == jobTracker) {
+            throw new OperationException("JobTracker has not been configured.");
+        }
+
+        ExecutorService.getService().scheduleAtFixedRate(() -> {
+            final OperationChain operationChain;
+            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            try {
+                operationChain = JSONSerialiser.deserialise(parentJobDetail.getOpChain().getBytes(CommonConstants.UTF_8), OperationChainDAO.class);
+                final Context newContext = context.shallowClone();
+                JobDetail jobDetail = executeJob(operationChain, newContext);
+                jobDetail.setParentJobId(parentJobDetail.getJobId());
+            } catch (final OperationException | IOException e) {
+                throw new RuntimeException("Exception within scheduled job", e);
+            }
+        }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
+        return parentJobDetail;
+    }
+
+    private JobDetail runJob(final JobDetail jobDetail, final Context context) throws OperationException {
+        if (null == jobTracker) {
+            throw new OperationException("JobTracker has not been configured.");
+        }
+
+        OperationChain<?> operationChain = jobDetail.getOpChainAsOperationChain();
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -390,12 +437,7 @@ public abstract class Store {
             }
         }
 
-        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
-
-        if (null != context.getRepeat() && !initialJobDetail.getStatus().equals(JobStatus.CANCELLED)) {
-            scheduleJob(initialJobDetail, context);
-            return addOrUpdateJobDetail(operationChain, context, null, JobStatus.SCHEDULED_PARENT);
-        }
+        /*final JobDetail initialJobDetail = jobDetail;*/
 
         ExecutorService.getService().execute(() -> {
             try {
@@ -409,8 +451,7 @@ public abstract class Store {
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
         });
-
-        return initialJobDetail;
+        return jobDetail;
     }
 
     public void runAsync(final Runnable runnable) {
@@ -768,12 +809,12 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getParentJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());
             if (newJobDetail.getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
-                context.setRepeat(null);
+                newJobDetail.setRepeat(null);
             }
 
             if (null == oldJobDetail) {
@@ -785,24 +826,6 @@ public abstract class Store {
         }
 
         return newJobDetail;
-    }
-
-    private void scheduleJob(final JobDetail parentJobDetail, final Context context) {
-        ExecutorService.getService().scheduleAtFixedRate(() -> {
-            final OperationChain operationChain;
-            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-            try {
-                operationChain = JSONSerialiser.deserialise(parentJobDetail.getOpChain().getBytes(CommonConstants.UTF_8), OperationChainDAO.class);
-                final Context newContext = context.shallowClone();
-                newContext.setParentJobId(parentJobDetail.getJobId());
-                executeJob(operationChain, newContext);
-            } catch (final OperationException | IOException e) {
-                throw new RuntimeException("Exception within scheduled job", e);
-            }
-        }, context.getRepeat().getInitialDelay(), context.getRepeat().getRepeatPeriod(), context.getRepeat().getTimeUnit());
     }
 
     public Object handleOperation(final Operation operation, final Context context) throws

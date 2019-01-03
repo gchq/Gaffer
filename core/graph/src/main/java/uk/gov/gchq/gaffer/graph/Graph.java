@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -205,6 +206,21 @@ public final class Graph {
      */
     public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
         return executeJob(new GraphRequest<>(operation, context)).getResult();
+    }
+
+    /**
+     * Performs the given Job on the store.
+     * This should be used for Scheduled Jobs,
+     * although if no repeat is set it
+     * will act as a normal Job.
+     *
+     * @param job     the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param context the user context for the execution of the operation
+     * @return the job detail
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Job job, final Context context) throws OperationException {
+        return store.executeJob(job, context);
     }
 
     /**

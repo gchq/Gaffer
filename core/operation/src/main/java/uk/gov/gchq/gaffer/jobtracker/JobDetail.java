@@ -35,6 +35,7 @@ public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String parentJobId;
+    private Repeat repeat;
     private String jobId;
     private String userId;
     private JobStatus status;
@@ -144,6 +145,14 @@ public class JobDetail implements Serializable {
         return opChain;
     }
 
+    public OperationChain<?> getOpChainAsOperationChain() {
+        try {
+            return JSONSerialiser.deserialise(opChain, OperationChainDAO.class);
+        } catch (SerialisationException e) {
+            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+        }
+    }
+
     public void setParentJobId(final String parentJobId) {
         this.parentJobId = parentJobId;
     }
@@ -164,6 +173,14 @@ public class JobDetail implements Serializable {
         this.description = description;
     }
 
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(final Repeat repeat) {
+        this.repeat = repeat;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -181,6 +198,7 @@ public class JobDetail implements Serializable {
                 .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
                 .append(description, jobDetail.description)
+                .append(repeat, jobDetail.repeat)
                 .isEquals();
     }
 
@@ -194,6 +212,7 @@ public class JobDetail implements Serializable {
                 .append(endTime)
                 .append(status)
                 .append(description)
+                .append(repeat)
                 .toHashCode();
     }
 
@@ -207,6 +226,7 @@ public class JobDetail implements Serializable {
                 .append("endTime", endTime)
                 .append("opChain", opChain)
                 .append("description", description)
+                .append("repeat", repeat)
                 .toString();
     }
 
