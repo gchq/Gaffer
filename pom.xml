@@ -91,6 +91,7 @@
         <snappy.version>1.1.2.4</snappy.version>
         <swagger.version>1.5.15</swagger.version>
         <zookeeper.version>3.4.6</zookeeper.version>
+        <mockserver.version>3.9.16</mockserver.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
