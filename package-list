@@ -124,12 +124,15 @@ uk.gov.gchq.gaffer.operation.impl.function
 uk.gov.gchq.gaffer.operation.impl.generate
 uk.gov.gchq.gaffer.operation.impl.get
 uk.gov.gchq.gaffer.operation.impl.job
+uk.gov.gchq.gaffer.operation.impl.join
+uk.gov.gchq.gaffer.operation.impl.join.match
+uk.gov.gchq.gaffer.operation.impl.join.merge
+uk.gov.gchq.gaffer.operation.impl.join.methods
 uk.gov.gchq.gaffer.operation.impl.output
 uk.gov.gchq.gaffer.operation.io
 uk.gov.gchq.gaffer.operation.serialisation
 uk.gov.gchq.gaffer.operation.util
 uk.gov.gchq.gaffer.parquetstore
-uk.gov.gchq.gaffer.parquetstore.index
 uk.gov.gchq.gaffer.parquetstore.io
 uk.gov.gchq.gaffer.parquetstore.io.reader
 uk.gov.gchq.gaffer.parquetstore.io.reader.converter
@@ -139,6 +142,9 @@ uk.gov.gchq.gaffer.parquetstore.operation.handler
 uk.gov.gchq.gaffer.parquetstore.operation.handler.spark
 uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities
 uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities
+uk.gov.gchq.gaffer.parquetstore.partitioner
+uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation
+uk.gov.gchq.gaffer.parquetstore.query
 uk.gov.gchq.gaffer.parquetstore.serialisation
 uk.gov.gchq.gaffer.parquetstore.serialisation.impl
 uk.gov.gchq.gaffer.parquetstore.utils
@@ -225,6 +231,9 @@ uk.gov.gchq.gaffer.store.operation.handler.export.set
 uk.gov.gchq.gaffer.store.operation.handler.function
 uk.gov.gchq.gaffer.store.operation.handler.generate
 uk.gov.gchq.gaffer.store.operation.handler.job
+uk.gov.gchq.gaffer.store.operation.handler.join
+uk.gov.gchq.gaffer.store.operation.handler.join.match
+uk.gov.gchq.gaffer.store.operation.handler.join.merge
 uk.gov.gchq.gaffer.store.operation.handler.named
 uk.gov.gchq.gaffer.store.operation.handler.named.cache
 uk.gov.gchq.gaffer.store.operation.handler.output
