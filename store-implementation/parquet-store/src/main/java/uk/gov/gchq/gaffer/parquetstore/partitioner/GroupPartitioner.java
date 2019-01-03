@@ -36,12 +36,14 @@ public class GroupPartitioner {
 
     private final String group;
     private final List<PartitionKey> splitPoints;
+    private final List<Partition> partitions;
 
     public GroupPartitioner(final String group, final List<PartitionKey> splitPoints) {
         this.group = group;
         checkPartitionKeysAreTheSameLength(splitPoints);
         checkSplitPointsAreOrdered(splitPoints);
         this.splitPoints = splitPoints;
+        this.partitions = computePartitions();
     }
 
     public String getGroup() {
@@ -90,13 +92,14 @@ public class GroupPartitioner {
         if (null == partialKey) {
             throw new IllegalArgumentException("getPartitionIds cannot be called with null partialKey");
         }
-        if (0 == splitPoints.size()) {
+        if (splitPoints.isEmpty()) {
             return Collections.singletonList(0);
         }
-        if (partialKey.length == splitPoints.get(0).getLength()) {
+        final int partitionKeyLength = splitPoints.get(0).getLength();
+        if (partialKey.length == partitionKeyLength) {
             return getPartitionIdsSameLengthKey(partialKey);
         }
-        if (partialKey.length < splitPoints.get(0).getLength()) {
+        if (partialKey.length < partitionKeyLength) {
             return getPartitionIdsShorterKey(partialKey);
         }
         throw new IllegalArgumentException("getPartitionIds cannot be called with a partialKey that is longer than the split points");
@@ -154,8 +157,11 @@ public class GroupPartitioner {
         return splitPoints;
     }
 
-    // TODO pre-compute this
     public List<Partition> getPartitions() {
+        return this.partitions;
+    }
+
+    private List<Partition> computePartitions() {
         if (splitPoints.isEmpty()) {
             return Collections.singletonList(new Partition(0, new NegativeInfinityPartitionKey(), new PositiveInfinityPartitionKey()));
         }
@@ -200,6 +206,7 @@ public class GroupPartitioner {
         return new ToStringBuilder(this)
                 .append("group", group)
                 .append("splitPoints", splitPoints)
+                .append("partitions", partitions)
                 .toString();
     }
 
@@ -218,6 +225,7 @@ public class GroupPartitioner {
         return new EqualsBuilder()
                 .append(group, other.group)
                 .append(splitPoints, other.splitPoints)
+                .append(partitions, other.partitions)
                 .isEquals();
     }
 
@@ -226,6 +234,7 @@ public class GroupPartitioner {
         return new HashCodeBuilder(17, 37)
                 .append(group)
                 .append(splitPoints)
+                .append(partitions)
                 .toHashCode();
     }
 }

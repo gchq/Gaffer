@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -84,7 +83,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -1125,7 +1123,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1269,7 +1267,7 @@ public class GraphTest {
     }
 
     private void writeToFile(final String schemaFile, final File dir) throws IOException {
-        Files.copy(new SchemaStreamSupplier(schemaFile), new File(dir + "/" + schemaFile));
+        Files.copy(new File(getClass().getResource("/schema/" + schemaFile).getPath()), new File(dir + "/" + schemaFile));
     }
 
     @Test
@@ -1939,19 +1937,6 @@ public class GraphTest {
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;
-        }
-    }
-
-    private static final class SchemaStreamSupplier implements InputSupplier<InputStream> {
-        private final String schemaFile;
-
-        private SchemaStreamSupplier(final String schemaFile) {
-            this.schemaFile = schemaFile;
-        }
-
-        @Override
-        public InputStream getInput() throws IOException {
-            return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
         }
     }
 
