@@ -110,7 +110,6 @@ public class HllSketchIsLessThanTest extends PredicateTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final long controlValue = 15;

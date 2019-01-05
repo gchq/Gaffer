@@ -35,7 +35,6 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final FreqMapAggregator aggregator = new FreqMapAggregator();

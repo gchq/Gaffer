@@ -33,7 +33,6 @@ import static org.junit.Assert.assertNotSame;
 
 public class FilterTest extends OperationTest<Filter> {
     @Override
-    @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Filter filter = new Filter.Builder()
@@ -53,7 +52,6 @@ public class FilterTest extends OperationTest<Filter> {
     }
 
     @Override
-    @Test
     public void shouldShallowCloneOperation() {
         // Given
         final List<Element> input = new ArrayList<>();

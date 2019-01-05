@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -43,7 +42,6 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
-    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
@@ -78,7 +76,6 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "}"), json);
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()

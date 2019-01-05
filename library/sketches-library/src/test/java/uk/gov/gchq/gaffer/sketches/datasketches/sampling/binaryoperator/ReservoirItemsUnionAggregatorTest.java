@@ -85,7 +85,6 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final ReservoirItemsUnionAggregator aggregator = new ReservoirItemsUnionAggregator();

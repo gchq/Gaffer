@@ -28,7 +28,6 @@ import static org.junit.Assert.assertThat;
 
 public class CountTest extends OperationTest<Count> {
     @Override
-    @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Count count = new Count.Builder<String>()
