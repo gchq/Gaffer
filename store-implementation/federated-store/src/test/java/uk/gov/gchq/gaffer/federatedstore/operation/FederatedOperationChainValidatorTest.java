@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore;
+package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
+import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -31,7 +34,7 @@ public class FederatedOperationChainValidatorTest {
     @Test
     public void shouldGetFederatedSchema() {
         // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
+        final ViewValidator viewValidator = mock(FederatedViewValidator.class);
         final FederatedOperationChainValidator validator = new FederatedOperationChainValidator(viewValidator);
         final FederatedStore store = mock(FederatedStore.class);
         final User user = mock(User.class);
