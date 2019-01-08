@@ -26,7 +26,9 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 
 /**
- * POJO containing details of a Gaffer job.  To be used within the ExecuteJob for a ScheduledJob.
+ * POJO containing details of a scheduled Gaffer job,
+ * a {@link Repeat} and an Operation chain as a String.
+ * To be used within the ExecuteJob for a ScheduledJob.
  */
 public class Job implements Serializable {
     private static final long serialVersionUID = 4256047541729392136L;

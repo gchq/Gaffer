@@ -54,6 +54,7 @@ public class JobDetail implements Serializable {
         this.description = getNewOrOld(oldJobDetail.description, newJobDetail.description);
         this.status = getNewOrOld(oldJobDetail.status, newJobDetail.status);
         this.parentJobId = getNewOrOld(oldJobDetail.parentJobId, newJobDetail.parentJobId);
+        this.repeat = getNewOrOld(oldJobDetail.repeat, newJobDetail.repeat);
 
         if (null == oldJobDetail.startTime) {
             this.startTime = System.currentTimeMillis();
@@ -198,6 +199,7 @@ public class JobDetail implements Serializable {
                 .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
                 .append(description, jobDetail.description)
+                .append(parentJobId, jobDetail.parentJobId)
                 .append(repeat, jobDetail.repeat)
                 .isEquals();
     }
@@ -212,6 +214,7 @@ public class JobDetail implements Serializable {
                 .append(endTime)
                 .append(status)
                 .append(description)
+                .append(parentJobId)
                 .append(repeat)
                 .toHashCode();
     }
@@ -226,6 +229,7 @@ public class JobDetail implements Serializable {
                 .append("endTime", endTime)
                 .append("opChain", opChain)
                 .append("description", description)
+                .append("parentJobId", parentJobId)
                 .append("repeat", repeat)
                 .toString();
     }

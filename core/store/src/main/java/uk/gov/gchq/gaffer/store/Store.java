@@ -382,6 +382,12 @@ public abstract class Store {
         return executeJob(addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING), context);
     }
 
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
+        JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        childJobDetail.setParentJobId(parentJobId);
+        return executeJob(childJobDetail, context);
+    }
+
     private JobDetail executeJob(final JobDetail jobDetail, final Context context) throws OperationException {
         if (null != jobDetail.getRepeat()) {
             // scheduled
@@ -407,8 +413,7 @@ public abstract class Store {
             try {
                 operationChain = JSONSerialiser.deserialise(parentJobDetail.getOpChain().getBytes(CommonConstants.UTF_8), OperationChainDAO.class);
                 final Context newContext = context.shallowClone();
-                JobDetail jobDetail = executeJob(operationChain, newContext);
-                jobDetail.setParentJobId(parentJobDetail.getJobId());
+                executeJob(operationChain, newContext, parentJobDetail.getJobId());
             } catch (final OperationException | IOException e) {
                 throw new RuntimeException("Exception within scheduled job", e);
             }

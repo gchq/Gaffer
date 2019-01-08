@@ -193,7 +193,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
         // sleep because the job is scheduled
-        Thread.sleep(1000);
+        Thread.sleep(1200);
 
         // When
         CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
