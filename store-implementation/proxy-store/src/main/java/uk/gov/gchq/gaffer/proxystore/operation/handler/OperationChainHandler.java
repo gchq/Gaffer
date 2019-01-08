@@ -52,12 +52,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
         try {
             if (store instanceof ProxyStore) {
                 switch (getProxyOptions(operationChain)) {
-                    default:
-                    /*drop into UNPROCESSED*/
-
-                    case UNPROCESSED:
-                        return unprocessedLogic(operationChain, context, store);
-
                     case RESOLVED:
                         return resolvedLogic(operationChain, context, store);
 
@@ -67,6 +61,11 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
                     case TO_PROXY:
                         return proxyLogic(operationChain, context, (ProxyStore) store);
 
+                    case UNPROCESSED:
+                        /* Drop into default */
+
+                    default:
+                        return unprocessedLogic(operationChain, context, store);
                 }
             } else {
                 throw new ProxyStoreException("Store was not an instance of ProxyStore, found: " + store);
