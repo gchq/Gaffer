@@ -380,9 +380,6 @@ public abstract class Store {
      * @throws OperationException thrown if there is an error running the job.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        if (null == context) {
-            throw new IllegalArgumentException("A context containing a user is required");
-        }
         if (job.getOpChainAsOperationChain().getOperations().isEmpty()) {
             throw new IllegalArgumentException("An operation is required");
         }
@@ -392,7 +389,7 @@ public abstract class Store {
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
-        return executeJob(addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING), context);
+        return executeJob(new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, JobStatus.RUNNING, null), context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
@@ -450,7 +447,7 @@ public abstract class Store {
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        ExecutorService.getService().execute(() -> {
+        runAsync(() -> {
             try {
                 handleOperation(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);

@@ -51,11 +51,11 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 public class JobSchedulerIT extends AbstractStoreIT {
+    final int port = 40034;
+    ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
 
     @Test
     public void shouldRunScheduledJob() throws Exception {
-        final int port = 1080;
-        ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
         final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
         final String ENDPOINT_PATH = "/jsonEndpoint";
         final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
@@ -117,16 +117,12 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Check it has been run twice and now has all elements
         CloseableIterable<? extends Element> resultsAfterTwoAdd = graph.execute(new GetAllElements(), new Context(user));
         ElementUtil.assertElementEquals(Arrays.asList(firstEndpointEntity, secondEndpointEntity), resultsAfterTwoAdd);
-
-        mockServer.stop();
     }
 
     @Test
     public void shouldRunJobAsNormalWithNullRepeat() throws Exception {
-        final int port = 1080;
-        ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
         final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
-        final String ENDPOINT_PATH = "/jsonEndpoint";
+        final String ENDPOINT_PATH = "/jsonEndpoint2";
         final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
         final Entity firstEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[0]).build();
 

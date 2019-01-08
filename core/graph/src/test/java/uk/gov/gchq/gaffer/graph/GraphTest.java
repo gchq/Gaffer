@@ -1927,7 +1927,7 @@ public class GraphTest {
             graph.executeJob(job, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("A context containing a user is required", e.getMessage());
+            assertEquals("A context is required", e.getMessage());
         }
     }
 
@@ -1952,6 +1952,30 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("An operation is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException {
+        // Given
+        final Context context = new Context();
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        final Job job = null;
+
+        // When / Then
+        try {
+            graph.executeJob(job, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("A job is required", e.getMessage());
         }
     }
 

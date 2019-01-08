@@ -249,6 +249,14 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
+        if (null == context) {
+            throw new IllegalArgumentException("A context is required");
+        }
+
+        if (null == job) {
+            throw new IllegalArgumentException("A job is required");
+        }
+
         context.setOriginalOpChain(job.getOpChainAsOperationChain());
 
         final Context clonedContext = context.shallowClone();
