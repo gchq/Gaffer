@@ -92,7 +92,7 @@ public class JobServiceV2 implements IJobServiceV2 {
         preOperationHook(job.getOpChainAsOperationChain(), context);
 
         try {
-            final JobDetail jobDetail = graphFactory.getGraph().executeJob(job.getOpChainAsOperationChain(), context);
+            final JobDetail jobDetail = graphFactory.getGraph().executeJob(job, context);
             LOGGER.info("Job started = {}", jobDetail);
 
             final URI location = uriInfo.getAbsolutePathBuilder()

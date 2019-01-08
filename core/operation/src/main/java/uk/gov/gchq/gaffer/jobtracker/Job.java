@@ -16,13 +16,14 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
-import java.io.Serializable;
 import java.nio.charset.Charset;
 
 /**
@@ -30,11 +31,13 @@ import java.nio.charset.Charset;
  * a {@link Repeat} and an Operation chain as a String.
  * To be used within the ExecuteJob for a ScheduledJob.
  */
-public class Job implements Serializable {
-    private static final long serialVersionUID = 4256047541729392136L;
+public class Job {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private Repeat repeat;
     private String opChain;
+
+    public Job() {
+    }
 
     public Job(final Repeat repeat) {
         this.repeat = repeat;
@@ -71,6 +74,7 @@ public class Job implements Serializable {
         return opChain;
     }
 
+    @JsonIgnore
     public OperationChain<?> getOpChainAsOperationChain() {
         try {
             return JSONSerialiser.deserialise(opChain, OperationChainDAO.class);

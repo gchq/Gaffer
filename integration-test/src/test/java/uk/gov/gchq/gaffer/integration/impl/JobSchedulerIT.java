@@ -117,6 +117,57 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Check it has been run twice and now has all elements
         CloseableIterable<? extends Element> resultsAfterTwoAdd = graph.execute(new GetAllElements(), new Context(user));
         ElementUtil.assertElementEquals(Arrays.asList(firstEndpointEntity, secondEndpointEntity), resultsAfterTwoAdd);
+
+        mockServer.stop();
+    }
+
+    @Test
+    public void shouldRunJobAsNormalWithNullRepeat() throws Exception {
+        final int port = 1080;
+        ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
+        final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
+        final String ENDPOINT_PATH = "/jsonEndpoint";
+        final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
+        final Entity firstEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[0]).build();
+
+        final GetAsElementsFromEndpoint getAsElementsFromEndpoint = new GetAsElementsFromEndpoint.Builder()
+                .endpoint(endpointString)
+                .generator(JsonToElementGenerator.class)
+                .build();
+
+        mockServer.when(request()
+                .withMethod("GET")
+                .withPath(ENDPOINT_PATH))
+                .respond(response()
+                        .withStatusCode(200)
+                        .withBody("[\n" +
+                                "  {\n" +
+                                "    \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\",\n" +
+                                "    \"group\": \"" + firstEndpointEntity.getGroup() + "\",\n" +
+                                "    \"vertex\": \"" + firstEndpointEntity.getVertex() + "\"\n" +
+                                "  }\n" +
+                                "]"));
+
+        // setup and schedule job
+        final OperationChain opChain = new OperationChain.Builder().first(getAsElementsFromEndpoint).then(new AddElements()).build();
+
+        JobDetail executingJobDetail = graph.executeJob(new Job(null, opChain), new Context(user));
+
+        Thread.sleep(300);
+
+        // Check it has been run and added elements
+        CloseableIterable<? extends Element> resultsAfterOneAdd = graph.execute(new GetAllElements(), new Context(user));
+        ElementUtil.assertElementEquals(Collections.singletonList(firstEndpointEntity), resultsAfterOneAdd);
+
+        // Check the job has been FINISHED
+        final CloseableIterable<JobDetail> jobDetails = graph.execute(new GetAllJobDetails(), new Context(user));
+        for (final JobDetail jobDetail : jobDetails) {
+            if (jobDetail.getJobId().equals(executingJobDetail.getJobId())) {
+                assertTrue(jobDetail.getStatus().equals(JobStatus.FINISHED));
+            }
+        }
+
+        mockServer.stop();
     }
 
     @Test

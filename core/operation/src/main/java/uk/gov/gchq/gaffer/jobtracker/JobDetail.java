@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -146,6 +147,7 @@ public class JobDetail implements Serializable {
         return opChain;
     }
 
+    @JsonIgnore
     public OperationChain<?> getOpChainAsOperationChain() {
         try {
             return JSONSerialiser.deserialise(opChain, OperationChainDAO.class);

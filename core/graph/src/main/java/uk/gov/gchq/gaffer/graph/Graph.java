@@ -224,6 +224,22 @@ public final class Graph {
     }
 
     /**
+     * Performs the given Job on the store.
+     * This should be used for Scheduled Jobs,
+     * although if no repeat is set it
+     * will act as a normal Job.
+     *
+     * @param job  the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param user the user running the Job.
+     * @return the job detail.
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Job job, final User user) throws OperationException {
+        return store.executeJob(job, new Context(user));
+    }
+
+
+    /**
      * Executes the given {@link GraphRequest} on the graph as an asynchronous job
      * and returns a {@link GraphResult} containing the {@link JobDetail}s.
      * If the operation does not have a view then the graph view is used.
