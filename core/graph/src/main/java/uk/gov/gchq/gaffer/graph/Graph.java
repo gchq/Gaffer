@@ -209,21 +209,6 @@ public final class Graph {
     }
 
     /**
-     * Performs the given Job on the store.
-     * This should be used for Scheduled Jobs,
-     * although if no repeat is set it
-     * will act as a normal Job.
-     *
-     * @param job  the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
-     * @param user the user running the Job.
-     * @return the job detail.
-     * @throws OperationException thrown if the job fails to run.
-     */
-    public JobDetail executeJob(final Job job, final User user) throws OperationException {
-        return executeJob(job, new Context(user));
-    }
-
-    /**
      * Executes the given {@link GraphRequest} on the graph as an asynchronous job
      * and returns a {@link GraphResult} containing the {@link JobDetail}s.
      * If the operation does not have a view then the graph view is used.
@@ -243,20 +228,27 @@ public final class Graph {
      * although if no repeat is set it
      * will act as a normal Job.
      *
+     * @param job  the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param user the user running the Job.
+     * @return the job detail.
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Job job, final User user) throws OperationException {
+        return executeJob(job, new Context(user));
+    }
+
+    /**
+     * Performs the given Job on the store.
+     * This should be used for Scheduled Jobs,
+     * although if no repeat is set it
+     * will act as a normal Job.
+     *
      * @param job     the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
      * @param context the user context for the execution of the operation
      * @return the job detail
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        if (null == job) {
-            throw new IllegalArgumentException("A job is required");
-        }
-
-        if (null == context) {
-            throw new IllegalArgumentException("A context is required");
-        }
-
         context.setOriginalOpChain(job.getOpChainAsOperationChain());
 
         final Context clonedContext = context.shallowClone();
