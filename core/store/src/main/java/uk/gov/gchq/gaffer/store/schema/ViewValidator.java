@@ -67,68 +67,75 @@ public class ViewValidator {
         final ValidationResult result = new ValidationResult();
 
         if (null != view) {
-            if (null != view.getEntities()) {
-                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
-                    final String group = entry.getKey();
-                    final SchemaEntityDefinition schemaElDef = schema.getEntity(group);
-                    final ViewElementDefinition viewElDef = entry.getValue();
-
-                    if (null == schemaElDef) {
-                        result.addError("Entity group " + group + " does not exist in the schema");
-                    } else {
-                        for (final String transProp : viewElDef.getTransientProperties()) {
-                            if (schemaElDef.containsProperty(transProp)) {
-                                result.addError("Transient property " + transProp + " for entity group " + group + " is not transient as it has been found in the schema");
-                            }
-                        }
-
-                        result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-
-                        if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
-                        }
-
-                        result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
-                    }
-                }
-            }
-
-            if (null != view.getEdges()) {
-                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
-                    final String group = entry.getKey();
-                    final SchemaEdgeDefinition schemaElDef = schema.getEdge(group);
-                    final ViewElementDefinition viewElDef = entry.getValue();
-
-                    if (null == schemaElDef) {
-                        result.addError("Edge group " + group + " does not exist in the schema");
-                    } else {
-                        for (final String transProp : viewElDef.getTransientProperties()) {
-                            if (schemaElDef.containsProperty(transProp)) {
-                                result.addError("Transient property " + transProp + " for edge group " + group + " is not transient as it has been found in the schema");
-                            }
-                        }
-
-                        result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
-
-                        if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
-                            result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
-                        }
-
-                        result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
-                    }
-                }
-            }
+            validateEntities(view, schema, storeTraits, isStoreOrdered, result);
+            validateEdge(view, schema, storeTraits, isStoreOrdered, result);
         }
 
         return result;
+    }
+
+    protected void validateEdge(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+        if (null != view.getEdges()) {
+            for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                final String group = entry.getKey();
+                final SchemaEdgeDefinition schemaElDef = schema.getEdge(group);
+                final ViewElementDefinition viewElDef = entry.getValue();
+
+                if (null == schemaElDef) {
+                    result.addError("Edge group " + group + " does not exist in the schema");
+                } else {
+                    for (final String transProp : viewElDef.getTransientProperties()) {
+                        if (schemaElDef.containsProperty(transProp)) {
+                            result.addError("Transient property " + transProp + " for edge group " + group + " is not transient as it has been found in the schema");
+                        }
+                    }
+
+                    result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
+
+                    if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                    }
+
+                    result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
+                }
+            }
+        }
+    }
+
+    protected void validateEntities(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+        if (null != view.getEntities()) {
+            for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                final String group = entry.getKey();
+                final SchemaEntityDefinition schemaElDef = schema.getEntity(group);
+                final ViewElementDefinition viewElDef = entry.getValue();
+
+                if (null == schemaElDef) {
+                    result.addError("Entity group " + group + " does not exist in the schema");
+                } else {
+                    for (final String transProp : viewElDef.getTransientProperties()) {
+                        if (schemaElDef.containsProperty(transProp)) {
+                            result.addError("Transient property " + transProp + " for entity group " + group + " is not transient as it has been found in the schema");
+                        }
+                    }
+
+                    result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
+
+                    if (!Boolean.parseBoolean(view.getConfig(SKIP_VIEW_VALIDATION))) {
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                    }
+
+                    result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
+                }
+            }
+        }
     }
 
     protected ValidationResult validateAgainstStoreTraits(final ViewElementDefinition viewElDef, final Set<StoreTrait> storeTraits) {
