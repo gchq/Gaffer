@@ -151,7 +151,7 @@ public class JobDetail implements Serializable {
     public OperationChain<?> getOpChainAsOperationChain() {
         try {
             return JSONSerialiser.deserialise(opChain, OperationChainDAO.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
         }
     }
