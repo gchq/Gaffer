@@ -419,7 +419,7 @@ public abstract class Store {
                 Thread.currentThread().interrupt();
                 return;
             }
-            final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain();
+            final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
             final Context newContext = context.shallowClone();
             try {
                 executeJob(operationChain, newContext, parentJobDetail.getJobId());
