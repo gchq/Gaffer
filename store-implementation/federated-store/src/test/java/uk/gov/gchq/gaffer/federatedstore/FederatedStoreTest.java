@@ -73,7 +73,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -1252,34 +1251,15 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldRunOpAgainstGraphsThatCantMerge() throws OperationException {
+    public void shouldGetAllElementsWhileHasConflictingSchemasDueToDiffVertexSerialiser() throws OperationException {
         //given
-        final Entity A = new Entity.Builder()
-                .group("entityA")
-                .vertex("A")
-                .build();
-
-        final Entity B = new Entity.Builder()
-                .group("entityB")
-                .vertex(7)
-                .build();
+        final Entity A = getEntityA();
+        final Entity B = getEntityB();
 
         final ArrayList<Entity> expectedAB = Lists.newArrayList(A, B);
-        final ArrayList<Entity> expectedA = Lists.newArrayList(A);
-        final ArrayList<Entity> expectedB = Lists.newArrayList(B);
 
-        addGraphWithPaths("graphA", PATH_ACC_STORE_PROPERTIES_1, PATH_ENTITY_A_SCHEMA_JSON);
-        addGraphWithPaths("graphB", PATH_ACC_STORE_PROPERTIES_1, PATH_ENTITY_B_SCHEMA_JSON);
-
-        store.execute(new AddElements.Builder()
-                .input(A)
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA")
-                .build(), userContext);
-
-        store.execute(new AddElements.Builder()
-                .input(B)
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB")
-                .build(), userContext);
+        addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
+        addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
 
         try {
             //when
@@ -1294,21 +1274,90 @@ public class FederatedStoreTest {
         final CloseableIterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), userContext);
         //then
         ElementUtil.assertElementEquals(expectedAB, responseGraphsWithNoView);
+    }
+
+    @Test
+    public void shouldGetAllElementsFromSelectedRemoteGraphWhileHasConflictingSchemasDueToDiffVertexSerialiser() throws OperationException {
+        //given
+        final Entity A = getEntityA();
+        final Entity B = getEntityB();
+
+        final ArrayList<Entity> expectedAB = Lists.newArrayList(A, B);
+        final ArrayList<Entity> expectedA = Lists.newArrayList(A);
+        final ArrayList<Entity> expectedB = Lists.newArrayList(B);
+
+        addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
+        addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
+
+        try {
+            //when
+            store.execute(new GetSchema.Builder().build(), userContext);
+            fail("exception expected");
+        } catch (final SchemaException e) {
+            //then
+            assertTrue(e.getMessage(), Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches());
+        }
 
         //when
         final CloseableIterable<? extends Element> responseGraphA = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").build(), userContext);
         final CloseableIterable<? extends Element> responseGraphB = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphAWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").view(new View.Builder().entity("entityA").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphBWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphsWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityA").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphsWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
         //then
         ElementUtil.assertElementEquals(expectedA, responseGraphA);
         ElementUtil.assertElementEquals(expectedB, responseGraphB);
+
+    }
+
+    @Test
+    public void shouldGetAllElementsFromSelectedGraphsWithViewOfExistingEntityGroupWhileHasConflictingSchemasDueToDiffVertexSerialiser() throws OperationException {
+        //given
+        final Entity A = getEntityA();
+        final Entity B = getEntityB();
+
+        final ArrayList<Entity> expectedA = Lists.newArrayList(A);
+        final ArrayList<Entity> expectedB = Lists.newArrayList(B);
+
+        addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
+        addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
+
+        try {
+            //when
+            store.execute(new GetSchema.Builder().build(), userContext);
+            fail("exception expected");
+        } catch (final SchemaException e) {
+            //then
+            assertTrue(e.getMessage(), Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches());
+        }
+
+        //when
+        final CloseableIterable<? extends Element> responseGraphAWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").view(new View.Builder().entity("entityA").build()).build(), userContext);
+        final CloseableIterable<? extends Element> responseGraphBWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
+        final CloseableIterable<? extends Element> responseAllGraphsWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityA").build()).build(), userContext);
+        final CloseableIterable<? extends Element> responseAllGraphsWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
+        //then
         ElementUtil.assertElementEquals(expectedA, responseGraphAWithAView);
         ElementUtil.assertElementEquals(expectedB, responseGraphBWithBView);
-        ElementUtil.assertElementEquals(expectedA, responseGraphsWithAView);
-        ElementUtil.assertElementEquals(expectedB, responseGraphsWithBView);
+        ElementUtil.assertElementEquals(expectedA, responseAllGraphsWithAView);
+        ElementUtil.assertElementEquals(expectedB, responseAllGraphsWithBView);
+
+    }
+
+    @Test
+    public void shouldFailGetAllElementsFromSelectedGraphsWithViewOfMissingEntityGroupWhileHasConflictingSchemasDueToDiffVertexSerialiser() throws OperationException {
+        //given
+        final Entity A = getEntityA();
+        final Entity B = getEntityB();
+
+        addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
+        addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
+
+        try {
+            //when
+            store.execute(new GetSchema.Builder().build(), userContext);
+            fail("exception expected");
+        } catch (final SchemaException e) {
+            //then
+            assertTrue(e.getMessage(), Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches());
+        }
 
         try {
             //when
@@ -1347,5 +1396,27 @@ public class FederatedStoreTest {
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityA does not exist in the schema", e.getMessage());
         }
+    }
+
+    protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson) throws OperationException {
+        addGraphWithPaths(graphName, PATH_ACC_STORE_PROPERTIES_1, pathSchemaJson);
+        store.execute(new AddElements.Builder()
+                .input(input)
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphName)
+                .build(), userContext);
+    }
+
+    protected Entity getEntityB() {
+        return new Entity.Builder()
+                    .group("entityB")
+                    .vertex(7)
+                    .build();
+    }
+
+    protected Entity getEntityA() {
+        return new Entity.Builder()
+                    .group("entityA")
+                    .vertex("A")
+                    .build();
     }
 }
