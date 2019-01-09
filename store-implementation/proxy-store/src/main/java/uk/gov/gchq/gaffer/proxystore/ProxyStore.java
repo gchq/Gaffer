@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -280,6 +281,7 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler());
+        addOperationHandler(OperationChainDAO.class, new OperationChainHandler());
     }
 
     @Override
