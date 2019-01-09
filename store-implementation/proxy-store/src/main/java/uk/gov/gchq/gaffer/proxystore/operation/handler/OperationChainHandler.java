@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.exception.ProxyStoreException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
