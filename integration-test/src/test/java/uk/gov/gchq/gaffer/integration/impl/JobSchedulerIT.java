@@ -16,22 +16,22 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.HttpRequest;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.JsonToElementGenerator;
-import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -41,21 +41,19 @@ import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.verify.VerificationTimes.exactly;
 
 public class JobSchedulerIT extends AbstractStoreIT {
     private static final int PORT = 40038;
     private static ClientAndServer mockServer = ClientAndServer.startClientAndServer(PORT);
+    final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
 
     @AfterClass
     public static void tearDownServer() {
@@ -67,11 +65,9 @@ public class JobSchedulerIT extends AbstractStoreIT {
 
     @Test
     public void shouldRunScheduledJob() throws Exception {
-        final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
+        // Given
         final String ENDPOINT_PATH = "/jsonEndpoint";
         final String endpointString = ENDPOINT_BASE_PATH + PORT + ENDPOINT_PATH;
-        final Entity firstEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[0]).build();
-        final Entity secondEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[1]).build();
         final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
 
         final GetAsElementsFromEndpoint getAsElementsFromEndpoint = new GetAsElementsFromEndpoint.Builder()
@@ -79,74 +75,69 @@ public class JobSchedulerIT extends AbstractStoreIT {
                 .generator(JsonToElementGenerator.class)
                 .build();
 
-        mockServer.when(request()
+        HttpRequest request = request()
                 .withMethod("GET")
-                .withPath(ENDPOINT_PATH))
+                .withPath(ENDPOINT_PATH);
+
+        mockServer.when(request)
                 .respond(response()
                         .withStatusCode(200)
-                        .withBody("[\n" + new String(JSONSerialiser.serialise(firstEndpointEntity)) +"]"));
+                        .withBody("[ ]"));
 
         // setup and schedule job
-        final OperationChain opChain = new OperationChain.Builder().first(getAsElementsFromEndpoint).then(new AddElements()).build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAsElementsFromEndpoint)
+                .build();
 
+        // When
         graph.executeJob(new Job(repeat, opChain), new Context(user));
 
-        // Check nothing in graph at the moment
-        CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
-        assertFalse(resultsAfterNoAdd.iterator().hasNext());
+        // sleep because the job is scheduled
+        Thread.sleep(600);
+
+        // Then - check mockServer request has been recieved once
+        mockServer.verify(request, exactly(1));
 
         // sleep because the job is scheduled
-        Thread.sleep(200);
+        Thread.sleep(600);
 
-        // Check it has been run once with the first Elements
-        CloseableIterable<? extends Element> resultsAfterOneAdd = graph.execute(new GetAllElements(), new Context(user));
-        ElementUtil.assertElementEquals(AggregatorUtil.ingestAggregate(Arrays.asList(firstEndpointEntity), getStoreSchema()), resultsAfterOneAdd);
-
-        // Update the endpoint
-        mockServer.when(request()
-                .withMethod("GET")
-                .withPath(ENDPOINT_PATH))
-                .respond(response()
-                        .withStatusCode(200)
-                        .withBody("[" + new String(JSONSerialiser.serialise(secondEndpointEntity)) + "]"));
-
-        // sleep because the job is scheduled
-        Thread.sleep(1800);
-
-        // Check it has been run twice and now has all elements
-        CloseableIterable<? extends Element> resultsAfterTwoAdd = graph.execute(new GetAllElements(), new Context(user));
-        ElementUtil.assertElementEquals(AggregatorUtil.ingestAggregate(Arrays.asList(firstEndpointEntity, secondEndpointEntity), getStoreSchema()), resultsAfterTwoAdd);
+        // Then - check mockServer request has been recieved twice now
+        mockServer.verify(request, exactly(2));
     }
 
     @Test
     public void shouldRunJobAsNormalWithNullRepeat() throws Exception {
-        final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
+        // Given
         final String ENDPOINT_PATH = "/jsonEndpoint2";
         final String endpointString = ENDPOINT_BASE_PATH + PORT + ENDPOINT_PATH;
-        final Entity firstEndpointEntity = new Entity.Builder().group(TestGroups.ENTITY).vertex(VERTEX_PREFIXES[0]).build();
 
         final GetAsElementsFromEndpoint getAsElementsFromEndpoint = new GetAsElementsFromEndpoint.Builder()
                 .endpoint(endpointString)
                 .generator(JsonToElementGenerator.class)
                 .build();
 
-        mockServer.when(request()
+        final HttpRequest request = request()
                 .withMethod("GET")
-                .withPath(ENDPOINT_PATH))
+                .withPath(ENDPOINT_PATH);
+
+        mockServer.when(request)
                 .respond(response()
                         .withStatusCode(200)
-                        .withBody("[\n" + new String(JSONSerialiser.serialise(firstEndpointEntity)) +"]"));
+                        .withBody("[ ]"));
 
         // setup and schedule job
-        final OperationChain opChain = new OperationChain.Builder().first(getAsElementsFromEndpoint).then(new AddElements()).build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAsElementsFromEndpoint)
+                .build();
 
+        // When
         JobDetail executingJobDetail = graph.executeJob(new Job(null, opChain), new Context(user));
 
+        // Sleep because the job is scheduled
         Thread.sleep(300);
 
-        // Check it has been run and added elements
-        CloseableIterable<? extends Element> resultsAfterOneAdd = graph.execute(new GetAllElements(), new Context(user));
-        ElementUtil.assertElementEquals(AggregatorUtil.ingestAggregate(Collections.singletonList(firstEndpointEntity), getStoreSchema()), resultsAfterOneAdd);
+        // Then - check it has been run and added elements
+        mockServer.verify(request, exactly(1));
 
         // Check the job has been FINISHED
         final CloseableIterable<JobDetail> jobDetails = graph.execute(new GetAllJobDetails(), new Context(user));
@@ -155,20 +146,17 @@ public class JobSchedulerIT extends AbstractStoreIT {
                 assertTrue(jobDetail.getStatus().equals(JobStatus.FINISHED));
             }
         }
+
+        // Check it has been run and added elements
+        mockServer.verify(request, exactly(1));
     }
 
     @Test
     public void shouldCancelScheduledJob() throws Exception {
         // Given
-        final Entity inputEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex")
-                .build();
         final Repeat repeat = new Repeat(0, 1, TimeUnit.SECONDS);
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new AddElements.Builder()
-                        .input(inputEntity)
-                        .build())
+                .first(new Limit.Builder<>().resultLimit(3).build())
                 .build();
 
         final Job job = new Job(repeat, opChain);
@@ -180,23 +168,19 @@ public class JobSchedulerIT extends AbstractStoreIT {
         Thread.sleep(200);
 
         // When
-        CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
-
-        // Then
-        ElementUtil.assertElementEquals(Collections.singletonList(inputEntity), results);
-
-        // When
         graph.execute(new CancelScheduledJob.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
 
         // sleep because the job is scheduled
-        Thread.sleep(1800);
+        Thread.sleep(300);
 
         parentJobDetail = graph.execute(new GetJobDetails.Builder().jobId(parentJobDetail.getJobId()).build(), new Context(user));
 
+        // Then
         assertEquals(JobStatus.CANCELLED, parentJobDetail.getStatus());
 
         CloseableIterable<JobDetail> allJobs = graph.execute(new GetAllJobDetails.Builder().build(), new Context(user));
 
+        // Then
         int childJobsRun = 0;
         for (JobDetail job2 : allJobs) {
             if (null != job2.getParentJobId() && job2.getParentJobId().equals(parentJobDetail.getJobId())) {
@@ -213,7 +197,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
                 .group(TestGroups.ENTITY)
                 .vertex("vertex")
                 .build();
-        final Repeat repeat = new Repeat(1, 100, TimeUnit.SECONDS);
+        final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new AddElements.Builder()
                         .input(inputEntity)
@@ -224,20 +208,18 @@ public class JobSchedulerIT extends AbstractStoreIT {
 
         // When
         JobDetail parentJobDetail = graph.executeJob(new Job(repeat, opChain), context);
-        CloseableIterable<? extends Element> resultsAfterNoAdd = graph.execute(new GetAllElements(), new Context(user));
 
         // Then
-        assertFalse(resultsAfterNoAdd.iterator().hasNext());
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
         // sleep because the job is scheduled
-        Thread.sleep(2200);
+        Thread.sleep(1200);
 
         // When
         CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), new Context(user));
 
         // Then
-        ElementUtil.assertElementEquals(AggregatorUtil.ingestAggregate(Collections.singletonList(inputEntity), getStoreSchema()), results);
+        assertEquals(1, Lists.newArrayList(results).size());
     }
 
     @Test
@@ -282,7 +264,7 @@ public class JobSchedulerIT extends AbstractStoreIT {
         // Then
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
 
-        Thread.sleep(4000);
+        Thread.sleep(2000);
 
         // Given / When
         CloseableIterable<JobDetail> jobDetailList = graph.execute(new GetAllJobDetails(), context);
