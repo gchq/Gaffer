@@ -280,8 +280,8 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(OperationChain.class, new OperationChainHandler());
-        addOperationHandler(OperationChainDAO.class, new OperationChainHandler());
+        addOperationHandler(OperationChain.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
+        addOperationHandler(OperationChainDAO.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
     }
 
     @Override
@@ -320,7 +320,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected Client createClient() {
