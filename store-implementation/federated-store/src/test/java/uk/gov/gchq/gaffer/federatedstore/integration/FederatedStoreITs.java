@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
-import uk.gov.gchq.gaffer.integration.impl.JobSchedulerIT;
+import uk.gov.gchq.gaffer.integration.impl.jobscheduler.JobSchedulerIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
