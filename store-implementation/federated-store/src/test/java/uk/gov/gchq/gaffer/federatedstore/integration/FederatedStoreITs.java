@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
-import uk.gov.gchq.gaffer.integration.impl.jobscheduler.JobSchedulerIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
@@ -28,6 +27,5 @@ public class FederatedStoreITs extends AbstractStoreITs {
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);
         skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
-        skipTestMethod(JobSchedulerIT.class, "shouldCancelScheduledJob", "Known issue with FederatedStore");
     }
 }
