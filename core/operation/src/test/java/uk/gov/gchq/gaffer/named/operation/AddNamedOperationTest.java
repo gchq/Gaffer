@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
@@ -55,12 +56,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
 
         // When
-        String json = null;
-        try {
-            json = new String(JSONSerialiser.serialise(addNamedOperation, true));
-        } catch (SerialisationException e) {
-            fail("Json Serialisation failed. Error is: " + e.getMessage());
-        }
+        final byte[] json = toJson(obj);
+        final AddNamedOperation deserialisedObj = fromJson(json);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -73,7 +70,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"overwriteFlag\": true,%n" +
                 "  \"operationChain\": {" +
                 "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
-                "}"), json);
+                "}"), new String(json));
+        assertNotNull(deserialisedObj);
     }
 
     @Override
