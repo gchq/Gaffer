@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Utility methods for serialising objects to length-value byte arrays.
  */
@@ -36,6 +38,7 @@ public abstract class LengthValueBytesSerialiserUtil {
     }
 
     public static ByteArrayOutputStream appendLengthValueFromObjectToByteStream(final ByteArrayOutputStream byteOut, final ToBytesSerialiser serialiser, final Object object) throws SerialisationException {
+        requireNonNull(serialiser, "Given serialiser is null");
         return appendLengthValueFromBytesToByteStream(byteOut, serialiser.serialise(object));
     }
 

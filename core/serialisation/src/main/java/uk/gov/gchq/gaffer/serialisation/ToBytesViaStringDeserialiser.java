@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.io.UnsupportedEncodingException;
@@ -30,6 +32,7 @@ import java.io.UnsupportedEncodingException;
  */
 public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialiser<T> {
 
+    @JsonIgnore
     private String charset;
 
     public ToBytesViaStringDeserialiser(final String charsetName) {
