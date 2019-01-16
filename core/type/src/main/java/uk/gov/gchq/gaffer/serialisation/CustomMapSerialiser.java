@@ -37,7 +37,7 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
     public byte[] serialise(final CustomMap customMap) throws SerialisationException {
         try {
             return CustomMapInterim.serialise(customMap);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new SerialisationException("Problem serialising CustomMap", e);
         }
     }
@@ -46,7 +46,7 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
     public CustomMap deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return CustomMapInterim.deserialise(bytes);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new SerialisationException("Problem serialising CustomMap", e);
         }
     }
@@ -72,7 +72,7 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
         private ToBytesSerialiser valueSerialiser;
         private byte[] byteMap;
 
-        public CustomMapInterim(ToBytesSerialiser keySerialiser, ToBytesSerialiser valueSerialiser, byte[] byteMap) throws NullPointerException {
+        CustomMapInterim(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser, final byte[] byteMap) throws NullPointerException {
             requireNonNull(keySerialiser, "keySerialier can't be null");
             requireNonNull(valueSerialiser, "valueSerialiser can't be null");
             requireNonNull(byteMap, "byteMap can't be null");
@@ -89,10 +89,10 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
             return serialise(customMap.getKeySerialiser(), customMap.getValueSerialiser(), serialisedInnerMap);
         }
 
-        private static byte[] serialise(ToBytesSerialiser keySerialiser, ToBytesSerialiser valueSerialiser, byte[] map) throws SerialisationException {
+        private static byte[] serialise(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser, final byte[] map) throws SerialisationException {
             try {
                 return serialise(new CustomMapInterim(keySerialiser, valueSerialiser, map));
-            } catch (NullPointerException e) {
+            } catch (final NullPointerException e) {
                 throw new SerialisationException("Error creating CustomMapInterim for serialisation", e);
             }
         }
@@ -100,18 +100,18 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
         private static byte[] serialise(final CustomMapInterim customMapInterim) throws SerialisationException {
             try {
                 return new JavaSerialiser().serialise(customMapInterim);
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new SerialisationException(String.format("Problem serialising %s via a interim java object using a %s", CustomMap.class.getSimpleName(), JavaSerialiser.class.getSimpleName()), e);
             }
         }
 
-        public static CustomMap deserialise(byte[] bytes) throws SerialisationException {
+        public static CustomMap deserialise(final byte[] bytes) throws SerialisationException {
             try {
                 final CustomMapInterim mapInterim = (CustomMapInterim) new JavaSerialiser().deserialise(bytes);
                 final Map<?, ?> innerMap = getInnerMap(mapInterim);
 
                 return new CustomMap(mapInterim.getKeySerialiser(), mapInterim.getValueSerialiser(), innerMap);
-            } catch (SerialisationException | ClassCastException e) {
+            } catch (final SerialisationException | ClassCastException e) {
                 throw new SerialisationException("Problem deserialising bytes of interim object", e);
             }
         }

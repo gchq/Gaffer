@@ -59,7 +59,7 @@ public class CustomMap<K, V> {
 
     private static <K, V> Map<K, V> interimToMap(final HashSet<Pair<K, V>> interimPairs) {
         final HashMap<K, V> rtn = new HashMap<>();
-        for (Pair<K, V> pair : interimPairs) {
+        for (final Pair<K, V> pair : interimPairs) {
             final K first = pair.getFirst();
             final V old = rtn.put(first, pair.getSecond());
             if (null != old) {
@@ -119,7 +119,7 @@ public class CustomMap<K, V> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public HashSet<Pair<K, V>> getJsonStorage() {
         final HashSet<Pair<K, V>> pairs = new HashSet<>();
-        for (Map.Entry<K, V> entry : this.delegateMap.entrySet()) {
+        for (final Map.Entry<K, V> entry : this.delegateMap.entrySet()) {
             final Pair<K, V> p = new Pair<>(entry.getKey(), entry.getValue());
             pairs.add(p);
         }
