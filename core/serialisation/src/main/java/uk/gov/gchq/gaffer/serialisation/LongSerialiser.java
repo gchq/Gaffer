@@ -66,9 +66,4 @@ public class LongSerialiser implements ToBytesSerialiser<Long> {
     public boolean isConsistent() {
         return true;
     }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return this == obj || obj != null && this.getClass() == obj.getClass();
-    }
 }

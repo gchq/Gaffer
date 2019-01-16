@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -185,11 +186,19 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
         boolean rtn = (this == o);
         if (!rtn && o != null && getClass() == o.getClass()) {
             final MapSerialiser that = (MapSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(keySerialiser, that.keySerialiser)
-                    .append(valueSerialiser, that.valueSerialiser)
-                    .append(mapClass, that.mapClass)
-                    .isEquals();
+            try {
+                rtn = new EqualsBuilder()
+                        /*
+                         * JSONSerialiser is used because ToByteSerialisers.equals checks for sames instance.
+                         * All these serialises would require equals method to be updated.
+                         */
+                        .append(JSONSerialiser.serialise(keySerialiser), JSONSerialiser.serialise(that.keySerialiser))
+                        .append(JSONSerialiser.serialise(valueSerialiser), JSONSerialiser.serialise(that.valueSerialiser))
+                        .append(mapClass, that.mapClass)
+                        .isEquals();
+            } catch (final SerialisationException e) {
+                throw new RuntimeException("Error occurred during equals check.", e);
+            }
         }
         return rtn;
     }

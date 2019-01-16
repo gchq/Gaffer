@@ -25,6 +25,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 import java.util.Collection;
@@ -227,10 +229,19 @@ public class CustomMap<K, V> {
         boolean rtn = (this == o);
         if (!rtn && o != null && getClass() == o.getClass()) {
             final CustomMap that = (CustomMap) o;
-            rtn = new EqualsBuilder()
-                    .append(this.keySerialiser, that.keySerialiser)
-                    .append(this.valueSerialiser, that.valueSerialiser)
-                    .append(this.delegateMap, that.delegateMap).isEquals();
+            try {
+                rtn = new EqualsBuilder()
+                        /*
+                         * JSONSerialiser is used because ToByteSerialisers.equals checks for sames instance.
+                         * All these serialises would require equals method to be updated.
+                         */
+                        .append(JSONSerialiser.serialise(this.keySerialiser), JSONSerialiser.serialise(that.keySerialiser))
+                        .append(JSONSerialiser.serialise(this.valueSerialiser), JSONSerialiser.serialise(that.valueSerialiser))
+                        .append(this.delegateMap, that.delegateMap)
+                        .isEquals();
+            } catch (final SerialisationException e) {
+                throw new RuntimeException("Error occurred during equals check.", e);
+            }
         }
         return rtn;
     }
