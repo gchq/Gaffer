@@ -1,11 +1,12 @@
 package uk.gov.gchq.gaffer.types;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.bitmap.serialisation.json.BitmapJsonModules;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.DoubleSerialiser;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
@@ -16,155 +17,87 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
 public class CustomMapTest {
 
     @Test
-    public void shouldJSONSerialiseStringInteger() throws SerialisationException {
+    public void shouldJSONSerialiseStringInteger() throws IOException {
+        //given
+        final CustomMap<String, Integer> expectedMap = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
+        expectedMap.put("one", 1111);
+        expectedMap.put("two", 2222);
+        final String expectedJson = jsonFromFile("custom-map01.json");
 
-        final CustomMap<String, Integer> map = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
-        map.put("one", 1111);
-        map.put("two", 2222);
+        //when
+        final byte[] serialise = JSONSerialiser.serialise(expectedMap, true);
+        final CustomMap jsonMap = JSONSerialiser.deserialise(expectedJson, CustomMap.class);
+        final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
-        final byte[] serialise = JSONSerialiser.serialise(map, true);
-
-        assertEquals(
-                "{\n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.types.CustomMap\",\n" +
-                        "  \"keySerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"valueSerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.IntegerSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"jsonStorage\" : [ {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : \"two\",\n" +
-                        "      \"second\" : 2222\n" +
-                        "    }\n" +
-                        "  }, {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : \"one\",\n" +
-                        "      \"second\" : 1111\n" +
-                        "    }\n" +
-                        "  } ]\n" +
-                        "}", new String(serialise));
-
-
-        final CustomMap deserialise = JSONSerialiser.deserialise(serialise, CustomMap.class);
-        assertEquals(map, deserialise);
+        //then
+        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
+        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
     }
 
     @Test
-    public void shouldJSONSerialiseBigIntString() throws SerialisationException {
-
-        final CustomMap<TreeSet<String>, Double> map = new CustomMap<>(new TreeSetStringSerialiser(), new DoubleSerialiser());
+    public void shouldJSONSerialiseBigIntString() throws IOException {
+        //given
+        final CustomMap<TreeSet<String>, Double> expectedMap = new CustomMap<>(new TreeSetStringSerialiser(), new DoubleSerialiser());
         final TreeSet<String> key1 = new TreeSet<>();
         key1.add("k1");
         key1.add("k2");
-        map.put(key1, 11.11);
+        expectedMap.put(key1, 11.11);
         final TreeSet<String> key2 = new TreeSet<>();
         key2.add("k3");
         key2.add("k4");
-        map.put(key2, 22.22);
+        expectedMap.put(key2, 22.22);
 
-        final byte[] serialise = JSONSerialiser.serialise(map, true);
+        final String expectedJson = jsonFromFile("custom-map02.json");
 
-        assertEquals(
-                "{\n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.types.CustomMap\",\n" +
-                        "  \"keySerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"valueSerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.DoubleSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"jsonStorage\" : [ {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : {\n" +
-                        "        \"java.util.TreeSet\" : [ \"k3\", \"k4\" ]\n" +
-                        "      },\n" +
-                        "      \"second\" : 22.22\n" +
-                        "    }\n" +
-                        "  }, {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : {\n" +
-                        "        \"java.util.TreeSet\" : [ \"k1\", \"k2\" ]\n" +
-                        "      },\n" +
-                        "      \"second\" : 11.11\n" +
-                        "    }\n" +
-                        "  } ]\n" +
-                        "}", new String(serialise));
+        //when
+        final byte[] serialise = JSONSerialiser.serialise(expectedMap, true);
+        final CustomMap jsonMap = JSONSerialiser.deserialise(expectedJson, CustomMap.class);
+        final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
-
-        final CustomMap deserialise = JSONSerialiser.deserialise(serialise, CustomMap.class);
-        assertEquals(map, deserialise);
+        //then
+        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
+        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
     }
 
     @Test
-    public void shouldJSONSerialiseStringMap() throws SerialisationException {
-
-
+    public void shouldJSONSerialiseStringMap() throws IOException {
+        //given
         final MapSerialiser mapSerialiser = new MapSerialiser();
         mapSerialiser.setValueSerialiser(new StringSerialiser());
         mapSerialiser.setKeySerialiser(new StringSerialiser());
+        final CustomMap<String, HashMap> expectedMap = new CustomMap<>(new StringSerialiser(), mapSerialiser);
+        final HashMap<String, String> innerMap1 = new HashMap<>();
+        innerMap1.put("innerKeyOne", "innerValue1");
+        final HashMap<String, String> innerMap2 = new HashMap<>();
+        innerMap2.put("innerKeyTwo", "innerValue2");
+        expectedMap.put("innerOne", innerMap1);
+        expectedMap.put("innerTwo", innerMap2);
+        final String expectedJson = jsonFromFile("custom-map03.json");
 
+        //when
+        final byte[] serialise = JSONSerialiser.serialise(expectedMap, true);
+        final CustomMap jsonMap = JSONSerialiser.deserialise(expectedJson, CustomMap.class);
+        final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
-        final CustomMap<String, HashMap> map = new CustomMap<>(new StringSerialiser(), mapSerialiser);
-        final HashMap<String, String> onem = new HashMap<>();
-        onem.put("1one", "111one");
-        final HashMap<String, String> twom = new HashMap<>();
-        twom.put("2Twoo", "2twwwwo");
-
-        map.put("one", onem);
-        map.put("two", twom);
-
-        final byte[] serialise = JSONSerialiser.serialise(map, true);
-
-        assertEquals(
-                "{\n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.types.CustomMap\",\n" +
-                        "  \"keySerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"valueSerialiser\" : {\n" +
-                        "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",\n" +
-                        "    \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",\n" +
-                        "    \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\"\n" +
-                        "  },\n" +
-                        "  \"jsonStorage\" : [ {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : \"two\",\n" +
-                        "      \"second\" : {\n" +
-                        "        \"java.util.HashMap\" : {\n" +
-                        "          \"2Twoo\" : \"2twwwwo\"\n" +
-                        "        }\n" +
-                        "      }\n" +
-                        "    }\n" +
-                        "  }, {\n" +
-                        "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                        "      \"first\" : \"one\",\n" +
-                        "      \"second\" : {\n" +
-                        "        \"java.util.HashMap\" : {\n" +
-                        "          \"1one\" : \"111one\"\n" +
-                        "        }\n" +
-                        "      }\n" +
-                        "    }\n" +
-                        "  } ]\n" +
-                        "}", new String(serialise));
-
-
-        final CustomMap deserialise = JSONSerialiser.deserialise(serialise, CustomMap.class);
-        assertEquals(map, deserialise);
+        //then
+        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
+        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
     }
 
     @Test
-    public void shouldJSONSerialiseFloatRDM() throws SerialisationException {
+    public void shouldJSONSerialiseFloatRDM() throws IOException {
+        //given
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, BitmapJsonModules.class.getCanonicalName());
 
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
@@ -177,56 +110,25 @@ public class CustomMapTest {
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222222)))
                 .build();
 
-        final CustomMap<Float, RBMBackedTimestampSet> map = new CustomMap<>(new RawFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
-        map.put(123.3f, timestampSet1);
-        map.put(345.6f, timestampSet2);
+        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new RawFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
+        expectedMap.put(123.3f, timestampSet1);
+        expectedMap.put(345.6f, timestampSet2);
 
-        final byte[] serialise = JSONSerialiser.serialise(map, true);
+        final String expectedJson = jsonFromFile("custom-map04.json");
 
-        final String expectedString = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.types.CustomMap\",\n" +
-                "  \"keySerialiser\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser\"\n" +
-                "  },\n" +
-                "  \"valueSerialiser\" : {\n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser\"\n" +
-                "  },\n" +
-                "  \"jsonStorage\" : [ {\n" +
-                "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                "      \"first\" : {\n" +
-                "        \"java.lang.Float\" : 123.3\n" +
-                "      },\n" +
-                "      \"second\" : {\n" +
-                "        \"uk.gov.gchq.gaffer.time.RBMBackedTimestampSet\" : {\n" +
-                "          \"earliest\" : 0.000000000,\n" +
-                "          \"latest\" : 0.000000000,\n" +
-                "          \"numberOfTimestamps\" : 1,\n" +
-                "          \"timeBucket\" : \"MINUTE\",\n" +
-                "          \"timestamps\" : [ 0.000000000 ]\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }, {\n" +
-                "    \"uk.gov.gchq.gaffer.commonutil.pair.Pair\" : {\n" +
-                "      \"first\" : {\n" +
-                "        \"java.lang.Float\" : 345.6\n" +
-                "      },\n" +
-                "      \"second\" : {\n" +
-                "        \"uk.gov.gchq.gaffer.time.RBMBackedTimestampSet\" : {\n" +
-                "          \"earliest\" : 219600.000000000,\n" +
-                "          \"latest\" : 219600.000000000,\n" +
-                "          \"numberOfTimestamps\" : 1,\n" +
-                "          \"timeBucket\" : \"HOUR\",\n" +
-                "          \"timestamps\" : [ 219600.000000000 ]\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  } ]\n" +
-                "}";
+        //when
+        final byte[] serialise = JSONSerialiser.serialise(expectedMap, true);
+        final CustomMap jsonMap = JSONSerialiser.deserialise(expectedJson, CustomMap.class);
+        final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
-        assertEquals(expectedString, new String(serialise));
+        //then
+        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
+        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
+    }
 
-        final CustomMap deserialise = JSONSerialiser.deserialise(serialise, CustomMap.class);
-        assertEquals(map, deserialise);
+    protected String jsonFromFile(final String path) throws IOException {
+        return IOUtils.readLines(StreamUtil.openStream(getClass(), path))
+                .stream()
+                .collect(Collectors.joining("\n"));
     }
 }
