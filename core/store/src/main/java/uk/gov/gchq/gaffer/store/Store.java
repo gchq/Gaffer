@@ -175,6 +175,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -403,32 +404,40 @@ public abstract class Store {
             throw new OperationException("JobTracker has not been configured.");
         }
 
-        if (null != jobDetail.getRepeat()) {
-            return scheduleJob(jobDetail, context);
-        } else {
-            return runJob(jobDetail, context);
+        try {
+            if (null != jobDetail.getRepeat()) {
+                return scheduleJob(jobDetail, context);
+            } else {
+                return runJob(jobDetail, context);
+            }
+        } catch (final StoreException e) {
+            throw new OperationException(e);
         }
     }
 
-    private JobDetail scheduleJob(final JobDetail parentJobDetail, final Context context) {
-        ExecutorService.getService().scheduleAtFixedRate(() -> {
-            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-            final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
-            final Context newContext = context.shallowClone();
-            try {
-                executeJob(operationChain, newContext, parentJobDetail.getJobId());
-            } catch (final OperationException e) {
-                throw new RuntimeException("Exception within scheduled job", e);
-            }
-        }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
+    private JobDetail scheduleJob(final JobDetail parentJobDetail, final Context context) throws StoreException {
+        try {
+            getExecutorService().scheduleAtFixedRate(() -> {
+                if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
+                final Context newContext = context.shallowClone();
+                try {
+                    executeJob(operationChain, newContext, parentJobDetail.getJobId());
+                } catch (final OperationException e) {
+                    throw new RuntimeException("Exception within scheduled job", e);
+                }
+            }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
+        } catch (final StoreException e) {
+            throw e;
+        }
 
         return addOrUpdateJobDetail(parentJobDetail.getOpChainAsOperationChain(), context, null, JobStatus.SCHEDULED_PARENT);
     }
 
-    private JobDetail runJob(final JobDetail jobDetail, final Context context) {
+    private JobDetail runJob(final JobDetail jobDetail, final Context context) throws StoreException {
         OperationChain<?> operationChain = jobDetail.getOpChainAsOperationChain();
 
         if (isSupported(ExportToGafferResultCache.class)) {
@@ -447,23 +456,35 @@ public abstract class Store {
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        runAsync(() -> {
-            try {
-                handleOperation(operationChain, context);
-                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-            } catch (final Error e) {
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-                throw e;
-            } catch (final Exception e) {
-                LOGGER.warn("Operation chain job failed to execute", e);
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-            }
-        });
+        try {
+            runAsync(() -> {
+                try {
+                    handleOperation(operationChain, context);
+                    addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Error e) {
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                    throw e;
+                } catch (final Exception e) {
+                    LOGGER.warn("Operation chain job failed to execute", e);
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                }
+            });
+        } catch (final StoreException e) {
+            throw e;
+        }
         return initialJobDetail;
     }
 
-    public void runAsync(final Runnable runnable) {
-        ExecutorService.getService().execute(runnable);
+    public void runAsync(final Runnable runnable) throws StoreException {
+        getExecutorService().execute(runnable);
+    }
+
+    protected ScheduledExecutorService getExecutorService() throws StoreException {
+        if (null != ExecutorService.getService() && ExecutorService.isEnabled()) {
+            return ExecutorService.getService();
+        } else {
+            throw new StoreException("Executor service is not running");
+        }
     }
 
     public JobTracker getJobTracker() {

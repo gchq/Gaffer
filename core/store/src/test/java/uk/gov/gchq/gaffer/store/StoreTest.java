@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -37,9 +38,11 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
@@ -126,6 +129,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -133,6 +137,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.RunnableScheduledFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -142,7 +150,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -887,10 +897,46 @@ public class StoreTest {
         fail("Exception wasn't caught");
     }
 
+    @Test
+    public void shouldCorrectlySetUpScheduledJobDetail() throws Exception {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        
+        store.initialise("graphId", schema, properties);
+
+        final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
+        final OperationChain opChain = new OperationChain
+                .Builder()
+                .first(new DiscardOutput())
+                .build();
+        final Context context = new Context(user);
+        final String opChainString = new String(JSONSerialiser.serialise(new OperationChainDAO(opChain.getOperations())), Charset.forName(CommonConstants.UTF_8));
+
+        // When - setup job
+        JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
+
+        ScheduledExecutorService service = store.getExecutorService();
+
+        // Then - assert scheduled
+        verify(service, times(1)).scheduleAtFixedRate(
+                any(Runnable.class),
+                eq(repeat.getInitialDelay()),
+                eq(repeat.getRepeatPeriod()),
+                eq(repeat.getTimeUnit()));
+
+        // Then - assert job detail is as expected
+        assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
+        assertEquals(opChainString, parentJobDetail.getOpChain());
+        assertEquals(context.getUser().getUserId(), parentJobDetail.getUserId());
+    }
+
     private class StoreImpl extends Store {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
         @Override
         protected OperationChainValidator createOperationChainValidator() {
@@ -976,6 +1022,18 @@ public class StoreTest {
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return Serialiser.class;
+        }
+
+        @Override
+        protected ScheduledExecutorService getExecutorService() {
+            ScheduledFuture<?> future = Mockito.mock(RunnableScheduledFuture.class);
+            doReturn(future).when(executorService).scheduleAtFixedRate(
+                    any(Runnable.class),
+                    anyLong(),
+                    anyLong(),
+                    any(TimeUnit.class)
+            );
+            return executorService;
         }
     }
 

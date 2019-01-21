@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public final class ExecutorService {
+public class ExecutorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorService.class);
     private static ScheduledExecutorService service;
