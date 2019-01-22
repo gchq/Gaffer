@@ -390,7 +390,8 @@ public abstract class Store {
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
-        return executeJob(new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, JobStatus.RUNNING, null), context);
+        final JobDetail jobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        return executeJob(jobDetail, context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
@@ -454,25 +455,22 @@ public abstract class Store {
             }
         }
 
-        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        final Runnable runnable = () -> {
+            try {
+                handleOperation(operationChain, context);
+                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            } catch (final Error e) {
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                throw e;
+            } catch (final Exception e) {
+                LOGGER.warn("Operation chain job failed to execute", e);
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+            }
+        };
 
-        try {
-            runAsync(() -> {
-                try {
-                    handleOperation(operationChain, context);
-                    addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-                } catch (final Error e) {
-                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-                    throw e;
-                } catch (final Exception e) {
-                    LOGGER.warn("Operation chain job failed to execute", e);
-                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-                }
-            });
-        } catch (final StoreException e) {
-            throw e;
-        }
-        return initialJobDetail;
+        ExecutorService.getService().execute(runnable);
+
+        return jobDetail;
     }
 
     public void runAsync(final Runnable runnable) throws StoreException {
