@@ -455,7 +455,7 @@ public abstract class Store {
             }
         }
 
-        final Runnable runnable = () -> {
+        runAsync(() -> {
             try {
                 handleOperation(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
@@ -466,9 +466,7 @@ public abstract class Store {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
-        };
-
-        ExecutorService.getService().execute(runnable);
+        });
 
         return jobDetail;
     }
