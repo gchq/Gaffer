@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
@@ -59,6 +60,22 @@ public class JoinIT extends AbstractStoreIT {
     @Override
     public void _setup() throws Exception {
         addJoinEntityElements(TestGroups.ENTITY_3);
+    }
+
+    @Test
+    public void testNestedViewCompletedIfNotSupplied() throws Exception {
+        // Given
+        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+                .input(inputElements)
+                .operation(new GetAllElements())
+                .joinType(JoinType.FULL_INNER)
+                .matchKey(MatchKey.LEFT)
+                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
+                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
+                .build();
+
+        // When / Then - no exceptions
+        graph.execute(joinOp, getUser());
     }
 
     @Test
