@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>1.7.1-SNAPSHOT</version>
+        <version>1.8.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,6 +36,7 @@
             <artifactId>operation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!--test dependencies-->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
@@ -62,6 +63,12 @@
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>${mockserver.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
