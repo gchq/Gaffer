@@ -47,7 +47,7 @@ import java.util.Map;
  * @param <I> Iterable input type.
  * @param <O> Iterable output type.
  */
-@Since("1.7.0")
+@Since("1.8.0")
 @Summary("Joins two iterables based on a join type")
 @JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "collectionLimit", "options"}, alphabetic = true)
 public class Join<I, O> implements InputOutput<Iterable<? extends I>,
