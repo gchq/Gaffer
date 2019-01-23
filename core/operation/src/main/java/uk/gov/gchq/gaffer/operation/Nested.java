@@ -15,9 +15,12 @@
  */
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 public interface Nested {
 
+    @JsonIgnore
     List<Operation> getNestedOperations();
 }
