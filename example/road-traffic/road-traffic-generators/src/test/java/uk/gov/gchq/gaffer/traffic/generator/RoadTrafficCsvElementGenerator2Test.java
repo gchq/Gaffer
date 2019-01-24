@@ -53,10 +53,11 @@ public class RoadTrafficCsvElementGenerator2Test {
 
         JSONSerialiser.getMapper();
         SimpleClassNameCache.setUseFullNameForSerialisation(false);
-        System.out.println(new String(JSONSerialiser.serialise(RoadTrafficCsvElementGenerator2.CSV_ELEMENT_GENERATOR, true)));
         elements1.forEach(e -> e.removeProperty("hllp"));
         elements2.forEach(e -> e.removeProperty("hllp"));
         ElementUtil.assertElementEquals(elements1, elements2);
+        // Uncomment the following for debugging
+        // System.out.println(new String(JSONSerialiser.serialise(RoadTrafficCsvElementGenerator2.CSV_ELEMENT_GENERATOR, true)));
     }
 
     private InputStream createInputStream() {

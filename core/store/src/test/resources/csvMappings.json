@@ -1,81 +1,161 @@
 {
   "class": "CsvElementGenerator",
   "header": [
-    "Region Name (GO)", "ONS LACode", "ONS LA Name", "CP", "S Ref E", "S Ref N",
-    "Road", "A-Junction", "A Ref E", "A Ref N", "B-Junction", "B Ref E",
-    "B Ref N", "RCat", "iDir", "Year", "dCount", "Hour", "PC", "2WMV", "CAR",
-    "BUS", "LGV", "HGVR2", "HGVR3", "HGVR4", "HGVA3", "HGVA5", "HGVA6", "HGV",
+    "Region Name (GO)",
+    "ONS LACode",
+    "ONS LA Name",
+    "CP",
+    "S Ref E",
+    "S Ref N",
+    "Road",
+    "A-Junction",
+    "A Ref E",
+    "A Ref N",
+    "B-Junction",
+    "B Ref E",
+    "B Ref N",
+    "RCat",
+    "iDir",
+    "Year",
+    "dCount",
+    "Hour",
+    "PC",
+    "2WMV",
+    "CAR",
+    "BUS",
+    "LGV",
+    "HGVR2",
+    "HGVR3",
+    "HGVR4",
+    "HGVA3",
+    "HGVA5",
+    "HGVA6",
+    "HGV",
     "AMV"
   ],
   "firstRow": 1,
   "allFieldsRequired": true,
   "csvTransforms": [
     {
-      "selection": ["Road", "A-Junction"],
+      "selection": [
+        "Road",
+        "A-Junction"
+      ],
       "function": {
         "class": "Concat",
         "separator": ":"
       },
-      "projection": ["A-Junction"]
-    }, {
-      "selection": ["Road", "B-Junction"],
+      "projection": [
+        "A-Junction"
+      ]
+    },
+    {
+      "selection": [
+        "Road",
+        "B-Junction"
+      ],
       "function": {
         "class": "Concat",
         "separator": ":"
       },
-      "projection": ["B-Junction"]
-    }, {
-      "selection": ["A Ref E", "A Ref N"],
+      "projection": [
+        "B-Junction"
+      ]
+    },
+    {
+      "selection": [
+        "A Ref E",
+        "A Ref N"
+      ],
       "function": {
         "class": "Concat",
         "separator": ","
       },
-      "projection": ["A-Location"]
-    }, {
-      "selection": ["B Ref E", "B Ref N"],
+      "projection": [
+        "A-Location"
+      ]
+    },
+    {
+      "selection": [
+        "B Ref E",
+        "B Ref N"
+      ],
       "function": {
         "class": "Concat",
         "separator": ","
       },
-      "projection": ["B-Location"]
-    }, {
-      "selection": ["PROPERTIES"],
+      "projection": [
+        "B-Location"
+      ]
+    },
+    {
+      "selection": [
+        "PROPERTIES"
+      ],
       "function": {
         "class": "CreateRoadTrafficFreqMap"
       },
-      "projection": ["countByVehicleType"]
-    }, {
-      "selection": ["countByVehicleType"],
+      "projection": [
+        "countByVehicleType"
+      ]
+    },
+    {
+      "selection": [
+        "countByVehicleType"
+      ],
       "function": {
         "class": "CallMethod",
         "method": "getTotal"
       },
-      "projection": ["total-count"]
-    }, {
-      "selection": ["dCount"],
+      "projection": [
+        "total-count"
+      ]
+    },
+    {
+      "selection": [
+        "dCount"
+      ],
       "function": {
         "class": "ToDate"
       },
-      "projection": ["dCount"]
-    }, {
-      "selection": ["Hour"],
+      "projection": [
+        "dCount"
+      ]
+    },
+    {
+      "selection": [
+        "Hour"
+      ],
       "function": {
         "class": "ToInteger"
       },
-      "projection": ["Hour"]
-    }, {
-      "selection": ["dCount", "Hour"],
+      "projection": [
+        "Hour"
+      ]
+    },
+    {
+      "selection": [
+        "dCount",
+        "Hour"
+      ],
       "function": {
         "class": "AddGivenHours"
       },
-      "projection": ["startDate"]
-    }, {
-      "selection": ["startDate"],
+      "projection": [
+        "startDate"
+      ]
+    },
+    {
+      "selection": [
+        "startDate"
+      ],
       "function": {
-        "class": "AddHours",
-        "hours": 1
+        "class": "DateToTimeBucketEnd",
+        "bucket": "HOUR"
       },
-      "projection": ["endDate"]
+      "projection": [
+        "endDate"
+      ]
     }
   ],
   "elements": [
@@ -83,27 +163,33 @@
       "GROUP": "RegionContainsLocation",
       "DESTINATION": "ONS LA Name",
       "SOURCE": "Region Name (GO)"
-    }, {
+    },
+    {
       "GROUP": "LocationContainsRoad",
       "DESTINATION": "Road",
       "SOURCE": "ONS LA Name"
-    }, {
+    },
+    {
       "GROUP": "RoadHasJunction",
       "DESTINATION": "A-Junction",
       "SOURCE": "Road"
-    }, {
+    },
+    {
       "GROUP": "RoadHasJunction",
       "DESTINATION": "B-Junction",
       "SOURCE": "Road"
-    }, {
+    },
+    {
       "GROUP": "JunctionLocatedAt",
       "DESTINATION": "A-Location",
       "SOURCE": "A-Junction"
-    }, {
+    },
+    {
       "GROUP": "JunctionLocatedAt",
       "DESTINATION": "B-Location",
       "SOURCE": "B-Junction"
-    }, {
+    },
+    {
       "GROUP": "RoadUse",
       "countByVehicleType": "countByVehicleType",
       "endDate": "endDate",
@@ -111,14 +197,16 @@
       "SOURCE": "A-Junction",
       "count": "total-count",
       "startDate": "startDate"
-    }, {
+    },
+    {
       "GROUP": "JunctionUse",
       "countByVehicleType": "countByVehicleType",
       "endDate": "endDate",
       "VERTEX": "A-Junction",
       "count": "total-count",
       "startDate": "startDate"
-    }, {
+    },
+    {
       "GROUP": "JunctionUse",
       "countByVehicleType": "countByVehicleType",
       "endDate": "endDate",

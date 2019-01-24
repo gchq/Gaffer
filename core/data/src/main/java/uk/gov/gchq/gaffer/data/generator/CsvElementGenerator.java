@@ -65,7 +65,13 @@ import static java.util.Objects.requireNonNull;
         alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CsvElementGenerator implements OneToManyElementGenerator<String>, Serializable {
+    public static final String GROUP = "GROUP";
+    public static final String VERTEX = "VERTEX";
+    public static final String SOURCE = "SOURCE";
+    public static final String DESTINATION = "DESTINATION";
+    public static final String DIRECTED = "DIRECTED";
     private static final long serialVersionUID = -821376598172364516L;
+
     private List<String> header = new ArrayList<>();
     private int firstRow = 0;
     private char delimiter = ',';
@@ -181,16 +187,16 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
 
     private Element transformCsvToElement(final Properties properties,
                                           final CsvElementDef csvElementDef) {
-        requireNonNull(csvElementDef.get("GROUP"), "GROUP is required");
+        requireNonNull(csvElementDef.get(GROUP), "GROUP is required");
         final Element element;
         if (csvElementDef.containsKey("VERTEX")) {
-            element = new Entity(csvElementDef.getGroup(), getField("VERTEX", csvElementDef, properties));
+            element = new Entity(csvElementDef.getGroup(), getField(VERTEX, csvElementDef, properties));
         } else {
             element = new Edge(
                     csvElementDef.getGroup(),
-                    getField("SOURCE", csvElementDef, properties),
-                    getField("DESTINATION", csvElementDef, properties),
-                    (boolean) getField("DIRECTED", csvElementDef, properties)
+                    getField(SOURCE, csvElementDef, properties),
+                    getField(DESTINATION, csvElementDef, properties),
+                    (boolean) getField(DIRECTED, csvElementDef, properties)
             );
         }
 
