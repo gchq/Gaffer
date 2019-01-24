@@ -16,15 +16,10 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.commons.lang3.time.DateUtils;
-
-import uk.gov.gchq.koryphe.function.KorypheFunction;
-
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjuster;
-import java.util.Date;
 
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -97,7 +92,7 @@ public final class CommonTimeUtil {
     }
 
     public static long timeToBucketStart(final long time, final TimeBucket bucket) {
-       return timeToBucket(time, bucket);
+        return timeToBucket(time, bucket);
     }
 
     public static long timeToBucketEnd(final long time, final TimeBucket bucket) {
@@ -156,115 +151,5 @@ public final class CommonTimeUtil {
         SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR, MILLISECOND
     }
 
-    /**
-     * Converts a timestamp into the start of a timestamp bucket, based on a provided
-     * {@link TimeBucket}.
-     */
-    public static class ToTimeBucketStart extends KorypheFunction<Long, Long> {
-        private TimeBucket bucket;
 
-        public ToTimeBucketStart() {
-        }
-
-        public ToTimeBucketStart(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-
-        @Override
-        public Long apply(final Long time) {
-            return CommonTimeUtil.timeToBucketStart(time, bucket);
-        }
-
-        public TimeBucket getBucket() {
-            return bucket;
-        }
-
-        public void setBucket(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-    }
-
-    /**
-     * Converts a timestamp into the end of a timestamp bucket, based on a provided
-     * {@link TimeBucket}.
-     */
-    public static class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
-        private TimeBucket bucket;
-
-        public ToTimeBucketEnd() {
-        }
-
-        public ToTimeBucketEnd(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-
-        @Override
-        public Long apply(final Long time) {
-            return CommonTimeUtil.timeToBucketEnd(time, bucket);
-        }
-
-        public TimeBucket getBucket() {
-            return bucket;
-        }
-
-        public void setBucket(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-    }
-
-    /**
-     * Converts a Date into the start of a timestamp bucket, based on a provided
-     * {@link TimeBucket}.
-     */
-    public static class DateToTimeBucketStart extends KorypheFunction<Date, Date> {
-        private TimeBucket bucket;
-
-        public DateToTimeBucketStart() {
-        }
-
-        public DateToTimeBucketStart(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-
-        @Override
-        public Date apply(final Date date) {
-            return new Date(CommonTimeUtil.timeToBucketStart(date.getTime(), bucket));
-        }
-
-        public TimeBucket getBucket() {
-            return bucket;
-        }
-
-        public void setBucket(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-    }
-
-    /**
-     * Converts a date into the end of a timestamp bucket, based on a provided
-     * {@link TimeBucket}.
-     */
-    public static class DateToTimeBucketEnd extends KorypheFunction<Date, Date> {
-        private TimeBucket bucket;
-
-        public DateToTimeBucketEnd() {
-        }
-
-        public DateToTimeBucketEnd(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-
-        @Override
-        public Date apply(final Date date) {
-            return new Date(CommonTimeUtil.timeToBucketEnd(date.getTime(), bucket));
-        }
-
-        public TimeBucket getBucket() {
-            return bucket;
-        }
-
-        public void setBucket(final TimeBucket bucket) {
-            this.bucket = bucket;
-        }
-    }
 }

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import org.apache.commons.lang3.time.DateUtils;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.function.DateToTimeBucketEnd;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
@@ -87,7 +88,7 @@ public class RoadTrafficCsvElementGenerator2 implements ElementGenerator<String>
                     .select("dCount").execute(new ToDate())
                     .select("Hour").execute(new ToInteger())
                     .select("dCount", "Hour").execute(new AddGivenHours()).project("startDate")
-                    .select("startDate").execute(new CommonTimeUtil.DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR)).project("endDate")
+                    .select("startDate").execute(new DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR)).project("endDate")
                     .build())
             .element(new CsvElementDef("RegionContainsLocation")
                     .source("Region Name (GO)")
