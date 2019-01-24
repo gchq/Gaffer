@@ -17,10 +17,15 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 public class IterableToHyperLogLogPlus extends KorypheFunction<Iterable<Object>, HyperLogLogPlus> {
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int p = 5;
+
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int sp = 5;
 
     public IterableToHyperLogLogPlus() {
@@ -34,9 +39,9 @@ public class IterableToHyperLogLogPlus extends KorypheFunction<Iterable<Object>,
     @Override
     public HyperLogLogPlus apply(final Iterable<Object> o) {
         final HyperLogLogPlus hllp = new HyperLogLogPlus(p, sp);
-        for(Object obj : o){
-            if (null != o) {
-                hllp.offer(o);
+        for (final Object obj : o) {
+            if (null != obj) {
+                hllp.offer(obj);
             }
         }
         return hllp;
@@ -57,7 +62,5 @@ public class IterableToHyperLogLogPlus extends KorypheFunction<Iterable<Object>,
     public void setSp(final int sp) {
         this.sp = sp;
     }
-
-
 }
 

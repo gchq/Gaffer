@@ -46,3 +46,4 @@ public class ToTimeBucket extends KorypheFunction<Long, Long> {
         this.bucket = bucket;
     }
 }
+

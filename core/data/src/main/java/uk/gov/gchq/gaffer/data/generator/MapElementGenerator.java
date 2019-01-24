@@ -19,12 +19,8 @@ package uk.gov.gchq.gaffer.data.generator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
@@ -42,62 +38,49 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
 @Since("1.8.0")
-@Summary("Generates elements from CSV strings")
+@Summary("Generates elements from maps")
 @JsonPropertyOrder(value = {
-        "header", "firstRow", "delimiter", "quoted", "quoteChar",
         "requiredFields", "allFieldsRequired",
-        "csvValidator", "csvTransforms", "elements",
+        "mapValidator", "mapTransforms", "elements",
         "followOnGenerator", "elementValidator"},
         alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class CsvElementGenerator implements OneToManyElementGenerator<String>, Serializable {
+public class MapElementGenerator implements OneToManyElementGenerator<Map<String, Object>>, Serializable {
     public static final String GROUP = "GROUP";
     public static final String VERTEX = "VERTEX";
     public static final String SOURCE = "SOURCE";
     public static final String DESTINATION = "DESTINATION";
     public static final String DIRECTED = "DIRECTED";
-    private static final long serialVersionUID = -821376598172364516L;
 
-    private List<String> header = new ArrayList<>();
-    private int firstRow = 0;
-    private char delimiter = ',';
-    private boolean quoted = false;
-    private char quoteChar = '\"';
+    private static final long serialVersionUID = 270083544996344124L;
+
     private boolean skipInvalid = false;
 
     private boolean allFieldsRequired = false;
     private Collection<String> requiredFields = new HashSet<>();
-    private PropertiesFilter csvValidator;
+    private PropertiesFilter mapValidator;
     private PropertiesTransformer transformer = new PropertiesTransformer();
-    private final List<CsvElementDef> elements = new ArrayList<>();
+    private final List<MapElementDef> elements = new ArrayList<>();
     private ElementGenerator<Element> followOnGenerator;
     private ElementFilter elementValidator;
 
     @Override
-    public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
-        if (allFieldsRequired) {
-            requiredFields = header;
-        }
-
-        final LimitedCloseableIterable<? extends String> csvWithAtFirstRow = new LimitedCloseableIterable<>(strings, firstRow, null);
-        Iterable<? extends Element> elements = new TransformOneToManyIterable<String, Element>(csvWithAtFirstRow) {
+    public Iterable<? extends Element> apply(final Iterable<? extends Map<String, Object>> maps) {
+        Iterable<? extends Element> elements = new TransformOneToManyIterable<Map<String, Object>, Element>(maps) {
             @Override
-            protected Iterable<Element> transform(final String item) {
-                return _apply(item);
+            protected Iterable<Element> transform(final Map<String, Object> map) {
+                return _apply(map);
             }
         };
 
@@ -119,14 +102,13 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
     }
 
     @Override
-    public Iterable<Element> _apply(final String csv) {
-        return generateElements(csv);
+    public Iterable<Element> _apply(final Map<String, Object> map) {
+        return generateElements(map);
     }
 
-    private StreamIterable<Element> generateElements(final String csv) {
+    private StreamIterable<Element> generateElements(final Map<String, Object> map) {
         return new StreamIterable<>(() -> {
-            final CSVRecord csvRecord = parseCsv(csv);
-            final Properties properties = extractProperties(csvRecord);
+            final Properties properties = extractProperties(map);
             final ValidationResult requiredFieldsResult = new ValidationResult();
             for (final String key : requiredFields) {
                 if (StringUtils.isEmpty((String) properties.get(key))) {
@@ -136,70 +118,42 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
 
             if (!skipInvalid) {
                 if (!requiredFieldsResult.isValid()) {
-                    throw new IllegalArgumentException("CSV is invalid: " + csv + "\n " + requiredFieldsResult.getErrorString());
+                    throw new IllegalArgumentException("Map is invalid: " + map + "\n " + requiredFieldsResult.getErrorString());
                 }
-                if (null != csvValidator && null != csvValidator.getComponents() && !csvValidator.test(properties)) {
-                    final ValidationResult result = csvValidator.testWithValidationResult(properties);
-                    throw new IllegalArgumentException("CSV is invalid. " + csv + "\n " + result.getErrorString());
+                if (null != mapValidator && null != mapValidator.getComponents() && !mapValidator.test(properties)) {
+                    final ValidationResult result = mapValidator.testWithValidationResult(properties);
+                    throw new IllegalArgumentException("Map is invalid. " + map + "\n " + result.getErrorString());
                 }
             }
             transformer.apply(properties);
-            return elements.stream().map(e -> transformCsvToElement(properties, e));
+            return elements.stream().map(e -> transformMapToElement(properties, e));
         });
     }
 
-    private Properties extractProperties(final CSVRecord csvRecord) {
-        final Iterator<String> columnNamesItr = header.iterator();
+    private Properties extractProperties(final Map<String, Object> map) {
         final Properties properties = new Properties();
-        for (final String columnValue : csvRecord) {
-            properties.put(columnNamesItr.next(), columnValue);
+        for (final Map.Entry<String, Object> entry : map.entrySet()) {
+            properties.put(entry.getKey(), entry.getValue());
         }
         return properties;
     }
 
-    private CSVRecord parseCsv(final String csv) {
-        final CSVRecord csvRecord;
-        try {
-            csvRecord = new CSVParser(new StringReader(csv), getCsvFormat()).iterator().next();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (csvRecord.size() != header.size()) {
-            throw new IllegalArgumentException(
-                    "CSV has " + csvRecord.size()
-                            + " columns, but there are " + header.size()
-                            + " provided column names"
-            );
-        }
-        return csvRecord;
-    }
-
-    private CSVFormat getCsvFormat() {
-        CSVFormat format = CSVFormat.DEFAULT;
-        if (quoted) {
-            format = format.withQuote(quoteChar);
-        }
-        format.withDelimiter(delimiter);
-        return format;
-    }
-
-    private Element transformCsvToElement(final Properties properties,
-                                          final CsvElementDef csvElementDef) {
-        requireNonNull(csvElementDef.get(GROUP), "GROUP is required");
+    private Element transformMapToElement(final Properties properties,
+                                          final MapElementDef mapElementDef) {
+        requireNonNull(mapElementDef.get(GROUP), "GROUP is required");
         final Element element;
-        if (csvElementDef.containsKey("VERTEX")) {
-            element = new Entity(csvElementDef.getGroup(), getField(VERTEX, csvElementDef, properties));
+        if (mapElementDef.containsKey("VERTEX")) {
+            element = new Entity(mapElementDef.getGroup(), getField(VERTEX, mapElementDef, properties));
         } else {
             element = new Edge(
-                    csvElementDef.getGroup(),
-                    getField(SOURCE, csvElementDef, properties),
-                    getField(DESTINATION, csvElementDef, properties),
-                    (boolean) getField(DIRECTED, csvElementDef, properties)
+                    mapElementDef.getGroup(),
+                    getField(SOURCE, mapElementDef, properties),
+                    getField(DESTINATION, mapElementDef, properties),
+                    (boolean) getField(DIRECTED, mapElementDef, properties)
             );
         }
 
-        for (final Map.Entry<String, Object> entry : csvElementDef.entrySet()) {
+        for (final Map.Entry<String, Object> entry : mapElementDef.entrySet()) {
             final IdentifierType id = IdentifierType.fromName(entry.getKey());
             if (null == id) {
                 element.putProperty(entry.getKey(), getField(entry.getValue(), properties));
@@ -209,8 +163,8 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return element;
     }
 
-    private Object getField(final String key, final CsvElementDef csvElementDef, final Properties properties) {
-        return getField(csvElementDef.get(key), properties);
+    private Object getField(final String key, final MapElementDef mapElementDef, final Properties properties) {
+        return getField(mapElementDef.get(key), properties);
     }
 
     private Object getField(final Object value, final Properties properties) {
@@ -227,48 +181,16 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return value;
     }
 
-    public List<String> getHeader() {
-        return header;
-    }
-
-    public void setHeader(final List<String> header) {
-        this.header.clear();
-        this.header.addAll(header);
-    }
-
-    public int getFirstRow() {
-        return firstRow;
-    }
-
-    public void setFirstRow(final int firstRow) {
-        this.firstRow = firstRow;
-    }
-
-    public CsvElementGenerator firstRow(final int firstRow) {
-        this.firstRow = firstRow;
-        return this;
-    }
-
-    public CsvElementGenerator header(final String... header) {
-        Collections.addAll(this.header, header);
-        return this;
-    }
-
-    public CsvElementGenerator header(final Collection<String> header) {
-        this.header.addAll(header);
-        return this;
-    }
-
-    public List<CsvElementDef> getElements() {
+    public List<MapElementDef> getElements() {
         return elements;
     }
 
-    public void setElements(final List<CsvElementDef> elements) {
+    public void setElements(final List<MapElementDef> elements) {
         this.elements.clear();
         this.elements.addAll(elements);
     }
 
-    public CsvElementGenerator element(final CsvElementDef elementDef) {
+    public MapElementGenerator element(final MapElementDef elementDef) {
         elements.add(elementDef);
         return this;
     }
@@ -285,7 +207,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.requiredFields = requiredFields;
     }
 
-    public CsvElementGenerator requiredFields(final String... requiredFields) {
+    public MapElementGenerator requiredFields(final String... requiredFields) {
         Collections.addAll(this.requiredFields, requiredFields);
         return this;
     }
@@ -298,27 +220,27 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.allFieldsRequired = allFieldsRequired;
     }
 
-    public CsvElementGenerator allFieldsRequired() {
+    public MapElementGenerator allFieldsRequired() {
         this.allFieldsRequired = true;
         return this;
     }
 
-    public CsvElementGenerator allFieldsRequired(final boolean allFieldsRequired) {
+    public MapElementGenerator allFieldsRequired(final boolean allFieldsRequired) {
         this.allFieldsRequired = allFieldsRequired;
         return this;
     }
 
-    public PropertiesFilter getCsvValidator() {
-        return csvValidator;
+    public PropertiesFilter getMapValidator() {
+        return mapValidator;
     }
 
-    public void setCsvValidator(final PropertiesFilter validator) {
-        this.csvValidator = validator;
+    public void setMapValidator(final PropertiesFilter validator) {
+        this.mapValidator = validator;
     }
 
-    public CsvElementGenerator csvValidator(final PropertiesFilter csvValidator) {
-        requireNonNull(csvValidator, "csvValidator is required");
-        this.csvValidator = csvValidator;
+    public MapElementGenerator mapValidator(final PropertiesFilter mapValidator) {
+        requireNonNull(mapValidator, "mapValidator is required");
+        this.mapValidator = mapValidator;
         return this;
     }
 
@@ -342,12 +264,12 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.skipInvalid = skipInvalid;
     }
 
-    public CsvElementGenerator skipInvalid() {
+    public MapElementGenerator skipInvalid() {
         this.skipInvalid = true;
         return this;
     }
 
-    public CsvElementGenerator skipInvalid(final boolean skipInvalid) {
+    public MapElementGenerator skipInvalid(final boolean skipInvalid) {
         this.skipInvalid = skipInvalid;
         return this;
     }
@@ -363,64 +285,20 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.transformer = transformer;
     }
 
-    public CsvElementGenerator transformer(final PropertiesTransformer transformer) {
+    public MapElementGenerator transformer(final PropertiesTransformer transformer) {
         requireNonNull(transformer, "transformer is required");
         this.transformer = transformer;
         return this;
     }
 
-    public List<TupleAdaptedFunction<String, ?, ?>> getCsvTransforms() {
+    public List<TupleAdaptedFunction<String, ?, ?>> getMapTransforms() {
         return null != transformer ? transformer.getComponents() : null;
     }
 
-    public void setCsvTransforms(final List<TupleAdaptedFunction<String, ?, ?>> transformeFunctions) {
+    public void setMapTransforms(final List<TupleAdaptedFunction<String, ?, ?>> transformeFunctions) {
         requireNonNull(transformer, "transformer is required");
         this.transformer = new PropertiesTransformer();
         this.transformer.setComponents(transformeFunctions);
-    }
-
-    public char getDelimiter() {
-        return delimiter;
-    }
-
-    public void setDelimiter(final char delimiter) {
-        this.delimiter = delimiter;
-    }
-
-    public CsvElementGenerator delimiter(final char delimiter) {
-        this.delimiter = delimiter;
-        return this;
-    }
-
-    public boolean isQuoted() {
-        return quoted;
-    }
-
-    public void setQuoted(final boolean quoted) {
-        this.quoted = quoted;
-    }
-
-    public CsvElementGenerator quoted() {
-        this.quoted = true;
-        return this;
-    }
-
-    public CsvElementGenerator quoted(final boolean quoted) {
-        this.quoted = quoted;
-        return this;
-    }
-
-    public char getQuoteChar() {
-        return quoteChar;
-    }
-
-    public void setQuoteChar(final char quoteChar) {
-        this.quoteChar = quoteChar;
-    }
-
-    public CsvElementGenerator quoteChar(final char quoteChar) {
-        this.quoteChar = quoteChar;
-        return this;
     }
 
     public ElementGenerator<Element> getFollowOnGenerator() {
@@ -431,7 +309,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.followOnGenerator = followOnGenerator;
     }
 
-    public CsvElementGenerator followOnGenerator(final ElementGenerator<Element> followOnGenerator) {
+    public MapElementGenerator followOnGenerator(final ElementGenerator<Element> followOnGenerator) {
         this.followOnGenerator = followOnGenerator;
         return this;
     }

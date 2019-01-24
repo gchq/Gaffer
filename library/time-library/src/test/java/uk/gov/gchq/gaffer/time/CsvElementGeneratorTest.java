@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.time;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.function.ToTimeBucketStart;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -41,7 +42,7 @@ public class CsvElementGeneratorTest {
                 .transformer(new PropertiesTransformer.Builder()
                         .select("time").execute(new ToLong()).project("time")
                         .select("time").execute(new ToTimestampSet(CommonTimeUtil.TimeBucket.HOUR, true)).project("timestamps")
-                        .select("time").execute(new CommonTimeUtil.ToTimeBucketStart(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
+                        .select("time").execute(new ToTimeBucketStart(CommonTimeUtil.TimeBucket.HOUR)).project("timebucket")
                         .select().execute(new SetValue(1)).project("count")
                         .build())
                 .element(new CsvElementDef("Edge")
