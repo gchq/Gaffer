@@ -61,7 +61,7 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
         // Extract required fields
         final FreqMap vehicleCountsByType = getVehicleCounts(fields);
         final Date startDate = getDate(fields[dCount.ordinal()], fields[Hour.ordinal()]);
-        final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
+        final Date endDate = null != startDate ? DateUtils.addMilliseconds(DateUtils.addHours(startDate, 1), -1) : null;
         final String region = fields[Region_Name.ordinal()];
         final String location = fields[ONS_LA_Name.ordinal()];
         final String road = fields[Road.ordinal()];

@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class RoadTrafficElementGenerator2Test {
+public class RoadTrafficCsvElementGenerator2Test {
 
     @Test
     public void shouldParseSampleData() throws IOException {
@@ -50,7 +50,7 @@ public class RoadTrafficElementGenerator2Test {
         try (final InputStream inputStream = createInputStream()) {
             elements1 = Lists.newArrayList(generator1.apply(() -> new LineIterator(new InputStreamReader(inputStream))));
         }
-        //TODO remove commented code
+
         JSONSerialiser.getMapper();
         SimpleClassNameCache.setUseFullNameForSerialisation(false);
         System.out.println(new String(JSONSerialiser.serialise(RoadTrafficCsvElementGenerator2.CSV_ELEMENT_GENERATOR, true)));

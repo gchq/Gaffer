@@ -16,12 +16,15 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import org.apache.commons.lang3.time.DateUtils;
+
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjuster;
+import java.util.Date;
 
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -31,6 +34,8 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
 
 /**
  * Utility methods for dates and times.
@@ -40,6 +45,7 @@ public final class CommonTimeUtil {
     public static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
     public static final long MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
     public static final long MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
+    public static final long MILLISECONDS_IN_WEEK = 7 * MILLISECONDS_IN_DAY;
 
     private CommonTimeUtil() {
         // Private constructor to prevent instantiation.
@@ -90,6 +96,46 @@ public final class CommonTimeUtil {
         return timeBucket;
     }
 
+    public static long timeToBucketStart(final long time, final TimeBucket bucket) {
+       return timeToBucket(time, bucket);
+    }
+
+    public static long timeToBucketEnd(final long time, final TimeBucket bucket) {
+        final long startTime = timeToBucketStart(time, bucket);
+
+        final long endTime;
+        switch (bucket) {
+            case MILLISECOND:
+                endTime = startTime;
+                break;
+            case SECOND:
+                endTime = startTime + MILLISECONDS_IN_SECOND - 1;
+                break;
+            case MINUTE:
+                endTime = startTime + MILLISECONDS_IN_MINUTE - 1;
+                break;
+            case HOUR:
+                endTime = startTime + MILLISECONDS_IN_HOUR - 1;
+                break;
+            case DAY:
+                endTime = startTime + MILLISECONDS_IN_DAY - 1;
+                break;
+            case WEEK:
+                endTime = startTime + MILLISECONDS_IN_WEEK - 1;
+                break;
+            case MONTH:
+                endTime = Instant.ofEpochMilli(startTime).atOffset(ZoneOffset.UTC).with(lastDayOfMonth()).toInstant().toEpochMilli() + MILLISECONDS_IN_DAY - 1;
+                break;
+            case YEAR:
+                endTime = Instant.ofEpochMilli(startTime).atOffset(ZoneOffset.UTC).with(lastDayOfYear()).toInstant().toEpochMilli() + MILLISECONDS_IN_DAY - 1;
+                break;
+            default:
+                endTime = time;
+        }
+
+        return endTime;
+    }
+
     /**
      * {@link java.time.temporal.TemporalAdjuster} to select the first day of
      * the week from a {@link java.time.OffsetDateTime} object.
@@ -111,22 +157,106 @@ public final class CommonTimeUtil {
     }
 
     /**
-     * Converts a timestamp into a timestamp bucket, based on a provided
+     * Converts a timestamp into the start of a timestamp bucket, based on a provided
      * {@link TimeBucket}.
      */
-    public static class ToTimeBucket extends KorypheFunction<Long, Long> {
+    public static class ToTimeBucketStart extends KorypheFunction<Long, Long> {
         private TimeBucket bucket;
 
-        public ToTimeBucket() {
+        public ToTimeBucketStart() {
         }
 
-        public ToTimeBucket(final TimeBucket bucket) {
+        public ToTimeBucketStart(final TimeBucket bucket) {
             this.bucket = bucket;
         }
 
         @Override
         public Long apply(final Long time) {
-            return CommonTimeUtil.timeToBucket(time, bucket);
+            return CommonTimeUtil.timeToBucketStart(time, bucket);
+        }
+
+        public TimeBucket getBucket() {
+            return bucket;
+        }
+
+        public void setBucket(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+    }
+
+    /**
+     * Converts a timestamp into the end of a timestamp bucket, based on a provided
+     * {@link TimeBucket}.
+     */
+    public static class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
+        private TimeBucket bucket;
+
+        public ToTimeBucketEnd() {
+        }
+
+        public ToTimeBucketEnd(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+
+        @Override
+        public Long apply(final Long time) {
+            return CommonTimeUtil.timeToBucketEnd(time, bucket);
+        }
+
+        public TimeBucket getBucket() {
+            return bucket;
+        }
+
+        public void setBucket(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+    }
+
+    /**
+     * Converts a Date into the start of a timestamp bucket, based on a provided
+     * {@link TimeBucket}.
+     */
+    public static class DateToTimeBucketStart extends KorypheFunction<Date, Date> {
+        private TimeBucket bucket;
+
+        public DateToTimeBucketStart() {
+        }
+
+        public DateToTimeBucketStart(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+
+        @Override
+        public Date apply(final Date date) {
+            return new Date(CommonTimeUtil.timeToBucketStart(date.getTime(), bucket));
+        }
+
+        public TimeBucket getBucket() {
+            return bucket;
+        }
+
+        public void setBucket(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+    }
+
+    /**
+     * Converts a date into the end of a timestamp bucket, based on a provided
+     * {@link TimeBucket}.
+     */
+    public static class DateToTimeBucketEnd extends KorypheFunction<Date, Date> {
+        private TimeBucket bucket;
+
+        public DateToTimeBucketEnd() {
+        }
+
+        public DateToTimeBucketEnd(final TimeBucket bucket) {
+            this.bucket = bucket;
+        }
+
+        @Override
+        public Date apply(final Date date) {
+            return new Date(CommonTimeUtil.timeToBucketEnd(date.getTime(), bucket));
         }
 
         public TimeBucket getBucket() {
