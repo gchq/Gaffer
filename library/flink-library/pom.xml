@@ -3,7 +3,7 @@
     <parent>
         <artifactId>library</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>1.7.0-RC3-SNAPSHOT</version>
+        <version>1.8.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -131,6 +131,13 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
@@ -141,6 +148,8 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Kafka Test dependencies -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.11</artifactId>

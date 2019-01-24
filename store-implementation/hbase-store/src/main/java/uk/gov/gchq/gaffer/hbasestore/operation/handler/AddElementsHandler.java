@@ -70,16 +70,23 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         i--;
                         continue;
                     }
-                    final Pair<Put, Put> putPair = serialisation.getPuts(element);
-                    puts.add(putPair.getFirst());
-                    if (null != putPair.getSecond()) {
-                        i++;
-                        if (i >= batchSize) {
-                            executePuts(table, puts);
-                            puts = new ArrayList<>(batchSize);
-                            i = 0;
+                    try {
+                        final Pair<Put, Put> putPair = serialisation.getPuts(element);
+                        puts.add(putPair.getFirst());
+                        if (null != putPair.getSecond()) {
+                            i++;
+                            if (i >= batchSize) {
+                                executePuts(table, puts);
+                                puts = new ArrayList<>(batchSize);
+                                i = 0;
+                            }
+                            puts.add(putPair.getSecond());
                         }
-                        puts.add(putPair.getSecond());
+                    } catch (final Exception e) {
+                        if (addElementsOperation.isValidate() && !addElementsOperation.isSkipInvalidElements()) {
+                            throw e;
+                        }
+                        // otherwise just ignore the error
                     }
                 }
                 executePuts(table, puts);

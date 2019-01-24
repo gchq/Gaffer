@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -110,14 +109,12 @@ public class GetElementsIT extends AbstractStoreIT {
     public static final Collection<Object> ALL_SEED_VERTICES = getAllSeededVertices();
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
     }
 
     @Test
-    public void shouldGetElements() throws Exception {
+    public void shouldGetElements() {
         final List<DirectedType> directedTypes = Lists.newArrayList(DirectedType.values());
         directedTypes.add(null);
 
@@ -175,18 +172,18 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Entity.Builder()
-                                .group(TestGroups.ENTITY)
-                                .vertex(SOURCE_1)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Entity.Builder()
-                                .group(TestGroups.ENTITY)
-                                .vertex(DEST_2)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(SOURCE_1)
+                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(DEST_2)
+                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 resultsExcludingAllEdges);
 
@@ -195,24 +192,24 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_1)
-                                .dest(DEST_1)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_2)
-                                .dest(DEST_2)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_1)
+                        .dest(DEST_1)
+                        .directed(false)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_2)
+                        .dest(DEST_2)
+                        .directed(false)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 resultsIncludingAllEdges);
     }
@@ -241,24 +238,24 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_1)
-                                .dest(DEST_1)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_2)
-                                .dest(DEST_2)
-                                .directed(false)
-                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_1)
+                        .dest(DEST_1)
+                        .directed(false)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_2)
+                        .dest(DEST_2)
+                        .directed(false)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 resultsExcludingAllEntities);
 
@@ -267,18 +264,18 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Entity.Builder()
-                                .group(TestGroups.ENTITY)
-                                .vertex(SOURCE_1)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Entity.Builder()
-                                .group(TestGroups.ENTITY)
-                                .vertex(DEST_2)
-                                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(SOURCE_1)
+                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(DEST_2)
+                        .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 resultsIncludingAllEntities);
 
@@ -302,39 +299,39 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_DIR_1)
-                                .dest(DEST_DIR_1)
-                                .directed(true)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_DIR_2)
-                                .dest(DEST_DIR_2)
-                                .directed(true)
-                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_DIR_3)
-                                .dest(DEST_DIR_3)
-                                .directed(true)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_DIR_1)
+                        .dest(DEST_DIR_1)
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_DIR_2)
+                        .dest(DEST_DIR_2)
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_DIR_3)
+                        .dest(DEST_DIR_3)
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 results);
     }
 
-    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     @Test
+    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
         // Given
         final User user = new User();
@@ -356,24 +353,24 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_DIR_1)
-                                .dest(DEST_DIR_1)
-                                .directed(true)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build(),
-                        new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source(SOURCE_DIR_3)
-                                .dest(DEST_DIR_3)
-                                .directed(true)
-                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.COUNT, 1L)
-                                .build()
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_DIR_1)
+                        .dest(DEST_DIR_1)
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(SOURCE_DIR_3)
+                        .dest(DEST_DIR_3)
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build()
                 ),
                 results);
     }
@@ -486,7 +483,6 @@ public class GetElementsIT extends AbstractStoreIT {
 
         shouldGetElements(expectedElements, SeedMatchingType.EQUAL, directedType, includeEntities, includeEdges, inOutType, seeds);
     }
-
 
     private void shouldGetRelatedElements(final boolean includeEntities,
                                           final boolean includeEdges,

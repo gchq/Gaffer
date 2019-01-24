@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -21,20 +20,15 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
+/**
+ * A {@code ToFreqMap} is a {@link KorypheFunction} that
+ * creates a new FreqMap and upserts a given value.
+ */
 @Since("1.8.0")
-@Summary("Upserts input object into a new uk.gov.gchq.gaffer.types.FreqMap")
-public class ToFreqMap extends KorypheFunction<String, FreqMap> {
-
+@Summary("Creates a new FreqMap and upserts a given value")
+public class ToFreqMap extends KorypheFunction<Object, FreqMap> {
     @Override
-    public FreqMap apply(final String s) {
-        FreqMap freqMap = new FreqMap();
-        if(s == null){
-            return freqMap;
-        }
-        if (s.equals("")) {
-            return freqMap;
-        }
-        freqMap.upsert(s);
-        return freqMap;
+    public FreqMap apply(final Object value) {
+        return new FreqMap(null != value ? value.toString() : null);
     }
 }

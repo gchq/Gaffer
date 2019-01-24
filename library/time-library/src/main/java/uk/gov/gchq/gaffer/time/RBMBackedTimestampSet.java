@@ -260,6 +260,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
+<<<<<<< HEAD
         public Builder timestamp(final Instant timestamp) {
             if (null == timestamps) {
                 timestamps = new ArrayList<>();
@@ -283,6 +284,10 @@ public class RBMBackedTimestampSet implements TimestampSet {
             } else {
                 this.timestamps.addAll(timestamps);
             }
+=======
+        public Builder timestamps(final Collection<Instant> timestamps) {
+            this.timestamps = timestamps;
+>>>>>>> origin/develop
             return this;
         }
 

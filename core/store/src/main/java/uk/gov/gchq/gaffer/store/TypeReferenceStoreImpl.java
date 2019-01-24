@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.util.Set;
 
 /**
@@ -28,6 +30,9 @@ public final class TypeReferenceStoreImpl {
     }
 
     public static class StoreTraits extends TypeReference<Set<StoreTrait>> {
+    }
+
+    public static class Operations extends TypeReference<Set<Class<? extends Operation>>> {
     }
 
     private TypeReferenceStoreImpl() {

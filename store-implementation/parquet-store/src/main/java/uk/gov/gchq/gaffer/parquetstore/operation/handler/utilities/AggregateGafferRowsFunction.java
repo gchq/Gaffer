@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2018. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,16 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
+ * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}s using the Gaffer
+ * aggregators.
  */
 public class AggregateGafferRowsFunction implements Function2<Row, Row, Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
@@ -55,8 +55,7 @@ public class AggregateGafferRowsFunction implements Function2<Row, Row, Row> {
                                        final Set<String> groupByColumns,
                                        final Map<String, String[]> columnToPaths,
                                        final byte[] aggregatorJson,
-                                       final GafferGroupObjectConverter gafferGroupObjectConverter)
-            throws SerialisationException {
+                                       final GafferGroupObjectConverter gafferGroupObjectConverter) {
         LOGGER.debug("Generating a new AggregateGafferRowsFunction");
         this.gafferProperties = gafferProperties;
         this.columnToPaths = columnToPaths;
@@ -68,23 +67,22 @@ public class AggregateGafferRowsFunction implements Function2<Row, Row, Row> {
     }
 
     @Override
-    public Row call(final Row v1, final Row v2)
-            throws OperationException, SerialisationException {
+    public Row call(final Row v1, final Row v2) throws SerialisationException {
         LOGGER.trace("First Row object to be aggregated: {}", v1);
         LOGGER.trace("Second Row object to be aggregated: {}", v2);
         ArrayList<Object> outputRow = new ArrayList<>(v1.size());
         if (isEntity) {
-            for (final String col : columnToPaths.get(ParquetStoreConstants.VERTEX)) {
+            for (final String col : columnToPaths.get(ParquetStore.VERTEX)) {
                 outputRow.add(v1.getAs(col));
             }
         } else {
-            for (final String col : columnToPaths.get(ParquetStoreConstants.SOURCE)) {
+            for (final String col : columnToPaths.get(ParquetStore.SOURCE)) {
                 outputRow.add(v1.getAs(col));
             }
-            for (final String col : columnToPaths.get(ParquetStoreConstants.DESTINATION)) {
+            for (final String col : columnToPaths.get(ParquetStore.DESTINATION)) {
                 outputRow.add(v1.getAs(col));
             }
-            outputRow.add(v1.getAs(ParquetStoreConstants.DIRECTED));
+            outputRow.add(v1.getAs(ParquetStore.DIRECTED));
         }
 
         // Build up Properties object for both rows containing just the objects that need merging

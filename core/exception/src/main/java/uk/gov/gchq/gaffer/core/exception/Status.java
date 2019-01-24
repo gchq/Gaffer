@@ -90,7 +90,7 @@ public enum Status {
     }
 
     /**
-     * Converts a HTTP status code into the matching  object.
+     * Converts a HTTP status code into the matching object.
      *
      * @param statusCode the status code to lookup
      * @return the corresponding status object
@@ -100,7 +100,7 @@ public enum Status {
                 .stream()
                 .filter(v -> v.getStatusCode() == statusCode)
                 .findFirst()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new GafferRuntimeException("Status code not recognised: " + statusCode));
     }
 
     public int getStatusCode() {

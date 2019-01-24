@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.7.0-RC3-SNAPSHOT</version>
+        <version>1.8.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>hdfs-library</artifactId>
@@ -210,6 +210,20 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>store</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        <groupId>uk.gov.gchq.gaffer</groupId>
+        <artifactId>integration-test</artifactId>
+        <version>${project.parent.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+    </dependency>
 
 
         <dependency>
