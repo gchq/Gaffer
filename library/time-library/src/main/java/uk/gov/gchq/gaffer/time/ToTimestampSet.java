@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -74,10 +75,11 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
         return bucket;
     }
 
-//    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
-//        this.bucket = bucket;
-//    }
+    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
+        this.bucket = bucket;
+    }
 
+    @JsonSetter
     public void setBucket(final String bucket){
         this.bucket = CommonTimeUtil.TimeBucket.valueOf(bucket);
     }

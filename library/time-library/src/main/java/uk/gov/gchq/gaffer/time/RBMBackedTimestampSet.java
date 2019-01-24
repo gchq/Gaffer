@@ -30,7 +30,6 @@ import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -260,7 +259,6 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
-<<<<<<< HEAD
         public Builder timestamp(final Instant timestamp) {
             if (null == timestamps) {
                 timestamps = new ArrayList<>();
@@ -284,10 +282,6 @@ public class RBMBackedTimestampSet implements TimestampSet {
             } else {
                 this.timestamps.addAll(timestamps);
             }
-=======
-        public Builder timestamps(final Collection<Instant> timestamps) {
-            this.timestamps = timestamps;
->>>>>>> origin/develop
             return this;
         }
 

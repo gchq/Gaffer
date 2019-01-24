@@ -32,6 +32,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This is a very simple/naive implementation of loading data from a file.
+ * It comes with no security checks and only basic error handling.
+ * It is not recommended to use this in production.
+ */
 public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFromCsv> {
     @Override
     public Void doOperation(final AddElementsFromCsv operation,

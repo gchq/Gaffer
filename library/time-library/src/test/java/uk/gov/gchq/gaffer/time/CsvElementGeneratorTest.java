@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
 import uk.gov.gchq.gaffer.data.generator.CsvElementDef;
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.koryphe.impl.function.SetValue;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
 
@@ -35,7 +34,7 @@ import java.util.Arrays;
 
 public class CsvElementGeneratorTest {
     @Test
-    public void shouldGenerateElementsFromAGivenCsv() throws SerialisationException {
+    public void shouldGenerateElementsFromAGivenCsv() {
         // Given
         final CsvElementGenerator generator = new CsvElementGenerator()
                 .header("src", "dest", "time")

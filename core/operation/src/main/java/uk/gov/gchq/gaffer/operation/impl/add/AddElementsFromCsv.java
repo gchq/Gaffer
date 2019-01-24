@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,8 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-/*
-
- */
-
 @JsonPropertyOrder(value = {"class", "filename", "mappingsFile"}, alphabetic = true)
-@Since("1.6.0")
+@Since("1.8.0")
 @Summary("Adds elements from a csv file. Configure with a csv-to-element mappings file")
 public class AddElementsFromCsv implements
         Operation,
@@ -47,10 +43,6 @@ public class AddElementsFromCsv implements
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Map<String, String> options;
-
-    public AddElementsFromCsv() {
-
-    }
 
     public String getFilename() {
         return filename;

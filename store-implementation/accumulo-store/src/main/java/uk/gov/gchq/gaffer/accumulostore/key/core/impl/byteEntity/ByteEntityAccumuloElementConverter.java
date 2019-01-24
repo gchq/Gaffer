@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 /**
