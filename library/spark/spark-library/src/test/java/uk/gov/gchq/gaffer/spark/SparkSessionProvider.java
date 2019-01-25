@@ -27,7 +27,6 @@ public class SparkSessionProvider {
                     .appName("spark-library-tests")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)
                     .getOrCreate();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> sparkSession.stop()));
         }
