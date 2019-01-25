@@ -16,16 +16,23 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetFromEndpoint;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 
 import static org.junit.Assert.assertEquals;
@@ -61,6 +68,20 @@ public class GetFromEndpointHandlerTest {
     public void tearDown() {
         mockServer.stop();
         assertFalse(mockServer.isRunning());
+    }
+
+    @Test
+    public void shouldLoadOperationDeclarations() throws IOException {
+        // When
+        InputStream stream = StreamUtil.openStream(GetFromEndpointHandler.class, "GetFromEndpointOperationDeclarations.json");
+
+        // Given
+        OperationDeclarations opDeclarations = JSONSerialiser.deserialise(IOUtils.toByteArray(stream), OperationDeclarations.class);
+
+        // Then
+        assertEquals(1, opDeclarations.getOperations().size());
+        assertEquals(GetFromEndpoint.class, opDeclarations.getOperations().get(0).getOperation());
+        assertEquals(GetFromEndpointHandler.class, opDeclarations.getOperations().get(0).getHandler().getClass());
     }
 
     @Test
