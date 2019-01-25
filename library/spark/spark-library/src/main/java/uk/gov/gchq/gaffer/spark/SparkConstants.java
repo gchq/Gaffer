@@ -33,7 +33,6 @@ public final class SparkConstants {
     public static final String USE_SPARK_DEFAULT_CONF = "gaffer.spark.useSparkDefaultConf";
     public static final String SPARK_DEFAULT_CONF_PATH = "spark.conf.path";
     public static final String DEFAULT_SPARK_DEFAULT_CONF_PATH = "/opt/spark/conf/spark-defaults.conf";
-    public static final String DRIVER_ALLOW_MULTIPLE_CONTEXTS = "spark.driver.allowMultipleContexts";
     public static final String DEFAULT_KRYO_REGISTRATOR = Registrator.class.getName();
     public static final String DEFAULT_SERIALIZER = KryoSerializer.class.getName();
 
