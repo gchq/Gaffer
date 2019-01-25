@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
-import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualTo;
@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
+import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
@@ -61,9 +60,9 @@ public class FilterToOperationConverterTest {
     private static final Set<String> EDGE_GROUPS = new HashSet<>(Arrays.asList(EDGE_GROUP, EDGE_GROUP2));
 
     @Test
-    public void testIncompatibleGroups() throws OperationException {
+    public void testIncompatibleGroups() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testIncompatibleGroups")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[2];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
@@ -78,9 +77,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSingleGroup() throws OperationException {
+    public void testSingleGroup() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSingleGroup")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
@@ -97,9 +96,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSingleGroupNotInSchema() throws OperationException {
+    public void testSingleGroupNotInSchema() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSingleGroupNotInSchema")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
@@ -113,9 +112,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testTwoGroups() throws OperationException {
+    public void testTwoGroups() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testTwoGroups")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
@@ -133,9 +132,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifyVertex() throws OperationException {
+    public void testSpecifyVertex() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertex")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
@@ -156,9 +155,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifySource() throws OperationException {
+    public void testSpecifySource() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifySource")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
@@ -179,9 +178,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifyDestination() throws OperationException {
+    public void testSpecifyDestination() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyDestination")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.DST_COL_NAME, "0");
@@ -202,9 +201,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifyPropertyFilters() throws OperationException {
+    public void testSpecifyPropertyFilters() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyPropertyFilters")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Filter[] filters = new Filter[1];
 
         // GreaterThan
@@ -282,9 +281,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifyMultiplePropertyFilters() throws OperationException {
+    public void testSpecifyMultiplePropertyFilters() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyMultiplePropertyFilters")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         final Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
@@ -323,9 +322,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifyVertexAndPropertyFilter() throws OperationException {
+    public void testSpecifyVertexAndPropertyFilter() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertexAndPropertyFilter")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Specify vertex and a filter on property1
         Filter[] filters = new Filter[2];
@@ -392,9 +391,9 @@ public class FilterToOperationConverterTest {
     }
 
     @Test
-    public void testSpecifySourceOrDestinationAndPropertyFilter() throws OperationException {
+    public void testSpecifySourceOrDestinationAndPropertyFilter() {
         final Schema schema = getSchema();
-        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertexAndPropertyFilter")).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Specify src and a filter on property1
         Filter[] filters = new Filter[2];
@@ -463,14 +462,5 @@ public class FilterToOperationConverterTest {
                 .entities(schema.getEntityGroups())
                 .edges(schema.getEdgeGroups())
                 .build();
-    }
-
-    private SparkConf getSparkConf(final String appName) {
-        return new SparkConf()
-                .setMaster("local")
-                .setAppName(appName)
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
     }
 }
