@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -28,10 +30,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * This class is used to serialise and deserialise {@link Map}s.
  */
-public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? extends Object>> {
+public class MapSerialiser implements ToBytesSerialiser<Map> {
 
     private static final long serialVersionUID = 323888878024609587L;
     private ToBytesSerialiser keySerialiser;
@@ -44,17 +48,30 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
     }
 
     @Override
-    public byte[] serialise(final Map<? extends Object, ? extends Object> object) throws SerialisationException {
+    public byte[] serialise(final Map object) throws SerialisationException {
         LengthValueBytesSerialiserUtil.LengthValueBuilder builder = new LengthValueBytesSerialiserUtil.LengthValueBuilder();
         try {
-            for (final Map.Entry entry : object.entrySet()) {
-                builder.appendLengthValueFromObjectToByteStream(getKeySerialiser(), entry.getKey());
-                builder.appendLengthValueFromObjectToByteStream(getValueSerialiser(), entry.getValue());
+            for (final Object o : object.entrySet()) {
+                if (o instanceof Map.Entry) {
+                    Map.Entry entry = (Map.Entry) o;
+                    final ToBytesSerialiser keySerialiser = getKeySerialiser();
+                    final ToBytesSerialiser valueSerialiser = getValueSerialiser();
+                    checkSerialiers(keySerialiser, valueSerialiser);
+                    builder.appendLengthValueFromObjectToByteStream(keySerialiser, entry.getKey());
+                    builder.appendLengthValueFromObjectToByteStream(valueSerialiser, entry.getValue());
+                } else {
+                    throw new SerialisationException("Was not able to process EntrySet of Map");
+                }
             }
         } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return builder.toArray();
+    }
+
+    protected void checkSerialiers(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser) {
+        requireNonNull(keySerialiser, "keySerialiser has to been set.");
+        requireNonNull(valueSerialiser, "valueSerialiser has to been set.");
     }
 
     @Override
@@ -72,8 +89,11 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
         final int arrayLength = bytes.length;
         int carriage = 0;
         while (carriage < arrayLength) {
-            LengthValueBytesSerialiserUtil.ObjectCarriage c = LengthValueBytesSerialiserUtil.deserialiseNextObject(getKeySerialiser(), carriage, bytes);
-            LengthValueBytesSerialiserUtil.ObjectCarriage c2 = LengthValueBytesSerialiserUtil.deserialiseNextObject(getValueSerialiser(), c.getCarriage(), bytes);
+            final ToBytesSerialiser keySerialiser = getKeySerialiser();
+            final ToBytesSerialiser valueSerialiser = getValueSerialiser();
+            checkSerialiers(keySerialiser, valueSerialiser);
+            LengthValueBytesSerialiserUtil.ObjectCarriage c = LengthValueBytesSerialiserUtil.deserialiseNextObject(keySerialiser, carriage, bytes);
+            LengthValueBytesSerialiserUtil.ObjectCarriage c2 = LengthValueBytesSerialiserUtil.deserialiseNextObject(valueSerialiser, c.getCarriage(), bytes);
             map.put(c.getObject(), c2.getObject());
             carriage = c2.getCarriage();
         }
@@ -158,5 +178,28 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
 
     public void setMapClass(final Class<? extends Map> mapClass) {
         this.mapClass = mapClass;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final MapSerialiser that = (MapSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(keySerialiser, that.keySerialiser)
+                    .append(valueSerialiser, that.valueSerialiser)
+                    .append(mapClass, that.mapClass)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(keySerialiser)
+                .append(valueSerialiser)
+                .append(mapClass)
+                .toHashCode();
     }
 }

@@ -83,4 +83,8 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
 
     protected abstract String serialiseToString(final T object) throws SerialisationException;
 
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
 }

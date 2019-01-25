@@ -55,4 +55,9 @@ public class NullSerialiser implements ToBytesSerialiser<Object> {
     public boolean isConsistent() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
 }

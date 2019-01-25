@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -153,9 +156,27 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
         return supportedSerialisers.isConsistent();
     }
 
-
     @Override
     public boolean canHandle(final Class clazz) {
         return supportedSerialisers.canHandle(clazz);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final MultiSerialiser that = (MultiSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(supportedSerialisers, that.supportedSerialisers)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(supportedSerialisers)
+                .toHashCode();
     }
 }
