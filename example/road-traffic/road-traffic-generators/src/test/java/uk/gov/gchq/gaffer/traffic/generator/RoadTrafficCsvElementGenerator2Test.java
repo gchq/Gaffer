@@ -36,9 +36,9 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
-import uk.gov.gchq.koryphe.impl.function.ParseCsvLines;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.Tuple;
@@ -50,18 +50,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.function.Function;
 
 public class RoadTrafficCsvElementGenerator2Test {
     @Test
     public void shouldParseSampleDataWithGenericFunctions() throws IOException {
         // Given
-        ParseCsvLines parseCsv = new ParseCsvLines()
+        CsvLinesToMaps parseCsv = new CsvLinesToMaps()
                 .header("Region Name (GO)",
                         "ONS LACode",
                         "ONS LA Name",
@@ -167,7 +165,7 @@ public class RoadTrafficCsvElementGenerator2Test {
         tuples = transformTuples.apply(tuples);
         Iterable<Element> elements2 = toElements.apply(tuples);
         elements2 = (Iterable<Element>) addCardinalities.apply(elements2);
-
+        elements2 = Lists.newArrayList(elements2);
 
         // Then - the results should be the same as those generated using the original element generator
         final RoadTrafficStringElementGenerator generator1 = new RoadTrafficStringElementGenerator();
@@ -201,13 +199,13 @@ public class RoadTrafficCsvElementGenerator2Test {
         }
     }
 
-    public static class CreateRoadTrafficFreqMap extends KorypheFunction<Properties, FreqMap> {
+    public static class CreateRoadTrafficFreqMap extends KorypheFunction<Tuple<String>, FreqMap> {
         @Override
-        public FreqMap apply(final Properties properties) {
+        public FreqMap apply(final Tuple<String> tuple) {
             final FreqMap freqMap = new FreqMap();
             for (final RoadTrafficDataField key : RoadTrafficDataField.VEHICLE_COUNTS) {
                 final String fieldName = key.fieldName();
-                final Object value = properties.get(fieldName);
+                final Object value = tuple.get(fieldName);
                 freqMap.upsert(fieldName, Long.parseLong((String) value));
             }
 
