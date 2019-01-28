@@ -14,62 +14,68 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.generator;
+package uk.gov.gchq.gaffer.data.element.function;
 
 import java.util.HashMap;
 
-public class CsvElementDef extends HashMap<String, Object> {
+public class ElementTupleDefinition extends HashMap<String, Object> {
+    public static final String GROUP = "GROUP";
+    public static final String VERTEX = "VERTEX";
+    public static final String SOURCE = "SOURCE";
+    public static final String DESTINATION = "DESTINATION";
+    public static final String DIRECTED = "DIRECTED";
+
     private static final long serialVersionUID = -2147030485732699831L;
 
     // Just for json serialisation
-    CsvElementDef() {
+    ElementTupleDefinition() {
     }
 
-    public CsvElementDef(final String group) {
-        put("GROUP", group);
+    public ElementTupleDefinition(final String group) {
+        put(GROUP, group);
     }
 
     public String getGroup() {
-        return (String) get("GROUP");
+        return (String) get(GROUP);
     }
 
     @Override
     public Object get(final Object key) {
         Object value = super.get(key);
         if (null == value) {
-            if ("DIRECTED".equals(key)) {
+            if (DIRECTED.equals(key)) {
                 value = true;
             }
         }
         return value;
     }
 
-    public CsvElementDef vertex(final Object value) {
-        put("VERTEX", value);
+    public ElementTupleDefinition vertex(final Object value) {
+        put(VERTEX, value);
         return this;
     }
 
-    public CsvElementDef source(final Object value) {
-        put("SOURCE", value);
+    public ElementTupleDefinition source(final Object value) {
+        put(SOURCE, value);
         return this;
     }
 
-    public CsvElementDef destination(final Object value) {
-        put("DESTINATION", value);
+    public ElementTupleDefinition destination(final Object value) {
+        put(DESTINATION, value);
         return this;
     }
 
-    public CsvElementDef directed(final Object value) {
-        put("DIRECTED", value);
+    public ElementTupleDefinition directed(final Object value) {
+        put(DIRECTED, value);
         return this;
     }
 
-    public CsvElementDef property(final String key, final Object value) {
+    public ElementTupleDefinition property(final String key, final Object value) {
         put(key, value);
         return this;
     }
 
-    public CsvElementDef property(final String key) {
+    public ElementTupleDefinition property(final String key) {
         put(key, key);
         return this;
     }
