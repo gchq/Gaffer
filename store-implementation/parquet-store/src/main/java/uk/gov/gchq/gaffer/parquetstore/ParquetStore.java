@@ -356,7 +356,7 @@ public class ParquetStore extends Store {
 
     public Path getGroupPathForReversedEdges(final String group) {
         if (!getSchema().getEdgeGroups().contains(group)) {
-            throw new IllegalArgumentException("Invalide group: " + group + " is not an edge group");
+            throw new IllegalArgumentException("Invalid group: " + group + " is not an edge group");
         }
         return new Path(getDataDir()
                 + "/" + getSnapshotPath(currentSnapshot)
