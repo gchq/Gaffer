@@ -65,7 +65,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = new GetElements().getOutputClass();
 
         // Then
         assertEquals(CloseableIterable.class, outputClass);
@@ -253,8 +253,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
     @Override
     protected GetElements getTestObject() {
-        return new GetElements.Builder()
-                .input(new EntitySeed())
-                .build();
+        return new GetElements();
     }
 }

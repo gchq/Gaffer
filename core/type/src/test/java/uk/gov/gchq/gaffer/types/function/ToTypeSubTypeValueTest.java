@@ -55,7 +55,6 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final ToTypeSubTypeValue function = new ToTypeSubTypeValue();

@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Test;
+import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,9 +30,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -42,9 +43,9 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
-    @Test
-    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
@@ -55,7 +56,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
 
         // When
-        String json = new String(JSONSerialiser.serialise(addNamedOperation, true));
+        final byte[] json = toJson(obj);
+        final AddNamedOperation deserialisedObj = fromJson(json);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -68,10 +70,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"overwriteFlag\": true,%n" +
                 "  \"operationChain\": {" +
                 "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
-                "}"), json);
+                "}"), new String(json));
+        assertNotNull(deserialisedObj);
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
@@ -135,8 +137,11 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Override
     protected AddNamedOperation getTestObject() {
-        return new AddNamedOperation.Builder()
-                .operationChain(OPERATION_CHAIN)
-                .build();
+        return new AddNamedOperation();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("operations");
     }
 }

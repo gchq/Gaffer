@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
-public class ScoreOperationChainTest extends OperationTest {
+public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given

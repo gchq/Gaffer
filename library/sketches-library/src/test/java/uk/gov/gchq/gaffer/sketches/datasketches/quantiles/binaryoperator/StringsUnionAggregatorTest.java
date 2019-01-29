@@ -66,7 +66,6 @@ public class StringsUnionAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final StringsUnionAggregator aggregator = new StringsUnionAggregator();

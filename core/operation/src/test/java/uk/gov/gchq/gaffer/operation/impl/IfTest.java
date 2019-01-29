@@ -45,7 +45,12 @@ public class IfTest extends OperationTest<If> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final If<Object, Object> ifOp = getTestObject();
+        final If<Object, Object> ifOp = new If.Builder<>()
+                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
+                .condition(true)
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
 
         // Then
         assertThat(ifOp.getInput(), is(notNullValue()));
@@ -293,11 +298,6 @@ public class IfTest extends OperationTest<If> {
 
     @Override
     protected If<Object, Object> getTestObject() {
-        return new If.Builder<>()
-                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
-                .condition(true)
-                .then(new GetElements())
-                .otherwise(new GetAllElements())
-                .build();
+        return new If<>();
     }
 }

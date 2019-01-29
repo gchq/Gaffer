@@ -41,7 +41,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
 
     @Override
     protected GetAllJobDetails getTestObject() {
-        return new GetAllJobDetails.Builder().build();
+        return new GetAllJobDetails();
     }
 
     @Test
