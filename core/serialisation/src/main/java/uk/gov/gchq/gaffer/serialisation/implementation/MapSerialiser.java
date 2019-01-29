@@ -56,7 +56,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
                     Map.Entry entry = (Map.Entry) o;
                     final ToBytesSerialiser keySerialiser = getKeySerialiser();
                     final ToBytesSerialiser valueSerialiser = getValueSerialiser();
-                    checkSerialiers(keySerialiser, valueSerialiser);
+                    checkSerialisers(keySerialiser, valueSerialiser);
                     builder.appendLengthValueFromObjectToByteStream(keySerialiser, entry.getKey());
                     builder.appendLengthValueFromObjectToByteStream(valueSerialiser, entry.getValue());
                 } else {
@@ -69,7 +69,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
         return builder.toArray();
     }
 
-    protected void checkSerialiers(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser) {
+    protected void checkSerialisers(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser) {
         requireNonNull(keySerialiser, "keySerialiser has to been set.");
         requireNonNull(valueSerialiser, "valueSerialiser has to been set.");
     }
@@ -91,7 +91,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
         while (carriage < arrayLength) {
             final ToBytesSerialiser keySerialiser = getKeySerialiser();
             final ToBytesSerialiser valueSerialiser = getValueSerialiser();
-            checkSerialiers(keySerialiser, valueSerialiser);
+            checkSerialisers(keySerialiser, valueSerialiser);
             LengthValueBytesSerialiserUtil.ObjectCarriage c = LengthValueBytesSerialiserUtil.deserialiseNextObject(keySerialiser, carriage, bytes);
             LengthValueBytesSerialiserUtil.ObjectCarriage c2 = LengthValueBytesSerialiserUtil.deserialiseNextObject(valueSerialiser, c.getCarriage(), bytes);
             map.put(c.getObject(), c2.getObject());
