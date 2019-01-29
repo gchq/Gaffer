@@ -403,40 +403,38 @@ public abstract class Store {
             throw new OperationException("JobTracker has not been configured.");
         }
 
-        try {
-            if (null != jobDetail.getRepeat()) {
-                return scheduleJob(jobDetail, context);
-            } else {
-                return runJob(jobDetail, context);
-            }
-        } catch (final StoreException e) {
-            throw new OperationException(e);
+        if (null == ExecutorService.getService() || !ExecutorService.isEnabled()) {
+            throw new OperationException(("Executor Service is not enabled."));
         }
+
+        if (null != jobDetail.getRepeat()) {
+            return scheduleJob(jobDetail, context);
+        } else {
+            return runJob(jobDetail, context);
+        }
+
     }
 
-    private JobDetail scheduleJob(final JobDetail parentJobDetail, final Context context) throws StoreException {
-        try {
-            getExecutorService().scheduleAtFixedRate(() -> {
-                if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-                final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
-                final Context newContext = context.shallowClone();
-                try {
-                    executeJob(operationChain, newContext, parentJobDetail.getJobId());
-                } catch (final OperationException e) {
-                    throw new RuntimeException("Exception within scheduled job", e);
-                }
-            }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
-        } catch (final StoreException e) {
-            throw e;
-        }
+    private JobDetail scheduleJob(final JobDetail parentJobDetail,
+                                  final Context context) {
+        getExecutorService().scheduleAtFixedRate(() -> {
+            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
+            final Context newContext = context.shallowClone();
+            try {
+                executeJob(operationChain, newContext, parentJobDetail.getJobId());
+            } catch (final OperationException e) {
+                throw new RuntimeException("Exception within scheduled job", e);
+            }
+        }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
 
         return addOrUpdateJobDetail(parentJobDetail.getOpChainAsOperationChain(), context, null, JobStatus.SCHEDULED_PARENT);
     }
 
-    private JobDetail runJob(final JobDetail jobDetail, final Context context) throws StoreException {
+    private JobDetail runJob(final JobDetail jobDetail, final Context context) {
         OperationChain<?> operationChain = jobDetail.getOpChainAsOperationChain();
 
         if (isSupported(ExportToGafferResultCache.class)) {
@@ -469,16 +467,13 @@ public abstract class Store {
         return jobDetail;
     }
 
-    public void runAsync(final Runnable runnable) throws StoreException {
+    public void runAsync(final Runnable runnable) {
         getExecutorService().execute(runnable);
     }
 
-    protected ScheduledExecutorService getExecutorService() throws StoreException {
-        if (null != ExecutorService.getService() && ExecutorService.isEnabled()) {
-            return ExecutorService.getService();
-        } else {
-            throw new StoreException("Executor service is not running");
-        }
+    protected ScheduledExecutorService getExecutorService() {
+        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ?
+                ExecutorService.getService() : null;
     }
 
     public JobTracker getJobTracker() {
