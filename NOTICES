@@ -133,6 +133,11 @@ Netty (io.netty:netty:jar:3.6.2.Final)
 - Apache License, Version 2.0
 
 
+MockServer (org.mock-server:mockserver-netty:3.9.16)
+
+-Apache License, Version 2.0
+
+
 Reflections (org.reflections:reflections:RC1:0.9.9)
 
 - WTFPL
