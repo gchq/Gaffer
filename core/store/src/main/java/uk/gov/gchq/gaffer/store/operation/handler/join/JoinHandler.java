@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
-import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -32,6 +31,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
     @Override
@@ -55,10 +57,12 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
         }
 
         JoinFunction joinFunction = operation.getJoinType().createInstance();
-        Iterable<I> rightIterable = new ArrayList<>();
-        if (operation.getOperation() instanceof Output) {
-            rightIterable = (Iterable<I>) store.execute((Output) operation.getOperation(), context);
-        }
+
+        updateOperationInput(operation.getOperation(), null);
+        Iterable<I> rightIterable =
+                (Iterable<I>) getResultsOrNull(operation.getOperation(),
+                        context,
+                        store);
 
         final List leftList;
         final List rightList;
