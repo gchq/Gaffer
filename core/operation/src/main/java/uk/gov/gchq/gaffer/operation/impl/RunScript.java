@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -26,6 +27,8 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
+
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code RunScript} operation runs a provided script against an input and returns the result.
@@ -103,6 +106,14 @@ public class RunScript<I, O> implements InputOutput<I, O> {
 
     public void setScript(final String script) {
         this.script = script;
+    }
+
+    public void setScriptLines(final String[] scriptLines) {
+        if (nonNull(scriptLines)) {
+            setScript(StringUtils.join(scriptLines, String.format("%n")));
+        } else {
+            setScript(null);
+        }
     }
 
     public String getType() {
