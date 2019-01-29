@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.operation.Nested;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -353,12 +352,6 @@ public final class Graph {
                 }
                 opView.expandGlobalDefinitions();
                 ((OperationView) operation).setView(opView);
-            }
-
-            if (operation instanceof Nested) {
-                List<Operation> nestedOperations =
-                        ((Nested) operation).getNestedOperations();
-                updateOperationChainView(new OperationChain<>(nestedOperations));
             }
         }
     }
