@@ -19,14 +19,12 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.function.DateToTimeBucketEnd;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
@@ -34,29 +32,28 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusElementGenerator;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.function.And;
+import uk.gov.gchq.koryphe.impl.function.ApplyBiFunction;
 import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
+import uk.gov.gchq.koryphe.impl.function.MultiplyBy;
+import uk.gov.gchq.koryphe.impl.function.ParseDate;
+import uk.gov.gchq.koryphe.impl.function.ParseTime;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
-import uk.gov.gchq.koryphe.impl.function.ToList;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
-import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
-import uk.gov.gchq.koryphe.util.DateUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class RoadTrafficCsvElementGenerator2Test {
     @Test
@@ -99,15 +96,15 @@ public class RoadTrafficCsvElementGenerator2Test {
         IterableFunction<Map<String, Object>, Tuple<String>> toTuples = new IterableFunction<>(new MapToTuple<String>());
 
         IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction<>(new And.Builder<>()
-                .execute(new String[]{"Road", "A-Junction"}, concat(":"), new String[]{"A-Junction"})
-                .execute(new String[]{"Road", "B-Junction"}, concat(":"), new String[]{"B-Junction"})
+                .execute(new String[]{"Road", "A-Junction"}, new Concat(":"), new String[]{"A-Junction"})
+                .execute(new String[]{"Road", "B-Junction"}, new Concat(":"), new String[]{"B-Junction"})
                 .execute(new String[]{"A Ref E", "A Ref N"}, new Concat(), new String[]{"A-Location"})
                 .execute(new String[]{"B Ref E", "B Ref N"}, new Concat(), new String[]{"B-Location"})
                 .execute(new String[]{"THIS"}, new CreateRoadTrafficFreqMap(), new String[]{"countByVehicleType"})
                 .execute(new String[]{"countByVehicleType"}, new CallMethod("getTotal"), new String[]{"total-count"})
-                .execute(new String[]{"dCount"}, new ToDate(), new String[]{"dCount"})
-                .execute(new String[]{"Hour"}, new ToInteger(), new String[]{"Hour"})
-                .execute(new String[]{"dCount", "Hour"}, new AddGivenHours(), new String[]{"startDate"})
+                .execute(new String[]{"dCount"}, new ParseTime().timeZone("UTC"), new String[]{"timestamp"})
+                .execute(new String[]{"Hour"}, new And<>(new ToInteger(), new MultiplyBy(60 * 60 * 1000), new ToLong()), new String[]{"hoursInMilliseconds"})
+                .execute(new String[]{"timestamp", "hoursInMilliseconds"}, new And<>(new ApplyBiFunction<>(new Sum()), new ToString(), new ParseDate()), new String[]{"startDate"})
                 .execute(new String[]{"startDate"}, new DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR), new String[]{"endDate"})
                 .build());
 
@@ -184,20 +181,6 @@ public class RoadTrafficCsvElementGenerator2Test {
         return StreamUtil.openStream(getClass(), "/roadTrafficSampleData.csv");
     }
 
-    public static class ToDate extends KorypheFunction<String, Date> {
-        @Override
-        public Date apply(final String dCountString) {
-            return DateUtil.parse(dCountString, TimeZone.getTimeZone(ZoneId.of("UTC")));
-        }
-    }
-
-    public static class AddGivenHours extends KorypheFunction2<Date, Integer, Date> {
-        @Override
-        public Date apply(final Date date, final Integer hours) {
-            return DateUtils.addHours(date, hours);
-        }
-    }
-
     public static class CreateRoadTrafficFreqMap extends KorypheFunction<Tuple<String>, FreqMap> {
         @Override
         public FreqMap apply(final Tuple<String> tuple) {
@@ -210,11 +193,5 @@ public class RoadTrafficCsvElementGenerator2Test {
 
             return freqMap;
         }
-    }
-
-    private static Concat concat(final String separator) {
-        final Concat concat = new Concat();
-        concat.setSeparator(separator);
-        return concat;
     }
 }
