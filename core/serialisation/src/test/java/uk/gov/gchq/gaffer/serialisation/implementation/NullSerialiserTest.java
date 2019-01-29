@@ -70,7 +70,6 @@ public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
     }
 
     @Override
-    @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
         for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
             serialiseFirst(pair);

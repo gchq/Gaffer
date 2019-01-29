@@ -35,7 +35,6 @@ import static org.junit.Assert.assertTrue;
 public class EntityTest extends ElementTest {
 
     @Override
-    @Test
     public void shouldSetAndGetFields() {
         // Given
         final Entity entity = new Entity.Builder()
@@ -98,7 +97,6 @@ public class EntityTest extends ElementTest {
     }
 
     @Override
-    @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
         final Entity entity = new Entity("group");
@@ -113,7 +111,6 @@ public class EntityTest extends ElementTest {
     }
 
     @Override
-    @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
         final Entity entity1 = new Entity("group");
@@ -150,7 +147,6 @@ public class EntityTest extends ElementTest {
     }
 
     @Override
-    @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
         final Entity entity1 = new Entity("group");
@@ -185,7 +181,6 @@ public class EntityTest extends ElementTest {
     }
 
     @Override
-    @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
         final Entity entity = newElement("group");
