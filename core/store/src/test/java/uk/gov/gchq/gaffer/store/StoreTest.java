@@ -86,7 +86,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -558,7 +557,6 @@ public class StoreTest {
                 ForEach.class,
                 Reduce.class,
                 CancelScheduledJob.class,
-                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,
@@ -668,7 +666,6 @@ public class StoreTest {
                 ForEach.class,
                 Reduce.class,
                 CancelScheduledJob.class,
-                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,
