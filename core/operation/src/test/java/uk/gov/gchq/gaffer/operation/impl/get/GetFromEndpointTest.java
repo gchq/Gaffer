@@ -26,41 +26,37 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-public class GetAsElementsFromEndpointTest extends OperationTest<GetAsElementsFromEndpoint> {
+public class GetFromEndpointTest extends OperationTest<GetFromEndpoint> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAsElementsFromEndpoint op = new GetAsElementsFromEndpoint.Builder()
+        GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
-                .generator(TestGeneratorImpl.class)
                 .build();
 
         assertEquals("testEndpoint", op.getEndpoint());
-        assertEquals(TestGeneratorImpl.class, op.getElementGenerator());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetAsElementsFromEndpoint op = new GetAsElementsFromEndpoint.Builder()
+        GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
-                .generator(TestGeneratorImpl.class)
                 .option("testOption", "true")
                 .build();
 
-        GetAsElementsFromEndpoint clone = op.shallowClone();
+        GetFromEndpoint clone = op.shallowClone();
 
         assertNotSame(clone, op);
         assertEquals(clone.getEndpoint(), op.getEndpoint());
-        assertEquals(clone.getElementGenerator(), op.getElementGenerator());
         assertEquals(clone.getOption("testOption"), op.getOption("testOption"));
     }
 
     @Override
-    protected GetAsElementsFromEndpoint getTestObject() {
-        return new GetAsElementsFromEndpoint();
+    protected GetFromEndpoint getTestObject() {
+        return new GetFromEndpoint();
     }
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("endpoint", "elementGenerator");
+        return Sets.newHashSet("endpoint");
     }
 }
