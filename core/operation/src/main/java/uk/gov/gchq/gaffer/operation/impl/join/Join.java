@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.Nested;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
@@ -31,6 +32,8 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +49,8 @@ import java.util.Map;
 @Since("1.8.0")
 @Summary("Joins two iterables based on a join type")
 @JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "collectionLimit", "options"}, alphabetic = true)
-public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
+public class Join<I, O> implements InputOutput<Iterable<? extends I>,
+        Iterable<? extends O>>, MultiInput<I>, Nested {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
     private Match matchMethod;
@@ -141,6 +145,11 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     @Override
     public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
+    }
+
+    @Override
+    public List<Operation> getNestedOperations() {
+        return Collections.singletonList(rightSideOperation);
     }
 
     public static final class Builder<I, O>

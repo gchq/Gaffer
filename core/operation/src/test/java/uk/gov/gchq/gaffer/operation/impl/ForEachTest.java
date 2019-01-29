@@ -39,7 +39,11 @@ public class ForEachTest extends OperationTest<ForEach> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final ForEach<Object, Object> forEachOp = getTestObject();
+        final ForEach<Object, Object> forEachOp = new ForEach.Builder<>()
+                .input(inputIterable)
+                .operation(op)
+                .build();
+
 
         // Then
         assertThat(forEachOp.getInput(), is(notNullValue()));
@@ -64,7 +68,10 @@ public class ForEachTest extends OperationTest<ForEach> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final ForEach obj = getTestObject();
+        final ForEach obj = new ForEach.Builder<>()
+                .input(inputIterable)
+                .operation(op)
+                .build();
 
         // When
         final byte[] json = toJson(obj);
@@ -89,9 +96,6 @@ public class ForEachTest extends OperationTest<ForEach> {
 
     @Override
     protected ForEach<Object, Object> getTestObject() {
-        return new ForEach.Builder<>()
-                .input(inputIterable)
-                .operation(op)
-                .build();
+        return new ForEach<>();
     }
 }
