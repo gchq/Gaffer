@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -112,23 +111,19 @@ public class GafferAdder implements Serializable {
 
         if (restart && !queue.isEmpty()) {
             restart = false;
-            try {
-                store.runAsync(() -> {
-                    try {
-                        store.execute(new AddElements.Builder()
-                                        .input(queue)
-                                        .validate(validate)
-                                        .skipInvalidElements(skipInvalid)
-                                        .build(),
-                                new Context(new User()));
-                        restart = true;
-                    } catch (final OperationException e) {
-                        throw new RuntimeException(e.getMessage(), e);
-                    }
-                });
-            } catch (final StoreException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            store.runAsync(() -> {
+                try {
+                    store.execute(new AddElements.Builder()
+                                    .input(queue)
+                                    .validate(validate)
+                                    .skipInvalidElements(skipInvalid)
+                                    .build(),
+                            new Context(new User()));
+                    restart = true;
+                } catch (final OperationException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            });
         }
     }
 }
