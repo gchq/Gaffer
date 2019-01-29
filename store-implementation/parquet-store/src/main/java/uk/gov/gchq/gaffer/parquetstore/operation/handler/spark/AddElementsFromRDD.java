@@ -97,7 +97,7 @@ public class AddElementsFromRDD {
                 + (null != group ? "group=" + group + "/" : "");
     }
 
-    private String getSortedAggregatedDirectory(boolean sorted, boolean aggregated) {
+    private String getSortedAggregatedDirectory(final boolean sorted, final boolean aggregated) {
         return tempDir
                 + "/AddElementsFromRDDTemp/"
                 + (sorted ? "sorted" : "unsorted")
