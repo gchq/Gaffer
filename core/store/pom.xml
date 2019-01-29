@@ -71,5 +71,11 @@
             <version>${mockserver.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython-standalone</artifactId>
+            <version>${jython.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

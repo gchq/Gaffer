@@ -103,3 +103,57 @@ Example operation declarations json file:
   ]
 }
 ```
+
+## RunScript operation
+This is disable by default. To enable it you just need to add the following to your store properties file.
+```
+gaffer.store.operation.declarations=RunScriptOperationDeclarations.json
+```
+
+You can configure your own script handlers by writing your own Operation Declarations file and registering more ScriptTypes.
+For example to add python you can add the jython maven dependency:
+```xml
+<dependency>
+    <groupId>org.python</groupId>
+    <artifactId>jython-standalone</artifactId>
+    <version>${jython.version}</version>
+</dependency>
+```
+
+and add this operation declaration file:
+
+```json
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.RunScript",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.store.operation.handler.RunScriptHandler",
+        "scriptTypes": [
+          {
+            "regex": "(?i)(javascript)",
+            "handler": {
+              "class": "uk.gov.gchq.gaffer.store.operation.handler.util.RunScriptUsingScriptEngine",
+              "type": "JavaScript"
+            }
+          },
+          {
+            "regex": "(?i)(js)",
+            "handler": {
+              "class": "uk.gov.gchq.gaffer.store.operation.handler.util.RunScriptUsingScriptEngine",
+              "type": "JavaScript"
+            }
+          },
+          {
+            "regex": "(?i)(python)",
+            "handler": {
+              "class": "uk.gov.gchq.gaffer.store.operation.handler.util.RunScriptUsingScriptEngine",
+              "type": "python"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
