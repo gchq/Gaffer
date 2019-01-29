@@ -34,12 +34,14 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusElementGenerator;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.function.And;
 import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToList;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
@@ -50,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -95,17 +98,17 @@ public class RoadTrafficCsvElementGenerator2Test {
 
         IterableFunction<Map<String, Object>, Tuple<String>> toTuples = new IterableFunction<>(new MapToTuple<String>());
 
-        IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction<>(new TupleAdaptedFunctionComposite.Builder<>()
-                .select(new String[]{"Road", "A-Junction"}).execute(concat(":")).project(new String[]{"A-Junction"})
-                .select(new String[]{"Road", "B-Junction"}).execute(concat(":")).project(new String[]{"B-Junction"})
-                .select(new String[]{"A Ref E", "A Ref N"}).execute(new Concat()).project(new String[]{"A-Location"})
-                .select(new String[]{"B Ref E", "B Ref N"}).execute(new Concat()).project(new String[]{"B-Location"})
-                .select(new String[]{"THIS"}).execute(new CreateRoadTrafficFreqMap()).project(new String[]{"countByVehicleType"})
-                .select(new String[]{"countByVehicleType"}).execute(new CallMethod("getTotal")).project(new String[]{"total-count"})
-                .select(new String[]{"dCount"}).execute(new ToDate()).project(new String[]{"dCount"})
-                .select(new String[]{"Hour"}).execute(new ToInteger()).project(new String[]{"Hour"})
-                .select(new String[]{"dCount", "Hour"}).execute(new AddGivenHours()).project(new String[]{"startDate"})
-                .select(new String[]{"startDate"}).execute(new DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR)).project(new String[]{"endDate"})
+        IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction<>(new And.Builder<>()
+                .execute(new String[]{"Road", "A-Junction"}, concat(":"), new String[]{"A-Junction"})
+                .execute(new String[]{"Road", "B-Junction"}, concat(":"), new String[]{"B-Junction"})
+                .execute(new String[]{"A Ref E", "A Ref N"}, new Concat(), new String[]{"A-Location"})
+                .execute(new String[]{"B Ref E", "B Ref N"}, new Concat(), new String[]{"B-Location"})
+                .execute(new String[]{"THIS"}, new CreateRoadTrafficFreqMap(), new String[]{"countByVehicleType"})
+                .execute(new String[]{"countByVehicleType"}, new CallMethod("getTotal"), new String[]{"total-count"})
+                .execute(new String[]{"dCount"}, new ToDate(), new String[]{"dCount"})
+                .execute(new String[]{"Hour"}, new ToInteger(), new String[]{"Hour"})
+                .execute(new String[]{"dCount", "Hour"}, new AddGivenHours(), new String[]{"startDate"})
+                .execute(new String[]{"startDate"}, new DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR), new String[]{"endDate"})
                 .build());
 
         TuplesToElements toElements = new TuplesToElements()
@@ -149,23 +152,19 @@ public class RoadTrafficCsvElementGenerator2Test {
 
         HyperLogLogPlusElementGenerator addCardinalities = new HyperLogLogPlusElementGenerator().countProperty("count").edgeGroupProperty("edgeGroup");
 
-        // Uncomment the following for debugging
-//         System.out.println(new String(JSONSerialiser.serialise(Arrays.asList(
-//                 parseCsv,
-//                 toTuples,
-//                 transformTuples,
-//                 toElements,
-//                 addCardinalities
-//         ), true)));
-
         // Apply functions
-        List<String> lines = IOUtils.readLines(createInputStream());
-        Iterable<Map<String, Object>> maps = parseCsv.apply(lines);
-        Iterable<Tuple<String>> tuples = toTuples.apply(maps);
-        tuples = transformTuples.apply(tuples);
-        Iterable<Element> elements2 = toElements.apply(tuples);
-        elements2 = (Iterable<Element>) addCardinalities.apply(elements2);
-        elements2 = Lists.newArrayList(elements2);
+        final And<List<String>, Iterable<Element>> generator2 = new And.Builder<List<String>, Iterable<Element>>()
+                .execute(parseCsv)
+                .execute(toTuples)
+                .execute(transformTuples)
+                .execute(toElements)
+                .execute(addCardinalities)
+                .build();
+        // Uncomment the following for debugging
+        // System.out.println(new String(JSONSerialiser.serialise(generator2, true)));
+
+        final List<String> lines = IOUtils.readLines(createInputStream());
+        final List<Element> elements2 = Lists.newArrayList(generator2.apply(lines));
 
         // Then - the results should be the same as those generated using the original element generator
         final RoadTrafficStringElementGenerator generator1 = new RoadTrafficStringElementGenerator();
