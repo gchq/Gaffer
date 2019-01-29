@@ -29,6 +29,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.util.RunScriptUsingScriptEngin
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -67,6 +69,25 @@ public class RunScriptHandlerTest extends JSONSerialisationTest<RunScriptHandler
 
         // Then
         assertEquals(2.0, result, 0.000001);
+    }
+
+    @Test
+    public void shouldRunJavaScriptWithLists() throws uk.gov.gchq.gaffer.operation.OperationException {
+        // Given
+        final List<String> input = Arrays.asList("item1", "item2", "item3");
+        final RunScript<List<String>, List<String>> operation = new RunScript.Builder<List<String>, List<String>>()
+                .input(input)
+                .script("function apply(input) { input[0] = 'changedValue'; return input; };")
+                .type("js")
+                .build();
+
+        final RunScriptHandler<List<String>, List<String>> handler = new RunScriptHandler<>();
+
+        // When
+        List<String> result = handler.doOperation(operation, null, null);
+
+        // Then
+        assertEquals(Arrays.asList("changedValue", "item2", "item3"), result);
     }
 
     @Test

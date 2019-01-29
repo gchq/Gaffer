@@ -82,6 +82,7 @@ public class RunScript<I, O> implements InputOutput<I, O> {
         return new RunScript.Builder<I, O>()
                 .script(script)
                 .input(input)
+                .type(type)
                 .options(options)
                 .build();
     }

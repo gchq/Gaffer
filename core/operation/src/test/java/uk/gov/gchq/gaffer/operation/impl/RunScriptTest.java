@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
@@ -29,6 +30,7 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
@@ -63,10 +65,11 @@ public class RunScriptTest extends OperationTest<RunScript> {
         // Given
         final int input = 1;
         final String script = "input + 1";
+        String type = "javascript";
         final RunScript operation = new RunScript.Builder<>()
                 .input(input)
                 .script(script)
-                .type("javascript")
+                .type(type)
                 .build();
 
         // When
@@ -75,7 +78,7 @@ public class RunScriptTest extends OperationTest<RunScript> {
         // Then
         assertEquals(input, clone.getInput());
         assertEquals(script, clone.getScript());
-        assertEquals(input, clone.getInput());
+        assertEquals(type, clone.getType());
     }
 
     @Test
@@ -90,5 +93,34 @@ public class RunScriptTest extends OperationTest<RunScript> {
     @Override
     protected RunScript getTestObject() {
         return new RunScript();
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final int input = 1;
+        final String script = "input + 1";
+        final String type = "javascript";
+        final RunScript operation = new RunScript.Builder<>()
+                .input(input)
+                .script(script)
+                .type(type)
+                .build();
+
+        // When
+        final byte[] json = toJson(operation);
+        final RunScript deserialisedObj = fromJson(json);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.RunScript\",%n" +
+                "  \"input\" : 1,%n" +
+                "  \"script\" : \"input + 1\",%n" +
+                "  \"type\" : \"javascript\"%n" +
+                "}"), new String(json));
+        assertNotNull(deserialisedObj);
+        assertEquals(input, deserialisedObj.getInput());
+        assertEquals(script, deserialisedObj.getScript());
+        assertEquals(type, deserialisedObj.getType());
     }
 }
