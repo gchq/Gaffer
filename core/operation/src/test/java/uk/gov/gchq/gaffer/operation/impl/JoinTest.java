@@ -36,7 +36,15 @@ public class JoinTest extends OperationTest<Join> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Join op = getTestObject();
+        final Join op = new Join.Builder<>()
+                .input(Arrays.asList(1, 2, 3))
+                .operation(new GetAllElements.Builder().build())
+                .matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT)
+                .joinType(JoinType.INNER)
+                .mergeMethod(new TestMergeImpl())
+                .collectionLimit(10)
+                .build();;
 
         // Then
         assertEquals(Arrays.asList(1, 2, 3), op.getInput());
@@ -51,7 +59,15 @@ public class JoinTest extends OperationTest<Join> {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final Join op = getTestObject();
+        final Join op = new Join.Builder<>()
+                .input(Arrays.asList(1, 2, 3))
+                .operation(new GetAllElements.Builder().build())
+                .matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT)
+                .joinType(JoinType.INNER)
+                .mergeMethod(new TestMergeImpl())
+                .collectionLimit(10)
+                .build();;
 
         // When
         final Join clone = op.shallowClone();
@@ -65,15 +81,7 @@ public class JoinTest extends OperationTest<Join> {
 
     @Override
     protected Join getTestObject() {
-        return new Join.Builder<>()
-                .input(Arrays.asList(1, 2, 3))
-                .operation(new GetAllElements.Builder().build())
-                .matchMethod(new TestMatchImpl())
-                .matchKey(MatchKey.LEFT)
-                .joinType(JoinType.INNER)
-                .mergeMethod(new TestMergeImpl())
-                .collectionLimit(10)
-                .build();
+        return new Join();
     }
 
     /**

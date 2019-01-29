@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNull;
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
     @Override
-    @Test
     public void shouldSerialiseNull() throws SerialisationException {
         // When
         final byte[] bytes = serialiser.serialiseNull();

@@ -71,7 +71,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -105,7 +104,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetAsElementsFromEndpointHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
@@ -781,8 +779,7 @@ public abstract class Store {
 
     public Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
-        final OperationHandler<Operation> handler = getOperationHandler(
-                operation.getClass());
+        final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
         try {
             if (null != handler) {
@@ -899,7 +896,6 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(GetAsElementsFromEndpoint.class, new GetAsElementsFromEndpointHandler());
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());
