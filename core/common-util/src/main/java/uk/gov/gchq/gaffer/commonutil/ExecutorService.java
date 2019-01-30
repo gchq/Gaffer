@@ -21,6 +21,12 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * An {@code ExecutorService} that can schedule commands to run after a given
+ * delay, or to execute periodically.
+ * <p>
+ * {@see java.util.concurrent.ScheduledExecutorService}
+ **/
 public final class ExecutorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorService.class);
