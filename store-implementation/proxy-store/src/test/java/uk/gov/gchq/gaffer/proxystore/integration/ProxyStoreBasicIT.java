@@ -213,8 +213,7 @@ public class ProxyStoreBasicIT {
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
             assertEquals(new Error.ErrorBuilder()
-                    .simpleMessage("Failed to serialise object to json: Limit" +
-                            " of 1 exceeded. (through reference chain: uk.gov.gchq.gaffer.operation.OperationChainDAO[\"operations\"]->uk.gov.gchq.gaffer.operation.impl.output.ToList[\"input\"])")
+                    .simpleMessage("Limit of 1 exceeded.")
                     .status(Status.INTERNAL_SERVER_ERROR)
                     .build(), e.getError());
         }
