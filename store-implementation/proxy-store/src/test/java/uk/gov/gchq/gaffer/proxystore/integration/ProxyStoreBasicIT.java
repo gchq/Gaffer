@@ -29,7 +29,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -61,7 +63,6 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ProxyStoreBasicIT {
@@ -211,7 +212,11 @@ public class ProxyStoreBasicIT {
                     , USER);
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
-            assertTrue(e.getMessage().contains("Limit of 1 exceeded."));
+            assertEquals(new Error.ErrorBuilder()
+                    .simpleMessage("Failed to serialise object to json: Limit" +
+                            " of 1 exceeded. (through reference chain: uk.gov.gchq.gaffer.operation.OperationChainDAO[\"operations\"]->uk.gov.gchq.gaffer.operation.impl.output.ToList[\"input\"])")
+                    .status(Status.INTERNAL_SERVER_ERROR)
+                    .build(), e.getError());
         }
     }
 
