@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.slf4j.Logger;
@@ -22,6 +21,12 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * An {@code ExecutorService} that can schedule commands to run after a given
+ * delay, or to execute periodically.
+ * <p>
+ * @see java.util.concurrent.ScheduledExecutorService
+ **/
 public final class ExecutorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorService.class);
