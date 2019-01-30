@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -169,8 +170,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -212,7 +212,6 @@ public abstract class Store {
     private GraphLibrary library;
 
     private JobTracker jobTracker;
-    private ExecutorService executorService;
     private String graphId;
 
     public Store() {
@@ -274,7 +273,7 @@ public abstract class Store {
         optimiseSchema();
         validateSchemas();
         addOpHandlers();
-        addExecutorService();
+        addExecutorService(properties);
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
@@ -388,7 +387,7 @@ public abstract class Store {
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        final Runnable runnable = () -> {
+        runAsync(() -> {
             try {
                 handleOperation(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
@@ -399,15 +398,18 @@ public abstract class Store {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
-        };
-
-        executorService.execute(runnable);
+        });
 
         return initialJobDetail;
     }
 
     public void runAsync(final Runnable runnable) {
-        executorService.execute(runnable);
+        getExecutorService().execute(runnable);
+    }
+
+    protected ScheduledExecutorService getExecutorService() {
+        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ?
+                ExecutorService.getService() : null;
     }
 
     public JobTracker getJobTracker() {
@@ -799,14 +801,8 @@ public abstract class Store {
         return result;
     }
 
-    private void addExecutorService() {
-        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
-        LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
-        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount, runnable -> {
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            return thread;
-        });
+    private void addExecutorService(final StoreProperties properties) {
+        ExecutorService.initialise(properties.getJobExecutorThreadCount());
     }
 
     private void addOpHandlers() {
