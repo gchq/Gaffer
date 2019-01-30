@@ -42,7 +42,7 @@ public class JobDetail implements Serializable {
     private JobStatus status;
     private Long startTime;
     private Long endTime;
-    private String opChain;
+    private OperationChain<?> opChain;
     private String description;
 
     public JobDetail() {
@@ -74,27 +74,17 @@ public class JobDetail implements Serializable {
     }
 
     public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                this.opChain = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
-        }
-
         this.jobId = jobId;
         this.parentJobId = parentJobId;
         this.userId = userId;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
+        this.opChain = opChain;
         this.description = description;
     }
 
     public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
-        this.opChain = opChain;
+        setOpChain(opChain);
         this.jobId = jobId;
         this.userId = userId;
         this.startTime = System.currentTimeMillis();
@@ -144,16 +134,23 @@ public class JobDetail implements Serializable {
     }
 
     public String getOpChain() {
-        return opChain;
+        try {
+            if (opChain instanceof OperationChainDAO) {
+                return new String(JSONSerialiser.serialise(opChain),
+                        Charset.forName(CHARSET_NAME));
+            } else {
+                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
+                return new String(JSONSerialiser.serialise(dao),
+                        Charset.forName(CHARSET_NAME));
+            }
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     @JsonIgnore
     public OperationChain<?> getOpChainAsOperationChain() {
-        try {
-            return JSONSerialiser.deserialise(opChain, OperationChainDAO.class);
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
-        }
+        return opChain;
     }
 
     public void setParentJobId(final String parentJobId) {
@@ -165,7 +162,12 @@ public class JobDetail implements Serializable {
     }
 
     public void setOpChain(final String opChain) {
-        this.opChain = opChain;
+        try {
+            this.opChain = JSONSerialiser.deserialise(opChain,
+                    OperationChainDAO.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+        }
     }
 
     public String getDescription() {
