@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * An {@code ExecutorService} that can schedule commands to run after a given
  * delay, or to execute periodically.
  * <p>
- * {@see java.util.concurrent.ScheduledExecutorService}
+ * @see java.util.concurrent.ScheduledExecutorService
  **/
 public final class ExecutorService {
 
