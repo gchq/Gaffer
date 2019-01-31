@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -38,6 +39,7 @@ public class PredefinedFederatedStore extends FederatedStore {
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
+        ExecutorService.shutdown();
 
         super.initialise(graphId, schema, properties);
 
