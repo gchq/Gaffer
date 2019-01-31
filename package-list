@@ -60,6 +60,7 @@ uk.gov.gchq.gaffer.federatedstore.exception
 uk.gov.gchq.gaffer.federatedstore.operation
 uk.gov.gchq.gaffer.federatedstore.operation.handler
 uk.gov.gchq.gaffer.federatedstore.operation.handler.impl
+uk.gov.gchq.gaffer.federatedstore.schema
 uk.gov.gchq.gaffer.federatedstore.util
 uk.gov.gchq.gaffer.flink.operation.handler
 uk.gov.gchq.gaffer.flink.operation.handler.serialisation
@@ -149,6 +150,7 @@ uk.gov.gchq.gaffer.parquetstore.serialisation
 uk.gov.gchq.gaffer.parquetstore.serialisation.impl
 uk.gov.gchq.gaffer.parquetstore.utils
 uk.gov.gchq.gaffer.proxystore
+uk.gov.gchq.gaffer.proxystore.exception
 uk.gov.gchq.gaffer.proxystore.operation.handler
 uk.gov.gchq.gaffer.rest
 uk.gov.gchq.gaffer.rest.application
