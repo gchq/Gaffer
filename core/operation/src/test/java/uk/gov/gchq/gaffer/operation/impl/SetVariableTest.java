@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,10 @@ public class SetVariableTest extends OperationTest<SetVariable> {
     private final int varVal = 4;
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final SetVariable setVariableOp = getTestObject();
+        final SetVariable setVariableOp = new SetVariable.Builder()
+                .variableName("varName")
+                .input(varVal)
+                .build();
 
         assertEquals(varName, setVariableOp.getVariableName());
         assertEquals(varVal, setVariableOp.getInput());
@@ -34,7 +37,10 @@ public class SetVariableTest extends OperationTest<SetVariable> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        final SetVariable op = getTestObject();
+        final SetVariable op = new SetVariable.Builder()
+                .variableName("varName")
+                .input(varVal)
+                .build();
 
         final SetVariable opClone = op.shallowClone();
 
@@ -45,9 +51,6 @@ public class SetVariableTest extends OperationTest<SetVariable> {
 
     @Override
     protected SetVariable getTestObject() {
-        return new SetVariable.Builder()
-                .variableName("varName")
-                .input(varVal)
-                .build();
+        return new SetVariable();
     }
 }

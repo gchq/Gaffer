@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNull;
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
     @Override
-    @Test
     public void shouldSerialiseNull() throws SerialisationException {
         // When
         final byte[] bytes = serialiser.serialiseNull();

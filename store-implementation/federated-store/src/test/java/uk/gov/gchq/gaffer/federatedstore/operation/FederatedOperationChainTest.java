@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -25,6 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -200,14 +203,12 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
     }
 
     @Override
-    protected FederatedOperationChain getTestObject() {
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(new GetAllElements())
-                .build();
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("operationChain");
+    }
 
-        return new FederatedOperationChain.Builder<>()
-                .operationChain(opChain)
-                .option("key", "value")
-                .build();
+    @Override
+    protected FederatedOperationChain getTestObject() {
+        return new FederatedOperationChain();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
@@ -31,6 +32,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +50,9 @@ import java.util.Map;
 @Since("1.8.0")
 @Summary("Joins two iterables based on a join type")
 @JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "collectionLimit", "options"}, alphabetic = true)
-public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<? extends O>>, MultiInput<I> {
+public class Join<I, O> implements InputOutput<Iterable<? extends I>,
+        Iterable<? extends O>>, MultiInput<I>,
+        Operations<Operation> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
     private Match matchMethod;
@@ -141,6 +147,13 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>, Iterable<?
     @Override
     public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
+    }
+
+    @Override
+    public Collection<Operation> getOperations() {
+        List operations = new ArrayList<>();
+        operations.add(rightSideOperation);
+        return operations;
     }
 
     public static final class Builder<I, O>
