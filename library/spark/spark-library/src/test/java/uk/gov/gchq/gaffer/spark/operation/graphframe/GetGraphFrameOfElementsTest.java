@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -24,6 +25,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.koryphe.ValidationResult;
+
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -66,7 +69,12 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
     @Test
     public void shouldValidateOperation() {
         // Given
-        final Operation op = getTestObject();
+        final Operation op = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
 
         // When
         final ValidationResult validationResult = op.validate();
@@ -97,7 +105,12 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final GetGraphFrameOfElements op = getTestObject();
+        final GetGraphFrameOfElements op = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
 
         // Then
         assertThat(op.getView(), is(notNullValue()));
@@ -108,7 +121,12 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final GetGraphFrameOfElements op = getTestObject();
+        final GetGraphFrameOfElements op = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
 
         // When
         final GetGraphFrameOfElements clone = op.shallowClone();
@@ -120,11 +138,11 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
 
     @Override
     protected GetGraphFrameOfElements getTestObject() {
-        return new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
+        return new GetGraphFrameOfElements();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("view");
     }
 }
