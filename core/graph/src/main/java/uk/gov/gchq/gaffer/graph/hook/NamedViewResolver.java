@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -46,18 +47,13 @@ public class NamedViewResolver implements GraphHook {
     }
 
     @Override
+    public void preExecute(final GraphRequest request) {
+        resolveViews(OperationChain.wrap(request.getOperation()));
+    }
+
+    @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         resolveViews(opChain);
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     private void resolveViews(final Operations<?> operations) {

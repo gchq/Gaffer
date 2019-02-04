@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 
@@ -41,24 +42,27 @@ import uk.gov.gchq.gaffer.store.Context;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface GraphHook {
     /**
-     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} before an {@link OperationChain}
-     * is executed.
-     *
      * @param opChain the {@link OperationChain} being executed. This can be modified/optimised in any GraphHook.
      * @param context the {@link Context} in which the operation chain was executed. The context also holds a reference to the original operation chain.
+     * @deprecated use Operation method not OperationChain
+     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} before an {@link OperationChain}
+     * is executed.
      */
     default void preExecute(final OperationChain<?> opChain, final Context context) {
     }
 
+    default void preExecute(final GraphRequest request) {
+    }
+
     /**
-     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} after an {@link OperationChain}
-     * is executed.
-     *
      * @param result  the result from the operation chain
      * @param opChain the {@link OperationChain} that was executed. This can be modified/optimised in any GraphHook.
      * @param context the {@link Context} in which the operation chain was executed. The context also holds a reference to the original operation chain.
      * @param <T>     the result type
      * @return result object
+     * @deprecated use Operation method not OperationChain
+     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} after an {@link OperationChain}
+     * is executed.
      */
     default <T> T postExecute(final T result,
                               final OperationChain<?> opChain,
@@ -66,20 +70,31 @@ public interface GraphHook {
         return result;
     }
 
+    default <T> T postExecute(final T result,
+                              final GraphRequest request) {
+        return result;
+    }
+
     /**
-     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} if an error occurs whilst
-     * executing the {@link OperationChain}.
-     *
      * @param <T>     the result type
      * @param result  the result from the operation chain - likely to be null.
      * @param opChain the {@link OperationChain} that was executed. This can be modified/optimised in any GraphHook.
      * @param context the {@link Context} in which the operation chain was executed. The context also holds a reference to the original operation chain.
      * @param e       the exception
      * @return result object
+     * @deprecated use Operation method not OperationChain
+     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} if an error occurs whilst
+     * executing the {@link OperationChain}.
      */
     default <T> T onFailure(final T result,
                             final OperationChain<?> opChain,
                             final Context context,
+                            final Exception e) {
+        return result;
+    }
+
+    default <T> T onFailure(final T result,
+                            final GraphRequest request,
                             final Exception e) {
         return result;
     }

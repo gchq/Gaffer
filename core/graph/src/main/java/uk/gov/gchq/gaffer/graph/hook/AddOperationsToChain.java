@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -40,6 +41,12 @@ public class AddOperationsToChain implements GraphHook {
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
     private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
 
+    @Override
+    public void preExecute(final GraphRequest request) {
+        preExecuteAsOperationChain(OperationChain.wrap(request.getOperation())
+                , request.getContext());
+    }
+
     /**
      * Adds in the additional Operations specified.  The original opChain will
      * be updated.
@@ -49,47 +56,7 @@ public class AddOperationsToChain implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        final List<Operation> newOpList = new ArrayList<>();
-
-        boolean hasAuth = false;
-        if (!authorisedOps.isEmpty() && !context.getUser().getOpAuths().isEmpty()) {
-            for (final String auth : authorisedOps.keySet()) {
-                if (context.getUser().getOpAuths().contains(auth)) {
-                    final AdditionalOperations additionalOperations = authorisedOps.get(auth);
-
-                    newOpList.addAll(additionalOperations.getStart());
-                    newOpList.addAll(addOperationsToChain(opChain, additionalOperations));
-                    newOpList.addAll(additionalOperations.getEnd());
-
-                    hasAuth = true;
-                    break;
-                }
-            }
-        }
-
-        if (!hasAuth) {
-            newOpList.addAll(defaultOperations.getStart());
-            newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
-            newOpList.addAll(defaultOperations.getEnd());
-        }
-
-        try {
-            opChain.updateOperations(newOpList);
-        } catch (final Exception e) {
-            // ignore exception - this would be caused by the operation list not allowing modifications
-        }
-
-    }
-
-    @Override
-    public <T> T postExecute(final T result,
-                             final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
+        preExecuteAsOperationChain(opChain, context);
     }
 
     public List<Operation> getStart() {
@@ -132,6 +99,38 @@ public class AddOperationsToChain implements GraphHook {
         this.authorisedOps.clear();
         if (null != authorisedOps) {
             this.authorisedOps.putAll(authorisedOps);
+        }
+    }
+
+    private void preExecuteAsOperationChain(final OperationChain<?> opChain, final Context context) {
+        final List<Operation> newOpList = new ArrayList<>();
+
+        boolean hasAuth = false;
+        if (!authorisedOps.isEmpty() && !context.getUser().getOpAuths().isEmpty()) {
+            for (final String auth : authorisedOps.keySet()) {
+                if (context.getUser().getOpAuths().contains(auth)) {
+                    final AdditionalOperations additionalOperations = authorisedOps.get(auth);
+
+                    newOpList.addAll(additionalOperations.getStart());
+                    newOpList.addAll(addOperationsToChain(opChain, additionalOperations));
+                    newOpList.addAll(additionalOperations.getEnd());
+
+                    hasAuth = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasAuth) {
+            newOpList.addAll(defaultOperations.getStart());
+            newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
+            newOpList.addAll(defaultOperations.getEnd());
+        }
+
+        try {
+            opChain.updateOperations(newOpList);
+        } catch (final Exception e) {
+            // ignore exception - this would be caused by the operation list not allowing modifications
         }
     }
 

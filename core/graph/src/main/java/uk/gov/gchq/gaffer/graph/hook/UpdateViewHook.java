@@ -20,6 +20,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -36,7 +37,8 @@ import java.util.Set;
  * and it can also be used to remove element groups out of a view.
  * This hook will have no effect with operations that do not correctly implement {@link OperationView}
  * therefore <b>THIS HOOK SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING OF ELEMENTS</b>.
- * Instead please make use of the visibility property ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
+ * Instead please make use of the visibility property
+ * ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
  * <p>
  * All fields are Optional:
  * <ul>
@@ -69,6 +71,13 @@ public class UpdateViewHook implements GraphHook {
     private Set<String> blackListElementGroups;
     private byte[] viewToMerge;
     private boolean addExtraGroups = ADD_EXTRA_GROUPS_DEFAULT;
+
+    @Override
+    public void preExecute(final GraphRequest request) {
+        if (applyToUser(request.getContext().getUser())) {
+            updateView(OperationChain.wrap(request.getOperation()));
+        }
+    }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
@@ -162,16 +171,6 @@ public class UpdateViewHook implements GraphHook {
             }
         }
         return rtn;
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     public Set<String> getWithOpAuth() {

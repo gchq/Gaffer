@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 
@@ -31,12 +32,28 @@ public class GraphHookPath implements GraphHook {
     private String path;
 
     @Override
+    public void preExecute(final GraphRequest request) {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
+
+    @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         throw new UnsupportedOperationException(ERROR_MSG);
     }
 
     @Override
+    public <T> T postExecute(final T result, final GraphRequest request) {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
+
+    @Override
     public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
+        throw new UnsupportedOperationException(ERROR_MSG);
+    }
+
+    @Override
+    public <T> T onFailure(final T result, final GraphRequest request,
+                           final Exception e) {
         throw new UnsupportedOperationException(ERROR_MSG);
     }
 

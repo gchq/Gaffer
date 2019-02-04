@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -47,6 +48,19 @@ public class OperationAuthoriser implements GraphHook {
     private final Set<String> allAuths = new HashSet<>();
     private final Map<Class<?>, Set<String>> auths = new HashMap<>();
 
+    @Override
+    public void preExecute(final GraphRequest request) {
+        if (null != request.getOperation()) {
+            if (request.getOperation() instanceof Operations) {
+                for (final Object operation :
+                        ((Operations) request.getOperation()).getOperations()) {
+                    authorise((Operation) operation, request.getContext().getUser());
+                }
+            }
+            authorise(request.getOperation(), request.getContext().getUser());
+        }
+    }
+
     /**
      * Checks the {@link Operation}s in the provided {@link OperationChain}
      * are allowed to be executed by the user.
@@ -64,17 +78,6 @@ public class OperationAuthoriser implements GraphHook {
             }
             authorise(opChain, context.getUser());
         }
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        // This method can be overridden to add additional authorisation checks on the results.
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     /**

@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -166,14 +167,18 @@ public class AggregatorIteratorTest {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(store.execute(get, new Context(user)));
+        final CloseableIterable<? extends Element> results =
+                store.execute(get,
+                        new Context(user));
+
+        List resultsList = Lists.newArrayList(results);
 
         // Then
-        assertEquals(1, results.size());
+        assertEquals(1, resultsList.size());
 
-        final Edge aggregatedEdge = (Edge) results.get(0);
+        final Edge aggregatedEdge = (Edge) resultsList.get(0);
         assertEquals(expectedResult, aggregatedEdge);
-        assertEquals(expectedResult.getProperties(), aggregatedEdge.getProperties());
+        assertEquals(expectedResult.getProperties(),aggregatedEdge.getProperties());
     }
 
     @Test

@@ -127,7 +127,9 @@ public class GraphTest {
     private Context clonedContext;
 
     private OperationChain opChain;
+    private GraphRequest request;
     private OperationChain clonedOpChain;
+    private GraphRequest clonedRequest;
     private GetElements operation;
 
     @Before
@@ -145,7 +147,10 @@ public class GraphTest {
         operation = mock(GetElements.class);
         opChain = mock(OperationChain.class);
         clonedOpChain = mock(OperationChain.class);
+        request = mock(GraphRequest.class);
+        clonedRequest = mock(GraphRequest.class);
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(request.shallowClone()).willReturn(clonedRequest);
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
     }
@@ -461,7 +466,7 @@ public class GraphTest {
         inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(operation).setView(Mockito.any(View.class));
-        verify(context).setOriginalOpChain(opChain);
+        verify(context).setOriginalOperation(opChain);
     }
 
     @Test
@@ -471,6 +476,7 @@ public class GraphTest {
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.execute(opChain, context)).willReturn(request);
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
@@ -489,10 +495,10 @@ public class GraphTest {
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
-        inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
+        inOrder.verify(hook1).preExecute(clonedRequest);
+        inOrder.verify(hook2).preExecute(clonedRequest);
         inOrder.verify(operation).setView(Mockito.any(View.class));
-        verify(context).setOriginalOpChain(opChain);
+        verify(context).setOriginalOperation(opChain);
     }
 
     @Test
@@ -537,7 +543,7 @@ public class GraphTest {
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
         assertSame(actualResult, result3);
-        verify(context).setOriginalOpChain(opChain);
+        verify(context).setOriginalOperation(opChain);
     }
 
     @Test
@@ -576,7 +582,7 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
         inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
         assertSame(actualResult, result3);
-        verify(context).setOriginalOpChain(opChain);
+        verify(context).setOriginalOperation(opChain);
     }
 
     @Test
@@ -615,7 +621,7 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, clonedOpChain, clonedContext);
         inOrder.verify(hook2).postExecute(result2, clonedOpChain, clonedContext);
         assertSame(actualResult, result3);
-        verify(context).setOriginalOpChain(opChain);
+        verify(context).setOriginalOperation(opChain);
     }
 
     @Test
@@ -649,12 +655,13 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook2, never()).preExecute(any(), any());
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+            inOrder.verify(context).setOriginalOperation(opChain);
+            inOrder.verify(hook2, never()).preExecute(any());
+            inOrder.verify(hook1, never()).postExecute(any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any());
+            inOrder.verify(hook1).onFailure(eq(null), any(),
+                    eq(clonedContext), eq(e));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(e));
         }
     }
 
@@ -696,7 +703,7 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
+            inOrder.verify(context).setOriginalOperation(opChain);
             inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
             inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
@@ -741,9 +748,9 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, clonedContext, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+            inOrder.verify(context).setOriginalOperation(opChain);
+            inOrder.verify(hook1, never()).postExecute(any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any());
             inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
             inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
@@ -783,12 +790,12 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook2, never()).preExecute(any(), any());
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+            inOrder.verify(context).setOriginalOperation(opChain);
+            inOrder.verify(hook2, never()).preExecute(any());
+            inOrder.verify(hook1, never()).postExecute(any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any());
+            inOrder.verify(hook1).onFailure(eq(null), any(), eq(e));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(e));
         }
     }
 
@@ -831,7 +838,7 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
+            inOrder.verify(context).setOriginalOperation(opChain);
             inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
             inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
@@ -882,11 +889,13 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
             final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
-            inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
+            inOrder.verify(context).setOriginalOperation(opChain);
+            inOrder.verify(hook1, never()).postExecute(any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any());
+            inOrder.verify(hook1).onFailure(null, captor.getValue(),
+                    clonedContext, e);
+            inOrder.verify(hook2).onFailure(null, captor.getValue(),
+                    clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
             assertEquals(1, ops.size());
             assertSame(operation, ops.get(0));

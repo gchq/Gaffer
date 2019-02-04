@@ -67,22 +67,22 @@ public class TestStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
-        return null;
+        return mock(OutputOperationHandler.class);
     }
 
     @Override
     protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
-        return null;
+        return mock(OutputOperationHandler.class);
     }
 
     @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return null;
+        return mock(OutputOperationHandler.class);
     }
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return null;
+        return mock(OperationHandler.class);
     }
 
     @Override

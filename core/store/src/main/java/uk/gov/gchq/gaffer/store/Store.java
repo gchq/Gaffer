@@ -321,28 +321,13 @@ public abstract class Store {
      *
      * @param operation the operation to execute.
      * @param context   the context executing the operation
-     * @throws OperationException thrown by the operation handler if the
-     *                            operation fails.
-     */
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(OperationChain.wrap(operation), context);
-    }
-
-    /**
-     * Executes a given operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param context   the context executing the operation
      * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the
      *                            operation fails.
      */
-    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return execute(OperationChain.wrap(operation), context);
-    }
-
-    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+    public <O> O execute(final Operation operation,
+                         final Context context) throws OperationException {
         addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
@@ -354,6 +339,10 @@ public abstract class Store {
         }
     }
 
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+        return execute((Operation) operation, context);
+    }
+
     /**
      * Executes a given operation job and returns the job detail.
      *
@@ -362,45 +351,49 @@ public abstract class Store {
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-        return executeJob(OperationChain.wrap(operation), context);
-    }
-
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final Operation operation,
+                                final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
-            for (final Operation operation : operationChain.getOperations()) {
-                if (operation instanceof ExportToGafferResultCache) {
-                    hasExport = true;
-                    break;
+            if (operation instanceof OperationChain) {
+                for (final Object op :
+                        ((OperationChain) operation).getOperations()) {
+                    if (op instanceof ExportToGafferResultCache) {
+                        hasExport = true;
+                        break;
+                    }
                 }
-            }
-            if (!hasExport) {
-                operationChain.getOperations()
-                        .add(new ExportToGafferResultCache());
+                if (!hasExport) {
+                    ((OperationChain) operation).getOperations()
+                            .add(new ExportToGafferResultCache());
+                }
             }
         }
 
-        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        final JobDetail initialJobDetail = addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
 
         runAsync(() -> {
             try {
-                handleOperation(operationChain, context);
-                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                handleOperation(operation, context);
+                addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             } catch (final Error e) {
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobDetail(operation, context, e.getMessage(), JobStatus.FAILED);
                 throw e;
             } catch (final Exception e) {
                 LOGGER.warn("Operation chain job failed to execute", e);
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobDetail(operation, context, e.getMessage(), JobStatus.FAILED);
             }
         });
 
         return initialJobDetail;
+    }
+
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+        return executeJob((Operation) operationChain, context);
     }
 
     public void runAsync(final Runnable runnable) {
@@ -762,10 +755,11 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+    private JobDetail addOrUpdateJobDetail(final Operation operation,
+                                           final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
                 .getUser()
-                .getUserId(), operationChain, jobStatus, msg);
+                .getUserId(), OperationChain.wrap(operation), jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());

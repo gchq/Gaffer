@@ -372,8 +372,8 @@ public class UpdateViewHookTest {
     @Test
     public void shouldDoNothingReturnResult() throws Exception {
         final String testString = "testString";
-        assertEquals(testString, updateViewHook.postExecute(testString, null, null));
-        assertEquals(testString, updateViewHook.onFailure(testString, null, null, null));
+        assertEquals(testString, updateViewHook.postExecute(testString, null));
+        assertEquals(testString, updateViewHook.onFailure(testString, null, null));
 
     }
 

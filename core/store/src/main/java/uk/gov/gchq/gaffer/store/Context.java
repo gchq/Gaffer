@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
@@ -37,7 +38,8 @@ public class Context {
     private final User user;
     private final String jobId;
     private final Map<String, Object> config;
-    private OperationChain<?> originalOpChain;
+    private Operation originalOperation;
+    private Operation updatedOperation;
     private Map<String, Object> variables;
 
     /**
@@ -62,8 +64,8 @@ public class Context {
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
-        if (null != context.originalOpChain) {
-            originalOpChain = context.originalOpChain.shallowClone();
+        if (null != context.originalOperation) {
+            originalOperation = context.originalOperation.shallowClone();
         }
     }
 
@@ -195,13 +197,22 @@ public class Context {
      * Gets the original operation chain. This should not be modified.
      *
      * @return the original operation chain.
+     * @deprecated use getOriginalOperation instead.
      */
     public OperationChain<?> getOriginalOpChain() {
-        return originalOpChain;
+        return OperationChain.wrap(originalOperation);
     }
 
     public void setOriginalOpChain(final OperationChain<?> originalOpChain) {
-        this.originalOpChain = originalOpChain;
+        this.originalOperation = originalOpChain;
+    }
+
+    public Operation getOriginalOperation() {
+        return originalOperation;
+    }
+
+    public void setOriginalOperation(final Operation originalOperation) {
+        this.originalOperation = originalOperation;
     }
 
     @Override
@@ -218,7 +229,7 @@ public class Context {
         return new EqualsBuilder()
                 .append(jobId, context.jobId)
                 .append(user, context.user)
-                .append(originalOpChain, context.originalOpChain)
+                .append(originalOperation, context.originalOperation)
                 .append(exporters, context.exporters)
                 .append(config, context.config)
                 .append(variables, context.variables)
@@ -230,7 +241,7 @@ public class Context {
         return new HashCodeBuilder(71, 31)
                 .append(jobId)
                 .append(user)
-                .append(originalOpChain)
+                .append(originalOperation)
                 .append(exporters)
                 .append(config)
                 .append(variables)
@@ -242,7 +253,7 @@ public class Context {
         return new ToStringBuilder(this)
                 .append("jobId", jobId)
                 .append("user", user)
-                .append("originalOpChain", originalOpChain)
+                .append("originalOperation", originalOperation)
                 .append("exporters", exporters)
                 .append("config", config)
                 .append("variables", variables)
@@ -251,6 +262,14 @@ public class Context {
 
     public static String createJobId() {
         return UUID.randomUUID().toString();
+    }
+
+    private Operation getUpdatedOperation() {
+        return updatedOperation;
+    }
+
+    private void setUpdatedOperation(final Operation updatedOperation) {
+        this.updatedOperation = updatedOperation;
     }
 
     public static class Builder {
