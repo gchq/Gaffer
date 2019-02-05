@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.function;
 
+import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.Map;
-import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -60,8 +62,11 @@ public class MapTest extends OperationTest<Map> {
 
     @Override
     protected Map getTestObject() {
-        final Map map = new Map();
-        map.setFunction(new Identity());
-        return map;
+        return new Map();
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("functions");
     }
 }

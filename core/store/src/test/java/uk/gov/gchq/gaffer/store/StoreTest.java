@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -547,7 +546,6 @@ public class StoreTest {
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
-                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,
@@ -656,7 +654,6 @@ public class StoreTest {
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
-                GetAsElementsFromEndpoint.class,
 
                 // Function
                 Filter.class,

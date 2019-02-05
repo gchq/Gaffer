@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2018 Crown Copyright
+  ~ Copyright 2016-2019 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.8.0-RC2-SNAPSHOT</version>
+    <version>1.8.0-RC3-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -57,7 +57,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
-        <koryphe.version>1.6.0-RC1</koryphe.version>
+        <koryphe.version>1.6.0-RC3</koryphe.version>
         <accumulo.version>1.8.1</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
@@ -78,6 +78,7 @@
         <commons-math3.version>3.4.1</commons-math3.version>
         <curator.version>2.6.0</curator.version>
         <findbugs.version>3.0.2</findbugs.version>
+        <guava.version>13.0.1</guava.version>
         <httpcomponents.version>4.4</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
@@ -646,7 +647,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0.1</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

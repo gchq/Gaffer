@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ public class Map<I, O> implements InputOutput<I, O> {
     private List<Function> functions;
 
     public Map() {
-        this(new ArrayList<>());
     }
 
     public Map(final Function function) {
@@ -78,6 +77,7 @@ public class Map<I, O> implements InputOutput<I, O> {
     @Override
     public Map<I, O> shallowClone() throws CloneFailedException {
         final Map<I, O> clone = new Map<>();
+        clone.setFunctions(new ArrayList<>());
         for (final Function func : functions) {
             clone.getFunctions().add(func);
         }

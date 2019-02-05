@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -38,6 +39,7 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
+        ExecutorService.shutdown();
 
         super.initialise(graphId, schema, properties);
 
