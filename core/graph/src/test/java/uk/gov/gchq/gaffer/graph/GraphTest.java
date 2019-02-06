@@ -161,7 +161,7 @@ public class GraphTest {
 
         given(request.getContext()).willReturn(context);
         given(request.getOperation()).willReturn(opChain);
-        given(request.shallowClone()).willReturn(clonedRequest);
+        given(request.fullClone()).willReturn(clonedRequest);
     }
 
     @Test

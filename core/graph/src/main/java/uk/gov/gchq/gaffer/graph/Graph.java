@@ -232,7 +232,7 @@ public final class Graph {
 
         request.getContext().setOriginalOperation(request.getOperation());
 
-        final GraphRequest clonedRequest = request.shallowClone();
+        final GraphRequest clonedRequest = request.fullClone();
         O result = null;
         try {
             updateOperationView(clonedRequest.getOperation());

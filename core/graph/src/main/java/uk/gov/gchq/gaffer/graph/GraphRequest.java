@@ -87,7 +87,7 @@ public class GraphRequest<O> {
      * @deprecated Use getOperation instead.
      */
     public OperationChain<O> getOperationChain() {
-        return (OperationChain<O>) OperationChain.wrap(operation);
+        return (OperationChain<O>) operation;
     }
 
     public Operation getOperation() {
@@ -102,8 +102,8 @@ public class GraphRequest<O> {
         return context;
     }
 
-    public GraphRequest<O> shallowClone() {
-        return new GraphRequest(operation, context);
+    public GraphRequest<O> fullClone() {
+        return new GraphRequest(operation.shallowClone(), context.shallowClone());
     }
 
     @Override
