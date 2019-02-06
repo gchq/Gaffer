@@ -48,8 +48,10 @@ public class NamedOperationResolver implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        resolveNamedOperations(OperationChain.wrap(request.getOperation()),
+        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
+        resolveNamedOperations(opAsChain,
                 request.getContext().getUser());
+        request.setOperation(opAsChain);
     }
 
     @Override

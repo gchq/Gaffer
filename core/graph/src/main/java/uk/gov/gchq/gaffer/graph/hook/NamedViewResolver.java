@@ -48,7 +48,9 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        resolveViews(OperationChain.wrap(request.getOperation()));
+        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
+        resolveViews(opAsChain);
+        request.setOperation(opAsChain);
     }
 
     @Override

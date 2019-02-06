@@ -43,8 +43,7 @@ public class AddOperationsToChain implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        preExecuteAsOperationChain(OperationChain.wrap(request.getOperation())
-                , request.getContext());
+        preExecuteAsOperationChain(OperationChain.wrap(request.getOperation()), request.getContext());
     }
 
     /**

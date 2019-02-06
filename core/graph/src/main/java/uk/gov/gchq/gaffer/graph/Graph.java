@@ -237,20 +237,20 @@ public final class Graph {
         try {
             updateOperationView(clonedRequest.getOperation());
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(request);
+                graphHook.preExecute(clonedRequest);
             }
             updateOperationView(clonedRequest.getOperation());
-            result = (O) storeExecuter.execute(request.getOperation(),
+            result = (O) storeExecuter.execute(clonedRequest.getOperation(),
                     clonedRequest.getContext());
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result,
-                        request);
+                        clonedRequest);
             }
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
                     result = graphHook.onFailure(result,
-                            request, e);
+                            clonedRequest, e);
                 } catch (final Exception graphHookE) {
                     LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
                 }

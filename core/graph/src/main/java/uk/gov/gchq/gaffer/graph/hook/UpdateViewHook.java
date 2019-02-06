@@ -75,7 +75,10 @@ public class UpdateViewHook implements GraphHook {
     @Override
     public void preExecute(final GraphRequest request) {
         if (applyToUser(request.getContext().getUser())) {
-            updateView(OperationChain.wrap(request.getOperation()));
+            OperationChain opAsChain =
+                    OperationChain.wrap(request.getOperation());
+            updateView(opAsChain);
+            request.setOperation(opAsChain);
         }
     }
 

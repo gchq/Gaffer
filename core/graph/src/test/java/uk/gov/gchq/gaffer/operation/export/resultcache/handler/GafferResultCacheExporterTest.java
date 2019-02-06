@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
@@ -92,10 +93,10 @@ public class GafferResultCacheExporterTest {
         exporter.add(key, results);
 
         // Then
-        final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(store).execute(opChain.capture(), Mockito.any(Context.class));
-        assertEquals(1, opChain.getValue().getOperations().size());
-        final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
+        final ArgumentCaptor<Operation> op =
+                ArgumentCaptor.forClass(Operation.class);
+        verify(store).execute(op.capture(), Mockito.any(Context.class));
+        final AddElements addElements = (AddElements) op.getValue();
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
         final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);

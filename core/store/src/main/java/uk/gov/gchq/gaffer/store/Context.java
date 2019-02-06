@@ -39,7 +39,6 @@ public class Context {
     private final String jobId;
     private final Map<String, Object> config;
     private Operation originalOperation;
-    private Operation updatedOperation;
     private Map<String, Object> variables;
 
     /**
@@ -262,14 +261,6 @@ public class Context {
 
     public static String createJobId() {
         return UUID.randomUUID().toString();
-    }
-
-    private Operation getUpdatedOperation() {
-        return updatedOperation;
-    }
-
-    private void setUpdatedOperation(final Operation updatedOperation) {
-        this.updatedOperation = updatedOperation;
     }
 
     public static class Builder {
