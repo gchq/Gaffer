@@ -52,9 +52,9 @@ public class OperationAuthoriser implements GraphHook {
     public void preExecute(final GraphRequest request) {
         if (null != request.getOperation()) {
             if (request.getOperation() instanceof Operations) {
-                for (final Object operation :
-                        ((Operations) request.getOperation()).getOperations()) {
-                    authorise((Operation) operation, request.getContext().getUser());
+                for (final Operation operation :
+                        ((Operations<?>) request.getOperation()).getOperations()) {
+                    authorise(operation, request.getContext().getUser());
                 }
             }
             authorise(request.getOperation(), request.getContext().getUser());

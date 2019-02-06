@@ -71,18 +71,21 @@ public class SchemaMigration implements GraphHook {
         if (request.getOperation() instanceof Operations) {
             if (!edges.isEmpty() || !entities.isEmpty()) {
                 final List<Operation> updatedOps = new ArrayList<>();
-                for (final Object op :
-                        ((OperationChain) request.getOperation()).getOperations()) {
-                    updatedOps.add((Operation) op);
-                    if (OperationView.hasView((Operation) op)) {
-                        updatedOps.addAll(migrateOperation((Operation) op));
+                for (final Operation op :
+                        ((Operations<?>) request.getOperation()).getOperations()) {
+                    updatedOps.add(op);
+                    if (OperationView.hasView(op)) {
+                        updatedOps.addAll(migrateOperation(op));
                     }
                 }
                 ((OperationChain) request.getOperation()).updateOperations(updatedOps);
             }
         } else {
-            preExecute(OperationChain.wrap(request.getOperation()),
+            OperationChain opAsChain =
+                    OperationChain.wrap(request.getOperation());
+            preExecute(opAsChain,
                     request.getContext());
+            request.setOperation(opAsChain);
         }
     }
 

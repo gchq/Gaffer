@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -359,9 +360,10 @@ public abstract class Store {
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
-            if (operation instanceof OperationChain) {
-                for (final Object op :
-                        ((OperationChain) operation).getOperations()) {
+            if (operation instanceof Operations) {
+
+                for (final Operation op :
+                        ((Operations<?>) operation).getOperations()) {
                     if (op instanceof ExportToGafferResultCache) {
                         hasExport = true;
                         break;
