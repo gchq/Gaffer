@@ -21,7 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -55,6 +54,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
@@ -120,8 +120,7 @@ public class ExportToOtherGraphHandlerTest {
         }
     }
 
-    //@Test - TODO - fix (this currently doesn't work as it is now passed
-    // around as a GraphRequest so cant capture the Operation)
+    @Test
     public void shouldCreateExporter() throws OperationException {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
@@ -142,9 +141,11 @@ public class ExportToOtherGraphHandlerTest {
         TestStore.mockStore = mock(Store.class);
         final Iterable elements = mock(Iterable.class);
         exporter.add("key", elements);
-        final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.any(Context.class));
-        final List<Operation> ops = opChainCaptor.getValue().getOperations();
+        final ArgumentCaptor<Operation> opCaptor =
+                ArgumentCaptor.forClass(Operation.class);
+        verify(TestStore.mockStore).execute(opCaptor.capture(), any());
+        final List<Operation> ops =
+                ((OperationChain) opCaptor.getValue()).getOperations();
         assertEquals(1, ops.size());
         assertSame(elements, ((AddElements) ops.get(0)).getInput());
 
