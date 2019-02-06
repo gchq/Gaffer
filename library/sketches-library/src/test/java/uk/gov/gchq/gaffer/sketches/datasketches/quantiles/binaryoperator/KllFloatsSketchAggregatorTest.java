@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
@@ -67,7 +66,6 @@ public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final KllFloatsSketchAggregator aggregator = new KllFloatsSketchAggregator();

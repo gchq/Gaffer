@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -63,5 +64,6 @@ public class ServletLifecycleListener implements ServletContextListener {
     public void contextDestroyed(final ServletContextEvent servletContextEvent) {
         LOGGER.info("Server shutting down - releasing resources");
         CacheServiceLoader.shutdown();
+        ExecutorService.shutdown();
     }
 }

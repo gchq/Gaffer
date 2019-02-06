@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -71,7 +72,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAsElementsFromEndpoint;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -105,7 +105,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetAsElementsFromEndpointHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
@@ -171,8 +170,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -214,7 +212,6 @@ public abstract class Store {
     private GraphLibrary library;
 
     private JobTracker jobTracker;
-    private ExecutorService executorService;
     private String graphId;
 
     public Store() {
@@ -276,7 +273,7 @@ public abstract class Store {
         optimiseSchema();
         validateSchemas();
         addOpHandlers();
-        addExecutorService();
+        addExecutorService(properties);
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
@@ -390,7 +387,7 @@ public abstract class Store {
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        final Runnable runnable = () -> {
+        runAsync(() -> {
             try {
                 handleOperation(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
@@ -401,15 +398,18 @@ public abstract class Store {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
-        };
-
-        executorService.execute(runnable);
+        });
 
         return initialJobDetail;
     }
 
     public void runAsync(final Runnable runnable) {
-        executorService.execute(runnable);
+        getExecutorService().execute(runnable);
+    }
+
+    protected ScheduledExecutorService getExecutorService() {
+        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ?
+                ExecutorService.getService() : null;
     }
 
     public JobTracker getJobTracker() {
@@ -801,14 +801,8 @@ public abstract class Store {
         return result;
     }
 
-    private void addExecutorService() {
-        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
-        LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
-        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount, runnable -> {
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            return thread;
-        });
+    private void addExecutorService(final StoreProperties properties) {
+        ExecutorService.initialise(properties.getJobExecutorThreadCount());
     }
 
     private void addOpHandlers() {
@@ -898,7 +892,6 @@ public abstract class Store {
         addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
         addOperationHandler(Reduce.class, new ReduceHandler());
         addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(GetAsElementsFromEndpoint.class, new GetAsElementsFromEndpointHandler());
 
         // Context variables
         addOperationHandler(SetVariable.class, new SetVariableHandler());

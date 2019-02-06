@@ -1,4 +1,4 @@
-Copyright 2016-2017 Crown Copyright
+Copyright 2016-2019 Crown Copyright
 
 Gaffer contains two classes which are modified versions of classes from Apache Accumulo:
 
@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:1.6.0-RC1):
+Koryphe (uk.gov.gchq.koryphe:koryphe:1.6.0-RC3):
 
 - Apache License, Version 2.0
 
@@ -49,7 +49,7 @@ Apache Commons JCS (org.apache.commons:commons-jcs-core:2.1):
 
 - Apache Licence, Version 2.0
 
-Apache Spark (org.apache.spark:spark-core:2.2.0, org.apache.spark:spark-sql:2.2.0, org.apache.spark:spark-catalyst:2.2.0, org.apache.spark:spark-graphx:2.2.0)
+Apache Spark (org.apache.spark:spark-core:2.3.2, org.apache.spark:spark-sql:2.3.2, org.apache.spark:spark-catalyst:2.3.2, org.apache.spark:spark-graphx:2.3.2)
 
 - Apache License, Version 2.0
 
@@ -59,7 +59,7 @@ Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
 - Apache License, Version 2.0
 
 
-Datasketches (com.yahoo.sketches:sketches-core:0.11.0):
+Datasketches (com.yahoo.sketches:sketches-core:0.12.0):
 
 - Apache License, Version 2.0
 
@@ -81,11 +81,12 @@ Swagger (io.swagger:-jersey2-jaxrs:1.5.15):
 - Apache License, Version 2.0
 
 
-FasterXML Jackson (com.fasterxml.jackson.core:jackson-annotations:2.6.2,
-com.fasterxml.jackson.core:jackson-core:2.6.2, com.fasterxml.jackson.core:jackson-databind:2.6.2,
-com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.6.2,
-com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.2,
-com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.3.3):
+FasterXML Jackson (com.fasterxml.jackson.core:jackson-annotations:2.6.5,
+com.fasterxml.jackson.core:jackson-core:2.6.5, com.fasterxml.jackson.core:jackson-databind:2.6.5,
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.6.5,
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.5,
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5,
+com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.6.5):
 
 - Apache License, Version 2.0
 
@@ -132,17 +133,22 @@ Netty (io.netty:netty:jar:3.6.2.Final)
 - Apache License, Version 2.0
 
 
+MockServer (org.mock-server:mockserver-netty:3.9.16)
+
+-Apache License, Version 2.0
+
+
 Reflections (org.reflections:reflections:RC1:0.9.9)
 
 - WTFPL
 
 
-Scala (org.scala-lang:scala-library:2.11.8):
+Scala (org.scala-lang:scala-library:2.11.12):
 
 - BSD 3 Clause Licence ("New" or "Revised")
 
 
-SLF4J (org.slf4j:slf4j-api:1.7.5):
+SLF4J (org.slf4j:slf4j-api:1.7.25):
 
 - MIT License
 
@@ -152,12 +158,12 @@ Checkstyle (org.apache.maven.plugins:maven-checkstyle-plugin:2.17):
 - GNU Lesser General Public License
 
 
-FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
+FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.5):
 
 - Apache License, Version 2.0
 
 
-FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
+FindBugs Annotations (com.google.code.findbugs:annotations:3.0.2):
 
 - GNU Lesser Public License
 
@@ -187,12 +193,17 @@ Apache Kafka (org.apache.kafka:kafka_2.11:0.10.0.0,org.apache.kafka:kafka-client
 - Apache License, Version 2.0
 
 
-Apache Flink (org.apache.flink:flink-java:1.4.1,org.apache.flink:flink-clients_2.11:1.4.1,org.apache.flink:flink-connector-kafka_2.11:1.4.1))
+Apache Flink (org.apache.flink:flink-java:1.4.1,org.apache.flink:flink-clients_2.11:1.4.1,org.apache.flink:flink-connector-kafka_2.11:1.4.1)
 
 - Apache License, Version 2.0
 
 
 Graphframes (graphframes:graphframes:0.4.0-spark2.1-s_2.11)
+
+- Apache License, Version 2.0
+
+
+Apache HttpComponents (org.apache.httpcomponents:httpclient:4.4,org.apache.httpcomponents:httpcore:4.4)
 
 - Apache License, Version 2.0
 

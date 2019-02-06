@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,12 @@ public class IfTest extends OperationTest<If> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final If<Object, Object> ifOp = getTestObject();
+        final If<Object, Object> ifOp = new If.Builder<>()
+                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
+                .condition(true)
+                .then(new GetElements())
+                .otherwise(new GetAllElements())
+                .build();
 
         // Then
         assertThat(ifOp.getInput(), is(notNullValue()));
@@ -293,11 +298,6 @@ public class IfTest extends OperationTest<If> {
 
     @Override
     protected If<Object, Object> getTestObject() {
-        return new If.Builder<>()
-                .input(Arrays.asList(new EntitySeed("1"), new EntitySeed("2")))
-                .condition(true)
-                .then(new GetElements())
-                .otherwise(new GetAllElements())
-                .build();
+        return new If<>();
     }
 }
