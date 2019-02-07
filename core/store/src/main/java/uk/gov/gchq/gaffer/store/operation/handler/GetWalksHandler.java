@@ -91,7 +91,6 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     @Override
     public Iterable<Walk> doOperation(final GetWalks operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         // Check input
         if (null == operation.getInput()) {
             return null;

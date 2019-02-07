@@ -37,7 +37,6 @@ public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O
 
     @Override
     public Iterable<? extends O> doOperation(final ForEach<I, O> operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         if (null == operation.getOperation()) {
             throw new OperationException("Operation cannot be null");
         }

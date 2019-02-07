@@ -29,7 +29,6 @@ public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schem
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         final Schema schema;
-        prepareOperation(operation, context, store);
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }

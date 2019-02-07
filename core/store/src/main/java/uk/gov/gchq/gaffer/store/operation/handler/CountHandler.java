@@ -26,7 +26,6 @@ public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
     @Override
     public Long doOperation(final Count operation, final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         if (null == operation.getInput()) {
             throw new OperationException("Count operation has null iterable of items");
         }

@@ -29,7 +29,6 @@ import java.net.URL;
 public class GetFromEndpointHandler implements OutputOperationHandler<GetFromEndpoint, String> {
     @Override
     public String doOperation(final GetFromEndpoint operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         try {
             return IOUtils.toString(new URL(operation.getEndpoint()));
         } catch (final IOException e) {

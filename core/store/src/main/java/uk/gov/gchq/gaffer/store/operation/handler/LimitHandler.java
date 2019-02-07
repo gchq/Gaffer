@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.store.Store;
 public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
     @Override
     public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         if (null == operation.getInput()) {
             return null;
         }

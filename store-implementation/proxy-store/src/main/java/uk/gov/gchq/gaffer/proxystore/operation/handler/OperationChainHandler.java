@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.proxystore.exception.ProxyStoreException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 
@@ -43,8 +44,8 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
     public static final String RESOLVED = "resolved";
     public static final String UNPROCESSED = "unprocessed";
 
-    public OperationChainHandler(final List<OperationChainOptimiser> opChainOptimisers) {
-        super(opChainOptimisers);
+    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
+        super(opChainValidator, opChainOptimisers);
     }
 
     @Override
@@ -135,7 +136,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
                     out = proxyLogic(chain, context, (ProxyStore) store);
                 } else {
                     //Generic is of type Object
-                    out = new OperationChainHandler<>(getOpChainOptimisers()).doOperation(chain, context, store);
+                    out = new OperationChainHandler<>(getOpChainValidator(), getOpChainOptimisers()).doOperation(chain, context, store);
                 }
             } else {
                 throw new ProxyStoreException("While resolving opChains for resolvedLogic, expected OperationChain found: " + operation);

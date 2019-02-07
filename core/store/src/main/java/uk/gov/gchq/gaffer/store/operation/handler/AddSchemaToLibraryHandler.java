@@ -30,7 +30,6 @@ public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLi
 
     @Override
     public Void doOperation(final AddSchemaToLibrary operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         GraphLibrary graphLibrary = store.getGraphLibrary();
         if (null == graphLibrary) {
             throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
