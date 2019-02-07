@@ -23,29 +23,33 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+
 import java.io.IOException;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class HyperLogLogPlusJsonSerialisationTest {
-    private ObjectMapper mapper;
-
     @Before
     public void before() {
-        mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, SketchesJsonModules.class.getName());
+        JSONSerialiser.update();
+    }
 
-        final SimpleModule module = new SimpleModule(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SERIALISER_MODULE_NAME, new Version(1, 0, 0, null));
-        module.addSerializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonSerialiser());
-        module.addDeserializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonDeserialiser());
-
-        mapper.registerModule(module);
+    @After
+    public void after() {
+        System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
+        JSONSerialiser.update();
     }
 
     @Test
@@ -70,51 +74,83 @@ public class HyperLogLogPlusJsonSerialisationTest {
     }
 
     @Test
-    public void testNullHyperLogLogPlusSketchIsSerialisedAsNullString() throws JsonProcessingException {
+    public void testNullHyperLogLogPlusSketchIsSerialisedAsNullString() throws SerialisationException {
         // Given
         final HyperLogLogPlus sketch = null;
 
         // When
-        final String sketchAsString = mapper.writeValueAsString(sketch);
+        final String sketchAsString = new String(JSONSerialiser.serialise(sketch));
 
         // Then - Serialisation framework will serialise nulls as 'null' string.
         assertEquals("null", sketchAsString);
     }
 
+    @Test
     public void testNullHyperLogLogSketchDeserialisedAsEmptySketch() throws IOException {
         // Given
         final String sketchAsString = "{}";
 
-        // When / Then
-        try {
-            // TODO - See 'Can't easily create HyperLogLogPlus sketches in JSON'
-            mapper.readValue(IOUtils.toInputStream(sketchAsString), HyperLogLogPlus.class);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        // When
+        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
+
+        // Then
+        assertEquals(0, hllp.cardinality());
+    }
+
+    @Test
+    public void shouldDeserialiseNewHllpWithSAndSpValues() throws IOException {
+        // Given
+        final String sketchAsString = "{\"p\": 20, \"sp\": 30}";
+
+        // When
+        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
+
+        // Then
+        assertArrayEquals(new HyperLogLogPlus(20,30).getBytes(), hllp.getBytes());
+    }
+
+    @Test
+    public void shouldDeserialiseNewNestedHllpWithSAndSpValues() throws IOException {
+        // Given
+        final String sketchAsString = "{\"hyperLogLogPlus\": {\"p\": 20, \"sp\": 30}}";
+
+        // When
+        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
+
+        // Then
+        assertArrayEquals(new HyperLogLogPlus(20,30).getBytes(), hllp.getBytes());
+    }
+
+    @Test
+    public void shouldDeserialiseNewHllpWithOffers() throws IOException {
+        // Given
+        final String sketchAsString = "{\"p\": 30, \"sp\": 30, \"offers\": [\"value1\", \"value2\", \"value2\", \"value2\", \"value3\"]}";
+
+        // When
+        HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
+
+        // Then
+        HyperLogLogPlus expected = new HyperLogLogPlus(30, 30);
+        expected.offer("value1");
+        expected.offer("value2");
+        expected.offer("value2");
+        expected.offer("value2");
+        expected.offer("value3");
+        assertArrayEquals(expected.getBytes(), hllp.getBytes());
     }
 
     private void runTestWithSketch(final HyperLogLogPlus sketch) throws IOException {
         // When - serialise
-        final String json = mapper.writeValueAsString(sketch);
+        final String json = new String(JSONSerialiser.serialise(sketch));
 
         // Then - serialise
-        final String[] parts = json.split("[:,]");
-        final String[] expectedParts = {
-                "{\"hyperLogLogPlus\"",
-                "{\"hyperLogLogPlusSketchBytes\"",
-                "BYTES",
-                "\"cardinality\"",
-                sketch.cardinality() + "}}"};
-        for (int i = 0; i < parts.length; i++) {
-            if (2 != i) { // skip checking the bytes
-                assertEquals(expectedParts[i], parts[i]);
-            }
-        }
+        JsonAssert.assertEquals("" +
+                "{\"hyperLogLogPlus\":" +
+                "{\"hyperLogLogPlusSketchBytes\":" + new String(JSONSerialiser.serialise(sketch.getBytes())) + "," +
+                "\"cardinality\":" + sketch.cardinality() + "}}", json);
 
         // When - deserialise
-        final HyperLogLogPlus deserialisedSketch = mapper.readValue(IOUtils.toInputStream(json), HyperLogLogPlus.class);
+        final HyperLogLogPlus deserialisedSketch = JSONSerialiser.deserialise(json, HyperLogLogPlus.class);
 
         // Then - deserialise
         assertNotNull(deserialisedSketch);
