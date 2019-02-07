@@ -888,11 +888,6 @@ public class StoreTest {
         private int createOperationHandlersCallCount;
 
         @Override
-        protected OperationChainValidator createOperationChainValidator() {
-            return operationChainValidator;
-        }
-
-        @Override
         public Set<StoreTrait> getTraits() {
             return TRAITS;
         }

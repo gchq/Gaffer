@@ -42,6 +42,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
 
     @Override
     public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }

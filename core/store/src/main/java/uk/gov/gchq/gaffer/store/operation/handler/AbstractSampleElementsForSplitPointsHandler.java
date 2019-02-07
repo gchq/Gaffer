@@ -40,6 +40,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
 
     @Override
     public List<T> doOperation(final SampleElementsForSplitPoints<T> operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final S typedStore = (S) store;
 
         validate(operation, typedStore);

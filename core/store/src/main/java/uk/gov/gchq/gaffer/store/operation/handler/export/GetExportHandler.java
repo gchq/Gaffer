@@ -32,12 +32,12 @@ import uk.gov.gchq.gaffer.store.Store;
  */
 public abstract class GetExportHandler<EXPORT extends GetExport & Operation, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER> {
     @Override
-    public CloseableIterable<?> doOperation(final EXPORT export,
+    public CloseableIterable<?> doOperation(final EXPORT operation,
                                             final Context context,
                                             final Store store,
                                             final EXPORTER exporter)
             throws OperationException {
-        return getExport(export, exporter);
+        return getExport(operation, exporter);
     }
 
     protected CloseableIterable<?> getExport(final EXPORT export, final EXPORTER exporter) throws OperationException {

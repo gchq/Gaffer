@@ -42,6 +42,7 @@ public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
      */
     @Override
     public O doOperation(final Map<I, O> operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }

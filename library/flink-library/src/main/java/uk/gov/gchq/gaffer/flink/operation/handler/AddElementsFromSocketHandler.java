@@ -41,26 +41,27 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
-    public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final AddElementsFromSocket operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        if (null != op.getParallelism()) {
-            env.setParallelism(op.getParallelism());
+        if (null != operation.getParallelism()) {
+            env.setParallelism(operation.getParallelism());
         }
 
         final DataStream<Element> builder =
-                env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
-                        .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
+                env.socketTextStream(operation.getHostname(), operation.getPort(), operation.getDelimiter())
+                        .flatMap(new GafferMapFunction(String.class, operation.getElementGenerator()));
 
-        if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+        if (Boolean.parseBoolean(operation.getOption(FlinkConstants.SKIP_REBALANCING))) {
+            builder.addSink(new GafferSink(operation, store));
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(new GafferSink(operation, store));
         }
 
         try {
-            env.execute(op.getClass().getSimpleName() + "-" + op.getHostname() + ":" + op.getPort());
+            env.execute(operation.getClass().getSimpleName() + "-" + operation.getHostname() + ":" + operation.getPort());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from port: " + op.getPort(), e);
+            throw new OperationException("Failed to add elements from port: " + operation.getPort(), e);
         }
 
         return null;

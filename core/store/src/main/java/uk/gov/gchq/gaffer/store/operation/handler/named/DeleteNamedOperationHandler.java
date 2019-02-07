@@ -50,6 +50,7 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
      */
     @Override
     public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         try {
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser(), store.getProperties().getAdminAuth());
         } catch (final CacheOperationFailedException e) {

@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,36 +34,49 @@ import java.util.List;
  * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
-    private final OperationChainValidator opChainValidator;
-    private final List<OperationChainOptimiser> opChainOptimisers;
+    private OperationChainValidator opValidator;
+
+    public OperationChainHandler(final OperationChainValidator opValidator) {
+        this.opValidator = opValidator;
+    }
 
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
-
-        prepareOperationChain(operationChain, context, store);
+    public OUT doOperation(final OperationChain<OUT> operationChain,
+                           final Context context,
+                           final Store store) throws OperationException {
+        prepareOperation(operationChain, context, store);
 
         Object result = null;
         for (final Operation op : operationChain.getOperations()) {
             updateOperationInput(op, result);
             result = store.handleOperation(op, context);
         }
-
         return (OUT) result;
     }
 
-    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
-        final ValidationResult validationResult = opChainValidator.validate(operationChain, context
-                .getUser(), store);
+    @Override
+    public OperationChain<OUT> prepareOperation(final OperationChain<OUT> operation,
+                                                final Context context,
+                                                final Store store) {
+        final List<OperationChainOptimiser> opChainOptimisers =
+                new ArrayList<>();
+
+        final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
+
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
                     .getErrorString());
         }
 
-        OperationChain<O> optimisedOperationChain = operationChain;
+        OperationChain<OUT> optimisedOperationChain = operation;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
         return optimisedOperationChain;
+    }
+
+    public OperationChainValidator getOpValidator() {
+        return opValidator;
     }
 
     protected void updateOperationInput(final Operation op, final Object result) {
@@ -81,22 +95,9 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         }
     }
 
-    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
-        this.opChainValidator = opChainValidator;
-        this.opChainOptimisers = opChainOptimisers;
-    }
-
     private void setOperationInput(final Operation op, final Object result) {
         if (null == ((Input) op).getInput()) {
             ((Input) op).setInput(result);
         }
-    }
-
-    protected OperationChainValidator getOpChainValidator() {
-        return opChainValidator;
-    }
-
-    protected List<OperationChainOptimiser> getOpChainOptimisers() {
-        return opChainOptimisers;
     }
 }

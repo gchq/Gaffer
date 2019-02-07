@@ -32,6 +32,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
 public class IfHandler implements OutputOperationHandler<If<Object, Object>, Object> {
     @Override
     public Object doOperation(final If operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final Object input = operation.getInput();
 
         boolean computedCondition;

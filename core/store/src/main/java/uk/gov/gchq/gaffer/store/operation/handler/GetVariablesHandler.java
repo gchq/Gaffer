@@ -30,6 +30,7 @@ import java.util.Map;
 public class GetVariablesHandler implements OperationHandler<GetVariables> {
     @Override
     public Map<String, Object> doOperation(final GetVariables operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final Map<String, Object> variableMap = new HashMap<>();
         List<String> variableNames = operation.getVariableNames() != null ? operation.getVariableNames() : Lists.newArrayList();
         for (final String key : variableNames) {

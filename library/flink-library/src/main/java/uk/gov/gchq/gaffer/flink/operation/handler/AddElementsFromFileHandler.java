@@ -41,26 +41,27 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
     @Override
-    public Object doOperation(final AddElementsFromFile op, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final AddElementsFromFile operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        if (null != op.getParallelism()) {
-            env.setParallelism(op.getParallelism());
+        if (null != operation.getParallelism()) {
+            env.setParallelism(operation.getParallelism());
         }
 
         final FlatMapOperator<String, Element> builder =
-                env.readTextFile(op.getFilename())
-                        .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
+                env.readTextFile(operation.getFilename())
+                        .flatMap(new GafferMapFunction(String.class, operation.getElementGenerator()));
 
-        if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.output(new GafferOutput(op, store));
+        if (Boolean.parseBoolean(operation.getOption(FlinkConstants.SKIP_REBALANCING))) {
+            builder.output(new GafferOutput(operation, store));
         } else {
-            builder.rebalance().output(new GafferOutput(op, store));
+            builder.rebalance().output(new GafferOutput(operation, store));
         }
 
         try {
-            env.execute(op.getClass().getSimpleName() + "-" + op.getFilename());
+            env.execute(operation.getClass().getSimpleName() + "-" + operation.getFilename());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from file: " + op.getFilename(), e);
+            throw new OperationException("Failed to add elements from file: " + operation.getFilename(), e);
         }
 
         return null;

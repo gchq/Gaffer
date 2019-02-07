@@ -134,7 +134,6 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("input", getInput())
                 .append("operationChain", operationChain)
                 .append("options", options)
                 .build();
@@ -160,7 +159,6 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         return new EqualsBuilder()
                 .append(operationChain, federatedOperationChain.operationChain)
                 .append(options, federatedOperationChain.options)
-                .append(getInput(), federatedOperationChain.getInput())
                 .isEquals();
     }
 
@@ -169,7 +167,6 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         return new HashCodeBuilder(13, 23)
                 .append(operationChain)
                 .append(options)
-                .append(getInput())
                 .toHashCode();
     }
 

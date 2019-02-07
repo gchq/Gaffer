@@ -31,6 +31,7 @@ public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<Impo
     public Void doOperation(final ImportAccumuloKeyValueFiles operation,
                             final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         doOperation(operation, (AccumuloStore) store);
         return null;
     }

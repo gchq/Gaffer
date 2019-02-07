@@ -36,6 +36,7 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
     public Void doOperation(final SampleDataForSplitPoints operation,
                             final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         generateSplitsFromSampleData(operation, (AccumuloStore) store);
         return null;
     }

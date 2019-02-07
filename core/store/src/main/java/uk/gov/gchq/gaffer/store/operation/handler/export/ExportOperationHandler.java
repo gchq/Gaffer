@@ -32,19 +32,20 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  */
 public abstract class ExportOperationHandler<EXPORT extends Export & Operation, EXPORTER extends Exporter> implements OperationHandler<EXPORT> {
     @Override
-    public Object doOperation(final EXPORT export,
+    public Object doOperation(final EXPORT operation,
                               final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         EXPORTER exporter = context.getExporter(getExporterClass());
         if (null == exporter) {
-            exporter = createExporter(export, context, store);
+            exporter = createExporter(operation, context, store);
             if (null == exporter) {
                 throw new OperationException("Unable to create exporter: " + getExporterClass());
             }
             context.addExporter(exporter);
         }
 
-        return doOperation(export, context, store, exporter);
+        return doOperation(operation, context, store, exporter);
     }
 
     protected abstract Class<EXPORTER> getExporterClass();

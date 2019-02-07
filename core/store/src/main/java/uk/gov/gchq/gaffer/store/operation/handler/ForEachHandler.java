@@ -36,17 +36,18 @@ import java.util.List;
 public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O>, Iterable<? extends O>> {
 
     @Override
-    public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final Store store) throws OperationException {
-        if (null == forEach.getOperation()) {
+    public Iterable<? extends O> doOperation(final ForEach<I, O> operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
+        if (null == operation.getOperation()) {
             throw new OperationException("Operation cannot be null");
         }
-        if (null == forEach.getInput()) {
+        if (null == operation.getInput()) {
             throw new OperationException("Inputs cannot be null");
         }
 
         final List<O> results = new ArrayList<>();
-        for (final I input : forEach.getInput()) {
-            final Operation clonedOperation = forEach.getOperation().shallowClone();
+        for (final I input : operation.getInput()) {
+            final Operation clonedOperation = operation.getOperation().shallowClone();
             OperationHandlerUtil.updateOperationInput(clonedOperation, input);
             results.add(executeOperation(clonedOperation, context, store));
         }

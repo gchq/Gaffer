@@ -33,6 +33,7 @@ public class CountGroupsHandler implements OutputOperationHandler<CountGroups, G
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         final GroupCounts groupCounts = new GroupCounts();
         try {
             int count = 0;

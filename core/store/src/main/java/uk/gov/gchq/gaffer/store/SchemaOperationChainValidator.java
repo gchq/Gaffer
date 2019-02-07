@@ -42,12 +42,13 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected Schema getSchema(final Operation operation, final User user, final Store store) {
+    public Schema getSchema(final Operation operation, final User user,
+                            final Store store) {
         return schema;
     }
 
     @Override
-    protected Set<StoreTrait> getStoreTraits(final Store store) {
+    public Set<StoreTrait> getStoreTraits(final Store store) {
         return StoreTrait.ALL_TRAITS;
     }
 }

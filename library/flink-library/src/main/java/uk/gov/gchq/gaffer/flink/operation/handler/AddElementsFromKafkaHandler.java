@@ -48,30 +48,31 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
     private static final String FLINK_KAFKA_GROUP_ID = "group.id";
 
     @Override
-    public Object doOperation(final AddElementsFromKafka op, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final AddElementsFromKafka operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        if (null != op.getParallelism()) {
-            env.setParallelism(op.getParallelism());
+        if (null != operation.getParallelism()) {
+            env.setParallelism(operation.getParallelism());
         }
 
-        final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator());
+        final GafferMapFunction function = new GafferMapFunction(operation.getConsumeAs(), operation.getElementGenerator());
         final DataStream<Element> builder = env.addSource(
                 new FlinkKafkaConsumer010<>(
-                        op.getTopic(),
+                        operation.getTopic(),
                         function.getSerialisationType(),
-                        createFlinkProperties(op)))
+                        createFlinkProperties(operation)))
                 .flatMap(function);
 
-        if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+        if (Boolean.parseBoolean(operation.getOption(FlinkConstants.SKIP_REBALANCING))) {
+            builder.addSink(new GafferSink(operation, store));
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(new GafferSink(operation, store));
         }
 
         try {
-            env.execute(op.getClass().getSimpleName() + "-" + op.getGroupId() + "-" + op.getTopic());
+            env.execute(operation.getClass().getSimpleName() + "-" + operation.getGroupId() + "-" + operation.getTopic());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from Kafka topic: " + op.getTopic(), e);
+            throw new OperationException("Failed to add elements from Kafka topic: " + operation.getTopic(), e);
         }
 
         return null;

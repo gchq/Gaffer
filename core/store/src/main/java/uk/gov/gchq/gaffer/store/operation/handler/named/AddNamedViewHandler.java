@@ -57,6 +57,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
      */
     @Override
     public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         if (null == operation.getName() || operation.getName().isEmpty()) {
             throw new IllegalArgumentException("NamedView name must be set and not empty");
         }

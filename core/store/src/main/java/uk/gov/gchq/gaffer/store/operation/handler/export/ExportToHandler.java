@@ -33,14 +33,15 @@ import java.util.Collections;
  */
 public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER> {
     @Override
-    public Object doOperation(final EXPORT export,
+    public Object doOperation(final EXPORT operation,
                               final Context context,
                               final Store store,
                               final EXPORTER exporter)
             throws OperationException {
-        final Iterable<?> inputItr = wrapInIterable(export.getInput());
-        exporter.add(export.getKeyOrDefault(), inputItr);
-        return export.getInput();
+        prepareOperation(operation, context, store);
+        final Iterable<?> inputItr = wrapInIterable(operation.getInput());
+        exporter.add(operation.getKeyOrDefault(), inputItr);
+        return operation.getInput();
     }
 
     private Iterable<?> wrapInIterable(final Object input) {

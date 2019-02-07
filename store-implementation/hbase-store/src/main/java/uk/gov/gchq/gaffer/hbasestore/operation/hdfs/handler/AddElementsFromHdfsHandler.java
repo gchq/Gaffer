@@ -44,6 +44,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public Void doOperation(final AddElementsFromHdfs operation,
                             final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         doOperation(operation, (HBaseStore) store);
         return null;
     }

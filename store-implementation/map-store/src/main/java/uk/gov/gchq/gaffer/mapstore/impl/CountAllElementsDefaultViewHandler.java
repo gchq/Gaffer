@@ -30,6 +30,7 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
             throws OperationException {
+        prepareOperation(operation, context, store);
         return doOperation((MapStore) store);
     }
 

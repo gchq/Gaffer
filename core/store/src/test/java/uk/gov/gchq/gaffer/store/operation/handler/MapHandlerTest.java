@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.function.FirstItem;
@@ -45,7 +44,6 @@ import uk.gov.gchq.koryphe.impl.function.ToString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -351,10 +349,10 @@ public class MapHandlerTest {
                 .build();
 
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
-        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
         given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
-        final OperationChainHandler<Set<?>> opChainHandler = new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        final OperationChainHandler<Set<?>> opChainHandler =
+                new OperationChainHandler<>(opChainValidator);
 
         given(store.handleOperation(map, context)).willReturn(Arrays.asList(EDGE_AB, EDGE_CB));
         given(store.handleOperation(toVertices, context)).willReturn(Arrays.asList("A", "C"));
@@ -393,10 +391,10 @@ public class MapHandlerTest {
                 .build();
 
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
-        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
         given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
-        final OperationChainHandler<Set<?>> opChainHandler = new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        final OperationChainHandler<Set<?>> opChainHandler =
+                new OperationChainHandler<>(opChainValidator);
 
         given(store.handleOperation(map, context)).willReturn(Arrays.asList(EDGE_BC, EDGE_BD));
         given(store.handleOperation(toVertices, context)).willReturn(Arrays.asList("B", "B"));

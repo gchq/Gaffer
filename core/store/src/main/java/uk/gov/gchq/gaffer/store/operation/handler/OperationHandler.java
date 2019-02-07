@@ -20,6 +20,9 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
  * An {@code OperationHandler} defines how to handle a specific {@link uk.gov.gchq.gaffer.operation.Operation}.
@@ -35,5 +38,17 @@ public interface OperationHandler<OP extends Operation> {
      * @return the output for the operation or null.
      * @throws OperationException thrown if the operation fails
      */
-    Object doOperation(final OP operation, final Context context, final Store store) throws OperationException;
+    Object doOperation(final OP operation, final Context context,
+                       final Store store) throws OperationException;
+
+    default OP prepareOperation(final OP operation, final Context context,
+                                final Store store) {
+        final OperationValidator opValidator = new OperationValidator(new ViewValidator());
+        final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+                    .getErrorString());
+        }
+        return operation;
+    }
 }

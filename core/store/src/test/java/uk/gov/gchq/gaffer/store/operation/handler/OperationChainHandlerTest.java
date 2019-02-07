@@ -32,13 +32,11 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
@@ -51,9 +49,9 @@ public class OperationChainHandlerTest {
     public void shouldHandleOperationChain() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
-        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
-        final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
+        final OperationChainHandler opChainHandler =
+                new OperationChainHandler(opChainValidator);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -85,9 +83,9 @@ public class OperationChainHandlerTest {
     public void shouldHandleNonInputOperation() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
-        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
-        final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
+        final OperationChainHandler opChainHandler =
+                new OperationChainHandler(opChainValidator);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -116,9 +114,8 @@ public class OperationChainHandlerTest {
     public void shouldHandleNestedOperationChain() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
-        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
-        final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
+        final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);

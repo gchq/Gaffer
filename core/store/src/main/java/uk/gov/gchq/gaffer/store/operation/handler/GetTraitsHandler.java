@@ -36,6 +36,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
 
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         if (!operation.isCurrentTraits()) {
             return store.getTraits();
         }

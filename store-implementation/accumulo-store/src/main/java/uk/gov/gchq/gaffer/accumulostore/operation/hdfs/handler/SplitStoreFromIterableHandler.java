@@ -40,6 +40,7 @@ public class SplitStoreFromIterableHandler implements OperationHandler<SplitStor
     @Override
     public Void doOperation(final SplitStoreFromIterable<String> operation,
                             final Context context, final Store store) throws OperationException {
+        prepareOperation(operation, context, store);
         doOperation(operation, ((AccumuloStore) store));
         return null;
     }
