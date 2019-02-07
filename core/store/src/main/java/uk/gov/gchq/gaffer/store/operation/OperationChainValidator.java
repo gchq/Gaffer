@@ -48,8 +48,7 @@ public class OperationChainValidator extends OperationValidator {
         } else {
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
-                output = validate(op, user, store, validationResult
-                        , output);
+                output = validate(op, user, store, validationResult, output);
             }
         }
         return validationResult;
