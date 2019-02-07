@@ -159,7 +159,7 @@ public class OperationValidator {
             final Schema schema = getSchema(op, user, store);
             final ValidationResult viewValidationResult =
                     viewValidator.validate(((GraphFilters) op).getView(),
-                            schema, store.getTraits());
+                            schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
