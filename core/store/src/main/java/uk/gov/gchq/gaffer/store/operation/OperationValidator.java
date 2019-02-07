@@ -32,6 +32,10 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
+/**
+ * Validation class for validating {@link Operation}s against
+ * {@link ViewValidator}s.
+ */
 public class OperationValidator {
     private final ViewValidator viewValidator;
 
@@ -40,9 +44,10 @@ public class OperationValidator {
     }
 
     /**
-     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
+     * Validate the provided {@link Operation} against the
+     * {@link ViewValidator}.
      *
-     * @param operation the operation chain to validate
+     * @param operation the operation to validate
      * @param user      the user making the request
      * @param store     the target store
      * @return the {@link ValidationResult}
@@ -154,7 +159,7 @@ public class OperationValidator {
             final Schema schema = getSchema(op, user, store);
             final ValidationResult viewValidationResult =
                     viewValidator.validate(((GraphFilters) op).getView(),
-                            schema, store.getTraits());
+                            schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
