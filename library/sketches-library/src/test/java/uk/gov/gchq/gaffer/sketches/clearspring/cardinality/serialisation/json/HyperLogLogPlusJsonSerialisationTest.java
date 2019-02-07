@@ -17,12 +17,6 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +31,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 public class HyperLogLogPlusJsonSerialisationTest {
     @Before
@@ -106,7 +99,7 @@ public class HyperLogLogPlusJsonSerialisationTest {
         HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
 
         // Then
-        assertArrayEquals(new HyperLogLogPlus(20,30).getBytes(), hllp.getBytes());
+        assertArrayEquals(new HyperLogLogPlus(20, 30).getBytes(), hllp.getBytes());
     }
 
     @Test
@@ -118,7 +111,7 @@ public class HyperLogLogPlusJsonSerialisationTest {
         HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
 
         // Then
-        assertArrayEquals(new HyperLogLogPlus(20,30).getBytes(), hllp.getBytes());
+        assertArrayEquals(new HyperLogLogPlus(20, 30).getBytes(), hllp.getBytes());
     }
 
     @Test
