@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @param <OUT> the output type of the operation chain
  */
-public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT>, GraphOperationValidation<OperationChain<OUT>> {
+public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT>, OperationValidation<OperationChain<OUT>> {
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 

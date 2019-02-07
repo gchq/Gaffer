@@ -120,6 +120,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -887,7 +888,8 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
-        private OperationChainValidator operationChainValidator;
+        private OperationChainValidator operationChainValidator =
+                new OperationChainValidator(new ViewValidator());
 
         public void setOperationChainValidator(final OperationChainValidator operationChainValidator) {
             this.operationChainValidator = operationChainValidator;
