@@ -32,6 +32,10 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
+/**
+ * Validation class for validating {@link Operation}s against
+ * {@link ViewValidator}s.
+ */
 public class OperationValidator {
     private final ViewValidator viewValidator;
 
@@ -40,9 +44,10 @@ public class OperationValidator {
     }
 
     /**
-     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
+     * Validate the provided {@link Operation} against the
+     * {@link ViewValidator}.
      *
-     * @param operation the operation chain to validate
+     * @param operation the operation to validate
      * @param user      the user making the request
      * @param store     the target store
      * @return the {@link ValidationResult}
