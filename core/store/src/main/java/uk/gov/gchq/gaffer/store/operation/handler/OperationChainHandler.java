@@ -63,6 +63,8 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
+        operation.updateOperations(optimisedOperationChain.getOperations());
+
         return optimisedOperationChain;
     }
 
