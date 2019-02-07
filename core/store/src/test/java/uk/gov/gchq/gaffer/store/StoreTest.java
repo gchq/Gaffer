@@ -370,6 +370,7 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
+        store.setOperationChainValidator(operationChainValidator);
         store.initialise("graphId", schema, properties);
 
         // When / Then
@@ -886,9 +887,14 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private OperationChainValidator operationChainValidator;
+
+        public void setOperationChainValidator(final OperationChainValidator operationChainValidator) {
+            this.operationChainValidator = operationChainValidator;
+        }
 
         @Override
-        protected OperationChainValidator createOperationChainValidator() {
+        public OperationChainValidator getOperationChainValidator() {
             return operationChainValidator;
         }
 

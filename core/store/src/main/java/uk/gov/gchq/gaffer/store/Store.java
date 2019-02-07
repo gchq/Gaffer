@@ -718,7 +718,7 @@ public abstract class Store {
      * uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new OperationChainHandler<>(getOperationChainValidator(), opChainOptimisers);
     }
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
@@ -786,8 +786,9 @@ public abstract class Store {
         Object result;
         try {
             if (null != handler) {
-                if (operation instanceof OperationValidation) {
-                    ((OperationValidation) operation).prepareOperation(operation, context, this);
+                if (handler instanceof OperationValidation) {
+                    ((OperationValidation) handler).prepareOperation(operation,
+                            context, this);
                 }
                 result = handler.doOperation(operation, context, this);
             } else {
