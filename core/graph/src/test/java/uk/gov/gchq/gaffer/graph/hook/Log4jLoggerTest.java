@@ -28,6 +28,7 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
+    private static final String LOG_4J_LOGGER_RESOURCE_PATH = "log4j.xml";
 
     public Log4jLoggerTest() { super(Log4jLogger.class); }
 
@@ -52,6 +53,6 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
 
     @Override
     public Log4jLogger getTestObject() {
-        return new Log4jLogger();
+        return fromJson(LOG_4J_LOGGER_RESOURCE_PATH);
     }
 }
