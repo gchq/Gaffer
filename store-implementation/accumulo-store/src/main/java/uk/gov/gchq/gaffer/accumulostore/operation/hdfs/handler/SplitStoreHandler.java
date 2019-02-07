@@ -30,7 +30,6 @@ public class SplitStoreHandler implements OperationHandler<SplitStore> {
     @Override
     public Void doOperation(final SplitStore operation,
                             final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         store.execute(
                 new SplitStoreFromFile.Builder()
                         .inputPath(operation.getInputPath())

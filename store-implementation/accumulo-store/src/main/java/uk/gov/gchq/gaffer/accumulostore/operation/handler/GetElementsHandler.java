@@ -34,7 +34,6 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

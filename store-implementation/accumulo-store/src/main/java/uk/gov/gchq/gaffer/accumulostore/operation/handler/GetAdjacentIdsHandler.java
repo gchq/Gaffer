@@ -35,7 +35,6 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
                                                              final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

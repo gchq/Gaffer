@@ -59,7 +59,6 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
      */
     @Override
     public Void doOperation(final AddNamedOperation operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         try {
             final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChainAsString())

@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
     public Object doOperation(final AddElementsFromSocket operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         if (null != operation.getParallelism()) {
             env.setParallelism(operation.getParallelism());

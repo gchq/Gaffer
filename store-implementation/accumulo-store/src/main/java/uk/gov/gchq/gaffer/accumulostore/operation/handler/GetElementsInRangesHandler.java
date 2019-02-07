@@ -36,7 +36,6 @@ public class GetElementsInRangesHandler implements OutputOperationHandler<GetEle
     public CloseableIterable<? extends Element> doOperation(final GetElementsInRanges operation,
                                                             final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

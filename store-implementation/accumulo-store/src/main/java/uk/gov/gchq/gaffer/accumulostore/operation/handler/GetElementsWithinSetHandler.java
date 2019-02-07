@@ -36,7 +36,6 @@ public class GetElementsWithinSetHandler implements OutputOperationHandler<GetEl
     public CloseableIterable<? extends Element> doOperation(final GetElementsWithinSet operation,
                                                             final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

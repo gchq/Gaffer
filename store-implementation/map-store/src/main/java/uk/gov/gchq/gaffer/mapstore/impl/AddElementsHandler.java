@@ -48,7 +48,6 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     @Override
     public Void doOperation(final AddElements operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         Iterable<? extends Element> elements = operation.getInput();
         if (operation.isValidate()) {
             elements = new ValidatedElements(elements, store.getSchema(), operation.isSkipInvalidElements());

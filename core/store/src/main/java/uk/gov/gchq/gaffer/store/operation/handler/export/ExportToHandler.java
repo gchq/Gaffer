@@ -38,7 +38,6 @@ public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends 
                               final Store store,
                               final EXPORTER exporter)
             throws OperationException {
-        prepareOperation(operation, context, store);
         final Iterable<?> inputItr = wrapInIterable(operation.getInput());
         exporter.add(operation.getKeyOrDefault(), inputItr);
         return operation.getInput();

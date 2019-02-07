@@ -35,7 +35,6 @@ public abstract class ExportOperationHandler<EXPORT extends Export & Operation, 
     public Object doOperation(final EXPORT operation,
                               final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         EXPORTER exporter = context.getExporter(getExporterClass());
         if (null == exporter) {
             exporter = createExporter(operation, context, store);

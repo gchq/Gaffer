@@ -33,7 +33,6 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

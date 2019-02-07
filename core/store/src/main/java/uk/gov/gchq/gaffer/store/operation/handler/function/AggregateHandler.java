@@ -38,7 +38,6 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
 
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, store.getSchema());
     }
 

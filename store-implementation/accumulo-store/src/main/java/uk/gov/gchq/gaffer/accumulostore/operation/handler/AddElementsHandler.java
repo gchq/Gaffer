@@ -31,7 +31,6 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation,
                             final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         addElements(operation, (AccumuloStore) store);
         return null;
     }

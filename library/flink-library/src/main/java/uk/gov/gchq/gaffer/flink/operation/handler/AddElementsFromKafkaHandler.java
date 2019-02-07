@@ -49,7 +49,6 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
     @Override
     public Object doOperation(final AddElementsFromKafka operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         if (null != operation.getParallelism()) {
             env.setParallelism(operation.getParallelism());

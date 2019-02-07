@@ -36,7 +36,6 @@ public class SummariseGroupOverRangesHandler implements OutputOperationHandler<S
     public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
                                                             final Context context, final Store store)
             throws OperationException {
-        prepareOperation(operation, context, store);
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 

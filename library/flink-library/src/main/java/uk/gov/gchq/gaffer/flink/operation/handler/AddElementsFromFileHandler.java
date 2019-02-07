@@ -42,7 +42,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
     @Override
     public Object doOperation(final AddElementsFromFile operation, final Context context, final Store store) throws OperationException {
-        prepareOperation(operation, context, store);
+
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         if (null != operation.getParallelism()) {
             env.setParallelism(operation.getParallelism());
