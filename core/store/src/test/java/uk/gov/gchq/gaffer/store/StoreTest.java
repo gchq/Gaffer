@@ -120,6 +120,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -370,6 +371,7 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
+        store.setOperationChainValidator(operationChainValidator);
         store.initialise("graphId", schema, properties);
 
         // When / Then
@@ -388,6 +390,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise("graphId", schema, properties);
@@ -724,6 +727,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -754,6 +758,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -886,6 +891,17 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private OperationChainValidator operationChainValidator =
+                new OperationChainValidator(new ViewValidator());
+
+        public void setOperationChainValidator(final OperationChainValidator operationChainValidator) {
+            this.operationChainValidator = operationChainValidator;
+        }
+
+        @Override
+        public OperationChainValidator getOperationChainValidator() {
+            return operationChainValidator;
+        }
 
         @Override
         public Set<StoreTrait> getTraits() {

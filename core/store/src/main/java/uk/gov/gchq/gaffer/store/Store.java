@@ -96,6 +96,7 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
@@ -712,7 +713,7 @@ public abstract class Store {
      * uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new OperationChainHandler<>(getOperationChainValidator(), opChainOptimisers);
     }
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
@@ -781,6 +782,10 @@ public abstract class Store {
         Object result;
         try {
             if (null != handler) {
+                if (handler instanceof OperationValidation) {
+                    ((OperationValidation) handler).prepareOperation(operation,
+                            context, this);
+                }
                 result = handler.doOperation(operation, context, this);
             } else {
                 result = doUnhandledOperation(operation, context);

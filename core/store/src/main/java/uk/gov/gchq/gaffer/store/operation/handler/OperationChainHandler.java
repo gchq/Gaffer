@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -32,15 +33,12 @@ import java.util.List;
  *
  * @param <OUT> the output type of the operation chain
  */
-public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
+public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT>, OperationValidation<OperationChain<OUT>> {
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
-
-        prepareOperationChain(operationChain, context, store);
-
         Object result = null;
         for (final Operation op : operationChain.getOperations()) {
             updateOperationInput(op, result);
@@ -50,18 +48,20 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         return (OUT) result;
     }
 
-    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
-        final ValidationResult validationResult = opChainValidator.validate(operationChain, context
-                .getUser(), store);
+    @Override
+    public OperationChain<OUT> prepareOperation(final OperationChain<OUT> operation,
+                                                final Context context, final Store store) {
+        final ValidationResult validationResult = opChainValidator.validate(operation, context.getUser(), store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
                     .getErrorString());
         }
 
-        OperationChain<O> optimisedOperationChain = operationChain;
+        OperationChain<OUT> optimisedOperationChain = operation;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
+
         return optimisedOperationChain;
     }
 
