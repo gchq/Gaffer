@@ -63,7 +63,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
@@ -149,10 +148,11 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), context);
+            return doPost(url, operation, new TypeReferenceImpl.JobDetail(),
+                    context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
