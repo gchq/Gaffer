@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 public interface GraphOperationValidation<OP extends Operation> extends OperationValidation<OP> {
     default OP prepareOperation(final OP operation, final Context context,
                                 final Store store) {
-        final OperationValidator opValidator = new OperationValidator(new ViewValidator());
+        final OperationValidator opValidator = store.getOperationChainValidator();
         final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
