@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHand
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 
 /**
  * A handler for {@link AddGraphWithHooks} operation for the FederatedStore.
@@ -28,7 +29,7 @@ import uk.gov.gchq.gaffer.store.Store;
  * @see FederatedAddGraphHandlerParent
  * @see GraphDelegate
  */
-public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> {
+public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> implements GraphOperationValidation<AddGraphWithHooks> {
     @Override
     protected GraphSerialisable _makeGraph(final AddGraphWithHooks operation, final Store store) {
         return new GraphDelegate.Builder()

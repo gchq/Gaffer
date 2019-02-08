@@ -27,8 +27,10 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,10 +39,12 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
-public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, CloseableIterable<O_ITEM>> {
+public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, CloseableIterable<O_ITEM>>, OperationValidation<FederatedOperationChain<I, O_ITEM>> {
     @Override
     public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        final Collection<Graph> graphs =
+                ((FederatedStore) store).getGraphs(context.getUser(),
+                        operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<Object> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OperationChain opChain = operation.getOperationChain();
@@ -61,6 +65,18 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
             }
         }
         return mergeResults(results, operation, context, store);
+    }
+
+    @Override
+    public FederatedOperationChain<I, O_ITEM> prepareOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context,
+                                                               final Store store) {
+        final ValidationResult validationResult = store.getOperationChainValidator().validate(operation,
+                context.getUser(), store);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+                    .getErrorString());
+        }
+        return operation;
     }
 
     protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {

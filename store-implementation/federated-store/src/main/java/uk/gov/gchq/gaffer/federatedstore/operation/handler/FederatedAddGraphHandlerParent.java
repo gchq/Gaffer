@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -39,7 +40,7 @@ import uk.gov.gchq.gaffer.user.User;
  * @see FederatedStore
  * @see GraphDelegate
  */
-public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implements OperationHandler<OP> {
+public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implements OperationHandler<OP>, GraphOperationValidation<AddGraph> {
 
     public static final String ERROR_BUILDING_GRAPH_GRAPH_ID_S = "Error building graph %s";
     public static final String ERROR_ADDING_GRAPH_GRAPH_ID_S = "Error adding graph %s";
