@@ -105,6 +105,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -166,7 +167,7 @@ public class StoreTest {
     private OperationHandler<ExportToGafferResultCache> exportToGafferResultCacheHandler;
     private OperationHandler<GetGafferResultCacheExport> getGafferResultCacheExportHandler;
     private StoreImpl store;
-    private OperationChainValidator operationChainValidator;
+    private OperationValidator operationChainValidator;
 
     @Before
     public void setup() {
@@ -175,7 +176,7 @@ public class StoreTest {
         JSONSerialiser.update();
 
         schemaOptimiser = mock(SchemaOptimiser.class);
-        operationChainValidator = mock(OperationChainValidator.class);
+        operationChainValidator = mock(OperationValidator.class);
         store = new StoreImpl();
         given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
@@ -891,15 +892,15 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
-        private OperationChainValidator operationChainValidator =
+        private OperationValidator operationChainValidator =
                 new OperationChainValidator(new ViewValidator());
 
-        public void setOperationChainValidator(final OperationChainValidator operationChainValidator) {
+        public void setOperationChainValidator(final OperationValidator operationChainValidator) {
             this.operationChainValidator = operationChainValidator;
         }
 
         @Override
-        public OperationChainValidator getOperationChainValidator() {
+        public OperationValidator getOperationChainValidator() {
             return operationChainValidator;
         }
 

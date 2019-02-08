@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -26,6 +24,12 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
+ *
+ * @see uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler for
+ * an example.
+ * @deprecated This class should not be used.  OperationValidators should be
+ * used within OperationHandlers, and if the validation should be different
+ * you can implement your own OperationValidation.prepareOperation method.
  */
 public class OperationChainValidator extends OperationValidator {
 
@@ -42,15 +46,6 @@ public class OperationChainValidator extends OperationValidator {
      * @return the {@link ValidationResult}
      */
     public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
-        final ValidationResult validationResult = new ValidationResult();
-        if (operationChain.getOperations().isEmpty()) {
-            validationResult.addError("Operation chain contains no operations");
-        } else {
-            Class<? extends Output> output = null;
-            for (final Operation op : operationChain.getOperations()) {
-                output = validate(op, user, store, validationResult, output);
-            }
-        }
-        return validationResult;
+        return super.validate(operationChain, user, store);
     }
 }
