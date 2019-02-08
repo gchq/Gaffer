@@ -54,12 +54,11 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEmptyFunctions() {
         // Given
-        final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder().build();
         final Schema schema = new Schema();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -68,7 +67,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseWhenEntityTransientPropertyIsInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_1, String.class)
@@ -82,7 +81,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -91,7 +90,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEntityTransientPropertyIsNotInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_1, String.class)
@@ -105,7 +104,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -115,7 +114,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEntityFilterSelectionUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -131,7 +130,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -140,7 +139,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEntityTransformerSelectionUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -159,7 +158,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -168,7 +167,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEntityTransformerProjectsToUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
@@ -188,7 +187,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -197,7 +196,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEntityTransformerResult() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
@@ -219,7 +218,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -228,7 +227,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWithMatchedVertexFilter() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -262,7 +261,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.getErrorString(), result.isValid());
@@ -271,7 +270,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseWhenEdgeTransientPropertyIsInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_1, String.class)
@@ -285,7 +284,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -294,7 +293,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEdgeTransientPropertyIsNotInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_1, String.class)
@@ -307,7 +306,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -316,7 +315,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEdgeFilterSelectionUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -332,7 +331,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -341,7 +340,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEdgeTransformerSelectionUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -359,7 +358,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -368,7 +367,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEdgeTransformerProjectsToUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
@@ -388,7 +387,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -397,7 +396,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenEdgeTransformerResult() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
@@ -419,7 +418,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -428,7 +427,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueNoGroupByProperties() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE)
@@ -447,7 +446,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -456,7 +455,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueForNullView() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder().build();
         final Schema schema = new Schema.Builder()
                 .type("vertex", String.class)
@@ -472,7 +471,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -481,7 +480,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenGroupByPropertiesInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy(TestPropertyNames.PROP_1)
@@ -519,7 +518,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -528,7 +527,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseWhenTimestampGroupByPropertyUsedInEntity() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
@@ -560,7 +559,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -569,7 +568,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseWhenGroupByPropertyNotInSchema() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy(TestPropertyNames.PROP_1)
@@ -603,7 +602,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -612,7 +611,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenPostTransformerFilterSet() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -636,7 +635,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -645,7 +644,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenPostTransformerSelectionIsUnknown() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -669,7 +668,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -678,7 +677,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueForOrFilter() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -702,7 +701,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.getErrorString(), result.isValid());
@@ -711,7 +710,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseForOrFilterWithIncompatibleProperties() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -735,7 +734,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -744,7 +743,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueForAndFilter() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -768,7 +767,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.getErrorString(), result.isValid());
@@ -777,7 +776,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseForAndFilterWithIncompatibleProperties() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -801,7 +800,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -810,7 +809,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueForNotFilter() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -834,7 +833,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.getErrorString(), result.isValid());
@@ -843,7 +842,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseForNotFilterWithIncompatibleProperties() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -867,7 +866,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -876,7 +875,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenAggregatorSelectionUnknownProperty() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .aggregator(new ElementAggregator.Builder()
@@ -891,7 +890,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -901,7 +900,7 @@ public class ViewValidatorTest {
     @Test
     public void shouldValidateAndReturnFalseWhenMissingTraits() {
         // Given
-        final ViewValidator validator = new ViewValidator();
+        
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -939,7 +938,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, NO_STORE_TRAITS);
+        final ValidationResult result = ViewValidator.validate(view, schema, NO_STORE_TRAITS);
 
         // Then
         final String errPrefix = "This store does not currently support ";

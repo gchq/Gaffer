@@ -61,7 +61,7 @@ public class ViewValidator {
      * @param storeTraits the store traits
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
+    public static ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
         final boolean isStoreOrdered = storeTraits.contains(StoreTrait.ORDERED);
 
         final ValidationResult result = new ValidationResult();
@@ -74,7 +74,7 @@ public class ViewValidator {
         return result;
     }
 
-    protected void validateEdge(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+    protected static void validateEdge(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
         if (null != view.getEdges()) {
             for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
                 final String group = entry.getKey();
@@ -106,7 +106,7 @@ public class ViewValidator {
         }
     }
 
-    protected void validateEntities(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+    protected static void validateEntities(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
         if (null != view.getEntities()) {
             for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
                 final String group = entry.getKey();
@@ -138,7 +138,7 @@ public class ViewValidator {
         }
     }
 
-    protected ValidationResult validateAgainstStoreTraits(final ViewElementDefinition viewElDef, final Set<StoreTrait> storeTraits) {
+    protected static ValidationResult validateAgainstStoreTraits(final ViewElementDefinition viewElDef, final Set<StoreTrait> storeTraits) {
         final ValidationResult result = new ValidationResult();
 
         if (!storeTraits.contains(StoreTrait.QUERY_AGGREGATION) && null != viewElDef.getAggregator()) {
@@ -152,7 +152,7 @@ public class ViewValidator {
         return result;
     }
 
-    protected ValidationResult validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+    protected static ValidationResult validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
         final Set<String> viewGroupBy = viewElDef.getGroupBy();
         if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
@@ -172,7 +172,7 @@ public class ViewValidator {
         return result;
     }
 
-    private void validateStoreTrait(final Composite functions, final StoreTrait storeTrait, final Set<StoreTrait> storeTraits, final ValidationResult result) {
+    private static void validateStoreTrait(final Composite functions, final StoreTrait storeTrait, final Set<StoreTrait> storeTraits, final ValidationResult result) {
         if (!storeTraits.contains(storeTrait)
                 && null != functions
                 && null != functions.getComponents()
@@ -181,7 +181,7 @@ public class ViewValidator {
         }
     }
 
-    private ValidationResult validateFunctionArgumentTypes(
+    private static ValidationResult validateFunctionArgumentTypes(
             final ElementAggregator aggregator,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
@@ -202,7 +202,7 @@ public class ViewValidator {
         return result;
     }
 
-    private ValidationResult validateFunctionArgumentTypes(
+    private static ValidationResult validateFunctionArgumentTypes(
             final ElementFilter filter,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
@@ -224,7 +224,7 @@ public class ViewValidator {
         return result;
     }
 
-    private ValidationResult validateFunctionArgumentTypes(
+    private static ValidationResult validateFunctionArgumentTypes(
             final ElementTransformer transformer,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
@@ -251,7 +251,7 @@ public class ViewValidator {
         return result;
     }
 
-    private Class[] getTypeClasses(final String[] keys, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+    private static Class[] getTypeClasses(final String[] keys, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final Class[] selectionClasses = new Class[keys.length];
         int i = 0;
         for (final String key : keys) {
@@ -261,7 +261,7 @@ public class ViewValidator {
         return selectionClasses;
     }
 
-    private Class<?> getTypeClass(final String key, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+    private static Class<?> getTypeClass(final String key, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final IdentifierType idType = IdentifierType.fromName(key);
         final Class<?> clazz;
         if (null != idType) {

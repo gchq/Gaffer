@@ -352,7 +352,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationChainValidator createOperationChainValidator() {
-        return new FederatedOperationChainValidator(new FederatedViewValidator());
+        return new FederatedOperationChainValidator();
     }
 
     @Override

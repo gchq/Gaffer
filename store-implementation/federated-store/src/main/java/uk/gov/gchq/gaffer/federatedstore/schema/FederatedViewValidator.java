@@ -26,8 +26,7 @@ import java.util.Set;
 
 public class FederatedViewValidator extends ViewValidator {
 
-    @Override
-    public ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
+    public static ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
         final boolean isStoreOrdered = storeTraits.contains(StoreTrait.ORDERED);
 
         final ValidationResult result = new ValidationResult();

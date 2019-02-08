@@ -41,9 +41,6 @@ import static java.util.Objects.nonNull;
  * the merged schema based on the user context and operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
-    public FederatedOperationChainValidator(final ViewValidator viewValidator) {
-        super(viewValidator);
-    }
 
     @Override
     protected Schema getSchema(final Operation operation, final User user, final Store store) {

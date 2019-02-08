@@ -652,7 +652,7 @@ public abstract class Store {
     }
 
     protected OperationChainValidator createOperationChainValidator() {
-        return new OperationChainValidator(new ViewValidator());
+        return new OperationChainValidator();
     }
 
     public OperationChainValidator getOperationChainValidator() {

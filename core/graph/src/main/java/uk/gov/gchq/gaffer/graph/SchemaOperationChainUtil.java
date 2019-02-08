@@ -35,7 +35,7 @@ public final class SchemaOperationChainUtil {
 
     public static ValidationResult validate(final Schema schema, final OperationChain operationChain) {
         updateOperationChainViews(operationChain, schema);
-        SchemaOperationChainValidator validator = new SchemaOperationChainValidator(new ViewValidator(), schema);
+        SchemaOperationChainValidator validator = new SchemaOperationChainValidator(schema);
 
         return validator.validate(operationChain, null, null);
     }

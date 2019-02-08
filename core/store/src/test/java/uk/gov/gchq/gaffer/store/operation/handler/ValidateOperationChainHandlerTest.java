@@ -53,7 +53,7 @@ public class ValidateOperationChainHandlerTest {
         OperationChain chain = new OperationChain.Builder().first(addElements).then(getAdj).then(getElements).then(discardOutput).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
 
-        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator());
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
         // When
@@ -71,7 +71,7 @@ public class ValidateOperationChainHandlerTest {
         OperationChain chain = new OperationChain.Builder().first(addElementsFromSocket).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
 
-        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator());
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
         // When

@@ -28,12 +28,12 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
 
     Schema schema;
 
-    public SchemaOperationChainValidator(final ViewValidator viewValidator) {
-        super(viewValidator);
+    public SchemaOperationChainValidator() {
+        super();
     }
 
-    public SchemaOperationChainValidator(final ViewValidator viewValidator, final Schema schema) {
-        super(viewValidator);
+    public SchemaOperationChainValidator(final Schema schema) {
+        super();
         this.schema = schema;
     }
 

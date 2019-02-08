@@ -141,8 +141,7 @@ public class ExamplesServiceTest {
         final View view = builder.build();
         assertNotNull(view);
 
-        final ViewValidator viewValidator = new ViewValidator();
-        assertTrue(viewValidator.validate(view, schema, Sets.newHashSet(StoreTrait.values())).isValid());
+        assertTrue(ViewValidator.validate(view, schema, Sets.newHashSet(StoreTrait.values())).isValid());
     }
 
     private void shouldSerialiseAndDeserialiseOperation(final Operation operation) throws IOException {

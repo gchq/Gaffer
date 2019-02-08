@@ -34,8 +34,7 @@ public class FederatedOperationChainValidatorTest {
     @Test
     public void shouldGetFederatedSchema() {
         // Given
-        final ViewValidator viewValidator = mock(FederatedViewValidator.class);
-        final FederatedOperationChainValidator validator = new FederatedOperationChainValidator(viewValidator);
+        final FederatedOperationChainValidator validator = new FederatedOperationChainValidator();
         final FederatedStore store = mock(FederatedStore.class);
         final User user = mock(User.class);
         final Operation op = mock(Operation.class);

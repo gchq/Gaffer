@@ -67,8 +67,7 @@ public class OperationChainValidatorTest {
     @Test
     public void shouldInValidateNullElementDef() {
         // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final OperationChainValidator validator = new OperationChainValidator();
         final Store store = mock(Store.class);
         Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
@@ -184,14 +183,9 @@ public class OperationChainValidatorTest {
 
     private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) {
         // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final OperationChainValidator validator = new OperationChainValidator();
         final Store store = mock(Store.class);
         final User user = mock(User.class);
-
-
-        given(viewValidator.validate(any(View.class), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
-
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);

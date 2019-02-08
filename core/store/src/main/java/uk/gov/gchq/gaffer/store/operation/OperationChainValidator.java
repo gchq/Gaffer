@@ -37,11 +37,6 @@ import java.util.Set;
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
  */
 public class OperationChainValidator {
-    private final ViewValidator viewValidator;
-
-    public OperationChainValidator(final ViewValidator viewValidator) {
-        this.viewValidator = viewValidator;
-    }
 
     /**
      * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
@@ -160,7 +155,7 @@ public class OperationChainValidator {
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof GraphFilters) {
             final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
+            final ValidationResult viewValidationResult = ViewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
             if (!viewValidationResult.isValid()) {
                 validationResult.addError("View for operation "
                         + op.getClass().getName()
