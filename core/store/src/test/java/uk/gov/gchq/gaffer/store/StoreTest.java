@@ -390,6 +390,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise("graphId", schema, properties);
@@ -726,6 +727,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -756,6 +758,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
