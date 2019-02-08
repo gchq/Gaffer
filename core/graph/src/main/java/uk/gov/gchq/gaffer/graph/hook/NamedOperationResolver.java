@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -34,6 +35,7 @@ import java.util.List;
 /**
  * A {@link GraphHook} to resolve named operations.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GraphHook {
     private final NamedOperationCache cache;
 

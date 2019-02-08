@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.store.Context;
  * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-@JsonPropertyOrder(alphabetic = true)
 public interface GraphHook {
     /**
      * Called from {@link uk.gov.gchq.gaffer.graph.Graph} before an {@link OperationChain}
