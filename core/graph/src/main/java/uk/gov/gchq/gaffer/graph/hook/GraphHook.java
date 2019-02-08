@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.operation.OperationChain;
