@@ -108,8 +108,6 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
     }
 
     @Override
-    protected AdditionalOperations getTestObject() {
-        return fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
-    }
+    protected AdditionalOperations getTestObject() { return new AdditionalOperations(); }
 
 }
