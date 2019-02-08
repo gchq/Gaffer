@@ -27,14 +27,18 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -150,10 +154,9 @@ public class FederatedOperationHandlerTest {
     @Test
     public void shouldThrowException() throws Exception {
         String message = "test exception";
-        final Operation op = mock(Operation.class);
-        final String graphID = "1,3";
-        given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn(graphID);
-
+        final Operation op = new GetAllElements();
+        final String graphId = "1,3";
+        op.setOptions(Collections.singletonMap(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId));
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -163,7 +166,7 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore mockStore = mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, graphId)).thenReturn(filteredGraphs);
         try {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
             fail("Exception Not thrown");
@@ -177,10 +180,12 @@ public class FederatedOperationHandlerTest {
     final public void shouldNotThrowExceptionBecauseSkipFlagSetTrue() throws Exception {
         // Given
         final String graphID = "1,3";
-        final Operation op = mock(Operation.class);
-        when(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).thenReturn(graphID);
-        when(op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE)).thenReturn(String.valueOf(true));
-        when(op.getOption(eq(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE), any(String.class))).thenReturn(String.valueOf(true));
+        final Operation op = new GetAllElements();
+        Map options = new HashMap();
+        options.put(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphID);
+        options.put(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
+                String.valueOf(true));
+        op.setOptions(options);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();

@@ -28,11 +28,14 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ValidateOperationChainHandlerTest {
@@ -49,6 +52,7 @@ public class ValidateOperationChainHandlerTest {
         final DiscardOutput discardOutput = new DiscardOutput();
         OperationChain chain = new OperationChain.Builder().first(addElements).then(getAdj).then(getElements).then(discardOutput).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
 
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
@@ -66,6 +70,7 @@ public class ValidateOperationChainHandlerTest {
 
         OperationChain chain = new OperationChain.Builder().first(addElementsFromSocket).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
 
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
