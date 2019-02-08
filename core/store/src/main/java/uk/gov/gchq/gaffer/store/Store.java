@@ -712,7 +712,7 @@ public abstract class Store {
      * uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(new OperationChainValidator(new ViewValidator()));
+        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
