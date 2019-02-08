@@ -21,11 +21,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,8 +36,9 @@ import java.util.List;
  * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT>, OperationValidation<OperationChain<OUT>> {
-    private final OperationChainValidator opChainValidator;
-    private final List<OperationChainOptimiser> opChainOptimisers;
+    private OperationValidator opValidator =
+            new OperationValidator(new ViewValidator());
+    private List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
 
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
@@ -51,7 +54,7 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     @Override
     public OperationChain<OUT> prepareOperation(final OperationChain<OUT> operation,
                                                 final Context context, final Store store) {
-        final ValidationResult validationResult = opChainValidator.validate(operation, context.getUser(), store);
+        final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
                     .getErrorString());
@@ -81,8 +84,21 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         }
     }
 
-    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
-        this.opChainValidator = opChainValidator;
+    public OperationChainHandler() {
+
+    }
+
+    /**
+     * @param opValidator       the OperationValidator instance
+     * @param opChainOptimisers A list of OperationChainOptimisers
+     * @deprecated OperationChainValidator and OpChainOptimisers are now
+     * supplied by the OperationChainHandler class.  These should not be
+     * supplied and if the validation should be different
+     * OperationChainHandler should be extended and the prepareOperation
+     * method can be overridden.
+     */
+    public OperationChainHandler(final OperationValidator opValidator, final List<OperationChainOptimiser> opChainOptimisers) {
+        this.opValidator = opValidator;
         this.opChainOptimisers = opChainOptimisers;
     }
 
@@ -92,10 +108,22 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         }
     }
 
-    protected OperationChainValidator getOpChainValidator() {
-        return opChainValidator;
+    /**
+     * @return the OperationValidator instance
+     * @see OperationChainHandler constructor doc
+     * @deprecated This field should not be used.  It will be supplied within
+     * the OperationChainHandlerClass.
+     */
+    protected OperationValidator getOpChainValidator() {
+        return opValidator;
     }
 
+    /**
+     * @return a list of OperationChainOptimisers
+     * @see OperationChainHandler constructor doc
+     * @deprecated This field should not be used.  It will be supplied within
+     * the OperationChainHandlerClass.
+     */
     protected List<OperationChainOptimiser> getOpChainOptimisers() {
         return opChainOptimisers;
     }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -55,12 +56,22 @@ public class OperationValidator {
     public ValidationResult validate(final Operation operation, final User user,
                                      final Store store) {
         final ValidationResult validationResult = new ValidationResult();
-
-        validate(operation, user, store, validationResult, null);
+        if(operation instanceof Operations){
+            if (((Operations<?>)operation).getOperations().isEmpty()) {
+                validationResult.addError("Operation chain contains no operations");
+            } else {
+                Class<? extends Output> output = null;
+                for (final Operation op : ((Operations<?>)operation).getOperations()) {
+                    output = validate(op, user, store, validationResult, output);
+                }
+            }
+        } else {
+            validate(operation, user, store, validationResult, null);
+        }
         return validationResult;
     }
 
-    protected Class<? extends Output> validate(final Operation operation,
+    public Class<? extends Output> validate(final Operation operation,
                                                final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
         validationResult.add(operation.validate());
         final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
