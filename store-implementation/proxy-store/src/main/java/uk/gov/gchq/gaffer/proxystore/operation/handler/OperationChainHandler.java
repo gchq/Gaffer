@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.proxystore.exception.ProxyStoreException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 
@@ -44,7 +44,11 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
     public static final String RESOLVED = "resolved";
     public static final String UNPROCESSED = "unprocessed";
 
-    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
+    public OperationChainHandler() {
+        super();
+    }
+
+    public OperationChainHandler(final OperationValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
         super(opChainValidator, opChainOptimisers);
     }
 
