@@ -24,11 +24,12 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
  * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
+ *
+ * @see uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler for
+ * an example.
  * @deprecated This class should not be used.  OperationValidators should be
  * used within OperationHandlers, and if the validation should be different
  * you can implement your own OperationValidation.prepareOperation method.
- * @see uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler for
- * an example.
  */
 public class OperationChainValidator extends OperationValidator {
 

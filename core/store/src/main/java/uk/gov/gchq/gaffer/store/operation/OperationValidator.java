@@ -56,12 +56,12 @@ public class OperationValidator {
     public ValidationResult validate(final Operation operation, final User user,
                                      final Store store) {
         final ValidationResult validationResult = new ValidationResult();
-        if(operation instanceof Operations){
-            if (((Operations<?>)operation).getOperations().isEmpty()) {
+        if (operation instanceof Operations) {
+            if (((Operations<?>) operation).getOperations().isEmpty()) {
                 validationResult.addError("Operation chain contains no operations");
             } else {
                 Class<? extends Output> output = null;
-                for (final Operation op : ((Operations<?>)operation).getOperations()) {
+                for (final Operation op : ((Operations<?>) operation).getOperations()) {
                     output = validate(op, user, store, validationResult, output);
                 }
             }
@@ -72,7 +72,7 @@ public class OperationValidator {
     }
 
     public Class<? extends Output> validate(final Operation operation,
-                                               final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
+                                            final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
         validationResult.add(operation.validate());
         final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
         validateViews(operation, user, store, validationResult);
