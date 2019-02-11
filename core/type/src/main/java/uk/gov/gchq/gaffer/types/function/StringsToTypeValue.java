@@ -18,35 +18,17 @@ package uk.gov.gchq.gaffer.types.function;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 
 /**
- * A {@code ToTypeValue} is a {@link KorypheFunction} that converts a
- * value into a {@link TypeValue}, by setting the Type to null (or the provided string)
- * and the Value to the input value.
+ * A {@code StringsToTypeSubTypeValue} is a {@link KorypheFunction2} that converts 2 strings: type and value
+ * into a {@link TypeValue}.
  */
 @Since("1.8.0")
-@Summary("Converts a value into a TypeValue")
-public class ToTypeValue extends KorypheFunction<Object, TypeValue> {
-    private String type;
-
-    public ToTypeValue() {
-    }
-
-    public ToTypeValue(final String type) {
-        this.type = type;
-    }
-
+@Summary("Converts 2 strings into a TypeValue")
+public class StringsToTypeValue extends KorypheFunction2<String, String, TypeValue> {
     @Override
-    public TypeValue apply(final Object value) {
-        return new TypeValue(type, null != value ? value.toString() : null);
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(final String type) {
-        this.type = type;
+    public TypeValue apply(final String type, final String value) {
+        return new TypeValue(type, value);
     }
 }

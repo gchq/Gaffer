@@ -22,14 +22,41 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
  * A {@code ToTypeSubTypeValue} is a {@link KorypheFunction} that converts a
- * value into a {@link TypeSubTypeValue}, by setting the Type and SubType to null
+ * value into a {@link TypeSubTypeValue}, by setting the Type and SubType to null (or the provided strings)
  * and the Value to the input value.
  */
 @Since("1.8.0")
 @Summary("Converts a value into a TypeSubTypeValue")
 public class ToTypeSubTypeValue extends KorypheFunction<Object, TypeSubTypeValue> {
+    private String type;
+    private String subType;
+
+    public ToTypeSubTypeValue() {
+    }
+
+    public ToTypeSubTypeValue(final String type, final String subType) {
+        this.type = type;
+        this.subType = subType;
+    }
+
     @Override
     public TypeSubTypeValue apply(final Object value) {
-        return new TypeSubTypeValue(null, null, null != value ? value.toString() : null);
+        return new TypeSubTypeValue(type, subType, null != value ? value.toString() : null);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(final String subType) {
+        this.subType = subType;
     }
 }

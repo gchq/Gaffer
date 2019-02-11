@@ -36,7 +36,7 @@ public class ToFreqMapTests {
     public void testEmptyString(){
         String s = "";
         ToFreqMap toFreqMap = new ToFreqMap();
-        FreqMap freqMap = new FreqMap();
+        FreqMap freqMap = new FreqMap("");
         assertEquals(freqMap, toFreqMap.apply(s));
     }
 
@@ -44,9 +44,7 @@ public class ToFreqMapTests {
     public void testNull(){
         String s = null;
         ToFreqMap toFreqMap = new ToFreqMap();
-        FreqMap freqMap = new FreqMap();
+        FreqMap freqMap = new FreqMap((String)null);
         assertEquals(freqMap, toFreqMap.apply(s));
     }
-
-
 }

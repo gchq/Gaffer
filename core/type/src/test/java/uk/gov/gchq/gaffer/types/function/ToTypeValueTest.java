@@ -15,7 +15,7 @@ public class ToTypeValueTest extends FunctionTest {
     @Test
     public void shouldConvertStringToTypeValue() {
         // Given
-        final ToTypeValue function = new ToTypeValue();
+        final ToTypeValue function = new ToTypeValue("type1");
 
         final Object value = "value1";
 
@@ -23,7 +23,7 @@ public class ToTypeValueTest extends FunctionTest {
         final TypeValue result = function.apply(value);
 
         // Then
-        assertEquals(new TypeValue(null, value.toString()), result);
+        assertEquals(new TypeValue("type1", value.toString()), result);
     }
 
     @Test

@@ -15,7 +15,7 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
     @Test
     public void shouldConvertStringToTypeSubTypeValue() {
         // Given
-        final ToTypeSubTypeValue function = new ToTypeSubTypeValue();
+        final ToTypeSubTypeValue function = new ToTypeSubTypeValue("type1", "subType1");
 
         final Object value = "value1";
 
@@ -23,7 +23,7 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
         final TypeSubTypeValue result = function.apply(value);
 
         // Then
-        assertEquals(new TypeSubTypeValue(null, null, value.toString()), result);
+        assertEquals(new TypeSubTypeValue("type1", "subType1", value.toString()), result);
     }
 
     @Test
