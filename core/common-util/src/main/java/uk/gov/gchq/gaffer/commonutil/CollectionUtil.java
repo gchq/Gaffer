@@ -62,16 +62,6 @@ public final class CollectionUtil {
         return treeSet;
     }
 
-    /**
-     * Creates a new {@link TreeSet} and adds the given object.
-     */
-    public static class ToSingletonTreeSet extends KorypheFunction<Object, TreeSet> {
-        @Override
-        public TreeSet apply(final Object o) {
-            return treeSet(o);
-        }
-    }
-
     public static <K, V> void toMapWithClassKeys(final Map<String, V> mapAsStrings, final Map<Class<? extends K>, V> map) throws ClassNotFoundException {
         for (final Map.Entry<String, V> entry : mapAsStrings.entrySet()) {
             map.put(
