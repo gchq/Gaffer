@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.DESTINATION;
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.DIRECTED;
@@ -57,22 +59,28 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     private Element createElement(final Tuple<String> tuple, final ElementTupleDefinition elementDef) {
         requireNonNull(elementDef.get(GROUP), GROUP + " is required");
-        final Element element;
+        Element element = null;
         if (elementDef.containsKey(VERTEX)) {
-            element = new Entity(elementDef.getGroup(), getField(VERTEX, elementDef, tuple));
+            final Object vertex = getField(VERTEX, elementDef, tuple);
+            if (nonNull(vertex)) {
+                element = new Entity(elementDef.getGroup(), vertex);
+            }
         } else {
-            element = new Edge(
-                    elementDef.getGroup(),
-                    getField(SOURCE, elementDef, tuple),
-                    getField(DESTINATION, elementDef, tuple),
-                    (boolean) getField(DIRECTED, elementDef, tuple)
-            );
+            final Object source = getField(SOURCE, elementDef, tuple);
+            final Object destination = getField(DESTINATION, elementDef, tuple);
+            Object directed = getField(DIRECTED, elementDef, tuple);
+            directed = isNull(directed) || Boolean.TRUE.equals(directed) || (directed instanceof String && Boolean.parseBoolean((String) directed));
+            if (nonNull(source) && nonNull(destination)) {
+                element = new Edge(elementDef.getGroup(), source, destination, (boolean) directed);
+            }
         }
 
-        for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
-            final IdentifierType id = IdentifierType.fromName(entry.getKey());
-            if (null == id) {
-                element.putProperty(entry.getKey(), getField(entry.getValue(), tuple));
+        if (nonNull(element)) {
+            for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
+                final IdentifierType id = IdentifierType.fromName(entry.getKey());
+                if (null == id) {
+                    element.putProperty(entry.getKey(), getField(entry.getValue(), tuple));
+                }
             }
         }
 
