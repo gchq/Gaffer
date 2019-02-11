@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
     @Test
     public void shouldGetOutputClass() {
         // When
-        final Class<?> outputClass = getTestObject().getOutputClass();
+        final Class<?> outputClass = new GetElements().getOutputClass();
 
         // Then
         assertEquals(CloseableIterable.class, outputClass);
@@ -253,8 +253,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
     @Override
     protected GetElements getTestObject() {
-        return new GetElements.Builder()
-                .input(new EntitySeed())
-                .build();
+        return new GetElements();
     }
 }
