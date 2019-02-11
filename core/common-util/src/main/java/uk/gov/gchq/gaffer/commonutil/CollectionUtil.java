@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.util.Collection;
