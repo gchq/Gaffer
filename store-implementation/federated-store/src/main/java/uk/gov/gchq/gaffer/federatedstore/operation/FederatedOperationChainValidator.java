@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -36,7 +35,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
- * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link ViewValidator}s using the Federated Store schemas.
+ * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link uk.gov.gchq.gaffer.store.schema.ViewValidator}s using the Federated Store schemas.
  * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
  * the merged schema based on the user context and operation options.
  */

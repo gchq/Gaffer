@@ -24,7 +24,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
-public class FederatedViewValidator extends ViewValidator {
+public final class FederatedViewValidator {
+
+    private FederatedViewValidator() { }
 
     public static ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
         final boolean isStoreOrdered = storeTraits.contains(StoreTrait.ORDERED);
@@ -33,12 +35,12 @@ public class FederatedViewValidator extends ViewValidator {
 
         if (null != view) {
             final ValidationResult entitiesResult = new ValidationResult();
-            validateEntities(view, schema, storeTraits, isStoreOrdered, result);
+            ViewValidator.validateEntities(view, schema, storeTraits, isStoreOrdered, result);
             if (!entitiesResult.isValid()) {
                 result.add(entitiesResult);
 
                 final ValidationResult edgeResult = new ValidationResult();
-                validateEdge(view, schema, storeTraits, isStoreOrdered, result);
+                ViewValidator.validateEdge(view, schema, storeTraits, isStoreOrdered, result);
 
                 if (!edgeResult.isValid()) {
                     result.add(edgeResult);

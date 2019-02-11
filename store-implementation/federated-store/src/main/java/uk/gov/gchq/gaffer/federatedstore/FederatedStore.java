@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElem
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;

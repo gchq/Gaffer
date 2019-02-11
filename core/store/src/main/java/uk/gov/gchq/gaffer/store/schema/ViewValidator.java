@@ -47,9 +47,11 @@ import java.util.Set;
  * properties and identifiers in the Schema and the transient properties in the
  * View.
  */
-public class ViewValidator {
+public final class ViewValidator {
     public static final String SKIP_VIEW_VALIDATION = "skipViewValidation";
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewValidator.class);
+
+    private ViewValidator() { }
 
     /**
      * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.Function}s defined are
@@ -74,7 +76,7 @@ public class ViewValidator {
         return result;
     }
 
-    protected static void validateEdge(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+    public static void validateEdge(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
         if (null != view.getEdges()) {
             for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
                 final String group = entry.getKey();
@@ -106,7 +108,7 @@ public class ViewValidator {
         }
     }
 
-    protected static void validateEntities(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
+    public static void validateEntities(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered, final ValidationResult result) {
         if (null != view.getEntities()) {
             for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
                 final String group = entry.getKey();
