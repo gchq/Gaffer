@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
@@ -54,7 +55,7 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     @Override
     public Iterable<Element> apply(final Tuple<String> tuple) {
-        return new StreamIterable<>(() -> elements.stream().map(e -> createElement(tuple, e)));
+        return new StreamIterable<>(() -> elements.stream().map(e -> createElement(tuple, e)).filter(new Exists()));
     }
 
     private Element createElement(final Tuple<String> tuple, final ElementTupleDefinition elementDef) {
@@ -97,10 +98,7 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
         }
 
         if (value instanceof String) {
-            final Object propValue = tuple.get(((String) value));
-            if (null != propValue) {
-                return propValue;
-            }
+            return tuple.get(((String) value));
         }
         return value;
     }
