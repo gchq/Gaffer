@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sketches.clearspring.cardinality;
+package uk.gov.gchq.gaffer.sketches;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -25,27 +24,25 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.ToHyperLogLogPlus;
-import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.Summary;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@Since("1.8.0")
-@Summary("Generates HyperLogLogPlus sketch Entities for each end of an Edge")
-@JsonPropertyOrder(value = {"group", "hllpPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
-public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerator<Element> {
-    private static final ToHyperLogLogPlus TO_HHLP = new ToHyperLogLogPlus();
+public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
+    private final Function<Object, T> toSketch;
 
     private String group = "Cardinality";
-    private String hllpPropertyName = "hllp";
+    private String cardinalityPropertyName = "cardinality";
     private String countProperty;
     private String edgeGroupProperty;
 
@@ -60,15 +57,30 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
      */
     private ElementTransformer transformer;
 
+    public CardinalityEntityGenerator(final Function<Object, T> toSketch) {
+        this.toSketch = toSketch;
+    }
+
     @Override
     public Iterable<Element> _apply(final Element element) {
+        if (isNull(element)) {
+            return Collections.emptyList();
+        }
+
         if (element instanceof Edge) {
             final Edge edge = ((Edge) element);
-            return Arrays.asList(
-                    edge,
-                    createEntity(edge.getSource(), edge.getDestination(), edge),
-                    createEntity(edge.getDestination(), edge.getSource(), edge)
-            );
+            final Entity sourceEntity = createEntity(edge.getSource(), edge.getDestination(), edge);
+            final Entity destEntity = createEntity(edge.getDestination(), edge.getSource(), edge);
+
+            final List<Element> elements = new ArrayList<>(3);
+            elements.add(edge);
+            if (nonNull(sourceEntity)) {
+                elements.add(sourceEntity);
+            }
+            if (nonNull(destEntity)) {
+                elements.add(destEntity);
+            }
+            return elements;
         }
 
         return Collections.singleton(element);
@@ -82,7 +94,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         this.transformer = transformer;
     }
 
-    public HyperLogLogPlusElementGenerator transformer(final ElementTransformer transformer) {
+    public CardinalityEntityGenerator transformer(final ElementTransformer transformer) {
         this.transformer = transformer;
         return this;
     }
@@ -107,7 +119,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         this.propertiesToCopy.addAll(propertiesToCopy);
     }
 
-    public HyperLogLogPlusElementGenerator propertyToCopy(final String propertyToCopy) {
+    public CardinalityEntityGenerator propertyToCopy(final String propertyToCopy) {
         this.propertiesToCopy.add(propertyToCopy);
         return this;
     }
@@ -123,7 +135,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
      * @param propertiesToCopy the properties to copy from the edge
      * @return this
      */
-    public HyperLogLogPlusElementGenerator propertiesToCopy(final String... propertiesToCopy) {
+    public CardinalityEntityGenerator propertiesToCopy(final String... propertiesToCopy) {
         Collections.addAll(this.propertiesToCopy, propertiesToCopy);
         return this;
     }
@@ -136,21 +148,21 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         this.group = group;
     }
 
-    public HyperLogLogPlusElementGenerator group(final String group) {
+    public CardinalityEntityGenerator group(final String group) {
         this.group = group;
         return this;
     }
 
-    public String getHllpPropertyName() {
-        return hllpPropertyName;
+    public String getCardinalityPropertyName() {
+        return cardinalityPropertyName;
     }
 
-    public void setHllpPropertyName(final String hllpPropertyName) {
-        this.hllpPropertyName = hllpPropertyName;
+    public void setCardinalityPropertyName(final String cardinalityPropertyName) {
+        this.cardinalityPropertyName = cardinalityPropertyName;
     }
 
-    public HyperLogLogPlusElementGenerator hllpPropertyName(final String hllpPropertyName) {
-        this.hllpPropertyName = hllpPropertyName;
+    public CardinalityEntityGenerator cardinalityPropertyName(final String cardinalityPropertyName) {
+        this.cardinalityPropertyName = cardinalityPropertyName;
         return this;
     }
 
@@ -162,7 +174,7 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         this.countProperty = countProperty;
     }
 
-    public HyperLogLogPlusElementGenerator countProperty(final String countProperty) {
+    public CardinalityEntityGenerator countProperty(final String countProperty) {
         this.countProperty = countProperty;
         return this;
     }
@@ -176,17 +188,20 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
     }
 
 
-    public HyperLogLogPlusElementGenerator edgeGroupProperty(final String edgeGroupProperty) {
+    public CardinalityEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
         this.edgeGroupProperty = edgeGroupProperty;
         return this;
     }
 
     private Entity createEntity(final Object vertex, final Object adjVertex, final Edge edge) {
+        if (isNull(vertex)) {
+            return null;
+        }
+
         final Entity entity = new Entity.Builder()
                 .group(group)
                 .vertex(vertex)
-                .property(hllpPropertyName, TO_HHLP.apply(adjVertex))
-                .property("EDGE_GROUP", edge.getGroup())
+                .property(cardinalityPropertyName, toSketch.apply(adjVertex))
                 .build();
         for (final String key : propertiesToCopy) {
             final Object value = edge.getProperty(key);
@@ -203,7 +218,6 @@ public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerato
         if (null != transformer && null != transformer.getComponents()) {
             transformer.apply(entity);
         }
-        entity.removeProperty("EDGE_GROUP");
         return entity;
     }
 }

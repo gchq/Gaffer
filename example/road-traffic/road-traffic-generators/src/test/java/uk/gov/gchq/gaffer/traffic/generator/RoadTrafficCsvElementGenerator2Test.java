@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusElementGenerator;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusEntityGenerator;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -147,7 +147,7 @@ public class RoadTrafficCsvElementGenerator2Test {
                         .property("countByVehicleType")
                         .property("count", "total-count"));
 
-        HyperLogLogPlusElementGenerator addCardinalities = new HyperLogLogPlusElementGenerator().countProperty("count").edgeGroupProperty("edgeGroup");
+        HyperLogLogPlusEntityGenerator addCardinalities = new HyperLogLogPlusEntityGenerator().countProperty("count").edgeGroupProperty("edgeGroup");
 
         // Apply functions
         final And<List<String>, Iterable<Element>> generator2 = new And.Builder<List<String>, Iterable<Element>>()
