@@ -93,37 +93,37 @@ public class HyperLogLogPlusJsonSerialisationTest {
     @Test
     public void shouldDeserialiseNewHllpWithSAndSpValues() throws IOException {
         // Given
-        final String sketchAsString = "{\"p\": 20, \"sp\": 30}";
+        final String sketchAsString = "{\"p\": 5, \"sp\": 10}";
 
         // When
         HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
 
         // Then
-        assertArrayEquals(new HyperLogLogPlus(20, 30).getBytes(), hllp.getBytes());
+        assertArrayEquals(new HyperLogLogPlus(5, 10).getBytes(), hllp.getBytes());
     }
 
     @Test
     public void shouldDeserialiseNewNestedHllpWithSAndSpValues() throws IOException {
         // Given
-        final String sketchAsString = "{\"hyperLogLogPlus\": {\"p\": 20, \"sp\": 30}}";
+        final String sketchAsString = "{\"hyperLogLogPlus\": {\"p\": 5, \"sp\": 10}}";
 
         // When
         HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
 
         // Then
-        assertArrayEquals(new HyperLogLogPlus(20, 30).getBytes(), hllp.getBytes());
+        assertArrayEquals(new HyperLogLogPlus(5, 10).getBytes(), hllp.getBytes());
     }
 
     @Test
     public void shouldDeserialiseNewHllpWithOffers() throws IOException {
         // Given
-        final String sketchAsString = "{\"p\": 30, \"sp\": 30, \"offers\": [\"value1\", \"value2\", \"value2\", \"value2\", \"value3\"]}";
+        final String sketchAsString = "{\"p\": 5, \"sp\": 5, \"offers\": [\"value1\", \"value2\", \"value2\", \"value2\", \"value3\"]}";
 
         // When
         HyperLogLogPlus hllp = JSONSerialiser.deserialise(sketchAsString, HyperLogLogPlus.class);
 
         // Then
-        HyperLogLogPlus expected = new HyperLogLogPlus(30, 30);
+        HyperLogLogPlus expected = new HyperLogLogPlus(5, 5);
         expected.offer("value1");
         expected.offer("value2");
         expected.offer("value2");
