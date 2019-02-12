@@ -20,7 +20,6 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.sketches.CardinalityEntityGenerator;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.ToHyperLogLogPlus;
 import uk.gov.gchq.koryphe.Since;
@@ -35,11 +34,6 @@ public class HyperLogLogPlusEntityGenerator extends CardinalityEntityGenerator<H
 
     public HyperLogLogPlusEntityGenerator() {
         super(TO_HHLP);
-    }
-
-    @Override
-    public HyperLogLogPlusEntityGenerator transformer(final ElementTransformer transformer) {
-        return (HyperLogLogPlusEntityGenerator) super.transformer(transformer);
     }
 
     @Override

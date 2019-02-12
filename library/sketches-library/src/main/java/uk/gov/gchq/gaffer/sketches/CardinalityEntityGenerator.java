@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
 import java.util.ArrayList;
@@ -52,11 +51,6 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
      */
     private final Set<String> propertiesToCopy = new HashSet<>();
 
-    /**
-     * Transforms the new cardinality entities.
-     */
-    private ElementTransformer transformer;
-
     public CardinalityEntityGenerator(final Function<Object, T> toSketch) {
         this.toSketch = toSketch;
     }
@@ -84,19 +78,6 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
         }
 
         return Collections.singleton(element);
-    }
-
-    public ElementTransformer getTransformer() {
-        return transformer;
-    }
-
-    public void setTransformer(final ElementTransformer transformer) {
-        this.transformer = transformer;
-    }
-
-    public CardinalityEntityGenerator transformer(final ElementTransformer transformer) {
-        this.transformer = transformer;
-        return this;
     }
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -214,9 +195,6 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
         }
         if (null != edgeGroupProperty) {
             entity.putProperty(edgeGroupProperty, CollectionUtil.treeSet(edge.getGroup()));
-        }
-        if (null != transformer && null != transformer.getComponents()) {
-            transformer.apply(entity);
         }
         return entity;
     }

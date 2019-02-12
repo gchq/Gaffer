@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.yahoo.sketches.hll.HllSketch;
 
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.sketches.CardinalityEntityGenerator;
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch;
 import uk.gov.gchq.koryphe.Since;
@@ -30,45 +29,40 @@ import uk.gov.gchq.koryphe.Summary;
 @Since("1.8.0")
 @Summary("Generates HllSketch sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
-public class HllCardinalityEntityGenerator extends CardinalityEntityGenerator<HllSketch> {
+public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSketch> {
     private static final ToHllSketch TO_HLL_SKETCH = new ToHllSketch();
 
-    public HllCardinalityEntityGenerator() {
+    public HllSketchEntityGenerator() {
         super(TO_HLL_SKETCH);
     }
 
     @Override
-    public HllCardinalityEntityGenerator transformer(final ElementTransformer transformer) {
-        return (HllCardinalityEntityGenerator) super.transformer(transformer);
+    public HllSketchEntityGenerator propertyToCopy(final String propertyToCopy) {
+        return (HllSketchEntityGenerator) super.propertyToCopy(propertyToCopy);
     }
 
     @Override
-    public HllCardinalityEntityGenerator propertyToCopy(final String propertyToCopy) {
-        return (HllCardinalityEntityGenerator) super.propertyToCopy(propertyToCopy);
+    public HllSketchEntityGenerator propertiesToCopy(final String... propertiesToCopy) {
+        return (HllSketchEntityGenerator) super.propertiesToCopy(propertiesToCopy);
     }
 
     @Override
-    public HllCardinalityEntityGenerator propertiesToCopy(final String... propertiesToCopy) {
-        return (HllCardinalityEntityGenerator) super.propertiesToCopy(propertiesToCopy);
+    public HllSketchEntityGenerator group(final String group) {
+        return (HllSketchEntityGenerator) super.group(group);
     }
 
     @Override
-    public HllCardinalityEntityGenerator group(final String group) {
-        return (HllCardinalityEntityGenerator) super.group(group);
+    public HllSketchEntityGenerator cardinalityPropertyName(final String cardinalityPropertyName) {
+        return (HllSketchEntityGenerator) super.cardinalityPropertyName(cardinalityPropertyName);
     }
 
     @Override
-    public HllCardinalityEntityGenerator cardinalityPropertyName(final String cardinalityPropertyName) {
-        return (HllCardinalityEntityGenerator) super.cardinalityPropertyName(cardinalityPropertyName);
+    public HllSketchEntityGenerator countProperty(final String countProperty) {
+        return (HllSketchEntityGenerator) super.countProperty(countProperty);
     }
 
     @Override
-    public HllCardinalityEntityGenerator countProperty(final String countProperty) {
-        return (HllCardinalityEntityGenerator) super.countProperty(countProperty);
-    }
-
-    @Override
-    public HllCardinalityEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
-        return (HllCardinalityEntityGenerator) super.edgeGroupProperty(edgeGroupProperty);
+    public HllSketchEntityGenerator edgeGroupProperty(final String edgeGroupProperty) {
+        return (HllSketchEntityGenerator) super.edgeGroupProperty(edgeGroupProperty);
     }
 }

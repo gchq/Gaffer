@@ -147,7 +147,7 @@ public class RoadTrafficCsvElementGenerator2Test {
                         .property("countByVehicleType")
                         .property("count", "total-count"));
 
-        HyperLogLogPlusEntityGenerator addCardinalities = new HyperLogLogPlusEntityGenerator().countProperty("count").edgeGroupProperty("edgeGroup");
+        HyperLogLogPlusEntityGenerator addCardinalities = new HyperLogLogPlusEntityGenerator().countProperty("count").edgeGroupProperty("edgeGroup").cardinalityPropertyName("hllp");
 
         // Apply functions
         final And<List<String>, Iterable<Element>> generator2 = new And.Builder<List<String>, Iterable<Element>>()
