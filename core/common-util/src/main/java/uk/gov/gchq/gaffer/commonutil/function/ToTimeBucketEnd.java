@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.commonutil.function;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
+import static java.util.Objects.isNull;
+
 /**
  * Converts a timestamp into the end of a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
@@ -35,6 +37,9 @@ public class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
 
     @Override
     public Long apply(final Long time) {
+        if (isNull(time)) {
+            return null;
+        }
         return CommonTimeUtil.timeToBucketEnd(time, bucket);
     }
 

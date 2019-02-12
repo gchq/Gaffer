@@ -21,6 +21,8 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Date;
 
+import static java.util.Objects.isNull;
+
 /**
  * Converts a Date into the start of a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
@@ -37,6 +39,9 @@ public class DateToTimeBucketStart extends KorypheFunction<Date, Date> {
 
     @Override
     public Date apply(final Date date) {
+        if (isNull(date)) {
+            return null;
+        }
         return new Date(CommonTimeUtil.timeToBucketStart(date.getTime(), bucket));
     }
 
