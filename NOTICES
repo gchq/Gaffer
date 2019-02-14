@@ -56,6 +56,11 @@ Apache Commons JCS (org.apache.commons:commons-csv:1.4):
 - Apache Licence, Version 2.0
 
 
+Apache Commons Codec (commons-codec:commons-codec:1.6):
+
+- Apache Licence, Version 2.0
+
+
 Apache Spark (org.apache.spark:spark-core:2.3.2, org.apache.spark:spark-sql:2.3.2, org.apache.spark:spark-catalyst:2.3.2, org.apache.spark:spark-graphx:2.3.2)
 
 - Apache License, Version 2.0
