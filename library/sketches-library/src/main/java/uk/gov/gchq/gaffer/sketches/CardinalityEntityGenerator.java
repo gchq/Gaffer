@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.sketches;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,6 +40,9 @@ import static java.util.Objects.requireNonNull;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
     private final Function<Object, T> toSketch;
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    private Function<Object, Object> vertexValueConverter;
 
     private String group = "Cardinality";
     private String cardinalityPropertyName = "cardinality";
@@ -174,15 +178,24 @@ public abstract class CardinalityEntityGenerator<T> implements OneToManyElementG
         return this;
     }
 
+    public Function<Object, Object> getVertexValueConverter() {
+        return vertexValueConverter;
+    }
+
+    public void setVertexValueConverter(final Function<Object, Object> vertexValueConverter) {
+        this.vertexValueConverter = vertexValueConverter;
+    }
+
     private Entity createEntity(final Object vertex, final Object adjVertex, final Edge edge) {
         if (isNull(vertex)) {
             return null;
         }
 
+        Object adjVertexFormatted = nonNull(vertexValueConverter) ? vertexValueConverter.apply(adjVertex) : adjVertex;
         final Entity entity = new Entity.Builder()
                 .group(group)
                 .vertex(vertex)
-                .property(cardinalityPropertyName, toSketch.apply(adjVertex))
+                .property(cardinalityPropertyName, toSketch.apply(adjVertexFormatted))
                 .build();
         for (final String key : propertiesToCopy) {
             final Object value = edge.getProperty(key);
