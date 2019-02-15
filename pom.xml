@@ -57,7 +57,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
-        <koryphe.version>1.6.0-RC3</koryphe.version>
+        <koryphe.version>1.6.0-RC4</koryphe.version>
         <accumulo.version>1.8.1</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
@@ -167,16 +167,6 @@
                 <groupId>uk.gov.gchq.koryphe</groupId>
                 <artifactId>core</artifactId>
                 <version>${koryphe.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-databind</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>uk.gov.gchq.koryphe</groupId>
@@ -184,16 +174,6 @@
                 <version>${koryphe.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-databind</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
