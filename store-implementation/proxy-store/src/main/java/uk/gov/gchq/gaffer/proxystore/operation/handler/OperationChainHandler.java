@@ -84,7 +84,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
 
     private String getProxyOptions(final OperationChain<OUT> operationChain) {
         final Map<String, String> options = operationChain.getOptions();
-        return isNull(options) ? UNPROCESSED : options.get(PROXY_STORE_OPERATION_CHAIN_HANDLER);
+        return isNull(options) ? UNPROCESSED : options.getOrDefault(PROXY_STORE_OPERATION_CHAIN_HANDLER, UNPROCESSED);
     }
 
     private OUT unprocessedLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
