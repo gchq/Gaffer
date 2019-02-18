@@ -95,6 +95,8 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
@@ -188,7 +190,7 @@ public abstract class Store {
     private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
-    protected final OperationChainValidator opChainValidator;
+    protected final OperationValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
 
@@ -651,14 +653,20 @@ public abstract class Store {
         return new SchemaOptimiser();
     }
 
-    protected OperationChainValidator createOperationChainValidator() {
+    protected OperationValidator createOperationChainValidator() {
         return new OperationChainValidator(new ViewValidator());
     }
 
-    public OperationChainValidator getOperationChainValidator() {
+    public OperationValidator getOperationChainValidator() {
         return opChainValidator;
     }
 
+    /**
+     * @param newOpChainOptimisers OperationChainOptimisers to add
+     * @deprecated These optimisers are now supplied within the
+     * OperationChainHandler.  If you want to override them extend the
+     * OperationChainHandler and implement your own PrepareOperation method.
+     */
     public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
@@ -717,7 +725,8 @@ public abstract class Store {
      * uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new OperationChainHandler<>(getOperationChainValidator(),
+                opChainOptimisers);
     }
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
@@ -785,6 +794,10 @@ public abstract class Store {
         Object result;
         try {
             if (null != handler) {
+                if (handler instanceof OperationValidation) {
+                    ((OperationValidation) handler).prepareOperation(operation,
+                            context, this);
+                }
                 result = handler.doOperation(operation, context, this);
             } else {
                 result = doUnhandledOperation(operation, context);

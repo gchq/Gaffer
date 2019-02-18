@@ -105,6 +105,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -120,6 +121,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -165,7 +167,7 @@ public class StoreTest {
     private OperationHandler<ExportToGafferResultCache> exportToGafferResultCacheHandler;
     private OperationHandler<GetGafferResultCacheExport> getGafferResultCacheExportHandler;
     private StoreImpl store;
-    private OperationChainValidator operationChainValidator;
+    private OperationValidator operationChainValidator;
 
     @Before
     public void setup() {
@@ -174,7 +176,7 @@ public class StoreTest {
         JSONSerialiser.update();
 
         schemaOptimiser = mock(SchemaOptimiser.class);
-        operationChainValidator = mock(OperationChainValidator.class);
+        operationChainValidator = mock(OperationValidator.class);
         store = new StoreImpl();
         given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
@@ -370,6 +372,7 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
+        store.setOperationChainValidator(operationChainValidator);
         store.initialise("graphId", schema, properties);
 
         // When / Then
@@ -388,6 +391,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise("graphId", schema, properties);
@@ -724,6 +728,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -754,6 +759,7 @@ public class StoreTest {
     public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final Operation operation = mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult());
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -886,9 +892,15 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private OperationValidator operationChainValidator =
+                new OperationChainValidator(new ViewValidator());
+
+        public void setOperationChainValidator(final OperationValidator operationChainValidator) {
+            this.operationChainValidator = operationChainValidator;
+        }
 
         @Override
-        protected OperationChainValidator createOperationChainValidator() {
+        public OperationValidator getOperationChainValidator() {
             return operationChainValidator;
         }
 
