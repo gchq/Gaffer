@@ -71,7 +71,7 @@ public class GraphRequest<O> {
     }
 
     @JsonCreator
-    public GraphRequest(@JsonProperty("operation") final Output<O> operation, @JsonProperty("context") final Context context) {
+    public GraphRequest(@JsonProperty("operationChain") final Output<O> operation, @JsonProperty("context") final Context context) {
         if (null == operation) {
             throw new IllegalArgumentException("An operation is required");
         }

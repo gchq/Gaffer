@@ -28,10 +28,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * A {@link GraphHook} to resolve named operations.
  */
@@ -48,39 +44,43 @@ public class NamedOperationResolver implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
-        resolveNamedOperations(opAsChain,
+        Operation updatedOperation = resolveNamedOperations(request.getOperation(),
                 request.getContext().getUser());
-        request.setOperation(opAsChain);
+        request.setOperation(new OperationChain<>(updatedOperation));
     }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveNamedOperations(opChain, context.getUser());
+        Operation updatedOperation = resolveNamedOperations(opChain,
+                context.getUser());
+        opChain.updateOperations(((OperationChain) updatedOperation).getOperations());
     }
 
-    private void resolveNamedOperations(final Operations<?> operations, final User user) {
-        final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
-        for (final Operation operation : operations.getOperations()) {
-            if (operation instanceof NamedOperation) {
-                updatedOperations.addAll(resolveNamedOperation((NamedOperation) operation, user));
-            } else {
-                if (operation instanceof Operations) {
-                    resolveNamedOperations(((Operations<?>) operation), user);
+    private Operation resolveNamedOperations(final Operation operation,
+                                             final User user) {
+        Operation updatedOperation = null;
+
+        if (operation instanceof NamedOperation) {
+            updatedOperation =
+                    resolveNamedOperation((NamedOperation) operation, user);
+        } else {
+            if (operation instanceof Operations) {
+                for (Operation op : ((Operations<?>) operation).getOperations()) {
+                    updatedOperation = resolveNamedOperations(op, user);
                 }
-                updatedOperations.add(operation);
             }
         }
-        operations.updateOperations((List) updatedOperations);
+        return updatedOperation;
     }
 
-    private List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user) {
+    private Operation resolveNamedOperation(
+            final NamedOperation namedOp, final User user) {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
         } catch (final CacheOperationFailedException e) {
             // Unable to find named operation - just return the original named operation
-            return Collections.singletonList(namedOp);
+            return namedOp;
         }
 
         final OperationChain<?> namedOperationChain = namedOpDetail.getOperationChain(namedOp.getParameters());
@@ -88,7 +88,7 @@ public class NamedOperationResolver implements GraphHook {
 
         // Call resolveNamedOperations again to check there are no nested named operations
         resolveNamedOperations(namedOperationChain, user);
-        return namedOperationChain.getOperations();
+        return namedOperationChain;
     }
 
     /**
@@ -98,7 +98,8 @@ public class NamedOperationResolver implements GraphHook {
      * @param opChain the resolved operation chain
      * @param input   the input of the NamedOperation
      */
-    private void updateOperationInput(final OperationChain<?> opChain, final Object input) {
+    private void updateOperationInput(final OperationChain<?> opChain,
+                                      final Object input) {
         final Operation firstOp = opChain.getOperations().get(0);
         if (null != input && (firstOp instanceof Input) && null == ((Input) firstOp).getInput()) {
             ((Input) firstOp).setInput(input);

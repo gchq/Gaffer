@@ -48,25 +48,28 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
-        resolveViews(opAsChain);
-        request.setOperation(opAsChain);
+        if (null != request.getOperation()) {
+            resolveViews(request.getOperation());
+        }
     }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveViews(opChain);
+        if (null != opChain) {
+            resolveViews(opChain);
+        }
     }
 
-    private void resolveViews(final Operations<?> operations) {
-        for (final Operation operation : operations.getOperations()) {
-            if (operation instanceof OperationView) {
-                final OperationView opView = ((OperationView) operation);
-                if (opView.getView() instanceof NamedView) {
-                    opView.setView(resolveView((NamedView) opView.getView()));
-                }
-            } else if (operation instanceof Operations) {
-                resolveViews((Operations<?>) operation);
+    private void resolveViews(final Operation operation) {
+        if (operation instanceof Operations) {
+            for (final Operation op : ((Operations<?>) operation).getOperations()) {
+                resolveViews(op);
+            }
+        }
+        if (operation instanceof OperationView) {
+            final OperationView opView = ((OperationView) operation);
+            if (opView.getView() instanceof NamedView) {
+                opView.setView(resolveView((NamedView) opView.getView()));
             }
         }
     }
@@ -89,7 +92,8 @@ public class NamedViewResolver implements GraphHook {
                 .build();
     }
 
-    private View resolveView(final String namedViewName, final Map<String, Object> parameters) {
+    private View resolveView(final String namedViewName,
+                             final Map<String, Object> parameters) {
         final NamedViewDetail cachedNamedView;
         try {
             cachedNamedView = cache.getNamedView(namedViewName);
@@ -114,7 +118,6 @@ public class NamedViewResolver implements GraphHook {
                 }
             }
         }
-
         return resolvedView;
     }
 }

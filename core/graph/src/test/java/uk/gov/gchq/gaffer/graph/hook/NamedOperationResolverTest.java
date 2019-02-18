@@ -105,11 +105,9 @@ public class NamedOperationResolverTest {
         final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
         final Iterable<?> input = mock(CloseableIterable.class);
 
-        final Map<String, Object> params = null;
-
         given(op1.getInput()).willReturn(null);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
+        given(extendedNamedOperation.getOperationChain(null)).willReturn(namedOperationOpChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(new OperationChain.Builder()
@@ -124,9 +122,9 @@ public class NamedOperationResolverTest {
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertEquals(1, opChain.getOperations().size());
-        final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
-        assertEquals(namedOperationOpChain.getOperations(), nestedOpChain.getOperations());
+        assertEquals(2, opChain.getOperations().size());
+        assertEquals(namedOperationOpChain.getOperations(),
+                opChain.getOperations());
 
         verify(op1).setInput((Iterable) input);
         verify(op2, never()).setInput((Iterable) input);
