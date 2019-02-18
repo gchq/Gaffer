@@ -63,7 +63,9 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
         result.add(validatePropertyNames(elementDef));
-        result.add(validateDirection(elementDef));
+        // Currently removed as it will cause breaking changes
+        // TODO - re-add this on a major version release
+        //result.add(validateDirection(elementDef));
 
         return result;
     }
