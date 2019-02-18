@@ -28,6 +28,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A {@link GraphHook} to resolve named operations.
  */
@@ -58,17 +61,19 @@ public class NamedOperationResolver implements GraphHook {
 
     private Operation resolveNamedOperations(final Operation operation,
                                              final User user) {
-        Operation updatedOperation = null;
+        Operation updatedOperation = operation;
 
         if (operation instanceof NamedOperation) {
             updatedOperation =
                     resolveNamedOperation((NamedOperation) operation, user);
         } else {
             if (operation instanceof Operations) {
+                List<Operation> operations = new ArrayList<>();
                 for (final Operation op :
                         ((Operations<?>) operation).getOperations()) {
-                    updatedOperation = resolveNamedOperations(op, user);
+                    operations.add(resolveNamedOperations(op, user));
                 }
+                updatedOperation = new OperationChain<>(operations);
             }
         }
         return updatedOperation;
