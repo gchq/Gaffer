@@ -65,7 +65,8 @@ public class NamedOperationResolver implements GraphHook {
                     resolveNamedOperation((NamedOperation) operation, user);
         } else {
             if (operation instanceof Operations) {
-                for (Operation op : ((Operations<?>) operation).getOperations()) {
+                for (final Operation op :
+                        ((Operations<?>) operation).getOperations()) {
                     updatedOperation = resolveNamedOperations(op, user);
                 }
             }
