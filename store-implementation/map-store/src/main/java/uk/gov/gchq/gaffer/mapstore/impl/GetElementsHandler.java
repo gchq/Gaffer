@@ -39,8 +39,7 @@ import java.util.stream.Stream;
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
 public class GetElementsHandler
-        implements OutputOperationHandler<GetElements, CloseableIterable<?
-        extends Element>>, GraphOperationValidation<GetElements> {
+        implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>>, GraphOperationValidation<GetElements> {
 
     @Override
     public CloseableIterable<Element> doOperation(final GetElements operation,

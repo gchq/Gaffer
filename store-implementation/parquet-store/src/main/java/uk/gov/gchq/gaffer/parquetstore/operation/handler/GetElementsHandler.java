@@ -36,8 +36,7 @@ import java.util.Iterator;
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link ParquetStore}.
  */
-public class GetElementsHandler implements OutputOperationHandler<GetElements
-        , CloseableIterable<? extends Element>>,
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>>,
         GraphOperationValidation<GetElements> {
 
     @Override
