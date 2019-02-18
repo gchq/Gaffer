@@ -26,10 +26,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements
+        , CloseableIterable<? extends Element>>, GraphOperationValidation<GetElements> {
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final Context context, final Store store)
