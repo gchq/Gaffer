@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
@@ -47,7 +46,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -144,10 +142,7 @@ public class ExportToOtherGraphHandlerTest {
         final ArgumentCaptor<Operation> opCaptor =
                 ArgumentCaptor.forClass(Operation.class);
         verify(TestStore.mockStore).execute(opCaptor.capture(), any());
-        final List<Operation> ops =
-                ((OperationChain) opCaptor.getValue()).getOperations();
-        assertEquals(1, ops.size());
-        assertSame(elements, ((AddElements) ops.get(0)).getInput());
+        assertSame(elements, ((AddElements) opCaptor.getValue()).getInput());
 
         try {
             exporter.get("key");

@@ -97,7 +97,7 @@ public class GafferResultCacheExporterTest {
                 ArgumentCaptor.forClass(Operation.class);
         verify(store).execute(op.capture(), Mockito.any(Context.class));
         final AddElements addElements =
-                (AddElements) ((OperationChain) op.getValue()).getOperations().get(0);
+                (AddElements) op.getValue();
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
         final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);

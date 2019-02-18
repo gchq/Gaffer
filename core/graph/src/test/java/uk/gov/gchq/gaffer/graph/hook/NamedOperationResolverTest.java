@@ -122,9 +122,9 @@ public class NamedOperationResolverTest {
         resolver.preExecute(opChain, new Context(user));
 
         // Then
-        assertEquals(2, opChain.getOperations().size());
-        assertEquals(namedOperationOpChain.getOperations(),
-                opChain.getOperations());
+        assertEquals(1, opChain.getOperations().size());
+        final OperationChain<?> nestedOpChain = (OperationChain<?>) opChain.getOperations().get(0);
+        assertEquals(namedOperationOpChain.getOperations(), nestedOpChain.getOperations());
 
         verify(op1).setInput((Iterable) input);
         verify(op2, never()).setInput((Iterable) input);

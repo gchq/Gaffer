@@ -89,8 +89,10 @@ public class UpdateViewHook implements GraphHook {
 
     private void updateView(final Operation operation) {
         if (operation instanceof Operations) {
-            for (Operation op : ((Operations<?>) operation).getOperations())
+            for (final Operation op :
+                    ((Operations<?>) operation).getOperations()) {
                 updateView(op);
+            }
         }
 
         if (operation instanceof OperationView) {

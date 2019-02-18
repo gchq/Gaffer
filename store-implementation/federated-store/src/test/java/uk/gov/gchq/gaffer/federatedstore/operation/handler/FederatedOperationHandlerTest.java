@@ -72,7 +72,6 @@ public class FederatedOperationHandlerTest {
         final Operation op = mock(Operation.class);
         final Operation opClone = mock(Operation.class);
         given(op.shallowClone()).willReturn(opClone);
-        final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
         Store mockStore1 = getMockStore(unusedSchema, storeProperties);
@@ -96,10 +95,10 @@ public class FederatedOperationHandlerTest {
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore2).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore3).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore4).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore1).execute(eq(opClone), any(Context.class));
+        verify(mockStore2).execute(eq(opClone), any(Context.class));
+        verify(mockStore3).execute(eq(opClone), any(Context.class));
+        verify(mockStore4).execute(eq(opClone), any(Context.class));
     }
 
     @Test
@@ -109,8 +108,6 @@ public class FederatedOperationHandlerTest {
         final Operation opClone = mock(Operation.class);
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn("1,3");
         given(op.shallowClone()).willReturn(opClone);
-
-        final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -131,10 +128,10 @@ public class FederatedOperationHandlerTest {
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore2, never()).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore3).execute(eq(opChainClone), any(Context.class));
-        verify(mockStore4, never()).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore1).execute(eq(opClone), any(Context.class));
+        verify(mockStore2, never()).execute(eq(opClone), any(Context.class));
+        verify(mockStore3).execute(eq(opClone), any(Context.class));
+        verify(mockStore4, never()).execute(eq(opClone), any(Context.class));
     }
 
     private Graph getGraphWithMockStore(final Store mockStore) {

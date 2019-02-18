@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
@@ -132,7 +131,7 @@ public class ExportToGafferResultCacheHandlerTest {
         final ArgumentCaptor<Operation> opCaptor =
                 ArgumentCaptor.forClass(Operation.class);
         verify(TestStore.mockStore).execute(opCaptor.capture(), any(Context.class));
-        assertTrue(((OperationChain) opCaptor.getValue()).getOperations().get(0) instanceof AddElements);
+        assertTrue(opCaptor.getValue() instanceof AddElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
         assertNotNull(exporter);
     }
