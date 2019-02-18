@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,46 +48,39 @@ public class NamedOperationResolver implements GraphHook {
 
     @Override
     public void preExecute(final GraphRequest request) {
-        Operation updatedOperation = resolveNamedOperations(request.getOperation(),
+        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
+        resolveNamedOperations(opAsChain,
                 request.getContext().getUser());
-        request.setOperation(new OperationChain<>(updatedOperation));
+        request.setOperation(opAsChain);
     }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        Operation updatedOperation = resolveNamedOperations(opChain,
-                context.getUser());
-        opChain.updateOperations(((OperationChain) updatedOperation).getOperations());
+        resolveNamedOperations(opChain, context.getUser());
     }
 
-    private Operation resolveNamedOperations(final Operation operation,
-                                             final User user) {
-        Operation updatedOperation = operation;
-
-        if (operation instanceof NamedOperation) {
-            updatedOperation =
-                    resolveNamedOperation((NamedOperation) operation, user);
-        } else {
-            if (operation instanceof Operations) {
-                List<Operation> operations = new ArrayList<>();
-                for (final Operation op :
-                        ((Operations<?>) operation).getOperations()) {
-                    operations.add(resolveNamedOperations(op, user));
+    private void resolveNamedOperations(final Operations<?> operations, final User user) {
+        final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
+        for (final Operation operation : operations.getOperations()) {
+            if (operation instanceof NamedOperation) {
+                updatedOperations.addAll(resolveNamedOperation((NamedOperation) operation, user));
+            } else {
+                if (operation instanceof Operations) {
+                    resolveNamedOperations(((Operations<?>) operation), user);
                 }
-                updatedOperation = new OperationChain<>(operations);
+                updatedOperations.add(operation);
             }
         }
-        return updatedOperation;
+        operations.updateOperations((List) updatedOperations);
     }
 
-    private Operation resolveNamedOperation(
-            final NamedOperation namedOp, final User user) {
+    private List<Operation> resolveNamedOperation(final NamedOperation namedOp, final User user) {
         final NamedOperationDetail namedOpDetail;
         try {
             namedOpDetail = cache.getNamedOperation(namedOp.getOperationName(), user);
         } catch (final CacheOperationFailedException e) {
             // Unable to find named operation - just return the original named operation
-            return namedOp;
+            return Collections.singletonList(namedOp);
         }
 
         final OperationChain<?> namedOperationChain = namedOpDetail.getOperationChain(namedOp.getParameters());
@@ -94,7 +88,7 @@ public class NamedOperationResolver implements GraphHook {
 
         // Call resolveNamedOperations again to check there are no nested named operations
         resolveNamedOperations(namedOperationChain, user);
-        return namedOperationChain;
+        return namedOperationChain.getOperations();
     }
 
     /**
