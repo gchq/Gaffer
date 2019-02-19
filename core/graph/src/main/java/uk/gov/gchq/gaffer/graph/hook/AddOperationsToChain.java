@@ -57,7 +57,7 @@ public class AddOperationsToChain implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        preExecuteAsOperationChain(opChain, context);
+        preExecute(new GraphRequest(opChain, context));
     }
 
     public List<Operation> getStart() {

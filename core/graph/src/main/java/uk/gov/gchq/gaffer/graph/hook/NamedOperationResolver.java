@@ -56,7 +56,7 @@ public class NamedOperationResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveNamedOperations(opChain, context.getUser());
+        preExecute(new GraphRequest(opChain, context));
     }
 
     private void resolveNamedOperations(final Operations<?> operations, final User user) {

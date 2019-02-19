@@ -46,7 +46,7 @@ public class Log4jLogger implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        LOGGER.info("Running {} as {}", context.getOriginalOpChain(), context.getUser().getUserId());
+        preExecute(new GraphRequest(opChain, context));
     }
 
     @Override
@@ -60,7 +60,6 @@ public class Log4jLogger implements GraphHook {
 
     @Override
     public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        LOGGER.warn("Failed to run {} as {}", context.getOriginalOpChain(), context.getUser().getUserId());
-        return result;
+        return onFailure(result, new GraphRequest(opChain, context), e);
     }
 }

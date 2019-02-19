@@ -77,16 +77,7 @@ public class OperationChainLimiter implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        if (null != opChain) {
-            Integer chainScore = scorer.getChainScore(opChain, context.getUser());
-            Integer maxAuthScore = scorer.getMaxUserAuthScore(context.getUser().getOpAuths());
-
-            if (chainScore > maxAuthScore) {
-                throw new UnauthorisedException("The maximum score limit for user: " +
-                        context.getUser().toString() + " is " + maxAuthScore + ".\n" +
-                        "The requested operation chain exceeded this score limit.");
-            }
-        }
+        preExecute(new GraphRequest(opChain, context));
     }
 
     @JsonIgnore

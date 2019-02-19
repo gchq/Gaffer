@@ -66,9 +66,7 @@ public class OperationAuthoriser implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        if (null != opChain) {
-            authorise(opChain, context.getUser());
-        }
+        preExecute(new GraphRequest(opChain, context));
     }
 
     /**

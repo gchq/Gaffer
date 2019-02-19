@@ -55,9 +55,7 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        if (null != opChain) {
-            resolveViews(opChain);
-        }
+        preExecute(new GraphRequest(opChain, context));
     }
 
     private void resolveViews(final Operation operation) {
