@@ -85,7 +85,8 @@ public class UpdateViewHook implements GraphHook {
                 final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
 
                 if (null != blackListElementGroups || !blackListElementGroups.isEmpty()) {
-                    for (String blacklistElementGroup : blackListElementGroups) {
+                    for (final String blacklistElementGroup :
+                            blackListElementGroups) {
                         if (((OperationView) operation).getView().getGroups().contains(blacklistElementGroup)) {
                             throw new RuntimeException("Permission denied, " +
                                     "the user cannot see this group: " + blacklistElementGroup);
