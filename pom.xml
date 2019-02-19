@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.8.0-RC5-SNAPSHOT</version>
+    <version>1.8.1-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -57,7 +57,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
-        <koryphe.version>1.6.0-RC4</koryphe.version>
+        <koryphe.version>1.6.0</koryphe.version>
         <accumulo.version>1.8.1</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
