@@ -240,7 +240,6 @@ public final class Graph {
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
-            updateOperationChainView(clonedOpChain);
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);
