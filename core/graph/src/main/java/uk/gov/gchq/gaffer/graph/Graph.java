@@ -236,10 +236,16 @@ public final class Graph {
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
         O result = null;
         try {
+            // This updates the view if empty or null in order for the
+            // updateViewHook to work (if used)
             updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
+            // This updates the view again, used for empty or null views, for
+            // example if there is a NamedOperation that has been resolved
+            // that contains an empty view
+            updateOperationChainView(clonedOpChain);
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);

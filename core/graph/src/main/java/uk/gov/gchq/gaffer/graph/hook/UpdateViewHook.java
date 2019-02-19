@@ -84,6 +84,9 @@ public class UpdateViewHook implements GraphHook {
 
                 final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
 
+                // This will stop an empty view being returned and then
+                // updated to everything. Be careful if this is modified as
+                // it could introduce a full view bug.
                 if (null != blackListElementGroups || !blackListElementGroups.isEmpty()) {
                     for (final String blacklistElementGroup :
                             blackListElementGroups) {
