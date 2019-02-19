@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
@@ -49,6 +50,22 @@ import java.util.Map;
 public class OperationChainLimiter implements GraphHook {
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
+    @Override
+    public void preExecute(final GraphRequest request) {
+        if (null != request.getOperation()) {
+            Integer chainScore =
+                    scorer.getChainScore(OperationChain.wrap(request.getOperation()),
+                            request.getContext().getUser());
+            Integer maxAuthScore = scorer.getMaxUserAuthScore(request.getContext().getUser().getOpAuths());
+
+            if (chainScore > maxAuthScore) {
+                throw new UnauthorisedException("The maximum score limit for user: " +
+                        request.getContext().getUser().toString() + " is " + maxAuthScore + ".\n" +
+                        "The requested operation chain exceeded this score limit.");
+            }
+        }
+    }
+
     /**
      * Checks the {@link OperationChain} is allowed to be executed by the user.
      * This is done by checking the user's auths against the auth scores getting the users maximum score limit value.
@@ -70,17 +87,6 @@ public class OperationChainLimiter implements GraphHook {
                         "The requested operation chain exceeded this score limit.");
             }
         }
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        // This method can be overridden to add additional authorisation checks on the results.
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     @JsonIgnore

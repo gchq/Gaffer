@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
@@ -122,24 +122,23 @@ public class GetGafferResultCacheExportHandlerTest {
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
-        final Store cacheStore = mock(Store.class);
-        TestStore.mockStore = cacheStore;
+        TestStore.mockStore = mock(Store.class);
 
         // When
         final Object handlerResult = handler.doOperation(export, context, store);
 
         // Then
         assertEquals(0, Iterables.size((Iterable) handlerResult));
-        final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(cacheStore).execute(opChain.capture(), Mockito.any());
-        assertEquals(1, opChain.getValue().getOperations().size());
-        assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
+        final ArgumentCaptor<Operation> opCaptor =
+                ArgumentCaptor.forClass(Operation.class);
+        verify(TestStore.mockStore).execute(opCaptor.capture(), Mockito.any());
+        assertTrue(opCaptor.getValue() instanceof GetElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
         assertNotNull(exporter);
     }
 
     @Test
-    public void shouldCreateCacheGraph() throws OperationException {
+    public void shouldCreateCacheGraph() {
         // Given
         final Store store = mock(Store.class);
         final long timeToLive = 10000L;

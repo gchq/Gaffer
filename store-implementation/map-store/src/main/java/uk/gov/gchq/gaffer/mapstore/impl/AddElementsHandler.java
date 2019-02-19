@@ -47,10 +47,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
 
     @Override
-    public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        Iterable<? extends Element> elements = addElements.getInput();
-        if (addElements.isValidate()) {
-            elements = new ValidatedElements(elements, store.getSchema(), addElements.isSkipInvalidElements());
+    public Void doOperation(final AddElements operation, final Context context, final Store store) throws OperationException {
+        Iterable<? extends Element> elements = operation.getInput();
+        if (operation.isValidate()) {
+            elements = new ValidatedElements(elements, store.getSchema(), operation.isSkipInvalidElements());
         }
 
         addElements(elements, (MapStore) store);

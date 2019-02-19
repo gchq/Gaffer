@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.user.User;
  * @param <O> the result type of the request.
  */
 public class GraphRequest<O> {
-    private final OperationChain<O> operationChain;
+    private Operation operation;
     private final Context context;
 
     public GraphRequest(final Operation operation, final User user) {
@@ -44,7 +44,7 @@ public class GraphRequest<O> {
         if (null == user) {
             throw new IllegalArgumentException("A user is required");
         }
-        this.operationChain = (OperationChain) OperationChain.wrap(operation);
+        this.operation = operation;
         this.context = new Context(user);
     }
 
@@ -55,7 +55,7 @@ public class GraphRequest<O> {
         if (null == user) {
             throw new IllegalArgumentException("A user is required");
         }
-        this.operationChain = OperationChain.wrap(operation);
+        this.operation = operation;
         this.context = new Context(user);
     }
 
@@ -66,7 +66,7 @@ public class GraphRequest<O> {
         if (null == context) {
             throw new IllegalArgumentException("A context containing a user is required");
         }
-        this.operationChain = (OperationChain) OperationChain.wrap(operation);
+        this.operation = operation;
         this.context = context;
     }
 
@@ -78,16 +78,32 @@ public class GraphRequest<O> {
         if (null == context) {
             throw new IllegalArgumentException("A context containing a user is required");
         }
-        this.operationChain = OperationChain.wrap(operation);
+        this.operation = operation;
         this.context = context;
     }
 
+    /**
+     * @return the OperationChain stored within the GraphRequest
+     * @deprecated Use getOperation instead.
+     */
     public OperationChain<O> getOperationChain() {
-        return operationChain;
+        return (OperationChain<O>) operation;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(final Operation operation) {
+        this.operation = operation;
     }
 
     public Context getContext() {
         return context;
+    }
+
+    public GraphRequest<O> fullClone() {
+        return new GraphRequest(operation.shallowClone(), context.shallowClone());
     }
 
     @Override
@@ -103,7 +119,7 @@ public class GraphRequest<O> {
         final GraphRequest<?> that = (GraphRequest<?>) o;
 
         return new EqualsBuilder()
-                .append(operationChain, that.operationChain)
+                .append(operation, that.operation)
                 .append(context, that.context)
                 .isEquals();
     }
@@ -111,7 +127,7 @@ public class GraphRequest<O> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(operationChain)
+                .append(operation)
                 .append(context)
                 .toHashCode();
     }
@@ -119,7 +135,7 @@ public class GraphRequest<O> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("operationChain", operationChain)
+                .append("operation", operation)
                 .append("context", context)
                 .toString();
     }

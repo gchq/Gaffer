@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 
@@ -30,6 +31,12 @@ import uk.gov.gchq.gaffer.store.Context;
 @JsonPropertyOrder(alphabetic = true)
 public class Log4jLogger implements GraphHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(Log4jLogger.class);
+
+    @Override
+    public void preExecute(final GraphRequest request) {
+        LOGGER.info("Running {} as {}", request.getContext().getOriginalOperation(),
+                request.getContext().getUser().getUserId());
+    }
 
     /**
      * Logs the operation chain and the user id.
@@ -43,8 +50,11 @@ public class Log4jLogger implements GraphHook {
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> operationChain, final Context context) {
-        // No logging required.
+    public <T> T onFailure(final T result, final GraphRequest request,
+                           final Exception e) {
+        LOGGER.warn("Failed to run {} as {}",
+                request.getContext().getOriginalOperation(),
+                request.getContext().getUser().getUserId());
         return result;
     }
 

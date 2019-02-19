@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -82,7 +81,7 @@ import java.util.stream.Collectors;
  * transient properties such as averages.
  * </p>
  * <p>
- * When executing operations on a graph, an operation view would override the
+ * When executing operations on a graph, an operation view will override the
  * graph view.
  * </p>
  *
@@ -169,7 +168,8 @@ public final class Graph {
     }
 
     /**
-     * Exeutes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
+     * Executes a {@link GraphRequest} on the graph and returns the
+     * {@link GraphResult}.
      *
      * @param request the request to execute
      * @param <O>     the result type
@@ -230,63 +230,66 @@ public final class Graph {
             throw new IllegalArgumentException("A context is required");
         }
 
-        request.getContext().setOriginalOpChain(request.getOperationChain());
+        request.getContext().setOriginalOperation(request.getOperation());
 
-        final Context clonedContext = request.getContext().shallowClone();
-        final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
+        final GraphRequest clonedRequest = request.fullClone();
         O result = null;
         try {
-            updateOperationChainView(clonedOpChain);
+            updateOperationView(clonedRequest.getOperation());
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, clonedContext);
+                graphHook.preExecute(clonedRequest);
             }
-            updateOperationChainView(clonedOpChain);
-            result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
+            updateOperationView(clonedRequest.getOperation());
+            result = (O) storeExecuter.execute(clonedRequest.getOperation(),
+                    clonedRequest.getContext());
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, clonedContext);
+                result = graphHook.postExecute(result,
+                        clonedRequest);
             }
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
-                    result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
+                    result = graphHook.onFailure(result,
+                            clonedRequest, e);
                 } catch (final Exception graphHookE) {
                     LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
                 }
             }
-            CloseableUtil.close(clonedOpChain);
+            CloseableUtil.close(clonedRequest.getOperation());
             CloseableUtil.close(result);
             throw e;
         }
-        return new GraphResult<>(result, clonedContext);
+        return new GraphResult<>(result, clonedRequest.getContext());
     }
 
-    private void updateOperationChainView(final Operations<?> operations) {
-        for (final Operation operation : operations.getOperations()) {
-            if (operation instanceof Operations) {
-                updateOperationChainView((Operations) operation);
-            } else if (operation instanceof OperationView) {
-                View opView = ((OperationView) operation).getView();
-                if (null == opView) {
-                    opView = config.getView();
-                } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(opView)
-                            .build();
-                } else if (opView.isAllEdges() || opView.isAllEntities()) {
-                    View.Builder opViewBuilder = new View.Builder()
-                            .merge(opView);
-                    if (opView.isAllEdges()) {
-                        opViewBuilder.edges(getSchema().getEdgeGroups());
-                    }
-                    if (opView.isAllEntities()) {
-                        opViewBuilder.entities(getSchema().getEntityGroups());
-                    }
-                    opView = opViewBuilder.build();
-                }
-                opView.expandGlobalDefinitions();
-                ((OperationView) operation).setView(opView);
+    private void updateOperationView(final Operation operation) {
+        if (operation instanceof Operations) {
+            final Operations<?> ops = (Operations<?>) operation;
+            for (final Operation op : ops.getOperations()) {
+                updateOperationView(op);
             }
+        } else if (operation instanceof OperationView) {
+            View opView = ((OperationView) operation).getView();
+            if (null == opView) {
+                opView = config.getView();
+            } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
+                opView = new View.Builder()
+                        .merge(config.getView())
+                        .merge(opView)
+                        .build();
+            } else if (opView.isAllEdges() || opView.isAllEntities()) {
+                View.Builder opViewBuilder = new View.Builder()
+                        .merge(opView);
+                if (opView.isAllEdges()) {
+                    opViewBuilder.edges(getSchema().getEdgeGroups());
+                }
+                if (opView.isAllEntities()) {
+                    opViewBuilder.entities(getSchema().getEntityGroups());
+                }
+                opView = opViewBuilder.build();
+            }
+            opView.expandGlobalDefinitions();
+            ((OperationView) operation).setView(opView);
         }
     }
 
@@ -388,7 +391,7 @@ public final class Graph {
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
-        O execute(final OperationChain<O> operation, final Context context) throws OperationException;
+        O execute(final Operation operation, final Context context) throws OperationException;
     }
 
     /**

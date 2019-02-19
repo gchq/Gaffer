@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
 public class GetElementsHandler
-        implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+        implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>>, GraphOperationValidation<GetElements> {
 
     @Override
     public CloseableIterable<Element> doOperation(final GetElements operation,

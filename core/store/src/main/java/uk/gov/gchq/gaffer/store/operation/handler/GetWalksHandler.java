@@ -90,22 +90,22 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
     private boolean prune = true;
 
     @Override
-    public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
+    public Iterable<Walk> doOperation(final GetWalks operation, final Context context, final Store store) throws OperationException {
         // Check input
-        if (null == getWalks.getInput()) {
+        if (null == operation.getInput()) {
             return null;
         }
 
         // Check there are some operations
-        if (null == getWalks.getOperations()) {
+        if (null == operation.getOperations()) {
             return new EmptyClosableIterable<>();
         }
 
-        final Integer resultLimit = getWalks.getResultsLimit();
-        final int hops = getWalks.getNumberOfGetEdgeOperations();
+        final Integer resultLimit = operation.getResultsLimit();
+        final int hops = operation.getNumberOfGetEdgeOperations();
 
 
-        final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false);
+        final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(operation.getInput(), 0, resultLimit, false);
         final List<EntityId> originalInput = Lists.newArrayList(limitedInputItr);
 
         // Check hops and maxHops (if set)
@@ -121,15 +121,16 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         List<?> seeds = originalInput;
 
         // Execute the operations
-        for (final OperationChain<Iterable<Element>> operation : getWalks.getOperations()) {
-            if (isWhileOperation(operation)) {
+        for (final OperationChain<Iterable<Element>> op :
+                operation.getOperations()) {
+            if (isWhileOperation(op)) {
                 seeds = executeWhileOperation(
-                        operation, seeds, resultLimit,
+                        op, seeds, resultLimit,
                         context, store, hops, adjacencyMaps, entityMaps
                 );
             } else {
                 seeds = executeOperation(
-                        operation, seeds, resultLimit,
+                        op, seeds, resultLimit,
                         context, store, hops, adjacencyMaps, entityMaps
                 );
             }

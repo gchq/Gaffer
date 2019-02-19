@@ -73,7 +73,7 @@ public class NamedViewResolverTest {
             .build();
 
     @Test
-    public void shouldResolveNamedView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
 
@@ -94,7 +94,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
@@ -118,7 +118,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
@@ -144,7 +144,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException {
         // Given
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).entity(TestGroups.ENTITY_2).build();
         final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).view(new View.Builder().entity(TestGroups.ENTITY_2).build()).build();

@@ -22,11 +22,12 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Set;
 
-public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>>, GraphOperationValidation<GetTraits> {
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
         return ((FederatedStore) store).getTraits(operation, context);

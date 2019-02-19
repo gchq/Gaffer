@@ -51,6 +51,7 @@ public class OperationChainHandlerTest {
     public void shouldHandleOperationChain() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
+
         final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
@@ -85,6 +86,7 @@ public class OperationChainHandlerTest {
     public void shouldHandleNonInputOperation() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
+
         final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);
@@ -116,6 +118,7 @@ public class OperationChainHandlerTest {
     public void shouldHandleNestedOperationChain() throws OperationException {
         // Given
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
+
         final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
 
         final OperationChainHandler opChainHandler = new OperationChainHandler(opChainValidator, opChainOptimisers);

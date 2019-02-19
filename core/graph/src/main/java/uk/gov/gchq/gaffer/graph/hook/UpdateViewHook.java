@@ -20,8 +20,10 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
@@ -36,7 +38,8 @@ import java.util.Set;
  * and it can also be used to remove element groups out of a view.
  * This hook will have no effect with operations that do not correctly implement {@link OperationView}
  * therefore <b>THIS HOOK SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING OF ELEMENTS</b>.
- * Instead please make use of the visibility property ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
+ * Instead please make use of the visibility property
+ * ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
  * <p>
  * All fields are Optional:
  * <ul>
@@ -71,35 +74,47 @@ public class UpdateViewHook implements GraphHook {
     private boolean addExtraGroups = ADD_EXTRA_GROUPS_DEFAULT;
 
     @Override
+    public void preExecute(final GraphRequest request) {
+        if (applyToUser(request.getContext().getUser())) {
+            updateView(request.getOperation());
+        }
+    }
+
+    @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         if (applyToUser(context.getUser())) {
             updateView(opChain);
         }
     }
 
-    private void updateView(final OperationChain<?> opChain) {
-        for (final Operation operation : opChain.flatten()) {
-            if (operation instanceof OperationView) {
-                final OperationView operationView = (OperationView) operation;
-
-                final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
-                if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
-                        || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
-                    viewBuilder.removeEntities(this::removeElementGroups);
-                    viewBuilder.removeEdges(this::removeElementGroups);
-                }
-
-                if (!addExtraGroups && null != operationView.getView()) {
-                    final Set<String> entityGroups = operationView.getView().getEntityGroups();
-                    viewBuilder.removeEntities(grp -> null == entityGroups || !entityGroups.contains(grp.getKey()));
-
-                    final Set<String> edgeGroups = operationView.getView().getEdgeGroups();
-                    viewBuilder.removeEdges(grp -> null == edgeGroups || !edgeGroups.contains(grp.getKey()));
-                }
-
-                viewBuilder.expandGlobalDefinitions();
-                operationView.setView(viewBuilder.build());
+    private void updateView(final Operation operation) {
+        if (operation instanceof Operations) {
+            for (final Operation op :
+                    ((Operations<?>) operation).getOperations()) {
+                updateView(op);
             }
+        }
+
+        if (operation instanceof OperationView) {
+            final OperationView operationView = (OperationView) operation;
+
+            final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
+            if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
+                    || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
+                viewBuilder.removeEntities(this::removeElementGroups);
+                viewBuilder.removeEdges(this::removeElementGroups);
+            }
+
+            if (!addExtraGroups && null != operationView.getView()) {
+                final Set<String> entityGroups = operationView.getView().getEntityGroups();
+                viewBuilder.removeEntities(grp -> null == entityGroups || !entityGroups.contains(grp.getKey()));
+
+                final Set<String> edgeGroups = operationView.getView().getEdgeGroups();
+                viewBuilder.removeEdges(grp -> null == edgeGroups || !edgeGroups.contains(grp.getKey()));
+            }
+
+            viewBuilder.expandGlobalDefinitions();
+            operationView.setView(viewBuilder.build());
         }
     }
 
@@ -162,16 +177,6 @@ public class UpdateViewHook implements GraphHook {
             }
         }
         return rtn;
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     public Set<String> getWithOpAuth() {

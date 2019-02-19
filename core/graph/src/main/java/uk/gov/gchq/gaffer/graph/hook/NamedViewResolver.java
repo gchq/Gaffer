@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -46,29 +47,29 @@ public class NamedViewResolver implements GraphHook {
     }
 
     @Override
+    public void preExecute(final GraphRequest request) {
+        if (null != request.getOperation()) {
+            resolveViews(request.getOperation());
+        }
+    }
+
+    @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveViews(opChain);
+        if (null != opChain) {
+            resolveViews(opChain);
+        }
     }
 
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
-    }
-
-    private void resolveViews(final Operations<?> operations) {
-        for (final Operation operation : operations.getOperations()) {
-            if (operation instanceof OperationView) {
-                final OperationView opView = ((OperationView) operation);
-                if (opView.getView() instanceof NamedView) {
-                    opView.setView(resolveView((NamedView) opView.getView()));
-                }
-            } else if (operation instanceof Operations) {
-                resolveViews((Operations<?>) operation);
+    private void resolveViews(final Operation operation) {
+        if (operation instanceof Operations) {
+            for (final Operation op : ((Operations<?>) operation).getOperations()) {
+                resolveViews(op);
+            }
+        }
+        if (operation instanceof OperationView) {
+            final OperationView opView = ((OperationView) operation);
+            if (opView.getView() instanceof NamedView) {
+                opView.setView(resolveView((NamedView) opView.getView()));
             }
         }
     }
@@ -91,7 +92,8 @@ public class NamedViewResolver implements GraphHook {
                 .build();
     }
 
-    private View resolveView(final String namedViewName, final Map<String, Object> parameters) {
+    private View resolveView(final String namedViewName,
+                             final Map<String, Object> parameters) {
         final NamedViewDetail cachedNamedView;
         try {
             cachedNamedView = cache.getNamedView(namedViewName);
@@ -116,7 +118,6 @@ public class NamedViewResolver implements GraphHook {
                 }
             }
         }
-
         return resolvedView;
     }
 }

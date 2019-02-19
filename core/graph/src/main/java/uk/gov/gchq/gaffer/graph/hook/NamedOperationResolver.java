@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -46,18 +47,16 @@ public class NamedOperationResolver implements GraphHook {
     }
 
     @Override
+    public void preExecute(final GraphRequest request) {
+        OperationChain opAsChain = OperationChain.wrap(request.getOperation());
+        resolveNamedOperations(opAsChain,
+                request.getContext().getUser());
+        request.setOperation(opAsChain);
+    }
+
+    @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         resolveNamedOperations(opChain, context.getUser());
-    }
-
-    @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-        return result;
-    }
-
-    @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        return result;
     }
 
     private void resolveNamedOperations(final Operations<?> operations, final User user) {
@@ -99,7 +98,8 @@ public class NamedOperationResolver implements GraphHook {
      * @param opChain the resolved operation chain
      * @param input   the input of the NamedOperation
      */
-    private void updateOperationInput(final OperationChain<?> opChain, final Object input) {
+    private void updateOperationInput(final OperationChain<?> opChain,
+                                      final Object input) {
         final Operation firstOp = opChain.getOperations().get(0);
         if (null != input && (firstOp instanceof Input) && null == ((Input) firstOp).getInput()) {
             ((Input) firstOp).setInput(input);

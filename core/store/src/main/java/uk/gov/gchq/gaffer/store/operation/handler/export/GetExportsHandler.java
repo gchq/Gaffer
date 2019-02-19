@@ -34,9 +34,9 @@ import java.util.Map;
  */
 public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
     @Override
-    public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
+    public Map<String, CloseableIterable<?>> doOperation(final GetExports operation, final Context context, final Store store) throws OperationException {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
-        for (final GetExport getExport : getExports.getGetExports()) {
+        for (final GetExport getExport : operation.getGetExports()) {
             final CloseableIterable<?> export = (CloseableIterable<?>) store.execute(new OperationChain((Operation) getExport), context);
             exports.put(getExport.getClass().getName() + ": " + getExport.getKeyOrDefault(), export);
         }

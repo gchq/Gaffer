@@ -21,7 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -30,7 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
@@ -48,14 +46,13 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
@@ -122,7 +119,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldCreateExporter() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, OperationException {
+    public void shouldCreateExporter() throws OperationException {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         final Context context = mock(Context.class);
@@ -142,11 +139,10 @@ public class ExportToOtherGraphHandlerTest {
         TestStore.mockStore = mock(Store.class);
         final Iterable elements = mock(Iterable.class);
         exporter.add("key", elements);
-        final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.any(Context.class));
-        final List<Operation> ops = opChainCaptor.getValue().getOperations();
-        assertEquals(1, ops.size());
-        assertSame(elements, ((AddElements) ops.get(0)).getInput());
+        final ArgumentCaptor<Operation> opCaptor =
+                ArgumentCaptor.forClass(Operation.class);
+        verify(TestStore.mockStore).execute(opCaptor.capture(), any());
+        assertSame(elements, ((AddElements) opCaptor.getValue()).getInput());
 
         try {
             exporter.get("key");

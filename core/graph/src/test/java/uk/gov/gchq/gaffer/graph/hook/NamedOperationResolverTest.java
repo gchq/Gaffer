@@ -53,7 +53,7 @@ public class NamedOperationResolverTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void shouldResolveNamedOperation() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNamedOperation() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -91,7 +91,7 @@ public class NamedOperationResolverTest {
     }
 
     @Test
-    public void shouldResolveNestedNamedOperation() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNestedNamedOperation() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -105,11 +105,9 @@ public class NamedOperationResolverTest {
         final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
         final Iterable<?> input = mock(CloseableIterable.class);
 
-        final Map<String, Object> params = null;
-
         given(op1.getInput()).willReturn(null);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOperationOpChain);
+        given(extendedNamedOperation.getOperationChain(null)).willReturn(namedOperationOpChain);
 
         final OperationChain<Object> opChain = new OperationChain.Builder()
                 .first(new OperationChain.Builder()
