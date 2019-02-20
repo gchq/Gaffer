@@ -18,11 +18,24 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.ValidationResult;
 
+/**
+ * The OperationValidation interface if implemented will get the
+ * operationValidator from the Store and validate each Operation as its run.
+ *
+ * @param <OP> The Operation class
+ */
 public interface OperationValidation<OP extends Operation> {
 
     default OP prepareOperation(final OP operation, final Context context,
                                 final Store store) {
+        final OperationValidator opValidator = store.getOperationValidator();
+        final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+                    .getErrorString());
+        }
         return operation;
     }
 }

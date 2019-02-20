@@ -21,10 +21,10 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<GetAllGraphIds, Iterable<? extends String>>, GraphOperationValidation<GetAllGraphIds> {
+public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<GetAllGraphIds, Iterable<? extends String>>, OperationValidation<GetAllGraphIds> {
 
     @Override
     public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {

@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.ParquetElementRetriever;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -37,7 +37,7 @@ import java.util.Iterator;
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link ParquetStore}.
  */
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>>,
-        GraphOperationValidation<GetElements> {
+        OperationValidation<GetElements> {
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,

@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
  * operation by merging federated schemas.
  */
-public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema>, GraphOperationValidation<GetSchema> {
+public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema>, OperationValidation<GetSchema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         if (null == operation) {

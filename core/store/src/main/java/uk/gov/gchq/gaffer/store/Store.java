@@ -191,7 +191,7 @@ public abstract class Store {
     private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
-    protected final OperationValidator opChainValidator;
+    protected final OperationValidator opValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
 
@@ -224,7 +224,7 @@ public abstract class Store {
     public Store(final Boolean addCoreOpHandlers) {
         this.addCoreOpHandlers = addCoreOpHandlers;
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
-        this.opChainValidator = createOperationChainValidator();
+        this.opValidator = createOperationValidator();
         this.schemaOptimiser = createSchemaOptimiser();
     }
 
@@ -648,12 +648,28 @@ public abstract class Store {
         return new SchemaOptimiser();
     }
 
+    /**
+     * @return the created OperationValidator
+     * @deprecated use createOperationValidator()
+     */
     protected OperationValidator createOperationChainValidator() {
         return new OperationChainValidator(new ViewValidator());
     }
 
+    protected OperationValidator createOperationValidator() {
+        return new OperationValidator(new ViewValidator());
+    }
+
+    /**
+     * @return the OperationValidator
+     * @deprecated use getOperationValidator()
+     */
     public OperationValidator getOperationChainValidator() {
-        return opChainValidator;
+        return opValidator;
+    }
+
+    public OperationValidator getOperationValidator() {
+        return opValidator;
     }
 
     /**

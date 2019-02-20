@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 
 /**
  * A handler for GetAllElements operation for the FederatedStore.
@@ -28,5 +28,5 @@ import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAllElements
  */
-public class FederatedGetAllElementsHandler extends FederatedOperationIterableHandler<GetAllElements, CloseableIterable<? extends Element>> implements GraphOperationValidation<GetAllElements> {
+public class FederatedGetAllElementsHandler extends FederatedOperationIterableHandler<GetAllElements, CloseableIterable<? extends Element>> implements OperationValidation<GetAllElements> {
 }

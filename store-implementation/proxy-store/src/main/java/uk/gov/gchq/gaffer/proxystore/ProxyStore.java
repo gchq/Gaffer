@@ -63,9 +63,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-
 import java.io.UnsupportedEncodingException;
-
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -282,8 +280,10 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(OperationChain.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
-        addOperationHandler(OperationChainDAO.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
+        addOperationHandler(OperationChain.class,
+                new OperationChainHandler(getOperationValidator(), opChainOptimisers));
+        addOperationHandler(OperationChainDAO.class,
+                new OperationChainHandler(getOperationValidator(), opChainOptimisers));
     }
 
     @Override
@@ -322,7 +322,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(getOperationValidator(), opChainOptimisers);
     }
 
     protected Client createClient() {

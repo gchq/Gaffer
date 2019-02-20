@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
+import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 
 /**
  * A handler for GetAdjacentIds operation for the FederatedStore.
@@ -28,5 +28,5 @@ import uk.gov.gchq.gaffer.store.operation.GraphOperationValidation;
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds
  */
-public class FederatedGetAdjacentIdsHandler extends FederatedOperationIterableHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> implements GraphOperationValidation<GetAdjacentIds> {
+public class FederatedGetAdjacentIdsHandler extends FederatedOperationIterableHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> implements OperationValidation<GetAdjacentIds> {
 }
