@@ -143,6 +143,7 @@ public class GraphTest {
         given(clonedContext.getUser()).willReturn(user);
 
         operation = mock(GetElements.class);
+        given(operation.getView()).willReturn(new View.Builder().edge(TestGroups.EDGE).build());
         opChain = mock(OperationChain.class);
         clonedOpChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
