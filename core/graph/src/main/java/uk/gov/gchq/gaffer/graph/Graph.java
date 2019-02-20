@@ -251,7 +251,7 @@ public final class Graph {
             // new instance
             UpdateViewHook hookInstance = null;
             for (final GraphHook graphHook : config.getHooks()) {
-                if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
                     hookInstance = (UpdateViewHook) graphHook;
                 }
             }
