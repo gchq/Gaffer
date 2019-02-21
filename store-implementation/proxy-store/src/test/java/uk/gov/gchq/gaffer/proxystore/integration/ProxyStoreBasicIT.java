@@ -238,4 +238,13 @@ public class ProxyStoreBasicIT {
                 .build();
         graph.execute(add, USER);
     }
+
+    @Test
+    public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
+        final AddElements add = new AddElements.Builder()
+                .input(DEFAULT_ELEMENTS)
+                .option("Anything","Value") //any value to create a optionsMap
+                .build();
+        graph.execute(add, USER);
+    }
 }
