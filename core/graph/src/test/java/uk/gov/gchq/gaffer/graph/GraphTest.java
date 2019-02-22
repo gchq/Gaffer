@@ -143,7 +143,6 @@ public class GraphTest {
         given(clonedContext.getUser()).willReturn(user);
 
         operation = mock(GetElements.class);
-        given(operation.getView()).willReturn(new View.Builder().edge(TestGroups.EDGE).build());
         opChain = mock(OperationChain.class);
         clonedOpChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
@@ -462,6 +461,7 @@ public class GraphTest {
         inOrder.verify(operation).setView(Mockito.any(View.class));
         inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
+        inOrder.verify(operation).setView(Mockito.any(View.class));
         verify(context).setOriginalOpChain(opChain);
     }
 
@@ -493,6 +493,7 @@ public class GraphTest {
         inOrder.verify(operation).setView(Mockito.any(View.class));
         inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
+        inOrder.verify(operation).setView(Mockito.any(View.class));
         verify(context).setOriginalOpChain(opChain);
     }
 

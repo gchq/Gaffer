@@ -261,13 +261,6 @@ public final class Graph {
             } else {
                 hookInstance.preExecute(clonedOpChain, clonedContext);
             }
-            for (Operation op : (List<Operation>) clonedOpChain.getOperations()) {
-                if (op instanceof OperationView) {
-                    if (null == ((OperationView) op).getView() || !((OperationView) op).getView().hasGroups()) {
-                        throw new RuntimeException("View is null or empty");
-                    }
-                }
-            }
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);

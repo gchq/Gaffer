@@ -83,7 +83,6 @@ public class UpdateViewHook implements GraphHook {
                 final OperationView operationView = (OperationView) operation;
 
                 final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
-
                 if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
                         || (null != blackListElementGroups && !blackListElementGroups.isEmpty())) {
                     viewBuilder.removeEntities(this::removeElementGroups);
