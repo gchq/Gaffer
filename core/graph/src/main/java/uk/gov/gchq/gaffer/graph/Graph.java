@@ -253,6 +253,7 @@ public final class Graph {
             for (final GraphHook graphHook : config.getHooks()) {
                 if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
                     hookInstance = (UpdateViewHook) graphHook;
+                    break;
                 }
             }
             if (null == hookInstance) {
