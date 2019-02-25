@@ -33,7 +33,7 @@ public interface OperationValidation<OP extends Operation> {
         final OperationValidator opValidator = store.getOperationValidator();
         final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
         if (!validationResult.isValid()) {
-            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+            throw new IllegalArgumentException("Operation is invalid. " + validationResult
                     .getErrorString());
         }
         return operation;

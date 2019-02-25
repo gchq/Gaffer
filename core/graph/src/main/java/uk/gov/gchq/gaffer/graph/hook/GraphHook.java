@@ -49,6 +49,7 @@ public interface GraphHook {
      * is executed.
      */
     default void preExecute(final OperationChain<?> opChain, final Context context) {
+        preExecute(new GraphRequest(opChain, context));
     }
 
     default void preExecute(final GraphRequest request) {
@@ -67,7 +68,7 @@ public interface GraphHook {
     default <T> T postExecute(final T result,
                               final OperationChain<?> opChain,
                               final Context context) {
-        return result;
+        return postExecute(result, new GraphRequest(opChain, context));
     }
 
     default <T> T postExecute(final T result,
@@ -90,7 +91,7 @@ public interface GraphHook {
                             final OperationChain<?> opChain,
                             final Context context,
                             final Exception e) {
-        return result;
+        return onFailure(result, new GraphRequest(opChain, context), e);
     }
 
     default <T> T onFailure(final T result,

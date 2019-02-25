@@ -50,6 +50,14 @@ import java.util.Map;
 public class OperationChainLimiter implements GraphHook {
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
+    /**
+     * Checks the {@link OperationChain} is allowed to be executed by the user.
+     * This is done by checking the user's auths against the auth scores getting the users maximum score limit value.
+     * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
+     * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
+     *
+     * @param request GraphRequest containing the Operation and Context
+     */
     @Override
     public void preExecute(final GraphRequest request) {
         if (null != request.getOperation()) {
@@ -66,15 +74,6 @@ public class OperationChainLimiter implements GraphHook {
         }
     }
 
-    /**
-     * Checks the {@link OperationChain} is allowed to be executed by the user.
-     * This is done by checking the user's auths against the auth scores getting the users maximum score limit value.
-     * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
-     * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
-     *
-     * @param context the Context containing the user to authorise.
-     * @param opChain the operation chain.
-     */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
         preExecute(new GraphRequest(opChain, context));

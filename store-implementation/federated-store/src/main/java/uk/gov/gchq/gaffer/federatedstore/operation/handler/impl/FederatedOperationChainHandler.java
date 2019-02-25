@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
-import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,18 +64,6 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
             }
         }
         return mergeResults(results, operation, context, store);
-    }
-
-    @Override
-    public FederatedOperationChain<I, O_ITEM> prepareOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context,
-                                                               final Store store) {
-        final ValidationResult validationResult = store.getOperationChainValidator().validate(operation,
-                context.getUser(), store);
-        if (!validationResult.isValid()) {
-            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
-                    .getErrorString());
-        }
-        return operation;
     }
 
     protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {

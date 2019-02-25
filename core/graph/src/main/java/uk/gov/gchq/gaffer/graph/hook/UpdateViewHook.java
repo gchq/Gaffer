@@ -22,10 +22,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map.Entry;
@@ -78,11 +76,6 @@ public class UpdateViewHook implements GraphHook {
         if (applyToUser(request.getContext().getUser())) {
             updateView(request.getOperation());
         }
-    }
-
-    @Override
-    public void preExecute(final OperationChain<?> opChain, final Context context) {
-        preExecute(new GraphRequest(opChain, context));
     }
 
     private void updateView(final Operation operation) {

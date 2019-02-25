@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -40,7 +41,7 @@ import static java.util.Objects.nonNull;
  * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
  * the merged schema based on the user context and operation options.
  */
-public class FederatedOperationChainValidator extends OperationChainValidator {
+public class FederatedOperationChainValidator extends OperationValidator {
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }

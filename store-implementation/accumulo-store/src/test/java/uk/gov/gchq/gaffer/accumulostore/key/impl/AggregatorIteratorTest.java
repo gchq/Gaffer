@@ -17,9 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import com.google.common.collect.Lists;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -40,7 +37,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -77,7 +73,7 @@ public class AggregatorIteratorTest {
     private static AccumuloStore gaffer1KeyStore;
 
     @BeforeClass
-    public static void setup() throws IOException, StoreException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
@@ -89,7 +85,7 @@ public class AggregatorIteratorTest {
     }
 
     @Before
-    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+    public void reInitialise() throws StoreException {
         byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
     }
@@ -167,18 +163,15 @@ public class AggregatorIteratorTest {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results =
-                store.execute(get,
-                        new Context(user));
-
-        List resultsList = Lists.newArrayList(results);
+        final List<? extends Element> results =
+                Lists.newArrayList((Iterable<? extends Element>) store.execute(get, new Context(user)));
 
         // Then
-        assertEquals(1, resultsList.size());
+        assertEquals(1, results.size());
 
-        final Edge aggregatedEdge = (Edge) resultsList.get(0);
+        final Edge aggregatedEdge = (Edge) results.get(0);
         assertEquals(expectedResult, aggregatedEdge);
-        assertEquals(expectedResult.getProperties(),aggregatedEdge.getProperties());
+        assertEquals(expectedResult.getProperties(), aggregatedEdge.getProperties());
     }
 
     @Test

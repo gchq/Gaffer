@@ -25,9 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -48,25 +46,18 @@ public class OperationAuthoriser implements GraphHook {
     private final Set<String> allAuths = new HashSet<>();
     private final Map<Class<?>, Set<String>> auths = new HashMap<>();
 
+    /**
+     * Checks the {@link Operation} is allowed to be executed by the user.
+     * This is done by checking the user's auths against the operation auths.
+     * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
+     *
+     * @param request GraphRequest containing the Operation and Context
+     */
     @Override
     public void preExecute(final GraphRequest request) {
         if (null != request.getOperation()) {
             authorise(request.getOperation(), request.getContext().getUser());
         }
-    }
-
-    /**
-     * Checks the {@link Operation}s in the provided {@link OperationChain}
-     * are allowed to be executed by the user.
-     * This is done by checking the user's auths against the operation auths.
-     * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
-     *
-     * @param context the user to authorise.
-     * @param opChain the operation chain.
-     */
-    @Override
-    public void preExecute(final OperationChain<?> opChain, final Context context) {
-        preExecute(new GraphRequest(opChain, context));
     }
 
     /**

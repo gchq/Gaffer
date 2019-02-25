@@ -41,23 +41,17 @@ public class AddOperationsToChain implements GraphHook {
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
     private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
 
+    /**
+     * Adds in the additional Operations specified.  The original opChain will
+     * be updated.
+     *
+     * @param request GraphRequest containing the Operation and Context
+     */
     @Override
     public void preExecute(final GraphRequest request) {
         OperationChain opAsChain = OperationChain.wrap(request.getOperation());
         preExecuteAsOperationChain(opAsChain, request.getContext());
         request.setOperation(opAsChain);
-    }
-
-    /**
-     * Adds in the additional Operations specified.  The original opChain will
-     * be updated.
-     *
-     * @param opChain the {@link OperationChain} being executed.
-     * @param context the {@link Context} executing the operation chain
-     */
-    @Override
-    public void preExecute(final OperationChain<?> opChain, final Context context) {
-        preExecute(new GraphRequest(opChain, context));
     }
 
     public List<Operation> getStart() {
