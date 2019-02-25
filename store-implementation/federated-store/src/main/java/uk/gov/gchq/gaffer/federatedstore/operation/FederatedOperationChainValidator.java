@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -41,7 +40,7 @@ import static java.util.Objects.nonNull;
  * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
  * the merged schema based on the user context and operation options.
  */
-public class FederatedOperationChainValidator extends OperationValidator {
+public class FederatedOperationChainValidator extends OperationChainValidator {
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }
@@ -98,7 +97,7 @@ public class FederatedOperationChainValidator extends OperationValidator {
 
     /**
      * Return a clone of the given operations with a deep clone of options.
-     *
+     * <p>
      * Because op.shallowClone() is used it can't be guaranteed that original options won't be modified.
      * So a deep clone of the options is made for the shallow clone of the operation.
      *
