@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -70,6 +71,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -353,6 +355,11 @@ public class FederatedStore extends Store {
     @Override
     protected OperationChainValidator createOperationChainValidator() {
         return new FederatedOperationChainValidator(new FederatedViewValidator());
+    }
+
+    @Override
+    protected OperationValidator createOperationValidator() {
+        return new FederatedOperationValidator(new FederatedViewValidator());
     }
 
     @Override

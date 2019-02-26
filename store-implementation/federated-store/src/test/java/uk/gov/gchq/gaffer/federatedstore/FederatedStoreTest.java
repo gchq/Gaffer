@@ -1365,9 +1365,8 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Failed to execute GetAllElements on graph graphA.\n" +
-                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
-                    " Error: Operation is invalid. Validation errors: \n" +
+            assertEquals("Operation is invalid. Validation errors: \n" +
+                    "View is not valid for graphIds:[graphA]\n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityB does not exist in the schema", e.getMessage());
         }
@@ -1378,9 +1377,8 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Failed to execute GetAllElements on graph graphB.\n" +
-                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
-                    " Error: Operation is invalid. Validation errors: \n" +
+            assertEquals("Operation is invalid. Validation errors: \n" +
+                    "View is not valid for graphIds:[graphB]\n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityA does not exist in the schema", e.getMessage());
         }
@@ -1393,9 +1391,8 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Failed to execute GetAllElements on graph graphB.\n" +
-                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
-                    " Error: Operation is invalid. Validation errors: \n" +
+            assertEquals("Operation is invalid. Validation errors: \n" +
+                    "View is not valid for graphIds:[graphB,graphC]\n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityA does not exist in the schema", e.getMessage());
         }
