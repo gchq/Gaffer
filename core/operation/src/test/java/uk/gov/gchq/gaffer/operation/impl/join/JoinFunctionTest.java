@@ -46,7 +46,7 @@ public abstract class JoinFunctionTest {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT);
+        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch());
 
         assertEquals(getExpectedLeftKeyResults().size(), ((List) result).size());
         assertTrue(((List) result).containsAll(getExpectedLeftKeyResults()));
@@ -58,7 +58,7 @@ public abstract class JoinFunctionTest {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT);
+        Iterable result = getJoinFunction().join(rightInput, leftInput, new ElementMatch());
 
         assertEquals(getExpectedRightKeyResults().size(), ((List)result).size());
         assertTrue(((List) result).containsAll(getExpectedRightKeyResults()));

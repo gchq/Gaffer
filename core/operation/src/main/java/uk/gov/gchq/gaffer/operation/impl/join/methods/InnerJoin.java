@@ -24,15 +24,21 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@code InnerJoin} is a join function which returns matched items from an iterable and list.
+ */
 public class InnerJoin implements JoinFunction {
     @Override
-    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
+    public List join(final Iterable left, final List right, final Match match) {
         List resultList = new ArrayList<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            left.stream().filter(listObj -> !match.matching(listObj, right).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.stream().filter(listObj -> !match.matching(listObj, left).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
+
+        for (final Object leftObj : left) {
+            List matching = match.matching(leftObj, right);
+            if (!matching.isEmpty()) {
+                resultList.add(ImmutableMap.of(leftObj, matching));
+            }
         }
+
         return resultList;
     }
 }

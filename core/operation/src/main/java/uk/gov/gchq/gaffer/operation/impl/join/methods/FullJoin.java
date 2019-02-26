@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
+import com.google.common.collect.ImmutableMap;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 
@@ -24,17 +25,13 @@ import java.util.List;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
+    public List join(final Iterable left, final List right, final Match match) {
         List resultList = new ArrayList<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.LEFT));
-            resultList.addAll(new InnerJoin().join(left, right, match, MatchKey.LEFT));
-            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.RIGHT));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.RIGHT));
-            resultList.addAll(new InnerJoin().join(left, right, match, MatchKey.RIGHT));
-            resultList.addAll(new OuterJoin().join(left, right, match, MatchKey.LEFT));
+
+        for (final Object leftObj : left) {
+            resultList.add(ImmutableMap.of(leftObj, match.matching(leftObj, right)));
         }
+
         return resultList;
     }
 }

@@ -25,15 +25,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * {@code OuterJoin} is a Join function which returns values from an iterable (together with an empty list)
+ * where they do not match with any value in the list.
+ */
 public class OuterJoin implements JoinFunction {
     @Override
-    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
+    public List join(final Iterable left, final List right, final Match match) {
         List resultList = new ArrayList<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            left.stream().filter(listObj -> match.matching(listObj, right).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, Collections.emptyList())));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.stream().filter(listObj -> match.matching(listObj, left).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, Collections.emptyList())));
+
+        for (final Object leftObj : left) {
+            List matching = match.matching(leftObj, right);
+            if (matching.isEmpty()) {
+                resultList.add(ImmutableMap.of(leftObj, matching));
+            }
         }
+
         return resultList;
     }
 }
