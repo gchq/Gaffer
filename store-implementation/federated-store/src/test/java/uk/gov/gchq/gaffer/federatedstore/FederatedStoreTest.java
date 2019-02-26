@@ -1365,8 +1365,9 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphA]\n" +
+            assertEquals("Failed to execute GetAllElements on graph graphA.\n" +
+                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
+                    " Error: Operation is invalid. Validation errors: \n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityB does not exist in the schema", e.getMessage());
         }
@@ -1377,8 +1378,9 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB]\n" +
+            assertEquals("Failed to execute GetAllElements on graph graphB.\n" +
+                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
+                    " Error: Operation is invalid. Validation errors: \n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityA does not exist in the schema", e.getMessage());
         }
@@ -1391,8 +1393,9 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (Exception e) {
             //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB,graphC]\n" +
+            assertEquals("Failed to execute GetAllElements on graph graphB.\n" +
+                    " Set the skip and continue flag: gaffer.federatedstore.operation.skipFailedFederatedStoreExecute for operation: GetAllElements.\n" +
+                    " Error: Operation is invalid. Validation errors: \n" +
                     "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
                     "Entity group entityA does not exist in the schema", e.getMessage());
         }
@@ -1408,15 +1411,15 @@ public class FederatedStoreTest {
 
     protected Entity getEntityB() {
         return new Entity.Builder()
-                    .group("entityB")
-                    .vertex(7)
-                    .build();
+                .group("entityB")
+                .vertex(7)
+                .build();
     }
 
     protected Entity getEntityA() {
         return new Entity.Builder()
-                    .group("entityA")
-                    .vertex("A")
-                    .build();
+                .group("entityA")
+                .vertex("A")
+                .build();
     }
 }

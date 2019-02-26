@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 
@@ -30,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
  * An {@code FederatedValidateHandler} extends {@link ValidateHandler} and uses
  * the FederatedStore merged schemas.
  */
-public class FederatedValidateHandler  implements OutputOperationHandler<Validate, Iterable<? extends Element>>, OperationValidation<Validate> {
+public class FederatedValidateHandler  implements OutputOperationHandler<Validate, Iterable<? extends Element>> {
     private final ValidateHandler handler;
 
     public FederatedValidateHandler() {

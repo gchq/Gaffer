@@ -21,11 +21,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 
-public class FederatedTransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>>, OperationValidation<Transform> {
+public class FederatedTransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
     private final TransformHandler handler;
 
     public FederatedTransformHandler() {

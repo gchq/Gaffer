@@ -21,11 +21,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
 
-public class FederatedAggregateHandler implements OutputOperationHandler<Aggregate, Iterable<? extends Element>>, OperationValidation<Aggregate> {
+public class FederatedAggregateHandler implements OutputOperationHandler<Aggregate, Iterable<? extends Element>> {
     private final AggregateHandler handler;
 
     public FederatedAggregateHandler() {

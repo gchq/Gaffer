@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
@@ -33,7 +32,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * @see FederatedStore
  * @see RemoveGraph
  */
-public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph>, OperationValidation<RemoveGraph> {
+public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph> {
     @Override
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
