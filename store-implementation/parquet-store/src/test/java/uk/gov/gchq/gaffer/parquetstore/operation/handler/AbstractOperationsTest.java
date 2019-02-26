@@ -349,7 +349,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
             graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation chain"));
+            assertTrue(e.getMessage().contains("Operation"));
         } catch (final Exception e) {
             fail("IllegalArgumentException expected");
         }
@@ -377,7 +377,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
             graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation chain"));
+            assertTrue(e.getMessage().contains("Operation"));
         } catch (final Exception e) {
             fail("IllegalArgumentException expected");
         }
