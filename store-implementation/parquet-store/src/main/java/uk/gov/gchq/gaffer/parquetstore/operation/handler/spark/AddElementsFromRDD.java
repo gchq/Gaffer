@@ -266,7 +266,7 @@ public class AddElementsFromRDD {
         // Write out graph partitioner
         Path newGraphPartitionerPath = null;
         try {
-            newGraphPartitionerPath = new Path(getDirectory(null, true, true, false) + "graphPartitioner");
+            newGraphPartitionerPath = new Path(getSortedAggregatedDirectory(true, true) + "graphPartitioner");
             final FSDataOutputStream stream = fs.create(newGraphPartitionerPath);
             LOGGER.info("Writing graph partitioner to {}", newGraphPartitionerPath);
             new GraphPartitionerSerialiser().write(newPartitioner, stream);
