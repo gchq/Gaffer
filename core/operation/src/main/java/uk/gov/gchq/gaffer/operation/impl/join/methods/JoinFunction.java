@@ -26,5 +26,5 @@ import java.util.List;
  * Used by the Join Operation to join two Lists together.
  */
 public interface JoinFunction {
-    List<MapTuple> join(Iterable left, List right, Match match);
+    List<MapTuple> join(Iterable left, List right, Match match, MatchKey matchKey);
 }

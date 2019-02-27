@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
@@ -83,17 +82,17 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             throw new OperationException(e);
         }
 
-        final Iterable<MapTuple> joinResults = joinFunction.join(leftIterable, rightList, operation.getMatchMethod());
+        final Iterable<MapTuple> joinResults = joinFunction.join(leftIterable, rightList, operation.getMatchMethod(), operation.getMatchKey());
 
 
-        if (operation.isFlatten()) {
-            return flattenResults(joinResults);
+        if (!operation.isFlatten()) {
+            return unflattenResults(joinResults);
         }
 
         return joinResults;
     }
 
-    private Iterable<MapTuple> flattenResults(Iterable joinResults) {
+    private Iterable<MapTuple> unflattenResults(final Iterable joinResults) {
         return null;
     }
 }
