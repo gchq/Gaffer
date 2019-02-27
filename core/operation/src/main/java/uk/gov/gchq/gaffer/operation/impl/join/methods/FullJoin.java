@@ -16,20 +16,35 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public List join(final Iterable left, final List right, final Match match) {
-        List resultList = new ArrayList<>();
+    public List<MapTuple> join(final Iterable left, final List right, final Match match) {
+        List<MapTuple> resultList = new ArrayList<>();
+
 
         for (final Object leftObj : left) {
-            resultList.add(ImmutableMap.of(leftObj, match.matching(leftObj, right)));
+            MapTuple<String> tuple = new MapTuple<>();
+            tuple.put(MatchKey.LEFT.name(), leftObj);
+            List matching = match.matching(leftObj, right);
+
+            if (matching.isEmpty()) {
+                tuple.put(MatchKey.RIGHT.name(), null);
+                resultList.add(tuple);
+            } else {
+                for (final Object matched : matching) {
+                    tuple.put(MatchKey.RIGHT.name(), matched);
+                    resultList.add(tuple);
+                }
+            }
+
+            resultList.add(tuple);
         }
 
         return resultList;

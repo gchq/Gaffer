@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.List;
 
@@ -25,5 +26,5 @@ import java.util.List;
  * Used by the Join Operation to join two Lists together.
  */
 public interface JoinFunction {
-    List join(Iterable left, List right, Match match);
+    List<MapTuple> join(Iterable left, List right, Match match);
 }

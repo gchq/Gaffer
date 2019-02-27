@@ -22,12 +22,14 @@ import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
+import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,26 +37,28 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
-public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends O>> {
+public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends MapTuple>> {
     @Override
-    public Iterable<? extends O> doOperation(final Join<I, O> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends MapTuple> doOperation(final Join<I, O> operation, final Context context, final Store store) throws OperationException {
         final int limit = operation.getCollectionLimit() != null ? operation.getCollectionLimit() : 100000;
 
         if (null == operation.getJoinType()) {
             throw new OperationException("A join type must be specified");
         }
 
-        if (null == operation.getMergeMethod()) {
-            throw new OperationException("A merge method must be specified");
-        }
-
         if (null == operation.getInput()) {
             operation.setInput(new ArrayList<>());
         }
 
-        if (null == operation.getMatchKey() && (!operation.getJoinType().equals(JoinType.FULL_OUTER))) {
-            throw new OperationException("You must specify an Iterable side to match on");
+        if (null == operation.getMatchKey()) {
+            if (!operation.getJoinType().equals(JoinType.INNER)) {
+                throw new OperationException("You must specify an Iterable side to match on");
+            }
+            // setting match key to avoid swapping inputs
+            operation.setMatchKey(MatchKey.LEFT);
         }
+
+
 
         JoinFunction joinFunction = operation.getJoinType().createInstance();
 
@@ -64,21 +68,32 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
                         context,
                         store);
 
-        final List leftList;
+        final Iterable leftIterable;
         final List rightList;
 
         try {
-            leftList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, limit, false));
-            rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
+            if (operation.getMatchKey().equals(MatchKey.LEFT)) {
+                leftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
+                rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
+            } else {
+                leftIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
+                rightList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, limit, false));
+            }
         } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
 
-        final Iterable joinResults = joinFunction.join(leftList, rightList, operation.getMatchMethod(), operation.getMatchKey());
+        final Iterable<MapTuple> joinResults = joinFunction.join(leftIterable, rightList, operation.getMatchMethod());
 
-        if (operation.getMergeMethod() instanceof ElementMerge) {
-            ((ElementMerge) operation.getMergeMethod()).setSchema(store.getSchema());
+
+        if (operation.isFlatten()) {
+            return flattenResults(joinResults);
         }
-        return operation.getMergeMethod().merge(joinResults);
+
+        return joinResults;
+    }
+
+    private Iterable<MapTuple> flattenResults(Iterable joinResults) {
+        return null;
     }
 }
