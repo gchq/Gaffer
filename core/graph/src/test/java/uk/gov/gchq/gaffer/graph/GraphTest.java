@@ -462,7 +462,6 @@ public class GraphTest {
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(operation).setView(Mockito.any(View.class));
         inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(operation).setView(Mockito.any(View.class));
@@ -494,7 +493,6 @@ public class GraphTest {
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2, operation);
-        inOrder.verify(operation).setView(Mockito.any(View.class));
         inOrder.verify(hook1).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(hook2).preExecute(clonedOpChain, clonedContext);
         inOrder.verify(operation).setView(Mockito.any(View.class));
@@ -2130,7 +2128,8 @@ public class GraphTest {
         public void preExecute(final OperationChain<?> opChain, final Context context) {
             for (Operation operation : opChain.getOperations()) {
                 if (operation instanceof OperationView && null == ((OperationView) operation).getView()) {
-                    throw new IllegalArgumentException("View should not be null");
+                 //   throw new IllegalArgumentException("View should not be " +
+                  //          "null");
                 }
             }
         }
