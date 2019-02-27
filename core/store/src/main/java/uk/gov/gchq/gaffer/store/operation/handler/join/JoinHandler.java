@@ -31,14 +31,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
-public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Iterable<? extends MapTuple>> {
+public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<? extends MapTuple>> {
     @Override
-    public Iterable<? extends MapTuple> doOperation(final Join<I, O> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends MapTuple> doOperation(final Join<I> operation, final Context context, final Store store) throws OperationException {
         final int limit = operation.getCollectionLimit() != null ? operation.getCollectionLimit() : 100000;
 
         if (null == operation.getJoinType()) {
@@ -49,12 +51,14 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             operation.setInput(new ArrayList<>());
         }
 
-        if (null == operation.getMatchKey()) {
+        MatchKey matchKey = operation.getMatchKey();
+
+        if (null == matchKey) {
             if (!operation.getJoinType().equals(JoinType.INNER)) {
                 throw new OperationException("You must specify an Iterable side to match on");
             }
             // setting match key to avoid swapping inputs
-            operation.setMatchKey(MatchKey.LEFT);
+            matchKey = MatchKey.LEFT;
         }
 
 
@@ -71,7 +75,7 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
         final List rightList;
 
         try {
-            if (operation.getMatchKey().equals(MatchKey.LEFT)) {
+            if (matchKey.equals(MatchKey.LEFT)) {
                 leftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
                 rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
             } else {
@@ -82,17 +86,6 @@ public class JoinHandler<I, O> implements OutputOperationHandler<Join<I, O>, Ite
             throw new OperationException(e);
         }
 
-        final Iterable<MapTuple> joinResults = joinFunction.join(leftIterable, rightList, operation.getMatchMethod(), operation.getMatchKey());
-
-
-        if (!operation.isFlatten()) {
-            return unflattenResults(joinResults);
-        }
-
-        return joinResults;
-    }
-
-    private Iterable<MapTuple> unflattenResults(final Iterable joinResults) {
-        return null;
+        return joinFunction.join(leftIterable, rightList, operation.getMatchMethod(), matchKey, operation.isFlatten());
     }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 
 public class FullJoin implements JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey) {
+    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey, final Boolean flatten) {
         final String leftKey;
         final String rightKey;
 
@@ -48,17 +48,22 @@ public class FullJoin implements JoinFunction {
             tuple.put(leftKey, leftObj);
             List matching = match.matching(leftObj, right);
 
-            if (matching.isEmpty()) {
-                tuple.put(rightKey, null);
-                resultList.add(tuple);
-            } else {
-                for (final Object matched : matching) {
-                    tuple.put(rightKey, matched);
+            // flattening will output a tuple for each value in the matching list
+            if (flatten) {
+                if (matching.isEmpty()) {
+                    tuple.put(rightKey, null);
                     resultList.add(tuple);
+                } else {
+                    for (final Object matched : matching) {
+                        tuple.put(rightKey, matched);
+                        resultList.add(tuple);
+                    }
                 }
+            } else {
+                tuple.put(rightKey, matching);
+                resultList.add(tuple);
             }
 
-            resultList.add(tuple);
         }
 
         return resultList;

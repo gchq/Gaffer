@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class OuterJoin implements JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey) {
+    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey, final Boolean flatten) {
         final String leftKey;
         final String rightKey;
 
@@ -51,9 +51,16 @@ public class OuterJoin implements JoinFunction {
         for (final Object leftObj : left) {
             List matching = match.matching(leftObj, right);
             if (matching.isEmpty()) {
+
                 MapTuple<String> tuple = new MapTuple<>();
                 tuple.put(leftKey, leftObj);
-                tuple.put(rightKey, null);
+
+                // flattening will output a null value instead of an empty list
+                if (flatten) {
+                    tuple.put(rightKey, null);
+                } else {
+                    tuple.put(rightKey, matching);
+                }
                 resultList.add(tuple);
             }
         }
