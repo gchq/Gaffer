@@ -15,35 +15,31 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
-
-import com.google.common.collect.ImmutableMap;
-
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class InnerJoinTest extends JoinFunctionTest {
     @Override
-    protected List<Map<Element, List<Element>>> getExpectedLeftKeyResults() {
+    protected List<MapTuple> getExpectedLeftKeyResults() {
         return Arrays.asList(
-                ImmutableMap.of(getElement(1), Collections.singletonList(getElement(1))),
-                ImmutableMap.of(getElement(2), Collections.singletonList(getElement(2))),
-                ImmutableMap.of(getElement(3), Collections.singletonList(getElement(3))),
-                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4)))
+                createMapTuple(getElement(1), Collections.singletonList(getElement(1))),
+                createMapTuple(getElement(2), Collections.singletonList(getElement(2))),
+                createMapTuple(getElement(3), Collections.singletonList(getElement(3))),
+                createMapTuple(getElement(4), Collections.singletonList(getElement(4)))
         );
     }
 
     @Override
-    protected List<Map<Element, List<Element>>> getExpectedRightKeyResults() {
+    protected List<MapTuple> getExpectedRightKeyResults() {
         return Arrays.asList(
-                ImmutableMap.of(getElement(1), Collections.singletonList(getElement(1))),
-                ImmutableMap.of(getElement(2), Collections.singletonList(getElement(2))),
-                ImmutableMap.of(getElement(3), Collections.singletonList(getElement(3))),
-                ImmutableMap.of(getElement(4), Collections.singletonList(getElement(4)))
+                createMapTuple(Collections.singletonList(getElement(1)), getElement(1)),
+                createMapTuple(Collections.singletonList(getElement(2)), getElement(2)),
+                createMapTuple(Collections.singletonList(getElement(3)), getElement(3)),
+                createMapTuple(Collections.singletonList(getElement(4)), getElement(4))
         );
     }
 

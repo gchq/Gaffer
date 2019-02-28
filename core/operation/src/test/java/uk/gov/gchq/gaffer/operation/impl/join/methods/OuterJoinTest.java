@@ -15,30 +15,26 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
-
-import com.google.common.collect.ImmutableMap;
-
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class OuterJoinTest extends JoinFunctionTest {
 
     @Override
-    protected List<Map<Element, List<Element>>> getExpectedLeftKeyResults() {
+    protected List<MapTuple> getExpectedLeftKeyResults() {
         return Arrays.asList(
-                ImmutableMap.of(getElement(10), Collections.emptyList())
+                createMapTuple(getElement(10), Collections.emptyList())
         );
     }
 
     @Override
-    protected List<Map<Element, List<Element>>> getExpectedRightKeyResults() {
+    protected List<MapTuple> getExpectedRightKeyResults() {
         return Arrays.asList(
-                ImmutableMap.of(getElement(12), Collections.emptyList())
+                createMapTuple(Collections.emptyList(), getElement(12))
         );
     }
 

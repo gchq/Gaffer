@@ -71,21 +71,16 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
                         context,
                         store);
 
-        final Iterable leftIterable;
-        final List rightList;
+        final Iterable limitedLeftIterable;
+        final Iterable limitedRightIterable;
 
         try {
-            if (matchKey.equals(MatchKey.LEFT)) {
-                leftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
-                rightList = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
-            } else {
-                leftIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
-                rightList = Lists.newArrayList(new LimitedCloseableIterable(operation.getInput(), 0, limit, false));
-            }
+            limitedLeftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
+            limitedRightIterable = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
         } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
 
-        return joinFunction.join(leftIterable, rightList, operation.getMatchMethod(), matchKey, operation.isFlatten());
+        return joinFunction.join(limitedLeftIterable, limitedRightIterable, operation.getMatchMethod(), matchKey, operation.isFlatten());
     }
 }

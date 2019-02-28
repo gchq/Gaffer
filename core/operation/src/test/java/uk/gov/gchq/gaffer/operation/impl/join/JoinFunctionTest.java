@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join;
 
+import org.apache.avro.generic.GenericData;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.JoinTest;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,9 +50,10 @@ public abstract class JoinFunctionTest {
         }
 
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, false);
+        List<MapTuple> expected = getExpectedLeftKeyResults();
 
-        assertEquals(getExpectedLeftKeyResults().size(), ((List) result).size());
-        assertTrue(((List) result).containsAll(getExpectedLeftKeyResults()));
+        assertEquals(expected.size(), ((List) result).size());
+        assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 
     @Test
@@ -59,10 +62,11 @@ public abstract class JoinFunctionTest {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(rightInput, leftInput, new ElementMatch(), MatchKey.RIGHT, false);
+        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, false);
+        List<MapTuple> expected = getExpectedRightKeyResults();
 
-        assertEquals(getExpectedRightKeyResults().size(), ((List)result).size());
-        assertTrue(((List) result).containsAll(getExpectedRightKeyResults()));
+        assertEquals(expected.size(), ((List)result).size());
+        assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 
     protected Element getElement(final Integer countProperty) {
@@ -74,11 +78,30 @@ public abstract class JoinFunctionTest {
                 .build();
     }
 
-    protected abstract List<Map<Element, List<Element>>> getExpectedLeftKeyResults();
+    protected MapTuple<String> createMapTuple(final Object left, final Object right) {
+        MapTuple<String> mapTuple = new MapTuple<>();
+        mapTuple.put(MatchKey.LEFT.name(), left);
+        mapTuple.put(MatchKey.RIGHT.name(), right);
 
-    protected abstract List<Map<Element, List<Element>>> getExpectedRightKeyResults();
+        return mapTuple;
+
+    }
+
+    protected abstract List<MapTuple> getExpectedLeftKeyResults();
+
+    protected abstract List<MapTuple> getExpectedRightKeyResults();
 
     protected abstract JoinFunction getJoinFunction();
+
+    private void assertTupleListsEquality(final List<MapTuple> expected, final List<MapTuple> actual) {
+        List<Map> expectedValues = new ArrayList<>();
+        List<Map> actualValues = new ArrayList<>();
+
+        expected.forEach(mapTuple -> expectedValues.add(mapTuple.getValues()));
+        actual.forEach(mapTuple -> actualValues.add(mapTuple.getValues()));
+
+        assertTrue(((List) actualValues).containsAll(expectedValues));
+    }
 
     /**
      * private copy of the ElementMatch class using the count property to match by.

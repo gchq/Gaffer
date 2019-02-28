@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 import com.google.common.collect.ImmutableMap;
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,34 +32,39 @@ import java.util.List;
  */
 public class OuterJoin implements JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey, final Boolean flatten) {
-        final String leftKey;
-        final String rightKey;
+    public List<MapTuple> join(final Iterable left, final Iterable right, final Match match, final MatchKey matchKey, final Boolean flatten) {
+        final String keyName; // For LEFT keyed Joins it's LEFT and vice versa for RIGHT.
+        final String matchingValuesName;
 
-        // If the left and right inputs have been switched,
-        // we need to output the left and right objects in
-        // reverse order
+        Iterable keys; // The key iterate over
+        List matchCandidates; // The iterable to use to check for matches
+
         if (matchKey.equals(MatchKey.LEFT)) {
-            leftKey = matchKey.name();
-            rightKey = MatchKey.RIGHT.name();
+            keyName = matchKey.name();
+            matchingValuesName = MatchKey.RIGHT.name();
+            keys = left;
+            matchCandidates = Lists.newArrayList(right);
         } else {
-            leftKey = MatchKey.RIGHT.name();
-            rightKey = matchKey.name();
+            keyName = matchKey.name();
+            matchingValuesName = MatchKey.LEFT.name();
+            keys = right;
+            matchCandidates = Lists.newArrayList(left);
         }
+
         List<MapTuple> resultList = new ArrayList<>();
 
-        for (final Object leftObj : left) {
-            List matching = match.matching(leftObj, right);
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj, matchCandidates);
             if (matching.isEmpty()) {
 
                 MapTuple<String> tuple = new MapTuple<>();
-                tuple.put(leftKey, leftObj);
+                tuple.put(keyName, keyObj);
 
                 // flattening will output a null value instead of an empty list
                 if (flatten) {
-                    tuple.put(rightKey, null);
+                    tuple.put(matchingValuesName, null);
                 } else {
-                    tuple.put(rightKey, matching);
+                    tuple.put(matchingValuesName, matching);
                 }
                 resultList.add(tuple);
             }

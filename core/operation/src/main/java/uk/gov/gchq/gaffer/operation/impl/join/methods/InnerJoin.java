@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
@@ -28,45 +29,44 @@ import java.util.List;
  */
 public class InnerJoin implements JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable left, final List right, final Match match, final MatchKey matchKey, final Boolean flatten) {
+    public List<MapTuple> join(final Iterable left, final Iterable right, final Match match, final MatchKey matchKey, final Boolean flatten) {
 
-        final String leftKey;
-        final String rightKey;
+        final String keyName; // For LEFT keyed Joins it's LEFT and vice versa for RIGHT.
+        final String matchingValuesName;
 
-        // If the left and right inputs have been switched,
-        // we need to output the left and right objects in
-        // reverse order
+        Iterable keys; // The key iterate over
+        List matchCandidates; // The iterable to use to check for matches
+
         if (matchKey.equals(MatchKey.LEFT)) {
-            leftKey = matchKey.name();
-            rightKey = MatchKey.RIGHT.name();
+            keyName = matchKey.name();
+            matchingValuesName = MatchKey.RIGHT.name();
+            keys = left;
+            matchCandidates = Lists.newArrayList(right);
         } else {
-            leftKey = MatchKey.RIGHT.name();
-            rightKey = matchKey.name();
+            keyName = matchKey.name();
+            matchingValuesName = MatchKey.LEFT.name();
+            keys = right;
+            matchCandidates = Lists.newArrayList(left);
         }
 
         List<MapTuple> resultList = new ArrayList<>();
 
-        for (final Object leftObj : left) {
-            List matching = match.matching(leftObj, right);
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj, matchCandidates);
 
             MapTuple<String> tuple = new MapTuple<>();
-            tuple.put(leftKey, leftObj);
+            tuple.put(keyName, keyObj);
 
             // flattening will output a tuple for each value in the matching list
             if (flatten) {
                 for (final Object matched : matching) {
-                    tuple.put(rightKey, matched);
+                    tuple.put(matchingValuesName, matched);
                     resultList.add(tuple);
                 }
-            } else {
-                tuple.put(rightKey, matching);
+            } else if (!matching.isEmpty()){
+                tuple.put(matchingValuesName, matching);
                 resultList.add(tuple);
             }
-
-
-            // TODO make methods output flattened results.
-            // TODO add logic to handle to unflatten them.
-            // TODO create Matcher which takes two functions to apply to left and right inputs to generate a comparable
         }
 
 
