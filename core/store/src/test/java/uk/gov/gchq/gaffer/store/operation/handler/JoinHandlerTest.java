@@ -49,7 +49,6 @@ public class JoinHandlerTest {
         final Join joinOp = new Join.Builder<>()
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
-                .mergeMethod(mock(Merge.class))
                 .build();
 
         // When
@@ -65,11 +64,10 @@ public class JoinHandlerTest {
         final JoinHandler handler = new JoinHandler();
         final List<Integer> inputList = Arrays.asList(1, 2, 3);
 
-        final Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
+        final Join<Integer> joinOp = new Join.Builder<Integer>()
                 .input(inputList)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
-                .mergeMethod(mock(Merge.class))
                 .collectionLimit(1)
                 .build();
 

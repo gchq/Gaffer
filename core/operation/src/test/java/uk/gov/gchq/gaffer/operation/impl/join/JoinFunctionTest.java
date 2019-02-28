@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementJoinComparator;
+import uk.gov.gchq.gaffer.operation.impl.JoinTest;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
@@ -46,7 +47,7 @@ public abstract class JoinFunctionTest {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch());
+        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, false);
 
         assertEquals(getExpectedLeftKeyResults().size(), ((List) result).size());
         assertTrue(((List) result).containsAll(getExpectedLeftKeyResults()));
@@ -58,7 +59,7 @@ public abstract class JoinFunctionTest {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(rightInput, leftInput, new ElementMatch());
+        Iterable result = getJoinFunction().join(rightInput, leftInput, new ElementMatch(), MatchKey.RIGHT, false);
 
         assertEquals(getExpectedRightKeyResults().size(), ((List)result).size());
         assertTrue(((List) result).containsAll(getExpectedRightKeyResults()));

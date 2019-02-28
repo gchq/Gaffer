@@ -42,7 +42,7 @@ public class JoinTest extends OperationTest<Join> {
                 .matchMethod(new TestMatchImpl())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(new TestMergeImpl())
+                .flatten(false)
                 .collectionLimit(10)
                 .build();;
 
@@ -52,7 +52,7 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(JoinType.INNER, op.getJoinType());
         assertTrue(op.getMatchMethod() instanceof Match);
         assertEquals(MatchKey.LEFT, op.getMatchKey());
-        assertTrue(op.getMergeMethod() instanceof Merge);
+        assertTrue(op.isFlatten() instanceof Boolean);
         assertTrue(op.getCollectionLimit().equals(10));
     }
 
@@ -65,7 +65,7 @@ public class JoinTest extends OperationTest<Join> {
                 .matchMethod(new TestMatchImpl())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(new TestMergeImpl())
+                .flatten(false)
                 .collectionLimit(10)
                 .build();;
 
