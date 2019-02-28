@@ -76,7 +76,7 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
 
         try {
             limitedLeftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
-            limitedRightIterable = Lists.newArrayList(new LimitedCloseableIterable(rightIterable, 0, limit, false));
+            limitedRightIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
         } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
