@@ -33,7 +33,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
- * A {@code HyperLogLogPlusJsonSerialiser} deserialises {@link HyperLogLogPlus} objects.
+ * A {@code HyperLogLogPlusJsonDeserialiser} deserialises {@link HyperLogLogPlus} objects.
  */
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
     public static final int DEFAULT_P = 10;
