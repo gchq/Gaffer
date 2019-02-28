@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.join;
 
-import com.google.common.collect.Lists;
+
 
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
@@ -31,9 +31,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
@@ -45,6 +42,10 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
 
         if (null == operation.getJoinType()) {
             throw new OperationException("A join type must be specified");
+        }
+
+        if (null == operation.getMatchMethod()) {
+            throw new OperationException("A match method must be supplied");
         }
 
         if (null == operation.getInput()) {
@@ -62,7 +63,6 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
         }
 
 
-
         JoinFunction joinFunction = operation.getJoinType().createInstance();
 
         updateOperationInput(operation.getOperation(), null);
@@ -77,10 +77,10 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
         try {
             limitedLeftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
             limitedRightIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
+            return joinFunction.join(limitedLeftIterable, limitedRightIterable, operation.getMatchMethod(), matchKey, operation.isFlatten());
         } catch (final LimitExceededException e) {
             throw new OperationException(e);
         }
 
-        return joinFunction.join(limitedLeftIterable, limitedRightIterable, operation.getMatchMethod(), matchKey, operation.isFlatten());
     }
 }
