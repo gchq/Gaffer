@@ -39,6 +39,20 @@ public class OuterJoinTest extends JoinFunctionTest {
     }
 
     @Override
+    protected List<MapTuple> getExpectedLeftKeyResultsFlattened() {
+        return Arrays.asList(
+                createMapTuple(getElement(10), null)
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedRightKeyResultsFlattened() {
+        return Arrays.asList(
+                createMapTuple(null, getElement(12))
+        );
+    }
+
+    @Override
     protected JoinFunction getJoinFunction() {
         return new OuterJoin();
     }

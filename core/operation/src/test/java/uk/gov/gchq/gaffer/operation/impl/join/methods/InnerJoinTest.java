@@ -15,6 +15,7 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
@@ -27,7 +28,8 @@ public class InnerJoinTest extends JoinFunctionTest {
     protected List<MapTuple> getExpectedLeftKeyResults() {
         return Arrays.asList(
                 createMapTuple(getElement(1), Collections.singletonList(getElement(1))),
-                createMapTuple(getElement(2), Collections.singletonList(getElement(2))),
+                createMapTuple(getElement(2), Lists.newArrayList(getElement(2), getElement(2))),
+                createMapTuple(getElement(3), Collections.singletonList(getElement(3))),
                 createMapTuple(getElement(3), Collections.singletonList(getElement(3))),
                 createMapTuple(getElement(4), Collections.singletonList(getElement(4)))
         );
@@ -38,8 +40,33 @@ public class InnerJoinTest extends JoinFunctionTest {
         return Arrays.asList(
                 createMapTuple(Collections.singletonList(getElement(1)), getElement(1)),
                 createMapTuple(Collections.singletonList(getElement(2)), getElement(2)),
-                createMapTuple(Collections.singletonList(getElement(3)), getElement(3)),
+                createMapTuple(Collections.singletonList(getElement(2)), getElement(2)),
+                createMapTuple(Lists.newArrayList(getElement(3), getElement(3)), getElement(3)),
                 createMapTuple(Collections.singletonList(getElement(4)), getElement(4))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedLeftKeyResultsFlattened() {
+        return Arrays.asList(
+                createMapTuple(getElement(1), getElement(1)),
+                createMapTuple(getElement(2), getElement(2)),
+                createMapTuple(getElement(2), getElement(2)),
+                createMapTuple(getElement(3), getElement(3)),
+                createMapTuple(getElement(3), getElement(3)),
+                createMapTuple(getElement(4), getElement(4))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedRightKeyResultsFlattened() {
+        return Arrays.asList(
+                createMapTuple(getElement(1), getElement(1)),
+                createMapTuple(getElement(2), getElement(2)),
+                createMapTuple(getElement(2), getElement(2)),
+                createMapTuple(getElement(3), getElement(3)),
+                createMapTuple(getElement(3), getElement(3)),
+                createMapTuple(getElement(4), getElement(4))
         );
     }
 

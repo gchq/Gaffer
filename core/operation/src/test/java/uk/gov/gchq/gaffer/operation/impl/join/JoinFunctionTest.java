@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join;
 
-import org.apache.avro.generic.GenericData;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -25,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementJoinComparator;
-import uk.gov.gchq.gaffer.operation.impl.JoinTest;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinFunction;
@@ -40,8 +38,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public abstract class JoinFunctionTest {
-    private List<Element> leftInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(4), getElement(10));
-    private List<Element> rightInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(4), getElement(12));
+    private List<Element> leftInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(3), getElement(4), getElement(10));
+    private List<Element> rightInput = Arrays.asList(getElement(1), getElement(2), getElement(2), getElement(3), getElement(4), getElement(12));
 
     @Test
     public void shouldCorrectlyJoinTwoIterablesUsingLeftKey() {
@@ -69,6 +67,32 @@ public abstract class JoinFunctionTest {
         assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 
+    @Test
+    public void shouldCorrectlyJoinTwoIterablesUsingLeftKeyAndFlattenResults() {
+        if (null == getJoinFunction()) {
+            throw new RuntimeException("No JoinFunction specified by the test.");
+        }
+
+        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, true);
+        List<MapTuple> expected = getExpectedLeftKeyResultsFlattened();
+
+        assertEquals(expected.size(), ((List)result).size());
+        assertTupleListsEquality(expected, (List<MapTuple>) result);
+    }
+
+    @Test
+    public void shouldCorrectlyJoinTwoIterablesUsingRightKeyAndFlattenResults() {
+        if (null == getJoinFunction()) {
+            throw new RuntimeException("No JoinFunction specified by the test.");
+        }
+
+        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, true);
+        List<MapTuple> expected = getExpectedRightKeyResultsFlattened();
+
+        assertEquals(expected.size(), ((List)result).size());
+        assertTupleListsEquality(expected, (List<MapTuple>) result);
+    }
+
     protected Element getElement(final Integer countProperty) {
         return new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -91,6 +115,10 @@ public abstract class JoinFunctionTest {
 
     protected abstract List<MapTuple> getExpectedRightKeyResults();
 
+    protected abstract List<MapTuple> getExpectedLeftKeyResultsFlattened();
+
+    protected abstract List<MapTuple> getExpectedRightKeyResultsFlattened();
+
     protected abstract JoinFunction getJoinFunction();
 
     private void assertTupleListsEquality(final List<MapTuple> expected, final List<MapTuple> actual) {
@@ -100,7 +128,7 @@ public abstract class JoinFunctionTest {
         expected.forEach(mapTuple -> expectedValues.add(mapTuple.getValues()));
         actual.forEach(mapTuple -> actualValues.add(mapTuple.getValues()));
 
-        assertTrue(((List) actualValues).containsAll(expectedValues));
+        assertTrue(actualValues.containsAll(expectedValues));
     }
 
     /**
