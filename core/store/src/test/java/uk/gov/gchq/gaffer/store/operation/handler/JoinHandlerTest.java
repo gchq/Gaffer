@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.join.JoinHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
 import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -47,6 +48,7 @@ public class JoinHandlerTest {
 
         final Join joinOp = new Join.Builder<>()
                 .joinType(JoinType.FULL)
+                .matchMethod(new ElementMatch())
                 .matchKey(MatchKey.LEFT)
                 .build();
 
