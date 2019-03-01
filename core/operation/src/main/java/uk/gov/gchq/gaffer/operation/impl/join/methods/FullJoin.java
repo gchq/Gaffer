@@ -16,35 +16,15 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.Lists;
-
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
-import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FullJoin implements JoinFunction {
+public class FullJoin extends JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable left, final Iterable right, final Match match, final MatchKey matchKey, final Boolean flatten) {
-
-        final String keyName; // For LEFT keyed Joins it's LEFT and vice versa for RIGHT.
-        final String matchingValuesName;
-
-        Iterable keys; // The key iterate over
-        List matchCandidates; // The iterable to use to check for matches
-
-        keyName = matchKey.name();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            matchingValuesName = MatchKey.RIGHT.name();
-            keys = left;
-            matchCandidates = Lists.newArrayList(right);
-        } else {
-            matchingValuesName = MatchKey.LEFT.name();
-            keys = right;
-            matchCandidates = Lists.newArrayList(left);
-        }
+    public List<MapTuple> join(final Iterable keys, final List matchCandidates, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
         List<MapTuple> resultList = new ArrayList<>();
 
