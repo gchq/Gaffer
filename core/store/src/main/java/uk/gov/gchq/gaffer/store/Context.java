@@ -62,6 +62,7 @@ public class Context {
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
+        variables.putAll(context.variables);
         if (null != context.originalOpChain) {
             originalOpChain = context.originalOpChain.shallowClone();
         }
