@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
@@ -63,7 +64,7 @@ public class InnerJoin implements JoinFunction {
                     tuple.put(matchingValuesName, matched);
                     resultList.add(tuple);
                 }
-            } else if (!matching.isEmpty()){
+            } else if (!matching.isEmpty()) {
                 tuple.put(matchingValuesName, matching);
                 resultList.add(tuple);
             }
