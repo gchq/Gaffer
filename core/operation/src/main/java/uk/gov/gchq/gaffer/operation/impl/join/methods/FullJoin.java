@@ -35,13 +35,12 @@ public class FullJoin implements JoinFunction {
         Iterable keys; // The key iterate over
         List matchCandidates; // The iterable to use to check for matches
 
+        keyName = matchKey.name();
         if (matchKey.equals(MatchKey.LEFT)) {
-            keyName = matchKey.name();
             matchingValuesName = MatchKey.RIGHT.name();
             keys = left;
             matchCandidates = Lists.newArrayList(right);
         } else {
-            keyName = matchKey.name();
             matchingValuesName = MatchKey.LEFT.name();
             keys = right;
             matchCandidates = Lists.newArrayList(left);
