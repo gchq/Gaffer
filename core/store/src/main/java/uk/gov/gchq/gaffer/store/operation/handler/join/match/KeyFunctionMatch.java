@@ -30,13 +30,13 @@ import java.util.function.Function;
 
 
 /**
- * A {@code KeyMatch} is a {@link Match} which takes two key functions which are used to extract keys from
+ * A {@code KeyFunctionMatch} is a {@link Match} which takes two key functions which are used to extract keys from
  * two inputs. A match occurs when the keys are equal. The first key function is applied to the Left input
  * in a Left sided join and vice versa.
  */
 
 @JsonPropertyOrder(value = {"class", "firstKeyFunction", "secondKeyFunction"}, alphabetic = true)
-public class KeyMatch implements Match {
+public class KeyFunctionMatch implements Match {
 
     private static final String NULL_FUNCTION_ERROR_MESSAGE = "Key functions for left and right input cannot be null";
     private static final String NULL_LIST_ERROR_MESSAGE = "List of objects cannot be null";
@@ -44,11 +44,11 @@ public class KeyMatch implements Match {
     private Function firstKeyFunction;
     private Function secondKeyFunction;
 
-    public KeyMatch() {
+    public KeyFunctionMatch() {
         this(new Identity(), new Identity());
     }
 
-    public KeyMatch(final Function firstKeyFunction, final Function secondKeyFunction) {
+    public KeyFunctionMatch(final Function firstKeyFunction, final Function secondKeyFunction) {
         this.firstKeyFunction = firstKeyFunction;
         this.secondKeyFunction = secondKeyFunction;
     }
@@ -100,8 +100,8 @@ public class KeyMatch implements Match {
         private Function firstKeyFunction = new Identity();
         private Function secondKeyFunction = new Identity();
 
-        public KeyMatch build() {
-            return new KeyMatch(firstKeyFunction, secondKeyFunction);
+        public KeyFunctionMatch build() {
+            return new KeyFunctionMatch(firstKeyFunction, secondKeyFunction);
         }
 
         public Builder firstKeyFunction(final Function firstKeyFunction) {
@@ -132,7 +132,7 @@ public class KeyMatch implements Match {
             return false;
         }
 
-        KeyMatch match = (KeyMatch) obj;
+        KeyFunctionMatch match = (KeyFunctionMatch) obj;
 
         return new EqualsBuilder()
                 .append(this.firstKeyFunction, match.firstKeyFunction)

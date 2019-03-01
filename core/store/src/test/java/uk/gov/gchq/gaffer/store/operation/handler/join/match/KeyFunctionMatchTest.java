@@ -1,7 +1,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import com.google.common.collect.Lists;
-import org.apache.avro.data.Json;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -19,7 +18,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class KeyMatchTest {
+public class KeyFunctionMatchTest {
 
     private static final String TEST_ENTITY_GROUP = "testEntity1";
     private static final String TEST_ENTITY_GROUP_2 = "testEntity2";
@@ -31,24 +30,24 @@ public class KeyMatchTest {
     public void shouldJsonSerialiseWithNoKeyFunctions() throws SerialisationException {
         // given
         String json = "{\n" +
-                "   \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\"\n" +
+                "   \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\"\n" +
                 "}";
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
-        assertEquals(match, JSONSerialiser.deserialise(json, KeyMatch.class));
+        assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
     }
 
     @Test
     public void shouldAddDefaultIdentityFunctionToJson() throws SerialisationException {
         // given
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // when / then
         String expected = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
                 "  },\n" +
@@ -62,14 +61,14 @@ public class KeyMatchTest {
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithKeyFunctions() throws SerialisationException {
         // given
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new FunctionComposite(Lists.newArrayList(new DivideBy(20), new FirstItem())))
                 .secondKeyFunction(new ExtractProperty("count"))
                 .build();
 
         // when / then
         String expected = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.function.FunctionComposite\",\n" +
                 "    \"functions\" : [ {\n" +
@@ -86,29 +85,29 @@ public class KeyMatchTest {
                 "}";
 
         assertEquals(expected, new String(JSONSerialiser.serialise(match, true)));
-        assertEquals(match, JSONSerialiser.deserialise(expected, KeyMatch.class));
+        assertEquals(match, JSONSerialiser.deserialise(expected, KeyFunctionMatch.class));
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithSingleFirstKeyFunction() throws SerialisationException {
         // given
-        KeyMatch match = new KeyMatch.Builder().firstKeyFunction(new ExtractProperty("count")).build();
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder().firstKeyFunction(new ExtractProperty("count")).build();
 
         // when / then
         String json = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
                 "    \"name\" : \"count\"\n" +
                 "  }\n" +
                 "}";
 
-        assertEquals(match, JSONSerialiser.deserialise(json, KeyMatch.class));
+        assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
         // when / then
 
         String jsonWithIdentity = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
                 "    \"name\" : \"count\"\n" +
@@ -125,23 +124,23 @@ public class KeyMatchTest {
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithSingleRightKeyFunction() throws SerialisationException {
         // given
-        KeyMatch match = new KeyMatch.Builder().secondKeyFunction(new ExtractProperty("count")).build();
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder().secondKeyFunction(new ExtractProperty("count")).build();
 
         // when / then
         String json = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"secondKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
                 "    \"name\" : \"count\"\n" +
                 "  }\n" +
                 "}";
 
-        assertEquals(match, JSONSerialiser.deserialise(json, KeyMatch.class));
+        assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
         // when / then
 
         String jsonWithIdentity = "{\n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch\",\n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
                 "  },\n" +
@@ -161,7 +160,7 @@ public class KeyMatchTest {
         List<Integer> testList = new ArrayList<>();
 
         // when
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(null)
                 .secondKeyFunction(null)
                 .build();
@@ -182,7 +181,7 @@ public class KeyMatchTest {
         List<Integer> testList = Lists.newArrayList(1, 2, 3, 4, 3);
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
         List<Integer> expected = Lists.newArrayList(3, 3);
@@ -196,7 +195,7 @@ public class KeyMatchTest {
         List<Long> testList = Lists.newArrayList(100L, 200L, 300L, 400L);
 
         // when
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(
                         new FunctionComposite(
                         Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
@@ -216,7 +215,7 @@ public class KeyMatchTest {
         List<Integer> testList = Lists.newArrayList(1, 2, 5, 4, 8);
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
         List<Integer> expected = Lists.newArrayList();
@@ -230,7 +229,7 @@ public class KeyMatchTest {
         List<Integer> testList = Lists.newArrayList();
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
         List<Integer> expected = Lists.newArrayList();
@@ -245,7 +244,7 @@ public class KeyMatchTest {
         List<Long> testList = Lists.newArrayList(100L, 200L, 300L, null);
 
         // when
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new FunctionComposite(
                         Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ToInteger(), new DivideBy(10), new FirstItem<>())))
@@ -266,7 +265,7 @@ public class KeyMatchTest {
         List<Integer> testList = Lists.newArrayList(1, null, 5, 4, 8);
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
         List<Integer> expected = Lists.newArrayList((Integer) null);
@@ -280,7 +279,7 @@ public class KeyMatchTest {
         List<Integer> testList = Lists.newArrayList(1, null, 5, 4, 8);
 
         // when
-        KeyMatch match = new KeyMatch();
+        KeyFunctionMatch match = new KeyFunctionMatch();
 
         // then
         List<Integer> expected = Lists.newArrayList(4);
@@ -293,7 +292,7 @@ public class KeyMatchTest {
         Integer testValue = 3;
 
         // when
-        KeyMatch match = new KeyMatch.Builder().build();
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder().build();
 
         // then
 
@@ -336,7 +335,7 @@ public class KeyMatchTest {
         );
 
         // when
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractProperty(PROP_1))
                 .secondKeyFunction(new ExtractProperty(PROP_1))
                 .build();
@@ -389,7 +388,7 @@ public class KeyMatchTest {
         );
 
         // when
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractProperty(PROP_1))
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ExtractProperty(PROP_2), new ToLong())))
                 .build();
@@ -446,7 +445,7 @@ public class KeyMatchTest {
 
         // when
 
-        KeyMatch match = new KeyMatch.Builder()
+        KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractId(IdentifierType.SOURCE))
                 .secondKeyFunction(new ExtractId(IdentifierType.VERTEX))
                 .build();

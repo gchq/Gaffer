@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.join.JoinHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyMatch;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -68,7 +68,7 @@ public class JoinHandlerTest {
                 .input(inputList)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
-                .matchMethod(new KeyMatch())
+                .matchMethod(new KeyFunctionMatch())
                 .collectionLimit(1)
                 .build();
 

@@ -16,13 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
@@ -67,7 +65,7 @@ public class JoinTest extends OperationTest<Join> {
                 .joinType(JoinType.INNER)
                 .flatten(false)
                 .collectionLimit(10)
-                .build();;
+                .build();
 
         // When
         final Join clone = op.shallowClone();
@@ -94,13 +92,4 @@ public class JoinTest extends OperationTest<Join> {
         }
     }
 
-    /**
-     * Copy of the ElementMatch class using the count property to match by.
-     */
-    public static class TestMergeImpl implements Merge {
-        @Override
-        public List merge(final Iterable input) throws OperationException {
-            return (List) input;
-        }
-    }
 }
