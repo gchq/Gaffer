@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
@@ -62,6 +63,16 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
             namedOpScore = namedOpDetail.getScore();
             if (null == namedOpScore && null != defaultScoreResolver) {
                 namedOpScore = defaultScoreResolver.getScore(namedOpDetail.getOperationChain(operation.getParameters()));
+            }
+        }
+        if (null != defaultScoreResolver) {
+            if (null != operation.getOperations() && null == namedOpScore) {
+                namedOpScore = 0;
+            }
+            for (final Object objectOperation : operation.getOperations()) {
+                Operation op = (Operation) objectOperation;
+                Integer parameterOpScore = defaultScoreResolver.getScore(op);
+                namedOpScore += parameterOpScore;
             }
         }
 
