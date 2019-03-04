@@ -139,11 +139,8 @@ public class NamedOperation<I_ITEM, O> implements
                     operations.add(operation);
                 }
             }
-            return operations;
-        } else {
-            return null;
         }
-
+        return operations;
     }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>

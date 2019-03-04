@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
+import java.util.List;
+
 /**
  * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation
  * Score for a provided {@link NamedOperation} by searching for it within the
@@ -52,13 +54,16 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
     public Integer getScore(final NamedOperation operation, final ScoreResolver defaultScoreResolver) {
         Integer namedOpScore = null;
         NamedOperationDetail namedOpDetail = null;
-        if (null != operation) {
-            try {
-                namedOpDetail = cache.getFromCache(operation.getOperationName());
-            } catch (final CacheOperationFailedException e) {
-                LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
-            }
+        if (null == operation) {
+            return 0;
         }
+
+        try {
+            namedOpDetail = cache.getFromCache(operation.getOperationName());
+        } catch (final CacheOperationFailedException e) {
+            LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
+        }
+
         if (null != namedOpDetail) {
             namedOpScore = namedOpDetail.getScore();
             if (null == namedOpScore && null != defaultScoreResolver) {
@@ -66,13 +71,16 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
             }
         }
         if (null != defaultScoreResolver) {
-            if (null != operation.getOperations() && null == namedOpScore) {
+            if (null == namedOpScore) {
                 namedOpScore = 0;
             }
-            for (final Object objectOperation : operation.getOperations()) {
-                Operation op = (Operation) objectOperation;
-                Integer parameterOpScore = defaultScoreResolver.getScore(op);
-                namedOpScore += parameterOpScore;
+            List parameterOperations = operation.getOperations();
+            if (null != parameterOperations) {
+                for (final Object objectOperation : parameterOperations) {
+                    Operation op = (Operation) objectOperation;
+                    Integer parameterOpScore = defaultScoreResolver.getScore(op);
+                    namedOpScore += parameterOpScore;
+                }
             }
         }
 
