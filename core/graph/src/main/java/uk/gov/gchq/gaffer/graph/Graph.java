@@ -240,6 +240,7 @@ public final class Graph {
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
+            // TODO - remove in V2
             // This updates the view, used for empty or null views, for
             // example if there is a NamedOperation that has been resolved
             // that contains an empty view

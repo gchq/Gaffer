@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,7 +31,6 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -1006,11 +1006,9 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE)
                 .build();
-        final GraphHook hook = new ViewCheckerGraphHook();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
-                        .addHook(hook)
                         .view(view)
                         .build())
                 .store(store)
@@ -1951,7 +1949,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonUtil.equals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -1997,7 +1995,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonUtil.equals(new View.Builder().build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2018,7 +2016,10 @@ public class GraphTest {
 
         final Store store = mock(Store.class);
 
-        given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2040,7 +2041,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonUtil.equals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2083,7 +2084,104 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonUtil.equals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldCorrectlyAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenNotInBlacklist() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .addExtraGroups(true)
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .addExtraGroups(true)
+                .blackListElementGroups(Sets.newHashSet(TestGroups.EDGE_4,
+                        TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2128,8 +2226,7 @@ public class GraphTest {
         public void preExecute(final OperationChain<?> opChain, final Context context) {
             for (Operation operation : opChain.getOperations()) {
                 if (operation instanceof OperationView && null == ((OperationView) operation).getView()) {
-                 //   throw new IllegalArgumentException("View should not be " +
-                  //          "null");
+                    throw new IllegalArgumentException("View should not be null");
                 }
             }
         }
