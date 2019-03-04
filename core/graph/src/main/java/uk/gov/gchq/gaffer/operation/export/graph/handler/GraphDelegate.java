@@ -74,7 +74,8 @@ public class GraphDelegate {
     }
 
     public GraphSerialisable createGraphSerialisable(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook[] hooks) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
+        final GraphLibrary graphLibrary =
+                ((GraphConfig) store.getConfig()).getLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
         validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
@@ -103,7 +104,8 @@ public class GraphDelegate {
             // If there is an existing graph then ignore any user provided properties and just use the existing properties
             resultProps = existingGraphPair.getSecond();
         } else {
-            final GraphLibrary graphLibrary = store.getGraphLibrary();
+            final GraphLibrary graphLibrary =
+                    ((GraphConfig) store.getConfig()).getLibrary();
             resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
         }
         return resultProps;
@@ -115,7 +117,7 @@ public class GraphDelegate {
             // If there is an existing graph then ignore any user provided schemas and just use the existing schema
             resultSchema = existingGraphPair.getFirst();
         } else {
-            final GraphLibrary graphLibrary = store.getGraphLibrary();
+            final GraphLibrary graphLibrary = ((GraphConfig) store.getConfig()).getLibrary();
             resultSchema = (null == graphLibrary) ? schema : graphLibrary.resolveSchema(schema, parentSchemaIds);
         }
         return resultSchema;
@@ -125,10 +127,10 @@ public class GraphDelegate {
                                 final Schema schema, final StoreProperties storeProperties,
                                 final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
-        if (null == store.getGraphLibrary()) {
+        if (null == ((GraphConfig) store.getConfig()).getLibrary()) {
             existingGraphPair = null;
         } else {
-            existingGraphPair = store.getGraphLibrary().get(graphId);
+            existingGraphPair = ((GraphConfig)store.getConfig()).getLibrary().get(graphId);
         }
 
         validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
@@ -138,10 +140,10 @@ public class GraphDelegate {
                               final Schema schema, final StoreProperties storeProperties,
                               final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
-        if (null == store.getGraphLibrary()) {
+        if (null == ((GraphConfig)store.getConfig()).getLibrary()) {
             existingGraphPair = null;
         } else {
-            existingGraphPair = store.getGraphLibrary().get(graphId);
+            existingGraphPair = ((GraphConfig)store.getConfig()).getLibrary().get(graphId);
         }
 
         validateGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
@@ -171,7 +173,7 @@ public class GraphDelegate {
                                                final Schema schema, final StoreProperties storeProperties,
                                                final List<String> parentSchemaIds, final String parentStorePropertiesId,
                                                final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
+        final GraphLibrary graphLibrary = ((GraphConfig)store.getConfig()).getLibrary();
 
         if (null == graphLibrary) {
             // No graph library so we cannot look up the graphId/schemaId/storePropertiesId

@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.GraphRequest;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.store.util.Config;
+import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map.Entry;
@@ -72,22 +75,24 @@ public class UpdateViewHook implements GraphHook {
     private boolean addExtraGroups = ADD_EXTRA_GROUPS_DEFAULT;
 
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         if (applyToUser(request.getContext().getUser())) {
-            updateView(request.getOperation());
+            updateView(request);
         }
     }
 
-    private void updateView(final Operation operation) {
+    private void updateView(final Request request) {
+        final Operation operation = request.getOperation();
         if (operation instanceof Operations) {
             for (final Operation op :
                     ((Operations<?>) operation).getOperations()) {
-                updateView(op);
+                updateView(request);
             }
         }
 
         if (operation instanceof OperationView) {
             final OperationView operationView = (OperationView) operation;
+            fillView(operationView, request.getConfig());
 
             final View.Builder viewBuilder = mergeView(operationView, getViewToMerge());
             if ((null != whiteListElementGroups && !whiteListElementGroups.isEmpty())
@@ -140,6 +145,32 @@ public class UpdateViewHook implements GraphHook {
                 && userContainsWithOpAuth(user)
                 && userNotContainsWithoutDataAuth(user)
                 && userNotContainsWithoutOpAuth(user);
+    }
+
+    private void fillView(final OperationView operation, final Config config) {
+        View opView = operation.getView();
+        if (config instanceof GraphConfig) {
+            if (null == opView) {
+                opView = ((GraphConfig) config).getView();
+            } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
+                opView = new View.Builder()
+                        .merge(((GraphConfig) config).getView())
+                        .merge(opView)
+                        .build();
+            } else if (opView.isAllEdges() || opView.isAllEntities()) {
+                View.Builder opViewBuilder = new View.Builder()
+                        .merge(opView);
+                if (opView.isAllEdges()) {
+                    opViewBuilder.edges(((GraphConfig) config).getSchema().getEdgeGroups());
+                }
+                if (opView.isAllEntities()) {
+                    opViewBuilder.entities(((GraphConfig) config).getSchema().getEntityGroups());
+                }
+                opView = opViewBuilder.build();
+            }
+            opView.expandGlobalDefinitions();
+            operation.setView(opView);
+        }
     }
 
     private boolean userNotContainsWithoutOpAuth(final User user) {

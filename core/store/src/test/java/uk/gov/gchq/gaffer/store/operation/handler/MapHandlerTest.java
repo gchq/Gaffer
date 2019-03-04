@@ -24,19 +24,12 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
-import uk.gov.gchq.gaffer.data.graph.function.walk.ExtractWalkEdgesFromHop;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.function.FirstItem;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
@@ -45,20 +38,15 @@ import uk.gov.gchq.koryphe.impl.function.ToString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 public class MapHandlerTest {
@@ -325,7 +313,7 @@ public class MapHandlerTest {
         assertEquals(expectedResults, Lists.newArrayList(results));
     }
 
-    @Test
+   /* @Test
     public void shouldProcessWalksInOperationChain() throws OperationException {
         // Given
         final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
@@ -407,7 +395,7 @@ public class MapHandlerTest {
 
         // Then
         assertThat(results, contains("B"));
-    }
+    }*/
 
     @Test
     public void shouldBuildWithInvalidArgumentsAndFailExecution() throws OperationException {

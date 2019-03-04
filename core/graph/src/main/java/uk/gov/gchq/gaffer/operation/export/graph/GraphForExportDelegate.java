@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -44,7 +45,7 @@ public class GraphForExportDelegate extends GraphDelegate {
         Schema resultSchema = super.resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
         if (null == resultSchema) {
             // If no schemas have been provided then default to using the store schema
-            resultSchema = store.getSchema();
+            resultSchema = ((GraphConfig)store.getConfig()).getSchema();
         }
         return resultSchema;
     }

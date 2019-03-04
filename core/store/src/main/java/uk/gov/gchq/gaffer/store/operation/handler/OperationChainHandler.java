@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ import java.util.List;
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT>, OperationValidation<OperationChain<OUT>> {
     private OperationValidator opValidator =
-            new OperationValidator(new ViewValidator());
+            new OperationValidator();
     private List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
 
     @Override

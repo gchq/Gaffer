@@ -17,23 +17,23 @@
 package uk.gov.gchq.gaffer.store;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
-public class SchemaOperationChainValidator extends OperationChainValidator {
+public class SchemaOperationChainValidator extends OperationValidator {
 
     Schema schema;
 
     public SchemaOperationChainValidator(final ViewValidator viewValidator) {
-        super(viewValidator);
+        super();
     }
 
     public SchemaOperationChainValidator(final ViewValidator viewValidator, final Schema schema) {
-        super(viewValidator);
+        super();
         this.schema = schema;
     }
 
@@ -41,12 +41,10 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
         this.schema = schema;
     }
 
-    @Override
     protected Schema getSchema(final Operation operation, final User user, final Store store) {
         return schema;
     }
 
-    @Override
     protected Set<StoreTrait> getStoreTraits(final Store store) {
         return StoreTrait.ALL_TRAITS;
     }

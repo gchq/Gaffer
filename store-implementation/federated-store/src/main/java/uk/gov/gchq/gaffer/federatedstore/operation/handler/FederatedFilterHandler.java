@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.graph.operation.handler.function.FilterHandler;
 
 public class FederatedFilterHandler implements OutputOperationHandler<Filter,
         Iterable<? extends Element>> {

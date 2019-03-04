@@ -30,7 +30,7 @@ public interface OperationValidation<OP extends Operation> {
 
     default OP prepareOperation(final OP operation, final Context context,
                                 final Store store) {
-        final OperationValidator opValidator = store.getOperationValidator();
+        final OperationValidator opValidator = new OperationValidator();
         final ValidationResult validationResult = opValidator.validate(operation, context.getUser(), store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation is invalid. " + validationResult

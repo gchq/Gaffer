@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.graph.GraphRequest;
+import uk.gov.gchq.gaffer.store.util.Request;
 
 /**
  * A {@code Log4jLogger} is a simple {@link GraphHook} that sends logs of the
@@ -36,13 +36,13 @@ public class Log4jLogger implements GraphHook {
      * @param request GraphRequest containing the Operation and Context
      */
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         LOGGER.info("Running {} as {}", request.getContext().getOriginalOperation(),
                 request.getContext().getUser().getUserId());
     }
 
     @Override
-    public <T> T onFailure(final T result, final GraphRequest request,
+    public <T> T onFailure(final T result, final Request request,
                            final Exception e) {
         LOGGER.warn("Failed to run {} as {}",
                 request.getContext().getOriginalOperation(),

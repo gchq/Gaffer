@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.util.Request;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,7 +48,7 @@ public class AddOperationsToChain implements GraphHook {
      * @param request GraphRequest containing the Operation and Context
      */
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         OperationChain opAsChain = OperationChain.wrap(request.getOperation());
         preExecuteAsOperationChain(opAsChain, request.getContext());
         request.setOperation(opAsChain);

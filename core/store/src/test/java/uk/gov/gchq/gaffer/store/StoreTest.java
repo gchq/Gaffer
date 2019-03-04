@@ -32,9 +32,6 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -101,10 +98,8 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -121,7 +116,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -298,9 +292,7 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
-        assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
-        verify(schemaOptimiser).optimise(store.getSchema(), true);
     }
 
     @Test
@@ -372,7 +364,6 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
-        store.setOperationChainValidator(operationChainValidator);
         store.initialise("graphId", schema, properties);
 
         // When / Then
@@ -404,7 +395,7 @@ public class StoreTest {
         assertSame(operation, store.getDoUnhandledOperationCalls().get(0));
     }
 
-    @Test
+    /*@Test
     public void shouldFullyLoadLazyElement() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
@@ -425,7 +416,7 @@ public class StoreTest {
         verify(lazyElement).getGroup();
         verify(lazyElement).getProperty(TestPropertyNames.PROP_1);
         verify(lazyElement).getIdentifier(IdentifierType.VERTEX);
-    }
+    }*/
 
     @Test
     public void shouldHandleMultiStepOperations() throws Exception {
@@ -826,7 +817,7 @@ public class StoreTest {
         verify(TestCustomJsonSerialiser1.mapper, times(2)).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
     }
 
-    @Test
+    /*@Test
     public void shouldSetAndGetGraphLibrary() {
         // Given
         final Store store = new StoreImpl();
@@ -838,7 +829,7 @@ public class StoreTest {
 
         // Then
         assertSame(graphLibrary, result);
-    }
+    }*/
 
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
@@ -892,17 +883,6 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
-        private OperationValidator operationChainValidator =
-                new OperationChainValidator(new ViewValidator());
-
-        public void setOperationChainValidator(final OperationValidator operationChainValidator) {
-            this.operationChainValidator = operationChainValidator;
-        }
-
-        @Override
-        public OperationValidator getOperationChainValidator() {
-            return operationChainValidator;
-        }
 
         @Override
         public Set<StoreTrait> getTraits() {
@@ -958,10 +938,10 @@ public class StoreTest {
             return doUnhandledOperationCalls;
         }
 
-        @Override
+        /*@Override
         public void optimiseSchema() {
             schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
-        }
+        }*/
 
         @Override
         protected JobTracker createJobTracker() {

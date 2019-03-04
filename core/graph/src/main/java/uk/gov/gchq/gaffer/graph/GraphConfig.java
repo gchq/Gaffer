@@ -18,28 +18,36 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.store.util.Config;
+import uk.gov.gchq.koryphe.ValidationResult;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code GraphConfig} contains configuration for Graphs. This configuration
@@ -55,28 +63,36 @@ import java.util.List;
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
-public final class GraphConfig {
-    private String graphId;
+public final class GraphConfig extends Config {
     // Keeping the view as json enforces a new instance of View is created
     // every time it is used.
+    /**
+     * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
+     * to be stored and how to aggregate the elements.
+     */
+    private Schema schema;
+    /**
+     * The original schema containing all of the original descriptions and parent groups.
+     */
+    private Schema originalSchema;
+    private SchemaOptimiser schemaOptimiser;
+    private Class<? extends Serialiser> requiredParentSerialiserClass;
     private byte[] view;
     private GraphLibrary library;
-    private String description;
-    private List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
     }
 
     public GraphConfig(final String graphId) {
-        this.graphId = graphId;
+        setId(graphId);
     }
 
     public String getGraphId() {
-        return graphId;
+        return getId();
     }
 
     public void setGraphId(final String graphId) {
-        this.graphId = graphId;
+        setId(graphId);
     }
 
     public View getView() {
@@ -96,53 +112,152 @@ public final class GraphConfig {
         this.library = library;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    public List<GraphHook> getHooks() {
-        return hooks;
-    }
-
-    public void setHooks(final List<GraphHook> hooks) {
-        if (null == hooks) {
-            this.hooks.clear();
-        } else {
-            hooks.forEach(this::addHook);
-        }
-    }
-
-    public void addHook(final GraphHook hook) {
-        if (null != hook) {
-            if (hook instanceof GraphHookPath) {
-                final String path = ((GraphHookPath) hook).getPath();
-                final File file = new File(path);
-                if (!file.exists()) {
-                    throw new IllegalArgumentException("Unable to find graph hook file: " + path);
-                }
-                try {
-                    hooks.add(JSONSerialiser.deserialise(FileUtils.readFileToByteArray(file), GraphHook.class));
-                } catch (final IOException e) {
-                    throw new IllegalArgumentException("Unable to deserialise graph hook from file: " + path, e);
-                }
-            } else {
-                hooks.add(hook);
-            }
-        }
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("graphId", graphId)
+                .append("graphId", getId())
                 .append("view", getView())
                 .append("library", library)
-                .append("hooks", hooks)
+                .append("hooks", getHooks())
                 .toString();
+    }
+
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(final Schema schema) {
+        this.schema = schema;
+    }
+
+    public SchemaOptimiser getSchemaOptimiser() {
+        return schemaOptimiser;
+    }
+
+    public void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
+        this.schemaOptimiser = schemaOptimiser;
+    }
+
+    public Schema getOriginalSchema() {
+        return originalSchema;
+    }
+
+    public void setOriginalSchema(final Schema originalSchema) {
+        this.originalSchema = originalSchema;
+    }
+
+    protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        return schemaElements;
+    }
+
+    /**
+     * Throws a {@link SchemaException} if the Vertex Serialiser is
+     * inconsistent.
+     */
+    protected void validateConsistentVertex() {
+        if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
+                .isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        }
+    }
+
+    public void validateSchemas() {
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == schema) {
+            validationResult.addError("Schema is missing");
+        } else {
+            validationResult.add(schema.validate());
+
+            getSchemaElements().forEach((key, value) -> value
+                    .getProperties()
+                    .forEach(propertyName -> {
+                        final Class propertyClass = value
+                                .getPropertyClass(propertyName);
+                        final Serialiser serialisation = value
+                                .getPropertyTypeDef(propertyName)
+                                .getSerialiser();
+
+                        if (null == serialisation) {
+                            validationResult.addError(
+                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, key));
+                        } else if (!serialisation.canHandle(propertyClass)) {
+                            validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                    .getClass()
+                                    .getName(), propertyName, key));
+                        }
+                    }));
+
+            validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+            getSchema().getTypes()
+                    .forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
+        }
+
+        if (!validationResult.isValid()) {
+            throw new SchemaException("Schema is not valid. "
+                    + validationResult.getErrorString());
+        }
+    }
+
+    /**
+     * Ensures all identifier and property values are populated on an element by
+     * triggering getters on the element for
+     * all identifier and properties in the {@link Schema} forcing a lazy
+     * element to load all of its values.
+     *
+     * @param lazyElement the lazy element
+     * @return the fully populated unwrapped element
+     */
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "Getters are called to trigger the loading data")
+    public Element populateElement(final Element lazyElement) {
+        final SchemaElementDefinition elementDefinition = getSchema().getElement(
+                lazyElement.getGroup());
+        if (null != elementDefinition) {
+            for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
+                lazyElement.getIdentifier(identifierType);
+            }
+
+            for (final String propertyName : elementDefinition.getProperties()) {
+                lazyElement.getProperty(propertyName);
+            }
+        }
+
+        return lazyElement.getElement();
+    }
+
+    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        schemaElementDefinitionEntry.getValue()
+                .getProperties()
+                .forEach(propertyName -> {
+                    final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    final Serialiser serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+
+                    if (null == serialisation) {
+                        validationResult.addError(
+                                String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                    } else if (!serialisation.canHandle(propertyClass)) {
+                        validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+                    }
+                });
+    }
+
+    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
+        if ((null != serialiser) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+            validationResult.addError(
+                    String.format("Schema serialiser (%s) is not instance of %s",
+                            serialiser.getClass().getSimpleName(),
+                            requiredParentSerialiserClass.getSimpleName()));
+        }
+    }
+
+    public void setRequiredParentSerialiserClass(final Class<?
+            extends Serialiser> requiredParentSerialiserClass) {
+        this.requiredParentSerialiserClass = requiredParentSerialiserClass;
     }
 
     public static class Builder {
@@ -292,7 +407,6 @@ public final class GraphConfig {
             if (null == config.getLibrary()) {
                 config.setLibrary(new NoGraphLibrary());
             }
-
             return config;
         }
 

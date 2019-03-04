@@ -35,10 +35,10 @@ import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.TestTypes;
-import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.MergeType;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ResultsWanted;
+import uk.gov.gchq.gaffer.graph.operation.handler.join.match.ElementMatch;
+import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.ElementMerge;
+import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.MergeType;
+import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.ResultsWanted;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 

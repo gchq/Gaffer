@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -33,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.gaffer.store.util.Request;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +67,7 @@ public class SchemaMigration implements GraphHook {
     }
 
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         if (request.getOperation() instanceof Operations) {
             if (!edges.isEmpty() || !entities.isEmpty()) {
                 final List<Operation> updatedOps = new ArrayList<>();

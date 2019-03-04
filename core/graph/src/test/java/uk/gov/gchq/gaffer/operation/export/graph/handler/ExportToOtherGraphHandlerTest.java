@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -90,7 +91,7 @@ public class ExportToOtherGraphHandlerTest {
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
 
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         given(store.getGraphId()).willReturn(GRAPH_ID);
     }
 
@@ -173,7 +174,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
         given(store.getProperties()).willReturn(storeProperties);
-        given(store.getGraphLibrary()).willReturn(null);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(null);
 
         Schema schema1 = new Schema.Builder().build();
 
@@ -194,8 +195,8 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresSchema() {
         // Given
-        given(store.getSchema()).willReturn(schema);
-        given(store.getGraphLibrary()).willReturn(null);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(null);
 
         final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
 
@@ -360,7 +361,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldValidateParentPropsIdCannotBeUsedWithoutGraphLibrary
             () {
         // Given
-        given(store.getGraphLibrary()).willReturn(null);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID_1)
@@ -379,7 +380,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldValidateParentSchemaIdCannotBeUsedWithoutGraphLibrary
             () {
         // Given
-        given(store.getGraphLibrary()).willReturn(null);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentSchemaIds(SCHEMA_ID)

@@ -25,6 +25,7 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
@@ -79,7 +80,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
@@ -113,7 +114,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     public void shouldCreateGraphWithGraphIdInLibraryAndAuths() {
         // Given
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> graphIdAuths = new ArrayList<>();
         graphIdAuths.add("auth1");
         idAuths.put(GRAPH_ID + 1, graphIdAuths);
@@ -136,7 +137,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID_1, opAuths);
@@ -162,7 +163,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(SCHEMA_ID_1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
@@ -187,7 +188,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
@@ -212,7 +213,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID_1, opAuths);
@@ -237,7 +238,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID_1, opAuths);
@@ -261,7 +262,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID_1, opAuths);
@@ -284,7 +285,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWhenGraphIdCannotBeFound() {
         // Given
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         List<String> graphIdAuths = new ArrayList<>();
         graphIdAuths.add("auth1");
         idAuths.put(GRAPH_ID + 1, graphIdAuths);

@@ -23,9 +23,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -54,7 +54,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param request GraphRequest containing the Operation and Context
      */
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         if (null != request.getOperation()) {
             authorise(request.getOperation(), request.getContext().getUser());
         }

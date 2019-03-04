@@ -322,7 +322,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -346,7 +346,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -370,7 +370,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -396,7 +396,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.execute(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -425,7 +425,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.executeJob(clonedOpChain, clonedContext)).willThrow(exception);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -452,7 +452,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -483,7 +483,11 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        final GraphConfig config = new GraphConfig();
+        config.setSchema(schema);
+        //given(store.getConfig()).willReturn(new GraphConfig());
+        //given(((GraphConfig) store.getConfig()).getSchema()).willReturn
+        // (schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -520,7 +524,7 @@ public class GraphTest {
         final Object result3 = mock(Object.class);
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedRequest)).willReturn(result2);
         given(hook2.postExecute(result2, clonedRequest)).willReturn(result3);
@@ -564,7 +568,7 @@ public class GraphTest {
         final Object result1 = mock(Object.class);
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedRequest)).willReturn(result2);
         given(hook2.postExecute(result2, clonedRequest)).willReturn(result3);
@@ -603,7 +607,7 @@ public class GraphTest {
         final JobDetail result1 = mock(JobDetail.class);
         final JobDetail result2 = mock(JobDetail.class);
         final JobDetail result3 = mock(JobDetail.class);
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedRequest)).willReturn(result2);
         given(hook2.postExecute(result2, clonedRequest)).willReturn(result3);
@@ -639,7 +643,7 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedRequest);
@@ -683,7 +687,7 @@ public class GraphTest {
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedRequest)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -729,7 +733,7 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
@@ -775,7 +779,7 @@ public class GraphTest {
         final GraphHook hook2 = mock(GraphHook.class);
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedRequest);
@@ -820,7 +824,7 @@ public class GraphTest {
         final JobDetail result3 = mock(JobDetail.class);
         final Schema schema = new Schema();
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedRequest)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
@@ -876,7 +880,7 @@ public class GraphTest {
         final Schema schema = new Schema();
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.onFailure(null, clonedRequest, e)).willThrow(new RuntimeException(
                 "Hook1 failed in onFailure"));
@@ -933,7 +937,7 @@ public class GraphTest {
         entities.put("entity4", new SchemaEntityDefinition());
 
         Schema schema = new Schema.Builder().edges(edges).entities(entities).build();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
 
         // When
         final View resultView = new Graph.Builder()
@@ -962,7 +966,7 @@ public class GraphTest {
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
@@ -994,8 +998,8 @@ public class GraphTest {
                         .build())
                 .type("string", String.class)
                 .build();
-        given(store.getSchema()).willReturn(schema);
-        given(store.getOriginalSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(schema);
+        given(((GraphConfig) store.getConfig()).getOriginalSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         new Graph.Builder()
@@ -1008,7 +1012,7 @@ public class GraphTest {
                 .build();
 
         // When
-        verify(store).setOriginalSchema(schema);
+        verify(((GraphConfig) store.getConfig())).setOriginalSchema(schema);
     }
 
     @Test
@@ -1016,7 +1020,7 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
@@ -1054,7 +1058,7 @@ public class GraphTest {
             () throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View opView = mock(View.class);
         final View view = mock(View.class);
@@ -1084,7 +1088,7 @@ public class GraphTest {
     public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet() throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
@@ -1168,7 +1172,7 @@ public class GraphTest {
     public void shouldDelegateGetNextOperationsToStore() {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1191,7 +1195,7 @@ public class GraphTest {
     public void shouldDelegateIsSupportedToStore() {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1212,7 +1216,7 @@ public class GraphTest {
     public void shouldDelegateGetSupportedOperationsToStore() {
         // Given
         final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()

@@ -19,14 +19,11 @@ package uk.gov.gchq.gaffer.graph;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
@@ -36,8 +33,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Operations;
-import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -47,6 +42,9 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.util.Hook;
+import uk.gov.gchq.gaffer.store.util.Request;
+import uk.gov.gchq.gaffer.store.util.Result;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
@@ -88,29 +86,24 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
-
-    /**
-     * The instance of the store.
-     */
     private final Store store;
 
-    private GraphConfig config;
+    private Graph(final Store store) {
+        this.store = store;
+    }
 
     /**
      * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
      * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for
-     *               a
-     *               Graph.
+     * @param config a {@link GraphConfig} used to store the configuration.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
      */
     private Graph(final GraphConfig config, final Store store) {
-        this.config = config;
         this.store = store;
+        this.store.setConfig(config);
     }
 
     /**
@@ -135,7 +128,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(new GraphRequest<>(operation, context));
+        execute(new Request<>(operation, context));
     }
 
     /**
@@ -149,7 +142,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new GraphRequest<>(operation, user)).getResult();
+        return execute(new Request<>(operation, user)).getResult();
     }
 
     /**
@@ -164,7 +157,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return execute(new GraphRequest<>(operation, context)).getResult();
+        return execute(new Request<>(operation, context)).getResult();
     }
 
     /**
@@ -176,7 +169,7 @@ public final class Graph {
      * @return {@link GraphResult} containing the result and details
      * @throws OperationException if an operation fails
      */
-    public <O> GraphResult<O> execute(final GraphRequest<O> request) throws OperationException {
+    public <O> Result<O> execute(final Request<O> request) throws OperationException {
         return _execute(store::execute, request);
     }
 
@@ -217,80 +210,17 @@ public final class Graph {
      * @return {@link GraphResult} containing the job details
      * @throws OperationException thrown if the job fails to run.
      */
-    public GraphResult<JobDetail> executeJob(final GraphRequest<?> request) throws OperationException {
+    public GraphResult<JobDetail> executeJob(final Request<?> request) throws OperationException {
         return _execute(store::executeJob, request);
     }
 
-    private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request) throws OperationException {
-        if (null == request) {
-            throw new IllegalArgumentException("A request is required");
+    private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final Request<?> request) throws OperationException {
+        if (request instanceof GraphRequest) {
+            if (null == request.getConfig()) {
+                request.setConfig(store.getConfig());
+            }
         }
-
-        if (null == request.getContext()) {
-            throw new IllegalArgumentException("A context is required");
-        }
-
-        request.getContext().setOriginalOperation(request.getOperation());
-
-        final GraphRequest clonedRequest = request.fullClone();
-        O result = null;
-        try {
-            updateOperationView(clonedRequest.getOperation());
-            for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedRequest);
-            }
-            updateOperationView(clonedRequest.getOperation());
-            result = (O) storeExecuter.execute(clonedRequest.getOperation(),
-                    clonedRequest.getContext());
-            for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result,
-                        clonedRequest);
-            }
-        } catch (final Exception e) {
-            for (final GraphHook graphHook : config.getHooks()) {
-                try {
-                    result = graphHook.onFailure(result,
-                            clonedRequest, e);
-                } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
-                }
-            }
-            CloseableUtil.close(clonedRequest.getOperation());
-            CloseableUtil.close(result);
-            throw e;
-        }
-        return new GraphResult<>(result, clonedRequest.getContext());
-    }
-
-    private void updateOperationView(final Operation operation) {
-        if (operation instanceof Operations) {
-            final Operations<?> ops = (Operations<?>) operation;
-            for (final Operation op : ops.getOperations()) {
-                updateOperationView(op);
-            }
-        } else if (operation instanceof OperationView) {
-            View opView = ((OperationView) operation).getView();
-            if (null == opView) {
-                opView = config.getView();
-            } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                opView = new View.Builder()
-                        .merge(config.getView())
-                        .merge(opView)
-                        .build();
-            } else if (opView.isAllEdges() || opView.isAllEntities()) {
-                View.Builder opViewBuilder = new View.Builder()
-                        .merge(opView);
-                if (opView.isAllEdges()) {
-                    opViewBuilder.edges(getSchema().getEdgeGroups());
-                }
-                if (opView.isAllEntities()) {
-                    opViewBuilder.entities(getSchema().getEntityGroups());
-                }
-                opView = opViewBuilder.build();
-            }
-            opView.expandGlobalDefinitions();
-            ((OperationView) operation).setView(opView);
-        }
+        return (GraphResult<O>) storeExecuter.execute(request);
     }
 
     /**
@@ -323,21 +253,21 @@ public final class Graph {
      * @return the graph view.
      */
     public View getView() {
-        return config.getView();
+        return ((GraphConfig) store.getConfig()).getView();
     }
 
     /**
      * @return the original schema.
      */
     public Schema getSchema() {
-        return store.getOriginalSchema();
+        return ((GraphConfig) store.getConfig()).getOriginalSchema();
     }
 
     /**
      * @return the description held in the {@link GraphConfig}
      */
     public String getDescription() {
-        return config.getDescription();
+        return store.getConfig().getDescription();
     }
 
     /**
@@ -374,24 +304,24 @@ public final class Graph {
     }
 
     public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (config.getHooks().isEmpty()) {
+        if (store.getConfig().getHooks().isEmpty()) {
             return Collections.emptyList();
         }
 
-        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+        return (List) store.getConfig().getHooks().stream().map(Hook::getClass).collect(Collectors.toList());
     }
 
     public GraphLibrary getGraphLibrary() {
-        return store.getGraphLibrary();
+        return ((GraphConfig) store.getConfig()).getLibrary();
     }
 
     protected GraphConfig getConfig() {
-        return config;
+        return (GraphConfig) store.getConfig();
     }
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
-        O execute(final Operation operation, final Context context) throws OperationException;
+        Result<O> execute(final Request request) throws OperationException;
     }
 
     /**
@@ -886,7 +816,7 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
-            store.setOriginalSchema(schema);
+            ((GraphConfig) store.getConfig()).setOriginalSchema(schema);
 
             return new Graph(config, store);
         }
@@ -894,7 +824,7 @@ public final class Graph {
         private void updateGraphHooks(final GraphConfig config) {
             boolean hasNamedOpHook = false;
             boolean hasNamedViewHook = false;
-            for (final GraphHook graphHook : config.getHooks()) {
+            for (final Hook graphHook : config.getHooks()) {
                 if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
                     hasNamedOpHook = true;
                 }
@@ -983,7 +913,7 @@ public final class Graph {
                     config.setGraphId(store.getGraphId());
                 }
                 if (null == schema || schema.getGroups().isEmpty()) {
-                    schema = store.getSchema();
+                    schema = ((GraphConfig) store.getConfig()).getSchema();
                 }
 
                 if (null == properties) {
@@ -997,18 +927,18 @@ public final class Graph {
                 }
             }
 
-            store.setGraphLibrary(config.getLibrary());
+            ((GraphConfig) store.getConfig()).setLibrary(config.getLibrary());
 
             if (null == schema || schema.getGroups().isEmpty()) {
-                schema = store.getSchema();
+                schema = ((GraphConfig) store.getConfig()).getSchema();
             }
         }
 
         private void updateView(final GraphConfig config) {
             if (null == config.getView()) {
                 config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
+                        .entities(((GraphConfig) store.getConfig()).getSchema().getEntityGroups())
+                        .edges(((GraphConfig) store.getConfig()).getSchema().getEdgeGroups())
                         .build());
             }
         }

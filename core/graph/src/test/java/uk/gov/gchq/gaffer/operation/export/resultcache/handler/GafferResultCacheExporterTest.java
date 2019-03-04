@@ -72,7 +72,7 @@ public class GafferResultCacheExporterTest {
 
     @Before
     public void before() {
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         resultCache = new Graph.Builder()
                 .config(new GraphConfig.Builder()

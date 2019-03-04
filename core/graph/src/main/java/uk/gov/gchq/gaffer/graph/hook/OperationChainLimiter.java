@@ -21,12 +21,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.util.Request;
 
 import java.util.Map;
 
@@ -59,7 +58,7 @@ public class OperationChainLimiter implements GraphHook {
      * @param request GraphRequest containing the Operation and Context
      */
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         if (null != request.getOperation()) {
             Integer chainScore =
                     scorer.getChainScore(OperationChain.wrap(request.getOperation()),
@@ -72,11 +71,6 @@ public class OperationChainLimiter implements GraphHook {
                         "The requested operation chain exceeded this score limit.");
             }
         }
-    }
-
-    @Override
-    public void preExecute(final OperationChain<?> opChain, final Context context) {
-        preExecute(new GraphRequest(opChain, context));
     }
 
     @JsonIgnore

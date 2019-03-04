@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -67,7 +68,7 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
         Schema resultSchema = super.resolveSchemaForGraph(store, schema, parentSchemaIds, existingGraphPair);
         if (null == resultSchema) {
             // If no schemas have been provided then default to using the store schema
-            resultSchema = store.getSchema();
+            resultSchema = ((GraphConfig)store.getConfig()).getSchema();
         }
         return resultSchema;
     }
@@ -97,7 +98,7 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
             result.addError(error);
         }
 
-        if (null == store.getGraphLibrary()) {
+        if (null == ((GraphConfig)store.getConfig()).getLibrary()) {
             // GraphLibrary is required as only a graphId, a parentStorePropertiesId or a parentSchemaId can be given
             result.addError(String.format(STORE_GRAPH_LIBRARY_IS_NULL));
         } else {
@@ -120,14 +121,14 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
                 }
             }
 
-            if (store.getGraphLibrary().exists(graphId)) {
+            if (((GraphConfig)store.getConfig()).getLibrary().exists(graphId)) {
                 if (null != parentSchemaIds) {
                     result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, PARENT_SCHEMA_IDS));
                 }
                 if (null != parentStorePropertiesId) {
                     result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
                 }
-            } else if (!store.getGraphLibrary().exists(graphId) && null == parentSchemaIds && null == parentStorePropertiesId) {
+            } else if (!((GraphConfig)store.getConfig()).getLibrary().exists(graphId) && null == parentSchemaIds && null == parentStorePropertiesId) {
                 result.addError(String.format(GRAPH_LIBRARY_CANNOT_BE_FOUND_WITH_GRAPHID_S, graphId));
             }
 

@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandle
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.graph.operation.handler.function.FilterHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertSame;

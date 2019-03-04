@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHan
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
+import uk.gov.gchq.gaffer.graph.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertSame;

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class NamedOperationResolver implements GraphHook {
     }
 
     @Override
-    public void preExecute(final GraphRequest request) {
+    public void preExecute(final Request request) {
         OperationChain opAsChain = OperationChain.wrap(request.getOperation());
         resolveNamedOperations(opAsChain,
                 request.getContext().getUser());
