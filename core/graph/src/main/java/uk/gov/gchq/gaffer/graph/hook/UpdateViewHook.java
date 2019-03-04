@@ -105,7 +105,7 @@ public class UpdateViewHook implements GraphHook {
     }
 
     protected final View.Builder mergeView(final OperationView operationView, final View viewToMerge) {
-        View.Builder viewBuilder = new View.Builder();
+        final View.Builder viewBuilder = new View.Builder();
 
         if(!(operationView.getView() instanceof NamedView)) {
             viewBuilder.merge(operationView.getView());
