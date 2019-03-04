@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.rest.ServiceConstants;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +82,42 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
                 assertEquals(JobStatus.CANCELLED, jobDetail.getStatus());
             }
         }
+    }
+
+    @Test
+    public void shouldKeepScheduledJobsRunningAfterRestart() throws IOException {
+        // Given - schedule Job
+        final Repeat repeat = new Repeat(1, 2, TimeUnit.SECONDS);
+        Job job = new Job(repeat, new OperationChain.Builder().first(new GetAllElements()).build());
+        final Response scheduleResponse = client.scheduleJob(job);
+
+        String parentJobId =
+                scheduleResponse.readEntity(new GenericType<JobDetail>() {
+                }).getJobId();
+
+        // When - get all JobDetails
+        final Response allJobDetailsResponse =
+                client.executeOperation(new GetAllJobDetails());
+        List<JobDetail> allJobDetails = allJobDetailsResponse.readEntity(new GenericType<List<JobDetail>>() {
+        });
+
+        // then - assert parent is of Scheduled parent
+        assertEquals(JobStatus.SCHEDULED_PARENT,
+                allJobDetails.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus());
+
+        // Restart server to check Job still scheduled
+        client.restartServer();
+
+        // When - get all JobDetails
+        final Response allJobDetailsResponse2 =
+                client.executeOperation(new GetAllJobDetails());
+        List<JobDetail> allJobDetails2 =
+                allJobDetailsResponse2.readEntity(new GenericType<List<JobDetail>>() {
+                });
+
+        // then - assert parent is of Scheduled parent still
+        assertEquals(JobStatus.SCHEDULED_PARENT,
+                allJobDetails2.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus());
     }
 
     @Test
