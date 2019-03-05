@@ -58,7 +58,7 @@ public class CalculatePartitionerTest {
     public static void writeData(final String folder, final SchemaUtils schemaUtils) throws IOException {
         // - Write 10 files for BasicEntity and BasicEntity2 groups where partition i has entries i*10, i*10 + 1, ..., i*10 + 9
         for (final String group : Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2)) {
-            final Path groupFolderPath = new Path(folder, ParquetStore.GROUP + "=" + group);
+            final Path groupFolderPath = new Path(folder, ParquetStore.getGroupSubDir(group, false));
             for (int partition = 0; partition < 10; partition++) {
                 final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
@@ -90,7 +90,7 @@ public class CalculatePartitionerTest {
         //   ...
         //   source = i*10 + 9, destination = i*10 + 10
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
-            final Path groupFolderPath = new Path(folder,ParquetStore.GROUP + "=" + group);
+            final Path groupFolderPath = new Path(folder,ParquetStore.getGroupSubDir(group, false));
             for (int partition = 0; partition < 10; partition++) {
                 final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
@@ -125,7 +125,7 @@ public class CalculatePartitionerTest {
         //   ...
         //   source = i*10 + 9, destination = i*10 + 10
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
-            final Path groupFolderPath = new Path(folder, ParquetStore.REVERSED_GROUP + "=" + group);
+            final Path groupFolderPath = new Path(folder, ParquetStore.getGroupSubDir(group, true));
             for (int partition = 0; partition < 10; partition++) {
                 final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
