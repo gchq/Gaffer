@@ -141,4 +141,27 @@ public class ContextTest {
         // Then
         assertSame(opChain, context.getOriginalOpChain());
     }
+
+    @Test
+    public void shouldShallowCloneContext() {
+        // Given
+        final User user = new User("user");
+        final String testConf = "testConf";
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(testConf, "testConfVal")
+                .variable("testVar", "testVarVal")
+                .build();
+
+        // When
+        Context clonedContext = context.shallowClone();
+
+        // Then
+        assertNotSame(context, clonedContext);
+        assertEquals(context.getUser(), clonedContext.getUser());
+        assertEquals(context.getExporters().toString(),
+                clonedContext.getExporters().toString());
+        assertEquals(context.getConfig(testConf), clonedContext.getConfig(testConf));
+        assertEquals(context.getVariables(), clonedContext.getVariables());
+    }
 }

@@ -296,7 +296,11 @@ public class Context {
         }
 
         public Context build() {
-            return new Context(user, config, jobId);
+            Context context = new Context(user, config, jobId);
+            if (!variables.isEmpty()) {
+                context.setVariables(variables);
+            }
+            return context;
         }
     }
 }
