@@ -28,7 +28,7 @@ public interface Match {
 
     /**
      * Initialises the match and stores the match candidates.
-     * @param matchCandidates
+     * @param matchCandidates candidate pool to check for matches
      */
     void init(final Iterable matchCandidates);
 
