@@ -45,9 +45,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(2, matchingElements.size());
@@ -74,9 +75,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(1, matchingElements.size());
@@ -103,9 +105,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(0, matchingElements.size());
@@ -124,9 +127,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(2, matchingElements.size());
@@ -153,9 +157,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(1, matchingElements.size());
@@ -190,9 +195,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity3.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(0, matchingElements.size());

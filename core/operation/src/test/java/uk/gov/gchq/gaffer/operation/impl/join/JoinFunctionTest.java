@@ -135,12 +135,19 @@ public abstract class JoinFunctionTest {
      * private copy of the ElementMatch class using the count property to match by.
      */
     private class ElementMatch implements Match {
+        private Iterable matchCandidates;
+
         @Override
-        public List matching(final Object testObject, final List testList) {
+        public void init(final Iterable matchCandidates) {
+            this.matchCandidates = matchCandidates;
+        }
+
+        @Override
+        public List matching(final Object testObject) {
             List matches = new ArrayList<>();
             ElementJoinComparator elementJoinComparator = new ElementJoinComparator(TestPropertyNames.COUNT);
 
-            for (Object entry : testList) {
+            for (Object entry : matchCandidates) {
                 if (elementJoinComparator.test((Element) entry, (Element) testObject)) {
                     matches.add(((Element) entry).shallowClone());
                 }

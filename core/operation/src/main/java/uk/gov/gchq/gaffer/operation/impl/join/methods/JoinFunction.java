@@ -33,21 +33,20 @@ public abstract class JoinFunction {
         final String keyName; // For LEFT keyed Joins it's LEFT and vice versa for RIGHT.
         final String matchingValuesName; // the matching values name (opposite of keyName)
         final Iterable keys; // The key iterate over
-        final List matchCandidates; // The iterable to use to check for matches
 
         keyName = matchKey.name();
         if (matchKey.equals(MatchKey.LEFT)) {
             matchingValuesName = MatchKey.RIGHT.name();
             keys = left;
-            matchCandidates = Lists.newArrayList(right);
+            match.init(right);
         } else {
             matchingValuesName = MatchKey.LEFT.name();
             keys = right;
-            matchCandidates = Lists.newArrayList(left);
+            match.init(left);
         }
 
-        return join(keys, matchCandidates, keyName, matchingValuesName, match, flatten);
+        return join(keys, keyName, matchingValuesName, match, flatten);
     }
 
-    protected abstract List<MapTuple> join(Iterable keys, List matchCandidates, String keyName, String matchingValuesName, Match match, Boolean flatten);
+    protected abstract List<MapTuple> join(Iterable keys, String keyName, String matchingValuesName, Match match, Boolean flatten);
 }

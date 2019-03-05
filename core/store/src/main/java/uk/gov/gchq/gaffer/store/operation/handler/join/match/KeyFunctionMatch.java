@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
@@ -39,10 +40,12 @@ import java.util.function.Function;
 public class KeyFunctionMatch implements Match {
 
     private static final String NULL_FUNCTION_ERROR_MESSAGE = "Key functions for left and right input cannot be null";
-    private static final String NULL_LIST_ERROR_MESSAGE = "List of objects cannot be null";
+    private static final String NULL_MATCH_CANDIDATES_ERROR_MESSAGE = "Iterable of match candidates cannot be null";
 
     private Function firstKeyFunction;
     private Function secondKeyFunction;
+
+    private HashMap<Object, List> keyedMatchCandidates = new HashMap<>();
 
     public KeyFunctionMatch() {
         this(new Identity(), new Identity());
@@ -51,6 +54,25 @@ public class KeyFunctionMatch implements Match {
     public KeyFunctionMatch(final Function firstKeyFunction, final Function secondKeyFunction) {
         this.firstKeyFunction = firstKeyFunction;
         this.secondKeyFunction = secondKeyFunction;
+    }
+
+    @Override
+    public void init(final Iterable matchCandidates) {
+
+        if (matchCandidates == null) {
+            throw new IllegalArgumentException(NULL_MATCH_CANDIDATES_ERROR_MESSAGE);
+        }
+        // Iterates over match candidates, creates an index using second key function.
+        for (final Object matchCandidate : matchCandidates) {
+            Object key = secondKeyFunction.apply(matchCandidate);
+            List list = keyedMatchCandidates.get(key);
+            if (list == null) {
+                list = new ArrayList();
+            }
+            list.add(matchCandidate);
+            keyedMatchCandidates.put(key, list);
+        }
+
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
@@ -72,28 +94,15 @@ public class KeyFunctionMatch implements Match {
     }
 
     @Override
-    public List matching(final Object testObject, final List testList) {
-        ArrayList<Object> matching = new ArrayList<>();
+    public List matching(final Object testObject) {
 
         if (this.firstKeyFunction == null || this.secondKeyFunction == null) {
             throw new IllegalArgumentException(NULL_FUNCTION_ERROR_MESSAGE);
         }
-        if (testList == null) {
-            throw new IllegalArgumentException(NULL_LIST_ERROR_MESSAGE);
-        }
 
-        Object firstInputCriteria = firstKeyFunction.apply(testObject);
-        Object secondInputCriteria;
-        for (final Object rightHandObject : testList) {
-            secondInputCriteria = secondKeyFunction.apply(rightHandObject);
-            if (firstInputCriteria == null && secondInputCriteria == null) {
-                matching.add(null);
-            } else if (secondInputCriteria != null && secondInputCriteria.equals(firstInputCriteria)) {
-                matching.add(rightHandObject);
-            }
-        }
+        Object testObjectKey = firstKeyFunction.apply(testObject);
 
-        return matching;
+        return this.keyedMatchCandidates.getOrDefault(testObjectKey, new ArrayList());
     }
 
     public static final class Builder {

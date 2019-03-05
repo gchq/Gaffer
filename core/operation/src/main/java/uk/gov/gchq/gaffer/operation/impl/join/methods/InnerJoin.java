@@ -28,12 +28,12 @@ import java.util.List;
  */
 public class InnerJoin extends JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable keys, final List matchCandidates, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+    public List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
         List<MapTuple> resultList = new ArrayList<>();
 
         for (final Object keyObj : keys) {
-            List matching = match.matching(keyObj, matchCandidates);
+            List matching = match.matching(keyObj);
 
             MapTuple<String> tuple = new MapTuple<>();
             tuple.put(keyName, keyObj);

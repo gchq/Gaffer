@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
@@ -85,10 +86,17 @@ public class JoinTest extends OperationTest<Join> {
     /**
      * Copy of the ElementMatch class using the count property to match by.
      */
-    public static class TestMatchImpl implements Match{
+    public static class TestMatchImpl implements Match {
+        private List matches;
+
         @Override
-        public List matching(final Object testObject, final List testList) {
-            return testList;
+        public void init(final Iterable matchCandidates) {
+            matches = Lists.newArrayList(matchCandidates);
+        }
+
+        @Override
+        public List matching(final Object unused) {
+            return matches;
         }
     }
 

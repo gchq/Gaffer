@@ -165,10 +165,12 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(null)
                 .build();
 
+        match.init(testList);
+
         // then
 
         try {
-            match.matching(testValue, testList);
+            match.matching(testValue);
         } catch (IllegalArgumentException e) {
             assertEquals("Key functions for left and right input cannot be null", e.getMessage());
         }
@@ -182,10 +184,11 @@ public class KeyFunctionMatchTest {
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
+        match.init(testList);
 
         // then
         List<Integer> expected = Lists.newArrayList(3, 3);
-        assertEquals(expected, match.matching(testValue, testList));
+        assertEquals(expected, match.matching(testValue));
     }
 
     @Test
@@ -202,9 +205,11 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ToInteger(), new DivideBy(10), new FirstItem<>())))
                 .build();
 
+        match.init(testList);
+
         // then
         List<Long> expected = Lists.newArrayList(300L);
-        assertEquals(expected, match.matching(testValue, testList));
+        assertEquals(expected, match.matching(testValue));
 
     }
 
@@ -217,9 +222,11 @@ public class KeyFunctionMatchTest {
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
 
+        match.init(testList);
+
         // then
         List<Integer> expected = Lists.newArrayList();
-        assertEquals(expected, match.matching(testValue, testList));
+        assertEquals(expected, match.matching(testValue));
     }
 
     @Test
@@ -230,16 +237,16 @@ public class KeyFunctionMatchTest {
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
+        match.init(testList);
 
         // then
         List<Integer> expected = Lists.newArrayList();
-        assertEquals(expected, match.matching(testValue, testList));
+        assertEquals(expected, match.matching(testValue));
     }
 
     @Test
     public void shouldThrowExceptionFromFunctionIfInputIsInvalid() {
         // given
-        TypeSubTypeValue testValue = new TypeSubTypeValue("myType", "mySubType", "30");
         // Performing a FirstItem on null should throw IllegalArgumentException
         List<Long> testList = Lists.newArrayList(100L, 200L, 300L, null);
 
@@ -250,9 +257,11 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ToInteger(), new DivideBy(10), new FirstItem<>())))
                 .build();
 
+
+
         // then
         try {
-            match.matching(testValue, testList);
+            match.init(testList);
         } catch (final IllegalArgumentException e) {
             // copied from docs of FirstItem
             assertEquals("Input cannot be null", e.getMessage());
@@ -266,10 +275,11 @@ public class KeyFunctionMatchTest {
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
+        match.init(testList);
 
         // then
         List<Integer> expected = Lists.newArrayList((Integer) null);
-        assertEquals(expected, match.matching(null, testList));
+        assertEquals(expected, match.matching(null));
     }
 
     @Test
@@ -280,10 +290,11 @@ public class KeyFunctionMatchTest {
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch();
+        match.init(testList);
 
         // then
         List<Integer> expected = Lists.newArrayList(4);
-        assertEquals(expected, match.matching(testItem, testList));
+        assertEquals(expected, match.matching(testItem));
     }
 
     @Test
@@ -293,13 +304,12 @@ public class KeyFunctionMatchTest {
 
         // when
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().build();
-
         // then
 
         try {
-            match.matching(testValue, null);
+            match.init(null);
         } catch (IllegalArgumentException e) {
-            assertEquals("List of objects cannot be null", e.getMessage());
+            assertEquals("Iterable of match candidates cannot be null", e.getMessage());
         }
     }
 
@@ -340,6 +350,8 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(new ExtractProperty(PROP_1))
                 .build();
 
+        match.init(testList);
+
         // then
         ArrayList<Entity> expected = Lists.newArrayList(
                 new Entity.Builder()
@@ -353,7 +365,7 @@ public class KeyFunctionMatchTest {
                         .property(PROP_1, 3L)
                         .build());
 
-        assertEquals(expected, match.matching(testItem, testList));
+        assertEquals(expected, match.matching(testItem));
     }
 
     @Test
@@ -393,6 +405,8 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ExtractProperty(PROP_2), new ToLong())))
                 .build();
 
+        match.init(testList);
+
         // then
         ArrayList<Entity> expected = Lists.newArrayList(
                 new Entity.Builder()
@@ -406,7 +420,7 @@ public class KeyFunctionMatchTest {
                         .property(PROP_2, 2)
                         .build());
 
-        assertEquals(expected, match.matching(testItem, testList));
+        assertEquals(expected, match.matching(testItem));
     }
 
     @Test
@@ -450,6 +464,8 @@ public class KeyFunctionMatchTest {
                 .secondKeyFunction(new ExtractId(IdentifierType.VERTEX))
                 .build();
 
+        match.init(testList);
+
         // then
         ArrayList<Entity> expected = Lists.newArrayList(new Entity.Builder()
                 .group(TEST_ENTITY_GROUP)
@@ -457,6 +473,6 @@ public class KeyFunctionMatchTest {
                 .property(PROP_1, 4L)
                 .build());
 
-        assertEquals(expected, match.matching(testItem, testList));
+        assertEquals(expected, match.matching(testItem));
     }
 }

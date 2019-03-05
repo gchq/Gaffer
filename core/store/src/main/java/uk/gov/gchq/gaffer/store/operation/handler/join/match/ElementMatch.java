@@ -29,6 +29,7 @@ import java.util.Set;
  */
 public class ElementMatch implements Match {
     private ElementJoinComparator elementJoinComparator;
+    private Iterable matchCandidates;
 
     public ElementMatch() {
         elementJoinComparator = new ElementJoinComparator();
@@ -47,10 +48,15 @@ public class ElementMatch implements Match {
     }
 
     @Override
-    public List matching(final Object testObject, final List testList) {
+    public void init(final Iterable matchCandidates) {
+        this.matchCandidates = matchCandidates;
+    }
+
+    @Override
+    public List matching(final Object testObject) {
         List matches = new ArrayList<>();
 
-        for (final Object entry : testList) {
+        for (final Object entry : matchCandidates) {
             if (elementJoinComparator.test((Element) entry, (Element) testObject)) {
                 matches.add(((Element) entry).shallowClone());
             }
