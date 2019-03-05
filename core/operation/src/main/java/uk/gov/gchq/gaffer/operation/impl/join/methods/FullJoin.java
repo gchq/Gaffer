@@ -24,7 +24,7 @@ import java.util.List;
 
 public class FullJoin extends JoinFunction {
     @Override
-    public List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
         List<MapTuple> resultList = new ArrayList<>();
 
