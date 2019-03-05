@@ -29,11 +29,9 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
@@ -340,19 +338,8 @@ public class StoreProperties implements Cloneable {
         set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
     }
 
-    public String getSchemaClassName() {
-        return get(SCHEMA_CLASS, Schema.class.getName());
-    }
-
-    public Class<? extends Schema> getSchemaClass() {
-        final Class<? extends Schema> schemaClass;
-        try {
-            schemaClass = Class.forName(getSchemaClassName()).asSubclass(Schema.class);
-        } catch (final ClassNotFoundException e) {
-            throw new SchemaException("Schema class was not found: " + getSchemaClassName(), e);
-        }
-
-        return schemaClass;
+    public String getSchemaClass() {
+        return get(SCHEMA_CLASS);
     }
 
     @JsonSetter
@@ -360,7 +347,7 @@ public class StoreProperties implements Cloneable {
         set(SCHEMA_CLASS, schemaClass);
     }
 
-    public void setSchemaClass(final Class<? extends Schema> schemaClass) {
+    public void setSchemaClass(final Class schemaClass) {
         set(SCHEMA_CLASS, schemaClass.getName());
     }
 

@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
 import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

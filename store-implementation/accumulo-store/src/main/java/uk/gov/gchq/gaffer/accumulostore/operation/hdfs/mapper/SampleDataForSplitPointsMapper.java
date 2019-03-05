@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

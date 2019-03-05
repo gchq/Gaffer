@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcesso
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;

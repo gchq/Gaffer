@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.hbasestore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * An {@link HBaseStore} that deletes the underlying table each time it is initialised.

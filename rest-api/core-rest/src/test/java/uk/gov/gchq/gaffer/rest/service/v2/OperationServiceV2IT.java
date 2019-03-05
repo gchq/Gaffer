@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import javax.ws.rs.core.HttpHeaders;

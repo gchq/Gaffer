@@ -22,7 +22,7 @@ import org.apache.hadoop.hbase.HBaseTestingUtility;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * Uses {@link HBaseTestingUtility} to create a mini hbase instance for testing.

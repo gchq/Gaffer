@@ -17,20 +17,20 @@
 package uk.gov.gchq.gaffer.graph.operation.handler;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.ValidatedElements;
+import uk.gov.gchq.gaffer.graph.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * An {@code ValidateHandler} handles for {@link uk.gov.gchq.gaffer.operation.impl.Validate} operations.
  * Takes an {@link Iterable} of {@link Element}s and returns an
  * {@link Iterable} containing only valid {@link Element}s, specifically an instance of {@link ValidatedElements}.
- * The {@link uk.gov.gchq.gaffer.store.schema.Schema} is used to validate the elements.
+ * The {@link Schema} is used to validate the elements.
  * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
  */
 public class ValidateHandler implements OutputOperationHandler<Validate, Iterable<? extends Element>> {

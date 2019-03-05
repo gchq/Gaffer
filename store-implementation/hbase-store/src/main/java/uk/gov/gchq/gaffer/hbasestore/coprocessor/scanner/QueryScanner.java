@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProce
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;

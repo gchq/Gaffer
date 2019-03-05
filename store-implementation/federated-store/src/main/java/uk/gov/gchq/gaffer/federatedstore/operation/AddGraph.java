@@ -28,7 +28,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -61,7 +61,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * </p>
  *
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.store.schema.Schema
+ * @see Schema
  * @see uk.gov.gchq.gaffer.data.element.Properties
  * @see uk.gov.gchq.gaffer.graph.Graph
  */

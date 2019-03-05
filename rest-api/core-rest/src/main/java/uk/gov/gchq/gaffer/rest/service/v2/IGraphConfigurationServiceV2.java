@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 
 import javax.ws.rs.Consumes;
@@ -43,7 +44,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
 /**
  * An {@code IGraphConfigurationService} has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
- * such as the {@link uk.gov.gchq.gaffer.store.schema.Schema} and available {@link uk.gov.gchq.gaffer.operation.Operation}s.
+ * such as the {@link Schema} and available {@link uk.gov.gchq.gaffer.operation.Operation}s.
  */
 @Path("/graph/config")
 @Produces(APPLICATION_JSON)

@@ -21,7 +21,8 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -40,7 +41,7 @@ import java.util.Set;
  * This hook will have no effect with operations that do not correctly implement {@link OperationView}
  * therefore <b>THIS HOOK SHOULD NOT BE USED TO ENFORCE ROLE BASED FILTERING OF ELEMENTS</b>.
  * Instead please make use of the visibility property
- * ({@link uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty}).
+ * ({@link Schema#visibilityProperty}).
  * <p>
  * All fields are Optional:
  * <ul>
@@ -60,7 +61,7 @@ import java.util.Set;
  * </ul>
  *
  * @see GraphHook
- * @see uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty
+ * @see Schema#visibilityProperty
  */
 public class UpdateViewHook implements GraphHook {
 

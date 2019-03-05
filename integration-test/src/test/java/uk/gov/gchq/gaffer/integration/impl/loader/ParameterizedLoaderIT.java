@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.integration.impl.loader.schemas.FullSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.VisibilitySchemaLoader;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 

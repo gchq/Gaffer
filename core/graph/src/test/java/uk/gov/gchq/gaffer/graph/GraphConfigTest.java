@@ -30,8 +30,9 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 
 import java.io.File;
 import java.io.IOException;

@@ -32,9 +32,9 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResult
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import java.util.Arrays;

@@ -18,17 +18,17 @@ package uk.gov.gchq.gaffer.graph.operation.handler;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.operation.handler.TestAddToGraphLibraryImpl;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.Assert.assertEquals;

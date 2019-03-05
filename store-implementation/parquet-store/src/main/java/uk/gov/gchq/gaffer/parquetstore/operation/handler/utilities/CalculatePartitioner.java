@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.parquetstore.partitioner.GroupPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;

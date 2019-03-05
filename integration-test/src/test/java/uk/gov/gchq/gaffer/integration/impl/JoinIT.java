@@ -39,8 +39,8 @@ import uk.gov.gchq.gaffer.graph.operation.handler.join.match.ElementMatch;
 import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.MergeType;
 import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.ResultsWanted;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;

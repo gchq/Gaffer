@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.LongVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.List;
 

@@ -20,13 +20,14 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 
 import java.util.Map;
 
 /**
  * The {@code SchemaLoader} implementations are used alongside the {@link uk.gov.gchq.gaffer.integration.impl.loader.AbstractLoaderIT}
- * to create a valid set of elements for a given {@link uk.gov.gchq.gaffer.store.schema.Schema}.
+ * to create a valid set of elements for a given {@link Schema}.
  */
 public interface SchemaLoader {
 

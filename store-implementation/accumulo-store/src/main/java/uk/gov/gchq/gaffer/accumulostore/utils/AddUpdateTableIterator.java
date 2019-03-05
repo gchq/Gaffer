@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -22,6 +22,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 
 /**
@@ -89,14 +90,14 @@ public interface IteratorSettingFactory {
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
 
     /**
      * Returns an Iterator that will validate elements in the accumulo table based
-     * on the validator provided in the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * on the validator provided in the {@link Schema}
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
@@ -110,7 +111,7 @@ public interface IteratorSettingFactory {
      *
      * @param view  the operation view
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store) throws IteratorSettingException;
@@ -120,7 +121,7 @@ public interface IteratorSettingFactory {
      *
      * @param store        the accumulo store
      * @param columnFamily the columnFamily that will be summarised
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException;

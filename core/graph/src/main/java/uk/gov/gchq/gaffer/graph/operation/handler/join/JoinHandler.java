@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.graph.operation.handler.join.merge.ElementMerge;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;

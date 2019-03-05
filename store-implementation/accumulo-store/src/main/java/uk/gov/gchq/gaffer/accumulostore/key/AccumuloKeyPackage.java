@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
 
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * The AccumuloKeyPackage provides access to Factories and utility methods

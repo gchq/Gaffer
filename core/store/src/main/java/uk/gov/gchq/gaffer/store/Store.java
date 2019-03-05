@@ -128,15 +128,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSingletonListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.util.Config;
 import uk.gov.gchq.gaffer.store.util.Hook;
 import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.store.util.Result;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.LinkedHashMap;
@@ -174,11 +170,13 @@ public abstract class Store {
     public Store() {
     }
 
-    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) {
-        return createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
+    public static Store createStore(final String graphId,
+                                    final Properties storeProperties) {
+        return createStore(graphId, StoreProperties.loadStoreProperties(storeProperties));
     }
 
-    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
+    public static Store createStore(final String graphId,
+                                    final StoreProperties storeProperties) {
         if (null == storeProperties) {
             throw new IllegalArgumentException("Store properties are required to create a store. graphId: " + graphId);
         }
@@ -198,20 +196,29 @@ public abstract class Store {
         }
 
         try {
-            newStore.initialise(graphId, schema, storeProperties);
+            newStore.initialise(graphId, storeProperties);
         } catch (final StoreException e) {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
         return newStore;
     }
 
-    public void initialise(final String id, final Schema schema,
-                           final StoreProperties properties) throws StoreException {
+    public void initialise(final String id, final StoreProperties properties) throws StoreException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == id) {
             throw new IllegalArgumentException("graphId is required");
         }
         this.config.setId(id);
+        initialise(id, properties, config);
+    }
+
+    public void initialise(final String id, final StoreProperties properties,
+                           final Config config) throws StoreException {
+        LOGGER.debug("Initialising {}", getClass().getSimpleName());
+        if (null == id) {
+            throw new IllegalArgumentException("graphId is required");
+        }
+        this.config = config;
         setProperties(properties);
 
         updateJsonSerialiser();
@@ -478,30 +485,6 @@ public abstract class Store {
 
     protected Class<? extends StoreProperties> getPropertiesClass() {
         return StoreProperties.class;
-    }
-
-    /**
-     * Ensures that each of the GroupBy properties in the {@link
-     * SchemaElementDefinition} is consistent,
-     * otherwise an error is added to the {@link ValidationResult}.
-     *
-     * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
-     * @param validationResult             The validation result
-     */
-    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        for (final String property : schemaElementDefinitionEntry.getValue()
-                .getGroupBy()) {
-            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
-                    .getPropertyTypeDef(property);
-            if (null != propertyTypeDef) {
-                final Serialiser serialiser = propertyTypeDef.getSerialiser();
-                if (null != serialiser && !serialiser.isConsistent()) {
-                    validationResult.addError("Serialiser for groupBy property: " + property
-                            + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
-                            + serialiser.getClass().getName() + " is not consistent.");
-                }
-            }
-        }
     }
 
     protected JobTracker createJobTracker() {

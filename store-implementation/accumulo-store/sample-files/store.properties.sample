@@ -68,7 +68,7 @@ gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloPropertie
 #   - property is not required
 #   - default value of gaffer.store.schema.Schema
 
-# gaffer.store.schema.class=uk.gov.gchq.gaffer.store.schema.Schema
+# gaffer.store.schema.class=Schema
 
 ################################################################################
 

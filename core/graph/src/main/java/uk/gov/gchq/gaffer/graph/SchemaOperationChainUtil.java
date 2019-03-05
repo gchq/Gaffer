@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.graph;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.ViewValidator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
-import uk.gov.gchq.gaffer.store.SchemaOperationChainValidator;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 public final class SchemaOperationChainUtil {

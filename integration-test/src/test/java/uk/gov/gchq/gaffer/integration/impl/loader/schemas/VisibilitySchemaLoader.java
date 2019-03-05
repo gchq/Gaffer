@@ -22,12 +22,13 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link SchemaLoader} implementation to load a {@link uk.gov.gchq.gaffer.store.schema.Schema}s
+ * {@link SchemaLoader} implementation to load a {@link Schema}s
  * featuring a visibility property for testing purposes.
  */
 public class VisibilitySchemaLoader implements SchemaLoader {

@@ -39,9 +39,9 @@ import uk.gov.gchq.gaffer.data.element.LazyEdge;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.store.ElementValidator;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

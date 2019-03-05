@@ -30,10 +30,10 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.FreqMapConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.HyperLogLogPlusConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.datasketches.theta.UnionConverter;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -24,7 +24,7 @@ import org.reflections.Reflections;
 
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs.StoreTestSuite;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

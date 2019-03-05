@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

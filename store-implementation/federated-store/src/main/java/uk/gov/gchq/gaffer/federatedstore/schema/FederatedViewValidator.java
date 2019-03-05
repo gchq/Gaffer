@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.schema;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;

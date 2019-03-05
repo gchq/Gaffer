@@ -25,9 +25,9 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.util.AggregatorUtil;
 
 import java.util.Collection;
 import java.util.Collections;

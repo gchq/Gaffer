@@ -23,7 +23,7 @@
 //import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 //import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 //import uk.gov.gchq.gaffer.store.Store;
-//import uk.gov.gchq.gaffer.store.schema.Schema;
+//import Schema;
 //
 //import java.io.IOException;
 //

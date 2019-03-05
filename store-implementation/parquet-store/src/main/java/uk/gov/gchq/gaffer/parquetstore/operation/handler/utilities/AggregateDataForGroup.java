@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import uk.gov.gchq.gaffer.graph.util.AggregatorUtil;
 
 import java.io.IOException;
 import java.io.Serializable;

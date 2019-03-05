@@ -28,6 +28,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphRequest;
+import uk.gov.gchq.gaffer.graph.util.GraphResult;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -39,9 +45,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.util.Hook;
 import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.store.util.Result;
@@ -879,7 +882,14 @@ public final class Graph {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
                 }
 
-                final Class<? extends Schema> schemaClass = properties.getSchemaClass();
+                final Class<? extends Schema> schemaClass;
+                try {
+                    schemaClass =
+                            Class.forName(properties.getSchemaClass()).asSubclass(Schema.class);
+                } catch (final ClassNotFoundException e) {
+                    throw new SchemaException("Schema class was not found: " + properties.getSchemaClass(), e);
+                }
+
                 final Schema newSchema = new Schema.Builder()
                         .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
                         .build();
@@ -905,7 +915,8 @@ public final class Graph {
 
         private void updateStore(final GraphConfig config) {
             if (null == store) {
-                store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
+                config.setSchema(cloneSchema(schema));
+                store = Store.createStore(config.getGraphId(), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
                     || (null != properties && !properties.equals(store.getProperties()))) {
@@ -921,7 +932,7 @@ public final class Graph {
                 }
 
                 try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
+                    store.initialise(config.getGraphId(), properties, config);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }

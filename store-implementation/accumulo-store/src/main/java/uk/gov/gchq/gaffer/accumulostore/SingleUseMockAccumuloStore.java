@@ -22,7 +22,7 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.core.client.mock.MockInstance} to

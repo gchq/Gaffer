@@ -18,14 +18,15 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * The ValidatorFilter will filter out {@link uk.gov.gchq.gaffer.data.element.Element}s
- * based on the validator functions given in the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+ * based on the validator functions given in the {@link Schema}
  * that is passed to this iterator.
  * <p>
  * If a {@link java.util.function.Predicate} returns false then the Element is removed.

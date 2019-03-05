@@ -72,6 +72,11 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
@@ -93,10 +98,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
@@ -152,7 +153,6 @@ public class AccumuloStore extends Store {
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
-    @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
@@ -172,13 +172,15 @@ public class AccumuloStore extends Store {
         final String deprecatedTableName = getProperties().getTable();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, getProperties());
+            super.setConfig(new GraphConfig.Builder().graphId(deprecatedTableName).schema(schema).build());
+            super.initialise(deprecatedTableName, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, getProperties());
+            super.setConfig(new GraphConfig.Builder().graphId(graphId).schema(schema).build());
+            super.initialise(graphId, getProperties());
         }
 
         final String keyPackageClass = getProperties().getKeyPackageClass();
@@ -187,7 +189,7 @@ public class AccumuloStore extends Store {
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
-        this.keyPackage.setSchema(getSchema());
+        this.keyPackage.setSchema(((GraphConfig) super.getConfig()).getSchema());
     }
 
     /**
@@ -210,12 +212,14 @@ public class AccumuloStore extends Store {
         return getGraphId();
     }
 
-    @Override
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
-        super.validateSchema(validationResult, serialiser);
-        final String timestampProperty = getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
+        ((GraphConfig) super.getConfig()).validateSchema(validationResult,
+                serialiser);
+        final String timestampProperty =
+                ((GraphConfig) super.getConfig()).getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
         if (null != timestampProperty) {
-            final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(getSchema().getEntities().values(), getSchema().getEdges().values());
+            final Iterable<SchemaElementDefinition> defs =
+                    new ChainedIterable<>(((GraphConfig) super.getConfig()).getSchema().getEntities().values(), ((GraphConfig) super.getConfig()).getSchema().getEdges().values());
             for (final SchemaElementDefinition def : defs) {
                 final TypeDefinition typeDef = def.getPropertyTypeDef(timestampProperty);
                 if (null != typeDef && null != typeDef.getAggregateFunction() && !(typeDef.getAggregateFunction() instanceof Max)) {
@@ -264,8 +268,10 @@ public class AccumuloStore extends Store {
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
-            conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
-            LOGGER.debug("Updating configuration with Schema of {}", getSchema());
+            conf.set(ElementInputFormat.SCHEMA,
+                    new String(((GraphConfig) super.getConfig()).getSchema().toCompactJson(), CommonConstants.UTF_8));
+            LOGGER.debug("Updating configuration with Schema of {}",
+                    ((GraphConfig) super.getConfig()).getSchema());
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
             LOGGER.debug("Updating configuration with View of {}", view);
 
@@ -308,21 +314,19 @@ public class AccumuloStore extends Store {
         }
     }
 
-    @Override
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new AccumuloSerialisationFactory());
     }
 
-    @Override
     public void validateSchemas() {
-        super.validateSchemas();
-        validateConsistentVertex();
+        ((GraphConfig) super.getConfig()).validateSchemas();
+        ((GraphConfig) super.getConfig()).validateConsistentVertex();
     }
 
-    @Override
+
     protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
-        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig) super.getConfig()).validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig) super.getConfig()).validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     @Override
@@ -374,12 +378,12 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
-        if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+        if (null == ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser() || ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser().preservesObjectOrdering()) {
             addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
             addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
         } else {
             LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
-                    getSchema().getVertexSerialiser().getClass().getName());
+                    ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser().getClass().getName());
         }
     }
 

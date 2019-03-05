@@ -46,7 +46,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;

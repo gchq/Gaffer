@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.QueryScanner;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.StoreScanner;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 

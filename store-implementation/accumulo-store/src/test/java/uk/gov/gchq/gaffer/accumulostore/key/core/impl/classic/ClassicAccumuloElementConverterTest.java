@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.

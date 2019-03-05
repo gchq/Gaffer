@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 public class ByteEntityKeyPackage extends AccumuloKeyPackage {
     public ByteEntityKeyPackage() {

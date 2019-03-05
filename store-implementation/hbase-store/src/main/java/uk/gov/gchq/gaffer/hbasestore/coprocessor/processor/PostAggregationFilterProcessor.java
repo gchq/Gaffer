@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
-import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 

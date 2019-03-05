@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.graph.operation.handler.function;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.util.StreamTransformIterable;
 import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
 import uk.gov.gchq.gaffer.store.operation.validator.function.TransformValidator;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.HashMap;

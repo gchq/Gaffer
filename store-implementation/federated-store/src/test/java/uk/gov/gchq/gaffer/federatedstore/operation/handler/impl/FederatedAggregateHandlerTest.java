@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.graph.operation.handler.function.AggregateHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;

@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.LongVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitionerTest;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.io.IOException;

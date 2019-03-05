@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl;
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
 
 public class ElementPreAggregationFilter extends AbstractElementFilter {
 

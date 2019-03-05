@@ -108,7 +108,7 @@ and in json:
     ]
   },
   "library": {
-      "class": "uk.gov.gchq.gaffer.store.library.FileGraphLibrary"
+      "class": "FileGraphLibrary"
   },
   "hooks": [
     {

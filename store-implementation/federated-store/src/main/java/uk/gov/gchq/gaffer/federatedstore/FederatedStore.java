@@ -67,14 +67,14 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -91,7 +91,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * against them and returns results as though it was a single graph.
  * <p>
  * To create a FederatedStore you need to initialise the store with a
- * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
+ * graphId and  (if graphId is not known by the {@link GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
  *
  * @see #initialise(String, Schema, StoreProperties)
@@ -310,7 +310,7 @@ public class FederatedStore extends Store {
     /**
      * The FederatedStore at time of initialisation, can set the auths required
      * to allow users to use custom {@link StoreProperties} outside the
-     * scope of the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary}.
+     * scope of the {@link GraphLibrary}.
      *
      * @param user the user needing validation for custom property usage.
      * @return boolean permission
