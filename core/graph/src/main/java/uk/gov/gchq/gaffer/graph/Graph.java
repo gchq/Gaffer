@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -236,11 +237,29 @@ public final class Graph {
         final OperationChain clonedOpChain = request.getOperationChain().shallowClone();
         O result = null;
         try {
-            updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
+            // TODO - remove in V2
+            // This updates the view, used for empty or null views, for
+            // example if there is a NamedOperation that has been resolved
+            // that contains an empty view
             updateOperationChainView(clonedOpChain);
+            // Runs the updateGraphHook instance (if set) or if not runs a
+            // new instance
+            UpdateViewHook hookInstance = null;
+            for (final GraphHook graphHook : config.getHooks()) {
+                if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
+                    hookInstance = (UpdateViewHook) graphHook;
+                    break;
+                }
+            }
+            if (null == hookInstance) {
+                UpdateViewHook updateViewHook = new UpdateViewHook();
+                updateViewHook.preExecute(clonedOpChain, clonedContext);
+            } else {
+                hookInstance.preExecute(clonedOpChain, clonedContext);
+            }
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);
