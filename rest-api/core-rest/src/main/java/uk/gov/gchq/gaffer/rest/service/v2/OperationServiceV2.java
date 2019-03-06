@@ -18,19 +18,15 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.graph.GraphResult;
@@ -100,7 +96,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
 
         for (final Class<? extends Operation> supportedOperation : supportedOperations) {
-            supportedClassesAsOperationDetail.add(new OperationDetail(supportedOperation));
+            supportedClassesAsOperationDetail.add(new OperationDetail(this, supportedOperation));
         }
 
         return Response.ok(supportedClassesAsOperationDetail)
@@ -197,7 +193,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return Response.ok(new OperationDetail(operationClass))
+                return Response.ok(new OperationDetail(this, operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             } else {
@@ -317,11 +313,11 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+    protected Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
     }
 
-    private Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
+    protected Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
         return graphFactory.getGraph().getNextOperations(opClass);
     }
 
@@ -329,7 +325,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return Class.forName(SimpleClassNameIdResolver.getClassName(className)).asSubclass(Operation.class);
     }
 
-    private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
+    protected List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
         Map<String, String> fieldsToClassMap = getSerialisedFieldClasses(opClass.getName());
         List<OperationField> operationFields = new ArrayList<>();
 
@@ -362,7 +358,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return operationFields;
     }
 
-    private String getOperationOutputType(final Operation operation) {
+    protected String getOperationOutputType(final Operation operation) {
         String outputClass = null;
         if (operation instanceof Output) {
             outputClass = JsonSerialisationUtil.getTypeString(((Output) operation).getOutputTypeReference().getType());
@@ -370,183 +366,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         return outputClass;
     }
 
-    private static String getSummaryValue(final Class<?> opClass) {
+    protected static String getSummaryValue(final Class<?> opClass) {
         final Summary summary = opClass.getAnnotation(Summary.class);
         return null != summary && null != summary.value() ? summary.value() : null;
     }
 
-    /**
-     * POJO to store details for a single user defined field in an {@link uk.gov.gchq.gaffer.operation.Operation}.
-     */
-    private class OperationField {
-        private final String name;
-        private final String summary;
-        private String className;
-        private Set<String> options;
-        private final boolean required;
-
-        OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
-            this.name = name;
-            this.summary = summary;
-            this.className = className;
-            this.options = options;
-            this.required = required;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getSummary() {
-            return summary;
-        }
-
-        public String getClassName() {
-            return className;
-        }
-
-        public Set<String> getOptions() {
-            return options;
-        }
-
-        public boolean isRequired() {
-            return required;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            final OperationField that = (OperationField) o;
-
-            return new EqualsBuilder()
-                    .append(required, that.required)
-                    .append(name, that.name)
-                    .append(summary, that.summary)
-                    .append(className, that.className)
-                    .append(options, that.options)
-                    .isEquals();
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(17, 37)
-                    .append(name)
-                    .append(summary)
-                    .append(className)
-                    .append(options)
-                    .append(required)
-                    .toHashCode();
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("name", name)
-                    .append("summary", summary)
-                    .append("className", className)
-                    .append("options", options)
-                    .append("required", required)
-                    .toString();
-        }
-    }
-
-    /**
-     * POJO to store details for a user specified {@link uk.gov.gchq.gaffer.operation.Operation}
-     * class.
-     */
-    protected class OperationDetail {
-        private final String name;
-        private final String summary;
-        private final List<OperationField> fields;
-        private final Set<Class<? extends Operation>> next;
-        private final Operation exampleJson;
-        private final String outputClassName;
-
-        OperationDetail(final Class<? extends Operation> opClass) {
-            this.name = opClass.getName();
-            this.summary = getSummaryValue(opClass);
-            this.fields = getOperationFields(opClass);
-            this.next = getNextOperations(opClass);
-            try {
-                this.exampleJson = generateExampleJson(opClass);
-            } catch (final IllegalAccessException | InstantiationException e) {
-                throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
-            }
-            this.outputClassName = getOperationOutputType(exampleJson);
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getSummary() {
-            return summary;
-        }
-
-        public List<OperationField> getFields() {
-            return fields;
-        }
-
-        public Set<Class<? extends Operation>> getNext() {
-            return next;
-        }
-
-        public Operation getExampleJson() {
-            return exampleJson;
-        }
-
-        public String getOutputClassName() {
-            return outputClassName;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            final OperationDetail that = (OperationDetail) o;
-
-            return new EqualsBuilder()
-                    .append(name, that.name)
-                    .append(summary, that.summary)
-                    .append(fields, that.fields)
-                    .append(next, that.next)
-                    .append(exampleJson, that.exampleJson)
-                    .isEquals();
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(17, 37)
-                    .append(name)
-                    .append(summary)
-                    .append(fields)
-                    .append(next)
-                    .append(exampleJson)
-                    .toHashCode();
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("name", name)
-                    .append("summary", summary)
-                    .append("fields", fields)
-                    .append("next", next)
-                    .append("exampleJson", exampleJson)
-                    .toString();
-        }
-    }
 }
