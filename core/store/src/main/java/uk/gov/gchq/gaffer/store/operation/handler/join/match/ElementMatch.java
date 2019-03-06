@@ -31,6 +31,8 @@ public class ElementMatch implements Match {
     private ElementJoinComparator elementJoinComparator;
     private Iterable matchCandidates;
 
+    private static final String NULL_MATCH_CANDIDATES_ERROR_MESSAGE = "ElementMatch must be initialised with non-null match candidates";
+
     public ElementMatch() {
         elementJoinComparator = new ElementJoinComparator();
     }
@@ -49,12 +51,20 @@ public class ElementMatch implements Match {
 
     @Override
     public void init(final Iterable matchCandidates) {
+        if (matchCandidates == null) {
+            throw new IllegalArgumentException(NULL_MATCH_CANDIDATES_ERROR_MESSAGE);
+        }
         this.matchCandidates = matchCandidates;
     }
 
     @Override
     public List matching(final Object testObject) {
+        if (matchCandidates == null) {
+            throw new IllegalArgumentException(NULL_MATCH_CANDIDATES_ERROR_MESSAGE);
+        }
+
         List matches = new ArrayList<>();
+
 
         for (final Object entry : matchCandidates) {
             if (elementJoinComparator.test((Element) entry, (Element) testObject)) {

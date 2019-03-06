@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ElementMatchTest {
 
@@ -113,6 +112,39 @@ public class ElementMatchTest {
         // Then
         assertEquals(0, matchingElements.size());
     }
+
+    @Test
+    public void shouldThrowExceptionIfInitialisedWithNullValue() {
+        // Given
+
+        ElementMatch elementMatch = new ElementMatch();
+
+        // When / Then
+
+        try {
+            elementMatch.init(null);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfNotInitialised() {
+        // Given
+
+        ElementMatch elementMatch = new ElementMatch();
+
+        // When / Then
+
+        try {
+            elementMatch.matching(new Entity("testGroup", "test"));
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
+        }
+    }
+
 
     @Test
     public void shouldFullyMatchEqualElementsWithGroupBy() {

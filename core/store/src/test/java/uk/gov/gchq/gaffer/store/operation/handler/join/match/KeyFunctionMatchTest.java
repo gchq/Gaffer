@@ -300,11 +300,9 @@ public class KeyFunctionMatchTest {
     @Test
     public void shouldThrowExceptionIfListIsNull() {
         // given
-        Integer testValue = 3;
-
-        // when
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().build();
-        // then
+
+        // when / then
 
         try {
             match.init(null);
