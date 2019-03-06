@@ -148,7 +148,7 @@ public class Context {
     }
 
     public void addVariables(final Map<String, Object> variables) {
-        if (null != variables) {
+        if (null != this.variables) {
             this.variables.putAll(variables);
         } else {
             setVariables(variables);
