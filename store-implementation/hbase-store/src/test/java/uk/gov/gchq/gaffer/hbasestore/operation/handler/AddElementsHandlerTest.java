@@ -16,15 +16,6 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -32,11 +23,17 @@ import org.apache.hadoop.hbase.client.Table;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -47,15 +44,21 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class AddElementsHandlerTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -144,7 +147,7 @@ public class AddElementsHandlerTest {
         properties.setWriteBufferSize(writeBufferSize);
         given(store.getProperties()).willReturn(properties);
 
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(((GraphConfig) store.getConfig())).willReturn(new GraphConfig.Builder().schema(SCHEMA).build());
 
         // When
         handler.doOperation(addElements, context, store);
@@ -186,7 +189,7 @@ public class AddElementsHandlerTest {
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         given(store.getProperties()).willReturn(properties);
 
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(((GraphConfig) store.getConfig())).willReturn(new GraphConfig.Builder().schema(SCHEMA).build());
 
         // When
         handler.doOperation(addElements, context, store);
@@ -269,9 +272,9 @@ public class AddElementsHandlerTest {
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         given(store.getProperties()).willReturn(properties);
 
-        given(store.getSchema()).willReturn(SCHEMA);
+        given(((GraphConfig) store.getConfig())).willReturn(new GraphConfig.Builder().schema(SCHEMA).build());
 
         // When / Then - no exceptions
-        handler.doOperation(addElements,context, store);
+        handler.doOperation(addElements, context, store);
     }
 }

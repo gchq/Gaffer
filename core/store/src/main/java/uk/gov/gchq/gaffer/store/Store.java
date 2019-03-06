@@ -216,35 +216,25 @@ public abstract class Store {
     }
 
     public void initialise(final String id, final StoreProperties properties) throws StoreException {
-        if (null == config) {
-            this.config = new Config();
+        if (null == this.config) {
+            config = new Config();
         }
-        this.config.setId(id);
-        initialise(id, config, properties);
+        config.setId(id);
+        initialise(config, properties);
     }
 
     public void initialise(final Config config, final StoreProperties properties) {
-        initialise(config.getId(), config, properties);
-    }
-
-    public void initialise(final String id, final Config config, final StoreProperties properties) {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
-        if (null == id) {
-            throw new IllegalArgumentException("id is required");
+        if (null == config) {
+            throw new IllegalArgumentException("a Config is required");
         }
-
+        if (null == config.getId()) {
+            throw new IllegalArgumentException("id is required within the " +
+                    "Config");
+        }
         if (null == properties) {
             throw new IllegalArgumentException("Store properties are required" +
-                    " to create a store. id: " + id);
-        }
-
-        if (null == config) {
-            this.config = new Config();
-            config.setId(id);
-        }
-        if (config.getId() != id) {
-            throw new IllegalArgumentException("Supplied id and Config " +
-                    "id do not match");
+                    " to create a store. id: " + config.getId());
         }
 
         this.config = config;
@@ -257,6 +247,20 @@ public abstract class Store {
 
         addOpHandlers();
         addExecutorService(properties);
+
+        initialise(config.getId(), config, properties);
+    }
+
+    public void initialise(final String id, final Config config, final StoreProperties properties) {
+        if (null == config) {
+            this.config = new Config();
+            config.setId(id);
+        }
+        if (config.getId() != id) {
+            throw new IllegalArgumentException("Supplied id and Config " +
+                    "id do not match");
+        }
+        initialise(config, properties);
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
@@ -321,6 +325,8 @@ public abstract class Store {
         if (null == request.getContext()) {
             throw new IllegalArgumentException("A context is required");
         }
+
+        request.setConfig(config);
         request.getContext().setOriginalOperation(request.getOperation());
         final Request clonedRequest = request.fullClone();
         final Operation operation = clonedRequest.getOperation();
@@ -382,6 +388,7 @@ public abstract class Store {
             throw new IllegalArgumentException("A context is required");
         }
 
+        request.setConfig(config);
         request.getContext().setOriginalOperation(request.getOperation());
         final Request clonedRequest = request.fullClone();
         final Operation operation = clonedRequest.getOperation();

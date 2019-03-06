@@ -155,7 +155,7 @@ public class AccumuloStoreTest {
 
         // Then
         assertEquals("tableName", store.getTableName());
-        assertEquals("tableName", store.getGraphId());
+        assertEquals("tableName", store.getId());
     }
 
     @Test

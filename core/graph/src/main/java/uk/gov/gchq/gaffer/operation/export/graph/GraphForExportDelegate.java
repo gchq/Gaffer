@@ -64,7 +64,7 @@ public class GraphForExportDelegate extends GraphDelegate {
             result.addError(error);
         }
 
-        if (graphId.equals(store.getGraphId())) {
+        if (graphId.equals(store.getId())) {
             result.addError(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));
         }
         if (!result.isValid()) {

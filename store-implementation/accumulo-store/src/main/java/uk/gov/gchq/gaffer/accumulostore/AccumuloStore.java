@@ -209,7 +209,7 @@ public class AccumuloStore extends Store {
     }
 
     public String getTableName() {
-        return getGraphId();
+        return getId();
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {

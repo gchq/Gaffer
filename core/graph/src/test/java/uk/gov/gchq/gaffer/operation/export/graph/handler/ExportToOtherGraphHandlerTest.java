@@ -92,7 +92,7 @@ public class ExportToOtherGraphHandlerTest {
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
 
         given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getId()).willReturn(GRAPH_ID);
     }
 
     @Test

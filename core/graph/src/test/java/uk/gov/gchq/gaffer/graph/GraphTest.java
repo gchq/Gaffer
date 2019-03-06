@@ -922,7 +922,7 @@ public class GraphTest {
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
         final Store store = mock(Store.class);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getId()).willReturn(GRAPH_ID);
         given(store.getProperties()).willReturn(new StoreProperties());
 
         Map<String, SchemaEdgeDefinition> edges = new HashMap<>();

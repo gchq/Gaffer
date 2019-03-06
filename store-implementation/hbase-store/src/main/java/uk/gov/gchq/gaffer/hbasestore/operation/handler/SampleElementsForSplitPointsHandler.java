@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
@@ -36,7 +37,7 @@ public class SampleElementsForSplitPointsHandler extends AbstractSampleElementsF
 
     @Override
     protected Stream<String> process(final Stream<? extends Element> stream, final HBaseStore store) {
-        final ElementSerialisation serialiser = new ElementSerialisation(store.getSchema());
+        final ElementSerialisation serialiser = new ElementSerialisation(((GraphConfig)store.getConfig()).getSchema());
         return stream
                 .map(element -> {
                     try {

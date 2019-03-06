@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
@@ -107,7 +108,6 @@ public class HBaseStore extends Store {
             ));
     private Connection connection;
 
-    @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         preInitialise(graphId, schema, properties);
@@ -128,13 +128,15 @@ public class HBaseStore extends Store {
         final String deprecatedTableName = getProperties().getTableName();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, getProperties());
+            ((GraphConfig)super.getConfig()).setSchema(schema);
+            super.initialise(deprecatedTableName, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, getProperties());
+            ((GraphConfig)super.getConfig()).setSchema(schema);
+            super.initialise(graphId, getProperties());
         }
     }
 
@@ -158,7 +160,7 @@ public class HBaseStore extends Store {
     }
 
     public TableName getTableName() {
-        return TableName.valueOf(getGraphId());
+        return TableName.valueOf(getId());
     }
 
     /**
@@ -187,21 +189,19 @@ public class HBaseStore extends Store {
         return new HBaseRetriever<>(this, operation, user, ids, includeMatchedVertex, extraProcessors);
     }
 
-    @Override
+
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new HBaseSerialisationFactory());
     }
 
-    @Override
     public void validateSchemas() {
-        super.validateSchemas();
-        validateConsistentVertex();
+        ((GraphConfig)super.getConfig()).validateSchemas();
+        ((GraphConfig)super.getConfig()).validateConsistentVertex();
     }
 
-    @Override
     protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
-        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig)super.getConfig()).validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig)super.getConfig()).validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     @Override

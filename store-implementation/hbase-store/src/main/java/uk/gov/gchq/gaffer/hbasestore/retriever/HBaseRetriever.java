@@ -38,12 +38,13 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.graph.ElementValidator;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -74,7 +75,8 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                           final Iterable<? extends ElementId> ids,
                           final boolean includeMatchedVertex,
                           final Class<?>... extraProcessors) throws StoreException {
-        this.serialisation = new ElementSerialisation(store.getSchema());
+        this.serialisation =
+                new ElementSerialisation(((GraphConfig)store.getConfig()).getSchema());
         this.rowRangeFactory = new RowRangeFactory(serialisation);
         this.validator = new ElementValidator(operation.getView());
         this.store = store;
@@ -171,7 +173,8 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
             }
 
             scan.setAuthorizations(authorisations);
-            scan.setAttribute(HBaseStoreConstants.SCHEMA, store.getSchema().toCompactJson());
+            scan.setAttribute(HBaseStoreConstants.SCHEMA,
+                    ((GraphConfig)store.getConfig()).getSchema().toCompactJson());
             scan.setAttribute(HBaseStoreConstants.INCLUDE_MATCHED_VERTEX, Bytes.toBytes(Boolean.toString(includeMatchedVertex)));
             scan.setAttribute(HBaseStoreConstants.VIEW, operation.getView().toCompactJson());
             if (null != operation.getDirectedType()) {

@@ -17,11 +17,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
+import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
+import uk.gov.gchq.gaffer.graph.operation.GraphOperationValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationValidator;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -34,9 +34,23 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class FederatedOperationValidator extends OperationValidator {
-    public FederatedOperationValidator(final ViewValidator viewValidator) {
-        super(viewValidator);
+/**
+ * Validation class for validating
+ * {@link uk.gov.gchq.gaffer.operation.OperationChain}s against
+ * {@link FederatedViewValidator}s using the Federated Store schemas.
+ * Extends {@link GraphOperationValidator} and uses the
+ * {@link FederatedStore} to get
+ * the merged schema based on the user context and operation options.
+ */
+public class FederatedOperationValidator extends GraphOperationValidator {
+    final FederatedViewValidator viewValidator = new FederatedViewValidator();
+
+    public FederatedOperationValidator() {
+    }
+
+    @Override
+    public ValidationResult validate(final Operation operation, final User user, final Store store) {
+        return super.validate(operation, user, store);
     }
 
     @Override

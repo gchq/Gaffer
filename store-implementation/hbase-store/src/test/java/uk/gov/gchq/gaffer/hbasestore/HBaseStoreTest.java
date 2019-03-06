@@ -133,7 +133,7 @@ public class HBaseStoreTest {
         store.initialise(null, SCHEMA, properties);
 
         // Then
-        assertEquals("tableName", store.getGraphId());
+        assertEquals("tableName", store.getId());
         assertEquals("tableName", store.getTableName().getNameAsString());
     }
 
@@ -164,7 +164,7 @@ public class HBaseStoreTest {
         store.initialise("tableName", SCHEMA, properties);
 
         // Then
-        assertEquals("tableName", store.getGraphId());
+        assertEquals("tableName", store.getId());
     }
 
     @Test
@@ -193,7 +193,7 @@ public class HBaseStoreTest {
         store.initialise("graphId", SCHEMA, properties);
 
         // Then
-        assertEquals("graphId", store.getGraphId());
+        assertEquals("graphId", store.getId());
     }
 
     @Test

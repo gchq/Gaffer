@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.user.User;
 public class Request<O> {
     private Operation operation;
     private final Context context;
+    private Config config;
 
     public Request(final Operation operation, final User user) {
         if (null == operation) {
@@ -100,6 +101,14 @@ public class Request<O> {
         this.operation = operation;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(final Config config) {
+        this.config = config;
+    }
+
     public Context getContext() {
         return context;
     }
@@ -141,6 +150,4 @@ public class Request<O> {
                 .append("context", context)
                 .toString();
     }
-
-
 }

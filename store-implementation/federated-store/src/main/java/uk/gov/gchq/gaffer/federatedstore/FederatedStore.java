@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -45,10 +43,13 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElem
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.operation.GetSchema;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -67,14 +68,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.operation.OperationValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
@@ -94,7 +90,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * graphId and  (if graphId is not known by the {@link GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
  *
- * @see #initialise(String, Schema, StoreProperties)
+ * @see #initialise(String, StoreProperties)
  * @see Store
  * @see Graph
  */
@@ -108,21 +104,19 @@ public class FederatedStore extends Store {
      * properties.
      *
      * @param graphId    the graphId to label this FederatedStore.
-     * @param unused     unused
      * @param properties properties to initialise this FederatedStore with, can
      *                   contain details on graphs to add to scope.
      * @throws StoreException if no cache has been set
      */
     @Override
-    public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        super.initialise(graphId, new Schema(), properties);
+    public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
+        super.initialise(graphId, properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
     }
 
-    @Override
     public void setGraphLibrary(final GraphLibrary library) {
-        super.setGraphLibrary(library);
+        ((GraphConfig)super.getConfig()).setLibrary(library);
         graphStorage.setGraphLibrary(library);
     }
 
@@ -240,7 +234,6 @@ public class FederatedStore extends Store {
         return graphStorage.getAllIds(user);
     }
 
-    @Override
     public Schema getSchema() {
         return getSchema((Map<String, String>) null, (User) null);
     }
@@ -350,16 +343,6 @@ public class FederatedStore extends Store {
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
-    }
-
-    @Override
-    protected OperationChainValidator createOperationChainValidator() {
-        return new FederatedOperationChainValidator(new FederatedViewValidator());
-    }
-
-    @Override
-    protected OperationValidator createOperationValidator() {
-        return new FederatedOperationValidator(new FederatedViewValidator());
     }
 
     @Override

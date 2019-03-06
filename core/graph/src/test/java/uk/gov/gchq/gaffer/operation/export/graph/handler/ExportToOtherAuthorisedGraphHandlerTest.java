@@ -70,7 +70,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Before
     public void setUp() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getId()).willReturn(GRAPH_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());

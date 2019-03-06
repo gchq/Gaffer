@@ -33,15 +33,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.IOException;
@@ -296,7 +297,7 @@ public final class TableUtils {
 
     private static void addCoprocesssor(final HTableDescriptor htable, final HBaseStore store) throws IOException {
         final String schemaJson = StringUtil.escapeComma(
-                Bytes.toString(store.getSchema().toCompactJson()));
+                Bytes.toString(((GraphConfig)store.getConfig()).getSchema().toCompactJson()));
         final Map<String, String> options = new HashMap<>(1);
         options.put(HBaseStoreConstants.SCHEMA, schemaJson);
         htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);

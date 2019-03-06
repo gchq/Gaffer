@@ -83,7 +83,7 @@ public class GafferAdder implements Serializable {
         this.skipInvalid = operation.isSkipInvalidElements();
         final String maxQueueSizeOption = operation.getOption(FlinkConstants.MAX_QUEUE_SIZE);
         this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
-        graphId = store.getGraphId();
+        graphId = store.getId();
         schema = ((GraphConfig) store.getConfig()).getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
     }

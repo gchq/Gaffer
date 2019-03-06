@@ -26,13 +26,14 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.operation.handler.AbstractSampleElementsForSplitPointsHandlerTest;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandler;
-import uk.gov.gchq.gaffer.graph.operation.handler.AbstractSampleElementsForSplitPointsHandlerTest;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
         final TableName tableName = TableName.valueOf("table1");
         final List<HRegionInfo> tableRegions = Collections.nCopies(NUM_TABLE_REGIONS, null);
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
         given(store.getConnection()).willReturn(connection);
         given(store.getTableName()).willReturn(tableName);
         given(connection.getAdmin()).willReturn(admin);

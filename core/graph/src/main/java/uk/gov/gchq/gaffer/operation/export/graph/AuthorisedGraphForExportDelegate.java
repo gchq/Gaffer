@@ -140,7 +140,7 @@ public class AuthorisedGraphForExportDelegate extends GraphDelegate {
                 result.addError(String.format(S_MUST_BE_SPECIFIED_WITH_S, PARENT_SCHEMA_IDS, PARENT_STORE_PROPERTIES_ID));
             }
 
-            if (graphId.equals(store.getGraphId())) {
+            if (graphId.equals(store.getId())) {
                 result.addError(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));
             }
         }
