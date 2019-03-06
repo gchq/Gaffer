@@ -140,10 +140,12 @@ public class Context {
     }
 
     public void setVariable(final String key, final Object value) {
-        if (null != variables) {
+        if (null != this.variables) {
             this.variables.put(key, value);
         } else {
-            setVariables(Collections.singletonMap(key, value));
+            Map<String, Object> newVariablesMap = new HashMap<>();
+            newVariablesMap.put(key, value);
+            setVariables(newVariablesMap);
         }
     }
 
@@ -151,7 +153,8 @@ public class Context {
         if (null != this.variables) {
             this.variables.putAll(variables);
         } else {
-            setVariables(variables);
+            Map<String, Object> newVariablesMap = new HashMap<>(variables);
+            setVariables(newVariablesMap);
         }
     }
 
