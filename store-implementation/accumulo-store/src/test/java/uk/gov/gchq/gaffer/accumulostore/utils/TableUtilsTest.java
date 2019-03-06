@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;

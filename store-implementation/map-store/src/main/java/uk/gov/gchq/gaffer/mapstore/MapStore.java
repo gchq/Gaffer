@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentIdsHandler;
@@ -42,7 +44,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -77,10 +78,10 @@ public class MapStore extends Store {
         staticMapImpl = null;
     }
 
-    @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         // Initialise store
-        super.initialise(graphId, schema, properties);
+        super.setConfig(new GraphConfig.Builder().graphId(graphId).schema(schema).build());
+        super.initialise(graphId, properties);
 
         // Initialise maps
         mapImpl = createMapImpl();
@@ -110,13 +111,16 @@ public class MapStore extends Store {
         if (getProperties().isStaticMap()) {
             LOGGER.debug("Using static map");
             if (null == staticMapImpl) {
-                staticMapImpl = new MapImpl(getSchema(), getProperties());
+                staticMapImpl =
+                        new MapImpl(((GraphConfig)this.getConfig()).getSchema(),
+                        getProperties());
             }
 
             return staticMapImpl;
         }
 
-        return new MapImpl(getSchema(), getProperties());
+        return new MapImpl(((GraphConfig)this.getConfig()).getSchema(),
+                getProperties());
     }
 
     @Override

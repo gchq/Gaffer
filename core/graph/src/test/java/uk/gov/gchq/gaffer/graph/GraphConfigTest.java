@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.util.Hook;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
-        assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals((List) obj.getHooks().stream().map(Hook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(Hook::getClass).collect(Collectors.toList()));
     }
 
     @Test
@@ -95,7 +96,9 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
         // Then
         assertNotNull(deserialisedObj);
-        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals(Arrays.asList(Log4jLogger.class,
+                AddOperationsToChain.class, NamedOperationResolver.class),
+                (List) deserialisedObj.getHooks().stream().map(Hook::getClass).collect(Collectors.toList()));
     }
 
     @Test

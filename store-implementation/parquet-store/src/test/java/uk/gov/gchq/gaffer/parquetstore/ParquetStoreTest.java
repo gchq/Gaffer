@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.parquetstore;
 
@@ -65,7 +66,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
@@ -152,7 +153,7 @@ public class ParquetStoreTest {
         }
         fail("IllegalArgumentException should have been thrown");
     }
-
+AddElementsHandlerTest.java
     @Test
     public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
         //Given
@@ -296,3 +297,4 @@ public class ParquetStoreTest {
                 .build();
     }
 }
+*/

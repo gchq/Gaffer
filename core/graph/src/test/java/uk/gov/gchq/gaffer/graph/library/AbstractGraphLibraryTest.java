@@ -24,11 +24,10 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -320,8 +319,8 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldNotOverwriteSchemaWithClashingName() throws Exception {
         final String clashingId = "clashingId";
-        byte[] entitySchema = new Builder().entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
-        byte[] edgeSchema = new Builder().edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] entitySchema = new Schema.Builder().entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] edgeSchema = new Schema.Builder().edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
 
         graphLibrary.addSchema(clashingId, Schema.fromJson(entitySchema));
 

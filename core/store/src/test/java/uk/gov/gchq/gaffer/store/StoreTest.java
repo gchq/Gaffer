@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.store;
 
@@ -395,7 +396,8 @@ public class StoreTest {
         assertSame(operation, store.getDoUnhandledOperationCalls().get(0));
     }
 
-    /*@Test
+    */
+/*@Test
     public void shouldFullyLoadLazyElement() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
@@ -416,7 +418,8 @@ public class StoreTest {
         verify(lazyElement).getGroup();
         verify(lazyElement).getProperty(TestPropertyNames.PROP_1);
         verify(lazyElement).getIdentifier(IdentifierType.VERTEX);
-    }*/
+    }*//*
+
 
     @Test
     public void shouldHandleMultiStepOperations() throws Exception {
@@ -817,7 +820,8 @@ public class StoreTest {
         verify(TestCustomJsonSerialiser1.mapper, times(2)).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
     }
 
-    /*@Test
+    */
+/*@Test
     public void shouldSetAndGetGraphLibrary() {
         // Given
         final Store store = new StoreImpl();
@@ -829,7 +833,8 @@ public class StoreTest {
 
         // Then
         assertSame(graphLibrary, result);
-    }*/
+    }*//*
+
 
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
@@ -938,10 +943,12 @@ public class StoreTest {
             return doUnhandledOperationCalls;
         }
 
-        /*@Override
+        */
+/*@Override
         public void optimiseSchema() {
             schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
-        }*/
+        }*//*
+
 
         @Override
         protected JobTracker createJobTracker() {
@@ -966,3 +973,4 @@ public class StoreTest {
         }
     }
 }
+*/

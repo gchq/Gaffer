@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;

@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store;
+package uk.gov.gchq.gaffer.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
-
-import java.util.Set;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * {@link TypeReference} implementations for use by the {@link Store} class.
  */
-public final class TypeReferenceStoreImpl {
-    public static class StoreTraits extends TypeReference<Set<StoreTrait>> {
-    }
-
-    public static class Operations extends TypeReference<Set<Class<? extends Operation>>> {
-    }
-
-    private TypeReferenceStoreImpl() {
+public final class TypeReferenceSchemaImpl {
+    private TypeReferenceSchemaImpl() {
         // Private constructor to prevent instantiation.
+    }
+
+    public static class Schema extends TypeReference<uk.gov.gchq.gaffer.graph.schema.Schema> {
     }
 }

@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;

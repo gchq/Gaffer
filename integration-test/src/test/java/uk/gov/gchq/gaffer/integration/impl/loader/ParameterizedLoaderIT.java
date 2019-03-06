@@ -25,14 +25,14 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.TestSchema;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.AggregationSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.BasicSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.FullSchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.VisibilitySchemaLoader;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -40,10 +40,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.AGGREGATION_SCHEMA;
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
+import static uk.gov.gchq.gaffer.graph.schema.TestSchema.AGGREGATION_SCHEMA;
+import static uk.gov.gchq.gaffer.graph.schema.TestSchema.BASIC_SCHEMA;
+import static uk.gov.gchq.gaffer.graph.schema.TestSchema.FULL_SCHEMA;
+import static uk.gov.gchq.gaffer.graph.schema.TestSchema.VISIBILITY_SCHEMA;
 
 /**
  * This is the main class for carrying out data loading testing.

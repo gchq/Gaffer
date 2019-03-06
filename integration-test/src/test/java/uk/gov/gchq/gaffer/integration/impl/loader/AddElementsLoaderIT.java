@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.schema.TestSchema;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map;

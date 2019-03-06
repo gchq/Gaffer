@@ -43,13 +43,14 @@ import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -72,21 +73,19 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     public void shouldNotReturnDeletedElements() throws Exception {
         // Given
         final AccumuloStore accStore = (AccumuloStore) AccumuloStore.createStore(
-                "graph1",
-                new Schema.Builder()
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .build())
-                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                                .source(TestTypes.ID_STRING)
-                                .destination(TestTypes.ID_STRING)
-                                .directed(TestTypes.DIRECTED_EITHER)
-                                .build())
-                        .type(TestTypes.ID_STRING, String.class)
-                        .type(TestTypes.DIRECTED_EITHER, Boolean.class)
-                        .build(),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
-        );
+                "graph1", AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass())));
+        ((GraphConfig) accStore.getConfig()).setSchema(new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_EITHER)
+                        .build())
+                .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.DIRECTED_EITHER, Boolean.class)
+                .build());
 
         final Graph graph = new Graph.Builder()
                 .store(accStore)

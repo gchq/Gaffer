@@ -17,15 +17,15 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
- * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
+ * A {@code FederatedGetSchemaHandler} handles the {@link GetSchema}
  * operation by merging federated schemas.
  */
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {

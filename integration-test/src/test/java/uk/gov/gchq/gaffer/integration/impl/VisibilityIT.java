@@ -26,6 +26,11 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.TestTypes;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
@@ -34,11 +39,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TestTypes;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class VisibilityIT extends AbstractStoreIT {
 

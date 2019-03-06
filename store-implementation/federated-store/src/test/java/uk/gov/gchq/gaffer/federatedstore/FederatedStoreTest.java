@@ -59,7 +59,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.Schema.Builder;

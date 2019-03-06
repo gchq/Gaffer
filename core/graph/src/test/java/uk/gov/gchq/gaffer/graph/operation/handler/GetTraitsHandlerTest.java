@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.graph.operation.handler;
 
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -23,14 +23,16 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.operation.handler.TestAddToGraphLibraryImpl;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
@@ -169,7 +171,7 @@ public class GetTraitsHandlerTest {
     @Test
     public void shouldHaveAllTraitsForSupported() throws Exception {
         // Given
-        store.initialise(STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(STORE_ID, new StoreProperties());
 
         // When
         Set<StoreTrait> traits = store.execute(
@@ -183,7 +185,8 @@ public class GetTraitsHandlerTest {
     }
 
     private Set<StoreTrait> getStoreTraits(final Schema schema) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
-        store.initialise(STORE_ID, schema, new StoreProperties());
+        ((GraphConfig) store.getConfig()).setSchema(schema);
+        store.initialise(STORE_ID, new StoreProperties());
         Set<StoreTrait> execute = store.execute(
                 new GetTraits.Builder()
                         .currentTraits(true)

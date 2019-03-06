@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
@@ -96,7 +97,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         this.context = context;
         this.view = view;
         this.store = store;
-        this.schemaConverter = new SchemaToStructTypeConverter(store.getSchema(), view, converters);
+        this.schemaConverter =
+                new SchemaToStructTypeConverter(((GraphConfig) store.getConfig()).getSchema(),
+                        view, converters);
         this.groups = this.schemaConverter.getGroups();
         this.structType = this.schemaConverter.getStructType();
         this.usedProperties = this.schemaConverter.getUsedProperties();
@@ -184,7 +187,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(requiredColumns, ','),
                 filters.length,
                 StringUtils.join(filters, ','));
-        Output<RDD<Element>> operation = new FiltersToOperationConverter(view, store.getSchema(), filters)
+        Output<RDD<Element>> operation = new FiltersToOperationConverter(view, ((GraphConfig) store.getConfig()).getSchema(), filters)
                 .getOperation();
         if (null == operation) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X

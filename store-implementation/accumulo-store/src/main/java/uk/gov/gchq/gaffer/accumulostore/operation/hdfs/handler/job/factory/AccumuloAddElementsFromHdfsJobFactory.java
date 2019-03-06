@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
@@ -58,8 +59,8 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
-        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        LOGGER.debug("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(((GraphConfig)store.getConfig()).getSchema().toCompactJson(), CommonConstants.UTF_8));
+        LOGGER.debug("Added {} {} to job conf", SCHEMA, new String(((GraphConfig)store.getConfig()).getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));

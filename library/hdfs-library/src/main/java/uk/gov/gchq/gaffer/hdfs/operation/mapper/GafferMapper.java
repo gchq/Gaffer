@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
-import uk.gov.gchq.gaffer.store.ElementValidator;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;

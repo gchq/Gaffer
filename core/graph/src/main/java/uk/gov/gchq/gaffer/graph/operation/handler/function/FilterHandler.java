@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.operation.util.StreamFilterIterable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.validator.function.FilterValidator;
-import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
+import uk.gov.gchq.gaffer.graph.function.FilterValidator;
+import uk.gov.gchq.gaffer.graph.function.FunctionValidator;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 

@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
     @Test

@@ -143,8 +143,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * A {@code Store} backs a Graph and is responsible for storing the {@link
- * uk.gov.gchq.gaffer.data.element.Element}s and
+ * A {@code Store} is responsible for storing Objects and
  * handling {@link Operation}s.
  * {@link Operation}s and their corresponding {@link OperationHandler}s are
  * registered in a map and used to handle
@@ -163,6 +162,11 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
+    /**
+     * The Config - contains specific information about the confuguration of
+     * the Store, and can be used to provide details about a Graph, for
+     * example, and util methods for these.  See GraphConfig.
+     */
     private Config config;
 
     private JobTracker jobTracker;
@@ -170,20 +174,31 @@ public abstract class Store {
     public Store() {
     }
 
-    public static Store createStore(final String graphId,
+    public static Store createStore(final String id,
                                     final Properties storeProperties) {
-        return createStore(graphId, StoreProperties.loadStoreProperties(storeProperties));
+        return createStore(id, StoreProperties.loadStoreProperties(storeProperties));
     }
 
-    public static Store createStore(final String graphId,
+    public static Store createStore(final Config config,
+                                    final Properties storeProperties) {
+        return createStore(config.getId(), config, StoreProperties.loadStoreProperties(storeProperties));
+    }
+
+    public static Store createStore(final String id,
+                                    final StoreProperties storeProperties) {
+        return createStore(id, new Config(), storeProperties);
+    }
+
+    public static Store createStore(final String id,
+                                    final Config config,
                                     final StoreProperties storeProperties) {
         if (null == storeProperties) {
-            throw new IllegalArgumentException("Store properties are required to create a store. graphId: " + graphId);
+            throw new IllegalArgumentException("Store properties are required to create a store. id: " + id);
         }
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", id: " + id);
         }
 
         final Store newStore;
@@ -195,29 +210,43 @@ public abstract class Store {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 
-        try {
-            newStore.initialise(graphId, storeProperties);
-        } catch (final StoreException e) {
-            throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-        }
+        newStore.initialise(id, config, storeProperties);
+
         return newStore;
     }
 
     public void initialise(final String id, final StoreProperties properties) throws StoreException {
-        LOGGER.debug("Initialising {}", getClass().getSimpleName());
-        if (null == id) {
-            throw new IllegalArgumentException("graphId is required");
+        if (null == config) {
+            this.config = new Config();
         }
         this.config.setId(id);
-        initialise(id, properties, config);
+        initialise(id, config, properties);
     }
 
-    public void initialise(final String id, final StoreProperties properties,
-                           final Config config) throws StoreException {
+    public void initialise(final Config config, final StoreProperties properties) {
+        initialise(config.getId(), config, properties);
+    }
+
+    public void initialise(final String id, final Config config, final StoreProperties properties) {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == id) {
-            throw new IllegalArgumentException("graphId is required");
+            throw new IllegalArgumentException("id is required");
         }
+
+        if (null == properties) {
+            throw new IllegalArgumentException("Store properties are required" +
+                    " to create a store. id: " + id);
+        }
+
+        if (null == config) {
+            this.config = new Config();
+            config.setId(id);
+        }
+        if (config.getId() != id) {
+            throw new IllegalArgumentException("Supplied id and Config " +
+                    "id do not match");
+        }
+
         this.config = config;
         setProperties(properties);
 
@@ -300,17 +329,17 @@ public abstract class Store {
         addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         O result = null;
         try {
-            for (final Hook graphHook : request.getConfig().getHooks()) {
+            for (final Hook graphHook : getConfig().getHooks()) {
                 graphHook.preExecute(clonedRequest);
             }
             result = (O) handleOperation(operation, context);
-            for (final Hook graphHook : request.getConfig().getHooks()) {
+            for (final Hook graphHook : getConfig().getHooks()) {
                 result = graphHook.postExecute(result,
                         clonedRequest);
             }
             addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
         } catch (final Exception e) {
-            for (final Hook graphHook : request.getConfig().getHooks()) {
+            for (final Hook graphHook : getConfig().getHooks()) {
                 try {
                     result = graphHook.onFailure(result,
                             clonedRequest, e);
@@ -333,7 +362,6 @@ public abstract class Store {
                                 final Context context) throws OperationException {
         return executeJob(new Request(operation, context)).getResult();
     }
-
 
     /**
      * Executes a given operation job and returns the job detail.
@@ -450,7 +478,7 @@ public abstract class Store {
         return ops;
     }
 
-    public String getGraphId() {
+    public String getId() {
         return config.getId();
     }
 

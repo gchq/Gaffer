@@ -18,12 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.ValidatedElements;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.graph.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class AddElementsHandler implements OperationHandler<AddElements> {
@@ -40,7 +41,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         try {
             final Iterable<?extends Element> validatedElements;
             if (operation.isValidate()) {
-                validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
+                validatedElements = new ValidatedElements(operation.getInput(), ((GraphConfig)store.getConfig()).getSchema(), operation.isSkipInvalidElements());
             } else {
                 validatedElements = operation.getInput();
             }

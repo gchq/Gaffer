@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -126,7 +127,7 @@ public final class TableUtils {
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-            if (store.getSchema().isAggregationEnabled()) {
+            if (((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled()) {
                 // Add Combiner iterator to table for all scopes
                 LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
                 connector.tableOperations().attachIterator(tableName,
@@ -158,7 +159,7 @@ public final class TableUtils {
         final String tableName = store.getTableName();
         Map<String, Set<Text>> localityGroups =
                 new HashMap<>();
-        for (final String group : store.getSchema().getGroups()) {
+        for (final String group : ((GraphConfig)store.getConfig()).getSchema().getGroups()) {
             HashSet<Text> localityGroup = new HashSet<>();
             localityGroup.add(new Text(group));
             localityGroups.put(group, localityGroup);
@@ -250,7 +251,7 @@ public final class TableUtils {
 
     private static void validateTable(final AccumuloStore store, final String tableName, final Connector connector) throws StoreException {
         final IteratorSetting requiredAggItrSetting;
-        if (store.getSchema().isAggregationEnabled()) {
+        if (((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled()) {
             try {
                 requiredAggItrSetting = store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store);
                 if (null != requiredAggItrSetting) {

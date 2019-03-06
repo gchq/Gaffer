@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -99,7 +100,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     tasks.addAll(parquetQuery.getAllParquetFileQueries()
                             .stream()
                             .map(entry -> new RetrieveElementsFromFile(entry.getFile(), entry.getFilter(),
-                                    store.getSchema(), queue, !entry.isFullyApplied(),
+                                    ((GraphConfig) store.getConfig()).getSchema(), queue,
+                                    !entry.isFullyApplied(),
                                     store.getProperties().getSkipValidation(), view, user))
                             .collect(Collectors.toList()));
                     LOGGER.info("Invoking {} RetrieveElementsFromFile tasks", tasks.size());

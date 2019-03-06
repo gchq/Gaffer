@@ -23,11 +23,12 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.iterable.ConsumableBlockingQueue;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -44,7 +45,7 @@ public class GafferAdderTest {
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
         given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);
@@ -81,7 +82,7 @@ public class GafferAdderTest {
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
         given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);
@@ -129,7 +130,7 @@ public class GafferAdderTest {
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(store.getSchema()).willReturn(new Schema());
+        given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
         given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);

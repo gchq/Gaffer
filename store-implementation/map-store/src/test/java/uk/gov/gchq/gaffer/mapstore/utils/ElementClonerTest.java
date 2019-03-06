@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
@@ -37,7 +38,9 @@ public class ElementClonerTest {
 
         // Then
         Streams.toStream(GetAllElementsHandlerTest.getElements())
-                .map(element -> new Pair<>(element, cloner.cloneElement(element, mapStore.getSchema())))
+                .map(element -> new Pair<>(element,
+                        cloner.cloneElement(element,
+                                ((GraphConfig) mapStore.getConfig()).getSchema())))
                 .forEach(pair -> assertEquals(pair.getFirst(), pair.getSecond()));
     }
 }

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.store.operation.validator.function;
+package uk.gov.gchq.gaffer.graph.function;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.binaryoperator.AdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.signature.Signature;

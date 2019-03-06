@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store;
+package uk.gov.gchq.gaffer.graph;
 
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Min;

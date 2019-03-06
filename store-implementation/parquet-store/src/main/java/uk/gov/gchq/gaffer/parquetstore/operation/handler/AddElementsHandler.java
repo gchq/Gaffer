@@ -23,9 +23,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.Option;
 
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -43,7 +44,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                              final ParquetStore store) throws OperationException {
         // Set up
         final FileSystem fs = store.getFS();
-        final Schema schema = store.getSchema();
+        final Schema schema = ((GraphConfig) store.getConfig()).getSchema();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
         final ExecutorService threadPool = createThreadPool(spark, store.getProperties());

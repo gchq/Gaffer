@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -35,7 +37,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -59,7 +60,8 @@ public class GetAdjacentIdsHandler implements
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
         }
-        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
+        return new EntityIdIterable(mapStore.getMapImpl(), operation,
+                ((GraphConfig)mapStore.getConfig()).getSchema());
     }
 
     private static class EntityIdIterable extends WrappedCloseableIterable<EntityId> {

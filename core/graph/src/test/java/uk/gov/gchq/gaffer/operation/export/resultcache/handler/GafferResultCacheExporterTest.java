@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -39,7 +40,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -68,11 +68,13 @@ public class GafferResultCacheExporterTest {
     private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
+    private final GraphConfig config = mock(GraphConfig.class);
     private Graph resultCache;
 
     @Before
     public void before() {
-        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(new Schema());
+        given(config.getSchema()).willReturn(new Schema());
+        given(store.getConfig()).willReturn(config);
         given(store.getProperties()).willReturn(new StoreProperties());
         resultCache = new Graph.Builder()
                 .config(new GraphConfig.Builder()

@@ -32,8 +32,6 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
-import uk.gov.gchq.gaffer.graph.util.GraphRequest;
-import uk.gov.gchq.gaffer.graph.util.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -43,12 +41,13 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.util.Request;
+import uk.gov.gchq.gaffer.store.util.Result;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -274,9 +273,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         preOperationHook(opChain, context);
 
-        GraphResult<O> result;
+        Result<O> result;
         try {
-            result = graphFactory.getGraph().execute(new GraphRequest<>(opChain, context));
+            result = graphFactory.getGraph().execute(new Request<>(opChain, context));
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
             if (null != e.getMessage()) {

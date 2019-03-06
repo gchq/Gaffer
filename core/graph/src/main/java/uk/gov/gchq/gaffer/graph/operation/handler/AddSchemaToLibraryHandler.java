@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.graph.operation.handler.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 

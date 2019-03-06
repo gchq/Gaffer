@@ -65,7 +65,7 @@ import java.util.Map;
  * @see GraphConfig.Builder
  */
 @JsonPropertyOrder(value = {"description", "graphId"}, alphabetic = true)
-public final class GraphConfig extends Config {
+public class GraphConfig extends Config {
     // Keeping the view as json enforces a new instance of View is created
     // every time it is used.
     /**

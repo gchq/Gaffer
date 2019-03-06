@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation;
+package uk.gov.gchq.gaffer.graph.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.graph.TypeReferenceSchemaImpl;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -67,7 +67,7 @@ public class GetSchema implements Output<Schema> {
 
     @Override
     public TypeReference<Schema> getOutputTypeReference() {
-        return new TypeReferenceStoreImpl.Schema();
+        return new TypeReferenceSchemaImpl.Schema();
     }
 
     public static class Builder extends BaseBuilder<GetSchema, Builder>

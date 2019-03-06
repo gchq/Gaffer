@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.graph.serialiser;
 
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

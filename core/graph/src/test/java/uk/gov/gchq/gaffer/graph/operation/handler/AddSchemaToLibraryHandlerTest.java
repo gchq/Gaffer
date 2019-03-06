@@ -17,16 +17,16 @@ package uk.gov.gchq.gaffer.graph.operation.handler;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
+import uk.gov.gchq.gaffer.graph.operation.handler.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.graph.operation.handler.add.AddSchemaToLibrary.Builder;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.operation.handler.TestAddToGraphLibraryImpl;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.Assert.assertEquals;
@@ -51,7 +51,7 @@ public class AddSchemaToLibraryHandlerTest {
     @Test
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         //given
-        store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(TEST_STORE_ID, new StoreProperties());
         try {
             //when
             store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
@@ -67,7 +67,7 @@ public class AddSchemaToLibraryHandlerTest {
         //given
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         ((GraphConfig) store.getConfig()).setLibrary(library);
-        store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(TEST_STORE_ID, new StoreProperties());
 
         //when
         store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
@@ -82,7 +82,7 @@ public class AddSchemaToLibraryHandlerTest {
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         ((GraphConfig) store.getConfig()).setLibrary(library);
         //when
-        store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(TEST_STORE_ID, new StoreProperties());
         //then
         assertTrue(store.isSupported(AddSchemaToLibrary.class));
     }
@@ -92,7 +92,7 @@ public class AddSchemaToLibraryHandlerTest {
         //given
         //GraphLibrary has not been set
         //when
-        store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(TEST_STORE_ID, new StoreProperties());
         //then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
@@ -102,7 +102,7 @@ public class AddSchemaToLibraryHandlerTest {
         //given
         ((GraphConfig) store.getConfig()).setLibrary(new NoGraphLibrary());
         //when
-        store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
+        store.initialise(TEST_STORE_ID, new StoreProperties());
         //then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }

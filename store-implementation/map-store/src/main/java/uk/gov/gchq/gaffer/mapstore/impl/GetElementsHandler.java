@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -31,7 +33,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationValidation;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.stream.Stream;
 
@@ -58,7 +59,8 @@ public class GetElementsHandler
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }
-        return new ElementsIterable(mapImpl, operation, mapStore.getSchema());
+        return new ElementsIterable(mapImpl, operation,
+                ((GraphConfig) mapStore.getConfig()).getSchema());
     }
 
     private static class ElementsIterable extends WrappedCloseableIterable<Element> {

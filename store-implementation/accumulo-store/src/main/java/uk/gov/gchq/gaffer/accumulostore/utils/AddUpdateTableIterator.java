@@ -25,6 +25,7 @@ import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
@@ -138,7 +139,7 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
-                && (store.getSchema().isAggregationEnabled())) {
+                && (((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
                         .getIteratorFactory()

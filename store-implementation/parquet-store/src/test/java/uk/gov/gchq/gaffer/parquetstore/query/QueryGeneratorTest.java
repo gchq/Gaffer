@@ -22,12 +22,15 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -39,7 +42,6 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.LongVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitionerTest;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.io.IOException;
@@ -48,7 +50,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.apache.parquet.filter2.predicate.FilterApi.*;
+import static org.apache.parquet.filter2.predicate.FilterApi.and;
+import static org.apache.parquet.filter2.predicate.FilterApi.eq;
+import static org.apache.parquet.filter2.predicate.FilterApi.gt;
+import static org.apache.parquet.filter2.predicate.FilterApi.or;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
@@ -71,7 +76,8 @@ public class QueryGeneratorTest {
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
         storeProperties.setDataDir(folder);
         storeProperties.setTempFilesDir(folder + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig) store.getConfig()).setSchema(schema);
 
         // When 1 - no view
         GetAllElements getAllElements = new GetAllElements.Builder().build();
@@ -139,7 +145,7 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, null,false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, null, false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
 
@@ -162,7 +168,7 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10),false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10), false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
     }
@@ -179,7 +185,8 @@ public class QueryGeneratorTest {
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
         storeProperties.setDataDir(folder);
         storeProperties.setTempFilesDir(folder + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig) store.getConfig()).setSchema(schema);
 
         // When 1 - no view, query for vertex 0
         GetElements getElements = new GetElements.Builder()
@@ -270,7 +277,7 @@ public class QueryGeneratorTest {
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 0L));
         final FilterPredicate destination1000000AndCount = and(gt(FilterApi.intColumn("count"), 10),
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 1000000L));
-        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false ));
+        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false));
         final Path reversedGroupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, true));
         // Partition 0, vertex 0L
         final Path pathForPartitionFile1 = new Path(groupFolderPath, ParquetStore.getFile(0));
@@ -326,7 +333,8 @@ public class QueryGeneratorTest {
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
         storeProperties.setDataDir(folder);
         storeProperties.setTempFilesDir(folder + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig) store.getConfig()).setSchema(schema);
 
         // When 1 - no view, query for edges 0->1, 10--10000, 10000--10 with seed matching type set to EQUAL
         GetElements getElements = new GetElements.Builder()

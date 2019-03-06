@@ -49,8 +49,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -189,7 +190,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .view(new View.Builder()
                             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                     .groupBy()
@@ -293,7 +294,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                                     .groupBy()
                                     .build())
                             .build())
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -424,7 +425,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                                     .groupBy()
                                     .build())
                             .build())
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -656,7 +657,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                                     .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER)
                                     .build())
                             .build())
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -894,7 +895,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                                     .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
                                     .build())
                             .build())
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);
@@ -1102,7 +1103,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                                     .groupBy()
                                     .build())
                             .build())
-                    .schema(store.getSchema())
+                    .schema(((GraphConfig)store.getConfig()).getSchema())
                     .keyConverter(store.getKeyPackage().getKeyConverter())
                     .build();
             scanner.addScanIterator(iteratorSetting);

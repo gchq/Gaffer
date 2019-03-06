@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.SampleDataForSplit
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
@@ -124,8 +125,8 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
-        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        jobConf.set(SCHEMA, new String(((GraphConfig)store.getConfig()).getSchema().toCompactJson(), CommonConstants.UTF_8));
+        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(((GraphConfig)store.getConfig()).getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));

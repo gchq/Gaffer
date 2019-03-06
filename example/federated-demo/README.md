@@ -179,7 +179,7 @@ To fetch the merged schemas you can run:
 
 ```json
 {
-   "class": "uk.gov.gchq.gaffer.store.operation.GetSchema",
+   "class": "uk.gov.gchq.gaffer.graph.operation.GetSchema",
    "compact": false
 }
 ```
@@ -187,7 +187,7 @@ To fetch the merged schemas you can run:
 To fetch just a the schema for the mapGraph you can add an option:
 ```json
 {
-    "class": "uk.gov.gchq.gaffer.store.operation.GetSchema",
+    "class": "uk.gov.gchq.gaffer.graph.operation.GetSchema",
     "compact": false,
     "options": {
         "gaffer.federatedstore.operation.graphIds": "mapEdges"

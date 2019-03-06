@@ -22,18 +22,19 @@ import org.apache.commons.lang.StringUtils;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.TestTypes;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
@@ -117,7 +118,10 @@ public abstract class FlinkTest {
     }
 
     public static Store createStore() {
-        return Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+        Store store = Store.createStore("graphId",
+                MapStoreProperties.loadStoreProperties("store.properties"));
+        ((GraphConfig) store.getConfig()).setSchema(SCHEMA);
+        return store;
     }
 
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {

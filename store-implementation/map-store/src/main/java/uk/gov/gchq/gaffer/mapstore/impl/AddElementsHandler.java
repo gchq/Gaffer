@@ -24,6 +24,11 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.graph.ValidatedElements;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.util.AggregatorUtil;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -31,11 +36,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.graph.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.graph.util.AggregatorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,9 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation, final Context context, final Store store) throws OperationException {
         Iterable<? extends Element> elements = operation.getInput();
         if (operation.isValidate()) {
-            elements = new ValidatedElements(elements, store.getSchema(), operation.isSkipInvalidElements());
+            elements = new ValidatedElements(elements,
+                    ((GraphConfig)store.getConfig()).getSchema(),
+                    operation.isSkipInvalidElements());
         }
 
         addElements(elements, (MapStore) store);
@@ -59,7 +62,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private void addElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
-        final Schema schema = mapStore.getSchema();
+        final Schema schema = ((GraphConfig)mapStore.getConfig()).getSchema();
 
         final int bufferSize = mapStore.getProperties().getIngestBufferSize();
 

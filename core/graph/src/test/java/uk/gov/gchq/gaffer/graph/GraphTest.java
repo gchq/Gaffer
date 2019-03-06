@@ -69,7 +69,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -113,7 +112,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
     private static final String GRAPH_ID = "graphId";

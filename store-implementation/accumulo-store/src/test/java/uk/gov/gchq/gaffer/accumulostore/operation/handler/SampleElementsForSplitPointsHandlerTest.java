@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandlerTest;
+import uk.gov.gchq.gaffer.graph.operation.handler.AbstractSampleElementsForSplitPointsHandlerTest;
 
 import java.util.Arrays;
 import java.util.Collections;

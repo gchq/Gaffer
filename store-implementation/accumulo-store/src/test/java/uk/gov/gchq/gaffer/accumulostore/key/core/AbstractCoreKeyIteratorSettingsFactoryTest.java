@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
@@ -54,7 +55,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         // Given
         final AccumuloStore store = mock(AccumuloStore.class);
         final Schema schema = createSchema();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getValidatorIteratorSetting(store);
@@ -76,7 +77,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 
@@ -104,7 +105,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
                                 .build())
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getElementPreAggregationFilterIteratorSetting(view, store);
@@ -129,7 +130,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 
@@ -158,7 +159,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
                                 .build())
                         .build())
                 .build();
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
 
         // When
         final IteratorSetting iterator = factory.getElementPostAggregationFilterIteratorSetting(view, store);
@@ -183,7 +184,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
 
-        given(store.getSchema()).willReturn(schema);
+        given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
 

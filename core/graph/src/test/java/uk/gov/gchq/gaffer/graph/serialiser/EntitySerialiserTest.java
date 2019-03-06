@@ -22,9 +22,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -24,10 +24,10 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

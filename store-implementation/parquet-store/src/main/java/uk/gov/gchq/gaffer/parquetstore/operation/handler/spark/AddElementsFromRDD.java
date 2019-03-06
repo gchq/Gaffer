@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities.WriteData;
@@ -41,7 +43,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class AddElementsFromRDD {
 
     AddElementsFromRDD(final Context context, final ParquetStore store) {
         this.store = store;
-        this.schema = store.getSchema();
+        this.schema = ((GraphConfig) store.getConfig()).getSchema();
         this.schemaUtils = store.getSchemaUtils();
         this.fs = store.getFS();
         this.spark = SparkContextUtil.getSparkSession(context, store.getProperties());
@@ -216,10 +217,10 @@ public class AddElementsFromRDD {
     /**
      * Sorts the provided data.
      *
-     * @param group the group
-     * @param reversed whether these are edges that need to be sorted by destination then source
+     * @param group      the group
+     * @param reversed   whether these are edges that need to be sorted by destination then source
      * @param inputFiles the input files
-     * @param outputDir the directory to write the output to
+     * @param outputDir  the directory to write the output to
      * @throws OperationException if an {@link IOException} is thrown
      */
     private void sort(final String group, final boolean reversed, final List<String> inputFiles, final String outputDir)
@@ -256,7 +257,7 @@ public class AddElementsFromRDD {
         try {
             newPartitioner = new CalculatePartitioner(
                     new Path(getSortedAggregatedDirectory(true, true)),
-                    store.getSchema(), fs).call();
+                    ((GraphConfig) store.getConfig()).getSchema(), fs).call();
         } catch (final IOException e) {
             throw new OperationException("IOException calculating new graph partitioner", e);
         }
@@ -278,7 +279,7 @@ public class AddElementsFromRDD {
 
     /**
      * Creates a new snapshot directory within the data directory in the store and moves the new data there.
-     *
+     * <p>
      * This is done by first creating the new snapshot directory with "-tmp" at the end, then all files are moved
      * into that directory, and then the directory is renamed so that the "-tmp" is removed. This allows us to make
      * the replacement of the old data with the new data an atomic operation and ensures that a get operation

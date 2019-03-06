@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 
 public abstract class AbstractCoreKeyIteratorSettingsFactory implements IteratorSettingFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoreKeyIteratorSettingsFactory.class);
@@ -65,7 +66,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, ElementPreAggregationFilter.class)
-                .schema(store.getSchema())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
@@ -73,7 +74,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                         + "schema = {}, view = {}, keyConverter = {}",
                 ElementPreAggregationFilter.class.getName(),
                 AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
-                store.getSchema(), view, store.getKeyPackage().getKeyConverter());
+                ((GraphConfig)store.getConfig()).getSchema(), view,
+                store.getKeyPackage().getKeyConverter());
         return is;
     }
 
@@ -88,7 +90,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, ElementPostAggregationFilter.class)
-                .schema(store.getSchema())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
@@ -96,7 +98,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                         + "schema = {}, view = {}, keyConverter = {}",
                 ElementPostAggregationFilter.class.getName(),
                 AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
-                store.getSchema(), view, store.getKeyPackage().getKeyConverter());
+                ((GraphConfig)store.getConfig()).getSchema(), view, store.getKeyPackage().getKeyConverter());
         return is;
     }
 
@@ -104,32 +106,32 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
-                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
-                .schema(store.getSchema())
+                .combinerColumnFamilies(((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
                         + "combinerColumnFamilies = {}, schema = {}, keyConverter = {}",
                 AggregatorIterator.class.getName(),
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
-                store.getSchema().getAggregatedGroups(), store.getSchema(),
+                ((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups(), ((GraphConfig)store.getConfig()).getSchema(),
                 store.getKeyPackage().getKeyConverter());
         return is;
     }
 
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
-        if (!store.getSchema().isAggregationEnabled()) {
+        if (!((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled()) {
             LOGGER.debug("Returning null from getRowIDAggregatorIteratorSetting as store.getSchema().isAggregationEnabled() = {}",
-                    store.getSchema().isAggregationEnabled());
+                    ((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled());
             return null;
         }
 
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
-                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
+                .combinerColumnFamilies(((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups())
                 .columnFamily(columnFamily)
-                .schema(store.getSchema())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
@@ -137,29 +139,29 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                         + "schema = {}, view = {}, keyConverter = {}",
                 RowIDAggregator.class.getName(),
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
-                store.getSchema().getAggregatedGroups(), columnFamily,
-                store.getSchema(), store.getKeyPackage().getKeyConverter());
+                ((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups(), columnFamily,
+                ((GraphConfig)store.getConfig()).getSchema(), store.getKeyPackage().getKeyConverter());
         return is;
     }
 
     @Override
     public IteratorSetting getValidatorIteratorSetting(final AccumuloStore store) {
-        if (!store.getSchema().hasValidation()) {
+        if (!((GraphConfig)store.getConfig()).getSchema().hasValidation()) {
             LOGGER.debug("Returning null from getValidatorIteratorSetting as store.getSchema().hasValidation() = {}",
-                    store.getSchema().hasValidation());
+                    ((GraphConfig)store.getConfig()).getSchema().hasValidation());
             return null;
         }
 
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
-                .schema(store.getSchema())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
                         + "schema = {}, keyConverter = {}",
                 ValidatorFilter.class.getName(),
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
-                store.getSchema(), store.getKeyPackage().getKeyConverter());
+                ((GraphConfig)store.getConfig()).getSchema(), store.getKeyPackage().getKeyConverter());
         return is;
     }
 
@@ -173,8 +175,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         }
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
-                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
-                .schema(store.getSchema())
+                .combinerColumnFamilies(((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups())
+                .schema(((GraphConfig)store.getConfig()).getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
@@ -182,13 +184,13 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                         + "combinerColumnFamilies = {}, schema = {}, view = {}, keyConverter = {}",
                 CoreKeyGroupByAggregatorIterator.class.getName(),
                 AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-                store.getSchema().getAggregatedGroups(), store.getSchema(),
+                ((GraphConfig)store.getConfig()).getSchema().getAggregatedGroups(), ((GraphConfig)store.getConfig()).getSchema(),
                 view, store.getKeyPackage().getKeyConverter());
         return is;
     }
 
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
-        Schema schema = store.getSchema();
+        Schema schema = ((GraphConfig)store.getConfig()).getSchema();
         if (!schema.isAggregationEnabled()) {
             return false;
         }

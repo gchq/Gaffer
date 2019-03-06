@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
 

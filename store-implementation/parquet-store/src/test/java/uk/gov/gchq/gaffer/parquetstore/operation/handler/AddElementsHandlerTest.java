@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -45,7 +47,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.WriteUnsortedDataTest;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.io.IOException;
@@ -84,7 +85,8 @@ public class AddElementsHandlerTest {
         final String testDir = testFolder.newFolder().getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig)store.getConfig()).setSchema(schema);
         final FileSystem fs = FileSystem.get(new Configuration());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
@@ -163,7 +165,8 @@ public class AddElementsHandlerTest {
         final String testDir = testFolder.newFolder().getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig)store.getConfig()).setSchema(schema);
         final FileSystem fs = FileSystem.get(new Configuration());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
@@ -366,7 +369,8 @@ public class AddElementsHandlerTest {
         final String testDir = testFolder.newFolder().getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
-        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
+        final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", storeProperties);
+        ((GraphConfig)store.getConfig()).setSchema(schema);
         final FileSystem fs = FileSystem.get(new Configuration());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 

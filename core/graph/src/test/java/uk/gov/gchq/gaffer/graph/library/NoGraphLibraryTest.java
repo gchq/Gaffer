@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.graph.library;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertNull;
 

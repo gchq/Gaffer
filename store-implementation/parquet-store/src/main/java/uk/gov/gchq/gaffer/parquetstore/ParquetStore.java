@@ -30,6 +30,10 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.AddElementsHandler;
@@ -71,9 +75,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.IOException;
@@ -144,7 +145,6 @@ public class ParquetStore extends Store {
     private SchemaUtils schemaUtils;
     private FileSystem fs;
 
-    @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         if (!(properties instanceof ParquetStoreProperties)) {
             throw new StoreException("ParquetStore must be initialised with properties of class ParquetStoreProperties");
@@ -159,10 +159,12 @@ public class ParquetStore extends Store {
                     + ParquetStoreProperties.TEMP_FILES_DIR + ")");
         }
         LOGGER.info("Initialising ParquetStore for graph id {}", graphId);
-        super.initialise(graphId, schema, parquetStoreProperties);
+        ((GraphConfig) super.getConfig()).setSchema(schema);
+        super.initialise(graphId, parquetStoreProperties);
         try {
             fs = FileSystem.get(new Configuration());
-            schemaUtils = new SchemaUtils(getSchema());
+            schemaUtils =
+                    new SchemaUtils(((GraphConfig) super.getConfig()).getSchema());
             initialise();
             loadGraphPartitioner();
         } catch (final IOException e) {
@@ -185,23 +187,27 @@ public class ParquetStore extends Store {
             LOGGER.info("Creating snapshot directory {}", snapshotPath);
             fs.mkdirs(snapshotPath);
             LOGGER.info("Creating group directories under {}", snapshotPath);
-            for (final String group : getSchema().getGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getGroups()) {
                 final Path groupDir = getGroupPath(group);
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
             LOGGER.info("Creating group directories for reversed edges under {}", snapshotPath);
-            for (final String group : getSchema().getEdgeGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getEdgeGroups()) {
                 final Path groupDir = getGroupPathForReversedEdges(group);
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
             LOGGER.info("Creating GraphPartitioner with 0 split points for each group");
             graphPartitioner = new GraphPartitioner();
-            for (final String group : getSchema().getGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getGroups()) {
                 graphPartitioner.addGroupPartitioner(group, new GroupPartitioner(group, new ArrayList<>()));
             }
-            for (final String group : getSchema().getEdgeGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getEdgeGroups()) {
                 graphPartitioner.addGroupPartitionerForReversedEdges(group, new GroupPartitioner(group, new ArrayList<>()));
             }
             LOGGER.info("Writing GraphPartitioner to snapshot directory");
@@ -220,14 +226,16 @@ public class ParquetStore extends Store {
             this.currentSnapshot = getLatestSnapshot();
             LOGGER.info("Latest snapshot directory in data directory {} is {}", dataDirPath, this.currentSnapshot);
             LOGGER.info("Verifying snapshot directory contains the correct directories");
-            for (final String group : getSchema().getGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getGroups()) {
                 final Path groupDir = getGroupPath(group);
                 if (!fs.exists(groupDir)) {
                     LOGGER.error("Directory {} should exist", groupDir);
                     throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + getSnapshotPath(this.currentSnapshot));
                 }
             }
-            for (final String group : getSchema().getEdgeGroups()) {
+            for (final String group :
+                    ((GraphConfig) super.getConfig()).getSchema().getEdgeGroups()) {
                 final Path groupDir = getGroupPathForReversedEdges(group);
                 if (!fs.exists(groupDir)) {
                     LOGGER.error("Directory {} should exist", groupDir);
@@ -251,7 +259,7 @@ public class ParquetStore extends Store {
                 if (!fs.exists(path)) {
                     LOGGER.info("Graph partitioner does not exist in {} so creating it", path);
                     final GraphPartitioner partitioner =
-                            new CalculatePartitioner(new Path(dataDir + "/" + getSnapshotPath(this.currentSnapshot)), getSchema(), fs).call();
+                            new CalculatePartitioner(new Path(dataDir + "/" + getSnapshotPath(this.currentSnapshot)), ((GraphConfig) super.getConfig()).getSchema(), fs).call();
                     LOGGER.info("Writing graph partitioner to {}", path);
                     final FSDataOutputStream stream = fs.create(path);
                     new GraphPartitionerSerialiser().write(partitioner, stream);
@@ -355,7 +363,7 @@ public class ParquetStore extends Store {
     }
 
     public Path getGroupPathForReversedEdges(final String group) {
-        if (!getSchema().getEdgeGroups().contains(group)) {
+        if (!((GraphConfig) super.getConfig()).getSchema().getEdgeGroups().contains(group)) {
             throw new IllegalArgumentException("Invalid group: " + group + " is not an edge group");
         }
         return new Path(getDataDir()
@@ -408,21 +416,18 @@ public class ParquetStore extends Store {
         return Serialiser.class;
     }
 
-    @Override
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new SerialisationFactory(SERIALISERS));
     }
 
-    @Override
     public void validateSchemas() {
-        super.validateSchemas();
-        validateConsistentVertex();
+        ((GraphConfig) super.getConfig()).validateSchemas();
+        ((GraphConfig) super.getConfig()).validateConsistentVertex();
     }
 
-    @Override
     protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
-        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig) super.getConfig()).validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        ((GraphConfig) super.getConfig()).validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     public long getLatestSnapshot() throws StoreException {

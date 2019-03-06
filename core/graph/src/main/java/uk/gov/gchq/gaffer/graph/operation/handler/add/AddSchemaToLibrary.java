@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.add;
+package uk.gov.gchq.gaffer.graph.operation.handler.add;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An Operation used for adding {@link Schema} to the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary} of a store.
+ * An Operation used for adding {@link Schema} to the
+ * {@link uk.gov.gchq.gaffer.graph.library.GraphLibrary} of a store.
  *
  * @see Schema
  */

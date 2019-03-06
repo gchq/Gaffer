@@ -32,6 +32,9 @@ import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.TypeReferenceSchemaImpl;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -54,7 +57,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -63,11 +65,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-
 import java.io.UnsupportedEncodingException;
-
 import java.net.URL;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -84,18 +83,15 @@ public class ProxyStore extends Store {
     private Client client;
     private Schema schema;
 
-    public ProxyStore() {
-        super(false);
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
-    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
         setProperties(properties);
         client = createClient();
         schema = fetchSchema();
 
-        super.initialise(graphId, schema, getProperties());
+        super.initialise(graphId, getProperties());
+        ((GraphConfig) super.getConfig()).setSchema(schema);
         checkDelegateStoreStatus();
     }
 
@@ -109,7 +105,8 @@ public class ProxyStore extends Store {
     protected Set<Class<? extends Operation>> fetchOperations() {
         try {
             URL url = getProperties().getGafferUrl("graph/operations");
-            return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
+            return Collections.unmodifiableSet(doGet(url,
+                    new TypeReferenceStoreImpl.Operations(), null));
         } catch (final StoreException e) {
             throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
         }
@@ -130,7 +127,8 @@ public class ProxyStore extends Store {
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
+        Set<StoreTrait> newTraits = doGet(url,
+                new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
         } else {
@@ -142,12 +140,7 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
-        return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
-    }
-
-    @Override
-    public void validateSchemas() {
-        // no validation required
+        return doGet(url, new TypeReferenceSchemaImpl.Schema(), null);
     }
 
     @Override
@@ -284,14 +277,9 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class,
-                new OperationChainHandler(getOperationValidator(), opChainOptimisers));
+                new OperationChainHandler());
         addOperationHandler(OperationChainDAO.class,
-                new OperationChainHandler(getOperationValidator(), opChainOptimisers));
-    }
-
-    @Override
-    public Schema getSchema() {
-        return schema;
+                new OperationChainHandler());
     }
 
     @Override
@@ -325,7 +313,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(getOperationValidator(), opChainOptimisers);
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
     }
 
     protected Client createClient() {
@@ -389,7 +377,7 @@ public class ProxyStore extends Store {
 
         public ProxyStore build() {
             try {
-                store.initialise(graphId, new Schema(), properties);
+                store.initialise(graphId, properties);
             } catch (final StoreException e) {
                 throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
             }

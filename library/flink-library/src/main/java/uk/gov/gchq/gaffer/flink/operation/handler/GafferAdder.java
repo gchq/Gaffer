@@ -20,6 +20,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.ConsumableBlockingQueue;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Validatable;
@@ -27,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -83,14 +84,15 @@ public class GafferAdder implements Serializable {
         final String maxQueueSizeOption = operation.getOption(FlinkConstants.MAX_QUEUE_SIZE);
         this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
         graphId = store.getGraphId();
-        schema = store.getSchema().toCompactJson();
+        schema = ((GraphConfig) store.getConfig()).getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
     }
 
     public void initialise() {
         if (null == store) {
-            store = Store.createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+            store = Store.createStore(graphId, StoreProperties.loadStoreProperties(properties));
         }
+        ((GraphConfig) store.getConfig()).setSchema(Schema.fromJson(schema));
     }
 
     public void add(final Element element) {

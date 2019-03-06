@@ -60,7 +60,7 @@ public class GetAllNamedOperationsHandlerTest {
             .operationName("exampleOp")
             .inputType(null)
             .creatorId(User.UNKNOWN_USER_ID)
-            .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.store.operation.GetSchema\",\"compact\":false}]}")
+            .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.graph.operation.GetSchema\",\"compact\":false}]}")
             .readers(new ArrayList<>())
             .writers(new ArrayList<>())
             .build();

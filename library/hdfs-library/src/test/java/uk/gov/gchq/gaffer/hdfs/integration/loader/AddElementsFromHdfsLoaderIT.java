@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.schema.TestSchema;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
@@ -35,7 +36,6 @@ import uk.gov.gchq.gaffer.integration.impl.loader.ParameterizedLoaderIT;
 import uk.gov.gchq.gaffer.integration.impl.loader.schemas.SchemaLoader;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedWriter;

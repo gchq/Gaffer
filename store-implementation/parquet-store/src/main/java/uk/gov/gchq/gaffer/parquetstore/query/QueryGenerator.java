@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -72,7 +73,8 @@ public class QueryGenerator {
 
     public QueryGenerator(final ParquetStore store) {
         this.store = store;
-        this.schemaUtils = new SchemaUtils(store.getSchema());
+        this.schemaUtils =
+                new SchemaUtils(((GraphConfig) store.getConfig()).getSchema());
     }
 
     public ParquetQuery getParquetQuery(final Operation operation) throws IOException, OperationException {
@@ -120,7 +122,7 @@ public class QueryGenerator {
                 final String group = entry.getKey();
                 final ParquetFileQuery fileQuery = groupToPredicate.containsKey(group) ?
                         new ParquetFileQuery(path, groupToPredicate.get(group).getFirst(), groupToPredicate.get(group).getSecond())
-                                : new ParquetFileQuery(path, null, false);
+                        : new ParquetFileQuery(path, null, false);
                 parquetQuery.add(group, fileQuery);
             }
         }
@@ -189,7 +191,7 @@ public class QueryGenerator {
                 if (!pathToSeeds.containsKey(pathInfo)) {
                     pathToSeeds.put(pathInfo, new ArrayList<>());
                 }
-                pathToSeeds.get(pathInfo).add(new Tuple3<>(tuple.get0(), pathInfo.isReversed(),  tuple.get1()));
+                pathToSeeds.get(pathInfo).add(new Tuple3<>(tuple.get0(), pathInfo.isReversed(), tuple.get1()));
             }
         }
 
@@ -295,7 +297,7 @@ public class QueryGenerator {
 
     private Set<PathInfo> getPathsForSeed(final ParquetElementSeed parquetElementSeed, final String group) {
         final GraphPartitioner graphPartitioner = store.getGraphPartitioner();
-        final boolean isEntityGroup = store.getSchema().getEntityGroups().contains(group);
+        final boolean isEntityGroup = ((GraphConfig) store.getConfig()).getSchema().getEntityGroups().contains(group);
         final List<Object[]> seeds = new ArrayList<>();
         if (parquetElementSeed instanceof ParquetEntitySeed) {
             seeds.add(((ParquetEntitySeed) parquetElementSeed).getSeed());

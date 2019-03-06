@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -44,7 +45,8 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     }
 
     private CloseableIterable<Element> doOperation(final GetAllElements operation, final MapStore mapStore) {
-        return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
+        return new AllElementsIterable(mapStore.getMapImpl(), operation,
+                ((GraphConfig)mapStore.getConfig()).getSchema());
     }
 
     private static class AllElementsIterable extends WrappedCloseableIterable<Element> {

@@ -86,7 +86,7 @@ public class GraphConfigurationServiceV2Test {
     @Before
     public void setup() {
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
-        given(store.getSchema()).willReturn(new Schema());
+        given(store.getConfig()).willReturn(new GraphConfig.Builder().schema(new Schema()).build());
         given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()

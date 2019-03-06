@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * Serialiser to serialise and deserialise {@link Element} objects in a byte array

@@ -41,6 +41,8 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
@@ -49,7 +51,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.Utils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -170,7 +171,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
 
     private void addAggregationIterator(final AccumuloStore accumuloStore, final Configuration conf)
             throws IteratorSettingException {
-        if (accumuloStore.getSchema().isAggregationEnabled()) {
+        if (((GraphConfig)accumuloStore.getConfig()).getSchema().isAggregationEnabled()) {
             // Add aggregator iterator to table for all scopes
             LOGGER.info("Adding aggregator iterator");
             final IteratorSetting itrSetting = accumuloStore

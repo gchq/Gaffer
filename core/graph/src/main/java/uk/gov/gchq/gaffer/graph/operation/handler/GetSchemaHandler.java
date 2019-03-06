@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.graph.operation.handler;
 
+import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 /**
- * A {@code GetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema} operation.
+ * A {@code GetSchemaHandler} handles the {@link GetSchema} operation.
  */
 public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override

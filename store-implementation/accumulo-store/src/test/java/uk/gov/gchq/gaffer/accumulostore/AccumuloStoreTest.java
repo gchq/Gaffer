@@ -67,7 +67,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSeriali
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;

@@ -21,18 +21,18 @@ import org.apache.commons.lang.WordUtils;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.graph.TestTypes;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.store.TestTypes.BOOLEAN_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.DATE_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.FREQMAP_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.INTEGER_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.LONG_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.SET_STRING_TYPE;
-import static uk.gov.gchq.gaffer.store.TestTypes.STRING_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.BOOLEAN_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DATE_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.FREQMAP_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.INTEGER_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.LONG_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.SET_STRING_TYPE;
+import static uk.gov.gchq.gaffer.graph.TestTypes.STRING_TYPE;
 
 /**
  * Static utility class for creating {@link Schema} objects for use in test classes.

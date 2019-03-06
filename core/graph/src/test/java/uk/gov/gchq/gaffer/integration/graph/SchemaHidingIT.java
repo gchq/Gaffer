@@ -29,6 +29,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.graph.TestTypes;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -39,10 +44,6 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.TestTypes;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -84,7 +85,10 @@ public abstract class SchemaHidingIT {
     protected abstract void cleanUp();
 
     protected Store createStore(final Schema schema) throws IOException {
-        return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        Store store = Store.createStore("graphId",
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        ((GraphConfig) store.getConfig()).setSchema(schema);
+        return store;
     }
 
     @SuppressWarnings("unchecked")

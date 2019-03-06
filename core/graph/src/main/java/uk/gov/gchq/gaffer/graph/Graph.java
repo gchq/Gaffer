@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.util.Hook;
@@ -218,11 +217,6 @@ public final class Graph {
     }
 
     private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final Request<?> request) throws OperationException {
-        if (request instanceof GraphRequest) {
-            if (null == request.getConfig()) {
-                request.setConfig(store.getConfig());
-            }
-        }
         return (GraphResult<O>) storeExecuter.execute(request);
     }
 
@@ -296,7 +290,7 @@ public final class Graph {
      * @return the graphId for this Graph.
      */
     public String getGraphId() {
-        return store.getGraphId();
+        return store.getId();
     }
 
     /**
@@ -782,7 +776,7 @@ public final class Graph {
             }
 
             if (null == config.getGraphId() && null != store) {
-                config.setGraphId(store.getGraphId());
+                config.setGraphId(store.getId());
             }
 
             updateStoreProperties(config);
@@ -805,7 +799,7 @@ public final class Graph {
             updateView(config);
 
             if (null == config.getGraphId()) {
-                config.setGraphId(store.getGraphId());
+                config.setGraphId(store.getId());
             }
 
             if (null == config.getGraphId()) {
@@ -917,25 +911,24 @@ public final class Graph {
             if (null == store) {
                 config.setSchema(cloneSchema(schema));
                 store = Store.createStore(config.getGraphId(), properties);
-            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
+            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getId()))
                     || (null != schema)
                     || (null != properties && !properties.equals(store.getProperties()))) {
                 if (null == config.getGraphId()) {
-                    config.setGraphId(store.getGraphId());
+                    config.setGraphId(store.getId());
                 }
-                if (null == schema || schema.getGroups().isEmpty()) {
+
+                if (null != ((GraphConfig) store.getConfig()).getSchema() && (null == schema || schema.getGroups().isEmpty())) {
                     schema = ((GraphConfig) store.getConfig()).getSchema();
+                } else {
+                    schema = new Schema();
                 }
 
                 if (null == properties) {
                     properties = store.getProperties();
                 }
 
-                try {
-                    store.initialise(config.getGraphId(), properties, config);
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
-                }
+                store.initialise(config.getGraphId(), config, properties);
             }
 
             ((GraphConfig) store.getConfig()).setLibrary(config.getLibrary());

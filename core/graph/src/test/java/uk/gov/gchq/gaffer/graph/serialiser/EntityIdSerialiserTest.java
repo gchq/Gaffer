@@ -21,9 +21,9 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

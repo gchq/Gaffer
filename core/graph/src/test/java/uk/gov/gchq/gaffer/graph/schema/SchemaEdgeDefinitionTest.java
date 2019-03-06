@@ -19,13 +19,12 @@ package uk.gov.gchq.gaffer.graph.schema;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition.Builder;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<SchemaEdgeDefinition> {
     @Override
@@ -66,7 +65,7 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
                 .build();
 
         // When
-        final SchemaEdgeDefinition mergedDef = new Builder()
+        final SchemaEdgeDefinition mergedDef = new SchemaEdgeDefinition.Builder()
                 .merge(elementDef1)
                 .merge(elementDef2)
                 .build();
@@ -87,7 +86,7 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
                 .build();
 
         // When
-        final SchemaEdgeDefinition mergedDef = new Builder()
+        final SchemaEdgeDefinition mergedDef = new SchemaEdgeDefinition.Builder()
                 .merge(elementDef1)
                 .merge(elementDef2)
                 .build();

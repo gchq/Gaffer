@@ -37,7 +37,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
+import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
     Graph graph;
