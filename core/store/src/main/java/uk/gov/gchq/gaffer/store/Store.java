@@ -362,7 +362,8 @@ public abstract class Store {
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+    public JobDetail executeJob(final Operationd operation,
+                                final Context context) throws OperationException {
         return executeJob(OperationChain.wrap(operation), context);
     }
 
