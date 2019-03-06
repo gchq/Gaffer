@@ -32,11 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
@@ -45,6 +41,9 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
+        Map<String, ParameterDetail> parameters = new HashMap<>();
+        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", "Option"));
+
         final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -52,6 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .parameters(parameters)
                 .score(0)
                 .build();
 
@@ -61,15 +61,16 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
-                "  \"operationName\": \"Test\",%n" +
-                "  \"description\": \"Test Named Operation\",%n" +
-                "  \"readAccessRoles\": [\"User\"],%n" +
-                "  \"writeAccessRoles\": [\"User\"],%n" +
-                "  \"score\": 0,%n" +
-                "  \"overwriteFlag\": true,%n" +
-                "  \"operationChain\": {" +
-                "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
+                " \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
+                " \"operationName\": \"Test\",%n" +
+                " \"description\": \"Test Named Operation\",%n" +
+                " \"score\": 0,%n" +
+                " \"operationChain\": {" +
+                " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
+                " \"overwriteFlag\" : true,%n" +
+                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": \"Option\"}},%n" +
+                " \"readAccessRoles\" : [ \"User\" ],%n" +
+                " \"writeAccessRoles\" : [ \"User\" ]%n" +
                 "}"), new String(json));
         assertNotNull(deserialisedObj);
     }
@@ -102,6 +103,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         // Given
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testParameter", mock(ParameterDetail.class));
+        parameters.put("optionTestParameter", mock(ParameterDetail.class));
 
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
@@ -133,6 +135,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
+        assertNull(clone.getParameters().get("optionTestParameter").getOptions());
     }
 
     @Override
