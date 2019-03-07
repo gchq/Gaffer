@@ -127,7 +127,6 @@ uk.gov.gchq.gaffer.operation.impl.get
 uk.gov.gchq.gaffer.operation.impl.job
 uk.gov.gchq.gaffer.operation.impl.join
 uk.gov.gchq.gaffer.operation.impl.join.match
-uk.gov.gchq.gaffer.operation.impl.join.merge
 uk.gov.gchq.gaffer.operation.impl.join.methods
 uk.gov.gchq.gaffer.operation.impl.output
 uk.gov.gchq.gaffer.operation.io
@@ -235,7 +234,6 @@ uk.gov.gchq.gaffer.store.operation.handler.generate
 uk.gov.gchq.gaffer.store.operation.handler.job
 uk.gov.gchq.gaffer.store.operation.handler.join
 uk.gov.gchq.gaffer.store.operation.handler.join.match
-uk.gov.gchq.gaffer.store.operation.handler.join.merge
 uk.gov.gchq.gaffer.store.operation.handler.named
 uk.gov.gchq.gaffer.store.operation.handler.named.cache
 uk.gov.gchq.gaffer.store.operation.handler.output
