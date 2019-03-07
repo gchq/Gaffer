@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 

@@ -18,10 +18,14 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-import java.io.*;
+import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * This class is used to serialise and deserialise objects in java.
