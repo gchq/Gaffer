@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -132,12 +131,8 @@ import uk.gov.gchq.gaffer.store.util.Config;
 import uk.gov.gchq.gaffer.store.util.Hook;
 import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.store.util.Result;
-import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -154,16 +149,8 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
-
     /**
-     * The store properties - contains specific configuration information for
-     * the store - such as database connection strings.
-     */
-    private StoreProperties properties;
-
-    /**
-     * The Config - contains specific information about the confuguration of
+     * The Config - contains specific information about the configuration of
      * the Store, and can be used to provide details about a Graph, for
      * example, and util methods for these.  See GraphConfig.
      */
@@ -172,6 +159,10 @@ public abstract class Store {
     private JobTracker jobTracker;
 
     public Store() {
+    }
+
+    public static Store createStore(final Config config) {
+        return createStore(config.getId(), config.getProperties());
     }
 
     public static Store createStore(final String id,
@@ -219,11 +210,13 @@ public abstract class Store {
         if (null == this.config) {
             config = new Config();
         }
+
         config.setId(id);
-        initialise(config, properties);
+        config.setProperties(properties);
+        initialise(config);
     }
 
-    public void initialise(final Config config, final StoreProperties properties) {
+    public void initialise(final Config config) {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == config) {
             throw new IllegalArgumentException("a Config is required");
@@ -232,23 +225,22 @@ public abstract class Store {
             throw new IllegalArgumentException("id is required within the " +
                     "Config");
         }
-        if (null == properties) {
+        if (null == config.getProperties()) {
             throw new IllegalArgumentException("Store properties are required" +
                     " to create a store. id: " + config.getId());
         }
 
         this.config = config;
-        setProperties(properties);
 
-        updateJsonSerialiser();
+        config.updateJsonSerialiser();
 
-        startCacheServiceLoader(properties);
+        startCacheServiceLoader(config.getProperties());
         this.jobTracker = createJobTracker();
 
         addOpHandlers();
-        addExecutorService(properties);
+        addExecutorService(config.getProperties());
 
-        initialise(config.getId(), config, properties);
+        initialise(config.getId(), config, config.getProperties());
     }
 
     public void initialise(final String id, final Config config, final StoreProperties properties) {
@@ -260,23 +252,8 @@ public abstract class Store {
             throw new IllegalArgumentException("Supplied id and Config " +
                     "id do not match");
         }
-        initialise(config, properties);
-    }
-
-    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
-        if (null != storeProperties) {
-            JSONSerialiser.update(
-                    storeProperties.getJsonSerialiserClass(),
-                    storeProperties.getJsonSerialiserModules(),
-                    storeProperties.getStrictJson()
-            );
-        } else {
-            JSONSerialiser.update();
-        }
-    }
-
-    public void updateJsonSerialiser() {
-        updateJsonSerialiser(getProperties());
+        config.setProperties(properties);
+        initialise(config);
     }
 
     /**
@@ -452,7 +429,8 @@ public abstract class Store {
      * @return true if the provided operation is supported.
      */
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        final OperationHandler operationHandler = operationHandlers.get(operationClass);
+        final OperationHandler operationHandler =
+                config.getOperationHandlers().get(operationClass);
         return null != operationHandler;
     }
 
@@ -460,7 +438,7 @@ public abstract class Store {
      * @return a collection of all the supported {@link Operation}s.
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        return operationHandlers.keySet();
+        return config.getOperationHandlers().keySet();
     }
 
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
@@ -489,41 +467,8 @@ public abstract class Store {
         return config.getId();
     }
 
-    /**
-     * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
-     *
-     * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
-     * this may contain details such as database connection details.
-     */
-    public StoreProperties getProperties() {
-        return properties;
-    }
-
-    protected void setProperties(final StoreProperties properties) {
-        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
-        properties.updateStorePropertiesClass(requiredPropsClass);
-
-        // If the properties instance is not already an instance of the required class then reload the properties
-        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
-            this.properties = properties;
-        } else {
-            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
-        }
-
-        ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
-        updateJsonSerialiser();
-    }
-
-    public Context createContext(final User user) {
-        return new Context(user);
-    }
-
-    protected Class<? extends StoreProperties> getPropertiesClass() {
-        return StoreProperties.class;
-    }
-
     protected JobTracker createJobTracker() {
-        if (properties.getJobTrackerEnabled()) {
+        if (config.getProperties().getJobTrackerEnabled()) {
             return new JobTracker();
         }
         return null;
@@ -601,26 +546,6 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
-        if (null == handler) {
-            operationHandlers.remove(opClass);
-        } else {
-            operationHandlers.put(opClass, handler);
-        }
-    }
-
-    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
-        if (null == handler) {
-            operationHandlers.remove(opClass);
-        } else {
-            operationHandlers.put(opClass, handler);
-        }
-    }
-
-    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
-        return operationHandlers.get(opClass);
-    }
-
     private JobDetail addOrUpdateJobDetail(final Operation operation,
                                            final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
@@ -641,7 +566,8 @@ public abstract class Store {
 
     public Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
-        final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
+        final OperationHandler<Operation> handler =
+                config.getOperationHandler(operation.getClass());
         Object result;
         try {
             if (null != handler) {
@@ -677,89 +603,89 @@ public abstract class Store {
 
     private void addCoreOpHandlers() {
         // Add elements
-        addOperationHandler(AddElements.class, getAddElementsHandler());
+        config.addOperationHandler(AddElements.class, getAddElementsHandler());
 
         // Get Elements
-        addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
+        config.addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
 
         // Get Adjacent
-        addOperationHandler(GetAdjacentIds.class, (OperationHandler) getAdjacentIdsHandler());
+        config.addOperationHandler(GetAdjacentIds.class, (OperationHandler) getAdjacentIdsHandler());
 
         // Get All Elements
-        addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
+        config.addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
 
         // Export
-        addOperationHandler(ExportToSet.class, new ExportToSetHandler());
-        addOperationHandler(GetSetExport.class, new GetSetExportHandler());
-        addOperationHandler(GetExports.class, new GetExportsHandler());
+        config.addOperationHandler(ExportToSet.class, new ExportToSetHandler());
+        config.addOperationHandler(GetSetExport.class, new GetSetExportHandler());
+        config.addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
         if (null != getJobTracker()) {
-            addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-            addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+            config.addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+            config.addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+            config.addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
         }
 
         // Output
-        addOperationHandler(ToArray.class, new ToArrayHandler<>());
-        addOperationHandler(ToEntitySeeds.class, new ToEntitySeedsHandler());
-        addOperationHandler(ToList.class, new ToListHandler<>());
-        addOperationHandler(ToMap.class, new ToMapHandler());
-        addOperationHandler(ToCsv.class, new ToCsvHandler());
-        addOperationHandler(ToSet.class, new ToSetHandler<>());
-        addOperationHandler(ToStream.class, new ToStreamHandler<>());
-        addOperationHandler(ToVertices.class, new ToVerticesHandler());
+        config.addOperationHandler(ToArray.class, new ToArrayHandler<>());
+        config.addOperationHandler(ToEntitySeeds.class, new ToEntitySeedsHandler());
+        config.addOperationHandler(ToList.class, new ToListHandler<>());
+        config.addOperationHandler(ToMap.class, new ToMapHandler());
+        config.addOperationHandler(ToCsv.class, new ToCsvHandler());
+        config.addOperationHandler(ToSet.class, new ToSetHandler<>());
+        config.addOperationHandler(ToStream.class, new ToStreamHandler<>());
+        config.addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
         if (null != CacheServiceLoader.getService()) {
             // Named operation
-            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+            config.addOperationHandler(NamedOperation.class, new NamedOperationHandler());
+            config.addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
+            config.addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
+            config.addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
 
             // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
+            config.addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
+            config.addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
+            config.addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
         }
 
         // ElementComparison
-        addOperationHandler(Max.class, new MaxHandler());
-        addOperationHandler(Min.class, new MinHandler());
-        addOperationHandler(Sort.class, new SortHandler());
+        config.addOperationHandler(Max.class, new MaxHandler());
+        config.addOperationHandler(Min.class, new MinHandler());
+        config.addOperationHandler(Sort.class, new SortHandler());
 
         // OperationChain
-        addOperationHandler(OperationChain.class, getOperationChainHandler());
-        addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
+        config.addOperationHandler(OperationChain.class, getOperationChainHandler());
+        config.addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
 
         // Walk tracking
-        addOperationHandler(GetWalks.class, new GetWalksHandler());
+        config.addOperationHandler(GetWalks.class, new GetWalksHandler());
 
         // Other
-        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
-        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
-        addOperationHandler(Count.class, new CountHandler());
-        addOperationHandler(CountGroups.class, new CountGroupsHandler());
-        addOperationHandler(Limit.class, new LimitHandler());
-        addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
-        addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
-        addOperationHandler(If.class, new IfHandler());
-        addOperationHandler(While.class, new WhileHandler());
-        addOperationHandler(ForEach.class, new ForEachHandler());
-        addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
-        addOperationHandler(Reduce.class, new ReduceHandler());
+        config.addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
+        config.addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
+        config.addOperationHandler(Count.class, new CountHandler());
+        config.addOperationHandler(CountGroups.class, new CountGroupsHandler());
+        config.addOperationHandler(Limit.class, new LimitHandler());
+        config.addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
+        config.addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
+        config.addOperationHandler(If.class, new IfHandler());
+        config.addOperationHandler(While.class, new WhileHandler());
+        config.addOperationHandler(ForEach.class, new ForEachHandler());
+        config.addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
+        config.addOperationHandler(Reduce.class, new ReduceHandler());
 
         // Context variables
-        addOperationHandler(SetVariable.class, new SetVariableHandler());
-        addOperationHandler(GetVariable.class, new GetVariableHandler());
-        addOperationHandler(GetVariables.class, new GetVariablesHandler());
+        config.addOperationHandler(SetVariable.class, new SetVariableHandler());
+        config.addOperationHandler(GetVariable.class, new GetVariableHandler());
+        config.addOperationHandler(GetVariables.class, new GetVariablesHandler());
     }
 
     private void addConfiguredOperationHandlers() {
-        final OperationDeclarations declarations = getProperties().getOperationDeclarations();
+        final OperationDeclarations declarations = config.getProperties().getOperationDeclarations();
         if (null != declarations) {
             for (final OperationDeclaration definition : declarations.getOperations()) {
-                addOperationHandler(definition.getOperation(), definition.getHandler());
+                config.addOperationHandler(definition.getOperation(), definition.getHandler());
             }
         }
     }

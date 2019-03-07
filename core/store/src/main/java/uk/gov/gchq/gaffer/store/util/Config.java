@@ -20,7 +20,14 @@ import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,13 +36,40 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class Config {
+    /**
+     * The id of the store.
+     */
     private String id;
+
+    /**
+     * A short description of the store
+     */
     private String description;
+
+    /**
+     * A list of {@link Hook}s
+     */
     private List<Hook> hooks = new ArrayList<>();
+
+    /**
+     * The store properties - contains specific configuration information for
+     * the store - such as database connection strings.
+     */
+    private StoreProperties properties;
+
+    /**
+     * The operation handlers - A Map containing all classes of operations
+     * supported by this store, and an instance of all the OperationHandlers
+     * that will be used to handle these operations.
+     */
+    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
 
     public Config() {
     }
@@ -51,7 +85,6 @@ public class Config {
     public void setId(final String id) {
         this.id = id;
     }
-
 
     public List<Hook> getHooks() {
         return hooks;
@@ -73,7 +106,6 @@ public class Config {
         this.description = description;
     }
 
-
     public void addHook(final Hook hook) {
         if (null != hook) {
             if (hook instanceof HookPath) {
@@ -93,22 +125,211 @@ public class Config {
         }
     }
 
+    /**
+     * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
+     *
+     * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
+     * this may contain details such as database connection details.
+     */
+    public StoreProperties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(final StoreProperties properties) {
+        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
+        properties.updateStorePropertiesClass(requiredPropsClass);
+
+        // If the properties instance is not already an instance of the required class then reload the properties
+        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
+            this.properties = properties;
+        } else {
+            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+
+        ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+        updateJsonSerialiser();
+    }
+
+    protected Class<? extends StoreProperties> getPropertiesClass() {
+        return StoreProperties.class;
+    }
+
+    public static void updateJsonSerialiser(final StoreProperties storeProperties) {
+        if (null != storeProperties) {
+            JSONSerialiser.update(
+                    storeProperties.getJsonSerialiserClass(),
+                    storeProperties.getJsonSerialiserModules(),
+                    storeProperties.getStrictJson()
+            );
+        } else {
+            JSONSerialiser.update();
+        }
+    }
+
+    public void updateJsonSerialiser() {
+        updateJsonSerialiser(properties);
+    }
+
+    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
+    }
+
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
+    }
+
+    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+        return operationHandlers.get(opClass);
+    }
+
+    public Map<Class<? extends Operation>, OperationHandler> getOperationHandlers() {
+        return operationHandlers;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
+                .append("description", description)
                 .append("hooks", hooks)
+                .append("properties", properties)
+                .append("operationHandlers", operationHandlers)
                 .toString();
     }
 
     public static class Builder {
         private Config config = new Config();
+        private List<Hook> hooks;
+        private StoreProperties properties;
 
+        // Id
+        public Builder id(final String id) {
+            config.setId(id);
+            return this;
+        }
+
+        // Description
+        public Builder description(final String description) {
+            config.setDescription(description);
+            return this;
+        }
+
+        // StoreProperties
+        public Builder storeProperties(final Properties properties) {
+            return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
+        }
+
+        public Builder storeProperties(final StoreProperties properties) {
+            this.properties = properties;
+            if (null != properties) {
+                ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+                JSONSerialiser.update(
+                        properties.getJsonSerialiserClass(),
+                        properties.getJsonSerialiserModules(),
+                        properties.getStrictJson()
+                );
+            }
+            return this;
+        }
+
+        public Builder storeProperties(final String propertiesPath) {
+            return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
+        }
+
+        public Builder storeProperties(final Path propertiesPath) {
+            if (null == propertiesPath) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            }
+            return this;
+        }
+
+        public Builder storeProperties(final InputStream propertiesStream) {
+            if (null == propertiesStream) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+            }
+            return this;
+        }
+
+        public Builder storeProperties(final URI propertiesURI) {
+            if (null != propertiesURI) {
+                try {
+                    storeProperties(StreamUtil.openStream(propertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
+                }
+            }
+
+            return this;
+        }
+
+        public Builder addStoreProperties(final Properties properties) {
+            if (null != properties) {
+                addStoreProperties(StoreProperties.loadStoreProperties(properties));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final StoreProperties updateProperties) {
+            if (null != updateProperties) {
+                if (null == this.properties) {
+                    storeProperties(updateProperties);
+                } else {
+                    this.properties.merge(updateProperties);
+                }
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final String updatePropertiesPath) {
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final Path updatePropertiesPath) {
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+            if (null != updatePropertiesStream) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final URI updatePropertiesURI) {
+            if (null != updatePropertiesURI) {
+                try {
+                    addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+                }
+            }
+            return this;
+        }
+
+        // Json config builder
         public Builder json(final Path path) {
             try {
                 return json(null != path ? Files.readAllBytes(path) : null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from path: " + path, e);
+                throw new IllegalArgumentException("Unable to read config from path: " + path, e);
             }
         }
 
@@ -116,7 +337,7 @@ public class Config {
             try {
                 json(null != uri ? StreamUtil.openStream(uri) : null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from uri: " + uri, e);
+                throw new IllegalArgumentException("Unable to read config from uri: " + uri, e);
             }
 
             return this;
@@ -126,7 +347,7 @@ public class Config {
             try {
                 json(null != stream ? IOUtils.toByteArray(stream) : null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from input stream", e);
+                throw new IllegalArgumentException("Unable to read config from input stream", e);
             }
 
             return this;
@@ -137,35 +358,29 @@ public class Config {
                 try {
                     merge(JSONSerialiser.deserialise(bytes, Config.class));
                 } catch (final IOException e) {
-                    throw new IllegalArgumentException("Unable to deserialise graph config", e);
+                    throw new IllegalArgumentException("Unable to deserialise config", e);
                 }
             }
             return this;
         }
 
+        // Merge configs
         public Builder merge(final Config config) {
             if (null != config) {
-                if (null != config.getId()) {
+                if (null != this.config.getId()) {
                     this.config.setId(config.getId());
                 }
-                if (null != config.getDescription()) {
+                if (null != this.config.getDescription()) {
                     this.config.setDescription(config.getDescription());
                 }
-                this.config.getHooks().addAll(config.getHooks());
+                config.getHooks().forEach(hook -> this.config.addHook(hook));
+                this.config.getProperties().merge(config.getProperties());
+                this.config.getOperationHandlers().putAll(config.getOperationHandlers());
             }
             return this;
         }
 
-        public Builder id(final String id) {
-            config.setId(id);
-            return this;
-        }
-
-        public Builder description(final String description) {
-            this.config.setDescription(description);
-            return this;
-        }
-
+        // Hooks
         public Builder addHooks(final Path hooksPath) {
             if (null == hooksPath || !hooksPath.toFile().exists()) {
                 throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
@@ -197,25 +412,20 @@ public class Config {
 
         public Builder addHook(final Hook hook) {
             if (null != hook) {
-                this.config.addHook(hook);
+                this.hooks.add(hook);
             }
             return this;
         }
 
         public Builder addHooks(final Hook... hooks) {
             if (null != hooks) {
-                Collections.addAll(this.config.getHooks(), hooks);
+                this.hooks.addAll(Arrays.asList(hooks));
             }
             return this;
         }
 
         public Config build() {
             return config;
-        }
-
-        @Override
-        public String toString() {
-            return config.toString();
         }
     }
 }

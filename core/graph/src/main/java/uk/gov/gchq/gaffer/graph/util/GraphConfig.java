@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.graph.util;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,8 +49,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -291,45 +295,11 @@ public class GraphConfig extends Config {
 
     public static class Builder {
         private GraphConfig config = new GraphConfig();
-
-        public Builder json(final Path path) {
-            try {
-                return json(null != path ? Files.readAllBytes(path) : null);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from path: " + path, e);
-            }
-        }
-
-        public Builder json(final URI uri) {
-            try {
-                json(null != uri ? StreamUtil.openStream(uri) : null);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from uri: " + uri, e);
-            }
-
-            return this;
-        }
-
-        public Builder json(final InputStream stream) {
-            try {
-                json(null != stream ? IOUtils.toByteArray(stream) : null);
-            } catch (final IOException e) {
-                throw new IllegalArgumentException("Unable to read graph config from input stream", e);
-            }
-
-            return this;
-        }
-
-        public Builder json(final byte[] bytes) {
-            if (null != bytes) {
-                try {
-                    merge(JSONSerialiser.deserialise(bytes, GraphConfig.class));
-                } catch (final IOException e) {
-                    throw new IllegalArgumentException("Unable to deserialise graph config", e);
-                }
-            }
-            return this;
-        }
+        public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
+        private final List<byte[]> schemaBytesList = new ArrayList<>();
+        private Schema schema;
+        private List<String> parentSchemaIds;
+        private boolean addToLibrary = true;
 
         public Builder merge(final GraphConfig config) {
             if (null != config) {
@@ -360,8 +330,140 @@ public class GraphConfig extends Config {
             return this;
         }
 
-        public Builder description(final String description) {
-            this.config.setDescription(description);
+        public GraphConfig.Builder addParentSchemaIds(final List<String> parentSchemaIds) {
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = new ArrayList<>(parentSchemaIds);
+                } else {
+                    this.parentSchemaIds.addAll(parentSchemaIds);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addParentSchemaIds(final String... parentSchemaIds) {
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = Lists.newArrayList(parentSchemaIds);
+                } else {
+                    Collections.addAll(this.parentSchemaIds, parentSchemaIds);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchemas(final Schema... schemaModules) {
+            if (null != schemaModules) {
+                for (final Schema schemaModule : schemaModules) {
+                    addSchema(schemaModule);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchemas(final InputStream... schemaStreams) {
+            if (null != schemaStreams) {
+                try {
+                    for (final InputStream schemaStream : schemaStreams) {
+                        addSchema(schemaStream);
+                    }
+                } finally {
+                    for (final InputStream schemaModule : schemaStreams) {
+                        CloseableUtil.close(schemaModule);
+                    }
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchemas(final Path... schemaPaths) {
+            if (null != schemaPaths) {
+                for (final Path schemaPath : schemaPaths) {
+                    addSchema(schemaPath);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchemas(final byte[]... schemaBytesArray) {
+            if (null != schemaBytesArray) {
+                for (final byte[] schemaBytes : schemaBytesArray) {
+                    addSchema(schemaBytes);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchema(final Schema schemaModule) {
+            if (null != schemaModule) {
+                if (null != schema) {
+                    schema = new Schema.Builder()
+                            .merge(schema)
+                            .merge(schemaModule)
+                            .build();
+                } else {
+                    schema = schemaModule;
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchema(final InputStream schemaStream) {
+            if (null != schemaStream) {
+                try {
+                    addSchema(IOUtils.toByteArray(schemaStream));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from input stream", e);
+                } finally {
+                    CloseableUtil.close(schemaStream);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchema(final URI schemaURI) {
+            if (null != schemaURI) {
+                try {
+                    addSchema(StreamUtil.openStream(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchemas(final URI... schemaURI) {
+            if (null != schemaURI) {
+                try {
+                    addSchemas(StreamUtil.openStreams(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchema(final Path schemaPath) {
+            if (null != schemaPath) {
+                try {
+                    if (Files.isDirectory(schemaPath)) {
+                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
+                            addSchema(path);
+                        }
+                    } else {
+                        addSchema(Files.readAllBytes(schemaPath));
+                    }
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
+                }
+            }
+            return this;
+        }
+
+        public GraphConfig.Builder addSchema(final byte[] schemaBytes) {
+            if (null != schemaBytes) {
+                schemaBytesList.add(schemaBytes);
+            }
             return this;
         }
 
