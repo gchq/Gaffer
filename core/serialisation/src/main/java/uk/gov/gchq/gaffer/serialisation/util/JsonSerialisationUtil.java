@@ -30,10 +30,10 @@ import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.HashMap;
