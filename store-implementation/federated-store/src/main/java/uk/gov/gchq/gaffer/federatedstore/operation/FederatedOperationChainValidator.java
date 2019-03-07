@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,14 +72,18 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         final Operation clonedOp = shallowCloneWithDeepOptions(op);
 
         for (final String graphId : graphIds) {
-            currentResult = new ValidationResult();
-            clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
-            super.validateViews(clonedOp, user, store, currentResult);
-            if (currentResult.isValid()) {
-                //If any graph has a valid View, break with valid current result
-                break;
-            } else {
-                savedResult.add(currentResult);
+            final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
+            //If graphId is not valid, then there is no schema to validate a view against.
+            if (graphIdValid) {
+                currentResult = new ValidationResult();
+                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+                super.validateViews(clonedOp, user, store, currentResult);
+                if (currentResult.isValid()) {
+                    //If any graph has a valid View, break with valid current result
+                    break;
+                } else {
+                    savedResult.add(currentResult);
+                }
             }
         }
 

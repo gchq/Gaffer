@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
 
     private String getProxyOptions(final OperationChain<OUT> operationChain) {
         final Map<String, String> options = operationChain.getOptions();
-        return isNull(options) ? UNPROCESSED : options.get(PROXY_STORE_OPERATION_CHAIN_HANDLER);
+        return isNull(options) ? UNPROCESSED : options.getOrDefault(PROXY_STORE_OPERATION_CHAIN_HANDLER, UNPROCESSED);
     }
 
     private OUT unprocessedLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {

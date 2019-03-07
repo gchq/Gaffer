@@ -55,7 +55,6 @@ public class ToFreqMapTest extends FunctionTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final ToFreqMap function = new ToFreqMap();

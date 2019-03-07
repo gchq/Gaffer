@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,9 @@ public class SchemaElementDefinitionValidator {
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
         result.add(validateRequiredParameters(elementDef));
         result.add(validatePropertyNames(elementDef));
-        result.add(validateDirection(elementDef));
+        // Currently removed as it will cause breaking changes
+        // TODO - re-add this on a major version release
+        //result.add(validateDirection(elementDef));
 
         return result;
     }

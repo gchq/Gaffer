@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,9 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetVariables getVariablesOp = getTestObject();
+        GetVariables getVariablesOp = new GetVariables.Builder()
+                .variableNames(variableNames)
+                .build();
 
         assertEquals(3, getVariablesOp.getVariableNames().size());
         assertTrue(getVariablesOp.getVariableNames().containsAll(variableNames));
@@ -38,7 +40,9 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetVariables op = getTestObject();
+        GetVariables op = new GetVariables.Builder()
+                .variableNames(variableNames)
+                .build();
 
         GetVariables opClone = op.shallowClone();
 
@@ -49,8 +53,6 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
 
     @Override
     protected GetVariables getTestObject() {
-        return new GetVariables.Builder()
-                .variableNames(variableNames)
-                .build();
+        return new GetVariables();
     }
 }
