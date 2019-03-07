@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.store.serialiser;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -87,5 +90,26 @@ public class ElementSerialiser extends PropertiesSerialiser<Element> {
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final ElementSerialiser that = (ElementSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(entitySerialiser, that.entitySerialiser)
+                    .append(edgeSerialiser, that.edgeSerialiser)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(entitySerialiser)
+                .append(edgeSerialiser)
+                .toHashCode();
     }
 }

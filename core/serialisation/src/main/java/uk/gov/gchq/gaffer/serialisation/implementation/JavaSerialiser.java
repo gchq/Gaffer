@@ -18,17 +18,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 
 /**
  * This class is used to serialise and deserialise objects in java.
@@ -102,5 +95,10 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
     @Override
     public boolean equals(final Object obj) {
         return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return JavaSerialiser.class.getName().hashCode();
     }
 }

@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -131,5 +134,24 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
     @Override
     public FreqMap deserialiseEmpty() {
         return new FreqMap();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final FreqMapSerialiser that = (FreqMapSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(longSerialiser, that.longSerialiser)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(longSerialiser)
+                .toHashCode();
     }
 }

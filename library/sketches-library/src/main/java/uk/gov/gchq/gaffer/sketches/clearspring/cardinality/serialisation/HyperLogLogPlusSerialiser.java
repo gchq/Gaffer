@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -65,5 +64,15 @@ public class HyperLogLogPlusSerialiser implements ToBytesSerialiser<HyperLogLogP
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return HyperLogLogPlusSerialiser.class.getName().hashCode();
     }
 }

@@ -92,4 +92,14 @@ public class OrderedIntegerSerialiser implements ToBytesSerialiser<Integer> {
     public boolean canHandle(final Class clazz) {
         return Integer.class.equals(clazz);
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return OrderedIntegerSerialiser.class.getName().hashCode();
+    }
 }

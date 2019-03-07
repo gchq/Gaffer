@@ -19,6 +19,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
@@ -151,5 +154,26 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     @JsonIgnore
     public void setSetClass(final Class<? extends Set> setClass) {
         this.setClass = setClass;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final SetSerialiser that = (SetSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(objectSerialiser, that.objectSerialiser)
+                    .append(setClass, that.setClass)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(objectSerialiser)
+                .append(setClass)
+                .toHashCode();
     }
 }

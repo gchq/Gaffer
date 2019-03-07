@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
-
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
@@ -89,5 +88,10 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     @Override
     public boolean equals(final Object obj) {
         return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return TreeSetStringSerialiser.class.getName().hashCode();
     }
 }

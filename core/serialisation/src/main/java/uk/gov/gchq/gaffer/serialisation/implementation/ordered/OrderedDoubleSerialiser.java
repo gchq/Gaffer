@@ -71,4 +71,14 @@ public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
     public boolean canHandle(final Class clazz) {
         return Double.class.equals(clazz);
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return OrderedDoubleSerialiser.class.getName().hashCode();
+    }
 }

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.time.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.roaringbitmap.RoaringBitmap;
-
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,11 +26,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisati
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * A {@code BoundedTimestampSetSerialiser} serialises a {@link BoundedTimestampSet} to an array of bytes.
@@ -132,5 +127,15 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return BoundedTimestampSetSerialiser.class.getName().hashCode();
     }
 }

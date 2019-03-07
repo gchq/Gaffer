@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfNumbersSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -58,5 +57,15 @@ public class ReservoirNumbersUnionSerialiser implements ToBytesSerialiser<Reserv
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return ReservoirNumbersUnionSerialiser.class.getName().hashCode();
     }
 }

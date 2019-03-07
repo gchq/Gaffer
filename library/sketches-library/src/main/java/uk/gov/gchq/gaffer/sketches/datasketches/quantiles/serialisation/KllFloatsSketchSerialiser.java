@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
 import com.yahoo.memory.Memory;
 import com.yahoo.sketches.kll.KllFloatsSketch;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -56,6 +55,16 @@ public class KllFloatsSketchSerialiser implements ToBytesSerialiser<KllFloatsSke
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return KllFloatsSketchSerialiser.class.getName().hashCode();
     }
 }
 

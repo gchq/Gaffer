@@ -65,4 +65,14 @@ public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
     public boolean isConsistent() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return BooleanSerialiser.class.getName().hashCode();
+    }
 }

@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 
 import com.yahoo.memory.Memory;
 import com.yahoo.sketches.theta.Sketch;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -56,5 +55,15 @@ public class SketchSerialiser implements ToBytesSerialiser<Sketch> {
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return SketchSerialiser.class.getName().hashCode();
     }
 }

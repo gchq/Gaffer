@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsUnion;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -61,4 +60,15 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
     public boolean isConsistent() {
         return false;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return StringsUnionSerialiser.class.getName().hashCode();
+    }
 }
+

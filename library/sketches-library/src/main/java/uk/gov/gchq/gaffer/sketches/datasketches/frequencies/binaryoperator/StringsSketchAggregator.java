@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
-
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;

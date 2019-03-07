@@ -70,4 +70,8 @@ public class DoubleSerialiser extends ToBytesViaStringDeserialiser<Double> {
     public boolean equals(final Object obj) {
         return this == obj || obj != null && this.getClass() == obj.getClass();
     }
+
+    public int hashCode() {
+        return DoubleSerialiser.class.getName().hashCode();
+    }
 }

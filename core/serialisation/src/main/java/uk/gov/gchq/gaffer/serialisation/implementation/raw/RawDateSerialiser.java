@@ -88,4 +88,14 @@ public class RawDateSerialiser implements ToBytesSerialiser<Date> {
     public boolean isConsistent() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return RawDateSerialiser.class.getName().hashCode();
+    }
 }

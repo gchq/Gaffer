@@ -21,11 +21,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.time.Instant;
 import java.util.Map;
 import java.util.SortedMap;
@@ -182,5 +178,15 @@ public class DeltaLongTimeSeriesSerialiser implements ToBytesSerialiser<LongTime
                         || e.getValue() < -HALF_MAX_VALUE
                         || e.getValue() > HALF_MAX_VALUE);
         return noneMatch ? Mode.DELTA : Mode.LITERAL;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return DeltaLongTimeSeriesSerialiser.class.getName().hashCode();
     }
 }

@@ -17,7 +17,8 @@
 package uk.gov.gchq.gaffer.store.serialiser;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -114,5 +115,26 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
     public boolean isConsistent() {
         return null != edgeIdSerialiser && null != entityIdSerialiser
                 && edgeIdSerialiser.isConsistent() && entityIdSerialiser.isConsistent();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final ElementIdSerialiser that = (ElementIdSerialiser) o;
+            rtn = new EqualsBuilder()
+                    .append(entityIdSerialiser, that.entityIdSerialiser)
+                    .append(edgeIdSerialiser, that.edgeIdSerialiser)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(entityIdSerialiser)
+                .append(edgeIdSerialiser)
+                .toHashCode();
     }
 }

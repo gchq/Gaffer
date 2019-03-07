@@ -71,4 +71,14 @@ public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
     public boolean canHandle(final Class clazz) {
         return Float.class.equals(clazz);
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return OrderedFloatSerialiser.class.getName().hashCode();
+    }
 }

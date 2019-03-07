@@ -19,7 +19,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -64,5 +65,24 @@ public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> e
                     + type.getSimpleName()
                     + " to a byte array", e);
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final WrappedKryoSerializer that = (WrappedKryoSerializer) o;
+            rtn = new EqualsBuilder()
+                    .append(serialiser, that.serialiser)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(serialiser)
+                .toHashCode();
     }
 }
