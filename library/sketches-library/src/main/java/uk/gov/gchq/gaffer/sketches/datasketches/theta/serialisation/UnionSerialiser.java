@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 

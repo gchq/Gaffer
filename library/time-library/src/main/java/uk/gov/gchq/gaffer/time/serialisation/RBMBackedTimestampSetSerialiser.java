@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time.serialisation;
 
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -23,7 +24,11 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * A {@code RBMBackedTimestampSetSerialiser} serialises a {@link RBMBackedTimestampSet} to an array of bytes.

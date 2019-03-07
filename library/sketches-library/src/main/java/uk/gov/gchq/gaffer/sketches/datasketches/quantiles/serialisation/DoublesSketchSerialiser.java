@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
 import com.yahoo.memory.Memory;
 import com.yahoo.sketches.quantiles.DoublesSketch;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 

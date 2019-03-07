@@ -16,11 +16,16 @@
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * A {@link uk.gov.gchq.gaffer.serialisation.Serialiser} implementation for {@link RoaringBitmap}
