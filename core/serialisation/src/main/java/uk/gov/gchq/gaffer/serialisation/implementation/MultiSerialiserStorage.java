@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -143,6 +145,33 @@ public class MultiSerialiserStorage {
         keyToSerialiser.clear();
         keyToClass.clear();
         classToKey.clear();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        boolean rtn = (this == o);
+        if (!rtn && o != null && getClass() == o.getClass()) {
+            final MultiSerialiserStorage that = (MultiSerialiserStorage) o;
+            rtn = new EqualsBuilder()
+                    .append(keyToClass, that.keyToClass)
+                    .append(keyToSerialiser, that.keyToSerialiser)
+                    .append(classToKey, that.classToKey)
+                    .append(consistent, that.consistent)
+                    .append(preservesObjectOrdering, that.preservesObjectOrdering)
+                    .isEquals();
+        }
+        return rtn;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(keyToClass)
+                .append(keyToSerialiser)
+                .append(classToKey)
+                .append(consistent)
+                .append(preservesObjectOrdering)
+                .toHashCode();
     }
 
     @JsonPropertyOrder(value = {"class", "key", "serialiser", "valueClass"}, alphabetic = true)
