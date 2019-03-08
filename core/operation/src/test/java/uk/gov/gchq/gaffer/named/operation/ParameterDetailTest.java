@@ -5,7 +5,7 @@ import org.junit.Test;
 public class ParameterDetailTest {
 
     @Test
-    public void shouldBuildFullParameterDetail() {
+    public void shouldBuildFullParameterDetailWithOptions() {
         // When
         new ParameterDetail.Builder()
                 .defaultValue(2L)
