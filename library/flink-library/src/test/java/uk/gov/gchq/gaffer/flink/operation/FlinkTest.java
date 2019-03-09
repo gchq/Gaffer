@@ -26,10 +26,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -117,7 +117,7 @@ public abstract class FlinkTest {
     }
 
     public static Store createStore() {
-        return Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+        return Store.createStore("graphId", SCHEMA, new StoreProperties("store.properties"));
     }
 
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {

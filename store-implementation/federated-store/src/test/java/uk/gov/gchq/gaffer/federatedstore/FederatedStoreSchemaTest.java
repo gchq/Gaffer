@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -29,6 +28,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -56,17 +57,16 @@ public class FederatedStoreSchemaTest {
     public static final String ACC_PROP = "accProp";
 
     private FederatedStore fStore;
-    private static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
-    private static final FederatedStoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
+    private static final StoreProperties ACCUMULO_PROPERTIES = new StoreProperties();
+    private static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
-        ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
-        ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
+        StorePropertiesUtil.setStoreClass(ACCUMULO_PROPERTIES, MockAccumuloStore.class);
 
-        FEDERATED_PROPERTIES.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(FEDERATED_PROPERTIES, CACHE_SERVICE_CLASS_STRING);
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);

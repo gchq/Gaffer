@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -41,7 +40,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
-        StoreProperties storeProperties = new AccumuloProperties();
+        StoreProperties storeProperties = new StoreProperties();
         AddGraph op = new AddGraph.Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .schema(expectedSchema)
@@ -50,8 +49,6 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
         Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
-        Assert.assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
     }
 
     @Override

@@ -26,14 +26,13 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -46,14 +45,14 @@ import static org.junit.Assert.assertEquals;
 public class OperationChainTest {
 
     @Test
-    public void testOperationChain() throws StoreException, OperationException {
+    public void testOperationChain() throws OperationException {
         // Given
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graph1")
                         .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
-                .storeProperties(new MapStoreProperties())
+                .storeProperties(new StoreProperties())
                 .build();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())

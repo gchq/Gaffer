@@ -20,9 +20,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +33,7 @@ public class ElementClonerTest {
         // Given
         final ElementCloner cloner = new ElementCloner();
         final MapStore mapStore = new MapStore();
-        mapStore.initialise("graphId", GetAllElementsHandlerTest.getSchema(), new MapStoreProperties());
+        mapStore.initialise("graphId", GetAllElementsHandlerTest.getSchema(), new StoreProperties());
 
         // Then
         Streams.toStream(GetAllElementsHandlerTest.getElements())

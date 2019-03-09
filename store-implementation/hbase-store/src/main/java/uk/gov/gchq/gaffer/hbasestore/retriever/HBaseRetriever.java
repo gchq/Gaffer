@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.HBaseStorePropertiesUtil;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -156,7 +157,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
             if (null != idsIterator) {
                 final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
-                final int maxEntriesForBatchScanner = store.getProperties().getMaxEntriesForBatchScanner();
+                final int maxEntriesForBatchScanner = HBaseStorePropertiesUtil.getMaxEntriesForBatchScanner(store.getProperties());
                 int count = 0;
                 while (idsIterator.hasNext() && count < maxEntriesForBatchScanner) {
                     count++;

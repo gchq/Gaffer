@@ -20,12 +20,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -49,7 +49,7 @@ public class FederatedStoreMultiCacheTest {
     public static User authUser = authUser();
     public static User testUser = testUser();
     public FederatedStore store;
-    public FederatedStoreProperties federatedStoreProperties;
+    public StoreProperties federatedStoreProperties;
     public Collection<String> originalStoreIds;
     public FederatedStore store2;
     public User blankUser;
@@ -58,16 +58,16 @@ public class FederatedStoreMultiCacheTest {
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-        federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        federatedStoreProperties = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(federatedStoreProperties, CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setProperty(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
         store = new FederatedStore();
         store.initialise(FEDERATED_STORE_ID, null, federatedStoreProperties);
         store.execute(new AddGraph.Builder()
                 .graphId(ACC_ID_1)
                 .graphAuths(AUTH_1)
                 .isPublic(false)
-                .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
+                .storeProperties(new StoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
                 .build(), new Context.Builder()
                 .user(testUser)
@@ -126,7 +126,7 @@ public class FederatedStoreMultiCacheTest {
         store.execute(new AddGraph.Builder()
                 .graphId(ACC_ID_1 + 1)
                 .isPublic(true)
-                .storeProperties(AccumuloProperties.loadStoreProperties(PATH_ACC_STORE_PROPERTIES))
+                .storeProperties(new StoreProperties(PATH_ACC_STORE_PROPERTIES))
                 .schema(Schema.fromJson(StreamUtil.openStream(Schema.class, PATH_BASIC_ENTITY_SCHEMA_JSON)))
                 .build(), new Context.Builder()
                 .user(testUser)

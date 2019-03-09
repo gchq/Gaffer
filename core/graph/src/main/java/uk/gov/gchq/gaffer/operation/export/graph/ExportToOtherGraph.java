@@ -125,7 +125,7 @@ public class ExportToOtherGraph implements
 
     @JsonGetter("storeProperties")
     public Properties getProperties() {
-        return null != storeProperties ? storeProperties.getProperties() : null;
+        return storeProperties;
     }
 
     @JsonSetter("storeProperties")
@@ -133,7 +133,7 @@ public class ExportToOtherGraph implements
         if (null == properties) {
             this.storeProperties = null;
         } else {
-            this.storeProperties = StoreProperties.loadStoreProperties(properties);
+            this.storeProperties = new StoreProperties(properties);
         }
     }
 

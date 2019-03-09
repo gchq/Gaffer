@@ -17,11 +17,10 @@ package uk.gov.gchq.gaffer.mapstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class MapStoreITs extends AbstractStoreITs {
-    private static final MapStoreProperties STORE_PROPERTIES =
-            MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
+    private static final StoreProperties STORE_PROPERTIES = new StoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);

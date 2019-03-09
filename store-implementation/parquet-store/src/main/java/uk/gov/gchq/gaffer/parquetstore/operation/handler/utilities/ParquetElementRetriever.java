@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.query.ParquetQuery;
 import uk.gov.gchq.gaffer.parquetstore.query.QueryGenerator;
 import uk.gov.gchq.gaffer.user.User;
@@ -94,13 +95,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 LOGGER.debug("Created ParquetQuery {}", parquetQuery);
                 if (!parquetQuery.isEmpty()) {
                     queue = new ConcurrentLinkedQueue<>();
-                    executorServicePool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
+                    executorServicePool = Executors.newFixedThreadPool(ParquetStorePropertiesUtil.getThreadsAvailable(store.getProperties()));
                     final List<RetrieveElementsFromFile> tasks = new ArrayList<>();
                     tasks.addAll(parquetQuery.getAllParquetFileQueries()
                             .stream()
                             .map(entry -> new RetrieveElementsFromFile(entry.getFile(), entry.getFilter(),
                                     store.getSchema(), queue, !entry.isFullyApplied(),
-                                    store.getProperties().getSkipValidation(), view, user))
+                                    ParquetStorePropertiesUtil.getSkipValidation(store.getProperties()), view, user))
                             .collect(Collectors.toList()));
                     LOGGER.info("Invoking {} RetrieveElementsFromFile tasks", tasks.size());
                     runningTasks = executorServicePool.invokeAll(tasks);

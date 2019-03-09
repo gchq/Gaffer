@@ -21,7 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -68,7 +67,7 @@ public class AddUpdateTableIteratorTest {
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
+        assertEquals(new StoreProperties(STORE_PROPS_PATH), pair.getSecond());
     }
 
     @Test
@@ -86,7 +85,7 @@ public class AddUpdateTableIteratorTest {
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
+        assertEquals(new StoreProperties(STORE_PROPS_2_PATH), pair.getSecond());
     }
 
     @Test

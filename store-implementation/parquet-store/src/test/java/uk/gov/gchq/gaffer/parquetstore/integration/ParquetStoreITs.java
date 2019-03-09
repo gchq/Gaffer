@@ -24,13 +24,14 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
 import uk.gov.gchq.gaffer.integration.impl.PartAggregationIT;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
 
 public class ParquetStoreITs extends AbstractStoreITs {
-    private static final ParquetStoreProperties STORE_PROPERTIES =
-            ParquetStoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
+    private static final StoreProperties STORE_PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -38,8 +39,8 @@ public class ParquetStoreITs extends AbstractStoreITs {
         super(STORE_PROPERTIES);
         testFolder.create();
         final String testFolderPath = testFolder.newFolder().getAbsolutePath();
-        ((ParquetStoreProperties) getStoreProperties()).setDataDir(testFolderPath + "/data");
-        ((ParquetStoreProperties) getStoreProperties()).setTempFilesDir(testFolderPath + "/tmpdata");
+        ParquetStorePropertiesUtil.setDataDir((getStoreProperties()), testFolderPath + "/data");
+        ParquetStorePropertiesUtil.setTempFilesDir((getStoreProperties()), testFolderPath + "/tmpdata");
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
         skipTest(PartAggregationIT.class, "known bug with ParquetStore");
     }

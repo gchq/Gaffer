@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.mapstore.factory;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
 import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.LinkedHashMap;
@@ -44,10 +44,10 @@ public class SimpleMapFactoryTest {
         // Given
         final Class mapClass = String.class;
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
-        given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
+        given(properties.getProperty(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         // When / Then
         try {
@@ -63,10 +63,10 @@ public class SimpleMapFactoryTest {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
-        given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
+        given(properties.getProperty(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         // When
         factory.initialise(schema, properties);
@@ -80,10 +80,10 @@ public class SimpleMapFactoryTest {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
-        given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
+        given(properties.getProperty(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         factory.initialise(schema, properties);
 
@@ -104,10 +104,10 @@ public class SimpleMapFactoryTest {
         // Given
         final Class<? extends Map> mapClass = Map.class;
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
-        given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
+        given(properties.getProperty(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         factory.initialise(schema, properties);
 
@@ -125,10 +125,10 @@ public class SimpleMapFactoryTest {
         // Given
         final Class<? extends Map> mapClass = LinkedHashMap.class;
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final SimpleMapFactory factory = new SimpleMapFactory();
 
-        given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
+        given(properties.getProperty(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         factory.initialise(schema, properties);
 

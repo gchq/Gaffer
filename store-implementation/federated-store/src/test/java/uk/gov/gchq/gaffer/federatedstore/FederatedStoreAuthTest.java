@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -27,6 +26,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGrap
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -53,8 +54,8 @@ public class FederatedStoreAuthTest {
     private User testUser;
     private User authUser;
     private FederatedStore federatedStore;
-    private FederatedStoreProperties federatedStoreProperties;
-    private AccumuloProperties graphStoreProperties;
+    private StoreProperties federatedStoreProperties;
+    private StoreProperties graphStoreProperties;
     private Schema schema;
 
     @Before
@@ -65,11 +66,11 @@ public class FederatedStoreAuthTest {
         CacheServiceLoader.shutdown();
         federatedStore = new FederatedStore();
 
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(federatedStoreProperties, CACHE_SERVICE_CLASS_STRING);
 
-        graphStoreProperties = new AccumuloProperties();
-        graphStoreProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        graphStoreProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(graphStoreProperties, SingleUseMockAccumuloStore.class);
 
         schema = new Schema.Builder().build();
     }

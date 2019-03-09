@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -691,6 +690,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Override
     public StoreProperties createStoreProperties() {
-        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+        return StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
     }
 }

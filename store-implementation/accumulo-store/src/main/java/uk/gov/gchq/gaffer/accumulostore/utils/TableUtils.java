@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
@@ -109,7 +110,7 @@ public final class TableUtils {
         try {
             LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());
             connector.tableOperations().create(tableName);
-            final String repFactor = store.getProperties().getTableFileReplicationFactor();
+            final String repFactor = AccumuloStorePropertiesUtil.getTableFileReplicationFactor(store.getProperties());
             if (null != repFactor) {
                 LOGGER.info("Table file replication set to {} on table {}", repFactor, tableName);
                 connector.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
@@ -135,7 +136,7 @@ public final class TableUtils {
                 LOGGER.info("Aggregator iterator has not been added to table {}", tableName);
             }
 
-            if (store.getProperties().getEnableValidatorIterator()) {
+            if (AccumuloStorePropertiesUtil.getEnableValidatorIterator(store.getProperties())) {
                 // Add validator iterator to table for all scopes
                 final IteratorSetting itrSetting = store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store);
                 if (null == itrSetting) {
@@ -236,10 +237,10 @@ public final class TableUtils {
     private static BatchWriter createBatchWriter(final AccumuloStore store, final String tableName)
             throws StoreException {
         final BatchWriterConfig batchConfig = new BatchWriterConfig();
-        batchConfig.setMaxMemory(store.getProperties().getMaxBufferSizeForBatchWriterInBytes());
-        batchConfig.setMaxLatency(store.getProperties().getMaxTimeOutForBatchWriterInMilliseconds(),
+        batchConfig.setMaxMemory(AccumuloStorePropertiesUtil.getMaxBufferSizeForBatchWriterInBytes(store.getProperties()));
+        batchConfig.setMaxLatency(AccumuloStorePropertiesUtil.getMaxTimeOutForBatchWriterInMilliseconds(store.getProperties()),
                 TimeUnit.MILLISECONDS);
-        batchConfig.setMaxWriteThreads(store.getProperties().getNumThreadsForBatchWriter());
+        batchConfig.setMaxWriteThreads(AccumuloStorePropertiesUtil.getNumThreadsForBatchWriter(store.getProperties()));
         try {
             return store.getConnection().createBatchWriter(tableName, batchConfig);
         } catch (final TableNotFoundException e) {
@@ -265,7 +266,7 @@ public final class TableUtils {
         }
 
         final IteratorSetting requiredValidatorItrSetting;
-        if (store.getProperties().getEnableValidatorIterator()) {
+        if (AccumuloStorePropertiesUtil.getEnableValidatorIterator(store.getProperties())) {
             requiredValidatorItrSetting = store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store);
             if (null != requiredValidatorItrSetting) {
                 requiredValidatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);

@@ -33,11 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.HBaseStorePropertiesUtil;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -92,7 +93,7 @@ public final class TableUtils {
             System.exit(1);
         }
 
-        final HBaseProperties storeProps = HBaseProperties.loadStoreProperties(getStorePropertiesPathString(args));
+        final StoreProperties storeProps = new StoreProperties(getStorePropertiesPathString(args));
         if (null == storeProps) {
             throw new IllegalArgumentException("Store properties are required to create a store");
         }
@@ -109,9 +110,9 @@ public final class TableUtils {
 
         library.addOrUpdate(getGraphId(args), schema, storeProps);
 
-        final String storeClass = storeProps.getStoreClass();
+        final String storeClass = StorePropertiesUtil.getStoreClass(storeProps);
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StorePropertiesUtil.STORE_CLASS);
         }
 
         final HBaseStore store;
@@ -299,7 +300,7 @@ public final class TableUtils {
                 Bytes.toString(store.getSchema().toCompactJson()));
         final Map<String, String> options = new HashMap<>(1);
         options.put(HBaseStoreConstants.SCHEMA, schemaJson);
-        htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
+        htable.addCoprocessor(GafferCoprocessor.class.getName(), HBaseStorePropertiesUtil.getDependencyJarsHdfsDirPath(store.getProperties()), Coprocessor.PRIORITY_USER, options);
     }
 
     private static void validateTable(final TableName tableName, final Admin admin) throws StoreException {

@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
@@ -65,7 +66,7 @@ public class NamedOperationCacheIT {
     @Before
     public void before() throws CacheOperationException {
         cacheProps.clear();
-        properties.setAdminAuth(adminAuth);
+        StorePropertiesUtil.setAdminAuth(properties, adminAuth);
         given(store.getProperties()).willReturn(properties);
     }
 

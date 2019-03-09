@@ -22,11 +22,12 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -137,7 +138,7 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur adding an aggregator iterator
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
-        if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
+        if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || AccumuloStorePropertiesUtil.getEnableValidatorIterator(store.getProperties()))
                 && (store.getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
@@ -197,11 +198,7 @@ public final class AddUpdateTableIterator {
             System.exit(1);
         }
 
-        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args));
-        if (null == storeProps) {
-            throw new IllegalArgumentException("Store properties are required to create a store");
-        }
-
+        final StoreProperties storeProps = new StoreProperties(getAccumuloPropertiesPath(args));
         final Schema schema = Schema.fromJson(getSchemaPaths(args));
 
         GraphLibrary library;
@@ -214,9 +211,9 @@ public final class AddUpdateTableIterator {
 
         library.addOrUpdate(getGraphId(args), schema, storeProps);
 
-        final String storeClass = storeProps.getStoreClass();
+        final String storeClass = StorePropertiesUtil.getStoreClass(storeProps);
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StorePropertiesUtil.STORE_CLASS);
         }
 
         final AccumuloStore store;

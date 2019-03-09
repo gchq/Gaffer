@@ -92,7 +92,7 @@ public class AddStorePropertiesToLibrary implements Operation {
 
     @JsonGetter("storeProperties")
     public Properties getProperties() {
-        return null != storeProperties ? storeProperties.getProperties() : null;
+        return storeProperties;
     }
 
     @JsonSetter("storeProperties")
@@ -100,7 +100,7 @@ public class AddStorePropertiesToLibrary implements Operation {
         if (null == properties) {
             setStoreProperties(null);
         } else {
-            setStoreProperties(StoreProperties.loadStoreProperties(properties));
+            setStoreProperties(new StoreProperties(properties));
         }
     }
 

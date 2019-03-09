@@ -148,7 +148,7 @@ public class MiniHBaseStore extends HBaseStore {
     }
 
     private String[] getMiniHBaseVisibilities() {
-        final String visibilityCsv = getProperties().get(MINI_HBASE_VISIBILITIES);
+        final String visibilityCsv = getProperties().getProperty(MINI_HBASE_VISIBILITIES);
         if (null == visibilityCsv) {
             return new String[0];
         }

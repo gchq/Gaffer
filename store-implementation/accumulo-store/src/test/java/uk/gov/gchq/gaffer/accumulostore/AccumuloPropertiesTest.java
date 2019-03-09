@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.util.List;
 
@@ -31,11 +33,11 @@ public class AccumuloPropertiesTest {
     @Test
     public void shouldMergeAccumuloJsonModules() {
         // Given
-        final AccumuloProperties props = new AccumuloProperties();
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
+        final StoreProperties props = new StoreProperties();
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = AccumuloStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(), modules);
@@ -44,11 +46,11 @@ public class AccumuloPropertiesTest {
     @Test
     public void shouldMergeAccumuloJsonModulesAndDeduplicate() {
         // Given
-        final AccumuloProperties props = new AccumuloProperties();
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
+        final StoreProperties props = new StoreProperties();
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = AccumuloStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);
@@ -57,7 +59,7 @@ public class AccumuloPropertiesTest {
     @Test
     public void shouldSetProperties() {
         // Given
-        final AccumuloProperties props = new AccumuloProperties();
+        final StoreProperties props = new StoreProperties();
         final String NUM_THREADS_WRITER = "5";
         final String MAX_TIME_OUT = "500";
         final String MAX_BUFFER = "200000000";
@@ -71,32 +73,32 @@ public class AccumuloPropertiesTest {
         final String REPLICATION_FACTOR = "accumulo.file.replication";
 
         // When
-        props.setNumThreadsForBatchWriter(NUM_THREADS_WRITER);
-        props.setMaxTimeOutForBatchWriterInMilliseconds(MAX_TIME_OUT);
-        props.setMaxBufferSizeForBatchWriterInBytes(MAX_BUFFER);
-        props.setZookeepers(ZOOKEEPERS);
-        props.setInstance(INSTANCE);
-        props.setThreadsForBatchScanner(NUM_THREADS_SCANNER);
-        props.setClientSideBloomFilterSize(CLIENT_SIDE_BLOOM);
-        props.setFalsePositiveRate(FALSE_POSITIVE_RATE);
-        props.setMaxBloomFilterToPassToAnIterator(MAX_BLOOM_FILTER);
-        props.setKeyPackageClass(KEY_PACKAGE_CLASS);
-        props.setTableFileReplicationFactor(REPLICATION_FACTOR);
-        props.setEnableValidatorIterator(true);
+        AccumuloStorePropertiesUtil.setNumThreadsForBatchWriter(props, NUM_THREADS_WRITER);
+        AccumuloStorePropertiesUtil.setMaxTimeOutForBatchWriterInMilliseconds(props, MAX_TIME_OUT);
+        AccumuloStorePropertiesUtil.setMaxBufferSizeForBatchWriterInBytes(props, MAX_BUFFER);
+        AccumuloStorePropertiesUtil.setZookeepers(props, ZOOKEEPERS);
+        AccumuloStorePropertiesUtil.setInstance(props, INSTANCE);
+        AccumuloStorePropertiesUtil.setThreadsForBatchScanner(props, NUM_THREADS_SCANNER);
+        AccumuloStorePropertiesUtil.setClientSideBloomFilterSize(props, CLIENT_SIDE_BLOOM);
+        AccumuloStorePropertiesUtil.setFalsePositiveRate(props, FALSE_POSITIVE_RATE);
+        AccumuloStorePropertiesUtil.setMaxBloomFilterToPassToAnIterator(props, MAX_BLOOM_FILTER);
+        AccumuloStorePropertiesUtil.setKeyPackageClass(props, KEY_PACKAGE_CLASS);
+        AccumuloStorePropertiesUtil.setTableFileReplicationFactor(props, REPLICATION_FACTOR);
+        AccumuloStorePropertiesUtil.setEnableValidatorIterator(props, true);
 
         // Then
-        assertEquals(Integer.parseInt(NUM_THREADS_WRITER), props.getNumThreadsForBatchWriter());
-        assertEquals(Long.parseLong(MAX_TIME_OUT), props.getMaxTimeOutForBatchWriterInMilliseconds().longValue());
-        assertEquals(Long.parseLong(MAX_BUFFER), props.getMaxBufferSizeForBatchWriterInBytes().longValue());
-        assertEquals(ZOOKEEPERS, props.getZookeepers());
-        assertEquals(INSTANCE, props.getInstance());
-        assertEquals(Integer.parseInt(NUM_THREADS_SCANNER), props.getThreadsForBatchScanner());
-        assertEquals(Integer.parseInt(CLIENT_SIDE_BLOOM), props.getClientSideBloomFilterSize());
-        assertEquals(Double.parseDouble(FALSE_POSITIVE_RATE), props.getFalsePositiveRate(), 0.0001D);
-        assertEquals(Integer.parseInt(MAX_BLOOM_FILTER), props.getMaxBloomFilterToPassToAnIterator());
-        assertEquals(KEY_PACKAGE_CLASS, props.getKeyPackageClass());
-        assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
-        assertTrue(props.getEnableValidatorIterator());
+        assertEquals(Integer.parseInt(NUM_THREADS_WRITER), AccumuloStorePropertiesUtil.getNumThreadsForBatchWriter(props));
+        assertEquals(Long.parseLong(MAX_TIME_OUT), AccumuloStorePropertiesUtil.getMaxTimeOutForBatchWriterInMilliseconds(props).longValue());
+        assertEquals(Long.parseLong(MAX_BUFFER), AccumuloStorePropertiesUtil.getMaxBufferSizeForBatchWriterInBytes(props).longValue());
+        assertEquals(ZOOKEEPERS, AccumuloStorePropertiesUtil.getZookeepers(props));
+        assertEquals(INSTANCE, AccumuloStorePropertiesUtil.getInstance(props));
+        assertEquals(Integer.parseInt(NUM_THREADS_SCANNER), AccumuloStorePropertiesUtil.getThreadsForBatchScanner(props));
+        assertEquals(Integer.parseInt(CLIENT_SIDE_BLOOM), AccumuloStorePropertiesUtil.getClientSideBloomFilterSize(props));
+        assertEquals(Double.parseDouble(FALSE_POSITIVE_RATE), AccumuloStorePropertiesUtil.getFalsePositiveRate(props), 0.0001D);
+        assertEquals(Integer.parseInt(MAX_BLOOM_FILTER), AccumuloStorePropertiesUtil.getMaxBloomFilterToPassToAnIterator(props));
+        assertEquals(KEY_PACKAGE_CLASS, AccumuloStorePropertiesUtil.getKeyPackageClass(props));
+        assertEquals(REPLICATION_FACTOR, AccumuloStorePropertiesUtil.getTableFileReplicationFactor(props));
+        assertTrue(AccumuloStorePropertiesUtil.getEnableValidatorIterator(props));
 
     }
 

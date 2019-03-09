@@ -226,20 +226,6 @@ public abstract class GraphLibrary {
     /**
      * Adds a new relationship between a StoreProperties and a storePropertiesId.
      *
-     * @param properties the StoreProperties.
-     * @throws OverwritingException If there is already a relationship.
-     * @deprecated use {@link GraphLibrary#addProperties(String, StoreProperties)}
-     */
-    @Deprecated
-    public void addProperties(final StoreProperties properties) throws OverwritingException {
-        if (null != properties) {
-            addProperties(properties.getId(), properties);
-        }
-    }
-
-    /**
-     * Adds a new relationship between a StoreProperties and a storePropertiesId.
-     *
      * @param id         the properties ID.
      * @param properties the StoreProperties.
      * @throws OverwritingException If there is already a relationship.
@@ -298,7 +284,7 @@ public abstract class GraphLibrary {
                 }
             }
             if (null != existingPair.getSecond()) {
-                if (!existingPair.getSecond().getProperties().equals(properties.getProperties())) {
+                if (!existingPair.getSecond().equals(properties)) {
                     throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
                             + "existing storeProperties:\n" + existingPair.getSecond().toString()
                             + "\nnew storeProperties:\n" + properties.toString());
@@ -325,10 +311,10 @@ public abstract class GraphLibrary {
         final StoreProperties existingProperties = _getProperties(id);
         final boolean exists = null != existingProperties;
         if (exists) {
-            if (!existingProperties.getProperties().equals(properties.getProperties())) {
+            if (!existingProperties.equals(properties)) {
                 throw new OverwritingException("propertiesId " + id + " already exists with a different store properties:\n"
-                        + "existing storeProperties:\n" + existingProperties.getProperties().toString()
-                        + "\nnew storeProperties:\n" + properties.getProperties().toString());
+                        + "existing storeProperties:\n" + existingProperties.toString()
+                        + "\nnew storeProperties:\n" + properties.toString());
             }
         }
         return exists;

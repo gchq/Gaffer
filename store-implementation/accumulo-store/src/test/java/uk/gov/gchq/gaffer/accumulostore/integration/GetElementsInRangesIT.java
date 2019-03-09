@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
@@ -34,6 +34,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -61,13 +63,13 @@ public class GetElementsInRangesIT {
                 .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
-        final AccumuloProperties propsByteEntity = new AccumuloProperties();
-        propsByteEntity.setStoreClass(MockAccumuloStore.class);
-        propsByteEntity.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
+        final StoreProperties propsByteEntity = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(propsByteEntity, MockAccumuloStore.class);
+        AccumuloStorePropertiesUtil.setKeyPackageClass(propsByteEntity, ByteEntityKeyPackage.class.getName());
 
-        final AccumuloProperties propsClassic = new AccumuloProperties();
-        propsClassic.setStoreClass(MockAccumuloStore.class);
-        propsClassic.setKeyPackageClass(ClassicKeyPackage.class.getName());
+        final StoreProperties propsClassic = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(propsClassic, MockAccumuloStore.class);
+        AccumuloStorePropertiesUtil.setKeyPackageClass(propsClassic, ClassicKeyPackage.class.getName());
 
         final Graph graphBE = new Graph.Builder()
                 .config(new GraphConfig.Builder()

@@ -95,19 +95,8 @@ public class MapStore extends Store {
         return TRAITS;
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be MapStoreProperties")
-    @Override
-    public MapStoreProperties getProperties() {
-        return (MapStoreProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<MapStoreProperties> getPropertiesClass() {
-        return MapStoreProperties.class;
-    }
-
     protected MapImpl createMapImpl() {
-        if (getProperties().isStaticMap()) {
+        if (MapStorePropertiesUtil.isStaticMap(getProperties())) {
             LOGGER.debug("Using static map");
             if (null == staticMapImpl) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());

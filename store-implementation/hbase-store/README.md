@@ -84,7 +84,6 @@ The next stage is to create a properties file that Gaffer will use to instantiat
 
 ```properties
 gaffer.store.class=uk.gov.gchq.gaffer.hbasestore.HBaseStore
-gaffer.store.properties.class=uk.gov.gchq.gaffer.hbasestore.HBaseProperties
 
 # A comma separated list of zookeepers
 # In AWS it will just be something like: ec2-xx-xx-xx-xx.location.compute.amazonaws.com

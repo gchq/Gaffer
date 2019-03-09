@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -54,6 +53,7 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
@@ -73,8 +73,8 @@ public class RowIdAggregatorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final StoreProperties PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
+    private static final StoreProperties CLASSIC_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
 
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;

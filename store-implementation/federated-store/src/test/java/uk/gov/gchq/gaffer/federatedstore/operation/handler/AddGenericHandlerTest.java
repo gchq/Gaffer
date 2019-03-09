@@ -46,7 +46,7 @@ public class AddGenericHandlerTest {
         store = mock(FederatedStore.class);
 
         graph = new Graph.Builder()
-                .addStoreProperties(StoreProperties.loadStoreProperties("properties/singleUseMockAccStore.properties"))
+                .addStoreProperties(new StoreProperties("properties/singleUseMockAccStore.properties"))
                 .config(new GraphConfig("TestGraph"))
                 .addSchema(new Schema())
                 .build();

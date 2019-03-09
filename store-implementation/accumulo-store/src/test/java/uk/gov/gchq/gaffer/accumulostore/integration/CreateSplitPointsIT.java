@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -44,6 +43,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -85,7 +85,7 @@ public class CreateSplitPointsIT {
         store.initialise(
                 "graphId1",
                 Schema.fromJson(StreamUtil.schemas(getClass())),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );
 
         final Graph graph = new Graph.Builder()

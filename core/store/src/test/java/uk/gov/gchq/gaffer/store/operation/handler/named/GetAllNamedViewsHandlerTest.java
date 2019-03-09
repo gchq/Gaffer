@@ -81,8 +81,8 @@ public class GetAllNamedViewsHandlerTest {
         // Given
         given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
+        properties.setProperty("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        CacheServiceLoader.initialise(properties);
         NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)

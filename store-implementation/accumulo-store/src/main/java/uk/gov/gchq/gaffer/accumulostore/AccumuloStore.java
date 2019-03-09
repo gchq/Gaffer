@@ -169,7 +169,7 @@ public class AccumuloStore extends Store {
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
 
-        final String deprecatedTableName = getProperties().getTable();
+        final String deprecatedTableName = AccumuloStorePropertiesUtil.getTable(getProperties());
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
             super.initialise(deprecatedTableName, schema, getProperties());
@@ -181,7 +181,7 @@ public class AccumuloStore extends Store {
             super.initialise(graphId, schema, getProperties());
         }
 
-        final String keyPackageClass = getProperties().getKeyPackageClass();
+        final String keyPackageClass = AccumuloStorePropertiesUtil.getKeyPackageClass(getProperties());
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -200,8 +200,8 @@ public class AccumuloStore extends Store {
      */
     public Connector getConnection() throws StoreException {
         if (null == connection) {
-            connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
-                    getProperties().getUser(), getProperties().getPassword());
+            connection = TableUtils.getConnector(AccumuloStorePropertiesUtil.getInstance(getProperties()), AccumuloStorePropertiesUtil.getZookeepers(getProperties()),
+                    AccumuloStorePropertiesUtil.getUser(getProperties()), AccumuloStorePropertiesUtil.getPassword(getProperties()));
         }
         return connection;
     }
@@ -262,8 +262,8 @@ public class AccumuloStore extends Store {
             // Zookeeper
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
-            conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
-            LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
+            conf.set(ElementInputFormat.KEY_PACKAGE, AccumuloStorePropertiesUtil.getKeyPackageClass(getProperties()));
+            LOGGER.info("Updating configuration with key package of {}", AccumuloStorePropertiesUtil.getKeyPackageClass(getProperties()));
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
             LOGGER.debug("Updating configuration with Schema of {}", getSchema());
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
@@ -331,35 +331,19 @@ public class AccumuloStore extends Store {
     }
 
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
-        LOGGER.info("Updating configuration with user of {}", getProperties().getUser());
+        LOGGER.info("Updating configuration with user of {}", AccumuloStorePropertiesUtil.getUser(getProperties()));
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
-                getProperties().getUser(),
-                new PasswordToken(getProperties().getPassword()));
+                AccumuloStorePropertiesUtil.getUser(getProperties()),
+                new PasswordToken(AccumuloStorePropertiesUtil.getPassword(getProperties())));
     }
 
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
                 new ClientConfiguration()
-                        .withInstance(getProperties().getInstance())
-                        .withZkHosts(getProperties().getZookeepers()));
-    }
-
-    /**
-     * Gets all {@link AccumuloProperties} related to the store.
-     *
-     * @return {@link AccumuloProperties}.
-     */
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
-    @Override
-    public AccumuloProperties getProperties() {
-        return (AccumuloProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<AccumuloProperties> getPropertiesClass() {
-        return AccumuloProperties.class;
+                        .withInstance(AccumuloStorePropertiesUtil.getInstance(getProperties()))
+                        .withZkHosts(AccumuloStorePropertiesUtil.getZookeepers(getProperties())));
     }
 
     @Override

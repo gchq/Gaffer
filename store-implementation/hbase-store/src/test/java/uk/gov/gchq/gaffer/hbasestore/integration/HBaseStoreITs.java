@@ -16,16 +16,16 @@
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class HBaseStoreITs extends AbstractStoreITs {
-    private static final HBaseProperties STORE_PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
 
     public HBaseStoreITs() {
         this(STORE_PROPERTIES);
@@ -36,7 +36,7 @@ public class HBaseStoreITs extends AbstractStoreITs {
         }
     }
 
-    protected HBaseStoreITs(final HBaseProperties storeProperties) {
+    protected HBaseStoreITs(final StoreProperties storeProperties) {
         super(storeProperties);
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
         skipTestMethod(AddElementsLoaderIT.class, "shouldGetElementsWithMatchedVertex", "known issue with INGEST/QUERY AGGREGATION");

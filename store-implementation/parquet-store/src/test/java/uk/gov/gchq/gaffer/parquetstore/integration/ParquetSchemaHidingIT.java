@@ -21,7 +21,6 @@
 //
 //import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 //import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
-//import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 //import uk.gov.gchq.gaffer.store.Store;
 //import uk.gov.gchq.gaffer.store.schema.Schema;
 //
@@ -30,7 +29,7 @@
 //public class ParquetSchemaHidingIT extends SchemaHidingIT {
 //    @Rule
 //    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-//    private static ParquetStoreProperties parquetStoreProperties;
+//    private static StoreProperties parquetStoreProperties;
 //
 //    public ParquetSchemaHidingIT() {
 //        super("parquetStore.properties");
@@ -43,7 +42,7 @@
 //    @Override
 //    protected Store createStore(final Schema schema) throws IOException {
 //        if (null == parquetStoreProperties) {
-//            parquetStoreProperties = ParquetStoreProperties
+//            parquetStoreProperties = StoreProperties
 //                    .loadStoreProperties(storePropertiesPath);
 //            testFolder.create();
 //            final String path = testFolder.newFolder().getAbsolutePath();

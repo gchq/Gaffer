@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -70,7 +71,7 @@ public class SchemaOperationChainUtilTest {
 
     @Before
     public void setup() {
-        storeProperties.setStoreClass(TestStore.class);
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStore.class);
         graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)

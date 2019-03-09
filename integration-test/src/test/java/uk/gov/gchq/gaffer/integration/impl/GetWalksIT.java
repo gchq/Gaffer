@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -177,7 +178,7 @@ public class GetWalksIT extends AbstractStoreIT {
     public void shouldGetPathsWithPruning() throws Exception {
         // Given
         final StoreProperties properties = getStoreProperties();
-        properties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
+        StorePropertiesUtil.setOperationDeclarationPaths(properties, "getWalksWithPruningDeclaration.json");
         createGraph(properties);
         addDefaultElements();
 

@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -31,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -65,7 +65,7 @@ public class FederatedOperationChainValidatorTest {
         //given
         String missingGraph = "missingGraph";
         final Graph graph = new Graph.Builder()
-                .addStoreProperties(new FederatedStoreProperties())
+                .addStoreProperties(new StoreProperties())
                 .config(new GraphConfig.Builder().graphId("testFedGraph").build())
                 .build();
 

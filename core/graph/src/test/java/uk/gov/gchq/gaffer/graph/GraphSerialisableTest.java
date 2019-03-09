@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
@@ -56,8 +57,8 @@ public class GraphSerialisableTest {
                 .type("string", String.class)
                 .build();
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStore.class);
-        properties = storeProperties.getProperties();
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStore.class);
+        properties = storeProperties;
         expected = new GraphSerialisable.Builder()
                 .schema(schema)
                 .properties(properties)

@@ -226,7 +226,7 @@ public abstract class Store {
     }
 
     public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) {
-        return createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
+        return createStore(graphId, Schema.fromJson(schema), new StoreProperties(storeProperties));
     }
 
     public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
@@ -234,9 +234,9 @@ public abstract class Store {
             throw new IllegalArgumentException("Store properties are required to create a store. graphId: " + graphId);
         }
 
-        final String storeClass = storeProperties.getStoreClass();
+        final String storeClass = StorePropertiesUtil.getStoreClass(storeProperties);
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StorePropertiesUtil.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
@@ -279,9 +279,9 @@ public abstract class Store {
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
         if (null != storeProperties) {
             JSONSerialiser.update(
-                    storeProperties.getJsonSerialiserClass(),
-                    storeProperties.getJsonSerialiserModules(),
-                    storeProperties.getStrictJson()
+                    StorePropertiesUtil.getJsonSerialiserClass(storeProperties),
+                    StorePropertiesUtil.getJsonSerialiserModules(storeProperties),
+                    StorePropertiesUtil.getStrictJson(storeProperties)
             );
         } else {
             JSONSerialiser.update();
@@ -507,17 +507,8 @@ public abstract class Store {
     }
 
     protected void setProperties(final StoreProperties properties) {
-        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
-        properties.updateStorePropertiesClass(requiredPropsClass);
-
-        // If the properties instance is not already an instance of the required class then reload the properties
-        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
-            this.properties = properties;
-        } else {
-            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
-        }
-
-        ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+        this.properties = properties;
+        ReflectionUtil.addReflectionPackages(StorePropertiesUtil.getReflectionPackages(properties));
         updateJsonSerialiser();
     }
 
@@ -641,7 +632,7 @@ public abstract class Store {
     }
 
     protected JobTracker createJobTracker() {
-        if (properties.getJobTrackerEnabled()) {
+        if (StorePropertiesUtil.getJobTrackerEnabled(properties)) {
             return new JobTracker();
         }
         return null;
@@ -802,7 +793,7 @@ public abstract class Store {
     }
 
     private void addExecutorService(final StoreProperties properties) {
-        ExecutorService.initialise(properties.getJobExecutorThreadCount());
+        ExecutorService.initialise(StorePropertiesUtil.getJobExecutorThreadCount(properties));
     }
 
     private void addOpHandlers() {
@@ -913,7 +904,7 @@ public abstract class Store {
     }
 
     private void addConfiguredOperationHandlers() {
-        final OperationDeclarations declarations = getProperties().getOperationDeclarations();
+        final OperationDeclarations declarations = StorePropertiesUtil.getOperationDeclarations(getProperties());
         if (null != declarations) {
             for (final OperationDeclaration definition : declarations.getOperations()) {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
@@ -922,7 +913,7 @@ public abstract class Store {
     }
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
+        CacheServiceLoader.initialise(properties);
     }
 
     public void setOriginalSchema(final Schema originalSchema) {

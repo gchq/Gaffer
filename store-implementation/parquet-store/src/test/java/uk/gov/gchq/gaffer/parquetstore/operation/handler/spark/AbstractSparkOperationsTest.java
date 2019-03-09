@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -78,8 +78,8 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     }
 
     protected Graph createGraph(final int numOutputFiles) throws IOException {
-        final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
-        storeProperties.setAddElementsOutputFilesPerGroup(numOutputFiles);
+        final StoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
+        ParquetStorePropertiesUtil.setAddElementsOutputFilesPerGroup(storeProperties, numOutputFiles);
         return createGraph(storeProperties);
     }
 
@@ -176,7 +176,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     //    @Test
 //    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws IOException, OperationException {
 //        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-//        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
+//        final StoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
 //        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
 //        final Graph graph = new Graph.Builder()
 //                .config(new GraphConfig.Builder()

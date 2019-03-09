@@ -22,13 +22,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -65,7 +67,7 @@ public class FederatedGraphStorageTest {
     public static final String EXCEPTION_EXPECTED = "Exception expected";
     public static final String X = "x";
     private FederatedGraphStorage graphStorage;
-    private AccumuloProperties accumuloProperties;
+    private StoreProperties accumuloProperties;
     private GraphSerialisable a;
     private GraphSerialisable b;
     private User nullUser;
@@ -87,8 +89,8 @@ public class FederatedGraphStorageTest {
     @Before
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
-        accumuloProperties = new AccumuloProperties();
-        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        accumuloProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(accumuloProperties, SingleUseMockAccumuloStore.class);
 
         e1 = new SchemaEntityDefinition.Builder()
                 .vertex("string")

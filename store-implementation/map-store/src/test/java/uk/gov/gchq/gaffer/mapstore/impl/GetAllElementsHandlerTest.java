@@ -30,11 +30,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.MapStorePropertiesUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -381,7 +382,7 @@ public class GetAllElementsHandlerTest {
     }
 
     static Graph getGraph() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
+        final StoreProperties storeProperties = new StoreProperties();
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graph1")
@@ -396,8 +397,8 @@ public class GetAllElementsHandlerTest {
     }
 
     static Graph getGraphNoIndices() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
-        storeProperties.setCreateIndex(false);
+        final StoreProperties storeProperties = new StoreProperties();
+        MapStorePropertiesUtil.setCreateIndex(storeProperties, false);
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphWithNoIndices")
@@ -408,7 +409,7 @@ public class GetAllElementsHandlerTest {
     }
 
     static Graph getGraphNoAggregation() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
+        final StoreProperties storeProperties = new StoreProperties();
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graph1")

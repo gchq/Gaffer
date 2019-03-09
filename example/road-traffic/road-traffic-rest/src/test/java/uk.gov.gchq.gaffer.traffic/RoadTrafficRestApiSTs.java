@@ -18,8 +18,9 @@ package uk.gov.gchq.gaffer.traffic;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -30,9 +31,8 @@ public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
 
     @Override
     public void prepareProxy() {
-        ProxyProperties props = new ProxyProperties(System.getProperties());
-        props.setStoreClass(ProxyStore.class);
-        props.setStorePropertiesClass(props.getClass());
+        StoreProperties props = new StoreProperties(System.getProperties());
+        StorePropertiesUtil.setStoreClass(props, ProxyStore.class);
 
         this.graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))

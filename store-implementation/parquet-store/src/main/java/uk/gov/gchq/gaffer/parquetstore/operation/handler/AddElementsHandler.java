@@ -29,7 +29,7 @@ import scala.Option;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateAndSortData;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CallableResult;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.WriteUnsortedData;
@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -122,7 +123,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 inputFiles.add(store.getFile(group, partition));
                 final String outputDir = directoryForSortedResultsForGroupAndPartitionId.apply(group, partition.getPartitionId());
                 final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
-                        group, group + "-" + partition.getPartitionId(), false, store.getProperties().getCompressionCodecName(), spark);
+                        group, group + "-" + partition.getPartitionId(), false, ParquetStorePropertiesUtil.getCompressionCodecName(store.getProperties()), spark);
                 tasks.add(task);
                 LOGGER.info("Created AggregateAndSortData task for group {}, partition {}", group, partition.getPartitionId());
             }
@@ -137,7 +138,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 inputFiles.add(store.getFileForReversedEdges(group, partition));
                 final String outputDir = directoryForSortedResultsForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId());
                 final AggregateAndSortData task = new AggregateAndSortData(schemaUtils, fs, inputFiles, outputDir,
-                        group, "reversed-" + group + "-" + partition.getPartitionId(), true, store.getProperties().getCompressionCodecName(), spark);
+                        group, "reversed-" + group + "-" + partition.getPartitionId(), true, ParquetStorePropertiesUtil.getCompressionCodecName(store.getProperties()), spark);
                 tasks.add(task);
                 LOGGER.info("Created AggregateAndSortData task for reversed edge group {}, partition {}", group, partition.getPartitionId());
             }
@@ -243,13 +244,13 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private static ExecutorService createThreadPool(final SparkSession spark, final ParquetStoreProperties storeProperties) {
+    private static ExecutorService createThreadPool(final SparkSession spark, final StoreProperties storeProperties) {
         final int numberOfThreads;
         final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
         if (sparkDriverCores.nonEmpty()) {
             numberOfThreads = Integer.parseInt(sparkDriverCores.get());
         } else {
-            numberOfThreads = storeProperties.getThreadsAvailable();
+            numberOfThreads = ParquetStorePropertiesUtil.getThreadsAvailable(storeProperties);
         }
         LOGGER.debug("Created thread pool of size {}", numberOfThreads);
         return Executors.newFixedThreadPool(numberOfThreads);

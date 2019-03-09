@@ -168,7 +168,7 @@ public abstract class AbstractGraphLibraryTest {
         // Given
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
         StoreProperties tempStoreProperties = storeProperties.clone();
-        tempStoreProperties.set("testKey", "testValue");
+        tempStoreProperties.setProperty("testKey", "testValue");
 
         // When / Then
         try {
@@ -184,16 +184,16 @@ public abstract class AbstractGraphLibraryTest {
         // Given
         graphLibrary.addOrUpdateProperties(TEST_PROPERTIES_ID, storeProperties);
         StoreProperties tempStoreProperties = storeProperties.clone();
-        tempStoreProperties.set("testKey", "testValue");
+        tempStoreProperties.setProperty("testKey", "testValue");
 
         // Then
-        assertEquals(storeProperties.getProperties(), graphLibrary.getProperties(TEST_PROPERTIES_ID).getProperties());
+        assertEquals(storeProperties, graphLibrary.getProperties(TEST_PROPERTIES_ID));
 
         // When
         graphLibrary.addOrUpdateProperties(TEST_PROPERTIES_ID, tempStoreProperties);
 
         // Then
-        assertEquals(tempStoreProperties.getProperties(), graphLibrary.getProperties(TEST_PROPERTIES_ID).getProperties());
+        assertEquals(tempStoreProperties, graphLibrary.getProperties(TEST_PROPERTIES_ID));
     }
 
     @Test
@@ -259,7 +259,7 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldThrowExceptionWhenNewStorePropertiesAreAddedWithSamePropertiesIdAndDifferentProperties() {
         // Given
         final StoreProperties tempStoreProperties = storeProperties.clone();
-        tempStoreProperties.set("randomKey", "randomValue");
+        tempStoreProperties.setProperty("randomKey", "randomValue");
 
         // When
         graphLibrary.addProperties(TEST_PROPERTIES_ID, storeProperties);
@@ -342,9 +342,9 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldNotOverwriteStorePropertiesWithClashingName() throws Exception {
         final String clashingId = "clashingId";
         StoreProperties propsA = new StoreProperties();
-        propsA.set("a", "a");
+        propsA.setProperty("a", "a");
         StoreProperties propsB = new StoreProperties();
-        propsB.set("b", "b");
+        propsB.setProperty("b", "b");
 
         graphLibrary.addProperties(clashingId, propsA);
 
@@ -357,8 +357,8 @@ public abstract class AbstractGraphLibraryTest {
 
         StoreProperties storePropertiesFromLibrary = graphLibrary.getProperties(clashingId);
 
-        assertEquals(propsA.getProperties(), storePropertiesFromLibrary.getProperties());
-        assertNotEquals(propsB.getProperties(), storePropertiesFromLibrary.getProperties());
+        assertEquals(propsA, storePropertiesFromLibrary);
+        assertNotEquals(propsB, storePropertiesFromLibrary);
     }
 
     @Test

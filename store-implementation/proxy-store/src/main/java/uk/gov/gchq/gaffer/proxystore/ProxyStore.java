@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -86,7 +87,6 @@ public class ProxyStore extends Store {
         super(false);
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
@@ -98,7 +98,7 @@ public class ProxyStore extends Store {
     }
 
     protected void checkDelegateStoreStatus() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/status");
+        final URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: {}", status.get("description"));
     }
@@ -106,7 +106,7 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations() {
         try {
-            URL url = getProperties().getGafferUrl("graph/operations");
+            URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/operations");
             return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
         } catch (final StoreException e) {
             throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
@@ -127,7 +127,7 @@ public class ProxyStore extends Store {
     }
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
+        final URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/config/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -139,7 +139,7 @@ public class ProxyStore extends Store {
     }
 
     protected Schema fetchSchema() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/config/schema");
+        final URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
 
@@ -150,7 +150,7 @@ public class ProxyStore extends Store {
 
     @Override
     public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/jobs");
+        final URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/jobs");
         try {
             return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), context);
         } catch (final StoreException e) {
@@ -167,7 +167,7 @@ public class ProxyStore extends Store {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
-        final URL url = getProperties().getGafferUrl("graph/operations/execute");
+        final URL url = ProxyStorePropertiesUtil.getGafferUrl(getProperties(), "graph/operations/execute");
         try {
             return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
@@ -267,17 +267,6 @@ public class ProxyStore extends Store {
         return JSONSerialiser.deserialise(jsonBytes, outputTypeReference);
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
-    @Override
-    public ProxyProperties getProperties() {
-        return (ProxyProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<ProxyProperties> getPropertiesClass() {
-        return ProxyProperties.class;
-    }
-
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(OperationChain.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
@@ -325,8 +314,8 @@ public class ProxyStore extends Store {
 
     protected Client createClient() {
         final Client client = ClientBuilder.newClient();
-        client.property(ClientProperties.CONNECT_TIMEOUT, getProperties().getConnectTimeout());
-        client.property(ClientProperties.READ_TIMEOUT, getProperties().getReadTimeout());
+        client.property(ClientProperties.CONNECT_TIMEOUT, ProxyStorePropertiesUtil.getConnectTimeout(getProperties()));
+        client.property(ClientProperties.READ_TIMEOUT, ProxyStorePropertiesUtil.getReadTimeout(getProperties()));
         return client;
     }
 
@@ -337,43 +326,42 @@ public class ProxyStore extends Store {
 
     public static final class Builder {
         private final ProxyStore store;
-        private final ProxyProperties properties;
+        private final StoreProperties properties;
         private String graphId;
 
         public Builder() {
             store = new ProxyStore();
-            properties = new ProxyProperties();
-            properties.setStoreClass(ProxyStore.class);
-            properties.setStorePropertiesClass(ProxyProperties.class);
+            properties = new StoreProperties();
+            StorePropertiesUtil.setStoreClass(properties, ProxyStore.class);
         }
 
         public Builder host(final String host) {
-            properties.setGafferHost(host);
+            ProxyStorePropertiesUtil.setGafferHost(properties, host);
             return this;
         }
 
         public Builder port(final int port) {
-            properties.setGafferPort(port);
+            ProxyStorePropertiesUtil.setGafferPort(properties, port);
             return this;
         }
 
         public Builder contextRoot(final String contextRoot) {
-            properties.setGafferContextRoot(contextRoot);
+            ProxyStorePropertiesUtil.setGafferContextRoot(properties, contextRoot);
             return this;
         }
 
         public Builder connectTimeout(final int timeout) {
-            properties.setConnectTimeout(timeout);
+            ProxyStorePropertiesUtil.setConnectTimeout(properties, timeout);
             return this;
         }
 
         public Builder readTimeout(final int timeout) {
-            properties.setReadTimeout(timeout);
+            ProxyStorePropertiesUtil.setReadTimeout(properties, timeout);
             return this;
         }
 
         public Builder jsonSerialiser(final Class<? extends JSONSerialiser> serialiserClass) {
-            properties.setJsonSerialiserClass(serialiserClass);
+            StorePropertiesUtil.setJsonSerialiserClass(properties, serialiserClass);
             return this;
         }
 

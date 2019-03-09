@@ -23,8 +23,8 @@ import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 
@@ -69,7 +69,7 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         fs.delete(new Path(inputPath + "/_SUCCESS"), false);
 
         // Set all permissions
-            if (options == null || !Boolean.parseBoolean(options.get(AccumuloProperties.HDFS_SKIP_PERMISSIONS))) {
+            if (options == null || !Boolean.parseBoolean(options.get(AccumuloStorePropertiesUtil.HDFS_SKIP_PERMISSIONS))) {
             IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
         }
 

@@ -64,6 +64,6 @@ public abstract class StandaloneIT {
     }
 
     public StoreProperties createStoreProperties() {
-        return StoreProperties.loadStoreProperties("store.properties");
+        return new StoreProperties("store.properties");
     }
 }

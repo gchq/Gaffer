@@ -20,14 +20,13 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStorePropertiesUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -35,6 +34,8 @@ import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -60,21 +61,21 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
-    private static final AccumuloProperties storeProperties = new AccumuloProperties();
+    private static final StoreProperties storeProperties = new StoreProperties();
     private User testUser;
     private User authUser;
     private FederatedStore store;
-    private FederatedStoreProperties federatedStoreProperties;
+    private StoreProperties federatedStoreProperties;
 
 
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
-        federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(federatedStoreProperties, CACHE_SERVICE_CLASS_STRING);
 
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        StorePropertiesUtil.setStoreClass(storeProperties, SingleUseMockAccumuloStore.class);
 
         testUser = testUser();
         authUser = authUser();
@@ -130,8 +131,6 @@ public class FederatedAddGraphWithHooksHandlerTest {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         Schema expectedSchema = new Schema.Builder().build();
-
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
 
         assertEquals(0, store.getGraphs(testUser, null).size());
         assertEquals(0, store.getGraphs(testUser, null).size());
@@ -258,7 +257,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     @Test
     public void shouldAddGraphIDOnlyWithAuths() throws Exception {
 
-        federatedStoreProperties.setCustomPropertyAuths("auth1,auth2");
+        FederatedStorePropertiesUtil.setCustomPropertyAuths(federatedStoreProperties, "auth1,auth2");
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         Schema expectedSchema = new Schema.Builder().build();
@@ -278,7 +277,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                     store);
             fail(EXCEPTION_EXPECTED);
         } catch (OperationException e) {
-            assertEquals(String.format(FederatedAddGraphWithHooksHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties}"), e.getMessage());
+            assertEquals(String.format(FederatedAddGraphWithHooksHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore}"), e.getMessage());
         }
 
         federatedAddGraphWithHooksHandler.doOperation(
@@ -310,9 +309,8 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        StoreProperties storeProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(storeProperties, SingleUseMockAccumuloStore.class);
 
         new FederatedAddGraphWithHooksHandler().doOperation(
                 new AddGraphWithHooks.Builder()

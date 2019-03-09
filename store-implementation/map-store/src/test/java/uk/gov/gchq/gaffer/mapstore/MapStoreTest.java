@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.mapstore;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -32,7 +33,7 @@ public class MapStoreTest {
     @Test
     public void testTraits() throws StoreException {
         final MapStore mapStore = new MapStore();
-        mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
+        mapStore.initialise("graphId", new Schema(), new StoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
                 StoreTrait.INGEST_AGGREGATION,
                 StoreTrait.PRE_AGGREGATION_FILTERING,

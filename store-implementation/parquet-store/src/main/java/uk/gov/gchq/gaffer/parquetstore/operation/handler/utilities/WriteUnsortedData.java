@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
@@ -60,7 +61,7 @@ public class WriteUnsortedData {
                              final BiFunction<String, Integer, String> fileNameForGroupAndPartitionIdForReversedEdges)
             throws OperationException {
         this(store.getTempFilesDir(),
-                store.getProperties().getCompressionCodecName(),
+                ParquetStorePropertiesUtil.getCompressionCodecName(store.getProperties()),
                 store.getSchemaUtils(),
                 graphPartitioner,
                 fileNameForGroupAndPartitionId,

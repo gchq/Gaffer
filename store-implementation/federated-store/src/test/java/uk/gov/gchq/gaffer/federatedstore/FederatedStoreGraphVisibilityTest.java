@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -28,6 +27,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -55,7 +56,7 @@ public class FederatedStoreGraphVisibilityTest {
     private static User nonAddingUser;
     private static User authNonAddingUser;
     private Graph fedGraph;
-    private FederatedStoreProperties fedProperties;
+    private StoreProperties fedProperties;
     private HashMapGraphLibrary library;
 
     @Before
@@ -63,8 +64,8 @@ public class FederatedStoreGraphVisibilityTest {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
 
-        fedProperties = new FederatedStoreProperties();
-        fedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProperties = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(fedProperties, CACHE_SERVICE_CLASS_STRING);
 
         addingUser = testUser();
         nonAddingUser = blankUser();
@@ -82,9 +83,8 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
+        final StoreProperties accProp = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(accProp, SingleUseMockAccumuloStore.class.getName());
 
         library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
 
@@ -130,9 +130,8 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
+        final StoreProperties accProp = new StoreProperties(); // <- without ID
+        StorePropertiesUtil.setStoreClass(accProp, SingleUseMockAccumuloStore.class.getName());
 
         library.add(TEST_GRAPH_ID, aSchema, accProp);
 

@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -49,6 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -68,9 +68,9 @@ import static org.mockito.Mockito.verify;
 public class AggregatorIteratorTest {
 
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+    private static final StoreProperties PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
             .storeProps(AggregatorIteratorTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+    private static final StoreProperties CLASSIC_PROPERTIES = StoreProperties
             .loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;

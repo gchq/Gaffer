@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.utilities.WriteData;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateDataForGroup;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitioner;
@@ -69,7 +70,7 @@ public class AddElementsFromRDD {
         this.fs = store.getFS();
         this.spark = SparkContextUtil.getSparkSession(context, store.getProperties());
         SparkParquetUtils.configureSparkForAddElements(spark, store.getProperties());
-        this.tempDir = store.getProperties().getTempFilesDir();
+        this.tempDir = ParquetStorePropertiesUtil.getTempFilesDir(store.getProperties());
     }
 
     void addElementsFromRDD(final JavaRDD<Element> input) throws OperationException {
@@ -116,7 +117,7 @@ public class AddElementsFromRDD {
         LOGGER.info("Writing data for input RDD");
         final Function<String, String> groupToUnsortedUnaggregatedNewData =
                 group -> getDirectory(group, false, false, false);
-        input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, schema, store.getProperties().getCompressionCodecName()));
+        input.foreachPartition(new WriteData(groupToUnsortedUnaggregatedNewData, schema, ParquetStorePropertiesUtil.getCompressionCodecName(store.getProperties())));
     }
 
     /**
@@ -235,8 +236,8 @@ public class AddElementsFromRDD {
                     sortColumns,
                     inputFiles,
                     outputDir,
-                    store.getProperties().getAddElementsOutputFilesPerGroup(),
-                    store.getProperties().getCompressionCodecName(),
+                    ParquetStorePropertiesUtil.getAddElementsOutputFilesPerGroup(store.getProperties()),
+                    ParquetStorePropertiesUtil.getCompressionCodecName(store.getProperties()),
                     spark,
                     fs).call();
         } catch (final IOException e) {

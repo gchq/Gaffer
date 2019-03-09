@@ -19,7 +19,6 @@
 #   The file is intended as an example of a minimal configuration file.
 
 gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
-gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 
 accumulo.instance=accumuloInstanceName
 accumulo.user=user

@@ -126,7 +126,7 @@ public class FederatedStoreTest {
     public static final String PATH_INCOMPLETE_SCHEMA = "/schema/edgeX2NoTypesSchema.json";
     public static final String PATH_INCOMPLETE_SCHEMA_PART_2 = "/schema/edgeTypeSchema.json";
     private FederatedStore store;
-    private FederatedStoreProperties federatedProperties;
+    private StoreProperties federatedProperties;
     private HashMapGraphLibrary library;
     private Context userContext;
     private User blankUser;
@@ -146,8 +146,8 @@ public class FederatedStoreTest {
     @Before
     public void setUp() throws Exception {
         clearCache();
-        federatedProperties = new FederatedStoreProperties();
-        federatedProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        federatedProperties = new StoreProperties();
+        federatedProperties.setProperty(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
         clearLibrary();
         library = new HashMapGraphLibrary();
@@ -377,7 +377,7 @@ public class FederatedStoreTest {
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(ACC_ID_1)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(new StoreProperties("/properties/singleUseMockAccStore.properties"))
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
@@ -617,7 +617,7 @@ public class FederatedStoreTest {
         assertEquals(1, store.getGraphs(blankUser, null).size());
         assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY));
         assertFalse(KEY_DOES_NOT_BELONG, library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY));
-        assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY) != null);
+        assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().getProperty(UNUSUAL_KEY) != null);
 
     }
 
@@ -661,7 +661,7 @@ public class FederatedStoreTest {
         assertEquals(1, store.getGraphs(blankUser, null).size());
         assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY));
         assertFalse(KEY_DOES_NOT_BELONG, library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY));
-        assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY) != null);
+        assertTrue(store.getGraphs(blankUser, null).iterator().next().getStoreProperties().getProperty(UNUSUAL_KEY) != null);
         assertTrue(store.getGraphs(blankUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
     }
 
@@ -942,7 +942,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
-        federatedProperties.setCacheProperties(INVALID_CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, INVALID_CACHE_SERVICE_CLASS_STRING);
         try {
             clearCache();
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
@@ -955,7 +955,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldReuseGraphsAlreadyInCache() throws Exception {
         //Check cache is empty
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         assertNull(CacheServiceLoader.getService());
 
         //initialise FedStore
@@ -987,7 +987,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldInitialiseWithCache() throws StoreException {
         assertNull(CacheServiceLoader.getService());
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         assertNull(CacheServiceLoader.getService());
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         assertNotNull(CacheServiceLoader.getService());
@@ -995,7 +995,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithoutInitialisation() throws StoreException {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // Given
@@ -1019,7 +1019,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldNotThrowExceptionWhenInitialisedWithNoCacheClassInProperties() throws StoreException {
         // Given
-        federatedProperties = new FederatedStoreProperties();
+        federatedProperties = new StoreProperties();
 
         // When / Then
         try {
@@ -1031,7 +1031,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // Given
@@ -1064,7 +1064,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddMultipleGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         // Given
 
@@ -1117,7 +1117,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldNotAddGraphToLibraryWhenReinitialisingFederatedStoreWithGraphFromCache() throws Exception {
         //Check cache is empty
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        FederatedStorePropertiesUtil.setCacheProperties(federatedProperties, CACHE_SERVICE_CLASS_STRING);
         assertNull(CacheServiceLoader.getService());
 
         //initialise FedStore
@@ -1235,7 +1235,7 @@ public class FederatedStoreTest {
     }
 
     private StoreProperties getPropertiesFromPath(final String pathMapStoreProperties) {
-        return StoreProperties.loadStoreProperties(pathMapStoreProperties);
+        return new StoreProperties(pathMapStoreProperties);
     }
 
     private Schema getSchemaFromPath(final String path) {

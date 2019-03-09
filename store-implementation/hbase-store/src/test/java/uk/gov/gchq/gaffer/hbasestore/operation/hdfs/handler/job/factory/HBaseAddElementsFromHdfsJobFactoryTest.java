@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
@@ -44,6 +43,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
@@ -89,7 +89,7 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
 
         final HBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         store.initialise("graphId", schema, properties);
 
         given(job.getConfiguration()).willReturn(localConf);

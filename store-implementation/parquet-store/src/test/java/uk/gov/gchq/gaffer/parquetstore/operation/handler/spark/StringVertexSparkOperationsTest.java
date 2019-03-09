@@ -63,7 +63,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     /*
     @Override
     protected Graph genData(final boolean withVisibilities) throws IOException, OperationException, StoreException {
-        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
+        final StoreProperties properties = TestUtils.getParquetStoreProperties(testFolder);
         final Graph graph = getGraph(getSchema(), properties, "StringVertexSparkOperationsTest");
         graph.execute(new ImportJavaRDDOfElements.Builder()
                 .input(getElements(TestUtils.getJavaSparkContext(), withVisibilities))

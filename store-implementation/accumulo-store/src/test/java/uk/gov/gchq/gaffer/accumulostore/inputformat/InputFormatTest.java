@@ -33,8 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
@@ -53,6 +53,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -254,18 +255,18 @@ public class InputFormatTest {
                                                        final Set<String> expectedResults)
             throws Exception {
         final AccumuloStore store = new SingleUseMockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
-                properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_BYTE_ENTITY");
+                AccumuloStorePropertiesUtil.setKeyPackageClass(properties, ByteEntityKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setInstance(properties, instanceName + "_BYTE_ENTITY");
                 graphId = "byteEntityGraph";
                 break;
             case CLASSIC_KEY_PACKAGE:
                 graphId = "gaffer1Graph";
-                properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_CLASSIC");
+                AccumuloStorePropertiesUtil.setKeyPackageClass(properties, ClassicKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setInstance(properties, instanceName + "_CLASSIC");
         }
         try {
             store.initialise(graphId, schema, properties);

@@ -21,10 +21,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.MapStorePropertiesUtil;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
@@ -91,11 +92,11 @@ public class MapImpl {
     private final boolean maintainIndex;
     private final AggregatorUtil.IngestPropertiesBinaryOperator propertyAggregator;
 
-    public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) {
+    public MapImpl(final Schema schema, final StoreProperties mapStoreProperties) {
         this.schema = schema;
         propertyAggregator = new AggregatorUtil.IngestPropertiesBinaryOperator(schema);
         mapFactory = createMapFactory(schema, mapStoreProperties);
-        maintainIndex = mapStoreProperties.getCreateIndex();
+        maintainIndex = MapStorePropertiesUtil.getCreateIndex(mapStoreProperties);
 
         for (final String group : schema.getGroups()) {
             aggElements.put(group, mapFactory.getMap(group + "|" + AGG_ELEMENTS, Element.class, GroupedProperties.class));
@@ -253,9 +254,9 @@ public class MapImpl {
     }
 
     private MapFactory createMapFactory(final Schema schema,
-                                        final MapStoreProperties mapStoreProperties) {
+                                        final StoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
-        final String factoryClass = mapStoreProperties.getMapFactory();
+        final String factoryClass = MapStorePropertiesUtil.getMapFactory(mapStoreProperties);
         if (null == factoryClass) {
             mapFactory = new SimpleMapFactory();
         } else {

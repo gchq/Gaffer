@@ -23,6 +23,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,27 +35,27 @@ public class HBasePropertiesTest {
     @Test
     public void shouldGetAndSetProperties() throws StoreException, IOException {
         // Given
-        final HBaseProperties properties = new HBaseProperties();
+        final StoreProperties properties = new StoreProperties();
 
         // When
-        properties.setDependencyJarsHdfsDirPath("pathTo/jars");
-        properties.setWriteBufferSize(10);
-        properties.setZookeepers("zookeeper1,zookeeper2");
+        HBaseStorePropertiesUtil.setDependencyJarsHdfsDirPath(properties, "pathTo/jars");
+        HBaseStorePropertiesUtil.setWriteBufferSize(properties, 10);
+        HBaseStorePropertiesUtil.setZookeepers(properties, "zookeeper1,zookeeper2");
 
         // Then
-        assertEquals(new Path("pathTo/jars"), properties.getDependencyJarsHdfsDirPath());
-        assertEquals(10, properties.getWriteBufferSize());
-        assertEquals("zookeeper1,zookeeper2", properties.getZookeepers());
+        assertEquals(new Path("pathTo/jars"), HBaseStorePropertiesUtil.getDependencyJarsHdfsDirPath(properties));
+        assertEquals(10, HBaseStorePropertiesUtil.getWriteBufferSize(properties));
+        assertEquals("zookeeper1,zookeeper2", HBaseStorePropertiesUtil.getZookeepers(properties));
     }
 
     @Test
     public void shouldMergeHBaseJsonModules() {
         // Given
-        final HBaseProperties props = new HBaseProperties();
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
+        final StoreProperties props = new StoreProperties();
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = HBaseStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(), modules);
@@ -62,11 +64,11 @@ public class HBasePropertiesTest {
     @Test
     public void shouldMergeHBaseJsonModulesAndDeduplicate() {
         // Given
-        final HBaseProperties props = new HBaseProperties();
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
+        final StoreProperties props = new StoreProperties();
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = HBaseStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);

@@ -47,8 +47,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
         store = new TestAddToGraphLibraryImpl();
         HashMapGraphLibrary.clear();
         props = new StoreProperties();
-        props.setId(TEST_PROPS_ID);
-        props.set("unusual", "testValue");
+        props.setProperty("unusual", "testValue");
     }
 
     @Test
@@ -69,7 +68,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
         StoreProperties actualProps = library.getProperties(TEST_PROPS_ID);
-        assertEquals(props.getProperties(), actualProps.getProperties());
+        assertEquals(props, actualProps);
     }
 
     @Test

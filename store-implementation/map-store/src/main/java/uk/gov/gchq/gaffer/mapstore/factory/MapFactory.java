@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.mapstore.factory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
@@ -34,7 +34,7 @@ public interface MapFactory {
      * @param schema the schema to apply
      * @param properties the store properties to apply
      */
-    void initialise(final Schema schema, final MapStoreProperties properties);
+    void initialise(final Schema schema, final StoreProperties properties);
 
     /**
      * Retrieve a named {@link Map}.

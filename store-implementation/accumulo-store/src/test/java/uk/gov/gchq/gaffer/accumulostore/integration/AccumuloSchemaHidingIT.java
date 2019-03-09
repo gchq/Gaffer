@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
@@ -27,6 +26,8 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.util.List;
 
@@ -37,13 +38,13 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
 
     @Override
     protected void cleanUp() {
-        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+        final StoreProperties storeProps = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
 
         final AccumuloStore store;
         try {
-            store = Class.forName(storeProps.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
+            store = Class.forName(StorePropertiesUtil.getStoreClass(storeProps)).asSubclass(AccumuloStore.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
+            throw new IllegalArgumentException("Could not create store of type: " + StorePropertiesUtil.getStoreClass(storeProps), e);
         }
 
         try {
