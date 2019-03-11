@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -32,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -50,15 +50,13 @@ public class GetRDDOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+                .build());
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -88,7 +86,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
 
         // Create Hadoop configuration and serialise to a string
@@ -101,7 +99,7 @@ public class GetRDDOfElementsHandlerTest {
                 .input(new EntitySeed("1"))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        RDD<Element> rdd = graph1.execute(rddQuery, user);
+        RDD<Element> rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -144,7 +142,7 @@ public class GetRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -166,7 +164,7 @@ public class GetRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -189,7 +187,7 @@ public class GetRDDOfElementsHandlerTest {
                 .input(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -227,15 +225,13 @@ public class GetRDDOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+                .build());
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -265,7 +261,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
 
         // Create Hadoop configuration and serialise to a string
@@ -281,7 +277,7 @@ public class GetRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        RDD<Element> rdd = graph1.execute(rddQuery, user);
+        RDD<Element> rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -311,7 +307,7 @@ public class GetRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -337,7 +333,7 @@ public class GetRDDOfElementsHandlerTest {
                         .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -359,7 +355,7 @@ public class GetRDDOfElementsHandlerTest {
                 .input(new EdgeSeed("1", "B", false), new EdgeSeed("5", "C", false))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, user);
+        rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -382,15 +378,13 @@ public class GetRDDOfElementsHandlerTest {
 
     @Test
     public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+                .build());
         final User user = new User();
         final Configuration conf = new Configuration();
         conf.set("AN_OPTION", "A_VALUE");
@@ -399,7 +393,7 @@ public class GetRDDOfElementsHandlerTest {
                 .input(new EdgeSeed("1", "B", false))
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, encodedConf)
                 .build();
-        final RDD<Element> rdd = graph1.execute(rddQuery, user);
+        final RDD<Element> rdd = store1.execute(rddQuery, user);
 
         assertEquals(encodedConf, rddQuery.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY));
         assertEquals("A_VALUE", rdd.sparkContext().hadoopConfiguration().get("AN_OPTION"));

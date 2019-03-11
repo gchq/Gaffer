@@ -97,12 +97,10 @@ public class MapStore extends Store {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be MapStoreProperties")
-    @Override
     public MapStoreProperties getProperties() {
-        return (MapStoreProperties) super.getProperties();
+        return (MapStoreProperties) getConfig().getProperties();
     }
 
-    @Override
     protected Class<MapStoreProperties> getPropertiesClass() {
         return MapStoreProperties.class;
     }
@@ -112,21 +110,23 @@ public class MapStore extends Store {
             LOGGER.debug("Using static map");
             if (null == staticMapImpl) {
                 staticMapImpl =
-                        new MapImpl(((GraphConfig)this.getConfig()).getSchema(),
-                        getProperties());
+                        new MapImpl(((GraphConfig) this.getConfig()).getSchema(),
+                                getProperties());
             }
 
             return staticMapImpl;
         }
 
-        return new MapImpl(((GraphConfig)this.getConfig()).getSchema(),
+        return new MapImpl(((GraphConfig) this.getConfig()).getSchema(),
                 getProperties());
     }
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(CountAllElementsDefaultView.class, new CountAllElementsDefaultViewHandler());
-        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        getConfig().addOperationHandler(CountAllElementsDefaultView.class,
+                new CountAllElementsDefaultViewHandler());
+        getConfig().addOperationHandler(GetAllJobDetails.class,
+                new GetAllJobDetailsHandler());
     }
 
     @Override

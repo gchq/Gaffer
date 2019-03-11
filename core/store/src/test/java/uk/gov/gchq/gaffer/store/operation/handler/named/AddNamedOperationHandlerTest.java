@@ -95,7 +95,7 @@ public class AddNamedOperationHandlerTest {
             return result;
         }).when(mockCache).getNamedOperation(anyString(), any(User.class), eq(EMPTY_ADMIN_AUTH));
 
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
     }
 
     @Rule

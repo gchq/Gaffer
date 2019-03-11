@@ -131,6 +131,7 @@ import uk.gov.gchq.gaffer.store.util.Config;
 import uk.gov.gchq.gaffer.store.util.Hook;
 import uk.gov.gchq.gaffer.store.util.Request;
 import uk.gov.gchq.gaffer.store.util.Result;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.LinkedHashSet;
 import java.util.Properties;
@@ -283,6 +284,11 @@ public abstract class Store {
     public <O> O execute(final Operation operation,
                          final Context context) throws OperationException {
         return (O) execute(new Request(operation, context)).getResult();
+    }
+
+    public <O> O execute(final Operation operation,
+                         final User user) throws OperationException {
+        return (O) execute(new Request(operation, new Context(user))).getResult();
     }
 
     /**

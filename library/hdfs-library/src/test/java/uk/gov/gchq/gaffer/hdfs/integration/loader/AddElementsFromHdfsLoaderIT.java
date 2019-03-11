@@ -139,7 +139,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     @Override
     protected void addElements(final Iterable<? extends Element> elements) throws OperationException {
         createInputFile(elements);
-        graph.execute(new AddElementsFromHdfs.Builder()
+        store.execute(new AddElementsFromHdfs.Builder()
                 .addInputMapperPair(new Path(inputDir1).toString(), JsonMapperGenerator.class)
                 .addInputMapperPair(new Path(inputDir2).toString(), JsonMapperGenerator.class)
                 .addInputMapperPair(new Path(inputDir3).toString(), JsonMapperGenerator.class)

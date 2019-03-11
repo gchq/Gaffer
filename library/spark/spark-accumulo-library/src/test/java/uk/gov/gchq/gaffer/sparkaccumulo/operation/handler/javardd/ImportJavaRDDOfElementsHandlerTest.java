@@ -29,13 +29,13 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -54,15 +54,13 @@ public class ImportJavaRDDOfElementsHandlerTest {
 
     @Test
     public void checkImportJavaRDDOfElements() throws OperationException, IOException, InterruptedException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+                .build());
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -108,14 +106,14 @@ public class ImportJavaRDDOfElementsHandlerTest {
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
                 .build();
-        graph1.execute(addRdd, user);
+        store1.execute(addRdd, user);
 
         // Check all elements were added
         final GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 
-        final JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        final JavaRDD<Element> rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }

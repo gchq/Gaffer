@@ -54,7 +54,7 @@ public class NoAggregationIT extends AbstractStoreIT {
         final ArrayList<Entity> expected = Lists.newArrayList(getEntity(), getEntity());
 
         //When
-        final CloseableIterable<? extends Element> result = graph.execute(
+        final CloseableIterable<? extends Element> result = store.execute(
                 new GetElements.Builder()
                         .input(ElementSeed.createSeed(getEntity()))
                         .view(new View.Builder()
@@ -73,7 +73,7 @@ public class NoAggregationIT extends AbstractStoreIT {
         final ArrayList<Edge> expected = Lists.newArrayList(getEdge(), getEdge());
 
         //When
-        final CloseableIterable<? extends Element> result = graph.execute(
+        final CloseableIterable<? extends Element> result = store.execute(
                 new GetElements.Builder()
                         .input(ElementSeed.createSeed(getEdge()))
                         .view(new View.Builder()
@@ -87,11 +87,11 @@ public class NoAggregationIT extends AbstractStoreIT {
     }
 
     public void addDuplicatedTestElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(Arrays.asList(getEdge(), getEdge()))
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(Arrays.asList(getEntity(), getEntity()))
                 .build(), getUser());
     }

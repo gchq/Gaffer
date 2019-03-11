@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
@@ -49,12 +48,8 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final Store store) {
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
-                context, jobId, createGraph(store),
+                context, jobId, store,
                 visibility, null);
-    }
-
-    protected Graph createGraph(final Store store) {
-        return GafferResultCacheUtil.createGraph(graphId, cacheStorePropertiesPath, timeToLive);
     }
 
     public String getGraphId() {

@@ -24,12 +24,12 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -46,15 +46,13 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
     @Test
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+        .build());
 
         final List<Element> elements = new ArrayList<>();
         final Set<Element> expectedElements = new HashSet<>();
@@ -89,7 +87,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
             expectedElements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
 
         // Create Hadoop configuration and serialise to a string
@@ -102,7 +100,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
                 .build();
 
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        final JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
+        final JavaRDD<Element> rdd = store1.execute(rddQuery, user);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -112,15 +110,13 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
     @Test
     public void checkGetAllElementsInJavaRDDWithVisibility() throws OperationException, IOException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+        final Store store1 = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
+                .build());
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
@@ -152,7 +148,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User("user", Collections.singleton("public"));
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
 
         // Create Hadoop configuration and serialise to a string
@@ -183,7 +179,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        JavaRDD<Element> rdd = graph1.execute(rddQuery, userWithPublicNotPrivate);
+        JavaRDD<Element> rdd = store1.execute(rddQuery, userWithPublicNotPrivate);
         if (rdd == null) {
             fail("No RDD returned");
         }
@@ -194,7 +190,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         rddQuery = new GetJavaRDDOfAllElements.Builder()
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
-        rdd = graph1.execute(rddQuery, userWithPrivate);
+        rdd = store1.execute(rddQuery, userWithPrivate);
         if (rdd == null) {
             fail("No RDD returned");
         }

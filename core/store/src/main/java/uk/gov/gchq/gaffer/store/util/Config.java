@@ -205,29 +205,36 @@ public class Config {
                 .toString();
     }
 
-    public static class Builder {
-        private Config config = new Config();
+    interface Builder<conf, B extends Builder<conf, ?>> {
+        conf _getConf();
+
+        B _self();
+    }
+
+    public static class BaseBuilder<conf extends Config,
+            B extends BaseBuilder> implements Builder {
+        private conf config;
         private List<Hook> hooks;
         private StoreProperties properties;
 
         // Id
-        public Builder id(final String id) {
+        public B id(final String id) {
             config.setId(id);
-            return this;
+            return _self();
         }
 
         // Description
-        public Builder description(final String description) {
+        public B description(final String description) {
             config.setDescription(description);
-            return this;
+            return _self();
         }
 
         // StoreProperties
-        public Builder storeProperties(final Properties properties) {
+        public B storeProperties(final Properties properties) {
             return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
         }
 
-        public Builder storeProperties(final StoreProperties properties) {
+        public B storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
                 ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
@@ -237,32 +244,32 @@ public class Config {
                         properties.getStrictJson()
                 );
             }
-            return this;
+            return _self();
         }
 
-        public Builder storeProperties(final String propertiesPath) {
+        public B storeProperties(final String propertiesPath) {
             return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
         }
 
-        public Builder storeProperties(final Path propertiesPath) {
+        public B storeProperties(final Path propertiesPath) {
             if (null == propertiesPath) {
                 properties = null;
             } else {
                 storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
             }
-            return this;
+            return _self();
         }
 
-        public Builder storeProperties(final InputStream propertiesStream) {
+        public B storeProperties(final InputStream propertiesStream) {
             if (null == propertiesStream) {
                 properties = null;
             } else {
                 storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
             }
-            return this;
+            return _self();
         }
 
-        public Builder storeProperties(final URI propertiesURI) {
+        public B storeProperties(final URI propertiesURI) {
             if (null != propertiesURI) {
                 try {
                     storeProperties(StreamUtil.openStream(propertiesURI));
@@ -271,17 +278,17 @@ public class Config {
                 }
             }
 
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final Properties properties) {
+        public B addStoreProperties(final Properties properties) {
             if (null != properties) {
                 addStoreProperties(StoreProperties.loadStoreProperties(properties));
             }
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final StoreProperties updateProperties) {
+        public B addStoreProperties(final StoreProperties updateProperties) {
             if (null != updateProperties) {
                 if (null == this.properties) {
                     storeProperties(updateProperties);
@@ -289,31 +296,31 @@ public class Config {
                     this.properties.merge(updateProperties);
                 }
             }
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final String updatePropertiesPath) {
+        public B addStoreProperties(final String updatePropertiesPath) {
             if (null != updatePropertiesPath) {
                 addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
             }
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final Path updatePropertiesPath) {
+        public B addStoreProperties(final Path updatePropertiesPath) {
             if (null != updatePropertiesPath) {
                 addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
             }
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+        public B addStoreProperties(final InputStream updatePropertiesStream) {
             if (null != updatePropertiesStream) {
                 addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
             }
-            return this;
+            return _self();
         }
 
-        public Builder addStoreProperties(final URI updatePropertiesURI) {
+        public B addStoreProperties(final URI updatePropertiesURI) {
             if (null != updatePropertiesURI) {
                 try {
                     addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
@@ -321,11 +328,11 @@ public class Config {
                     throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
                 }
             }
-            return this;
+            return _self();
         }
 
         // Json config builder
-        public Builder json(final Path path) {
+        public B json(final Path path) {
             try {
                 return json(null != path ? Files.readAllBytes(path) : null);
             } catch (final IOException e) {
@@ -333,27 +340,27 @@ public class Config {
             }
         }
 
-        public Builder json(final URI uri) {
+        public B json(final URI uri) {
             try {
                 json(null != uri ? StreamUtil.openStream(uri) : null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to read config from uri: " + uri, e);
             }
 
-            return this;
+            return _self();
         }
 
-        public Builder json(final InputStream stream) {
+        public B json(final InputStream stream) {
             try {
                 json(null != stream ? IOUtils.toByteArray(stream) : null);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to read config from input stream", e);
             }
 
-            return this;
+            return _self();
         }
 
-        public Builder json(final byte[] bytes) {
+        public B json(final byte[] bytes) {
             if (null != bytes) {
                 try {
                     merge(JSONSerialiser.deserialise(bytes, Config.class));
@@ -361,11 +368,11 @@ public class Config {
                     throw new IllegalArgumentException("Unable to deserialise config", e);
                 }
             }
-            return this;
+            return _self();
         }
 
         // Merge configs
-        public Builder merge(final Config config) {
+        public B merge(final Config config) {
             if (null != config) {
                 if (null != this.config.getId()) {
                     this.config.setId(config.getId());
@@ -377,11 +384,11 @@ public class Config {
                 this.config.getProperties().merge(config.getProperties());
                 this.config.getOperationHandlers().putAll(config.getOperationHandlers());
             }
-            return this;
+            return _self();
         }
 
         // Hooks
-        public Builder addHooks(final Path hooksPath) {
+        public B addHooks(final Path hooksPath) {
             if (null == hooksPath || !hooksPath.toFile().exists()) {
                 throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
             }
@@ -395,7 +402,7 @@ public class Config {
             return addHooks(hooks);
         }
 
-        public Builder addHook(final Path hookPath) {
+        public B addHook(final Path hookPath) {
             if (null == hookPath || !hookPath.toFile().exists()) {
                 throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
             }
@@ -410,22 +417,32 @@ public class Config {
             return addHook(hook);
         }
 
-        public Builder addHook(final Hook hook) {
+        public B addHook(final Hook hook) {
             if (null != hook) {
                 this.hooks.add(hook);
             }
-            return this;
+            return _self();
         }
 
-        public Builder addHooks(final Hook... hooks) {
+        public B addHooks(final Hook... hooks) {
             if (null != hooks) {
                 this.hooks.addAll(Arrays.asList(hooks));
             }
-            return this;
+            return _self();
         }
 
-        public Config build() {
+        public conf build() {
+            return _getConf();
+        }
+
+        @Override
+        public conf _getConf() {
             return config;
+        }
+
+        @Override
+        public B _self() {
+            return (B) this;
         }
     }
 }

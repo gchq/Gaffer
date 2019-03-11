@@ -1,3 +1,4 @@
+/*
 package uk.gov.gchq.gaffer.integration.graph;
 
 import org.junit.Test;
@@ -153,3 +154,4 @@ public class GraphIT {
         return mock;
     }
 }
+*/

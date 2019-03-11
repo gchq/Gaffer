@@ -27,8 +27,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
@@ -42,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
@@ -65,6 +64,7 @@ public abstract class SchemaHidingIT {
     private static final User USER = new User.Builder()
             .dataAuth("public")
             .build();
+    private static final Context context = new Context(USER);
 
     protected final String storePropertiesPath;
 
@@ -96,9 +96,6 @@ public abstract class SchemaHidingIT {
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
         final Store fullStore = createStore(createFullSchema());
-        final Graph fullGraph = new Builder()
-                .store(fullStore)
-                .build();
 
         final Edge edge1a = new Edge.Builder()
                 .source("source1a")
@@ -131,30 +128,28 @@ public abstract class SchemaHidingIT {
                 .property(TestPropertyNames.TIMESTAMP, 1L)
                 .build();
 
-        fullGraph.execute(new AddElements.Builder()
-                        .input(edge1a, edge1b, edge2)
-                        .build(),
-                USER);
+        fullStore.execute(new AddElements.Builder()
+                .input(edge1a, edge1b, edge2)
+                .build(), context);
 
         // Create a graph with a hidden group backed by the same store
         final Store filteredStore = createStore(createFilteredSchema());
-        final Graph filteredGraph = new Builder()
-                .store(filteredStore)
-                .build();
 
         final List<Edge> fullExpectedResults = Arrays.asList(edge1a, edge1b, edge2);
         final List<Edge> filteredExpectedResults = Arrays.asList(edge1a, edge1b);
 
         // Run operations and check the hidden group is hidden when the operation is run on the filtered graph
-        testOperations(fullGraph, filteredGraph, fullExpectedResults, filteredExpectedResults);
+        testOperations(fullStore, filteredStore, fullExpectedResults,
+                filteredExpectedResults);
     }
 
-    protected void testOperations(final Graph fullGraph,
-                                  final Graph filteredGraph,
+    protected void testOperations(final Store fullStore,
+                                  final Store filteredStore,
                                   final List<Edge> fullExpectedResults,
                                   final List<Edge> filteredExpectedResults)
             throws OperationException {
-        testOperation(fullGraph, filteredGraph, new GetAllElements(), fullExpectedResults, filteredExpectedResults);
+        testOperation(fullStore, filteredStore, new GetAllElements(),
+                fullExpectedResults, filteredExpectedResults);
 
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("source1a"),
@@ -162,19 +157,22 @@ public abstract class SchemaHidingIT {
                         new EntitySeed("source2"),
                         new EdgeSeed("source2", "dest2", true))
                 .build();
-        testOperation(fullGraph, filteredGraph, getElements, fullExpectedResults, filteredExpectedResults);
+        testOperation(fullStore, filteredStore, getElements,
+                fullExpectedResults,
+                filteredExpectedResults);
     }
 
-    protected void testOperation(final Graph fullGraph,
-                                 final Graph filteredGraph,
+    protected void testOperation(final Store fullStore,
+                                 final Store filteredStore,
                                  final Output<CloseableIterable<? extends Element>> operation,
                                  final List<Edge> fullExpectedResults,
                                  final List<Edge> filteredExpectedResults)
             throws OperationException {
 
         // When
-        final Iterable<? extends Element> fullResults = fullGraph.execute(operation, USER);
-        final Iterable<? extends Element> filteredResults = filteredGraph.execute(operation, USER);
+        final Iterable<? extends Element> fullResults = fullStore.execute(operation, context);
+        final Iterable<? extends Element> filteredResults =
+                fullStore.execute(operation, context);
 
         // Then
         ElementUtil.assertElementEquals(fullExpectedResults, Sets.newHashSet(fullResults));

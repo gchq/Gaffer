@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
+import uk.gov.gchq.gaffer.graph.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 

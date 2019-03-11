@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
@@ -29,6 +30,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
+*/
 /**
  * Delegation class used to create a graph from the various combinations of
  * settings.
@@ -39,7 +41,8 @@ import java.util.List;
  * </ul>
  *
  * @see uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler
- */
+ *//*
+
 public class GraphDelegate {
 
     public static final String SCHEMA_STRING = Schema.class.getSimpleName();
@@ -324,3 +327,4 @@ public class GraphDelegate {
     }
 
 }
+*/

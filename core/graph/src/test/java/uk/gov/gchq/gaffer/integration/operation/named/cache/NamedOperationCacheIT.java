@@ -66,7 +66,7 @@ public class NamedOperationCacheIT {
     public void before() throws CacheOperationException {
         cacheProps.clear();
         properties.setAdminAuth(adminAuth);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
     }
 
     @After
@@ -105,7 +105,7 @@ public class NamedOperationCacheIT {
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         // when
         addNamedOperationHandler.doOperation(add, context, store);
@@ -132,7 +132,7 @@ public class NamedOperationCacheIT {
     private void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         new AddNamedOperationHandler().doOperation(add, context, store);
 
@@ -156,7 +156,7 @@ public class NamedOperationCacheIT {
         // given
         final Store store = mock(Store.class);
         final StoreProperties storeProps = mock(StoreProperties.class);
-        given(store.getProperties()).willReturn(storeProps);
+        given(store.getConfig().getProperties()).willReturn(storeProps);
 
         new AddNamedOperationHandler().doOperation(add, context, store);
 
@@ -195,7 +195,7 @@ public class NamedOperationCacheIT {
     private void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
         // given
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         new AddNamedOperationHandler().doOperation(add, context, store);
 

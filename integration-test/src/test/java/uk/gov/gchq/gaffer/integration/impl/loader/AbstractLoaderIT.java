@@ -34,6 +34,8 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.integration.VisibilityUser;
@@ -43,8 +45,8 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
@@ -71,8 +73,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     @Override
     protected void _setup() throws Exception {
         input = getInputElements();
-        if (null == graph || !JsonUtil.equals(graph.getSchema().toCompactJson(), getSchema().toCompactJson())) {
-            createGraph(getSchema());
+        if (null == store || !JsonUtil.equals(((GraphConfig)store.getConfig()).getSchema().toCompactJson(), getSchema().toCompactJson())) {
+            createStore(getSchema());
             input = getInputElements();
             addElements(input);
         }
@@ -90,7 +92,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
         // When / Then
         try {
-            graph.execute(addElements, getUser());
+            store.execute(addElements, new Context(getUser()));
         } catch (final Exception e) {
             String msg = e.getMessage();
             if (!msg.contains("Element of type Entity") && null != e.getCause()) {
@@ -109,7 +111,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        graph.execute(addElements, getUser());
+        store.execute(addElements, new Context(getUser()));
 
         // Then - no exceptions
     }
@@ -123,7 +125,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        graph.execute(addElements, getUser());
+        store.execute(addElements, new Context(getUser()));
 
         // Then - no exceptions
     }
@@ -174,7 +176,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .view(view)
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op,
+                getUser());
 
         // When
         final List<Element> expected = getQuerySummarisedEdges(view).stream().map(edge -> {
@@ -193,7 +196,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .input(new EmptyClosableIterable<>())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         assertFalse(results.iterator().hasNext());
     }
@@ -210,7 +213,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .view(view)
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         assertElementEquals(getQuerySummarisedEdges(view)
                 .stream()
@@ -245,7 +248,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(getEntities().size(), resultList.size());
@@ -269,7 +272,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(1, resultList.size());
@@ -294,7 +297,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         assertElementEquals(getQuerySummarisedEdges(view)
@@ -432,7 +435,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         assertElementEquals(expectedElements, results);
@@ -446,7 +449,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, user);
+        final Iterable<? extends Element> results = store.execute(op, user);
 
         // Then
         resultTester.accept(results);

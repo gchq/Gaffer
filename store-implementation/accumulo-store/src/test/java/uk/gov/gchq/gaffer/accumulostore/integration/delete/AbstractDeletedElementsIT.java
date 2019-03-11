@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
@@ -87,10 +86,6 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                 .type(TestTypes.DIRECTED_EITHER, Boolean.class)
                 .build());
 
-        final Graph graph = new Graph.Builder()
-                .store(accStore)
-                .build();
-
         final Entity entityToDelete = new Builder()
                 .group(TestGroups.ENTITY)
                 .vertex("1")
@@ -117,11 +112,11 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                 edgeToDelete,
                 edgeToKeep);
 
-        graph.execute(new AddElements.Builder()
+        accStore.execute(new AddElements.Builder()
                 .input(elements)
                 .build(), new User());
 
-        final O resultBefore = graph.execute(createGetOperation(), new User());
+        final O resultBefore = accStore.execute(createGetOperation(), new User());
         assertElements((Iterable) elements, resultBefore);
 
         // When
@@ -129,7 +124,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
         deleteElement(edgeToDelete, accStore);
 
         // Then
-        final O resultAfter = graph.execute(createGetOperation(), new User());
+        final O resultAfter = accStore.execute(createGetOperation(), new User());
         assertElements(Arrays.asList(entityToKeep, edgeToKeep), resultAfter);
     }
 

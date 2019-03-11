@@ -91,7 +91,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.INT, 101);
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                         .input(edge1, edge2)
                         .build(),
                 getUser());
@@ -108,7 +108,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op,
+                getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -127,7 +128,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -152,7 +153,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -182,7 +183,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -207,7 +208,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -230,7 +231,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -269,7 +270,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);

@@ -168,7 +168,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> resultsExcludingAllEdges = graph.execute(opExcludingAllEdges, user);
+        final CloseableIterable<? extends Element> resultsExcludingAllEdges = store.execute(opExcludingAllEdges, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -188,7 +188,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 resultsExcludingAllEdges);
 
         // When
-        final CloseableIterable<? extends Element> resultsIncludingAllEdges = graph.execute(opIncludingAllEdges, user);
+        final CloseableIterable<? extends Element> resultsIncludingAllEdges = store.execute(opIncludingAllEdges, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -234,7 +234,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> resultsExcludingAllEntities = graph.execute(opExcludingAllEntities, user);
+        final CloseableIterable<? extends Element> resultsExcludingAllEntities = store.execute(opExcludingAllEntities, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -260,7 +260,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 resultsExcludingAllEntities);
 
         // When
-        final CloseableIterable<? extends Element> resultsIncludingAllEntities = graph.execute(opIncludingAllEntities, user);
+        final CloseableIterable<? extends Element> resultsIncludingAllEntities = store.execute(opIncludingAllEntities, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -295,7 +295,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -349,7 +349,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         ElementUtil.assertElementEquals(Arrays.asList(
@@ -390,7 +390,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -414,7 +414,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -431,7 +431,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -444,7 +444,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .input(new EmptyClosableIterable<>())
                 .build();
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         assertFalse(results.iterator().hasNext());
@@ -556,7 +556,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> results = store.execute(op, user);
 
         // Then
         ElementUtil.assertElementEquals(expectedElements, results, true);

@@ -23,10 +23,10 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.List;
 
@@ -59,13 +59,14 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
     }
 
     @Override
-    protected void testOperations(final Graph fullGraph, final Graph filteredGraph, final List<Edge> fullExpectedResults, final List<Edge> filteredExpectedResults) throws OperationException {
-        super.testOperations(fullGraph, filteredGraph, fullExpectedResults, filteredExpectedResults);
+    protected void testOperations(final Store fullStore, final Store filteredStore, final List<Edge> fullExpectedResults, final List<Edge> filteredExpectedResults) throws OperationException {
+        super.testOperations(fullStore, filteredStore, fullExpectedResults, filteredExpectedResults);
 
         final GetElementsInRanges getElementsInRange = new GetElementsInRanges.Builder()
                 .input(new Pair<>(new EntitySeed("a"), new EntitySeed("z")))
                 .build();
-        testOperation(fullGraph, filteredGraph, getElementsInRange, fullExpectedResults, filteredExpectedResults);
+        testOperation(fullStore, filteredStore, getElementsInRange,
+                fullExpectedResults, filteredExpectedResults);
 
         final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
                 .input(new EntitySeed("source1a"),
@@ -75,7 +76,8 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
                         new EntitySeed("dest1b"),
                         new EntitySeed("dest2"))
                 .build();
-        testOperation(fullGraph, filteredGraph, getElementsBetweenSets, fullExpectedResults, filteredExpectedResults);
+        testOperation(fullStore, filteredStore, getElementsBetweenSets,
+                fullExpectedResults, filteredExpectedResults);
 
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
                 .input(new EntitySeed("source1a"),
@@ -85,6 +87,7 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
                         new EntitySeed("dest1b"),
                         new EntitySeed("dest2"))
                 .build();
-        testOperation(fullGraph, filteredGraph, getElementsWithinSet, fullExpectedResults, filteredExpectedResults);
+        testOperation(fullStore, filteredStore, getElementsWithinSet,
+                fullExpectedResults, filteredExpectedResults);
     }
 }

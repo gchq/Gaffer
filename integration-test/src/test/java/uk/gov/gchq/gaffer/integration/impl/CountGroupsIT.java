@@ -32,7 +32,7 @@ public class CountGroupsIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 100);
 
         // When
-        final GroupCounts counts = graph.execute(new Builder()
+        final GroupCounts counts = store.execute(new Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups())
                 .build(), user);
@@ -54,7 +54,7 @@ public class CountGroupsIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 100);
 
         // When
-        final GroupCounts counts = graph.execute(new Builder()
+        final GroupCounts counts = store.execute(new Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups(limit))
                 .build(), user);
@@ -76,7 +76,7 @@ public class CountGroupsIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 100);
 
         // When
-        final GroupCounts counts = graph.execute(new Builder()
+        final GroupCounts counts = store.execute(new Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups(limit))
                 .build(), user);

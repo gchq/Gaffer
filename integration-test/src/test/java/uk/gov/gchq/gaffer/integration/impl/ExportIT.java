@@ -74,7 +74,7 @@ public class ExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<?> export = graph.execute(exportOpChain, getUser());
+        final Iterable<?> export = store.execute(exportOpChain, getUser());
 
         // Then
         assertEquals(2, Sets.newHashSet(export).size());
@@ -82,7 +82,7 @@ public class ExportIT extends AbstractStoreIT {
 
     @Test
     public void shouldExportResultsToGafferCache() throws OperationException {
-        assumeTrue("Gaffer result cache has not been enabled for this store.", graph.isSupported(ExportToGafferResultCache.class));
+        assumeTrue("Gaffer result cache has not been enabled for this store.", store.isSupported(ExportToGafferResultCache.class));
 
         // Given
         final View edgesView = new View.Builder()
@@ -106,7 +106,7 @@ public class ExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<?> export = graph.execute(exportOpChain, getUser());
+        final Iterable<?> export = store.execute(exportOpChain, getUser());
 
         // Then
         assertEquals(2, Sets.newHashSet(export).size());

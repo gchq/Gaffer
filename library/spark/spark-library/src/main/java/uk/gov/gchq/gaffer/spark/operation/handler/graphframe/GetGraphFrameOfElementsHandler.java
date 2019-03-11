@@ -64,7 +64,9 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
         final String edgeGroups = groupsToString(operation.getView().getEdgeGroups());
         final String entityGroups = groupsToString(operation.getView().getEntityGroups());
 
-        final SparkSession sparkSession = SparkContextUtil.getSparkSession(context, store.getProperties());
+        final SparkSession sparkSession =
+                SparkContextUtil.getSparkSession(context,
+                        store.getConfig().getProperties());
 
         // Create a DataFrame of Edges - must add an "id" column which we fill with
         // the row number. We add a partitionBy on group to avoid creating a single

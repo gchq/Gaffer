@@ -31,13 +31,13 @@ import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.util.GraphConfig;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
@@ -284,12 +284,10 @@ public class TableUtilsTest {
         properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
 
         // When
-        new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(null)
-                        .build())
+        Store.createStore(new GraphConfig.Builder()
+                .graphId(null)
                 .addSchema(schema)
                 .storeProperties(properties)
-                .build();
+                .build());
     }
 }

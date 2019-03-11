@@ -23,19 +23,20 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * Implementation of the {@link Exporter} interface for exporting elements from
  * one Gaffer {@link Graph} to another.
  */
 public class OtherGraphExporter implements Exporter {
-    private final Graph graph;
+    private final Store store;
     private final Context context;
 
 
-    public OtherGraphExporter(final Context context, final Graph graph) {
+    public OtherGraphExporter(final Context context, final Store store) {
         this.context = context;
-        this.graph = graph;
+        this.store = store;
     }
 
     @Override
@@ -45,9 +46,9 @@ public class OtherGraphExporter implements Exporter {
             return;
         }
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input((Iterable<Element>) elements)
-                .build(), context.getUser());
+                .build(), context);
     }
 
     @Override

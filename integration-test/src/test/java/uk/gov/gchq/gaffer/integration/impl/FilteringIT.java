@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -70,14 +71,15 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+        final CloseableIterable<? extends Element> resultsWithoutFiltering = store.execute(getElementsWithoutFiltering, getUser());
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+        final CloseableIterable<? extends Element> resultsWithFiltering =
+                store.execute(getElementsWithFiltering, getUser());
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
-        assertEquals(9, resultsWithoutFiltering.size());
+        assertEquals(9, Lists.newArrayList(resultsWithoutFiltering).size());
         ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
@@ -93,7 +95,7 @@ public class FilteringIT extends AbstractStoreIT {
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
-        assertEquals(1, resultsWithFiltering.size());
+        assertEquals(1, Lists.newArrayList(resultsWithFiltering).size());
         ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 (Element) getEntity("A3")
         ));
@@ -124,10 +126,11 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+        final List<Element> resultsWithoutFiltering =
+                store.execute(getElementsWithoutFiltering, getUser());
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+        final List<Element> resultsWithFiltering = store.execute(getElementsWithFiltering, getUser());
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
@@ -185,12 +188,10 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(
-                graph.execute(getElementsWithoutFiltering, getUser()));
+        final List<Element> resultsWithoutFiltering = store.execute(getElementsWithoutFiltering, getUser());
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(
-                graph.execute(getElementsWithFiltering, getUser()));
+        final List<Element> resultsWithFiltering = store.execute(getElementsWithFiltering, getUser());
 
         // Then - without filtering
         List<Element> expectedResults = Arrays.asList(
@@ -252,10 +253,12 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+        final List<Element> resultsWithoutFiltering =
+                store.execute(getElementsWithoutFiltering, getUser());
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+        final List<Element> resultsWithFiltering =
+                store.execute(getElementsWithFiltering, getUser());
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
@@ -313,10 +316,12 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+        final List<Element> resultsWithoutFiltering = store.execute(getElementsWithoutFiltering,
+                getUser());
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+        final List<Element> resultsWithFiltering = store.execute(getElementsWithFiltering,
+                getUser());
 
         // Then - without filtering
         List<Element> expectedResults = Arrays.asList(

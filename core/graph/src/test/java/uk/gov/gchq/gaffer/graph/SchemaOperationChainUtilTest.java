@@ -23,16 +23,17 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
@@ -40,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.graph.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
-    Graph graph;
+    Store store;
     final StoreProperties storeProperties = new StoreProperties();
     final Schema schema = new Schema.Builder()
             .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -72,14 +73,12 @@ public class SchemaOperationChainUtilTest {
     @Before
     public void setup() {
         storeProperties.setStoreClass(TestStore.class);
-        graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
+        store = Store.createStore(new GraphConfig.Builder()
+                .graphId(GRAPH_ID)
+                .view(view)
                 .storeProperties(storeProperties)
-                .addSchema(schema)
-                .build();
+                .schema(schema)
+                .build());
     }
 
     @Test

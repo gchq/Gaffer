@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
@@ -28,14 +27,14 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -69,20 +68,16 @@ public class GetElementsInRangesIT {
         propsClassic.setStoreClass(MockAccumuloStore.class);
         propsClassic.setKeyPackageClass(ClassicKeyPackage.class.getName());
 
-        final Graph graphBE = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("byteEntity")
-                        .build())
+        final Store storeBE = Store.createStore(new GraphConfig.Builder()
+                .graphId("byteEntity")
                 .addSchema(schema)
                 .storeProperties(propsByteEntity)
-                .build();
-        final Graph graphClassic = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("classic")
-                        .build())
+                .build());
+        final Store storeClassic = Store.createStore(new GraphConfig.Builder()
+                .graphId("classic")
                 .addSchema(schema)
                 .storeProperties(propsClassic)
-                .build();
+                .build());
 
         final List<Element> elements = Arrays.asList(
                 new Edge.Builder()
@@ -99,8 +94,10 @@ public class GetElementsInRangesIT {
                         .build()
         );
 
-        graphBE.execute(new AddElements.Builder().input(elements).build(), new User());
-        graphClassic.execute(new AddElements.Builder().input(elements).build(), new User());
+        storeBE.execute(new AddElements.Builder().input(elements).build(),
+                new User());
+        storeClassic.execute(new AddElements.Builder().input(elements).build(),
+                new User());
 
         // Repeat test for all in/out values
         final Set<SeededGraphFilters.IncludeIncomingOutgoingType> inOutTypes = Sets.newHashSet(SeededGraphFilters.IncludeIncomingOutgoingType.values());
@@ -113,8 +110,8 @@ public class GetElementsInRangesIT {
                     .build();
 
             // When
-            final List<? extends Element> byteEntityResults = Lists.newArrayList(graphBE.execute(op, new User()));
-            final List<? extends Element> classicResults = Lists.newArrayList(graphClassic.execute(op, new User()));
+            final List<? extends Element> byteEntityResults = storeBE.execute(op, new User());
+            final List<? extends Element> classicResults = storeClassic.execute(op, new User());
 
             // Then
             assertEquals(byteEntityResults.size(), classicResults.size());

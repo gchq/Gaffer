@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
@@ -55,14 +56,14 @@ public class GafferResultCacheExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     private final String jobId;
     private final Context context;
-    private final Graph resultCache;
+    private final Store resultCache;
     private final String visibility;
     private final TreeSet<String> requiredOpAuths;
     private final Set<String> userOpAuths;
 
     public GafferResultCacheExporter(final Context context,
                                      final String jobId,
-                                     final Graph resultCache,
+                                     final Store resultCache,
                                      final String visibility,
                                      final Set<String> requiredOpAuths) {
         this.context = context;
@@ -136,7 +137,8 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, context);
+        final CloseableIterable<? extends Element> edges =
+                resultCache.execute(getEdges, context);
         if (null == edges) {
             return new WrappedCloseableIterable<>();
         }
@@ -185,7 +187,7 @@ public class GafferResultCacheExporter implements Exporter {
         return context;
     }
 
-    protected Graph getResultCache() {
+    protected Store getResultCache() {
         return resultCache;
     }
 

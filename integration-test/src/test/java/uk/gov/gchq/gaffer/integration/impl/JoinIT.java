@@ -75,7 +75,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When / Then - no exceptions
-        graph.execute(joinOp, getUser());
+        store.execute(joinOp, getUser());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedElements, results);
@@ -114,7 +114,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -136,7 +136,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -158,7 +158,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -178,7 +178,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -199,7 +199,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -220,7 +220,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -241,7 +241,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -262,7 +262,7 @@ public class JoinIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends Element> results = store.execute(joinOp, getUser());
 
         // Then
         ElementUtil.assertElementEquals(expectedResults, results);
@@ -284,13 +284,13 @@ public class JoinIT extends AbstractStoreIT {
         for (int i = 1; i <= 4; i++) {
             final Entity entity = getJoinEntity(group, i);
             try {
-                graph.execute(new AddElements.Builder().input(entity).build(), getUser());
+                store.execute(new AddElements.Builder().input(entity).build(), getUser());
             } catch (final OperationException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
         try {
-            graph.execute(new AddElements.Builder().input(getJoinEntity(group, 8)).build(), getUser());
+            store.execute(new AddElements.Builder().input(getJoinEntity(group, 8)).build(), getUser());
         } catch (final OperationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

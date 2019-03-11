@@ -340,7 +340,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(OLD_VIEW)
@@ -364,7 +364,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(NEW_VIEW)
@@ -388,7 +388,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(FULL_VIEW)
@@ -414,7 +414,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(OLD_VIEW)
@@ -438,7 +438,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(NEW_VIEW)
@@ -462,7 +462,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.OLD);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("oldVertex", "newVertex")
                         .view(FULL_VIEW)
@@ -486,7 +486,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("aggVertex")
                         .view(NEW_EDGE_AGG_VIEW)
@@ -507,7 +507,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new GetElements.Builder()
                         .input("aggVertex")
                         .view(EDGE_POST_AGG_FILTER_VIEW)
@@ -529,7 +529,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
 
         // When
-        final Iterable<? extends Element> resultsNoPostOpAgg = graph.execute(
+        final Iterable<? extends Element> resultsNoPostOpAgg = store.execute(
                 new GetElements.Builder()
                         .input("postOpAggVertex")
                         .view(EDGE_POST_OP_AGG_VIEW)
@@ -547,7 +547,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         // When
         migration.setAggregateAfter(true);
 
-        final Iterable<? extends Element> resultsWithPostOpAgg = graph.execute(
+        final Iterable<? extends Element> resultsWithPostOpAgg = store.execute(
                 new GetElements.Builder()
                         .input("postOpAggVertex")
                         .view(EDGE_POST_OP_AGG_VIEW)
@@ -569,7 +569,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         migration.setAggregateAfter(true);
 
         // When
-        final Iterable<? extends Element> resultsWithPostAgg = graph.execute(
+        final Iterable<? extends Element> resultsWithPostAgg = store.execute(
                 new GetElements.Builder()
                         .input("aggBeforePostFilterVertex")
                         .view(EDGE_AGG_AND_POST_FILTER_VIEW)
@@ -602,7 +602,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(
+        final Iterable<? extends Element> results = store.execute(
                 new OperationChain.Builder()
                         .first(getElements1)
                         .then(getElements2)
@@ -702,7 +702,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
     }
 
     public void addExtraElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_OP_CHAIN, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
                         EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
                         EDGE_NEW_AGG_BEFORE_POST_FILTER)

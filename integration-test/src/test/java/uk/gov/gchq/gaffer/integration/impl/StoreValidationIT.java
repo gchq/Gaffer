@@ -37,12 +37,12 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.TIMESTAMP, now);
         entity.putProperty(TestPropertyNames.INT, 5);
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(entity)
                 .build(), user);
 
         // When 1 - before age off
-        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results1 = store.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -61,7 +61,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         }
 
         // When 2 - after age off
-        final CloseableIterable<? extends Element> results2 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results2 = store.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -82,13 +82,13 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 100);
 
         // add elements but skip the validation
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(Collections.<Element>singleton(entity))
                 .validate(false)
                 .build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results1 = store.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)

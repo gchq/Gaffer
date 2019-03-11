@@ -16,36 +16,37 @@
 
 package uk.gov.gchq.gaffer.integration;
 
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.util.GraphConfig;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 public abstract class StandaloneIT {
 
-    protected Graph createGraph() {
-        return new Graph.Builder()
-                .config(createGraphConfig())
+    protected Store createStore() {
+        return Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
                 .storeProperties(createStoreProperties())
                 .addSchema(createSchema())
-                .build();
+                .build());
     }
 
-    protected Graph createGraph(final Schema schema) {
-        return new Graph.Builder()
-                .config(createGraphConfig())
+    public Store createStore(final Schema schema) {
+        return Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
                 .storeProperties(createStoreProperties())
                 .addSchema(schema)
-                .build();
+                .build());
+
     }
 
-    protected Graph createGraph(final StoreProperties storeProperties) {
-        return new Graph.Builder()
-                .config(createGraphConfig())
+    protected Store createStore(final StoreProperties storeProperties) {
+        return Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
-                .build();
+                .build());
     }
 
     protected GraphConfig createGraphConfig() {

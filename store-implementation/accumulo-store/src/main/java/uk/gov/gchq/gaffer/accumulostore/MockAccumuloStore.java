@@ -56,7 +56,7 @@ public class MockAccumuloStore extends AccumuloStore {
 
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        setProperties(properties);
+        getConfig().setProperties(properties);
         mockAccumulo = new MockInstance(getProperties().getInstance());
         super.preInitialise(graphId, schema, getProperties());
     }
@@ -85,6 +85,6 @@ public class MockAccumuloStore extends AccumuloStore {
     }
 
     OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
-        return super.getOperationHandler(opClass);
+        return getConfig().getOperationHandler(opClass);
     }
 }

@@ -19,8 +19,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.graph.operation.handler.add.AddSchemaToLibrary;
-import uk.gov.gchq.gaffer.graph.operation.handler.add.AddSchemaToLibrary.Builder;
+import uk.gov.gchq.gaffer.graph.operation.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.graph.operation.add.AddSchemaToLibrary.Builder;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;

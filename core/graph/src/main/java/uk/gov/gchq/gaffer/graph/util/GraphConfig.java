@@ -293,7 +293,8 @@ public class GraphConfig extends Config {
         this.requiredParentSerialiserClass = requiredParentSerialiserClass;
     }
 
-    public static class Builder {
+    public static class Builder extends Config.BaseBuilder<GraphConfig,
+            GraphConfig.Builder> {
         private GraphConfig config = new GraphConfig();
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         private final List<byte[]> schemaBytesList = new ArrayList<>();

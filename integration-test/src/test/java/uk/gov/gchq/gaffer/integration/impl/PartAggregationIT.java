@@ -59,7 +59,7 @@ public class PartAggregationIT extends AbstractStoreIT {
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
         //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
+        final CloseableIterable<? extends Element> elements = store.execute(
                 new GetAllElements(), getUser());
 
         //Then
@@ -129,7 +129,7 @@ public class PartAggregationIT extends AbstractStoreIT {
     @Test
     public void shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation() throws OperationException {
         //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
+        final CloseableIterable<? extends Element> elements = store.execute(
                 new GetAllElements.Builder()
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -213,19 +213,19 @@ public class PartAggregationIT extends AbstractStoreIT {
     public void addDefaultElements() throws OperationException {
         super.addDefaultElements();
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getNonAggregatedEntities())
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getNonAggregatedEdges())
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEntitiesWithGroupBy())
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEdgesWithGroupBy())
                 .build(), getUser());
     }

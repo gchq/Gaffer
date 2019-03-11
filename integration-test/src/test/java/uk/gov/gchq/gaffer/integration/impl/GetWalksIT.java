@@ -104,7 +104,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -131,7 +131,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -167,7 +167,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -178,7 +178,7 @@ public class GetWalksIT extends AbstractStoreIT {
         // Given
         final StoreProperties properties = getStoreProperties();
         properties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
-        createGraph(properties);
+        createStore(properties);
         addDefaultElements();
 
         final GetElements operation = new GetElements.Builder()
@@ -196,7 +196,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -229,7 +229,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertEquals(0, Lists.newArrayList(results).size());
@@ -260,7 +260,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
+        final List<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -295,7 +295,7 @@ public class GetWalksIT extends AbstractStoreIT {
 
         // When / Then
         try {
-            Lists.newArrayList(graph.execute(op, getUser()));
+            store.execute(op, getUser());
         } catch (final Exception e) {
             assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
         }
@@ -319,7 +319,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
@@ -346,7 +346,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
@@ -373,7 +373,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
@@ -400,7 +400,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDA,AEFC")));
@@ -427,7 +427,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
@@ -451,7 +451,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AAAAA")));
@@ -493,7 +493,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED")));
@@ -535,7 +535,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
@@ -563,7 +563,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -576,7 +576,7 @@ public class GetWalksIT extends AbstractStoreIT {
         graphHook.setEnd(Lists.newArrayList(new Limit.Builder<>().resultLimit(1).build()));
 
         final GraphConfig config = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
-        createGraph(config);
+        createStore(config);
 
         addDefaultElements();
 
@@ -595,7 +595,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertEquals(1, Lists.newArrayList(results).size());
@@ -610,7 +610,7 @@ public class GetWalksIT extends AbstractStoreIT {
         graphHook.setAfter(graphHookConfig);
 
         final GraphConfig config = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
-        createGraph(config);
+        createStore(config);
 
         addDefaultElements();
 
@@ -629,7 +629,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Walk> results = graph.execute(op, getUser());
+        final Iterable<Walk> results = store.execute(op, getUser());
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
@@ -781,11 +781,11 @@ public class GetWalksIT extends AbstractStoreIT {
 
     @Override
     public void addDefaultElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(createEntitySet())
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(createEdgeSet())
                 .build(), getUser());
     }

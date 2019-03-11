@@ -33,13 +33,13 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -68,13 +68,14 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Store store = getStore("/schema-DataFrame/elements.json",
+                getElements());
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        Dataset<Row> dataFrame = store.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -111,7 +112,7 @@ public class GetDataFrameOfElementsHandlerTest {
         dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph.execute(dfOperation, new User());
+        dataFrame = store.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -133,13 +134,14 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameMultipleGroups() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Store store = getStore("/schema-DataFrame/elements.json",
+                getElements());
 
         // Use entity and edges group - check get correct data
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        Dataset<Row> dataFrame = store.execute(dfOperation, new User());
         final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -192,7 +194,7 @@ public class GetDataFrameOfElementsHandlerTest {
         dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph.execute(dfOperation, new User());
+        dataFrame = store.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -214,13 +216,14 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjection() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Store store = getStore("/schema-DataFrame/elements.json",
+                getElements());
 
         // Get all edges
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        final Dataset<Row> dataFrame = store.execute(dfOperation, new User());
 
         // Check get correct rows when ask for src, dst and property2 columns
         Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
@@ -255,13 +258,14 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjectionAndFiltering() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Store store = getStore("/schema-DataFrame/elements.json",
+                getElements());
 
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        final Dataset<Row> dataFrame = store.execute(dfOperation, new User());
 
         // Check get correct rows when ask for all columns but only rows where property2 > 4.0
         Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());
@@ -297,7 +301,8 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elementsIncompatible.json", Collections.<Element>emptyList());
+        final Store store = getStore("/schema-DataFrame/elementsIncompatible" +
+                ".json", Collections.<Element>emptyList());
 
         // Use entity and edges group - check get correct data
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -306,7 +311,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // NB Catch the exception rather than using expected annotation on test to ensure that the SparkContext
         // is shut down.
         try {
-            graph.execute(dfOperation, new User());
+            store.execute(dfOperation, new User());
             fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException e) {
             // Expected
@@ -315,12 +320,13 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkCanDealWithNonStandardProperties() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elementsNonstandardTypes.json", getElementsWithNonStandardProperties());
+        final Store store = getStore("/schema-DataFrame" +
+                "/elementsNonstandardTypes.json", getElementsWithNonStandardProperties());
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
-        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        Dataset<Row> dataFrame = store.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         final MutableList<Object> fields1 = new MutableList<>();
@@ -344,7 +350,7 @@ public class GetDataFrameOfElementsHandlerTest {
         dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
-        dataFrame = graph.execute(dfOperation, new User());
+        dataFrame = store.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -364,7 +370,8 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkCanDealWithUserDefinedConversion() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elementsUserDefinedConversion.json", getElementsForUserDefinedConversion());
+        final Store store = getStore("/schema-DataFrame" +
+                "/elementsUserDefinedConversion.json", getElementsForUserDefinedConversion());
 
         // Edges group - check get correct edges
         final List<Converter> converters = new ArrayList<>();
@@ -373,7 +380,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .converters(converters)
                 .build();
-        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        Dataset<Row> dataFrame = store.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         final MutableList<Object> fields1 = new MutableList<>();
@@ -399,7 +406,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .converters(converters)
                 .build();
-        dataFrame = graph.execute(dfOperation, new User());
+        dataFrame = store.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -420,7 +427,8 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkViewIsRespected() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Store store = getStore("/schema-DataFrame/elements.json",
+                getElements());
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -433,7 +441,7 @@ public class GetDataFrameOfElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+        Dataset<Row> dataFrame = store.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
@@ -466,7 +474,7 @@ public class GetDataFrameOfElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        dataFrame = graph.execute(dfOperation, new User());
+        dataFrame = store.execute(dfOperation, new User());
         results.clear();
         results.addAll(dataFrame.collectAsList());
         expectedRows.clear();
@@ -486,17 +494,17 @@ public class GetDataFrameOfElementsHandlerTest {
         assertEquals(expectedRows, results);
     }
 
-    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+    private Store getStore(final String elementsSchema,
+                           final List<Element> elements) throws OperationException {
+        final Store store = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), new User());
-        return graph;
+                .build());
+        store.execute(new AddElements.Builder().input(elements).build(),
+                new User());
+        return store;
     }
 
     static List<Element> getElements() {

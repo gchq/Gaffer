@@ -63,7 +63,9 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      */
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
+        final CloseableIterable<NamedOperationDetail> ops =
+                cache.getAllNamedOperations(context.getUser(),
+                        store.getConfig().getProperties().getAdminAuth());
         return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
     }
 

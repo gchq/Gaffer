@@ -36,7 +36,7 @@ public class AddElementsLoaderIT extends ParameterizedLoaderIT<AddElements> {
 
     @Override
     protected void addElements(final Iterable<? extends Element> input) throws OperationException {
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(input)
                 .build(), getUser());
     }

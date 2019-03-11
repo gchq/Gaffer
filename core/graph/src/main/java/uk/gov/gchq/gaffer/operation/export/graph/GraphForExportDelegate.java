@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
@@ -35,7 +36,7 @@ public class GraphForExportDelegate extends GraphDelegate {
         StoreProperties resultProps = super.resolveStorePropertiesForGraph(store, properties, parentStorePropertiesId, existingGraphPair);
         if (null == resultProps) {
             // If no properties have been provided then default to using the store properties
-            resultProps = store.getProperties();
+            resultProps = store.getConfig().getProperties();
         }
         return resultProps;
     }
@@ -84,3 +85,4 @@ public class GraphForExportDelegate extends GraphDelegate {
         }
     }
 }
+*/

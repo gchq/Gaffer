@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -53,7 +53,8 @@ public class RowToElementGeneratorTest {
     @Test
     public void checkGetCorrectElementsInGraphFrame() throws OperationException {
         // Given
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final Store store = getStore("/schema-GraphFrame/elements.json",
+                getElements());
 
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
                 .view(new View.Builder()
@@ -73,7 +74,8 @@ public class RowToElementGeneratorTest {
                 .build();
 
         // When
-        final Iterable<? extends Element> result = graph.execute(opChain, new User());
+        final Iterable<? extends Element> result = store.execute(opChain,
+                new User());
 
         // Then
         ElementUtil.assertElementEquals(getElements(), result);
@@ -107,16 +109,16 @@ public class RowToElementGeneratorTest {
     }
 
 
-    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
+    private Store getStore(final String elementsSchema,
+                           final List<Element> elements) throws OperationException {
+        final Store store = Store.createStore(new GraphConfig.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), new User());
-        return graph;
+                .build());
+        store.execute(new AddElements.Builder().input(elements).build(),
+                new User());
+        return store;
     }
 }

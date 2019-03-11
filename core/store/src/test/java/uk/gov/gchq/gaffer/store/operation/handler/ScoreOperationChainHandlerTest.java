@@ -100,7 +100,7 @@ public class ScoreOperationChainHandlerTest {
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
         given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        given(store.getConfig().getProperties()).willReturn(storeProperties);
 
         // When
         final Object result = operationHandler.doOperation(
@@ -137,7 +137,7 @@ public class ScoreOperationChainHandlerTest {
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
         given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        given(store.getConfig().getProperties()).willReturn(storeProperties);
 
         // When
         final Object result = operationHandler.doOperation(
@@ -189,7 +189,7 @@ public class ScoreOperationChainHandlerTest {
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
         given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        given(store.getConfig().getProperties()).willReturn(storeProperties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()
@@ -238,7 +238,7 @@ public class ScoreOperationChainHandlerTest {
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
         given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        given(store.getConfig().getProperties()).willReturn(storeProperties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()
@@ -289,7 +289,7 @@ public class ScoreOperationChainHandlerTest {
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
         given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        given(store.getConfig().getProperties()).willReturn(storeProperties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()
@@ -324,7 +324,7 @@ public class ScoreOperationChainHandlerTest {
         Set<String> opAuths = new HashSet<>();
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()
@@ -380,7 +380,7 @@ public class ScoreOperationChainHandlerTest {
         Set<String> opAuths = new HashSet<>();
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()
@@ -409,7 +409,7 @@ public class ScoreOperationChainHandlerTest {
         Set<String> opAuths = new HashSet<>();
         opAuths.add("TEST_USER");
         given(user.getOpAuths()).willReturn(opAuths);
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
 
         // When
         final Object result = handler.doOperation(new ScoreOperationChain.Builder()

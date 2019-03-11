@@ -82,7 +82,7 @@ public class AddNamedViewHandlerTest {
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
     }
 
     @AfterClass

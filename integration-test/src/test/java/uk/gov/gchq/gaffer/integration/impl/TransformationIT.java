@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -71,7 +70,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = store.execute(getEntities, getUser());
 
 
         assertNotNull(results);
@@ -97,7 +96,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = store.execute(getEdges, getUser());
 
         // Then
         assertNotNull(results);
@@ -127,7 +126,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = store.execute(getEntities, getUser());
 
 
         assertNotNull(results);
@@ -156,7 +155,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = store.execute(getEdges, getUser());
 
         assertNotNull(results);
         for (final Element result : results) {
@@ -182,7 +181,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = store.execute(getEntities, getUser());
 
 
         assertNotNull(results);
@@ -210,7 +209,7 @@ public class TransformationIT extends AbstractStoreIT {
                         .build()
         );
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(elements)
                 .build(), getUser());
     }

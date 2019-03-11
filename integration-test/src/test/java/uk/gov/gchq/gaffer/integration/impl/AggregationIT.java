@@ -73,11 +73,12 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
+        final CloseableIterable<? extends Element> results = store.execute(getElements, getUser());
 
         // Then
+        final List<Element> resultList = Lists.newArrayList(results);
         assertNotNull(results);
-        assertEquals(2, results.size());
+        assertEquals(2, resultList.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
@@ -102,7 +103,7 @@ public class AggregationIT extends AbstractStoreIT {
         final String vertex = "testVertex1";
         final long timestamp = System.currentTimeMillis();
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -117,7 +118,7 @@ public class AggregationIT extends AbstractStoreIT {
                                 .build())
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -143,11 +144,12 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
+        final CloseableIterable<? extends Element> results = store.execute(getElements, getUser());
 
         // Then
+        final List<Element> resultList = Lists.newArrayList(results);
         assertNotNull(results);
-        assertEquals(1, results.size());
+        assertEquals(1, resultList.size());
 
         final Entity expectedEntity2 = new Entity.Builder()
                 .group(ENTITY_2)
@@ -158,7 +160,7 @@ public class AggregationIT extends AbstractStoreIT {
 
         ElementUtil.assertElementEquals(
                 Collections.singletonList(expectedEntity2),
-                results
+                resultList
         );
     }
 
@@ -174,11 +176,12 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final CloseableIterable<? extends Element> results = store.execute(getEdges, getUser());
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        final List<Element> resultList = Lists.newArrayList(results);
+        assertNotNull(resultList);
+        assertEquals(2, resultList.size());
         ElementUtil.assertElementEquals(
                 Arrays.asList(
                         getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
@@ -187,7 +190,7 @@ public class AggregationIT extends AbstractStoreIT {
                                 .dest(NON_AGGREGATED_DEST)
                                 .directed(true)
                                 .build()),
-                results
+                resultList
         );
     }
 
@@ -202,7 +205,7 @@ public class AggregationIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.INT, 101);
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(edge1, edge2)
                 .build(), getUser());
 
@@ -223,7 +226,7 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -235,16 +238,16 @@ public class AggregationIT extends AbstractStoreIT {
 
     private void addDuplicateElements() throws OperationException {
         // Add duplicate elements
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE))
                 .build(), getUser());
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
                 .build(), getUser());
 
         // Edge with existing ids but directed
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(new Edge.Builder().group(TestGroups.EDGE)
                         .source(NON_AGGREGATED_SOURCE)
                         .dest(NON_AGGREGATED_DEST)

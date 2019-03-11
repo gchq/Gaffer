@@ -80,13 +80,13 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     protected Graph createGraph(final int numOutputFiles) throws IOException {
         final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
         storeProperties.setAddElementsOutputFilesPerGroup(numOutputFiles);
-        return createGraph(storeProperties);
+        return createStore(storeProperties);
     }
 
     @Test
     public void getAllElementsAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
@@ -101,7 +101,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 

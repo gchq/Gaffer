@@ -110,7 +110,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -126,8 +126,8 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     public void getAllElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = createGraph();
-        final Graph graph2 = createGraph();
+        final Graph graph1 = createStore();
+        final Graph graph2 = createStore();
         final List<Element> elements = new ArrayList<>();
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -146,7 +146,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsWithViewTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -162,7 +162,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsWithDirectedTypeTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -177,7 +177,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsAfterTwoAddElementsTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
         graph.execute(new AddElements.Builder().input(elements).build(), user);
@@ -192,7 +192,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsAfterElementsAddedSeparatelyByGroup() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         final List<Entity> entities = elements.stream().filter(e -> e instanceof Entity).map(e -> (Entity) e).collect(Collectors.toList());
         final List<Edge> edges = elements.stream().filter(e -> e instanceof Edge).map(e -> (Edge) e).collect(Collectors.toList());
@@ -209,13 +209,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsOnGraphRecreatedFromExistingGraph() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final ParquetStoreProperties storeProperties = (ParquetStoreProperties) graph.getStoreProperties();
-        final Graph graph2 = createGraph(storeProperties);
+        final Graph graph2 = createStore(storeProperties);
         final CloseableIterable<? extends Element> results = graph2.execute(
                 new GetAllElements.Builder().build(), user);
 
@@ -227,8 +227,8 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     public void getElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = createGraph();
-        final Graph graph2 = createGraph();
+        final Graph graph1 = createStore();
+        final Graph graph2 = createStore();
         final List<Element> elements = new ArrayList<>();
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -246,7 +246,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsEmptySeedsTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
 
         // When
         final CloseableIterable<? extends Element> results = graph
@@ -259,7 +259,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsRelatedTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -278,7 +278,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsEqualTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -297,7 +297,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithMissingSeedsTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -313,7 +313,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsAndViewTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -330,7 +330,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithPostAggregationFilterTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
@@ -358,7 +358,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithPostTransformFilterTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
@@ -386,7 +386,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithInOutTypeTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
@@ -414,7 +414,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void deduplicateEdgeWhenSrcAndDstAreEqualTest() throws OperationException {
         // Given
-        final Graph graph = createGraph();
+        final Graph graph = createStore();
         final Edge edge = getEdgeWithIdenticalSrcAndDst();
         graph.execute(new AddElements.Builder().input(edge).build(), user);
 

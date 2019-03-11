@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
@@ -28,8 +27,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.graph.TestTypes;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -38,11 +39,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.TestTypes;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
@@ -62,7 +60,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
-        final Graph graph = createGraph();
+        final Store store = createStore();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -85,7 +83,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                         .input(entity1, entity2, entity3)
                         .build(),
                 user);
@@ -99,7 +97,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -132,7 +130,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldAggregateOverAllPropertiesExceptForGroupByProperties() throws Exception {
-        final Graph graph = createGraph();
+        final Store store = createStore();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -161,7 +159,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), user);
+        store.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -174,7 +172,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -198,7 +196,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraphNoVisibility();
+        final Store store = createStoreNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -214,7 +212,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
+        store.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -227,7 +225,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -246,7 +244,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraphNoVisibility();
+        final Store store = createStoreNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -260,7 +258,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
+        store.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -273,7 +271,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -292,7 +290,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraphNoVisibility();
+        final Store store = createStoreNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -306,7 +304,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
+        store.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -319,7 +317,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -338,7 +336,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Test
     public void shouldHandleAggregationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraphNoVisibility();
+        final Store store = createStoreNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -383,7 +381,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(
+        store.execute(new AddElements.Builder().input(
                 entity1,
                 entity2,
                 entity3,
@@ -394,7 +392,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
         ).build(), user);
 
         // Duplicate the entities to check they are aggregated properly
-        graph.execute(new AddElements.Builder().input(
+        store.execute(new AddElements.Builder().input(
                 entity1,
                 entity2,
                 entity3,
@@ -415,7 +413,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
+        final List<Element> results = store.execute(getElements, user);
 
         // Then
         assertNotNull(results);
@@ -468,7 +466,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
     @Test
     public void shouldHandleAggregationWhenNoAggregatorsAreProvided() throws OperationException {
 
-        final Graph graph = createGraphNoAggregators();
+        final Store store = createStoreNoAggregators();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
@@ -513,7 +511,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(
+        store.execute(new AddElements.Builder().input(
                 entity1,
                 entity2,
                 entity3,
@@ -524,7 +522,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
         ).build(), user);
 
         // Duplicate the entities to check they are not aggregated
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                         .input(entity1,
                                 entity2,
                                 entity3,
@@ -543,7 +541,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, user));
+        final List<Element> results = store.execute(getAllEntities, user);
 
         // Then
         assertNotNull(results);
@@ -593,11 +591,9 @@ public class AccumuloAggregationIT extends StandaloneIT {
         ));
     }
 
-    protected Graph createGraphNoVisibility() {
-        return new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphWithNoVisibility")
-                        .build())
+    protected Store createStoreNoVisibility() {
+        return Store.createStore(new GraphConfig.Builder()
+                .id("graphWithNoVisibility")
                 .storeProperties(createStoreProperties())
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -620,14 +616,12 @@ public class AccumuloAggregationIT extends StandaloneIT {
                                         AccumuloPropertyNames.COLUMN_QUALIFIER_4)
                                 .build())
                         .build())
-                .build();
+                .build());
     }
 
-    protected Graph createGraphNoAggregators() {
-        return new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphWithNoAggregators")
-                        .build())
+    protected Store createStoreNoAggregators() {
+        return Store.createStore(new GraphConfig.Builder()
+                .id("graphWithNoAggregators")
                 .storeProperties(createStoreProperties())
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -646,7 +640,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                                 .aggregate(false)
                                 .build())
                         .build())
-                .build();
+                .build());
     }
 
     @Override

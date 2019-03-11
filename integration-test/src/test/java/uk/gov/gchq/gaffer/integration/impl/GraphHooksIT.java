@@ -70,7 +70,7 @@ public class GraphHooksIT extends AbstractStoreIT {
         final Edge edge2 = edge1.emptyClone();
         edge2.putProperty(TestPropertyNames.INT, 101);
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                         .input(edge1, edge2)
                         .build(),
                 getUser());
@@ -88,7 +88,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                 .overwrite(true)
                 .build();
 
-        graph.execute(addNamedView, getUser());
+        store.execute(addNamedView, getUser());
 
         final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(new OperationChain.Builder()
@@ -103,7 +103,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                 .overwrite(true)
                 .build();
 
-        graph.execute(addNamedOperation, getUser());
+        store.execute(addNamedOperation, getUser());
 
         final NamedOperation<EntityId, CloseableIterable<? extends Element>> operation =
                 new NamedOperation.Builder<EntityId, CloseableIterable<? extends Element>>()
@@ -112,7 +112,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                         .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(operation, getUser());
+        final CloseableIterable<? extends Element> results = store.execute(operation, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);

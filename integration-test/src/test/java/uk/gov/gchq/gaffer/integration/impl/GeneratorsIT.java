@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
@@ -72,7 +71,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<DomainObject> results = Lists.newArrayList(graph.execute(opChain, getUser()));
+        final List<DomainObject> results = store.execute(opChain, getUser());
 
         final EntityDomainObject entityDomainObject = new EntityDomainObject(SOURCE_1, "3", null);
         final EdgeDomainObject edgeDomainObject = new EdgeDomainObject(SOURCE_1, DEST_1, false, 1, 1L);
@@ -97,12 +96,12 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .build();
 
         // When - add
-        graph.execute(opChain, getUser());
+        store.execute(opChain, getUser());
 
         // Then - check they were added correctly
-        final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
+        final List<Element> results = store.execute(new GetElements.Builder()
                 .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
-                .build(), getUser()));
+                .build(), getUser());
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)

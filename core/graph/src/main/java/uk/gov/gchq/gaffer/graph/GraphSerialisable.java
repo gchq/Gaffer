@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph;
 
@@ -36,13 +37,15 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Properties;
 
+*/
 /**
  * A Serialisable object which holds the contents for creating Graphs.
  * Does not store all the graph data, this only is used to recreate the graph
  * after serialisation from the graph elements.
  *
  * @see GraphSerialisable.Builder
- */
+ *//*
+
 @JsonDeserialize(builder = GraphSerialisable.Builder.class)
 public final class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
@@ -76,20 +79,24 @@ public final class GraphSerialisable implements Serializable {
         this.properties = properties;
     }
 
-    /**
+    */
+/**
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
-     */
+     *//*
+
     @JsonIgnore
     public Graph getGraph() {
         return getGraph(null);
     }
 
-    /**
+    */
+/**
      * @param library the library to use and add into the builder.
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
-     */
+     *//*
+
     @JsonIgnore
     public Graph getGraph(final GraphLibrary library) {
         if (null == graph) {
@@ -246,3 +253,4 @@ public final class GraphSerialisable implements Serializable {
     }
 
 }
+*/

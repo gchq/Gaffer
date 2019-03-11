@@ -20,11 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.util.GraphConfig;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 /**
@@ -39,24 +39,23 @@ public final class GafferResultCacheUtil {
         // Private constructor to prevent instantiation.
     }
 
-    public static Graph createGraph(final String graphId, final String cacheStorePropertiesPath, final Long timeToLive) {
+    public static Store createStore(final String graphId,
+                                    final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
             throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
-        final Graph.Builder graphBuilder = new Graph.Builder()
-                .config(new GraphConfig.Builder()
+        final Store store =
+                Store.createStore(new GraphConfig.Builder()
                         .graphId(graphId)
-                        .build())
-                .storeProperties(cacheStorePropertiesPath)
-                .addSchema(createSchema(timeToLive));
+                        .addSchema(createSchema(timeToLive))
+                        .storeProperties(cacheStorePropertiesPath)
+                        .build());
 
-        final Graph graph = graphBuilder.build();
-        if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
+        if (!store.hasTrait(StoreTrait.STORE_VALIDATION)) {
             LOGGER.warn("Gaffer JSON export graph does not have {} trait so results may not be aged off.", StoreTrait.STORE_VALIDATION.name());
         }
-
-        return graph;
+        return store;
     }
 
     public static Schema createSchema(final Long timeToLive) {

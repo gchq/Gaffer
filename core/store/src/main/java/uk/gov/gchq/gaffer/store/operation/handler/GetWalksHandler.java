@@ -183,7 +183,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final While whileOp = (While) operation.getOperations().get(0);
         if (null != whileOp.getOperation()) {
             validateWhileOperation(whileOp);
-            final OperationHandler opHandler = store.getOperationHandler(While.class);
+            final OperationHandler opHandler = store.getConfig().getOperationHandler(While.class);
             if (null == opHandler) {
                 throw new UnsupportedOperationException("While operations are not supported by this store");
             }

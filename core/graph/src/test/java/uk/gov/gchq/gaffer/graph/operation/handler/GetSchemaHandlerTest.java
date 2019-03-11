@@ -88,7 +88,7 @@ public class GetSchemaHandlerTest {
 
     @Test
     public void shouldReturnCompactSchema() throws OperationException {
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
         given(((GraphConfig)store.getConfig()).getSchema()).willReturn(schema);
         given(context.getUser()).willReturn(user);
 
@@ -107,7 +107,7 @@ public class GetSchemaHandlerTest {
 
     @Test
     public void shouldReturnFullSchema() throws OperationException {
-        given(store.getProperties()).willReturn(properties);
+        given(store.getConfig().getProperties()).willReturn(properties);
         given(((GraphConfig)store.getConfig()).getOriginalSchema()).willReturn(schema);
         given(context.getUser()).willReturn(user);
 

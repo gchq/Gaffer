@@ -49,7 +49,12 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.TestTypes;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -65,16 +70,12 @@ import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
@@ -165,13 +166,13 @@ public class AccumuloStoreTest {
         properties.setTable("tableName");
 
         // When
-        final Graph graph = new Graph.Builder()
+        final Store store = Store.createStore(new GraphConfig.Builder()
                 .addSchemas(StreamUtil.schemas(getClass()))
                 .storeProperties(properties)
-                .build();
+                .build());
 
         // Then
-        assertEquals("tableName", graph.getGraphId());
+        assertEquals("tableName", store.getConfig().getId());
     }
 
     @Test
@@ -308,7 +309,8 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, store.createContext(user));
+        CloseableIterable<? extends Element> relatedResults =
+                store.execute(getRelated, new Context(user));
         assertEquals(1, Iterables.size(relatedResults));
         assertTrue(Iterables.contains(relatedResults, e));
 
@@ -327,7 +329,8 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter,
+                new Context(user));
         assertEquals(0, Iterables.size(relatedResults));
     }
 

@@ -90,7 +90,7 @@ public class MapHandlerTest {
         input = 3;
 
         given(context.getUser()).willReturn(new User());
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
         given(function.apply(input)).willReturn(6);
     }
 

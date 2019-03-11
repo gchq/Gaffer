@@ -64,7 +64,8 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = store.execute(op,
+                getUser());
 
         // Then
         ElementUtil.assertElementEquals(Sets.newHashSet((ElementId) null), results);
@@ -80,7 +81,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<? extends Long> output = graph.execute(op, getUser());
+        final Iterable<? extends Long> output = store.execute(op, getUser());
 
         // Then
         assertEquals(Arrays.asList(3, 2, 0), Lists.newArrayList(output));
@@ -108,7 +109,8 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
+        final List<Iterable<String>> results =
+                store.execute(op, getUser());
 
         // Then
         assertEquals(1, results.size());
@@ -138,7 +140,7 @@ public class ForEachIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
+        final List<Iterable<String>> results = store.execute(op, getUser());
 
         // Then
         assertEquals(1, results.size());

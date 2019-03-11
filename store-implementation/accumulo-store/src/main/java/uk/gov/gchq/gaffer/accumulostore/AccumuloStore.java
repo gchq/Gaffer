@@ -72,11 +72,11 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.graph.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
@@ -167,7 +167,7 @@ public class AccumuloStore extends Store {
      * @throws StoreException If the store could not be initialised.
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        setProperties(properties);
+        getConfig().setProperties(properties);
 
         final String deprecatedTableName = getProperties().getTable();
         if (null == graphId && null != deprecatedTableName) {
@@ -356,31 +356,30 @@ public class AccumuloStore extends Store {
      * @return {@link AccumuloProperties}.
      */
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
-    @Override
     public AccumuloProperties getProperties() {
-        return (AccumuloProperties) super.getProperties();
+        return getProperties();
     }
 
-    @Override
     protected Class<AccumuloProperties> getPropertiesClass() {
         return AccumuloProperties.class;
     }
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-        addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
-        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
-        addOperationHandler(SplitStore.class, new SplitStoreHandler());
-        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
-        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
-        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+        getConfig().addOperationHandler(AddElementsFromHdfs.class,
+                new AddElementsFromHdfsHandler());
+        getConfig().addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        getConfig().addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
+        getConfig().addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        getConfig().addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
+        getConfig().addOperationHandler(SplitStore.class, new SplitStoreHandler());
+        getConfig().addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
+        getConfig().addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+        getConfig().addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
         if (null == ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser() || ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser().preservesObjectOrdering()) {
-            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
-            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+            getConfig().addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+            getConfig().addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
         } else {
             LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
                     ((GraphConfig) super.getConfig()).getSchema().getVertexSerialiser().getClass().getName());
@@ -502,7 +501,7 @@ public class AccumuloStore extends Store {
 
     private void addHdfsOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         try {
-            addOperationHandler(opClass, handler);
+            getConfig().addOperationHandler(opClass, handler);
         } catch (final NoClassDefFoundError e) {
             LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", opClass.getSimpleName(), e);
         }

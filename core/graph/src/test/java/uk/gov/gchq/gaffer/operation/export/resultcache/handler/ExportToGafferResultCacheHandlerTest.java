@@ -23,7 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.ElementValidator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -32,9 +34,7 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResult
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.graph.ElementValidator;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import java.util.Arrays;
@@ -147,11 +147,8 @@ public class ExportToGafferResultCacheHandlerTest {
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
 
-        // When
-        final Graph graph = handler.createGraph(store);
-
         // Then
-        final Schema schema = graph.getSchema();
+        final Schema schema = ((GraphConfig) store.getConfig()).getSchema();
         JsonAssert.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
         assertTrue(schema.validate().isValid());
         assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());

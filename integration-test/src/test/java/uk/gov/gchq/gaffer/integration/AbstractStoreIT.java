@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.TestTypes;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
@@ -49,6 +48,8 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
@@ -124,7 +125,7 @@ public abstract class AbstractStoreIT {
     private List<Edge> duplicateEdges;
 
     protected final Map<String, User> userMap = new HashMap<>();
-    protected static Graph graph;
+    protected static Store store;
     protected User user = new User();
 
     @Rule
@@ -173,7 +174,7 @@ public abstract class AbstractStoreIT {
     public void setup() throws Exception {
         initialise();
         validateTest();
-        createGraph();
+        createStore();
         _setup();
         validateTraits();
     }
@@ -184,7 +185,7 @@ public abstract class AbstractStoreIT {
 
     @AfterClass
     public static void tearDown() {
-        graph = null;
+        store = null;
     }
 
     protected void initialise() throws Exception {
@@ -222,7 +223,8 @@ public abstract class AbstractStoreIT {
         }
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
+            assumeTrue("Skipping test as the store does not implement all " +
+                    "required traits.", store.hasTrait(requiredTrait));
         }
     }
 
@@ -244,69 +246,57 @@ public abstract class AbstractStoreIT {
         }
     }
 
-    protected void createGraph() {
-        graph = getGraphBuilder()
-                .build();
+    protected void createStore() {
+        store = getStore();
 
         applyVisibilityUser();
     }
 
-    public void createGraph(final Schema schema) {
-        graph = new Graph.Builder()
-                .config(createGraphConfig())
+    public void createStore(final Schema schema) {
+        store = Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
                 .storeProperties(getStoreProperties())
                 .addSchema(schema)
-                .build();
+                .build());
 
         applyVisibilityUser();
     }
 
-    public void createGraph(final GraphConfig config) {
-        graph = new Graph.Builder()
-                .config(config)
+    public void createStore(final GraphConfig config) {
+        store = Store.createStore(config);
+
+        applyVisibilityUser();
+    }
+
+    public void createStore(final Schema schema, final StoreProperties properties) {
+        store = Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
+                .storeProperties(properties)
+                .addSchema(schema)
+                .build());
+
+        applyVisibilityUser();
+    }
+
+    public void createStore(final StoreProperties properties) {
+        store = Store.createStore(new GraphConfig.Builder()
+                .merge(createGraphConfig())
+                .storeProperties(properties)
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema())
+                .build());
+
+        applyVisibilityUser();
+    }
+
+    protected Store getStore() {
+        final GraphConfig config = new GraphConfig.Builder()
+                .merge(createGraphConfig())
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchema())
                 .addSchema(getStoreSchema())
                 .build();
-
-        applyVisibilityUser();
-    }
-
-    public void createGraph(final Schema schema, final StoreProperties properties) {
-        graph = new Graph.Builder()
-                .config(createGraphConfig())
-                .storeProperties(properties)
-                .addSchema(schema)
-                .build();
-
-        applyVisibilityUser();
-    }
-
-    public void createGraph(final StoreProperties properties) {
-        graph = new Graph.Builder()
-                .config(createGraphConfig())
-                .storeProperties(properties)
-                .addSchema(createSchema())
-                .addSchema(getStoreSchema())
-                .build();
-
-        applyVisibilityUser();
-    }
-
-    protected Graph.Builder getGraphBuilder() {
-        return new Graph.Builder()
-                .config(createGraphConfig())
-                .storeProperties(getStoreProperties())
-                .addSchema(createSchema())
-                .addSchema(getStoreSchema());
-    }
-
-    protected void addStoreProperties(final StoreProperties storeProperties) {
-        graph = getGraphBuilder().addStoreProperties(storeProperties).build();
-    }
-
-    protected void addGraphConfig(final GraphConfig graphConfig) {
-        graph = getGraphBuilder().config(graphConfig).build();
+        return Store.createStore(config);
     }
 
     protected Schema createSchema() {
@@ -380,13 +370,13 @@ public abstract class AbstractStoreIT {
     }
 
     public void addDefaultElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEntities().values())
-                .build(), getUser());
+                .build(), new Context(getUser()));
 
-        graph.execute(new AddElements.Builder()
+        store.execute(new AddElements.Builder()
                 .input(getEdges().values())
-                .build(), getUser());
+                .build(), new Context(getUser()));
     }
 
     public Map<EntityId, Entity> getEntities() {
@@ -394,12 +384,15 @@ public abstract class AbstractStoreIT {
     }
 
     public List<Entity> getIngestSummarisedEntities() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() :
+                getStoreSchema();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEntities), schema));
     }
 
     public List<Entity> getQuerySummarisedEntities() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() : getStoreSchema();
         final View view = new Builder()
                 .entities(schema.getEntityGroups())
                 .edges(schema.getEdgeGroups())
@@ -408,7 +401,8 @@ public abstract class AbstractStoreIT {
     }
 
     public List<Entity> getQuerySummarisedEntities(final View view) {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() : getStoreSchema();
         final List<Entity> ingestSummarisedEntities = getIngestSummarisedEntities();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEntities, schema, view));
     }
@@ -418,12 +412,14 @@ public abstract class AbstractStoreIT {
     }
 
     public List<Edge> getIngestSummarisedEdges() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() : getStoreSchema();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEdges), schema));
     }
 
     public List<Edge> getQuerySummarisedEdges() {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() : getStoreSchema();
         final View view = new Builder()
                 .entities(schema.getEntityGroups())
                 .edges(schema.getEdgeGroups())
@@ -432,7 +428,8 @@ public abstract class AbstractStoreIT {
     }
 
     public List<Edge> getQuerySummarisedEdges(final View view) {
-        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final Schema schema = null != store ?
+                ((GraphConfig)store.getConfig()).getSchema() : getStoreSchema();
         final List<Edge> ingestSummarisedEdges = getIngestSummarisedEdges();
         return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEdges, schema, view));
     }
@@ -577,10 +574,10 @@ public abstract class AbstractStoreIT {
     }
 
     public void execute(final Operation op) throws OperationException {
-        graph.execute(op, user);
+        store.execute(op, new Context(user));
     }
 
     public <T> T execute(final Output<T> op) throws OperationException {
-        return graph.execute(op, user);
+        return store.execute(op, new Context(user));
     }
 }
