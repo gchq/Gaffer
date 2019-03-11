@@ -21,19 +21,19 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.join.JoinHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
@@ -48,8 +48,8 @@ public class JoinHandlerTest {
 
         final Join joinOp = new Join.Builder<>()
                 .joinType(JoinType.FULL)
+                .matchMethod(new ElementMatch())
                 .matchKey(MatchKey.LEFT)
-                .mergeMethod(mock(Merge.class))
                 .build();
 
         // When
@@ -60,16 +60,16 @@ public class JoinHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenInputIsMoreThanLimit() throws OperationException {
+    public void shouldThrowExceptionWhenInputIsMoreThanLimit() {
         // Given
         final JoinHandler handler = new JoinHandler();
         final List<Integer> inputList = Arrays.asList(1, 2, 3);
 
-        final Join<Integer, Integer> joinOp = new Join.Builder<Integer, Integer>()
+        final Join<Integer> joinOp = new Join.Builder<Integer>()
                 .input(inputList)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
-                .mergeMethod(mock(Merge.class))
+                .matchMethod(new KeyFunctionMatch())
                 .collectionLimit(1)
                 .build();
 
@@ -79,6 +79,27 @@ public class JoinHandlerTest {
             fail("exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getCause().getMessage().contains("exceeded"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenNoMatchMethodIsSpecified() {
+        // Given
+        final JoinHandler handler = new JoinHandler();
+        final List<Integer> inputList = Arrays.asList(1, 2, 3);
+
+        Join<Object> joinOp = new Join.Builder<>()
+                .input(inputList)
+                .joinType(JoinType.FULL)
+                .matchKey(MatchKey.LEFT)
+                .build();
+
+        // When / Then
+        try {
+            handler.doOperation(joinOp, context, store);
+            fail("exception expected");
+        } catch (final OperationException e) {
+            assertEquals("A match method must be supplied", e.getMessage());
         }
     }
 }
