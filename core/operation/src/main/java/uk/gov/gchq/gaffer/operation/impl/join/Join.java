@@ -149,8 +149,8 @@ public class Join<I> implements InputOutput<Iterable<? extends I>,
         return TypeReferenceImpl.createIterableT();
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         List operations = new ArrayList<>();
         operations.add(rightSideOperation);
