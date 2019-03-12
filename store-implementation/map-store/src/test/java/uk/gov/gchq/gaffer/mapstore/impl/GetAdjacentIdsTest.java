@@ -46,7 +46,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldGetAdjacentIdsWhenThereAreNone() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -67,7 +67,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldGetAdjacentEntityId() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -143,7 +143,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -187,7 +187,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -237,7 +237,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -287,7 +287,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldFailValidationWhenEntityHasFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
@@ -322,7 +322,7 @@ public class GetAdjacentIdsTest {
     @Test
     public void shouldPassValidationOnEntitiesWithoutFilters() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();

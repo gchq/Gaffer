@@ -28,14 +28,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
@@ -62,15 +62,16 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Store store = getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results =
+                store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -86,15 +87,16 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testAddAndGetAllElementsWithAggregation() throws StoreException, OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Store store = getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElementsForAggregation())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results =
+                store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -139,11 +141,11 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testGetAllElementsWithViewRestrictedByGroup() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Store store = getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder()
@@ -151,7 +153,8 @@ public class GetAllElementsHandlerTest {
                         .edge(BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results =
+                store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -166,11 +169,11 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testGetAllElementsWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Store store = getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder()
@@ -183,7 +186,8 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results =
+                store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -198,11 +202,11 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testGetAllElementsWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = getGraph();
+        final Store store = getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder()
@@ -215,7 +219,8 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results =
+                store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -231,11 +236,11 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Store store = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When no entities
         GetAllElements getAllElements = new GetAllElements.Builder()
@@ -244,7 +249,7 @@ public class GetAllElementsHandlerTest {
                         .edge(TestGroups.EDGE_2)
                         .build())
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        CloseableIterable<? extends Element> results = store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -263,7 +268,7 @@ public class GetAllElementsHandlerTest {
                         .edge(TestGroups.EDGE_2)
                         .build())
                 .build();
-        results = graph.execute(getAllElements, new User());
+        results = store.execute(getAllElements, new User());
 
         // Then
         resultsSet.clear();
@@ -276,17 +281,17 @@ public class GetAllElementsHandlerTest {
     @Test
     public void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final Store store = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When directedType is ALL
         GetAllElements getAllElements = new GetAllElements.Builder()
                 .directedType(DirectedType.EITHER)
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        CloseableIterable<? extends Element> results = store.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -301,7 +306,7 @@ public class GetAllElementsHandlerTest {
                         .entity(TestGroups.ENTITY)
                         .build())
                 .build();
-        results = graph.execute(getAllElements, new User());
+        results = store.execute(getAllElements, new User());
 
         // Then
         resultsSet.clear();
@@ -316,7 +321,7 @@ public class GetAllElementsHandlerTest {
         getAllElements = new GetAllElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .build();
-        results = graph.execute(getAllElements, new User());
+        results = store.execute(getAllElements, new User());
 
         // Then
         resultsSet.clear();
@@ -331,7 +336,7 @@ public class GetAllElementsHandlerTest {
         getAllElements = new GetAllElements.Builder()
                 .directedType(DirectedType.UNDIRECTED)
                 .build();
-        results = graph.execute(getAllElements, new User());
+        results = store.execute(getAllElements, new User());
 
         // Then
         resultsSet.clear();
@@ -380,42 +385,36 @@ public class GetAllElementsHandlerTest {
         return elements;
     }
 
-    static Graph getGraph() {
+    static Store getStore() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
+        return Store.createStore(new GraphConfig.Builder()
+                .graphId("graph1")
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
-                .build();
+                .build());
     }
 
     static Schema getSchemaNoAggregation() {
         return Schema.fromJson(StreamUtil.openStreams(GetAllElementsHandlerTest.class, "schema-no-aggregation"));
     }
 
-    static Graph getGraphNoIndices() {
+    static Store getStoreNoIndices() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         storeProperties.setCreateIndex(false);
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphWithNoIndices")
-                        .build())
+        return Store.createStore(new GraphConfig.Builder()
+                .graphId("graphWithNoIndices")
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
-                .build();
+                .build());
     }
 
-    static Graph getGraphNoAggregation() {
+    static Store getStoreNoAggregation() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
+        return Store.createStore(new GraphConfig.Builder()
+                .graphId("graph1")
                 .addSchema(getSchemaNoAggregation())
                 .storeProperties(storeProperties)
-                .build();
+                .build());
     }
 
 
