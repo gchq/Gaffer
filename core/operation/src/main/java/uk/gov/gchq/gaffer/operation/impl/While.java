@@ -105,7 +105,6 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         return builder.build();
     }
 
-    @JsonIgnore
     @Override
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();

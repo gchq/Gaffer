@@ -148,7 +148,6 @@ public class OperationChain<OUT> implements Output<OUT>,
         return (TypeReference<OUT>) new TypeReferenceImpl.Void();
     }
 
-    @JsonIgnore
     @Override
     public List<Operation> getOperations() {
         return operations;

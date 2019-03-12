@@ -100,7 +100,6 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         return new OperationChainDAO(operationChain);
     }
 
-    @JsonIgnore
     @Override
     public List<OperationChain> getOperations() {
         return Lists.newArrayList(operationChain);

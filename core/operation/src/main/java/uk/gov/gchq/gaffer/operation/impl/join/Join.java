@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -149,7 +148,6 @@ public class Join<I> implements InputOutput<Iterable<? extends I>,
         return TypeReferenceImpl.createIterableT();
     }
 
-    @JsonIgnore
     @Override
     public Collection<Operation> getOperations() {
         List operations = new ArrayList<>();
