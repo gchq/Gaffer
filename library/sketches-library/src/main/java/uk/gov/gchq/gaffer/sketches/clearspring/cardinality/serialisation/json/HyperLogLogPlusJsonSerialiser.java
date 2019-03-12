@@ -30,7 +30,6 @@ import java.io.IOException;
  */
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
 
-    // TODO - See 'Can't create HyperLogLogPlus sketches in JSON'
     @Override
     public void serialize(final HyperLogLogPlus hyperLogLogPlus, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeStartObject();
