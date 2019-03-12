@@ -116,8 +116,8 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
         this.operation = new OperationChain<>(Lists.newArrayList(operations));
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         return OperationChain.wrap(operation).getOperations();
     }
