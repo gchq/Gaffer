@@ -101,6 +101,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
     }
 
     @Override
+    @JsonIgnore
     public List<OperationChain> getOperations() {
         return Lists.newArrayList(operationChain);
     }

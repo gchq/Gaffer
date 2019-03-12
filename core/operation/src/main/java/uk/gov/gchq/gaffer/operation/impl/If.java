@@ -114,6 +114,7 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
     }
 
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();
 

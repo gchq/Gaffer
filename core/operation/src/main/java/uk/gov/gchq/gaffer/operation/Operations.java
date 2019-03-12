@@ -33,7 +33,6 @@ public interface Operations<T extends Operation> {
      *
      * @return A {@link Collection} of {@link Operation}s.
      */
-    @JsonIgnore
     Collection<T> getOperations();
 
     /**

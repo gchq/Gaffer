@@ -149,6 +149,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     }
 
     @Override
+    @JsonIgnore
     public List<Operation> getOperations() {
         return operations;
     }

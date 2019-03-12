@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -128,6 +129,7 @@ public class NamedOperation<I_ITEM, O> implements
     }
 
     @Override
+    @JsonIgnore
     public List<Operation> getOperations() {
 
         final List<Operation> operations = new ArrayList<>();
