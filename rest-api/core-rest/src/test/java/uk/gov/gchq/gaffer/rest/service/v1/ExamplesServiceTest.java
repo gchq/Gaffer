@@ -26,21 +26,20 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.schema.ViewValidator;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.graph.schema.ViewValidator;
 
 import java.io.IOException;
 
@@ -55,7 +54,7 @@ public class ExamplesServiceTest {
     private ExamplesService service;
 
     @Mock
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Mock
     private UserFactory userFactory;
@@ -81,14 +80,10 @@ public class ExamplesServiceTest {
 
         final Store store = mock(Store.class);
         given(store.getConfig()).willReturn(new GraphConfig.Builder().schema(schema).build());
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .store(store)
-                .build();
-        given(graphFactory.getGraph()).willReturn(graph);
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig()).willReturn(new GraphConfig.Builder().graphId("graphId").storeProperties(new StoreProperties()).build());
+
+        given(storeFactory.getStore()).willReturn(store);
     }
 
     @Test

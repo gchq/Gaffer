@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
 
@@ -42,7 +42,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 /**
  * An implementation of {@link IJobServiceV2}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
@@ -51,7 +51,7 @@ public class JobServiceV2 implements IJobServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobServiceV2.class);
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -68,7 +68,7 @@ public class JobServiceV2 implements IJobServiceV2 {
         preOperationHook(opChain, context);
 
         try {
-            final JobDetail jobDetail = graphFactory.getGraph()
+            final JobDetail jobDetail = storeFactory.getStore()
                     .executeJob(opChain, context);
             LOGGER.info("Job started = {}", jobDetail);
 
@@ -88,7 +88,7 @@ public class JobServiceV2 implements IJobServiceV2 {
     @Override
     public Response details() throws OperationException {
         final Context context = userFactory.createContext();
-        return Response.ok(graphFactory.getGraph()
+        return Response.ok(storeFactory.getStore()
                 .execute(new GetAllJobDetails(),
                         context))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
@@ -99,7 +99,7 @@ public class JobServiceV2 implements IJobServiceV2 {
     @Override
     public Response details(final String id) throws OperationException {
         final Context context = userFactory.createContext();
-        return Response.ok(graphFactory.getGraph().execute(
+        return Response.ok(storeFactory.getStore().execute(
                 new GetJobDetails.Builder()
                         .jobId(id)
                         .build(),
@@ -112,7 +112,7 @@ public class JobServiceV2 implements IJobServiceV2 {
     @Override
     public Response results(final String id) throws OperationException {
         final Context context = userFactory.createContext();
-        return Response.ok(graphFactory.getGraph().execute(
+        return Response.ok(storeFactory.getStore().execute(
                 new GetJobResults.Builder()
                         .jobId(id)
                         .build(),

@@ -373,14 +373,8 @@ public class ParquetStore extends Store {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
-    @Override
     public ParquetStoreProperties getProperties() {
-        return (ParquetStoreProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<ParquetStoreProperties> getPropertiesClass() {
-        return ParquetStoreProperties.class;
+        return (ParquetStoreProperties) super.getConfig().getProperties();
     }
 
     @Override
@@ -406,8 +400,10 @@ public class ParquetStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
 //        addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
-        addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
-        addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
+        getConfig().addOperationHandler(ImportJavaRDDOfElements.class,
+                new ImportJavaRDDOfElementsHandler());
+        getConfig().addOperationHandler(ImportRDDOfElements.class,
+                new ImportRDDOfElementsHandler());
 //        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());
     }
 

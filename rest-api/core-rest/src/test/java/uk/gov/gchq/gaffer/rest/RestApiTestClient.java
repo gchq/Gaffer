@@ -24,18 +24,17 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.DefaultStoreFactory;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,14 +49,14 @@ public abstract class RestApiTestClient {
     protected final String versionString;
     protected final String uriString;
     protected HttpServer server;
-    protected DefaultGraphFactory defaultGraphFactory;
+    protected DefaultStoreFactory defaultStoreFactory;
 
     public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config) {
         this.root = root.replaceAll("/$", "");
         this.path = path.replaceAll("/$", "");
         this.versionString = versionString.replaceAll("/$", "");
         this.config = config;
-        this.defaultGraphFactory = new DefaultGraphFactory();
+        this.defaultStoreFactory = new DefaultStoreFactory();
 
         this.fullPath = this.path + '/' + versionString;
         this.uriString = this.root + '/' + this.fullPath;
@@ -74,18 +73,21 @@ public abstract class RestApiTestClient {
         return null != server;
     }
 
-    public void reinitialiseGraph(final TemporaryFolder testFolder) throws IOException {
-        reinitialiseGraph(testFolder, StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES);
+    public void reinitialiseStore(final TemporaryFolder testFolder) throws IOException {
+        reinitialiseStore(testFolder, StreamUtil.SCHEMA,
+                StreamUtil.STORE_PROPERTIES);
     }
 
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
-        reinitialiseGraph(testFolder,
+    public void reinitialiseStore(final TemporaryFolder testFolder,
+                                  final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
+        reinitialiseStore(testFolder,
                 Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
         );
     }
 
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+    public void reinitialiseStore(final TemporaryFolder testFolder,
+                                  final Schema schema, final StoreProperties storeProperties) throws IOException {
         FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
                 .toJson(true));
 
@@ -99,11 +101,11 @@ public abstract class RestApiTestClient {
         System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
         System.setProperty(SystemProperty.GRAPH_ID, "graphId");
 
-        reinitialiseGraph();
+        reinitialiseStore();
     }
 
-    public void reinitialiseGraph(final Graph graph) throws IOException {
-        DefaultGraphFactory.setGraph(graph);
+    public void reinitialiseStore(final Store store) throws IOException {
+        DefaultStoreFactory.setStore(store);
 
         startServer();
 
@@ -115,8 +117,8 @@ public abstract class RestApiTestClient {
     }
 
 
-    public void reinitialiseGraph() throws IOException {
-        defaultGraphFactory.setGraph(null);
+    public void reinitialiseStore() throws IOException {
+        defaultStoreFactory.setStore(null);
 
         startServer();
 
@@ -163,8 +165,8 @@ public abstract class RestApiTestClient {
         return root;
     }
 
-    public DefaultGraphFactory getDefaultGraphFactory() {
-        return defaultGraphFactory;
+    public DefaultStoreFactory getDefaultStoreFactory() {
+        return defaultStoreFactory;
     }
 
     public String getFullPath() {

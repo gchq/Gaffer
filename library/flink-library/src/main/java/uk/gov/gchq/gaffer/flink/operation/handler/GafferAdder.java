@@ -85,7 +85,7 @@ public class GafferAdder implements Serializable {
         this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
         graphId = store.getId();
         schema = ((GraphConfig) store.getConfig()).getSchema().toCompactJson();
-        properties = store.getProperties().getProperties();
+        properties = store.getConfig().getProperties().getProperties();
     }
 
     public void initialise() {

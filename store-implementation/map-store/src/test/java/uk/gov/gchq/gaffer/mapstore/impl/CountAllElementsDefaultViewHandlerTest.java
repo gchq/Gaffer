@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -34,15 +34,16 @@ public class CountAllElementsDefaultViewHandlerTest {
     @Test
     public void testCountAllElementsDefaultViewHandler() throws StoreException, OperationException {
         // Given
-        final Graph graph = GetAllElementsHandlerTest.getStore();
+        final Store store = GetAllElementsHandlerTest.getStore();
         final AddElements addElements = new AddElements.Builder()
                 .input(GetAllElementsHandlerTest.getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
         final CountAllElementsDefaultView countAllElementsDefaultView = new CountAllElementsDefaultView();
-        final Long result = graph.execute(countAllElementsDefaultView, new User());
+        final Long result = store.execute(countAllElementsDefaultView,
+                new User());
 
         // Then
         assertEquals((long) GetAllElementsHandlerTest.getElements().size(), (long) result);

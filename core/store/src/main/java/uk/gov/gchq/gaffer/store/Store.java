@@ -352,6 +352,11 @@ public abstract class Store {
         return executeJob(new Request(operation, context)).getResult();
     }
 
+    public JobDetail executeJob(final Operation operation,
+                                final User user) throws OperationException {
+        return executeJob(new Request(operation, new Context(user))).getResult();
+    }
+
     /**
      * Executes a given operation job and returns the job detail.
      *

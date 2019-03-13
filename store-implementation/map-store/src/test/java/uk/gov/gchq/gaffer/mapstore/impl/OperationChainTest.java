@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -33,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -48,20 +48,18 @@ public class OperationChainTest {
     @Test
     public void testOperationChain() throws StoreException, OperationException {
         // Given
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
+        final Store store = Store.createStore(new GraphConfig.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
                 .storeProperties(new MapStoreProperties())
-                .build();
+                .build());
         final AddElements addElements = new AddElements.Builder()
                 .input(getElements())
                 .build();
-        graph.execute(addElements, new User());
+        store.execute(addElements, new User());
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(new OperationChain.Builder()
+        final CloseableIterable<? extends Element> results = store.execute(new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .input(new EntitySeed("vertex1"))
                         .build())

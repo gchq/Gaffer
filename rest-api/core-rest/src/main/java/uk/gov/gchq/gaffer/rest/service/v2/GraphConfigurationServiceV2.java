@@ -25,8 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -35,7 +36,6 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +47,8 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v2.IGraphConfigurationServiceV2}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the
+ * {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * <p>
  * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link java.util.function.Predicate}s,
  * {@link java.util.function.Function}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
@@ -55,7 +56,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  */
 public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2 {
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -71,7 +72,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getSchema() {
-        return Response.ok(graphFactory.getGraph().getSchema())
+        return Response.ok(((GraphConfig)storeFactory.getStore().getConfig()).getSchema())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -156,7 +157,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getDescription() {
-        return Response.ok(graphFactory.getGraph().getDescription())
+        return Response.ok(storeFactory.getStore().getConfig().getDescription())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
@@ -170,7 +171,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @Override
     public Response getStoreTraits() {
-        return Response.ok(graphFactory.getGraph().getStoreTraits())
+        return Response.ok(storeFactory.getStore().getTraits())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }

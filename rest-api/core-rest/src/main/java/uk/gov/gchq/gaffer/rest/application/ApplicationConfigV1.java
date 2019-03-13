@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.rest.application;
 import io.swagger.jaxrs.config.BeanConfig;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.service.v1.GraphConfigurationService;
+import uk.gov.gchq.gaffer.rest.service.v1.StoreConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.v1.JobService;
 import uk.gov.gchq.gaffer.rest.service.v1.OperationService;
 import uk.gov.gchq.gaffer.rest.service.v1.StatusService;
@@ -60,7 +60,7 @@ public class ApplicationConfigV1 extends ApplicationConfig {
         resources.add(StatusService.class);
         resources.add(JobService.class);
         resources.add(OperationService.class);
-        resources.add(GraphConfigurationService.class);
+        resources.add(StoreConfigurationService.class);
         resources.add(ExamplesService.class);
     }
 

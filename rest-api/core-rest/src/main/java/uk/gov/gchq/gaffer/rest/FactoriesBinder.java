@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.rest;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
 import javax.inject.Singleton;
@@ -31,19 +31,20 @@ import javax.inject.Singleton;
 public class FactoriesBinder extends AbstractBinder {
     @Override
     protected void configure() {
-        bind(getDefaultGraphFactory()).to(GraphFactory.class).in(Singleton.class);
+        bind(getDefaultStoreFactory()).to(StoreFactory.class).in(Singleton.class);
         bind(getDefaultUserFactory()).to(UserFactory.class).in(Singleton.class);
     }
 
-    private Class<? extends GraphFactory> getDefaultGraphFactory() {
-        final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
-                SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
+    private Class<? extends StoreFactory> getDefaultStoreFactory() {
+        final String storeFactoryClass =
+                System.getProperty(SystemProperty.STORE_FACTORY_CLASS,
+                SystemProperty.Store_FACTORY_CLASS_DEFAULT);
 
         try {
-            return Class.forName(graphFactoryClass)
-                    .asSubclass(GraphFactory.class);
+            return Class.forName(storeFactoryClass)
+                    .asSubclass(StoreFactory.class);
         } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
+            throw new IllegalArgumentException("Unable to create graph factory from class: " + storeFactoryClass, e);
         }
     }
 

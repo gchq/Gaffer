@@ -26,13 +26,13 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
-public class GraphFactoryTest {
+public class StoreFactoryTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -56,36 +56,37 @@ public class GraphFactoryTest {
     }
 
     @Test
-    public void shouldCreateDefaultGraphFactoryWhenNoSystemProperty() {
+    public void shouldCreateDefaultStoreFactoryWhenNoSystemProperty() {
         // Given
-        System.clearProperty(SystemProperty.GRAPH_FACTORY_CLASS);
+        System.clearProperty(SystemProperty.STORE_FACTORY_CLASS);
 
         // When
-        final GraphFactory graphFactory = GraphFactory.createGraphFactory();
+        final StoreFactory storeFactory = StoreFactory.createStoreFactory();
 
         // Then
-        assertEquals(DefaultGraphFactory.class, graphFactory.getClass());
+        assertEquals(DefaultStoreFactory.class, storeFactory.getClass());
     }
 
     @Test
     public void shouldCreateGraphFactoryFromSystemPropertyClassName() {
         // Given
-        System.setProperty(SystemProperty.GRAPH_FACTORY_CLASS, GraphFactoryForTest.class.getName());
+        System.setProperty(SystemProperty.STORE_FACTORY_CLASS,
+                StoreFactoryForTest.class.getName());
 
         // When
-        final GraphFactory graphFactory = GraphFactory.createGraphFactory();
+        final StoreFactory storeFactory = StoreFactory.createStoreFactory();
 
         // Then
-        assertEquals(GraphFactoryForTest.class, graphFactory.getClass());
+        assertEquals(StoreFactoryForTest.class, storeFactory.getClass());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionFromInvalidSystemPropertyClassName() {
         // Given
-        System.setProperty(SystemProperty.GRAPH_FACTORY_CLASS, "InvalidClassName");
+        System.setProperty(SystemProperty.STORE_FACTORY_CLASS, "InvalidClassName");
 
         // When
-        final GraphFactory graphFactory = GraphFactory.createGraphFactory();
+        final StoreFactory storeFactory = StoreFactory.createStoreFactory();
 
         // Then
         fail();
@@ -101,11 +102,11 @@ public class GraphFactoryTest {
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
-        final GraphFactory factory = new DefaultGraphFactory();
+        final StoreFactory factory = new DefaultStoreFactory();
 
         // When / Then
         try {
-            factory.createGraph();
+            factory.createStore();
         } catch (final IllegalArgumentException e) {
             assertEquals("graphId is required", e.getMessage());
         }
@@ -126,10 +127,10 @@ public class GraphFactoryTest {
         FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphConfigWithHooks.json")));
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
-        final GraphFactory factory = new DefaultGraphFactory();
+        final StoreFactory factory = new DefaultStoreFactory();
 
         // When
-        final Graph graph = factory.createGraph();
+        final Store store = factory.createStore();
 
         // Then
         assertEquals(Arrays.asList(
@@ -138,17 +139,17 @@ public class GraphFactoryTest {
                 OperationChainLimiter.class,
                 AddOperationsToChain.class,
                 OperationAuthoriser.class
-        ), graph.getGraphHooks());
+        ), store.getConfig().getHooks());
 
     }
 
     @Test
     public void shouldDefaultToSingletonGraph() {
         // Given
-        final DefaultGraphFactory factory = new DefaultGraphFactory();
+        final DefaultStoreFactory factory = new DefaultStoreFactory();
 
         // When
-        final boolean isSingleton = factory.isSingletonGraph();
+        final boolean isSingleton = factory.isSingletonStore();
 
         // Then
         assertTrue(isSingleton);

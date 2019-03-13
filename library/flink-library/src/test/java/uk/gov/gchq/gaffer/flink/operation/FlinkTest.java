@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
@@ -111,12 +110,6 @@ public abstract class FlinkTest {
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
     public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
 
-    public static Graph createGraph() {
-        return new Graph.Builder()
-                .store(createStore())
-                .build();
-    }
-
     public static Store createStore() {
         Store store = Store.createStore("graphId",
                 MapStoreProperties.loadStoreProperties("store.properties"));
@@ -124,10 +117,11 @@ public abstract class FlinkTest {
         return store;
     }
 
-    public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
+    public static void verifyElements(final Store store) throws OperationException, InterruptedException {
         // Wait for the elements to be ingested.
         Thread.sleep(2000);
-        final Iterable<? extends Element> allElements = graph.execute(new GetAllElements(), new User());
+        final Iterable<? extends Element> allElements =
+                store.execute(new GetAllElements(), new User());
         ElementUtil.assertElementEquals(EXPECTED_ELEMENTS, allElements);
     }
 }

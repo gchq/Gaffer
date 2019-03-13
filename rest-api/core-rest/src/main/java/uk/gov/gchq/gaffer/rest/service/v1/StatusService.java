@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v1;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ import javax.inject.Inject;
 /**
  * An implementation of {@link IStatusService}.
  * By default it will use a singleton {@link uk.gov.gchq.gaffer.graph.Graph} generated
- * using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * using the {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing
  * preOperationHook and/or postOperationHook.
@@ -40,7 +40,7 @@ import javax.inject.Inject;
 public class StatusService implements IStatusService {
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -48,7 +48,7 @@ public class StatusService implements IStatusService {
     @Override
     public SystemStatus status() {
         try {
-            if (null != graphFactory.getGraph()) {
+            if (null != storeFactory.getStore()) {
                 return SystemStatus.UP;
             }
         } catch (final Exception e) {

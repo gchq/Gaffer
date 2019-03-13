@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -44,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -110,12 +110,12 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final CloseableIterable<? extends Element> results = store.execute(
                 new GetAllElements.Builder().build(), user);
 
         // Then
@@ -126,16 +126,16 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     public void getAllElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = createStore();
-        final Graph graph2 = createStore();
+        final Store store1 = createStore();
+        final Store store2 = createStore();
         final List<Element> elements = new ArrayList<>();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final View view = getView();
-        final CloseableIterable<? extends Element> results1 = graph1
+        final CloseableIterable<? extends Element> results1 = store1
                 .execute(new GetAllElements.Builder().view(view).build(), user);
-        final CloseableIterable<? extends Element> results2 = graph2
+        final CloseableIterable<? extends Element> results2 = store2
                 .execute(new GetAllElements.Builder().view(view).build(), user);
 
         // Then
@@ -146,13 +146,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsWithViewTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final View view = getView();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetAllElements.Builder().view(view).build(), user);
 
         // Then
@@ -162,12 +162,12 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsWithDirectedTypeTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetAllElements.Builder().directedType(DirectedType.DIRECTED).build(), user);
 
         // Then
@@ -177,13 +177,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsAfterTwoAddElementsTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), user);
+        final CloseableIterable<? extends Element> results = store.execute(new GetAllElements.Builder().build(), user);
 
         // Then
         ElementUtil.assertElementEquals(getResultsForGetAllElementsAfterTwoAdds(), results);
@@ -192,15 +192,15 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsAfterElementsAddedSeparatelyByGroup() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
         final List<Entity> entities = elements.stream().filter(e -> e instanceof Entity).map(e -> (Entity) e).collect(Collectors.toList());
         final List<Edge> edges = elements.stream().filter(e -> e instanceof Edge).map(e -> (Edge) e).collect(Collectors.toList());
-        graph.execute(new AddElements.Builder().input(entities).build(), user);
-        graph.execute(new AddElements.Builder().input(edges).build(), user);
+        store.execute(new AddElements.Builder().input(entities).build(), user);
+        store.execute(new AddElements.Builder().input(edges).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), user);
+        final CloseableIterable<? extends Element> results = store.execute(new GetAllElements.Builder().build(), user);
 
         // Then
         ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), results);
@@ -209,14 +209,15 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsOnGraphRecreatedFromExistingGraph() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final ParquetStoreProperties storeProperties = (ParquetStoreProperties) graph.getStoreProperties();
-        final Graph graph2 = createStore(storeProperties);
-        final CloseableIterable<? extends Element> results = graph2.execute(
+        final ParquetStoreProperties storeProperties =
+                (ParquetStoreProperties) store.getConfig().getProperties();
+        final Store store2 = createStore(storeProperties);
+        final CloseableIterable<? extends Element> results = store2.execute(
                 new GetAllElements.Builder().build(), user);
 
         // Then
@@ -227,15 +228,15 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     public void getElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
-        final Graph graph1 = createStore();
-        final Graph graph2 = createStore();
+        final Store store1 = createStore();
+        final Store store2 = createStore();
         final List<Element> elements = new ArrayList<>();
-        graph1.execute(new AddElements.Builder().input(elements).build(), user);
+        store1.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results1 = graph1
+        final CloseableIterable<? extends Element> results1 = store1
                 .execute(new GetElements.Builder().input(getSeeds()).build(), user);
-        final CloseableIterable<? extends Element> results2 = graph2
+        final CloseableIterable<? extends Element> results2 = store2
                 .execute(new GetElements.Builder().input(getSeeds()).build(), user);
 
         // Then
@@ -246,10 +247,10 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsEmptySeedsTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
 
         // When
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), user);
 
         // Then
@@ -259,13 +260,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsRelatedTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
@@ -278,13 +279,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsEqualTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.EQUAL)
@@ -297,13 +298,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithMissingSeedsTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeedsThatWontAppear();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder().input(seeds).seedMatching(SeedMatching.SeedMatchingType.EQUAL).build(), user);
 
         // Then
@@ -313,14 +314,14 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsAndViewTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
         final View view = getView();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder().input(seeds).view(view).build(), user);
 
         // Then
@@ -330,9 +331,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithPostAggregationFilterTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
@@ -346,7 +347,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // When / Then
         try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
+            store.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation"));
@@ -358,9 +359,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithPostTransformFilterTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
         final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
@@ -374,7 +375,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // When / Then
         try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
+            store.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation"));
@@ -386,13 +387,13 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithInOutTypeTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final List<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        store.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When 1
         final List<ElementSeed> seeds = getSeeds().stream().filter(e -> e instanceof EntitySeed).collect(Collectors.toList());
-        CloseableIterable<? extends Element> results = graph
+        CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
@@ -402,7 +403,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
         ElementUtil.assertElementEquals(getResultsForGetElementsWithInOutTypeOutgoingTest(), results);
 
         // When 2
-        results = graph.execute(new GetElements.Builder()
+        results = store.execute(new GetElements.Builder()
                 .input(seeds)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .build(), user);
@@ -414,12 +415,12 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Test
     public void deduplicateEdgeWhenSrcAndDstAreEqualTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final Edge edge = getEdgeWithIdenticalSrcAndDst();
-        graph.execute(new AddElements.Builder().input(edge).build(), user);
+        store.execute(new AddElements.Builder().input(edge).build(), user);
 
         // When1
-        CloseableIterable<? extends Element> results = graph.execute(
+        CloseableIterable<? extends Element> results = store.execute(
                 new GetAllElements.Builder().build(), user);
 
         // Then1
@@ -430,7 +431,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
         results.close();
 
         // When2
-        results = graph.execute(new GetElements.Builder().input(new EntitySeed(edge.getSource())).build(), user);
+        results = store.execute(new GetElements.Builder().input(new EntitySeed(edge.getSource())).build(), user);
 
         // Then2
         resultsIterator = results.iterator();

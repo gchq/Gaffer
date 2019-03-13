@@ -17,42 +17,35 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Default implementation of the {@link GraphFactory} interface, used by HK2 to
+ * Default implementation of the {@link StoreFactory} interface, used by HK2 to
  * instantiate default {@link Graph} instances.
  */
-public class DefaultGraphFactory implements GraphFactory {
-    private static Graph graph;
+public class DefaultStoreFactory implements StoreFactory {
+    private static Store store;
 
     /**
      * Set to true by default - so the same instance of {@link Graph} will be
      * returned.
      */
-    private boolean singletonGraph = true;
+    private boolean singletonStore = true;
 
-    public DefaultGraphFactory() {
-        // Graph factories should be constructed via the createGraphFactory static method,
+    public DefaultStoreFactory() {
+        // Store factories should be constructed via the createStoreFactory
+        // static method,
         // public constructor is required only by HK2
-    }
-
-    public static GraphFactory createGraphFactory() {
-        final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
-                SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
-
-        try {
-            return Class.forName(graphFactoryClass)
-                    .asSubclass(GraphFactory.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
-        }
     }
 
     protected static Path[] getSchemaPaths() {
@@ -71,31 +64,30 @@ public class DefaultGraphFactory implements GraphFactory {
     }
 
     @Override
-    public Graph getGraph() {
-        if (singletonGraph) {
-            if (null == graph) {
-                setGraph(createGraph());
+    public Store getStore() {
+        if (singletonStore) {
+            if (null == store) {
+                setStore(createStore());
             }
-            return graph;
+            return store;
         }
-
-        return createGraph();
+        return createStore();
     }
 
-    public static void setGraph(final Graph graph) {
-        DefaultGraphFactory.graph = graph;
+    public static void setStore(final Store store) {
+        DefaultStoreFactory.store = store;
     }
 
-    public boolean isSingletonGraph() {
-        return singletonGraph;
+    public boolean isSingletonStore() {
+        return singletonStore;
     }
 
-    public void setSingletonGraph(final boolean singletonGraph) {
-        this.singletonGraph = singletonGraph;
+    public void setSingletonStore(final boolean singletonStore) {
+        this.singletonStore = singletonStore;
     }
 
     @Override
-    public Graph.Builder createGraphBuilder() {
+    public Store createStore() {
         final String storePropertiesPath = System.getProperty(SystemProperty.STORE_PROPERTIES_PATH);
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
@@ -105,12 +97,19 @@ public class DefaultGraphFactory implements GraphFactory {
         // Disable any operations required
         storeProperties.addOperationDeclarationPaths("disableOperations.json");
 
-        final Graph.Builder builder = new Graph.Builder();
+        final GraphConfig.Builder builder = new GraphConfig.Builder();
+
         builder.storeProperties(storeProperties);
 
         final String graphConfigPath = System.getProperty(SystemProperty.GRAPH_CONFIG_PATH);
         if (null != graphConfigPath) {
-            builder.config(Paths.get(graphConfigPath));
+            Paths.get(graphConfigPath);
+            try {
+                builder.merge(JSONSerialiser.deserialise(null != Paths.get(graphConfigPath) ?
+                        Files.readAllBytes(Paths.get(graphConfigPath)) : null, GraphConfig.class));
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to read graph config from path: " + Paths.get(graphConfigPath), e);
+            }
         }
 
         for (final Path path : getSchemaPaths()) {
@@ -139,6 +138,6 @@ public class DefaultGraphFactory implements GraphFactory {
             builder.addHooks(Paths.get(graphHooksPath));
         }
 
-        return builder;
+        return Store.createStore(builder.build());
     }
 }

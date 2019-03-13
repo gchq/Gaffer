@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.operation.GetSchema;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
@@ -116,7 +115,7 @@ public class FederatedStore extends Store {
     }
 
     public void setGraphLibrary(final GraphLibrary library) {
-        ((GraphConfig)super.getConfig()).setLibrary(library);
+        ((GraphConfig) super.getConfig()).setLibrary(library);
         graphStorage.setGraphLibrary(library);
     }
 
@@ -126,9 +125,8 @@ public class FederatedStore extends Store {
      * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties},
      * this may contain details such as database connection details.
      */
-    @Override
     public FederatedStoreProperties getProperties() {
-        return (FederatedStoreProperties) super.getProperties();
+        return (FederatedStoreProperties) super.getConfig().getProperties();
     }
 
     /**
@@ -326,23 +324,24 @@ public class FederatedStore extends Store {
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
                         && !AddNamedView.class.equals(op))
-                .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
+                .forEach(op -> getConfig().addOperationHandler(op, new FederatedOperationHandler()));
 
-        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
+        getConfig().addOperationHandler(GetSchema.class,
+                new FederatedGetSchemaHandler());
 
-        addOperationHandler(Filter.class, new FederatedFilterHandler());
-        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
-        addOperationHandler(Transform.class, new FederatedTransformHandler());
+        getConfig().addOperationHandler(Filter.class, new FederatedFilterHandler());
+        getConfig().addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
+        getConfig().addOperationHandler(Transform.class, new FederatedTransformHandler());
 
-        addOperationHandler(Validate.class, new FederatedValidateHandler());
+        getConfig().addOperationHandler(Validate.class, new FederatedValidateHandler());
 
-        addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
-        addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
-        addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
-        addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+        getConfig().addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
+        getConfig().addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
+        getConfig().addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
+        getConfig().addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
-        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
-        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
+        getConfig().addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
+        getConfig().addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
     }
 
     @Override

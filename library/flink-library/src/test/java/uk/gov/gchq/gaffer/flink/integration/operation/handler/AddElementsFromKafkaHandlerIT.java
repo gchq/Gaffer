@@ -35,10 +35,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -101,7 +101,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
 
     protected <T> void shouldAddElements(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator) throws Exception {
         // Given
-        final Graph graph = createGraph();
+        final Store store = createStore();
         final boolean validate = true;
         final boolean skipInvalid = false;
         final String topic = UUID.randomUUID().toString();
@@ -120,7 +120,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         new Thread(() -> {
             try {
                 Thread.sleep(10000);
-                graph.execute(op, new User());
+                store.execute(op, new User());
             } catch (final OperationException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -142,10 +142,10 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         // Then
         Thread.sleep(20000);
         try {
-            verifyElements(graph);
+            verifyElements(store);
         } catch (final AssertionError e) {
             Thread.sleep(60000);
-            verifyElements(graph);
+            verifyElements(store);
         }
     }
 

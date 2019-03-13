@@ -124,7 +124,7 @@ public class HBaseStore extends Store {
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        setProperties(properties);
+        getConfig().setProperties(properties);
         final String deprecatedTableName = getProperties().getTableName();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
@@ -210,14 +210,8 @@ public class HBaseStore extends Store {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be HBaseProperties")
-    @Override
     public HBaseProperties getProperties() {
-        return (HBaseProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<HBaseProperties> getPropertiesClass() {
-        return HBaseProperties.class;
+        return (HBaseProperties) super.getConfig().getProperties();
     }
 
     @Override
@@ -247,9 +241,10 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
-        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
-        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
+        getConfig().addOperationHandler(SplitStoreFromIterable.class,
+                new SplitStoreFromIterableHandler());
+        getConfig().addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        getConfig().addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        getConfig().addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
     }
 }

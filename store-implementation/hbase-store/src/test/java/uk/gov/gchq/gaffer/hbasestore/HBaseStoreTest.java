@@ -25,7 +25,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
@@ -38,12 +39,12 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -144,13 +145,13 @@ public class HBaseStoreTest {
         properties.setTable("tableName");
 
         // When
-        final Graph graph = new Graph.Builder()
+        final Store store = Store.createStore(new GraphConfig.Builder()
                 .addSchemas(StreamUtil.schemas(getClass()))
                 .storeProperties(properties)
-                .build();
+                .build());
 
         // Then
-        assertEquals("tableName", graph.getGraphId());
+        assertEquals("tableName", store.getConfig().getId());
     }
 
     @Test

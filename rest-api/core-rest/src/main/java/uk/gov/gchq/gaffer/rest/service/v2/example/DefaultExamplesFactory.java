@@ -26,6 +26,11 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -49,16 +54,11 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleElementGenerator;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.koryphe.impl.predicate.IsLongerThan;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,11 +75,11 @@ import static java.lang.reflect.Modifier.isStatic;
 /**
  * Default implementation of the {@link uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory}
  * interface. Required to be registered with HK2 to allow the correct {@link
- * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
+ * uk.gov.gchq.gaffer.rest.factory.StoreFactory} object to be injected.
  */
 public class DefaultExamplesFactory implements ExamplesFactory {
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     private Map<Class<? extends Operation>, Operation> examplesMap;
 
@@ -173,7 +173,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     }
 
     private Schema getSchema() {
-        return graphFactory.getGraph().getSchema();
+        return ((GraphConfig) storeFactory.getStore().getConfig()).getSchema();
     }
 
     protected Entity getEntity(final int uniqueId) {

@@ -66,7 +66,7 @@ public class MiniHBaseStore extends HBaseStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        setProperties(properties);
+        getConfig().setProperties(properties);
 
         if (null == utility) {
             try {
@@ -131,7 +131,7 @@ public class MiniHBaseStore extends HBaseStore {
     }
 
     OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
-        return super.getOperationHandler(opClass);
+        return super.getConfig().getOperationHandler(opClass);
     }
 
     private Configuration setupConf() throws IOException {

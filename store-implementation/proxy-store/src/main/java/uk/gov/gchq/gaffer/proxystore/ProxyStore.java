@@ -86,7 +86,7 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
-        setProperties(properties);
+        getConfig().setProperties(properties);
         client = createClient();
         schema = fetchSchema();
 
@@ -264,21 +264,15 @@ public class ProxyStore extends Store {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
-    @Override
     public ProxyProperties getProperties() {
-        return (ProxyProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<ProxyProperties> getPropertiesClass() {
-        return ProxyProperties.class;
+        return (ProxyProperties) super.getConfig().getProperties();
     }
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(OperationChain.class,
+        getConfig().addOperationHandler(OperationChain.class,
                 new OperationChainHandler());
-        addOperationHandler(OperationChainDAO.class,
+        getConfig().addOperationHandler(OperationChainDAO.class,
                 new OperationChainHandler());
     }
 

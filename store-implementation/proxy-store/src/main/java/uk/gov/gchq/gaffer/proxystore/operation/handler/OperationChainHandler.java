@@ -100,7 +100,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
             for (int i = placeMarker; i < operations.size(); i++, placeMarker++) {
                 Operation operation = operations.get(i);
                 Class<? extends Operation> opClass = operation.getClass();
-                if (isNull(store.getOperationHandler(opClass))) {
+                if (isNull(store.getConfig().getOperationHandler(opClass))) {
                     processAlternatingLists(listOfOpChain, unhandledOperations, handledOperations, operation, false);
                 } else {
                     processAlternatingLists(listOfOpChain, handledOperations, unhandledOperations, operation, true);

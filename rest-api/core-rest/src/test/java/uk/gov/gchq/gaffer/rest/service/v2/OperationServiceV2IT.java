@@ -24,7 +24,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -37,12 +38,11 @@ import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -68,12 +68,13 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturn403WhenUnauthorised() throws IOException {
         // Given
-        Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(StreamUtil.STORE_PROPERTIES)
-                .addSchema(new Schema())
-                .build();
-        client.reinitialiseGraph(graph);
+        final Store store =
+                Store.createStore(new GraphConfig.Builder()
+                        .merge(StreamUtil.graphConfig(this.getClass()))
+                        .storeProperties(StreamUtil.STORE_PROPERTIES)
+                        .addSchema(new Schema())
+                        .build());
+        client.reinitialiseStore(store);
 
         // When
         final Response response = client.executeOperation(new GetAllElements());
@@ -85,13 +86,14 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
         // Given
-        Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(StreamUtil.STORE_PROPERTIES)
-                .addSchema(new Schema())
-                .build();
+        final Store store =
+                Store.createStore(new GraphConfig.Builder()
+                        .merge(StreamUtil.graphConfig(this.getClass()))
+                        .storeProperties(StreamUtil.STORE_PROPERTIES)
+                        .addSchema(new Schema())
+                        .build());
 
-        client.reinitialiseGraph(graph);
+        client.reinitialiseStore(store);
 
         // When
         final Response response = client.executeOperation(new GetAllJobDetails());
@@ -103,7 +105,8 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
-        final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph().getSupportedOperations();
+        final Set<Class<? extends Operation>> expectedOperations =
+                client.getDefaultStoreFactory().getStore().getSupportedOperations();
 
         // When
         final Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
@@ -182,12 +185,13 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.stopServer();
         client.startServer();
 
-        Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(StreamUtil.STORE_PROPERTIES)
-                .addSchema(new Schema())
-                .build();
-        client.reinitialiseGraph(graph);
+        final Store store =
+                Store.createStore(new GraphConfig.Builder()
+                        .merge(StreamUtil.graphConfig(this.getClass()))
+                        .storeProperties(StreamUtil.STORE_PROPERTIES)
+                        .addSchema(new Schema())
+                        .build());
+        client.reinitialiseStore(store);
 
         final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
         Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
@@ -201,12 +205,13 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.stopServer();
         client.startServer();
 
-        Graph graph = new Graph.Builder()
-                .config(StreamUtil.graphConfig(this.getClass()))
-                .storeProperties(StreamUtil.STORE_PROPERTIES)
-                .addSchema(new Schema())
-                .build();
-        client.reinitialiseGraph(graph);
+        final Store store =
+                Store.createStore(new GraphConfig.Builder()
+                        .merge(StreamUtil.graphConfig(this.getClass()))
+                        .storeProperties(StreamUtil.STORE_PROPERTIES)
+                        .addSchema(new Schema())
+                        .build());
+        client.reinitialiseStore(store);
 
         final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
 

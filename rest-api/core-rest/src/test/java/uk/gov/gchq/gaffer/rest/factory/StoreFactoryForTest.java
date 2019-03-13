@@ -16,5 +16,5 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
-public class GraphFactoryForTest extends DefaultGraphFactory {
+public class StoreFactoryForTest extends DefaultStoreFactory {
 }

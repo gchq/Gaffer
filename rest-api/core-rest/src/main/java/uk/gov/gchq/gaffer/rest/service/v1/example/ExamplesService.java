@@ -27,6 +27,11 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -43,15 +48,10 @@ import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleElementGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -66,7 +66,7 @@ public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -235,7 +235,7 @@ public class ExamplesService implements IExamplesService {
     }
 
     private Schema getSchema() {
-        return graphFactory.getGraph().getSchema();
+        return ((GraphConfig) storeFactory.getStore().getConfig()).getSchema();
     }
 
     private void populateOperation(final Output operation) {

@@ -36,19 +36,19 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
 
 import javax.inject.Inject;
-
 import java.io.IOException;
 
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
  * An implementation of {@link IOperationService}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the
+ * {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
@@ -58,7 +58,7 @@ public class OperationService implements IOperationService {
     public final ObjectMapper mapper = createDefaultMapper();
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -154,7 +154,7 @@ public class OperationService implements IOperationService {
 
         O result;
         try {
-            result = graphFactory.getGraph().execute(opChain, context);
+            result = storeFactory.getStore().execute(opChain, context);
         } catch (final OperationException e) {
             CloseableUtil.close(opChain);
             throw new RuntimeException("Error executing operation chain: " + e.getMessage(), e);

@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -30,8 +29,8 @@ import org.reflections.Reflections;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.DefaultStoreFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.DefaultExamplesFactory;
 
 import java.io.File;
@@ -49,7 +48,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ExampleGeneratorTest {
 
     private final DefaultExamplesFactory generator = new DefaultExamplesFactory();
-    private final GraphFactory graphFactory = new DefaultGraphFactory();
+    private final StoreFactory storeFactory = new DefaultStoreFactory();
     private final Class<? extends Operation> opClass;
 
     @Rule
@@ -86,11 +85,11 @@ public class ExampleGeneratorTest {
         final Field field = generator.getClass().getDeclaredField("graphFactory");
 
         field.setAccessible(true);
-        field.set(generator, graphFactory);
+        field.set(generator, storeFactory);
     }
 
     @Test
-    public void shouldBuildOperation() throws InstantiationException, IllegalAccessException, JsonProcessingException {
+    public void shouldBuildOperation() throws InstantiationException, IllegalAccessException {
         // Given
         final Operation operation = generator.generateExample(opClass);
 

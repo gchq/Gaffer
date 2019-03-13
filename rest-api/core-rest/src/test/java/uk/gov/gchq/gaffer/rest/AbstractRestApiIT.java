@@ -72,7 +72,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     @Before
     public void before() throws IOException {
         client.startServer();
-        client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        client.reinitialiseStore(testFolder, schemaResourcePath, storePropertiesResourcePath);
     }
 
     @After

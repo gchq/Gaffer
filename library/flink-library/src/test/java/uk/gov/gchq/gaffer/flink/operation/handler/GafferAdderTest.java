@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
@@ -44,7 +45,7 @@ public class GafferAdderTest {
         // Given
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
         given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
@@ -64,7 +65,7 @@ public class GafferAdderTest {
         ArgumentCaptor<AddElements> opCaptor = ArgumentCaptor.forClass(AddElements.class);
         verify(store).execute(
                 opCaptor.capture(),
-                Mockito.any()
+                Mockito.any(Context.class)
         );
 
         final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
@@ -73,7 +74,7 @@ public class GafferAdderTest {
                 .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .build()), Mockito.any(Context.class));
     }
 
     @Test
@@ -81,7 +82,7 @@ public class GafferAdderTest {
         // Given
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
         given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
@@ -104,7 +105,7 @@ public class GafferAdderTest {
                 .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .build()), Mockito.any(Context.class));
         Mockito.reset(store);
 
         // When
@@ -120,7 +121,7 @@ public class GafferAdderTest {
                 .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .build()), Mockito.any(Context.class));
     }
 
     @Test
@@ -129,7 +130,7 @@ public class GafferAdderTest {
         final int duplicates = 4;
         final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getConfig().getProperties()).willReturn(new StoreProperties());
         given(((GraphConfig) store.getConfig()).getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
@@ -155,6 +156,6 @@ public class GafferAdderTest {
                 .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
-                .build()), Mockito.any());
+                .build()), Mockito.any(Context.class));
     }
 }

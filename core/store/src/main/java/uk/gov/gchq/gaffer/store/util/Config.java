@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -383,6 +384,39 @@ public class Config {
                 config.getHooks().forEach(hook -> this.config.addHook(hook));
                 this.config.getProperties().merge(config.getProperties());
                 this.config.getOperationHandlers().putAll(config.getOperationHandlers());
+            }
+            return _self();
+        }
+
+        public B merge(final String uri) {
+            if (null != uri) {
+                merge(Paths.get(uri));
+            }
+            return _self();
+        }
+
+        public B merge(final Path path) {
+            if (null != path) {
+                try {
+                    merge(JSONSerialiser.deserialise(null != path ?
+                                    Files.readAllBytes(path) : null,
+                            config.getClass()));
+                } catch (final IOException e) {
+                    throw new IllegalArgumentException("Unable to read graph " +
+                            "config from path: " + path, e);
+                }
+            }
+            return _self();
+        }
+
+        public B merge(final InputStream stream) {
+            try {
+                merge(JSONSerialiser.deserialise(null != stream ?
+                                IOUtils.toByteArray(stream) : null,
+                        config.getClass()));
+            } catch (
+                    final IOException e) {
+                throw new IllegalArgumentException("Unable to read graph config from input stream", e);
             }
             return _self();
         }

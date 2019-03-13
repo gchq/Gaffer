@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v2.IStatusServiceV2}.
  * By default it will use a singleton {@link uk.gov.gchq.gaffer.graph.Graph} generated
- * using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * using the {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing
  * preOperationHook and/or postOperationHook.
@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 public class StatusServiceV2 implements IStatusServiceV2 {
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -52,7 +52,7 @@ public class StatusServiceV2 implements IStatusServiceV2 {
     @Override
     public Response status() {
         try {
-            if (null != graphFactory.getGraph()) {
+            if (null != storeFactory.getStore()) {
                 return Response.ok(SystemStatus.UP)
                                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                                .build();

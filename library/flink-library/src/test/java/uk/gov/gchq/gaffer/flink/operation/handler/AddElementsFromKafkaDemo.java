@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -48,15 +48,13 @@ public class AddElementsFromKafkaDemo {
     }
 
     private void run() throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
+        final Store store = Store.createStore(new GraphConfig.Builder()
+                .graphId("graph1")
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .build();
+                .build());
 
-        graph.execute(new AddElementsFromKafka.Builder()
+        store.execute(new AddElementsFromKafka.Builder()
                 .parallelism(1)
                 .topic("test")
                 .groupId("group1")

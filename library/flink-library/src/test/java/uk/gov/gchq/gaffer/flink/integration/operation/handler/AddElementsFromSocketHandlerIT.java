@@ -20,9 +20,9 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
     public void shouldAddElements() throws Exception {
         // Given
         MapStore.resetStaticMap();
-        final Graph graph = createGraph();
+        final Store store = createStore();
         final boolean validate = true;
         final boolean skipInvalid = false;
         final String hostname = "localhost";
@@ -63,9 +63,9 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
                 .build();
 
         // When
-        graph.execute(op, new User());
+        store.execute(op, new User());
 
         // Then
-        verifyElements(graph);
+        verifyElements(store);
     }
 }

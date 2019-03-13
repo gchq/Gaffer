@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -35,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -77,7 +77,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
         }
     }
 
-    protected Graph createGraph(final int numOutputFiles) throws IOException {
+    protected Store createStore(final int numOutputFiles) throws IOException {
         final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
         storeProperties.setAddElementsOutputFilesPerGroup(numOutputFiles);
         return createStore(storeProperties);
@@ -86,12 +86,12 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     @Test
     public void getAllElementsAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
+        store.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(
+        final CloseableIterable<? extends Element> results = store.execute(
                 new GetAllElements.Builder().build(), user);
 
         // Then
@@ -101,13 +101,13 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     @Test
     public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTest() throws OperationException {
         // Given
-        final Graph graph = createStore();
+        final Store store = createStore();
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
+        store.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
@@ -121,13 +121,13 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTestWhenMoreFilesThanElements() throws IOException, OperationException {
         // Given
         final int numFiles = 2 * getNumberOfItemsInInputDataForGetAllElementsTest();
-        final Graph graph = createGraph(numFiles);
+        final Store store = createStore(numFiles);
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
-        graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
+        store.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 
         // When
         final List<ElementSeed> seeds = getSeeds();
-        final CloseableIterable<? extends Element> results = graph
+        final CloseableIterable<? extends Element> results = store
                 .execute(new GetElements.Builder()
                         .input(seeds)
                         .seedMatching(SeedMatching.SeedMatchingType.RELATED)
@@ -139,15 +139,15 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 
 //    @Test
 //    public void getDataFrameOfElementsTest() throws IOException, OperationException, StoreException {
-//        final Graph graph = genData(false);
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
+//        final Store store = genData(false);
+//        final Dataset<Row> data = store.execute(new GetDataFrameOfElements.Builder()
 //                .build(), user);
 //        checkGetDataFrameOfElements(data, false);
 //    }
 //
 //    @Test
 //    public void getDataFrameOfElementsWithViewTest() throws IOException, OperationException, StoreException {
-//        final Graph graph = genData(false);
+//        final Store store = genData(false);
 //        final View view = new View.Builder()
 //                .entity(TestGroups.ENTITY,
 //                        new ViewElementDefinition.Builder().preAggregationFilter(
@@ -155,7 +155,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 //                        ).build())
 //                .build();
 //        try {
-//            graph.execute(new GetDataFrameOfElements.Builder()
+//            store.execute(new GetDataFrameOfElements.Builder()
 //                    .view(view).build(), user);
 //            fail();
 //        } catch (final OperationException e) {
@@ -167,8 +167,8 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 //
 //    @Test
 //    public void getDataFrameOfElementsWithVisibilitiesTest() throws OperationException, StoreException, IOException {
-//        final Graph graph = genData(true);
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
+//        final Store store = genData(true);
+//        final Dataset<Row> data = store.execute(new GetDataFrameOfElements.Builder()
 //                .build(), user);
 //        checkGetDataFrameOfElements(data, true);
 //    }
@@ -178,7 +178,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 //        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
 //        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
 //        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
-//        final Graph graph = new Graph.Builder()
+//        final Store store = new Graph.Builder()
 //                .config(new GraphConfig.Builder()
 //                        .graphId("emptyStore2")
 //                        .build())
@@ -186,7 +186,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 //                .storeProperties(parquetStoreProperties)
 //                .build();
 //
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), user);
+//        final Dataset<Row> data = store.execute(new GetDataFrameOfElements.Builder().build(), user);
 //
 //        assertEquals(0, data.count());
 //    }

@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -49,9 +49,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
-import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -66,7 +68,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyStoreBasicIT {
-    private Graph graph;
+    private Store store;
 
     private static final RestApiTestClient client = new RestApiV2TestClient();
 
@@ -118,17 +120,14 @@ public class ProxyStoreBasicIT {
 
     @Before
     public void before() throws IOException {
-        client.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
+        client.reinitialiseStore(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
-        graph = new Graph.Builder()
-                .store(new ProxyStore.Builder()
-                        .graphId("graph1")
-                        .host("localhost")
-                        .port(8080)
-                        .contextRoot("rest")
-                        .build())
-                .build();
+        StoreProperties properties = new ProxyProperties();
+        ((ProxyProperties) properties).setGafferHost("localhost");
+        ((ProxyProperties) properties).setGafferPort(8080);
+        ((ProxyProperties) properties).setGafferContextRoot("rest");
+        store = Store.createStore(new GraphConfig.Builder().graphId("graph1").storeProperties(properties).build());
     }
 
     @Test
@@ -138,7 +137,8 @@ public class ProxyStoreBasicIT {
 
 
         // When - Get
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
+        final CloseableIterable<? extends Element> results =
+                store.execute(new GetAllElements(), USER);
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
@@ -157,7 +157,8 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = store.execute(getElements,
+                USER);
 
         // Then
         assertEquals(1, Iterables.size(results));
@@ -170,11 +171,11 @@ public class ProxyStoreBasicIT {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
                 .build();
-        JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
+        JobDetail jobDetail = store.executeJob(new OperationChain<>(add), USER);
 
         // Wait until the job status is not RUNNING
         while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {
-            jobDetail = graph.execute(new GetJobDetails.Builder()
+            jobDetail = store.execute(new GetJobDetails.Builder()
                     .jobId(jobDetail.getJobId())
                     .build(), USER);
             Thread.sleep(100);
@@ -188,7 +189,7 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = store.execute(getElements, USER);
 
         // Then
         assertEquals(2, Iterables.size(results));
@@ -203,7 +204,7 @@ public class ProxyStoreBasicIT {
 
         // When / Then
         try {
-            graph.execute(
+            store.execute(
                     new OperationChain.Builder()
                             .first(new GetAllElements())
                             .then(new Limit<>(1, false))
@@ -226,7 +227,7 @@ public class ProxyStoreBasicIT {
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When
-        final Set<StoreTrait> storeTraits = graph.getStoreTraits();
+        final Set<StoreTrait> storeTraits = store.getTraits();
 
         // Then
         assertEquals(expectedTraits, storeTraits);
@@ -236,15 +237,15 @@ public class ProxyStoreBasicIT {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
                 .build();
-        graph.execute(add, USER);
+        store.execute(add, USER);
     }
 
     @Test
     public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
-                .option("Anything","Value") //any value to create a optionsMap
+                .option("Anything", "Value") //any value to create a optionsMap
                 .build();
-        graph.execute(add, USER);
+        store.execute(add, USER);
     }
 }

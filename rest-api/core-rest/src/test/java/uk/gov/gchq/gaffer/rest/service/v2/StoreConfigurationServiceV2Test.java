@@ -27,20 +27,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -67,7 +66,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GraphConfigurationServiceV2Test {
+public class StoreConfigurationServiceV2Test {
 
     private static final String GRAPH_ID = "graphId";
 
@@ -75,7 +74,7 @@ public class GraphConfigurationServiceV2Test {
     private GraphConfigurationServiceV2 service;
 
     @Mock
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Mock
     private UserFactory userFactory;
@@ -86,27 +85,17 @@ public class GraphConfigurationServiceV2Test {
     @Before
     public void setup() {
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
-        given(store.getConfig()).willReturn(new GraphConfig.Builder().schema(new Schema()).build());
-        given(store.getProperties()).willReturn(new StoreProperties());
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .description("test graph")
-                .store(store)
-                .build();
-        final StoreProperties props = new StoreProperties();
-        given(store.getProperties()).willReturn(props);
+        given(store.getConfig()).willReturn(new GraphConfig.Builder().graphId(GRAPH_ID).description("testGraph").storeProperties(new StoreProperties()).schema(new Schema()).build());
 
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
-        given(graphFactory.getGraph()).willReturn(graph);
-        given(graph.getSupportedOperations()).willReturn(operations);
-        given(graph.isSupported(AddElements.class)).willReturn(true);
+        given(storeFactory.getStore()).willReturn(store);
+        given(store.getSupportedOperations()).willReturn(operations);
+        given(store.isSupported(AddElements.class)).willReturn(true);
 
         given(userFactory.createContext()).willReturn(new Context());
 
-        given(graph.getStoreTraits()).willReturn(traits);
+        given(store.getTraits()).willReturn(traits);
     }
 
     @Test

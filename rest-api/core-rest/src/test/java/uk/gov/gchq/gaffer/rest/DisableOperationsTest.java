@@ -23,10 +23,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.DefaultStoreFactory;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,14 +69,15 @@ public abstract class DisableOperationsTest {
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
-        final DefaultGraphFactory factory = new DefaultGraphFactory();
+        final DefaultStoreFactory factory = new DefaultStoreFactory();
 
         // When
-        final Graph graph = factory.createGraph();
+        final Store store = factory.createStore();
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertFalse(disabledOperation.getSimpleName() + " should not be supported", graph.isSupported(disabledOperation));
+            assertFalse(disabledOperation.getSimpleName() + " should not be " +
+                    "supported", store.isSupported(disabledOperation));
         }
     }
 
@@ -87,15 +89,16 @@ public abstract class DisableOperationsTest {
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
 
         // When
-        final Graph graph = new Graph.Builder()
-                .config(graphConfigPath.toURI())
+        final Store store = Store.createStore(new GraphConfig.Builder()
+                .merge(graphConfigPath.getPath())
                 .storeProperties(storePropsPath.toURI())
                 .addSchema(schemaPath.toURI())
-                .build();
+                .build());
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertTrue(disabledOperation.getSimpleName() + " should be supported", graph.isSupported(disabledOperation));
+            assertTrue(disabledOperation.getSimpleName() + " should be " +
+                    "supported", store.isSupported(disabledOperation));
         }
     }
 }

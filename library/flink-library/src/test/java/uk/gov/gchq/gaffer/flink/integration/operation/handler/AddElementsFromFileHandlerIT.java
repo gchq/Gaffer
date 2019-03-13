@@ -25,9 +25,9 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -48,7 +48,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
     @Test
     public void shouldAddElements() throws Exception {
         // Given
-        final Graph graph = createGraph();
+        final Store store = createStore();
         final boolean validate = true;
         final boolean skipInvalid = false;
 
@@ -61,9 +61,9 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
                 .build();
 
         // When
-        graph.execute(op, new User());
+        store.execute(op, new User());
 
         // Then
-        verifyElements(graph);
+        verifyElements(store);
     }
 }

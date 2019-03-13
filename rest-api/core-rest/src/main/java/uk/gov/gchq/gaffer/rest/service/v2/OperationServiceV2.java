@@ -34,9 +34,8 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
@@ -67,7 +66,8 @@ import static uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil.getSer
 
 /**
  * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the
+ * {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
@@ -76,7 +76,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -88,14 +88,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response getOperations() {
-        return Response.ok(graphFactory.getGraph().getSupportedOperations())
+        return Response.ok(storeFactory.getStore().getSupportedOperations())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
 
     @Override
     public Response getOperationDetails() {
-        Set<Class<? extends Operation>> supportedOperations = graphFactory.getGraph().getSupportedOperations();
+        Set<Class<? extends Operation>> supportedOperations =
+                storeFactory.getStore().getSupportedOperations();
         List<OperationDetail> supportedClassesAsOperationDetail = new ArrayList<>();
 
         for (final Class<? extends Operation> supportedOperation : supportedOperations) {
@@ -195,7 +196,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
-            if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
+            if (storeFactory.getStore().getSupportedOperations().contains(operationClass)) {
                 return Response.ok(new OperationDetail(operationClass))
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
@@ -274,22 +275,14 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         preOperationHook(opChain, context);
 
         Result<O> result;
+
+        result = storeFactory.getStore().execute(new Request<>(opChain, context));
+
         try {
-            result = graphFactory.getGraph().execute(new Request<>(opChain, context));
-        } catch (final OperationException e) {
+            postOperationHook(opChain, context);
+        } catch (final Exception e) {
             CloseableUtil.close(operation);
-            if (null != e.getMessage()) {
-                throw new RuntimeException("Error executing opChain: " + e.getMessage(), e);
-            } else {
-                throw new RuntimeException("Error executing opChain", e);
-            }
-        } finally {
-            try {
-                postOperationHook(opChain, context);
-            } catch (final Exception e) {
-                CloseableUtil.close(operation);
-                throw e;
-            }
+            throw e;
         }
 
         return new Pair<>(result.getResult(), result.getContext().getJobId());
@@ -321,7 +314,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
-        return graphFactory.getGraph().getNextOperations(opClass);
+        return storeFactory.getStore().getNextOperations(opClass);
     }
 
     private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {

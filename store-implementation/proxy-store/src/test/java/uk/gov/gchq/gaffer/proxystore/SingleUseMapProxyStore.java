@@ -65,7 +65,7 @@ public class SingleUseMapProxyStore extends ProxyStore {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), "map-store.properties"));
         try {
-            client.reinitialiseGraph(testFolder, schema, storeProperties);
+            client.reinitialiseStore(testFolder, schema, storeProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }

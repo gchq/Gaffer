@@ -25,18 +25,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import javax.inject.Inject;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,21 +44,22 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * An implementation of {@link IGraphConfigurationService}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * An implementation of {@link IStoreConfigurationService}. By default it will use a singleton
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the
+ * {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * <p>
  * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link java.util.function.Predicate}s,
  * {@link java.util.function.Function}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
-public class GraphConfigurationService implements IGraphConfigurationService {
+public class StoreConfigurationService implements IStoreConfigurationService {
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
 
-    public GraphConfigurationService() {
+    public StoreConfigurationService() {
         updateReflectionPaths();
     }
 
@@ -73,12 +74,12 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Schema getSchema() {
-        return graphFactory.getGraph().getSchema();
+        return ((GraphConfig) storeFactory.getStore().getConfig()).getSchema();
     }
 
     @Override
     public String getDescription() {
-        return graphFactory.getGraph().getDescription();
+        return storeFactory.getStore().getConfig().getDescription();
     }
 
     @Override
@@ -150,7 +151,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Set<StoreTrait> getStoreTraits() {
-        return graphFactory.getGraph().getStoreTraits();
+        return storeFactory.getStore().getTraits();
     }
 
     @Override
@@ -164,7 +165,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
             throw new IllegalArgumentException(operationClassName + " does not extend Operation", e);
         }
 
-        return (Set) graphFactory.getGraph().getNextOperations(opClass);
+        return (Set) storeFactory.getStore().getNextOperations(opClass);
     }
 
     @Override
@@ -179,11 +180,11 @@ public class GraphConfigurationService implements IGraphConfigurationService {
 
     @Override
     public Set<Class> getOperations() {
-        return (Set) graphFactory.getGraph().getSupportedOperations();
+        return (Set) storeFactory.getStore().getSupportedOperations();
     }
 
     @Override
     public Boolean isOperationSupported(final Class operation) {
-        return graphFactory.getGraph().isSupported(operation);
+        return storeFactory.getStore().isSupported(operation);
     }
 }

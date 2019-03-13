@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.StoreFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Context;
 
@@ -35,7 +35,8 @@ import javax.inject.Inject;
 
 /**
  * An implementation of {@link IJobService}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the
+ * {@link uk.gov.gchq.gaffer.rest.factory.StoreFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
@@ -44,7 +45,7 @@ public class JobService implements IJobService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
 
     @Inject
-    private GraphFactory graphFactory;
+    private StoreFactory storeFactory;
 
     @Inject
     private UserFactory userFactory;
@@ -55,7 +56,8 @@ public class JobService implements IJobService {
         preOperationHook(opChain, context);
 
         try {
-            final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, context);
+            final JobDetail jobDetail = storeFactory.getStore().executeJob(opChain,
+                    context);
             LOGGER.info("Job started = {}", jobDetail);
             return jobDetail;
         } catch (final OperationException e) {
@@ -68,7 +70,8 @@ public class JobService implements IJobService {
     @Override
     public CloseableIterable<JobDetail> details() {
         try {
-            return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createContext());
+            return storeFactory.getStore().execute(new GetAllJobDetails(),
+                    userFactory.createContext());
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +80,7 @@ public class JobService implements IJobService {
     @Override
     public JobDetail details(final String id) {
         try {
-            return graphFactory.getGraph().execute(
+            return storeFactory.getStore().execute(
                     new GetJobDetails.Builder()
                             .jobId(id)
                             .build(),
@@ -90,7 +93,7 @@ public class JobService implements IJobService {
     @Override
     public CloseableIterable results(final String id) {
         try {
-            return graphFactory.getGraph().execute(
+            return storeFactory.getStore().execute(
                     new GetJobResults.Builder()
                             .jobId(id)
                             .build(),
