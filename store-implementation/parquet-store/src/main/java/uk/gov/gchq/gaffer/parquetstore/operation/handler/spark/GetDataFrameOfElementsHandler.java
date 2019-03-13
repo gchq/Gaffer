@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -59,9 +61,10 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
             throw new OperationException("This operation does not currently support views");
         }
         LOGGER.debug("Creating a Dataset<Row> from path {} with option mergeSchema=true", store.getGraphPath());
+        final StructType schema = new SchemaUtils(store.getSchema()).getMergedSparkSchema(store.getSchema().getGroups());
         final Dataset<Row> dataframe = spark
                 .read()
-                .option("mergeSchema", true)
+                .schema(schema)
                 .parquet(store.getGraphPath());
         return dataframe;
     }
