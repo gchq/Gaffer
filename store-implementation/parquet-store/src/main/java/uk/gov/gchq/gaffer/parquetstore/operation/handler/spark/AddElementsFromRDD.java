@@ -107,7 +107,8 @@ public class AddElementsFromRDD {
     }
 
     /**
-     * Writes the provided {@link JavaRDD} of {@link Element}s to files split by group and partition. The data is
+     * Writes the provided {@link JavaRDD} of {@link Element}s to files split by group and input partition (i.e. the
+     * partition of the input {@link JavaRDD}, not the partition of the existing graph). The data is
      * written in the order the {@link JavaRDD} provides it, with no sorting or aggregation.
      *
      * @param input the JavaRDD of Elements
