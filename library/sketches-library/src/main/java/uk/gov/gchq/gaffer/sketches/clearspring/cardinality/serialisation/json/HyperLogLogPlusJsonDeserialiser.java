@@ -22,31 +22,55 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import java.io.IOException;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 /**
- * A {@code HyperLogLogPlusJsonSerialiser} deserialises {@link HyperLogLogPlus} objects.
+ * A {@code HyperLogLogPlusJsonDeserialiser} deserialises {@link HyperLogLogPlus} objects.
  */
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
+    public static final int DEFAULT_P = 10;
+    public static final int DEFAULT_SP = 10;
 
-    // TODO - See 'Can't create HyperLogLogPlus sketches in JSON'
     @Override
     public HyperLogLogPlus deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+        TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
+        final TreeNode nestedHllp = treeNode.get("hyperLogLogPlus");
 
-        final TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
-
-        final TreeNode coreHyperLogLogPlusObject = treeNode.get("hyperLogLogPlus");
-        if (null != coreHyperLogLogPlusObject) {
-            final TextNode jsonNodes = (TextNode) coreHyperLogLogPlusObject.get(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
-
-            final byte[] nodeAsString = jsonNodes.binaryValue();
-            final HyperLogLogPlus hyperLogLogPlus = HyperLogLogPlus.Builder.build(nodeAsString);
-
-            return hyperLogLogPlus;
-        } else {
-            throw new IllegalArgumentException("Receieved null or empty HyperLogLogPlus sketch");
+        if (nonNull(nestedHllp)) {
+            treeNode = nestedHllp;
         }
+
+        final HyperLogLogPlus hllp;
+
+        final TextNode jsonNodes = (TextNode) treeNode.get(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
+        if (isNull(jsonNodes)) {
+            final IntNode pNode = (IntNode) treeNode.get("p");
+            final IntNode spNode = (IntNode) treeNode.get("sp");
+            final int p = nonNull(pNode) ? pNode.asInt(DEFAULT_P) : DEFAULT_P;
+            final int sp = nonNull(spNode) ? spNode.asInt(DEFAULT_SP) : DEFAULT_SP;
+            hllp = new HyperLogLogPlus(p, sp);
+        } else {
+            hllp = HyperLogLogPlus.Builder.build(jsonNodes.binaryValue());
+        }
+
+        final ArrayNode offers = (ArrayNode) treeNode.get("offers");
+        if (nonNull(offers)) {
+            for (final JsonNode offer : offers) {
+                if (nonNull(offer)) {
+                    hllp.offer(offer.asText());
+                }
+            }
+        }
+
+
+        return hllp;
     }
 }
