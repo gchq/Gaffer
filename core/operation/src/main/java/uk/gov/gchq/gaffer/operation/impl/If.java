@@ -113,8 +113,8 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
         this.options = options;
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();
 
