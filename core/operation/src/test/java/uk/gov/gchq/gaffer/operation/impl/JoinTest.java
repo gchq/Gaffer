@@ -17,6 +17,11 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
+import com.sun.javafx.binding.StringFormatter;
+import org.apache.commons.lang.StringUtils;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
@@ -27,9 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class JoinTest extends OperationTest<Join> {
     @Override
@@ -76,6 +79,29 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(clone.getOperation(), op.getOperation());
         assertEquals(clone.getJoinType(), op.getJoinType());
         assertEquals(clone.getMatchMethod(), op.getMatchMethod());
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final Join op = new Join.Builder<>()
+                .input(new Entity.Builder().build(), new Entity.Builder().build())
+                .operation(new GetAllElements.Builder().build())
+                .matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT)
+                .joinType(JoinType.INNER)
+                .flatten(false)
+                .collectionLimit(10)
+                .build();
+
+        // When
+        final byte[] json = toJson(op);
+        String jsonString = new String(json);
+        final Join deserialisedObj = fromJson(json);
+
+        // Then
+        assertSame(deserialisedObj.getClass(), op.getClass());
+        assertEquals("Should be the same amount of classes as inputs given after deserialisation",2, StringUtils.countMatches(jsonString, "\"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\""));
     }
 
     @Override
