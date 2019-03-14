@@ -96,7 +96,7 @@ public class JoinTest extends OperationTest<Join> {
 
         // When
         final byte[] json = toJson(op);
-        String jsonString = new String(json);
+        final String jsonString = new String(json);
         final Join deserialisedObj = fromJson(json);
 
         // Then
