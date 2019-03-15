@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.resolver;
 
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 
@@ -80,7 +81,8 @@ public class DefaultScoreResolver implements ScoreResolver<Operation> {
             return 0;
         }
 
-        if (operation instanceof Operations) {
+        // Named operations should use their custom resolver despite implementing Operations
+        if (operation instanceof Operations && !(operation instanceof NamedOperation)) {
             int score = 0;
             for (final Operation op : ((Operations<?>) operation).getOperations()) {
                 score += getScore(op);

@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
 public enum JoinType {
     FULL(FullJoin.class),
-    FULL_INNER(FullInnerJoin.class),
-    FULL_OUTER(FullOuterJoin.class),
     OUTER(OuterJoin.class),
     INNER(InnerJoin.class);
 

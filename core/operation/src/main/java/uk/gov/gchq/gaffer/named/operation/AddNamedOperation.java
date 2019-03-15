@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -29,14 +30,21 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
@@ -45,7 +53,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new named operation")
-public class AddNamedOperation implements Operation {
+public class AddNamedOperation implements Operation, Operations<Operation> {
     @Required
     private String operations;
     private String operationName;
@@ -178,6 +186,58 @@ public class AddNamedOperation implements Operation {
         this.score = score;
     }
 
+    /**
+     * @return a list of the operations in the operation chain resolved using the default parameters.
+     */
+    @Override
+    @JsonIgnore
+    public Collection<Operation> getOperations() {
+        return getOperationsWithDefaultParams();
+    }
+
+    @Override
+    public void updateOperations(final Collection<Operation> operations) {
+        // ignore - Named operations will be updated when run instead
+    }
+
+    private Collection<Operation> getOperationsWithDefaultParams() {
+        String opStringWithDefaults = operations;
+
+        if (null != parameters) {
+            for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        OperationChain<?> opChain;
+        if (StringUtils.isEmpty(opStringWithDefaults)) {
+            opChain = null;
+        } else {
+            try {
+                opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+            } catch (final Exception e) {
+                opChain = null;
+            }
+        }
+
+        final List<Operation> operations = new ArrayList<>();
+        if (nonNull(opChain) && nonNull(opChain.getOperations())) {
+            operations.addAll(opChain.getOperations());
+        }
+        return operations;
+    }
+
+    private String buildParamNameString(final String paramKey) {
+        return "\"${" + paramKey + "}\"";
+    }
+
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
         public Builder() {
             super(new AddNamedOperation());
@@ -215,6 +275,16 @@ public class AddNamedOperation implements Operation {
 
         public Builder parameters(final Map<String, ParameterDetail> parameters) {
             _getOp().setParameters(parameters);
+            return _self();
+        }
+
+        public Builder parameter(final String name, final ParameterDetail detail) {
+            Map<String, ParameterDetail> parameters = _getOp().getParameters();
+            if (isNull(parameters)) {
+                parameters = new HashMap<>();
+                _getOp().setParameters(parameters);
+            }
+            parameters.put(name, detail);
             return _self();
         }
 
