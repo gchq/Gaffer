@@ -25,13 +25,13 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,19 +46,18 @@ import java.util.Map;
  * This limit can be changed by adding specifying a collectionLimit in the Operation.
  *
  * @param <I> Iterable input type.
- * @param <O> Iterable output type.
  */
 @Since("1.8.0")
 @Summary("Joins two iterables based on a join type")
-@JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "mergeMethod", "joinType", "collectionLimit", "options"}, alphabetic = true)
-public class Join<I, O> implements InputOutput<Iterable<? extends I>,
-        Iterable<? extends O>>, MultiInput<I>,
+@JsonPropertyOrder(value = {"input", "operation", "matchMethod", "matchKey", "flatten", "joinType", "collectionLimit", "options"}, alphabetic = true)
+public class Join<I> implements InputOutput<Iterable<? extends I>,
+        Iterable<? extends MapTuple>>, MultiInput<I>,
         Operations<Operation> {
     private Iterable<? extends I> leftSideInput;
     private Operation rightSideOperation;
     private Match matchMethod;
+    private Boolean flatten = true;
     private MatchKey matchKey;
-    private Merge mergeMethod;
     private JoinType joinType;
     private Integer collectionLimit;
     private Map<String, String> options;
@@ -97,20 +96,20 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>,
         this.matchKey = matchKey;
     }
 
+    public void setFlatten(final Boolean flatten) {
+        this.flatten = flatten;
+    }
+
+    public Boolean isFlatten() {
+        return flatten;
+    }
+
     public JoinType getJoinType() {
         return joinType;
     }
 
     public void setJoinType(final JoinType joinType) {
         this.joinType = joinType;
-    }
-
-    public Merge getMergeMethod() {
-        return mergeMethod;
-    }
-
-    public void setMergeMethod(final Merge mergeMethod) {
-        this.mergeMethod = mergeMethod;
     }
 
     public Integer getCollectionLimit() {
@@ -122,14 +121,14 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>,
     }
 
     @Override
-    public Join<I, O> shallowClone() throws CloneFailedException {
-        return new Join.Builder<I, O>()
+    public Join<I> shallowClone() throws CloneFailedException {
+        return new Join.Builder<I>()
                 .input(leftSideInput)
                 .operation(rightSideOperation)
                 .matchMethod(matchMethod)
                 .matchKey(matchKey)
+                .flatten(flatten)
                 .joinType(joinType)
-                .mergeMethod(mergeMethod)
                 .collectionLimit(collectionLimit)
                 .options(options)
                 .build();
@@ -146,54 +145,54 @@ public class Join<I, O> implements InputOutput<Iterable<? extends I>,
     }
 
     @Override
-    public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
+    public TypeReference<Iterable<? extends MapTuple>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         List operations = new ArrayList<>();
         operations.add(rightSideOperation);
         return operations;
     }
 
-    public static final class Builder<I, O>
-            extends BaseBuilder<Join<I, O>, Builder<I, O>>
-            implements InputOutput.Builder<Join<I, O>,
-            Iterable<? extends I>, Iterable<? extends O>,
-            Builder<I, O>>,
-            MultiInput.Builder<Join<I, O>, I, Builder<I, O>> {
+    public static final class Builder<I>
+            extends BaseBuilder<Join<I>, Builder<I>>
+            implements InputOutput.Builder<Join<I>,
+            Iterable<? extends I>, Iterable<? extends MapTuple>,
+            Builder<I>>,
+            MultiInput.Builder<Join<I>, I, Builder<I>> {
         public Builder() {
             super(new Join<>());
         }
 
-        public Builder<I, O> operation(final Operation operation) {
+        public Builder<I> operation(final Operation operation) {
             _getOp().setOperation(operation);
             return _self();
         }
 
-        public Builder<I, O> matchMethod(final Match matchMethod) {
+        public Builder<I> matchMethod(final Match matchMethod) {
             _getOp().setMatchMethod(matchMethod);
             return _self();
         }
 
-        public Builder<I, O> joinType(final JoinType joinType) {
+        public Builder<I> flatten(final Boolean flatten) {
+            _getOp().setFlatten(flatten);
+            return _self();
+        }
+
+        public Builder<I> joinType(final JoinType joinType) {
             _getOp().setJoinType(joinType);
             return _self();
         }
 
-        public Builder<I, O> mergeMethod(final Merge mergeMethod) {
-            _getOp().setMergeMethod(mergeMethod);
-            return _self();
-        }
-
-        public Builder<I, O> matchKey(final MatchKey matchKey) {
+        public Builder<I> matchKey(final MatchKey matchKey) {
             _getOp().setMatchKey(matchKey);
             return _self();
         }
 
-        public Builder<I, O> collectionLimit(final Integer collectionLimit) {
+        public Builder<I> collectionLimit(final Integer collectionLimit) {
             _getOp().setCollectionLimit(collectionLimit);
             return _self();
         }

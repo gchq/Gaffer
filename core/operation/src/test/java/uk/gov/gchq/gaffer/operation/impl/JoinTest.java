@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
-import uk.gov.gchq.gaffer.operation.impl.join.merge.Merge;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
@@ -42,7 +41,7 @@ public class JoinTest extends OperationTest<Join> {
                 .matchMethod(new TestMatchImpl())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(new TestMergeImpl())
+                .flatten(false)
                 .collectionLimit(10)
                 .build();;
 
@@ -52,7 +51,7 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(JoinType.INNER, op.getJoinType());
         assertTrue(op.getMatchMethod() instanceof Match);
         assertEquals(MatchKey.LEFT, op.getMatchKey());
-        assertTrue(op.getMergeMethod() instanceof Merge);
+        assertTrue(op.isFlatten() instanceof Boolean);
         assertTrue(op.getCollectionLimit().equals(10));
     }
 
@@ -65,9 +64,9 @@ public class JoinTest extends OperationTest<Join> {
                 .matchMethod(new TestMatchImpl())
                 .matchKey(MatchKey.LEFT)
                 .joinType(JoinType.INNER)
-                .mergeMethod(new TestMergeImpl())
+                .flatten(false)
                 .collectionLimit(10)
-                .build();;
+                .build();
 
         // When
         final Join clone = op.shallowClone();
@@ -87,20 +86,18 @@ public class JoinTest extends OperationTest<Join> {
     /**
      * Copy of the ElementMatch class using the count property to match by.
      */
-    public static class TestMatchImpl implements Match{
+    public static class TestMatchImpl implements Match {
+        private List matches;
+
         @Override
-        public List matching(final Object testObject, final List testList) {
-            return testList;
+        public void init(final Iterable matchCandidates) {
+            matches = Lists.newArrayList(matchCandidates);
+        }
+
+        @Override
+        public List matching(final Object unused) {
+            return matches;
         }
     }
 
-    /**
-     * Copy of the ElementMatch class using the count property to match by.
-     */
-    public static class TestMergeImpl implements Merge {
-        @Override
-        public List merge(final Iterable input) throws OperationException {
-            return (List) input;
-        }
-    }
 }
