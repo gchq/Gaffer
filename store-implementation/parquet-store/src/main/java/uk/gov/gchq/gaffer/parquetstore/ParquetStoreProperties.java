@@ -36,14 +36,10 @@ import java.nio.file.Path;
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
-
     public static final String DATA_DIR = "parquet.data.dir";
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
-    public static final String PARQUET_AGGREGATE_ON_INGEST = "parquet.add_elements.aggregate";
-    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST = "parquet.add_elements.sort_by_splits";
-    public static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE = "parquet.add_elements.split_points.sample_rate";
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
@@ -108,14 +104,6 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
         set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
     }
 
-    public Integer getSampleRate() {
-        return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
-    }
-
-    public void setSampleRate(final Integer sampleRate) {
-        set(PARQUET_SPLIT_POINTS_SAMPLE_RATE, sampleRate.toString());
-    }
-
     public Integer getRowGroupSize() {
         return Integer.parseInt(get(PARQUET_ROW_GROUP_SIZE_IN_BYTES, PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT));
     }
@@ -173,22 +161,6 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
                 SketchesJsonModules.class.getName(),
                 super.getJsonSerialiserModules()
         );
-    }
-
-    public boolean getAggregateOnIngest() {
-        return Boolean.parseBoolean(get(PARQUET_AGGREGATE_ON_INGEST, PARQUET_AGGREGATE_ON_INGEST_DEFAULT));
-    }
-
-    public void setAggregateOnIngest(final boolean aggregateOnIngest) {
-        set(PARQUET_AGGREGATE_ON_INGEST, String.valueOf(aggregateOnIngest));
-    }
-
-    public boolean getSortBySplitsOnIngest() {
-        return Boolean.parseBoolean(get(PARQUET_SORT_BY_SPLITS_ON_INGEST, PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT));
-    }
-
-    public void setSortBySplitsOnIngest(final boolean sortBySplits) {
-        set(PARQUET_SORT_BY_SPLITS_ON_INGEST, String.valueOf(sortBySplits));
     }
 
     public CompressionCodecName getCompressionCodecName() throws IllegalArgumentException {
