@@ -18,13 +18,22 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
 import org.apache.spark.rdd.RDD;
 
+import org.apache.spark.sql.Row;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.StringVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final StringVertexOperationsTest svot = new StringVertexOperationsTest();
@@ -38,6 +47,11 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     protected RDD<Element> getInputDataForGetAllElementsTest() {
         final List<Element> elements = svot.getInputDataForGetAllElementsTest();
         return TestUtils.getJavaSparkContext().parallelize(elements).rdd();
+    }
+
+    @Override
+    protected List<Element> getInputDataForGetAllElementsTestAsList() {
+        return svot.getInputDataForGetAllElementsTest();
     }
 
     @Override
@@ -58,6 +72,62 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     @Override
     protected List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
         return svot.getResultsForGetElementsWithSeedsRelatedTest();
+    }
+
+    @Override
+    protected List<Element> convertRowsToElements(final List<Row> rows) {
+        final List<Element> elementList = new ArrayList<>();
+        for (final Row row : rows) {
+            final Element element;
+            final String group = row.getAs(ParquetStore.GROUP);
+            switch (group) {
+                case TestGroups.ENTITY:
+                    // Fall through to ENTITY_2
+                case TestGroups.ENTITY_2:
+                    element = new Entity(group, row.getAs(ParquetStore.VERTEX));
+                    break;
+                case TestGroups.EDGE:
+                    // Fall through to EDGE_2
+                case TestGroups.EDGE_2:
+                    element = new Edge(group, row.getAs(ParquetStore.SOURCE), row.getAs(ParquetStore.DESTINATION), row.getAs(ParquetStore.DIRECTED));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected group of " + group);
+            }
+            addProperties(element, row);
+            elementList.add(element);
+        }
+        return elementList;
+    }
+
+    private static void addProperties(final Element element, final Row row) {
+        if (null != row.getAs("byte")) {
+            element.putProperty("byte", ((byte[]) row.getAs("byte"))[0]);
+        }
+        if (null != row.getAs("double")) {
+            element.putProperty("double", row.getAs("double"));
+        }
+        if (null != row.getAs("float")) {
+            element.putProperty("float", row.getAs("float"));
+        }
+        if (null != row.getAs("treeSet")) {
+            element.putProperty("treeSet", new TreeSet<String>(row.getList(row.fieldIndex("treeSet"))));
+        }
+        if (null != row.getAs("long")) {
+            element.putProperty("long", row.getAs("long"));
+        }
+        if (null != row.getAs("short")) {
+            element.putProperty("short", ((Integer) row.getAs("short")).shortValue());
+        }
+        if (null != row.getAs("date")) {
+            element.putProperty("date", new Date(row.getLong(row.fieldIndex("date"))));
+        }
+        if (null != row.getAs("freqMap")) {
+            element.putProperty("freqMap", new FreqMap(row.getJavaMap(row.fieldIndex("freqMap"))));
+        }
+        if (null != row.getAs("count")) {
+            element.putProperty("count", row.getAs("count"));
+        }
     }
 
     /*
