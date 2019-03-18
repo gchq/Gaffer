@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.operation.add;
 
@@ -23,19 +24,21 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.Properties;
 
+*/
 /**
  * An Operation used for adding {@link StoreProperties} to the
  * {@link uk.gov.gchq.gaffer.graph.library.GraphLibrary} of a store.
  *
  * @see StoreProperties
- */
+ *//*
+
 @Since("1.5.0")
 @Summary("Adds StoreProperties to the GraphLibrary")
 public class AddStorePropertiesToLibrary implements Operation {
@@ -45,10 +48,12 @@ public class AddStorePropertiesToLibrary implements Operation {
 
     @Required
     private String id;
-    /**
+    */
+/**
      * A list of storeProperties Id's held within the Library to be retrieved
      * {@link #storeProperties} field.
-     */
+     *//*
+
     private String parentPropertiesId;
     private Map<String, String> options;
 
@@ -133,3 +138,4 @@ public class AddStorePropertiesToLibrary implements Operation {
         }
     }
 }
+*/

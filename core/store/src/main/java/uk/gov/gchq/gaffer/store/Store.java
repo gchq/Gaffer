@@ -202,7 +202,11 @@ public abstract class Store {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 
-        newStore.initialise(id, config, storeProperties);
+        try {
+            newStore.initialise(id, config, storeProperties);
+        } catch (final StoreException e){
+            throw new IllegalArgumentException("Could not create Store, ", e);
+        }
 
         return newStore;
     }
@@ -217,7 +221,7 @@ public abstract class Store {
         initialise(config);
     }
 
-    public void initialise(final Config config) {
+    public void initialise(final Config config) throws StoreException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == config) {
             throw new IllegalArgumentException("a Config is required");
@@ -244,7 +248,8 @@ public abstract class Store {
         initialise(config.getId(), config, config.getProperties());
     }
 
-    public void initialise(final String id, final Config config, final StoreProperties properties) {
+    public void initialise(final String id, final Config config,
+                           final StoreProperties properties) throws StoreException{
         if (null == config) {
             this.config = new Config();
             config.setId(id);

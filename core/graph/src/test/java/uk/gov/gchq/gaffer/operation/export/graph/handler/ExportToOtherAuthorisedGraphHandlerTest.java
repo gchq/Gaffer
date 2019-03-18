@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.AuthorisedGraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.maestro.StoreProperties;
+import uk.gov.gchq.gaffer.graph.library.FileLibrary;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -74,7 +74,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         given(store.getId()).willReturn(GRAPH_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
-        graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
+        graphLibrary = new FileLibrary(graphLibraryFolder.getPath());
 
     }
 

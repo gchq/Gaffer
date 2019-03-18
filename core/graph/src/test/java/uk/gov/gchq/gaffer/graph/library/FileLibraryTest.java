@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.library;
 
@@ -26,7 +27,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
+public class FileLibraryTest extends AbstractGraphLibraryTest {
 
     private static final String TEST_FILE_PATH = "src/test/resources/graphLibrary";
     private static final String TEST_INVALID_FINAL_PATH = "inv@lidP@th";
@@ -55,3 +56,4 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
         }
     }
 }
+*/

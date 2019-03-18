@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.library;
 
@@ -21,12 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 
+*/
 /**
  * A {@code NoGraphLibrary} will not store any relationships between graphIds,
  * storePropertiesIds or schemaIds.
- */
+ *//*
+
 public class NoGraphLibrary extends GraphLibrary {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoGraphLibrary.class);
 
@@ -69,3 +72,4 @@ public class NoGraphLibrary extends GraphLibrary {
         return null;
     }
 }
+*/

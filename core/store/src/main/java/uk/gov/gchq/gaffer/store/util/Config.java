@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.util;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -25,6 +26,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.Library;
+import uk.gov.gchq.gaffer.store.library.NoLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
@@ -72,6 +75,8 @@ public class Config {
      */
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
 
+    private Library library;
+
     public Config() {
     }
 
@@ -105,6 +110,15 @@ public class Config {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public Library getLibrary() {
+        return library;
+    }
+
+    public void setLibrary(final Library library) {
+        this.library = library;
     }
 
     public void addHook(final Hook hook) {
@@ -218,6 +232,12 @@ public class Config {
         private List<Hook> hooks;
         private StoreProperties properties;
 
+        // Config
+        public B config(final conf config) {
+            this.config = config;
+            return _self();
+        }
+
         // Id
         public B id(final String id) {
             config.setId(id);
@@ -227,6 +247,11 @@ public class Config {
         // Description
         public B description(final String description) {
             config.setDescription(description);
+            return _self();
+        }
+
+        public B library(final Library library) {
+            this.config.setLibrary(library);
             return _self();
         }
 
@@ -466,6 +491,9 @@ public class Config {
         }
 
         public conf build() {
+            if (null == config.getLibrary()) {
+                config.setLibrary(new NoLibrary());
+            }
             return _getConf();
         }
 

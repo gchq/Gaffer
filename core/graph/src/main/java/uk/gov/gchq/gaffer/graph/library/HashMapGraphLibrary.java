@@ -12,21 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.library;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * A {@code HashMapGraphLibrary} stores a {@link GraphLibrary} within three HashMaps.
- */
+ *//*
+
 public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, Pair<String, String>> GRAPHS = new HashMap<>();
     private static final Map<String, byte[]> SCHEMAS = new HashMap<>();
@@ -81,3 +84,4 @@ public class HashMapGraphLibrary extends GraphLibrary {
                 .toString();
     }
 }
+*/

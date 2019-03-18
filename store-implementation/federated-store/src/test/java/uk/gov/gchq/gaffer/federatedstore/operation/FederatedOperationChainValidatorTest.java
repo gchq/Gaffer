@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreStorage;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -80,7 +80,7 @@ public class FederatedOperationChainValidatorTest {
         fail("exception expected");
         } catch (final IllegalArgumentException e) {
             //then
-            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
+            assertEquals(String.format(FederatedStoreStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
         }
 
     }

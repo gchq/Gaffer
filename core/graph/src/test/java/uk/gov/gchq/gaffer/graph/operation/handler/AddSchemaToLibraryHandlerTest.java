@@ -11,7 +11,8 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.*/
+ * limitations under the License.*//*
+
 package uk.gov.gchq.gaffer.graph.operation.handler;
 
 import org.junit.Before;
@@ -25,7 +26,7 @@ import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.TestAddToGraphLibraryImpl;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
@@ -106,4 +107,4 @@ public class AddSchemaToLibraryHandlerTest {
         //then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
-}
+}*/

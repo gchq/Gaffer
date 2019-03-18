@@ -12,23 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddStoreHandlerParent;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Store;
 
+*/
 /**
  * A handler for {@link AddGraphWithHooks} operation for the FederatedStore.
  *
- * @see FederatedAddGraphHandlerParent
+ * @see FederatedAddStoreHandlerParent
  * @see GraphDelegate
- */
-public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerParent<AddGraphWithHooks> {
+ *//*
+
+public class FederatedAddStoreWithHooksHandler extends FederatedAddStoreHandlerParent<AddGraphWithHooks> {
     @Override
     protected GraphSerialisable _makeGraph(final AddGraphWithHooks operation, final Store store) {
         return new GraphDelegate.Builder()
@@ -42,3 +45,4 @@ public class FederatedAddGraphWithHooksHandler extends FederatedAddGraphHandlerP
                 .buildGraphSerialisable();
     }
 }
+*/

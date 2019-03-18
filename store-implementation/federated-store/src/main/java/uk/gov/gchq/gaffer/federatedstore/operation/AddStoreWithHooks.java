@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.store.util.Hook;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -28,12 +30,12 @@ import uk.gov.gchq.koryphe.Summary;
         alphabetic = true
 )
 @Since("1.4.0")
-@Summary("Adds a new Graph with hooks to the federated store")
-public class AddGraphWithHooks extends AddGraph {
-    private GraphHook[] hooks;
+@Summary("Adds a new Store with hooks to the federated store")
+public class AddStoreWithHooks extends AddGraph {
+    private Hook[] hooks;
 
     @Override
-    public AddGraphWithHooks shallowClone() throws CloneFailedException {
+    public AddStoreWithHooks shallowClone() throws CloneFailedException {
         Builder builder = new Builder()
                 .graphId(getGraphId())
                 .schema(getSchema())
@@ -52,11 +54,11 @@ public class AddGraphWithHooks extends AddGraph {
         return builder.build();
     }
 
-    public GraphHook[] getHooks() {
+    public Hook[] getHooks() {
         return hooks;
     }
 
-    public void setHooks(final GraphHook[] hooks) {
+    public void setHooks(final Hook[] hooks) {
         this.hooks = hooks;
     }
 
@@ -71,3 +73,4 @@ public class AddGraphWithHooks extends AddGraph {
         }
     }
 }
+*/

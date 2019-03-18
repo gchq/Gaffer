@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.library;
 
@@ -22,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,12 +33,14 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 
+*/
 /**
  * A {@code FileGraphLibrary} stores a {@link GraphLibrary} in a specified
  * location as files.  It will store a graphId file with the relationships between
  * the graphId, storePropertiesId and the schemaId.  It will also store the
  * StoreProperties and Schema in two other files.  They will be named using the ids.
- */
+ *//*
+
 public class FileGraphLibrary extends GraphLibrary {
     private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
     private static final String DEFAULT_PATH = "graphLibrary";
@@ -163,3 +166,4 @@ public class FileGraphLibrary extends GraphLibrary {
         return Paths.get(path + "/" + graphId + "Graphs.json");
     }
 }
+*/

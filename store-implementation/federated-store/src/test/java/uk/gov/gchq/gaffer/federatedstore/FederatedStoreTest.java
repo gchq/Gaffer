@@ -38,9 +38,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllStoreIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStoreHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandlerTest;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
@@ -328,7 +328,7 @@ public class FederatedStoreTest {
             addGraphWithPaths(ACC_ID_1, PATH_ACC_STORE_PROPERTIES_ALT, PATH_INCOMPLETE_SCHEMA);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e, FederatedAddGraphHandler.ERROR_ADDING_GRAPH_GRAPH_ID_S, ACC_ID_1);
+            assertContains(e, FederatedAddStoreHandler.ERROR_ADDING_GRAPH_GRAPH_ID_S, ACC_ID_1);
         }
     }
 
@@ -818,7 +818,7 @@ public class FederatedStoreTest {
         // When
         int before = 0;
         for (String ignore : fedGraph.execute(
-                new GetAllGraphIds(),
+                new GetAllStoreIds(),
                 blankUser)) {
             before++;
         }
@@ -833,7 +833,7 @@ public class FederatedStoreTest {
 
         int after = 0;
         for (String ignore : fedGraph.execute(
-                new GetAllGraphIds(),
+                new GetAllStoreIds(),
                 blankUser)) {
             after++;
         }
@@ -1100,7 +1100,7 @@ public class FederatedStoreTest {
         // Given
         // When
         addGraphWithPaths(ACC_ID_2, PATH_ACC_STORE_PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
-        store.execute(new RemoveGraph.Builder()
+        store.execute(new RemoveStore.Builder()
                 .graphId(ACC_ID_2)
                 .build(), userContext);
         addGraphWithPaths(ACC_ID_2, PATH_ACC_STORE_PROPERTIES_ALT, PATH_BASIC_EDGE_SCHEMA_JSON);

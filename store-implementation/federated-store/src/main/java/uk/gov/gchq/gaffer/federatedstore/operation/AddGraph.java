@@ -26,9 +26,9 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreStorage;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS;
 
 /**
  * <p>
@@ -79,10 +79,10 @@ public class AddGraph implements FederatedOperation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
-    private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
+    private boolean disabledByDefault = FederatedStoreStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     public AddGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+        addOption(KEY_OPERATION_OPTIONS_STORE_IDS, "");
     }
 
     public String getGraphId() {

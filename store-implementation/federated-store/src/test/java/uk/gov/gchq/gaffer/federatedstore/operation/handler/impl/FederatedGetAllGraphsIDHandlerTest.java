@@ -24,7 +24,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllStoreIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -47,7 +47,7 @@ public class FederatedGetAllGraphsIDHandlerTest {
 
         FederatedGetAllGraphIDHandler federatedGetAllGraphIDHandler = new FederatedGetAllGraphIDHandler();
 
-        GetAllGraphIds op = Mockito.mock(GetAllGraphIds.class);
+        GetAllStoreIds op = Mockito.mock(GetAllStoreIds.class);
         Context context = Mockito.mock(Context.class);
         BDDMockito.given(context.getUser()).willReturn(testUser);
         FederatedStore store = Mockito.mock(FederatedStore.class);

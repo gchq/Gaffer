@@ -71,20 +71,23 @@ public class FederatedOperationValidator extends GraphOperationValidator {
      * @param user             The requesting user
      * @param store            The current store
      * @param validationResult The result of validation
-     * @param graphIds         The graphs to test the view against
+     * @param storeIds         The graphs to test the view against
      */
-    private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final Collection<String> graphIds) {
+    private void validateAllGraphsIdViews(final Operation op, final User user
+            , final Store store, final ValidationResult validationResult,
+                                          final Collection<String> storeIds) {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
         final Operation clonedOp = shallowCloneWithDeepOptions(op);
 
-        for (final String graphId : graphIds) {
-            final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
+        for (final String storeId : storeIds) {
+            final boolean graphIdValid =
+                    ((FederatedStore) store).getAllStoreIds(user).contains(storeId);
             //If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
-                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS, storeId);
                 super.validateViews(clonedOp, user, store, currentResult);
                 if (currentResult.isValid()) {
                     //If any graph has a valid View, break with valid current result
@@ -97,7 +100,7 @@ public class FederatedOperationValidator extends GraphOperationValidator {
 
         //What state did the for loop exit with?
         if (currentResult != null && !currentResult.isValid()) {
-            validationResult.addError("View is not valid for graphIds:" + graphIds.stream().collect(Collectors.joining(",", "[", "]")));
+            validationResult.addError("View is not valid for graphIds:" + storeIds.stream().collect(Collectors.joining(",", "[", "]")));
             //If invalid, no graphs views where valid, so add all saved errors.
             validationResult.add(savedResult);
         }
@@ -121,12 +124,12 @@ public class FederatedOperationValidator extends GraphOperationValidator {
     }
 
     private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
-        return nonNull(op) && nonNull(getGraphIds(op)) && !getGraphIds(op).isEmpty()
-                ? Arrays.asList(getGraphIds(op).split(","))
-                : store.getAllGraphIds(user);
+        return nonNull(op) && nonNull(getStoreIds(op)) && !getStoreIds(op).isEmpty()
+                ? Arrays.asList(getStoreIds(op).split(","))
+                : store.getAllStoreIds(user);
     }
 
-    private String getGraphIds(final Operation op) {
-        return op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS);
+    private String getStoreIds(final Operation op) {
+        return op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS);
     }
 }

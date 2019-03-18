@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.operation.add;
 
@@ -28,12 +29,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+*/
 /**
  * An Operation used for adding {@link Schema} to the
  * {@link uk.gov.gchq.gaffer.graph.library.GraphLibrary} of a store.
  *
  * @see Schema
- */
+ *//*
+
 @Since("1.5.0")
 @Summary("Adds a Schema to the GraphLibrary")
 public class AddSchemaToLibrary implements Operation {
@@ -43,11 +46,13 @@ public class AddSchemaToLibrary implements Operation {
 
     @Required
     private String id;
-    /**
+    */
+/**
      * A list of schema Id's held within the Library to be retrieved
      * and merged to form a new schema, before be merged with the optional
      * {@link #schema} field.
-     */
+     *//*
+
     private List<String> parentSchemaIds;
     private Map<String, String> options;
 
@@ -125,3 +130,4 @@ public class AddSchemaToLibrary implements Operation {
         }
     }
 }
+*/

@@ -142,10 +142,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+import static uk.gov.gchq.maestro.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.maestro.StoreTrait.ORDERED;
+import static uk.gov.gchq.maestro.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.maestro.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
     private final User user = new User("user01");

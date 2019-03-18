@@ -17,19 +17,16 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddStoreHandlerParent;
 
 /**
  * A handler for {@link AddGraph} operation for the FederatedStore.
  *
- * @see FederatedAddGraphHandlerParent
+ * @see FederatedAddStoreHandlerParent
  */
-public class FederatedAddGraphHandler extends FederatedAddGraphHandlerParent<AddGraph> {
+public class FederatedAddStoreHandler extends FederatedAddStoreHandlerParent<AddGraph> {
 
-    @Override
+    /*@Override
     protected GraphSerialisable _makeGraph(final AddGraph operation, final Store store) {
         return new GraphDelegate.Builder()
                 .store(store)
@@ -39,5 +36,5 @@ public class FederatedAddGraphHandler extends FederatedAddGraphHandlerParent<Add
                 .parentSchemaIds(operation.getParentSchemaIds())
                 .parentStorePropertiesId(operation.getParentPropertiesId())
                 .buildGraphSerialisable();
-    }
+    }*/
 }

@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStoreHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -49,7 +49,7 @@ public class FederatedStoreAuthTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
-    private final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+    private final FederatedAddStoreHandler federatedAddGraphHandler = new FederatedAddStoreHandler();
     private User testUser;
     private User authUser;
     private FederatedStore federatedStore;

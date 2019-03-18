@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.maestro.StoreProperties;
+import uk.gov.gchq.gaffer.graph.library.FileLibrary;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
@@ -90,7 +90,7 @@ public class ExportToOtherGraphHandlerTest {
         storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
-        graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
+        graphLibrary = new FileLibrary(graphLibraryFolder.getPath());
 
         given(((GraphConfig)store.getConfig()).getLibrary()).willReturn(graphLibrary);
         given(store.getId()).willReturn(GRAPH_ID);

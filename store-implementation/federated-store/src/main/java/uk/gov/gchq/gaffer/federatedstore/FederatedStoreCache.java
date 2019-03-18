@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.Set;
 
@@ -28,9 +28,10 @@ import static java.util.Objects.isNull;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
- * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
+ * handling the {@link Store}s within a
+ * {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, FederatedAccess>> {
+public class FederatedStoreCache extends Cache<Pair<Store, FederatedAccess>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
     public FederatedStoreCache() {
@@ -42,21 +43,23 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      *
      * @return all the Graph ID's within the cache as unmodifiable set.
      */
-    public Set<String> getAllGraphIds() {
+    public Set<String> getAllStoreIds() {
         return super.getAllKeys();
     }
 
     /**
-     * Add the specified {@link Graph} to the cache.
+     * Add the specified {@link Store} to the cache.
      *
-     * @param graph     the {@link Graph} to be added
+     * @param store     the {@link Store} to be added
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
      * @param access    Access for the graph being stored.
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        String graphId = graph.getGraphId();
-        Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
+    public void addStoreToCache(final Store store,
+                                final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+        String graphId = store.getId();
+        Pair<Store, FederatedAccess> pair =
+                new Pair<>(store, access);
         try {
             addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
@@ -65,29 +68,18 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     /**
-     * Retrieve the {@link Graph} with the specified ID from the cache.
+     * Retrieve the {@link Store} with the specified ID from the cache.
      *
-     * @param graphId the ID of the {@link Graph} to retrieve
-     * @return the {@link Graph} related to the specified ID
+     * @param storeId the ID of the {@link Store} to retrieve
+     * @return the {@link Store} related to the specified ID
      */
-    public Graph getGraphFromCache(final String graphId) {
-        final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
-        return (isNull(graphSerialisable)) ? null : graphSerialisable.getGraph();
-    }
-
-    /**
-     * Retrieve the {@link Graph} with the specified ID from the cache.
-     *
-     * @param graphId the ID of the {@link Graph} to retrieve
-     * @return the {@link Graph} related to the specified ID
-     */
-    public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
+    public Store getStoreFromCache(final String storeId) {
+        final Pair<Store, FederatedAccess> fromCache = getFromCache(storeId);
         return (isNull(fromCache)) ? null : fromCache.getFirst();
     }
 
-    public FederatedAccess getAccessFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
+    public FederatedAccess getAccessFromCache(final String storeId) {
+        final Pair<Store, FederatedAccess> fromCache = getFromCache(storeId);
         return fromCache.getSecond();
     }
 }

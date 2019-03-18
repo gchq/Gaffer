@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
@@ -47,7 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
@@ -263,3 +264,4 @@ public class FederatedOperationChainHandlerTest {
         return store;
     }
 }
+*/

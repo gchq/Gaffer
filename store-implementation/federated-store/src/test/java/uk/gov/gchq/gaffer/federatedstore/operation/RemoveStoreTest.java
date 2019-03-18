@@ -22,24 +22,24 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveStore.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-public class RemoveGraphTest extends OperationTest<RemoveGraph> {
+public class RemoveStoreTest extends OperationTest<RemoveStore> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
 
     @Test
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
-        RemoveGraph op = new Builder()
+        RemoveStore op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
         byte[] serialise = toJson(op);
-        RemoveGraph deserialise = fromJson(serialise);
+        RemoveStore deserialise = fromJson(serialise);
 
         Assert.assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
     }
@@ -51,7 +51,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        RemoveGraph op = new Builder()
+        RemoveStore op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
@@ -60,13 +60,13 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        final RemoveGraph a = getTestObject();
-        final RemoveGraph b = a.shallowClone();
+        final RemoveStore a = getTestObject();
+        final RemoveStore b = a.shallowClone();
         Assert.assertEquals(a.getGraphId(), b.getGraphId());
     }
 
     @Override
-    protected RemoveGraph getTestObject() {
-        return new RemoveGraph();
+    protected RemoveStore getTestObject() {
+        return new RemoveStore();
     }
 }

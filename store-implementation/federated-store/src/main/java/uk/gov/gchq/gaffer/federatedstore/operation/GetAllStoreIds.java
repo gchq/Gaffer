@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS;
 
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
@@ -35,13 +35,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets the ids of all available Graphs from a federated store")
-public class GetAllGraphIds implements
+public class GetAllStoreIds implements
         FederatedOperation,
         Output<Iterable<? extends String>> {
     private Map<String, String> options;
 
-    public GetAllGraphIds() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    public GetAllStoreIds() {
+        addOption(KEY_OPERATION_OPTIONS_STORE_IDS, "");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class GetAllGraphIds implements
     }
 
     @Override
-    public GetAllGraphIds shallowClone() throws CloneFailedException {
+    public GetAllStoreIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
                 .build();
@@ -66,10 +66,10 @@ public class GetAllGraphIds implements
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<GetAllGraphIds, Builder> {
+    public static class Builder extends BaseBuilder<GetAllStoreIds, Builder> {
 
         public Builder() {
-            super(new GetAllGraphIds());
+            super(new GetAllStoreIds());
         }
     }
 }

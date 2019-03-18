@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStoreHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
@@ -57,7 +57,7 @@ public class AddGenericHandlerTest {
         given(store.isSupported(any())).willReturn(true);
         given(store.isSupported(GetAllElements.class)).willReturn(false);
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        FederatedAddStoreHandler federatedAddGraphHandler = new FederatedAddStoreHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
         verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
@@ -66,7 +66,7 @@ public class AddGenericHandlerTest {
     public void shouldNotHandleAnything() throws Exception {
         given(store.isSupported(any())).willReturn(true);
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        FederatedAddStoreHandler federatedAddGraphHandler = new FederatedAddStoreHandler();
         federatedAddGraphHandler.addGenericHandler(store, graph);
 
         verify(store, never()).addOperationHandler(any(), any(FederatedOperationIterableHandler.class));

@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
@@ -24,7 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -37,7 +38,7 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-public class FederatedRemoveGraphHandlerTest {
+public class FederatedRemoveStoreHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
@@ -68,7 +69,7 @@ public class FederatedRemoveGraphHandlerTest {
         assertEquals(1, store.getGraphs(testUser, null).size());
 
         new FederatedRemoveGraphHandler().doOperation(
-                new RemoveGraph.Builder()
+                new RemoveStore.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .build(),
                 new Context(testUser),
@@ -80,3 +81,4 @@ public class FederatedRemoveGraphHandlerTest {
 
     }
 }
+*/

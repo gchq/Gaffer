@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
 
-public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
+public class GetAllStoreIdsTest extends OperationTest<GetAllStoreIds> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();
@@ -35,7 +35,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAllGraphIds operation = new GetAllGraphIds.Builder()
+        GetAllStoreIds operation = new GetAllStoreIds.Builder()
                 .option("a", "b")
                 .build();
 
@@ -44,17 +44,17 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetAllGraphIds operation = new GetAllGraphIds.Builder()
+        GetAllStoreIds operation = new GetAllStoreIds.Builder()
                 .option("a", "b")
                 .build();
 
-        final GetAllGraphIds a = operation.shallowClone();
+        final GetAllStoreIds a = operation.shallowClone();
         Assert.assertNotNull(a);
         assertEquals("b", a.getOption("a"));
     }
 
     @Override
-    protected GetAllGraphIds getTestObject() {
-        return new GetAllGraphIds();
+    protected GetAllStoreIds getTestObject() {
+        return new GetAllStoreIds();
     }
 }

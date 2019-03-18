@@ -12,14 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.library;
 
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.graph.schema.Schema;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 
 import static org.junit.Assert.assertNull;
 
@@ -56,3 +57,4 @@ public class NoGraphLibraryTest {
         assertNull(noGraphLibrary.getProperties(PROPERTIES_ID));
     }
 }
+*/

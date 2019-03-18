@@ -30,8 +30,6 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.util.Hook;
 
@@ -122,8 +120,6 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     protected GraphConfig getTestObject() {
         final String graphId = "graphId";
 
-        final GraphLibrary library = new HashMapGraphLibrary();
-
         final View view = new View.Builder()
                 .globalElements(new GlobalViewElementDefinition.Builder()
                         .groupBy()
@@ -135,7 +131,6 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
         return new GraphConfig.Builder()
                 .graphId(graphId)
-                .library(library)
                 .description("testGraphConfig")
                 .addHook(hook1)
                 .addHook(hook2)

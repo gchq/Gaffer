@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 public final class FederatedStoreUtil {
@@ -51,21 +52,25 @@ public final class FederatedStoreUtil {
     private FederatedStoreUtil() {
     }
 
-    public static String createOperationErrorMsg(final Operation operation, final String graphId, final Exception e) {
+    public static String createOperationErrorMsg(final Operation operation,
+                                                 final String storeId,
+                                                 final Exception e) {
         final String additionalInfo = String.format("Set the skip and continue flag: %s for operation: %s",
                 KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
                 operation.getClass().getSimpleName());
 
-        return String.format("Failed to execute %s on graph %s.%n %s.%n Error: %s",
-                operation.getClass().getSimpleName(), graphId, additionalInfo, e.getMessage());
+        return String.format("Failed to execute %s on store %s.%n %s.%n " +
+                        "Error: %s",
+                operation.getClass().getSimpleName(), storeId, additionalInfo,
+                e.getMessage());
     }
 
-    public static List<String> getGraphIds(final Map<String, String> config) {
+    public static List<String> getstoreIds(final Map<String, String> config) {
         if (null == config) {
             return null;
         }
 
-        return getCleanStrings(config.get(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        return getCleanStrings(config.get(KEY_OPERATION_OPTIONS_STORE_IDS));
     }
 
     public static List<String> getCleanStrings(final String value) {
@@ -96,18 +101,19 @@ public final class FederatedStoreUtil {
      * </p>
      *
      * @param operation current operation
-     * @param graph     current graph
+     * @param store     current store
      * @param <OP>      Operation type
      * @return cloned operation with modified View for the given graph.
      */
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForStore(final OP operation, final Store store) {
         OP resultOp = operation;
         if (operation instanceof Operations) {
             resultOp = (OP) operation.shallowClone();
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
-                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
+                final Operation updatedNestedOp =
+                        updateOperationForStore(nestedOp, store);
                 if (null == updatedNestedOp) {
                     resultOp = null;
                     break;
@@ -118,7 +124,8 @@ public final class FederatedStoreUtil {
         } else if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {
-                final View validView = createValidView(view, graph.getSchema());
+                final View validView = createValidView(view,
+                        ((GraphConfig) store.getConfig()).getSchema());
                 if (view != validView) {
                     // If the view is not the same instance as the original view
                     // then clone the operation and add the new view.
@@ -136,14 +143,16 @@ public final class FederatedStoreUtil {
             final AddElements addElements = ((AddElements) operation);
             if (null == addElements.getInput()) {
                 if (!addElements.isValidate() || !addElements.isSkipInvalidElements()) {
-                    LOGGER.debug("Invalid elements will be skipped when added to {}", graph.getGraphId());
+                    LOGGER.debug("Invalid elements will be skipped when added" +
+                            " to {}", store.getId());
                     resultOp = (OP) addElements.shallowClone();
                     ((AddElements) resultOp).setValidate(true);
                     ((AddElements) resultOp).setSkipInvalidElements(true);
                 }
             } else {
                 resultOp = (OP) addElements.shallowClone();
-                final Set<String> graphGroups = graph.getSchema().getGroups();
+                final Set<String> graphGroups =
+                        ((GraphConfig) store.getConfig()).getSchema().getGroups();
                 final Iterable<? extends Element> filteredInput = Iterables.filter(
                         addElements.getInput(),
                         element -> graphGroups.contains(null != element ? element.getGroup() : null)

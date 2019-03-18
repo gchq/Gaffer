@@ -12,18 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.graph.operation.handler;
 
+import uk.gov.gchq.gaffer.graph.operation.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.operation.add.AddSchemaToLibrary;
+import uk.gov.gchq.gaffer.store.library.Library;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLibrary> {
 
@@ -32,13 +33,13 @@ public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLi
 
     @Override
     public Void doOperation(final AddSchemaToLibrary operation, final Context context, final Store store) throws OperationException {
-        GraphLibrary graphLibrary = ((GraphConfig) store.getConfig()).getLibrary();
-        if (null == graphLibrary) {
+        Library library = ((GraphConfig) store.getConfig()).getLibrary();
+        if (null == library) {
             throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
         } else {
             Schema mergedSchema;
             try {
-                mergedSchema = graphLibrary.resolveSchema(operation.getSchema(), operation.getParentSchemaIds());
+                mergedSchema = library.resolveSchema(operation.getSchema(), operation.getParentSchemaIds());
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema couldn't be resolved."), e);
             }
@@ -51,3 +52,4 @@ public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLi
         return null;
     }
 }
+*/

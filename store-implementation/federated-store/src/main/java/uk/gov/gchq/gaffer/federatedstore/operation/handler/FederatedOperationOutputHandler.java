@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
@@ -43,17 +42,19 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
 
     @Override
     public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
-        final List<O> results = new ArrayList<>(graphs.size());
-        for (final Graph graph : graphs) {
-            final OP updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
+        final Collection<Store> stores =
+                ((FederatedStore) store).getStores(context.getUser(),
+                        operation.getOption(KEY_OPERATION_OPTIONS_STORE_IDS));
+        final List<O> results = new ArrayList<>(stores.size());
+        for (final Store storedStore : stores) {
+            final OP updatedOp = FederatedStoreUtil.updateOperationForStore(operation, storedStore);
             if (null != updatedOp) {
                 O execute = null;
                 try {
-                    execute = graph.execute(updatedOp, context);
+                    execute = storedStore.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
-                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, storedStore.getId(), e), e);
                     }
                 }
                 if (null != execute) {

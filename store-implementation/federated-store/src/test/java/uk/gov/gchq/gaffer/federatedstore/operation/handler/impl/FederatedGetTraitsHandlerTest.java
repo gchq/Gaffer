@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
@@ -35,8 +36,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.maestro.StoreProperties;
+import uk.gov.gchq.maestro.StoreTrait;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -48,11 +49,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+import static uk.gov.gchq.maestro.StoreTrait.MATCHED_VERTEX;
+import static uk.gov.gchq.maestro.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.maestro.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.maestro.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.maestro.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetTraitsHandlerTest {
@@ -273,3 +274,4 @@ public class FederatedGetTraitsHandlerTest {
         }
     }
 }
+*/

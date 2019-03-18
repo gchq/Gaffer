@@ -25,13 +25,13 @@ import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.store.library.FileLibrary;
+import uk.gov.gchq.gaffer.store.library.Library;
+import uk.gov.gchq.gaffer.store.library.NoLibrary;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -139,7 +139,7 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
-                && (((GraphConfig)store.getConfig()).getSchema().isAggregationEnabled())) {
+                && (((GraphConfig) store.getConfig()).getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
                         .getIteratorFactory()
@@ -179,7 +179,7 @@ public final class AddUpdateTableIterator {
      * and recreate them with the provided schema.
      * </p>
      * <p>
-     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * A FileLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
      * </p>
      * <p>
      * Usage: java -cp accumulo-store-[version]-utility.jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator [graphId] [pathToSchemaDirectory] [pathToStoreProperties] [pathToFileGraphLibrary]
@@ -205,15 +205,13 @@ public final class AddUpdateTableIterator {
 
         final Schema schema = Schema.fromJson(getSchemaPaths(args));
 
-        GraphLibrary library;
+        Library library;
 
         if (null == getFileGraphLibraryPathString(args)) {
-            library = new NoGraphLibrary();
+            library = new NoLibrary();
         } else {
-            library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
+            library = new FileLibrary(getFileGraphLibraryPathString(args));
         }
-
-        library.addOrUpdate(getGraphId(args), schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
@@ -236,6 +234,8 @@ public final class AddUpdateTableIterator {
         } catch (final StoreException e) {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
+
+        library.addConfig(store.getId(), store.getConfig());
 
         if (!store.getConnection().tableOperations().exists(store.getTableName())) {
             TableUtils.createTable(store);

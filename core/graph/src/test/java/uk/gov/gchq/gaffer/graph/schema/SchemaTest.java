@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.graph.TestTypes;
-import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
@@ -1356,7 +1355,7 @@ public class SchemaTest {
         // Then - no exceptions
     }
 
-    @Test
+    /*@Test
     public void shouldAddMergedSchemaToLibrary() {
         // Given
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
@@ -1371,7 +1370,7 @@ public class SchemaTest {
         graphLibrary.addSchema("TEST_SCHEMA_ID_merged", schema);
 
         // Then - no exceptions
-    }
+    }*/
 
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {

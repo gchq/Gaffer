@@ -17,12 +17,12 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.Library;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -123,9 +123,10 @@ public class DefaultStoreFactory implements StoreFactory {
 
         String graphLibraryClassName = System.getProperty(SystemProperty.GRAPH_LIBRARY_CLASS);
         if (null != graphLibraryClassName) {
-            GraphLibrary library;
+            Library library;
             try {
-                library = Class.forName(graphLibraryClassName).asSubclass(GraphLibrary.class).newInstance();
+                library =
+                        Class.forName(graphLibraryClassName).asSubclass(Library.class).newInstance();
             } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException("Error creating GraphLibrary class: + " + e);
             }

@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_STORE_IDS;
 
 /**
  * An Operation used for removing graphs from a FederatedStore.
@@ -41,28 +41,28 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Removes a Graph from the federated store")
-public class RemoveGraph implements FederatedOperation {
+public class RemoveStore implements FederatedOperation {
 
     @Required
-    private String graphId;
+    private String id;
     private Map<String, String> options;
 
-    public RemoveGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    public RemoveStore() {
+        addOption(KEY_OPERATION_OPTIONS_STORE_IDS, "");
     }
 
-    public String getGraphId() {
-        return graphId;
+    public String getId() {
+        return id;
     }
 
     public void setGraphId(final String graphId) {
-        this.graphId = graphId;
+        this.id = id;
     }
 
     @Override
-    public RemoveGraph shallowClone() throws CloneFailedException {
-        return new RemoveGraph.Builder()
-                .graphId(graphId)
+    public RemoveStore shallowClone() throws CloneFailedException {
+        return new RemoveStore.Builder()
+                .id(id)
                 .options(options)
                 .build();
     }
@@ -77,24 +77,24 @@ public class RemoveGraph implements FederatedOperation {
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<RemoveGraph, Builder> {
+    public static class Builder extends BaseBuilder<RemoveStore, Builder> {
 
         public Builder() {
-            super(new RemoveGraph());
+            super(new RemoveStore());
         }
 
         /**
-         * Use {@link Builder#graphId} instead.
+         * Use {@link Builder#id} instead.
          *
-         * @param graphId the graphId to set.
+         * @param id the store Id to set.
          * @return the builder
          */
         @Deprecated
-        public Builder setGraphId(final String graphId) {
-            return graphId(graphId);
+        public Builder setId(final String id) {
+            return id(id);
         }
 
-        public Builder graphId(final String graphId) {
+        public Builder id(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }

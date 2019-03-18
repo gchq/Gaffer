@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph.util;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
@@ -33,8 +32,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.GraphHookPath;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.graph.schema.SchemaOptimiser;
@@ -59,7 +56,7 @@ import java.util.Map;
  * {@code GraphConfig} contains configuration for Graphs. This configuration
  * is used along side a {@link Schema} and
  * {@link uk.gov.gchq.gaffer.store.StoreProperties} to create a {@link Graph}.
- * This configuration is made up of graph properties such as a graphId, {@link GraphLibrary},
+ * This configuration is made up of graph properties such as a graphId,
  * a graph {@link View} and {@link GraphHook}s.
  * To create an instance of GraphConfig you can either use the {@link GraphConfig.Builder}
  * or a json file.
@@ -84,7 +81,6 @@ public class GraphConfig extends Config {
     private SchemaOptimiser schemaOptimiser;
     private Class<? extends Serialiser> requiredParentSerialiserClass;
     private byte[] view;
-    private GraphLibrary library;
 
     public GraphConfig() {
     }
@@ -109,21 +105,11 @@ public class GraphConfig extends Config {
         this.view = null != view ? view.toCompactJson() : null;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public GraphLibrary getLibrary() {
-        return library;
-    }
-
-    public void setLibrary(final GraphLibrary library) {
-        this.library = library;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("graphId", getId())
                 .append("view", getView())
-                .append("library", library)
                 .append("hooks", getHooks())
                 .toString();
     }
@@ -323,11 +309,6 @@ public class GraphConfig extends Config {
 
         public Builder graphId(final String graphId) {
             config.setGraphId(graphId);
-            return this;
-        }
-
-        public Builder library(final GraphLibrary library) {
-            this.config.setLibrary(library);
             return this;
         }
 
@@ -541,9 +522,6 @@ public class GraphConfig extends Config {
         }
 
         public GraphConfig build() {
-            if (null == config.getLibrary()) {
-                config.setLibrary(new NoGraphLibrary());
-            }
             return config;
         }
 

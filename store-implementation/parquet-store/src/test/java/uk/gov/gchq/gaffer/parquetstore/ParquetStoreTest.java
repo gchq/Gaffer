@@ -45,7 +45,7 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialise
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.maestro.StoreTrait;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.graph.schema.SchemaEntityDefinition;

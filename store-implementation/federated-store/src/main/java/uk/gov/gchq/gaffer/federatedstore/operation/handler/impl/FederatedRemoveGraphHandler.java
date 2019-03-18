@@ -17,28 +17,28 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
- * A handler for RemoveGraph operation for the FederatedStore.
+ * A handler for RemoveStore operation for the FederatedStore.
  * <p>
  * Does not delete the graph, just removes it from the scope of the FederatedStore.
  *
  * @see OperationHandler
  * @see FederatedStore
- * @see RemoveGraph
+ * @see RemoveStore
  */
-public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph> {
+public class FederatedRemoveGraphHandler implements OperationHandler<RemoveStore> {
     @Override
-    public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final RemoveStore operation, final Context context, final Store store) throws OperationException {
         try {
-            ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
+            ((FederatedStore) store).remove(operation.getId(), context.getUser());
         } catch (final Exception e) {
-            throw new OperationException("Error removing graph: " + operation.getGraphId(), e);
+            throw new OperationException("Error removing graph: " + operation.getId(), e);
         }
         return null;
     }

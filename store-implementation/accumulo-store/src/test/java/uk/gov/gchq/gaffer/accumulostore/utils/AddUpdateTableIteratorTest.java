@@ -23,10 +23,10 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
+import uk.gov.gchq.gaffer.graph.util.GraphConfig;
+import uk.gov.gchq.gaffer.store.library.FileLibrary;
+import uk.gov.gchq.gaffer.store.util.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,12 +63,13 @@ public class AddUpdateTableIteratorTest {
 
 
         // Then
-        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
+        final Config config =
+                new FileLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).getConfig(GRAPH_ID);
+        assertNotNull("Graph for " + GRAPH_ID + " was not found", config);
+        assertNotNull("Schema not found", ((GraphConfig)config).getSchema());
+        assertNotNull("Store properties not found", config.getProperties());
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), ((GraphConfig)config).getSchema().toJson(false));
+        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), config.getProperties().getProperties());
     }
 
     @Test
@@ -81,12 +82,13 @@ public class AddUpdateTableIteratorTest {
         AddUpdateTableIterator.main(args);
 
         // Then
-        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
+        final Config config =
+                new FileLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).getConfig(GRAPH_ID);
+        assertNotNull("Graph for " + GRAPH_ID + " was not found", config);
+        assertNotNull("Schema not found", ((GraphConfig)config).getSchema());
+        assertNotNull("Store properties not found", config.getProperties());
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), ((GraphConfig)config).getSchema().toJson(false));
+        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), config.getProperties().getProperties());
     }
 
     @Test
@@ -98,7 +100,8 @@ public class AddUpdateTableIteratorTest {
         AddUpdateTableIterator.main(args);
 
         // Then - no exceptions
-        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNull("Graph should not have been stored", pair);
+        final Config config =
+                new FileLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).getConfig(GRAPH_ID);
+        assertNull("Graph should not have been stored", config);
     }
 }

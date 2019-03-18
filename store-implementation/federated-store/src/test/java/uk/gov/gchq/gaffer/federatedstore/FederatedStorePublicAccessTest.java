@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllStoreIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
@@ -135,7 +135,7 @@ public class FederatedStorePublicAccessTest {
     }
 
     private void getAllGraphsIdsHasNext(final boolean expected) throws uk.gov.gchq.gaffer.operation.OperationException {
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
+        final Iterable<? extends String> execute = store.execute(new GetAllStoreIds(), blankUserContext);
         assertEquals(expected, execute.iterator().hasNext());
     }
 

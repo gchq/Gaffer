@@ -33,9 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
@@ -43,6 +40,9 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.FileLibrary;
+import uk.gov.gchq.gaffer.store.library.Library;
+import uk.gov.gchq.gaffer.store.library.NoLibrary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ public final class TableUtils {
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
      * </p>
      * <p>
-     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * A FileLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
      * </p>
      * <p>
      * Usage:
@@ -100,15 +100,13 @@ public final class TableUtils {
 
         final Schema schema = Schema.fromJson(getSchemaDirectoryPath(args));
 
-        GraphLibrary library;
+        Library library;
 
         if (null == getFileGraphLibraryPathString(args)) {
-            library = new NoGraphLibrary();
+            library = new NoLibrary();
         } else {
-            library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
+            library = new FileLibrary(getFileGraphLibraryPathString(args));
         }
-
-        library.addOrUpdate(getGraphId(args), schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
@@ -129,6 +127,8 @@ public final class TableUtils {
                 schema,
                 storeProps
         );
+
+        library.addConfig(store.getId(), store.getConfig());
 
         if (!store.getConnection().getAdmin()
                 .tableExists(store.getTableName())) {

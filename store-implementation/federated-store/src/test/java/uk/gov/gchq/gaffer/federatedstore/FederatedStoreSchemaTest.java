@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore;
 
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.graph.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.library.HashMapLibrary;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
@@ -52,7 +54,7 @@ public class FederatedStoreSchemaTest {
     public User testUser;
     public Context testContext;
     public static final String TEST_FED_STORE = "testFedStore";
-    public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
+    public static final HashMapLibrary library = new HashMapLibrary();
     public static final String ACC_PROP = "accProp";
 
     private FederatedStore fStore;
@@ -71,7 +73,7 @@ public class FederatedStoreSchemaTest {
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
 
-        fStore.setGraphLibrary(library);
+        fStore.setLibrary(library);
 
         testUser = testUser();
         testContext = new Context(testUser);
@@ -169,3 +171,4 @@ public class FederatedStoreSchemaTest {
                 .build();
     }
 }
+*/

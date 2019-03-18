@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
@@ -25,7 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks.Builder;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 import uk.gov.gchq.gaffer.graph.schema.Schema;
 
 import java.util.Set;
@@ -113,3 +114,4 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
     }
 
 }
+*/

@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 package uk.gov.gchq.gaffer.graph.operation.handler;
 
 import org.junit.Before;
@@ -24,7 +25,7 @@ import uk.gov.gchq.gaffer.graph.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.graph.util.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.maestro.StoreProperties;
 import uk.gov.gchq.gaffer.graph.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.graph.operation.add.AddStorePropertiesToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.operation.handler.TestAddToGraphLibraryImpl;
@@ -95,3 +96,4 @@ public class AddStorePropertiesToLibraryHandlerTest {
     }
 
 }
+*/
