@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -339,8 +341,26 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                         .build())
                 .build(), new Context(user));
     }
+  
+    @Test
+    public void shouldReturnOperationsInParameters() {
+        // Given
+        final NamedOperation namedOperation = new NamedOperation();
+        Operation operation = new GetElements();
+        Map<String, Object> paramMap = Maps.newHashMap();
+
+        paramMap.put("test param", operation);
+        namedOperation.setParameters(paramMap);
+
+        //When
+        List<Operation> paramOperations = namedOperation.getOperations();
+        Operation op = paramOperations.get(0);
+
+        //Then
+        assertEquals(paramOperations.size(),1);
+        assertEquals(op.getClass(),GetElements.class);
+    }
 
     @Override
     public NamedOperationResolver getTestObject() { return new NamedOperationResolver(); }
-
 }

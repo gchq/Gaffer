@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections.CollectionUtils;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -106,8 +107,11 @@ public class UpdateViewHook implements GraphHook {
     }
 
     protected final View.Builder mergeView(final OperationView operationView, final View viewToMerge) {
-        View.Builder viewBuilder = new View.Builder()
-                .merge(operationView.getView());
+        final View.Builder viewBuilder = new View.Builder();
+
+        if (!(operationView.getView() instanceof NamedView)) {
+            viewBuilder.merge(operationView.getView());
+        }
 
         if (null != viewToMerge) {
             viewBuilder.merge(viewToMerge.clone());
