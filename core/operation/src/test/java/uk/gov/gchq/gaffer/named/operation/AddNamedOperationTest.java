@@ -27,10 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -41,8 +38,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
+        //Given
+        List<String> options = Arrays.asList("option1", "option2", "option3");
         Map<String, ParameterDetail> parameters = new HashMap<>();
-        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", "Option"));
+        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", options));
 
         final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
@@ -68,7 +67,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"operationChain\": {" +
                 " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
                 " \"overwriteFlag\" : true,%n" +
-                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": \"Option\"}},%n" +
+                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": [\"option1\", \"option2\", \"option3\"]}},%n" +
                 " \"readAccessRoles\" : [ \"User\" ],%n" +
                 " \"writeAccessRoles\" : [ \"User\" ]%n" +
                 "}"), new String(json));
