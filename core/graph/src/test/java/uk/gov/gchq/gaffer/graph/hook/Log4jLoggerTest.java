@@ -27,7 +27,9 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
-public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
+public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
+
+    public Log4jLoggerTest() { super(Log4jLogger.class); }
 
     @Test
     public void shouldReturnResultWithoutModification() {
@@ -49,7 +51,5 @@ public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
     }
 
     @Override
-    public Log4jLogger getTestObject() {
-        return new Log4jLogger();
-    }
+    public Log4jLogger getTestObject() { return new Log4jLogger(); }
 }

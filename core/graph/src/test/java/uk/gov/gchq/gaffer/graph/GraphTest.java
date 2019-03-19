@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -48,6 +49,7 @@ import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
+import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -86,8 +88,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1002,11 +1006,9 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE)
                 .build();
-        final GraphHook hook = new ViewCheckerGraphHook();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
-                        .addHook(hook)
                         .view(view)
                         .build())
                 .store(store)
@@ -1902,6 +1904,285 @@ public class GraphTest {
         } catch (final IllegalArgumentException e) {
             assertEquals("A user is required", e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE_5)
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition()).edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldCorrectlyAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenNotInBlacklist() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .addExtraGroups(true)
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
+    public void shouldNotAddExtraGroupsFromSchemaViewWithUpdateViewHookWhenInBlacklist() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .build();
+
+        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+                .addExtraGroups(true)
+                .blackListElementGroups(Sets.newHashSet(TestGroups.EDGE_4,
+                        TestGroups.EDGE))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE_4, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
     public static class TestStoreImpl extends Store {
