@@ -139,7 +139,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
-        assertNull(clone.getParameters().get("optionTestParameter").getOptions());
+        assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
     }
 
     @Test
