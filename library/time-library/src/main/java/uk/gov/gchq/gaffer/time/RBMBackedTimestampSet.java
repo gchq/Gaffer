@@ -129,6 +129,18 @@ public class RBMBackedTimestampSet implements TimestampSet {
         return getInstantFromInt(it.next());
     }
 
+    /**
+     * Filters by a time range
+     *
+     * @param timeRangeStart filter start time
+     * @param timeRangeEnd filter end time
+     */
+    public void filterByTimeRange(final Instant timeRangeStart, final Instant timeRangeEnd) {
+        RoaringBitmap timeRange = new RoaringBitmap();
+        timeRange.add(toInt(timeRangeStart.toEpochMilli()), toInt(timeRangeEnd.toEpochMilli()));
+        rbm.and(timeRange);
+    }
+
     public TimeBucket getTimeBucket() {
         return timeBucket;
     }

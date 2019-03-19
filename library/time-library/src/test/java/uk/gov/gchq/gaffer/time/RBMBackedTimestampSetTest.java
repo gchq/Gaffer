@@ -112,6 +112,26 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     }
 
     @Test
+    public void testFilterByTimeRange() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(200L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(300L)));
+
+        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(200L)));
+
+        // When
+        timestampSet.filterByTimeRange(instant1.plus(Duration.ofDays(100L)), instant1.plus(Duration.ofDays(250L)));
+
+        // Then
+        assertEquals(expectedTimestampSet, timestampSet);
+    }
+
+    @Test
     public void testEqualsAndHashcode() {
         // Given
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet(TimeBucket.SECOND);
