@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Simple POJO providing parameter details for {@link NamedOperation}s.
@@ -37,9 +38,9 @@ public class ParameterDetail implements Serializable {
     private Object defaultValue;
     private Class valueClass;
     private boolean required;
-    private String options;
+    private List<String> options;
 
-    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final String options) {
+    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final List<String> options) {
         if (null == description) {
             throw new IllegalArgumentException("description must not be empty");
         }
@@ -68,11 +69,11 @@ public class ParameterDetail implements Serializable {
         return description;
     }
 
-    public String getOptions() {
+    public List<String> getOptions() {
         return options;
     }
 
-    public void setOptions(final String options) {
+    public void setOptions(final List<String> options) {
         this.options = options;
     }
 
@@ -138,7 +139,7 @@ public class ParameterDetail implements Serializable {
         private Object defaultValue;
         private boolean required = false;
         private Class valueClass;
-        private String options;
+        private List<String> options;
 
         public Builder defaultValue(final Object defaultValue) {
             this.defaultValue = defaultValue;
@@ -160,7 +161,7 @@ public class ParameterDetail implements Serializable {
             return this;
         }
 
-        public Builder options(final String options) {
+        public Builder options(final List<String> options) {
             this.options = options;
             return this;
         }
