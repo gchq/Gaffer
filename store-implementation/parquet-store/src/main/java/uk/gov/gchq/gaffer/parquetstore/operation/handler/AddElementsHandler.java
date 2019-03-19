@@ -166,17 +166,17 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             LOGGER.info("Moving aggregated and sorted data to new snapshot directory {}", newDataDir);
             fs.mkdirs(new Path(newDataDir));
             for (final String group : schema.getGroups()) {
-                final Path groupDir = new Path(newDataDir, "group=" + group);
+                final Path groupDir = new Path(newDataDir, ParquetStore.getGroupSubDir(group, false));
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
             for (final String group : schema.getEdgeGroups()) {
-                final Path groupDir = new Path(newDataDir, ParquetStore.REVERSED_GROUP + "=" + group);
+                final Path groupDir = new Path(newDataDir, ParquetStore.getGroupSubDir(group, true));
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
             for (final String group : schema.getGroups()) {
-                final String groupDir = newDataDir + "/group=" + group;
+                final String groupDir = newDataDir + "/" + ParquetStore.getGroupSubDir(group, false);
                 final List<Partition> partitions = currentGraphPartitioner.getGroupPartitioner(group).getPartitions();
                 for (final Partition partition : partitions) {
                     final Path outputDir = new Path(directoryForSortedResultsForGroupAndPartitionId.apply(group, partition.getPartitionId()));
@@ -199,7 +199,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 }
             }
             for (final String group : schema.getEdgeGroups()) {
-                final String groupDir = newDataDir + "/reversed-group=" + group;
+                final String groupDir = newDataDir + "/" + ParquetStore.getGroupSubDir(group, true);
                 final List<Partition> partitions = currentGraphPartitioner.getGroupPartitionerForReversedEdges(group).getPartitions();
                 for (final Partition partition : partitions) {
                     final Path outputDir = new Path(directoryForSortedResultsForGroupAndPartitionIdForReversedEdges.apply(group, partition.getPartitionId()));
