@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2019. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class CalculatePartitioner {
             LOGGER.info("Calculating GroupPartitioner for group {}", group);
             final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
             final List<PartitionKey> partitionKeys = new ArrayList<>();
-            final Path groupPath = new Path(path, ParquetStore.GROUP + "=" + group);
+            final Path groupPath = new Path(path, ParquetStore.getGroupSubDir(group, false));
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
             final SortedSet<Path> sortedFiles = new TreeSet<>();
             Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);
@@ -93,7 +93,7 @@ public class CalculatePartitioner {
             LOGGER.info("Calculating GroupPartitioner for reversed edge group {}", group);
             final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
             final List<PartitionKey> partitionKeys = new ArrayList<>();
-            final Path groupPath = new Path(path, ParquetStore.REVERSED_GROUP + "=" + group);
+            final Path groupPath = new Path(path, ParquetStore.getGroupSubDir(group, true));
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
             final SortedSet<Path> sortedFiles = new TreeSet<>();
             Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);

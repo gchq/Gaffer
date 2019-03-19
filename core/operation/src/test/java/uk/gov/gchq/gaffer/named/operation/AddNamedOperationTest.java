@@ -16,11 +16,15 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -30,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.*;
 
 import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
@@ -135,6 +140,69 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
         assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
+    }
+
+    @Test
+    public void shouldGetOperationsWithDefaultParameters() {
+        // Given
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .defaultValue("seed1")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
+
+        // When
+        Collection<Operation> operations = addNamedOperation.getOperations();
+
+        // Then
+        assertEquals(
+                Collections.singletonList(GetAdjacentIds.class),
+                operations.stream().map(o -> o.getClass()).collect(Collectors.toList())
+        );
+        final GetAdjacentIds nestedOp = (GetAdjacentIds) operations.iterator().next();
+        final List<? extends EntityId> input = Lists.newArrayList(nestedOp.getInput());
+        assertEquals(Collections.singletonList(new EntitySeed("seed1")), input);
+    }
+
+    @Test
+    public void shouldGetOperationsWhenNoDefaultParameter() {
+        // Given
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
+
+        // When
+        Collection<Operation> operations = addNamedOperation.getOperations();
+
+        // Then
+        assertEquals(
+                Collections.singletonList(GetAdjacentIds.class),
+                operations.stream().map(o -> o.getClass()).collect(Collectors.toList())
+        );
+        final GetAdjacentIds nestedOp = (GetAdjacentIds) operations.iterator().next();
+        final List<? extends EntityId> input = Lists.newArrayList(nestedOp.getInput());
+        assertEquals(Collections.singletonList(new EntitySeed(null)), input);
     }
 
     @Override
