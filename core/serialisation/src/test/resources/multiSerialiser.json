@@ -2,8 +2,7 @@
   "serialisers" : [ {
     "key" : 0,
     "serialiser" : {
-      "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser",
-      "charset" : "UTF-8"
+      "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
     },
     "valueClass" : "java.lang.String"
   }, {

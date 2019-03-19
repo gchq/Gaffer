@@ -1,0 +1,24 @@
+{
+  "class" : "uk.gov.gchq.gaffer.types.CustomMap",
+  "keySerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser"
+  },
+  "valueSerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.serialisation.DoubleSerialiser"
+  },
+  "jsonStorage" : [ {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : {
+        "java.util.TreeSet" : [ "k3", "k4" ]
+      },
+      "second" : 22.22
+    }
+  }, {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : {
+        "java.util.TreeSet" : [ "k1", "k2" ]
+      },
+      "second" : 11.11
+    }
+  } ]
+}
