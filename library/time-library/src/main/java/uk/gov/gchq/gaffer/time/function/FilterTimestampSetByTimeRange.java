@@ -36,13 +36,13 @@ public class FilterTimestampSetByTimeRange extends KorypheFunction<RBMBackedTime
         // Required for serialisation
     }
 
-    public FilterTimestampSetByTimeRange(long timeRangeStartEpochMilli, long timeRangeEndEpochMilli) {
+    public FilterTimestampSetByTimeRange(final long timeRangeStartEpochMilli, final long timeRangeEndEpochMilli) {
         this.timeRangeStartEpochMilli = timeRangeStartEpochMilli;
         this.timeRangeEndEpochMilli = timeRangeEndEpochMilli;
     }
 
     @Override
-    public RBMBackedTimestampSet apply(RBMBackedTimestampSet rbmBackedTimestampSet) {
+    public RBMBackedTimestampSet apply(final RBMBackedTimestampSet rbmBackedTimestampSet) {
         rbmBackedTimestampSet.filterByTimeRange(Instant.ofEpochMilli(timeRangeStartEpochMilli), Instant.ofEpochMilli(timeRangeEndEpochMilli));
         return rbmBackedTimestampSet;
     }
@@ -51,7 +51,7 @@ public class FilterTimestampSetByTimeRange extends KorypheFunction<RBMBackedTime
         return timeRangeStartEpochMilli;
     }
 
-    public void setTimeRangeStartEpochMilli(long timeRangeStartEpochMilli) {
+    public void setTimeRangeStartEpochMilli(final long timeRangeStartEpochMilli) {
         this.timeRangeStartEpochMilli = timeRangeStartEpochMilli;
     }
 
@@ -59,7 +59,7 @@ public class FilterTimestampSetByTimeRange extends KorypheFunction<RBMBackedTime
         return timeRangeEndEpochMilli;
     }
 
-    public void setTimeRangeEndEpochMilli(long timeRangeEndEpochMilli) {
+    public void setTimeRangeEndEpochMilli(final long timeRangeEndEpochMilli) {
         this.timeRangeEndEpochMilli = timeRangeEndEpochMilli;
     }
 }
