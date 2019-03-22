@@ -108,7 +108,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsTest() throws OperationException {
+    public void shouldGetAllElementsTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -123,7 +123,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsOnEmptyGraph() throws OperationException {
+    public void shouldGetNoResultsFromGetAllElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
         final Graph graph1 = createGraph();
@@ -144,7 +144,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsWithViewTest() throws OperationException {
+    public void shouldGetAllElementsWithViewTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -160,7 +160,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsWithDirectedTypeTest() throws OperationException {
+    public void shouldGetAllElementsWithDirectedTypeTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -175,7 +175,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsAfterTwoAddElementsTest() throws OperationException {
+    public void shouldGetAllElementsAfterTwoAddElementsTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -190,7 +190,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsAfterElementsAddedSeparatelyByGroup() throws OperationException {
+    public void shouldGetAllElementsAfterElementsAddedSeparatelyByGroup() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -207,7 +207,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getAllElementsOnGraphRecreatedFromExistingGraph() throws OperationException {
+    public void shouldGetAllElementsOnGraphRecreatedFromExistingGraph() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -224,7 +224,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsOnEmptyGraph() throws OperationException {
+    public void shouldNotGetElementsOnEmptyGraph() throws OperationException {
         // Given (test on a graph on which add has been called with an empty list and
         // on a graph on which add has never been called)
         final Graph graph1 = createGraph();
@@ -244,7 +244,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsEmptySeedsTest() throws OperationException {
+    public void shouldNotGetElementsWithEmptySeedsTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
 
@@ -257,7 +257,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithSeedsRelatedTest() throws OperationException {
+    public void shouldGetElementsWithSeedsRelatedTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -276,7 +276,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithSeedsEqualTest() throws OperationException {
+    public void shouldGetElementsWithSeedsEqualTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -295,7 +295,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithMissingSeedsTest() throws OperationException {
+    public void shouldNotGetElementsWithMissingSeedsTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -311,7 +311,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithSeedsAndViewTest() throws OperationException {
+    public void shouldGetElementsWithSeedsAndViewTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -328,7 +328,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithPostAggregationFilterTest() throws OperationException {
+    public void shouldThrowUnsupportedTraitExceptionWithPostAggregationFiltering() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -347,16 +347,14 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
         // When / Then
         try {
             graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
-            fail("IllegalArgumentException Exception expected");
+            fail("IllegalArgumentException Exception: POST_AGGREGATION_FILTERING expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation chain"));
-        } catch (final Exception e) {
-            fail("IllegalArgumentException expected");
+            assertTrue(e.getMessage().contains("POST_AGGREGATION_FILTERING"));
         }
     }
 
     @Test
-    public void getElementsWithPostTransformFilterTest() throws OperationException {
+    public void shouldThrowUnsupportedTraitExceptionWithPostTransformFiltering() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -377,14 +375,12 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
             graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation chain"));
-        } catch (final Exception e) {
-            fail("IllegalArgumentException expected");
+            assertTrue(e.getMessage().contains("POST_TRANSFORMATION_FILTERING"));
         }
     }
 
     @Test
-    public void getElementsWithInOutTypeTest() throws OperationException {
+    public void shouldGetElementsWithInOutTypeTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTest();
@@ -412,7 +408,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void deduplicateEdgeWhenSrcAndDstAreEqualTest() throws OperationException {
+    public void shouldDeduplicateEdgeWhenSrcAndDstAreEqualTest() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final Edge edge = getEdgeWithIdenticalSrcAndDst();
