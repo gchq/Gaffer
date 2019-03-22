@@ -15,25 +15,34 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
 /**
  * POJO containing details of a Gaffer job.
  */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private String parentJobId;
+    private Repeat repeat;
     private String jobId;
     private String userId;
     private JobStatus status;
     private Long startTime;
     private Long endTime;
-    private String opChain;
+    private OperationChain<?> opChain;
     private String description;
 
     public JobDetail() {
@@ -45,6 +54,8 @@ public class JobDetail implements Serializable {
         this.opChain = getNewOrOld(oldJobDetail.opChain, newJobDetail.opChain);
         this.description = getNewOrOld(oldJobDetail.description, newJobDetail.description);
         this.status = getNewOrOld(oldJobDetail.status, newJobDetail.status);
+        this.parentJobId = getNewOrOld(oldJobDetail.parentJobId, newJobDetail.parentJobId);
+        this.repeat = getNewOrOld(oldJobDetail.repeat, newJobDetail.repeat);
 
         if (null == oldJobDetail.startTime) {
             this.startTime = System.currentTimeMillis();
@@ -55,13 +66,31 @@ public class JobDetail implements Serializable {
     }
 
     public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
-        final String opChainString = null != opChain ? opChain.toOverviewString() : "";
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
+    public JobDetail(final String jobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+        this.jobId = jobId;
+        this.parentJobId = parentJobId;
+        this.userId = userId;
+        this.startTime = System.currentTimeMillis();
+        this.status = jobStatus;
+        this.opChain = opChain;
+        this.description = description;
+    }
+
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        setOpChain(opChain);
         this.jobId = jobId;
         this.userId = userId;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
-        this.opChain = opChainString;
         this.description = description;
+        this.parentJobId = parentJobId;
     }
 
     public String getJobId() {
@@ -105,11 +134,40 @@ public class JobDetail implements Serializable {
     }
 
     public String getOpChain() {
+        try {
+            if (opChain instanceof OperationChainDAO) {
+                return new String(JSONSerialiser.serialise(opChain),
+                        Charset.forName(CHARSET_NAME));
+            } else {
+                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
+                return new String(JSONSerialiser.serialise(dao),
+                        Charset.forName(CHARSET_NAME));
+            }
+        } catch (final SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
+    }
+
+    @JsonIgnore
+    public OperationChain<?> getOpChainAsOperationChain() {
         return opChain;
     }
 
+    public void setParentJobId(final String parentJobId) {
+        this.parentJobId = parentJobId;
+    }
+
+    public String getParentJobId() {
+        return parentJobId;
+    }
+
     public void setOpChain(final String opChain) {
-        this.opChain = opChain;
+        try {
+            this.opChain = JSONSerialiser.deserialise(opChain,
+                    OperationChainDAO.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+        }
     }
 
     public String getDescription() {
@@ -118,6 +176,14 @@ public class JobDetail implements Serializable {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(final Repeat repeat) {
+        this.repeat = repeat;
     }
 
     @Override
@@ -137,6 +203,8 @@ public class JobDetail implements Serializable {
                 .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
                 .append(description, jobDetail.description)
+                .append(parentJobId, jobDetail.parentJobId)
+                .append(repeat, jobDetail.repeat)
                 .isEquals();
     }
 
@@ -150,6 +218,8 @@ public class JobDetail implements Serializable {
                 .append(endTime)
                 .append(status)
                 .append(description)
+                .append(parentJobId)
+                .append(repeat)
                 .toHashCode();
     }
 
@@ -163,6 +233,8 @@ public class JobDetail implements Serializable {
                 .append("endTime", endTime)
                 .append("opChain", opChain)
                 .append("description", description)
+                .append("parentJobId", parentJobId)
+                .append("repeat", repeat)
                 .toString();
     }
 

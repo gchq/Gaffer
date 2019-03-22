@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -37,9 +38,11 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
@@ -84,6 +87,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
@@ -124,6 +128,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -131,7 +136,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RunnableScheduledFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -141,7 +149,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -387,7 +397,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new SetVariable.Builder().variableName("aVariable").input("inputString").build();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise("graphId", schema, properties);
@@ -546,6 +556,7 @@ public class StoreTest {
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
+                CancelScheduledJob.class,
 
                 // Function
                 Filter.class,
@@ -654,6 +665,7 @@ public class StoreTest {
                 ToSingletonList.class,
                 ForEach.class,
                 Reduce.class,
+                CancelScheduledJob.class,
 
                 // Function
                 Filter.class,
@@ -721,9 +733,9 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJob() throws OperationException, InterruptedException, StoreException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -751,9 +763,9 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, InterruptedException, StoreException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -778,7 +790,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
+    public void shouldGetJobTracker() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -882,10 +894,48 @@ public class StoreTest {
         fail("Exception wasn't caught");
     }
 
+    @Test
+    public void shouldCorrectlySetUpScheduledJobDetail() throws Exception {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        
+        StoreImpl2 store = new StoreImpl2();
+
+        store.initialise("graphId", schema, properties);
+
+        final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
+        final OperationChain opChain = new OperationChain
+                .Builder()
+                .first(new DiscardOutput())
+                .build();
+        final Context context = new Context(user);
+        final String opChainString = new String(JSONSerialiser.serialise(new OperationChainDAO(opChain.getOperations())), Charset.forName(CommonConstants.UTF_8));
+
+        // When - setup job
+        JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
+
+        ScheduledExecutorService service = store.getExecutorService();
+
+        // Then - assert scheduled
+        verify(service, times(1)).scheduleAtFixedRate(
+                any(Runnable.class),
+                eq(repeat.getInitialDelay()),
+                eq(repeat.getRepeatPeriod()),
+                eq(repeat.getTimeUnit()));
+
+        // Then - assert job detail is as expected
+        assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
+        assertEquals(opChainString, parentJobDetail.getOpChain());
+        assertEquals(context.getUser().getUserId(), parentJobDetail.getUserId());
+    }
+
     private class StoreImpl extends Store {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
         @Override
         protected OperationChainValidator createOperationChainValidator() {
@@ -898,6 +948,14 @@ public class StoreTest {
         }
 
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
             return super.getOperationHandler(opClass);
         }
 
@@ -963,6 +1021,113 @@ public class StoreTest {
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return Serialiser.class;
+        }
+    }
+
+    // Second store implementation with overriding ExecutorService.
+    // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
+    private class StoreImpl2 extends Store {
+        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private int createOperationHandlersCallCount;
+        private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
+        }
+
+        @Override
+        public Set<StoreTrait> getTraits() {
+            return TRAITS;
+        }
+
+        public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+            if (opClass.equals(SetVariable.class)) {
+                return null;
+            }
+            return super.getOperationHandler(opClass);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+            createOperationHandlersCallCount++;
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+            return getElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+            return getAllElementsHandler;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
+        }
+
+        @Override
+        protected OperationHandler<AddElements> getAddElementsHandler() {
+            return addElementsHandler;
+        }
+
+        @Override
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
+        }
+
+        public int getCreateOperationHandlersCallCount() {
+            return createOperationHandlersCallCount;
+        }
+
+        public ArrayList<Operation> getDoUnhandledOperationCalls() {
+            return doUnhandledOperationCalls;
+        }
+
+        @Override
+        public void optimiseSchema() {
+            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        }
+
+        @Override
+        protected JobTracker createJobTracker() {
+            if (getProperties().getJobTrackerEnabled()) {
+                return jobTracker;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
+        }
+
+        @Override
+        protected ScheduledExecutorService getExecutorService() {
+            ScheduledFuture<?> future = Mockito.mock(RunnableScheduledFuture.class);
+            doReturn(future).when(executorService).scheduleAtFixedRate(
+                    any(Runnable.class),
+                    anyLong(),
+                    anyLong(),
+                    any(TimeUnit.class)
+            );
+            return executorService;
         }
     }
 
