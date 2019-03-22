@@ -36,11 +36,9 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ElementMerge;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.MergeType;
-import uk.gov.gchq.gaffer.store.operation.handler.join.merge.ResultsWanted;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,13 +63,12 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void testNestedViewCompletedIfNotSupplied() throws Exception {
         // Given
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(new GetAllElements())
-                .joinType(JoinType.FULL_INNER)
+                .joinType(JoinType.INNER)
                 .matchKey(MatchKey.LEFT)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
         // When / Then - no exceptions
@@ -79,109 +76,46 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldLeftKeyFullInnerJoin() throws OperationException {
-        // Given
-        final List<Element> expectedElements = Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4));
-
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElements)
-                .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_INNER)
-                .matchKey(MatchKey.LEFT)
-                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
-
-        // Then
-        ElementUtil.assertElementEquals(expectedElements, results);
-    }
-
-    @Test
-    public void shouldRightKeyFullInnerJoin() throws OperationException {
-        // Given
-        final List<Element> expectedResults = Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4));
-
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElements)
-                .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_INNER)
-                .matchKey(MatchKey.RIGHT)
-                .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
-
-        // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
-    }
-
-    @Test
     public void shouldLeftKeyFullJoin() throws OperationException {
         // Given
         final List<Element> expectedResults = new ArrayList<>(inputElements);
-        expectedResults.add(getJoinEntity(TestGroups.ENTITY_3, 8));
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.LEFT)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
+                .flatten(false)
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.LEFT);
     }
 
     @Test
     public void shouldRightKeyFullJoin() throws OperationException {
         // Given
-        final List<Element> expectedResults = inputElements;
+        final List<Element> expectedResults = innerJoinElements;
         expectedResults.add(getJoinEntity(TestGroups.ENTITY_3, 8));
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.FULL)
                 .matchKey(MatchKey.RIGHT)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
+                .flatten(false)
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
-    }
-
-    @Test
-    public void shouldFullOuterJoin() throws OperationException {
-        // Given
-        final List<Element> expectedResults = new ArrayList<>();
-
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
-                .input(inputElements)
-                .operation(rhsGetElementsOperation)
-                .joinType(JoinType.FULL_OUTER)
-                .matchMethod(new ElementMatch())
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
-                .build();
-
-        // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
-
-        // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.RIGHT);
     }
 
     @Test
@@ -189,20 +123,20 @@ public class JoinIT extends AbstractStoreIT {
         // Given
         final List<Element> expectedResults = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 6)));
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.LEFT)
+                .flatten(false)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.LEFT);
     }
 
     @Test
@@ -210,20 +144,20 @@ public class JoinIT extends AbstractStoreIT {
         // Given
         final List<Element> expectedResults = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 8)));
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.OUTER)
                 .matchKey(MatchKey.RIGHT)
+                .flatten(false)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.RIGHT);
     }
 
     @Test
@@ -231,20 +165,20 @@ public class JoinIT extends AbstractStoreIT {
         // Given
         final List<Element> expectedResults = innerJoinElements;
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.LEFT)
+                .flatten(false)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.LEFT);
     }
 
     @Test
@@ -252,20 +186,31 @@ public class JoinIT extends AbstractStoreIT {
         // Given
         final List<Element> expectedResults = innerJoinElements;
 
-        Join<Element, Element> joinOp = new Join.Builder<Element, Element>()
+        Join<Element> joinOp = new Join.Builder<Element>()
                 .input(inputElements)
                 .operation(rhsGetElementsOperation)
                 .joinType(JoinType.INNER)
                 .matchKey(MatchKey.RIGHT)
                 .matchMethod(new ElementMatch(TestPropertyNames.COUNT))
-                .mergeMethod(new ElementMerge(ResultsWanted.KEY_ONLY, MergeType.NONE))
+                .flatten(false)
                 .build();
 
         // When
-        final Iterable<? extends Element> results = graph.execute(joinOp, getUser());
+        final Iterable<? extends MapTuple> results = graph.execute(joinOp, getUser());
 
         // Then
-        ElementUtil.assertElementEquals(expectedResults, results);
+        assertKeysExist(expectedResults, results, MatchKey.RIGHT);
+    }
+
+    private void assertKeysExist(final Iterable<Element> expected, final Iterable<? extends MapTuple> actual, final MatchKey matchKey) {
+        final List<Element> joinedKeys = new ArrayList<>();
+
+        for (final MapTuple result : actual) {
+            joinedKeys.add((Element) result.get(matchKey.name()));
+        }
+
+        ElementUtil.assertElementEquals(expected, joinedKeys);
+
     }
 
     @Override
