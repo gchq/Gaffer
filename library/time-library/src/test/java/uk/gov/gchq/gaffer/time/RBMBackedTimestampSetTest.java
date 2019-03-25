@@ -112,7 +112,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     }
 
     @Test
-    public void testFilterByTimeRange() {
+    public void shouldFilterByTimeRangeWhenTwoValidTimestampsAreSupplied() {
         // Given
         final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
         timestampSet.add(instant1);
