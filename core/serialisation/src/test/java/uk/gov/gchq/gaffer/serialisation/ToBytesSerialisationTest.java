@@ -16,14 +16,15 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
+import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
@@ -51,7 +52,7 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
     @Test
     public void shouldHaveValidEqualsMethodForToByteSerialiser() {
         final Serialiser<T, byte[]> serialiser2 = getSerialisation();
-        assertNotSame("The getSerialisation() shouldn't return the same instance each time it's called, required for this test.",this.serialiser, serialiser2);
-        assertEquals("different instances that are the same should be equal",this.serialiser, serialiser2);
+        assertNotSame("The getSerialisation() shouldn't return the same instance each time it's called, required for this test.", this.serialiser, serialiser2);
+        assertEquals("different instances that are the same should be equal", this.serialiser, serialiser2);
     }
 }
