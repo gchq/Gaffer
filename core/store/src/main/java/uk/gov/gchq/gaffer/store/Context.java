@@ -62,6 +62,9 @@ public class Context {
     public Context(final Context context) {
         this(null != context ? context.user : null, null != context ? context.config : null);
         exporters.putAll(context.exporters);
+        if (null != context.variables) {
+            variables = context.getVariables();
+        }
         if (null != context.originalOpChain) {
             originalOpChain = context.originalOpChain.shallowClone();
         }
@@ -137,18 +140,21 @@ public class Context {
     }
 
     public void setVariable(final String key, final Object value) {
-        if (null != variables) {
+        if (null != this.variables) {
             this.variables.put(key, value);
         } else {
-            setVariables(Collections.singletonMap(key, value));
+            Map<String, Object> newVariablesMap = new HashMap<>();
+            newVariablesMap.put(key, value);
+            setVariables(newVariablesMap);
         }
     }
 
     public void addVariables(final Map<String, Object> variables) {
-        if (null != variables) {
+        if (null != this.variables) {
             this.variables.putAll(variables);
         } else {
-            setVariables(variables);
+            Map<String, Object> newVariablesMap = new HashMap<>(variables);
+            setVariables(newVariablesMap);
         }
     }
 
@@ -293,7 +299,11 @@ public class Context {
         }
 
         public Context build() {
-            return new Context(user, config, jobId);
+            Context context = new Context(user, config, jobId);
+            if (!variables.isEmpty()) {
+                context.setVariables(variables);
+            }
+            return context;
         }
     }
 }

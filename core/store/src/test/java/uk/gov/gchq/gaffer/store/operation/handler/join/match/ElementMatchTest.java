@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ElementMatchTest {
 
@@ -45,9 +44,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(2, matchingElements.size());
@@ -74,9 +74,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(1, matchingElements.size());
@@ -103,13 +104,47 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(0, matchingElements.size());
     }
+
+    @Test
+    public void shouldThrowExceptionIfInitialisedWithNullValue() {
+        // Given
+
+        ElementMatch elementMatch = new ElementMatch();
+
+        // When / Then
+
+        try {
+            elementMatch.init(null);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfNotInitialised() {
+        // Given
+
+        ElementMatch elementMatch = new ElementMatch();
+
+        // When / Then
+
+        try {
+            elementMatch.matching(new Entity("testGroup", "test"));
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
+        }
+    }
+
 
     @Test
     public void shouldFullyMatchEqualElementsWithGroupBy() {
@@ -124,9 +159,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(2, matchingElements.size());
@@ -153,9 +189,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(1, matchingElements.size());
@@ -190,9 +227,10 @@ public class ElementMatchTest {
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity3.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
+        elementMatch.init(comparisonEntityList);
 
         // When
-        List<Element> matchingElements = elementMatch.matching(testEntity, comparisonEntityList);
+        List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
         assertEquals(0, matchingElements.size());
