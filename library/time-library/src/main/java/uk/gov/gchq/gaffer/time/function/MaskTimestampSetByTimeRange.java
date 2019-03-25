@@ -23,27 +23,27 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import java.time.Instant;
 
 /**
- * A {@code FilterTimestampSetByTimeRange} is a {@link uk.gov.gchq.koryphe.function.KorypheFunction} that takes in a
+ * A {@code MaskTimestampSetByTimeRange} is a {@link uk.gov.gchq.koryphe.function.KorypheFunction} that takes in a
  * {@link RBMBackedTimestampSet} and filters the internal timestamps by a start time and end time.
  */
 @Since("1.9.0")
-@Summary("Filters a RBMBackedTimestampSet by a time range")
-public class FilterTimestampSetByTimeRange extends KorypheFunction<RBMBackedTimestampSet, RBMBackedTimestampSet> {
+@Summary("Masks a RBMBackedTimestampSet by a time range")
+public class MaskTimestampSetByTimeRange extends KorypheFunction<RBMBackedTimestampSet, RBMBackedTimestampSet> {
     long timeRangeStartEpochMilli;
     long timeRangeEndEpochMilli;
 
-    public FilterTimestampSetByTimeRange() {
+    public MaskTimestampSetByTimeRange() {
         // Required for serialisation
     }
 
-    public FilterTimestampSetByTimeRange(final long timeRangeStartEpochMilli, final long timeRangeEndEpochMilli) {
+    public MaskTimestampSetByTimeRange(final long timeRangeStartEpochMilli, final long timeRangeEndEpochMilli) {
         this.timeRangeStartEpochMilli = timeRangeStartEpochMilli;
         this.timeRangeEndEpochMilli = timeRangeEndEpochMilli;
     }
 
     @Override
     public RBMBackedTimestampSet apply(final RBMBackedTimestampSet rbmBackedTimestampSet) {
-        rbmBackedTimestampSet.filterByTimeRange(Instant.ofEpochMilli(timeRangeStartEpochMilli), Instant.ofEpochMilli(timeRangeEndEpochMilli));
+        rbmBackedTimestampSet.applyTimeRangeMask(Instant.ofEpochMilli(timeRangeStartEpochMilli), Instant.ofEpochMilli(timeRangeEndEpochMilli));
         return rbmBackedTimestampSet;
     }
 
