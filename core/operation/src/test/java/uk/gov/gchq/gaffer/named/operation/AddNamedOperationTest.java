@@ -79,6 +79,43 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(deserialisedObj);
     }
 
+    @Test
+    public void shouldJsonSerialiseAndDeserialiseOldVersion() {
+        //Given
+        Map<String, ParameterDetail> parameters = new HashMap<>();
+        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", null));
+
+        final AddNamedOperation obj = new AddNamedOperation.Builder()
+                .operationChain(OPERATION_CHAIN)
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite()
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .parameters(parameters)
+                .score(0)
+                .build();
+
+        // When
+        final byte[] json = toJson(obj);
+        final AddNamedOperation deserialisedObj = fromJson(json);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{%n" +
+                " \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
+                " \"operationName\": \"Test\",%n" +
+                " \"description\": \"Test Named Operation\",%n" +
+                " \"score\": 0,%n" +
+                " \"operationChain\": {" +
+                " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
+                " \"overwriteFlag\" : true,%n" +
+                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false}},%n" +
+                " \"readAccessRoles\" : [ \"User\" ],%n" +
+                " \"writeAccessRoles\" : [ \"User\" ]%n" +
+                "}"), new String(json));
+        assertNotNull(deserialisedObj);
+    }
+
     @Override
     public void builderShouldCreatePopulatedOperation() {
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
