@@ -22,12 +22,9 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -140,5 +137,66 @@ public class ContextTest {
 
         // Then
         assertSame(opChain, context.getOriginalOpChain());
+    }
+
+    @Test
+    public void shouldShallowCloneContext() {
+        // Given
+        final User user = new User("user");
+        final String testConf = "testConf";
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(testConf, "testConfVal")
+                .variable("testVar", "testVarVal")
+                .build();
+
+        // When
+        Context clonedContext = context.shallowClone();
+
+        // Then
+        assertNotSame(context, clonedContext);
+        assertEquals(context.getUser(), clonedContext.getUser());
+        assertEquals(context.getExporters().toString(),
+                clonedContext.getExporters().toString());
+        assertEquals(context.getConfig(testConf), clonedContext.getConfig(testConf));
+        assertEquals(context.getVariables(), clonedContext.getVariables());
+    }
+
+    @Test
+    public void shouldAddVariables() {
+        // Given
+        final User user = new User("user");
+        final String testConf = "testConf";
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(testConf, "testConfVal")
+                .build();
+        // When
+        context.setVariable("testVar", "testVarVal");
+        context.setVariable("testVar2", "testVarVal2");
+
+        // Then
+        assertFalse(context.getVariables().isEmpty());
+        assertEquals(context.getVariable("testVar"), "testVarVal");
+        assertEquals(context.getVariable("testVar2"), "testVarVal2");
+    }
+
+    @Test
+    public void shouldAddVariables2() {
+        // Given
+        final User user = new User("user");
+        final String testConf = "testConf";
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(testConf, "testConfVal")
+                .build();
+        // When
+        context.addVariables(Collections.singletonMap("testVar", "testVarVal"));
+        context.addVariables(Collections.singletonMap("testVar2", "testVarVal2"));
+
+        // Then
+        assertFalse(context.getVariables().isEmpty());
+        assertEquals(context.getVariable("testVar"), "testVarVal");
+        assertEquals(context.getVariable("testVar2"), "testVarVal2");
     }
 }
