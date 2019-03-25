@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.join;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -149,12 +150,18 @@ public class Join<I> implements InputOutput<Iterable<? extends I>,
         return TypeReferenceImpl.createIterableT();
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         List operations = new ArrayList<>();
         operations.add(rightSideOperation);
         return operations;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return MultiInput.super.createInputArray();
     }
 
     public static final class Builder<I>
