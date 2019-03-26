@@ -80,7 +80,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     }
 
     @Test
-    public void shouldJsonSerialiseAndDeserialiseOldVersion() {
+    public void shouldJsonSerialiseAndDeserialiseWithNoOptions() {
         //Given
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", null));
