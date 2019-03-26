@@ -44,7 +44,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         //Given
-        List<String> options = Arrays.asList("option1", "option2", "option3");
+        List options = Arrays.asList("option1", "option2", "option3");
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", options));
 

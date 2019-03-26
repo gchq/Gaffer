@@ -38,9 +38,9 @@ public class ParameterDetail implements Serializable {
     private Object defaultValue;
     private Class valueClass;
     private boolean required;
-    private List<String> options;
+    private List options;
 
-    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final List<String> options) {
+    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final List options) {
         if (null == description) {
             throw new IllegalArgumentException("description must not be empty");
         }
@@ -69,11 +69,11 @@ public class ParameterDetail implements Serializable {
         return description;
     }
 
-    public List<String> getOptions() {
+    public List getOptions() {
         return options;
     }
 
-    public void setOptions(final List<String> options) {
+    public void setOptions(final List options) {
         this.options = options;
     }
 
@@ -139,7 +139,7 @@ public class ParameterDetail implements Serializable {
         private Object defaultValue;
         private boolean required = false;
         private Class valueClass;
-        private List<String> options;
+        private List options;
 
         public Builder defaultValue(final Object defaultValue) {
             this.defaultValue = defaultValue;
@@ -161,7 +161,7 @@ public class ParameterDetail implements Serializable {
             return this;
         }
 
-        public Builder options(final List<String> options) {
+        public Builder options(final List options) {
             this.options = options;
             return this;
         }
