@@ -77,33 +77,7 @@ public class ParquetStorePropertiesTest {
         assertEquals((Integer) 100000, props.getPageSize());
     }
 
-    @Test
-    public void sampleRateTest(){
-        assertEquals((Integer) 10, props.getSampleRate());
-        props.setSampleRate(100000);
-        assertEquals((Integer) 100000, props.getSampleRate());
-    }
 
-    @Test
-    public void addElementsOutputFilesPerGroupTest() {
-        assertEquals(10, props.getAddElementsOutputFilesPerGroup());
-        props.setAddElementsOutputFilesPerGroup(10000);
-        assertEquals(10000, props.getAddElementsOutputFilesPerGroup());
-    }
-
-    @Test
-    public void aggregateTest() {
-        assertEquals(true, props.getAggregateOnIngest());
-        props.setAggregateOnIngest(false);
-        assertEquals(false, props.getAggregateOnIngest());
-    }
-
-    @Test
-    public void sortBySplitsTest() {
-        assertEquals(false, props.getSortBySplitsOnIngest());
-        props.setSortBySplitsOnIngest(true);
-        assertEquals(true, props.getSortBySplitsOnIngest());
-    }
 
     @Test
     public void sparkMasterTest() {

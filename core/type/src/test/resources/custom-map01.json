@@ -1,0 +1,20 @@
+{
+  "class" : "uk.gov.gchq.gaffer.types.CustomMap",
+  "keySerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+  },
+  "valueSerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser"
+  },
+  "jsonStorage" : [ {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : "two",
+      "second" : 2222
+    }
+  }, {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : "one",
+      "second" : 1111
+    }
+  } ]
+}

@@ -50,9 +50,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 
-public class NamedOperationResolverTest {
+public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    public NamedOperationResolverTest() { super(NamedOperationResolver.class); }
 
     @Test
     public void shouldResolveNamedOperation() throws OperationException, CacheOperationFailedException {
@@ -339,7 +341,7 @@ public class NamedOperationResolverTest {
                         .build())
                 .build(), new Context(user));
     }
-
+  
     @Test
     public void shouldReturnOperationsInParameters() {
         // Given
@@ -358,4 +360,7 @@ public class NamedOperationResolverTest {
         assertEquals(paramOperations.size(),1);
         assertEquals(op.getClass(),GetElements.class);
     }
+
+    @Override
+    public NamedOperationResolver getTestObject() { return new NamedOperationResolver(); }
 }
