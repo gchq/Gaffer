@@ -24,8 +24,8 @@ Contents:
 4. [Schema](#schema)
 5. [Inserting data](#inserting-data)
 6. [Queries](#queries)
-7. [Custom serialisers](##Writing a custom serialiser)
-7. [Optimisations](README.md#optimisations)
+7. [Custom serialisers](#custom-serialisers)
+7. [Optimisations](#optimisations)
 7. [Troubleshooting](#troubleshooting)
 8. [Implementation details](#implementation-details)
    - [Code overview](#code-overview)
@@ -57,7 +57,7 @@ Each vertex and property is stored in one or more columns. Properties that are s
 
 The store properties require a directory to be provided. That directory contains a subdirectory for each snapshot of the graph. Each time data is added to the graph a new copy of the graph is created containing the old and new data merged together. Within each snapshot directory, there is a graph directory containing a directory per group. This directory contains Parquet files that contain elements of that group. This allows analytics that only require a subset of the groups to avoid the cost of reading unnecessary data.
 
-Within each group, the elements are stored globally sorted by vertex in the case of Entitys or by source vertex in the case of Edges. This means that a query for all edges of a given group involving a vertex only needs to open a small number of the files in order to find the required data. As the data is sorted, Parquet's statistics allow it to avoid reading unnecessary row groups. This allows low latency random access queries.
+Within each group, the elements are stored globally, sorted by vertex in the case of Entities or by source in the case of Edges. This means that a query for all edges of a given group involving a vertex only needs to open a small number of the files in order to find the required data. As the data is sorted, Parquet's statistics allow it to avoid reading unnecessary row groups. This allows low latency random access queries.
 
 There is also a directory called reversedEdges which contains subdirectories for each edge group within which the elements are stored sorted by destination vertex.
 
@@ -82,7 +82,7 @@ As many of the operations on the Parquet store use Spark to implement the partit
 The `ParquetStoreProperties` class contains all properties relating to the configuration of the `ParquetStore`. It can be created from a properties file. It has sensible defaults for all parameters but users may want to tune these properties to suit their data. The following properties can be set:
 
 - `spark.master`: The string that sets what mode to run Spark in. By default, if Spark is installed on the machine it will use Spark's defaults, otherwise it will run in local mode using all available threads;
-- `parquet.data.dir`: The directory to use to save the graph;
+- `parquet.data.dir`: The directory used to save the graph;
 - `parquet.temp_data.dir`: The directory to use as a working space for temporary data generated whilst add operations are being executed;
 - `parquet.threadsAvailable`: The number of threads to make available to operations (this is for operations that do not use Spark);
 - `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
@@ -118,7 +118,7 @@ Graph graph = new Graph.Builder()
       .build();
 ```
 
-To get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`. See the section on serialisers in this README for further information about serialisers optimised to work with the Parquet store.
+To get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`. See the section on [serialisers](custom-serialisers) for further information about serialisers optimised to work with the Parquet store.
 
 ## Inserting data
 
