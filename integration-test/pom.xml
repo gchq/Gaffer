@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>1.8.2-SNAPSHOT</version>
+        <version>1.8.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-test</artifactId>
@@ -31,6 +31,17 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>${mockserver.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -59,7 +70,6 @@
             <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Hamcrest testing helpers -->
         <dependency>
             <groupId>org.hamcrest</groupId>

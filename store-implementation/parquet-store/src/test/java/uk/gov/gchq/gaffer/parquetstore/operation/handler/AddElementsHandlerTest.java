@@ -103,7 +103,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex and date.
         final Row[] results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(40, results.length);
@@ -182,7 +181,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex and date.
         Row[] results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(40, results.length);
@@ -212,7 +210,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex.
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, "graph/group=BasicEntity2/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(4, results.length);
@@ -229,7 +226,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed, date
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -247,7 +243,6 @@ public class AddElementsHandlerTest {
                 results[5]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -271,7 +266,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(4, results.length);
@@ -281,7 +275,6 @@ public class AddElementsHandlerTest {
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[3]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(4, results.length);
@@ -386,7 +379,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex and date.
         Row[] results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(40, results.length);
@@ -416,7 +408,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex.
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -435,7 +426,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed, date
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -453,7 +443,6 @@ public class AddElementsHandlerTest {
                 results[5]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -476,7 +465,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -490,7 +478,6 @@ public class AddElementsHandlerTest {
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[7]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -523,7 +510,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex and date.
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(40, results.length);
@@ -553,7 +539,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by vertex.
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(12, results.length);
@@ -576,7 +561,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed, date
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -594,7 +578,6 @@ public class AddElementsHandlerTest {
                 results[5]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(6, results.length);
@@ -617,7 +600,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -631,7 +613,6 @@ public class AddElementsHandlerTest {
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[7]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -651,7 +632,6 @@ public class AddElementsHandlerTest {
         // - The files should contain the data sorted by source, destination, directed
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
@@ -665,7 +645,6 @@ public class AddElementsHandlerTest {
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[7]);
         results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
         assertEquals(8, results.length);
