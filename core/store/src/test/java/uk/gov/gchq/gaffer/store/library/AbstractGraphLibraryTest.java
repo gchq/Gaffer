@@ -167,7 +167,7 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
         // Given
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
-        StoreProperties tempStoreProperties = storeProperties.clone();
+        StoreProperties tempStoreProperties = new StoreProperties(storeProperties);
         tempStoreProperties.setProperty("testKey", "testValue");
 
         // When / Then
@@ -183,7 +183,7 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldUpdateStoreProperties() {
         // Given
         graphLibrary.addOrUpdateProperties(TEST_PROPERTIES_ID, storeProperties);
-        StoreProperties tempStoreProperties = storeProperties.clone();
+        StoreProperties tempStoreProperties = new StoreProperties(storeProperties);
         tempStoreProperties.setProperty("testKey", "testValue");
 
         // Then
@@ -214,7 +214,7 @@ public abstract class AbstractGraphLibraryTest {
         // Given
         graphLibrary.add(TEST_GRAPH_ID, schema1, storeProperties);
 
-        final StoreProperties storePropertiesClone = storeProperties.clone();
+        final StoreProperties storePropertiesClone = new StoreProperties(storeProperties);
 
         // When
         graphLibrary.checkExisting(TEST_GRAPH_ID, schema1, storePropertiesClone);
@@ -258,7 +258,7 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldThrowExceptionWhenNewStorePropertiesAreAddedWithSamePropertiesIdAndDifferentProperties() {
         // Given
-        final StoreProperties tempStoreProperties = storeProperties.clone();
+        final StoreProperties tempStoreProperties = new StoreProperties(storeProperties);
         tempStoreProperties.setProperty("randomKey", "randomValue");
 
         // When
@@ -296,7 +296,7 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldIgnoreDuplicateAdditionWhenStorePropertiesAreIdentical() {
         // Given
-        final StoreProperties tempStoreProperties = storeProperties.clone();
+        final StoreProperties tempStoreProperties = new StoreProperties(storeProperties);
 
         // When
         graphLibrary.addProperties(TEST_PROPERTIES_ID, storeProperties);

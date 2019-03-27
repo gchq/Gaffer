@@ -139,7 +139,7 @@ public abstract class AbstractStoreIT {
     }
 
     public static StoreProperties getStoreProperties() {
-        return storeProperties.clone();
+        return new StoreProperties(storeProperties);
     }
 
     public static Schema getStoreSchema() {

@@ -55,7 +55,7 @@ public class HashMapGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addProperties(final String propertiesId, final StoreProperties properties) {
-        PROPERTIES.put(propertiesId, properties.clone());
+        PROPERTIES.put(propertiesId, new StoreProperties(properties));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class HashMapGraphLibrary extends GraphLibrary {
     @Override
     protected StoreProperties _getProperties(final String propertiesId) {
         final StoreProperties storeProperties = PROPERTIES.get(propertiesId);
-        return (null == storeProperties) ? null : storeProperties.clone();
+        return (null == storeProperties) ? null : new StoreProperties(storeProperties);
     }
 
     @Override

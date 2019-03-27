@@ -26,7 +26,13 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +44,92 @@ public class StorePropertiesTest {
     @After
     public void cleanUp() {
         ReflectionUtil.resetReflectionPackages();
+    }
+
+    @Test
+    public void shouldConstructFromPath() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Paths.get("store.properties"));
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromPathString() {
+        // Given / When
+        StoreProperties properties = new StoreProperties("store.properties");
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromInputStream() throws IOException {
+        // Given
+        InputStream in = StorePropertiesTest.class.getClassLoader().getResourceAsStream("store.properties");
+
+        // When
+        StoreProperties properties = new StoreProperties(in);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+
+        in.close();
+    }
+
+    @Test
+    public void shouldConstructFromExistingProperties() {
+        // Given
+        Properties existing = new Properties();
+        existing.put("key1", "value1");
+        existing.put("testKey", "value1");
+
+        // When
+        StoreProperties properties = new StoreProperties(existing);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromExistingPropertiesAndSetStoreClass() {
+        // Given
+        Properties existing = new Properties();
+        existing.put("key1", "value1");
+        existing.put("testKey", "value1");
+
+        // When
+        StoreProperties properties = new StoreProperties(existing, Store.class);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
+    }
+
+    @Test
+    public void shouldConstructFromStoreClass() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Store.class);
+
+        // Then
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
+    }
+
+    @Test
+    public void shouldConstructFromPathAndStoreClass() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Paths.get("store.properties"), Store.class);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
     }
 
     @Test

@@ -17,12 +17,11 @@
 package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.io.BufferedInputStream;
@@ -31,7 +30,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
 /**
@@ -42,7 +40,7 @@ import java.util.Properties;
  * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
-public class StoreProperties extends Properties implements Cloneable {
+public class StoreProperties extends Properties {
     // Required for loading by reflection.
     public StoreProperties() {
         super();
@@ -53,25 +51,25 @@ public class StoreProperties extends Properties implements Cloneable {
     }
 
     public StoreProperties(final Path propFileLocation) {
-        try (InputStream buf = new BufferedInputStream(Files.newInputStream(propFileLocation))) {
-            load(buf);
+        try {
+            if (propFileLocation.toFile().exists()) {
+                load(Files.newInputStream(propFileLocation));
+            } else {
+                //If file cannot be found, attempt to load it from resources
+                load(StreamUtil.openStream(StoreProperties.class, propFileLocation.toString()));
+            }
         } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
     }
 
     public StoreProperties(final InputStream storePropertiesStream) {
-        if (null == storePropertiesStream) {
-            return;
-        }
-        try (InputStream buf = new BufferedInputStream(storePropertiesStream)) {
-            load(buf);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        }
+        super();
+        loadPropertiesFromStream(this, storePropertiesStream);
     }
 
     public StoreProperties(final Properties props) {
+        super();
         this.putAll(props);
     }
 
@@ -98,12 +96,16 @@ public class StoreProperties extends Properties implements Cloneable {
             return new StoreProperties();
         }
         final StoreProperties props = new StoreProperties();
-        try (InputStream buf = new BufferedInputStream(storePropertiesStream)) {
-            props.load(buf);
+        loadPropertiesFromStream(props, storePropertiesStream);
+        return props;
+    }
+
+    private static void loadPropertiesFromStream(final Properties properties, final InputStream inputStream) {
+        try (InputStream buf = new BufferedInputStream(inputStream)) {
+            properties.load(buf);
         } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
-        return props;
     }
 
     /**
@@ -126,15 +128,6 @@ public class StoreProperties extends Properties implements Cloneable {
         if (null != properties) {
             putAll(properties);
         }
-    }
-
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
-    @Override
-    public StoreProperties clone() {
-        StoreProperties cloned = new StoreProperties(this.defaults);
-        this.forEach(cloned::put);
-        return cloned;
     }
 
     @Override
