@@ -16,17 +16,28 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -47,5 +58,30 @@ public class FederatedOperationChainValidatorTest {
 
         // Then
         assertSame(schema, actualSchema);
+    }
+
+    @Test
+    public void shouldNotErrorWithInvalidViewFromMissingGraph() throws OperationException {
+        //given
+        String missingGraph = "missingGraph";
+        final Graph graph = new Graph.Builder()
+                .addStoreProperties(new FederatedStoreProperties())
+                .config(new GraphConfig.Builder().graphId("testFedGraph").build())
+                .build();
+
+        try {
+        //when
+        graph.execute(new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity("missingEntity")
+                        .build())
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, missingGraph)
+                .build(), new Context());
+        fail("exception expected");
+        } catch (final IllegalArgumentException e) {
+            //then
+            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
+        }
+
     }
 }

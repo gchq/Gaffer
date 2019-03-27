@@ -47,11 +47,15 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOperations> {
+public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations> {
+    private static final String ADDITIONAL_OPERATIONS_RESOURCE_PATH = "additionalOperations.json";
+
+    public AdditionalOperationsTest() { super(AdditionalOperations.class); }
+
     @Test
     public void shouldReturnClonedOperations() throws IOException {
         //Given
-        final AdditionalOperations additionalOperations = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), "additionalOperations.json"), AdditionalOperations.class);
+        final AdditionalOperations additionalOperations = fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
 
         // When / Then
         assertClonedOperations(additionalOperations.getStart(), additionalOperations.getStart());
@@ -104,7 +108,6 @@ public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOp
     }
 
     @Override
-    protected AdditionalOperations getTestObject() {
-        return new AdditionalOperations();
-    }
+    protected AdditionalOperations getTestObject() { return new AdditionalOperations(); }
+
 }

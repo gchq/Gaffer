@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -43,6 +44,14 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .path("/graph/operations/execute")
                 .request()
                 .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
+    }
+
+    public Response scheduleJob(final Job job) throws IOException {
+        startServer();
+        return client.target(uriString)
+                .path("/graph/jobs/schedule")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(job), APPLICATION_JSON_TYPE));
     }
 
     @Override

@@ -31,6 +31,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
+import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -221,6 +223,71 @@ public final class Graph {
         return _execute(store::executeJob, request);
     }
 
+    /**
+     * Performs the given Job on the store.
+     * This should be used for Scheduled Jobs,
+     * although if no repeat is set it
+     * will act as a normal Job.
+     *
+     * @param job  the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param user the user running the Job.
+     * @return the job detail.
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Job job, final User user) throws OperationException {
+        return executeJob(job, new Context(user));
+    }
+
+    /**
+     * Performs the given Job on the store.
+     * This should be used for Scheduled Jobs,
+     * although if no repeat is set it
+     * will act as a normal Job.
+     *
+     * @param job     the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param context the user context for the execution of the operation
+     * @return the job detail
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Job job, final Context context) throws OperationException {
+        if (null == context) {
+            throw new IllegalArgumentException("A context is required");
+        }
+
+        if (null == job) {
+            throw new IllegalArgumentException("A job is required");
+        }
+
+        context.setOriginalOpChain(job.getOpChainAsOperationChain());
+
+        final Context clonedContext = context.shallowClone();
+        final OperationChain clonedOpChain = job.getOpChainAsOperationChain().shallowClone();
+        JobDetail result = null;
+        try {
+            updateOperationChainView(clonedOpChain);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, clonedContext);
+            }
+            updateOperationChainView(clonedOpChain);
+            result = store.executeJob(job, context);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.postExecute(result, clonedOpChain, clonedContext);
+            }
+        } catch (final Exception e) {
+            for (final GraphHook graphHook : config.getHooks()) {
+                try {
+                    result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
+                } catch (final Exception graphHookE) {
+                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                }
+            }
+            CloseableUtil.close(clonedOpChain);
+            CloseableUtil.close(result);
+            throw e;
+        }
+        return result;
+    }
+
     private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request) throws OperationException {
         if (null == request) {
             throw new IllegalArgumentException("A request is required");
@@ -240,7 +307,26 @@ public final class Graph {
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
+            // TODO - remove in V2
+            // This updates the view, used for empty or null views, for
+            // example if there is a NamedOperation that has been resolved
+            // that contains an empty view
             updateOperationChainView(clonedOpChain);
+            // Runs the updateGraphHook instance (if set) or if not runs a
+            // new instance
+            UpdateViewHook hookInstance = null;
+            for (final GraphHook graphHook : config.getHooks()) {
+                if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
+                    hookInstance = (UpdateViewHook) graphHook;
+                    break;
+                }
+            }
+            if (null == hookInstance) {
+                UpdateViewHook updateViewHook = new UpdateViewHook();
+                updateViewHook.preExecute(clonedOpChain, clonedContext);
+            } else {
+                hookInstance.preExecute(clonedOpChain, clonedContext);
+            }
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, clonedContext);

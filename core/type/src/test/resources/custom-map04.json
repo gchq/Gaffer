@@ -1,0 +1,40 @@
+{
+  "class" : "uk.gov.gchq.gaffer.types.CustomMap",
+  "keySerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser"
+  },
+  "valueSerialiser" : {
+    "class" : "uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser"
+  },
+  "jsonStorage" : [ {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : {
+        "java.lang.Float" : 123.3
+      },
+      "second" : {
+        "uk.gov.gchq.gaffer.time.RBMBackedTimestampSet" : {
+          "earliest" : 0.000000000,
+          "latest" : 0.000000000,
+          "numberOfTimestamps" : 1,
+          "timeBucket" : "MINUTE",
+          "timestamps" : [ 0.000000000 ]
+        }
+      }
+    }
+  }, {
+    "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {
+      "first" : {
+        "java.lang.Float" : 345.6
+      },
+      "second" : {
+        "uk.gov.gchq.gaffer.time.RBMBackedTimestampSet" : {
+          "earliest" : 219600.000000000,
+          "latest" : 219600.000000000,
+          "numberOfTimestamps" : 1,
+          "timeBucket" : "HOUR",
+          "timestamps" : [ 219600.000000000 ]
+        }
+      }
+    }
+  } ]
+}
