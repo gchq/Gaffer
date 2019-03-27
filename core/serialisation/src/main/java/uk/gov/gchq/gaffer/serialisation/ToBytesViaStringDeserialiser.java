@@ -17,9 +17,7 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -87,15 +85,20 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
     protected abstract String serialiseToString(final T object) throws SerialisationException;
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final ToBytesViaStringDeserialiser that = (ToBytesViaStringDeserialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(charset, that.charset)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ToBytesViaStringDeserialiser serialiser = (ToBytesViaStringDeserialiser) obj;
+
+        return new EqualsBuilder()
+                .append(charset, serialiser.charset)
+                .isEquals();
     }
 
     @Override

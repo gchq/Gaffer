@@ -21,7 +21,6 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -31,8 +30,9 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
  * that wraps around any implementation of a Gaffer {@link ToBytesSerialiser}.
  * Implementations should simply use their constructor to call super with the wrapped {@link ToBytesSerialiser}
  * as the parameter.
- * @param <S>   the serialiser being wrapped
- * @param <T>   the type for which the serialiser is to serialise
+ *
+ * @param <S> the serialiser being wrapped
+ * @param <T> the type for which the serialiser is to serialise
  */
 public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> extends Serializer<T> {
     protected S serialiser;
@@ -69,15 +69,20 @@ public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> e
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final WrappedKryoSerializer that = (WrappedKryoSerializer) o;
-            rtn = new EqualsBuilder()
-                    .append(serialiser, that.serialiser)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final WrappedKryoSerializer serialiser = (WrappedKryoSerializer) obj;
+
+        return new EqualsBuilder()
+                .append(serialiser, serialiser.serialiser)
+                .isEquals();
     }
 
     @Override

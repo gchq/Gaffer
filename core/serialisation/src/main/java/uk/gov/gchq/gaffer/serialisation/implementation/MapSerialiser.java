@@ -15,22 +15,20 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * This class is used to serialise and deserialise {@link Map}s.
@@ -181,17 +179,22 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final MapSerialiser that = (MapSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(keySerialiser, that.keySerialiser)
-                    .append(valueSerialiser, that.valueSerialiser)
-                    .append(mapClass, that.mapClass)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final MapSerialiser serialiser = (MapSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(keySerialiser, serialiser.keySerialiser)
+                .append(valueSerialiser, serialiser.valueSerialiser)
+                .append(mapClass, serialiser.mapClass)
+                .isEquals();
     }
 
     @Override

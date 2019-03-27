@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
@@ -64,15 +63,20 @@ public class MyPropertySerialiser implements ToBytesSerialiser<MyProperty> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final MyPropertySerialiser that = (MyPropertySerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(integerSerialiser, that.integerSerialiser)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final MyPropertySerialiser serialiser = (MyPropertySerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(integerSerialiser, serialiser.integerSerialiser)
+                .isEquals();
     }
 
     @Override

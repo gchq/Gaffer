@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.serialiser;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -26,7 +25,6 @@ import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 
@@ -79,16 +77,22 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
             properties.put(propertyName, property);
         }
     }
+
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final PropertiesSerialiser that = (PropertiesSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(schema, that.schema)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final PropertiesSerialiser serialiser = (PropertiesSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(schema, serialiser.schema)
+                .isEquals();
     }
 
     @Override

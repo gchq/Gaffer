@@ -18,14 +18,11 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,19 +146,24 @@ public class MultiSerialiserStorage {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final MultiSerialiserStorage that = (MultiSerialiserStorage) o;
-            rtn = new EqualsBuilder()
-                    .append(keyToClass, that.keyToClass)
-                    .append(keyToSerialiser, that.keyToSerialiser)
-                    .append(classToKey, that.classToKey)
-                    .append(consistent, that.consistent)
-                    .append(preservesObjectOrdering, that.preservesObjectOrdering)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final MultiSerialiserStorage serialiser = (MultiSerialiserStorage) obj;
+
+        return new EqualsBuilder()
+                .append(keyToClass, serialiser.keyToClass)
+                .append(keyToSerialiser, serialiser.keyToSerialiser)
+                .append(classToKey, serialiser.classToKey)
+                .append(consistent, serialiser.consistent)
+                .append(preservesObjectOrdering, serialiser.preservesObjectOrdering)
+                .isEquals();
     }
 
     @Override

@@ -17,13 +17,11 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -137,15 +135,20 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final FreqMapSerialiser that = (FreqMapSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(longSerialiser, that.longSerialiser)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final FreqMapSerialiser serialiser = (FreqMapSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(longSerialiser, serialiser.longSerialiser)
+                .isEquals();
     }
 
     @Override

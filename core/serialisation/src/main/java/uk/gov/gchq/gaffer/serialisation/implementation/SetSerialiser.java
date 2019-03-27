@@ -18,15 +18,12 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -157,16 +154,21 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final SetSerialiser that = (SetSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(objectSerialiser, that.objectSerialiser)
-                    .append(setClass, that.setClass)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final SetSerialiser serialiser = (SetSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(objectSerialiser, serialiser.objectSerialiser)
+                .append(setClass, serialiser.setClass)
+                .isEquals();
     }
 
     @Override

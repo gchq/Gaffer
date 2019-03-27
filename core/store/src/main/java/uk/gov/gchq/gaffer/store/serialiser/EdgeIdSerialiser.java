@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.serialiser;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -26,7 +25,6 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -104,16 +102,21 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final EdgeIdSerialiser that = (EdgeIdSerialiser) o;
-            rtn = new EqualsBuilder()
-                    .append(booleanSerialiser, that.booleanSerialiser)
-                    .append(vertexSerialiser, that.vertexSerialiser)
-                    .isEquals();
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final EdgeIdSerialiser serialiser = (EdgeIdSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(booleanSerialiser, serialiser.booleanSerialiser)
+                .append(vertexSerialiser, serialiser.vertexSerialiser)
+                .isEquals();
     }
 
     @Override
