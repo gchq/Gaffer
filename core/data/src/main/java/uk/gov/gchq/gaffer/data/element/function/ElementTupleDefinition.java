@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public class ElementTupleDefinition extends HashMap<String, Object> {
 
     private static final long serialVersionUID = -2147030485732699831L;
 
-    // Just for json serialisation
     ElementTupleDefinition() {
+        // constructor for json serialisation
     }
 
     public ElementTupleDefinition(final String group) {

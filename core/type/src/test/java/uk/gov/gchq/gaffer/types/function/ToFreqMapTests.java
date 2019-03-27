@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import static org.junit.Assert.assertEquals;
@@ -33,7 +34,7 @@ public class ToFreqMapTests {
     }
 
     @Test
-    public void testEmptyString(){
+    public void testEmptyString() {
         String s = "";
         ToFreqMap toFreqMap = new ToFreqMap();
         FreqMap freqMap = new FreqMap("");
@@ -41,10 +42,10 @@ public class ToFreqMapTests {
     }
 
     @Test
-    public void testNull(){
+    public void testNull() {
         String s = null;
         ToFreqMap toFreqMap = new ToFreqMap();
-        FreqMap freqMap = new FreqMap((String)null);
+        FreqMap freqMap = new FreqMap((String) null);
         assertEquals(freqMap, toFreqMap.apply(s));
     }
 }

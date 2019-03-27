@@ -150,6 +150,4 @@ public final class CommonTimeUtil {
     public enum TimeBucket {
         SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR, MILLISECOND
     }
-
-
 }
