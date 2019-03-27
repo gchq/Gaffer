@@ -66,6 +66,16 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
         return false;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return CustomMapSerialiser.class.getName().hashCode();
+    }
+
     private static class CustomMapInterim implements Serializable {
         private static final long serialVersionUID = 8084628302737276436L;
         private ToBytesSerialiser keySerialiser;
