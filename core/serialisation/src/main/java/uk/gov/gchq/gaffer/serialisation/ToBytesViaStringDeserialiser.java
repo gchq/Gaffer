@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
