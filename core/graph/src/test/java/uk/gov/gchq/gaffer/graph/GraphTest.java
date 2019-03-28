@@ -91,12 +91,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1278,8 +1277,7 @@ public class GraphTest {
 
     @Test
     public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
-        final StoreProperties properties = mock(StoreProperties.class);
-        given(StorePropertiesUtil.getJobExecutorThreadCount(properties)).willReturn(1);
+        final StoreProperties properties = new StoreProperties();
 
         try {
             new Graph.Builder()

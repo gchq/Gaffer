@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Sets;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;

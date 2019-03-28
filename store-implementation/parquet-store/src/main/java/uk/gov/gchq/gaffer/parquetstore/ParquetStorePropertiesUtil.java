@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.parquetstore;
 
 import org.apache.commons.lang3.EnumUtils;
@@ -11,7 +27,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
-public class ParquetStorePropertiesUtil extends StorePropertiesUtil {
+public final class ParquetStorePropertiesUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStorePropertiesUtil.class);
 
     public static final String DATA_DIR = "parquet.data.dir";
@@ -39,6 +55,11 @@ public class ParquetStorePropertiesUtil extends StorePropertiesUtil {
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final String PARQUET_SKIP_VALIDATION_DEFAULT = "false";
     private static final String COMPRESSION_CODEC_DEFAULT = "GZIP";
+
+    private ParquetStorePropertiesUtil() {
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
+    }
 
     public static String getDataDir(final StoreProperties parquetStoreProperties) {
         return parquetStoreProperties.getProperty(DATA_DIR);
@@ -101,8 +122,8 @@ public class ParquetStorePropertiesUtil extends StorePropertiesUtil {
      * local machine will be used, if you run your code as a spark-submit command or from the spark-shell.
      * Otherwise a local Spark master will be used.
      *
+     * @param parquetStoreProperties the StoreProperties
      * @return The Spark master to be used.
-     * @param parquetStoreProperties
      */
     public static String getSparkMaster(final StoreProperties parquetStoreProperties) {
         LOGGER.debug("StoreProperties has Spark master set as: {}", parquetStoreProperties.getProperty(SPARK_MASTER, "Is not set"));

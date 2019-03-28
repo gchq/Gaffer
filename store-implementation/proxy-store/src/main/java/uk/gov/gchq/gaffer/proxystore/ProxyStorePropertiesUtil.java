@@ -1,14 +1,29 @@
+/*
+ * Copyright 2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.proxystore;
 
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class ProxyStorePropertiesUtil extends StorePropertiesUtil {
+public final class ProxyStorePropertiesUtil {
     public static final String GAFFER_HOST = "gaffer.host";
     public static final String GAFFER_PORT = "gaffer.port";
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
@@ -22,6 +37,11 @@ public class ProxyStorePropertiesUtil extends StorePropertiesUtil {
     public static final int DEFAULT_READ_TIMEOUT = 10000;
 
     private static final String GAFFER_REST_API_VERSION = "v2";
+
+    private ProxyStorePropertiesUtil() {
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
+    }
 
     public static int getConnectTimeout(final StoreProperties proxyProperties) {
         return readInt(proxyProperties, CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);

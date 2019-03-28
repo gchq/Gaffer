@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.hbasestore;
 
 import org.apache.hadoop.hbase.TableName;
@@ -7,7 +23,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
-public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
+public final class HBaseStorePropertiesUtil {
     public static final String ZOOKEEPERS = "hbase.zookeepers";
     /**
      * @deprecated use a graphId
@@ -19,6 +35,11 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "hbase.entriesForBatchScanner";
     public static final int WRITE_BUFFER_SIZE_DEFAULT = 1000000;
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT = "50000";
+
+    private HBaseStorePropertiesUtil() {
+        // private to prevent this class being instantiated.
+        // All methods are static and should be called directly.
+    }
 
     public static org.apache.hadoop.fs.Path getDependencyJarsHdfsDirPath(final StoreProperties hBaseProperties) {
         final String path = hBaseProperties.getProperty(DEPENDENCY_JARS_HDFS_DIR_PATH);
@@ -32,8 +53,8 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
     /**
      * Get the list of Zookeeper servers.
      *
+     * @param hBaseProperties the properties instance
      * @return A comma separated list of Zookeeper servers
-     * @param hBaseProperties
      */
     public static String getZookeepers(final StoreProperties hBaseProperties) {
         return hBaseProperties.getProperty(ZOOKEEPERS);
@@ -42,17 +63,17 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
     /**
      * Set the list of Zookeeper servers.
      *
-     * @param hBaseProperties
-     * @param zookeepers the list of Zookeeper servers
+     * @param hBaseProperties the properties instance
+     * @param zookeepers      the list of Zookeeper servers
      */
     public static void setZookeepers(final StoreProperties hBaseProperties, final String zookeepers) {
         hBaseProperties.setProperty(ZOOKEEPERS, zookeepers);
     }
 
     /**
+     * @param hBaseProperties the properties instance
      * @return The hbase table name
      * @deprecated use {@link HBaseStore#getTableName}
-     * @param hBaseProperties
      */
     @Deprecated
     public static String getTableName(final StoreProperties hBaseProperties) {
@@ -62,9 +83,9 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
     /**
      * Get the particular table.
      *
+     * @param hBaseProperties the properties instance
      * @return The hbase table
      * @deprecated use {@link HBaseStore#getTable}
-     * @param hBaseProperties
      */
     @Deprecated
     public static TableName getTable(final StoreProperties hBaseProperties) {
@@ -74,8 +95,8 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
     /**
      * Set the table name.
      *
-     * @param hBaseProperties
-     * @param table the table name
+     * @param hBaseProperties the properties instance
+     * @param table           the table name
      * @deprecated use a graphId
      */
     @Deprecated
@@ -100,9 +121,9 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
      * Get the max number of items that should be read into the scanner at any
      * one time
      *
+     * @param hBaseProperties the properties instance
      * @return An integer representing the max number of items that should be
      * read into the scanner at any one time
-     * @param hBaseProperties
      */
     public static int getMaxEntriesForBatchScanner(final StoreProperties hBaseProperties) {
         return Integer.parseInt(hBaseProperties.getProperty(MAX_ENTRIES_FOR_BATCH_SCANNER, MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT));
@@ -112,7 +133,7 @@ public class HBaseStorePropertiesUtil extends StorePropertiesUtil {
      * Set the max number of items that should be read into the scanner at any
      * one time
      *
-     * @param hBaseProperties
+     * @param hBaseProperties           the properties instance
      * @param maxEntriesForBatchScanner the max number of items that should be
      *                                  read into the scanner at any one time
      */

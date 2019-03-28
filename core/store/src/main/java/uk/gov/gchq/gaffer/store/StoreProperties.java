@@ -17,12 +17,9 @@
 package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -30,6 +27,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -131,37 +130,34 @@ public class StoreProperties extends Properties {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (null == obj || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        final StoreProperties properties = (StoreProperties) obj;
-        return new EqualsBuilder()
-                .append(defaults, properties.defaults)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(5, 7)
-                .append(defaults)
-                .toHashCode();
-    }
-
-    @Override
     public String toString() {
         if (DebugUtil.checkDebugMode()) {
-            return new ToStringBuilder(this)
-                    .append("properties", defaults)
-                    .toString();
+            return super.toString();
         }
 
         // If we are not in debug mode then don't return the property values in case we leak sensitive properties.
-        return super.toString();
+        int max = size() - 1;
+        if (max == -1) {
+            return "{}";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        Iterator<Map.Entry<Object, Object>> it = entrySet().iterator();
+
+        sb.append('{');
+        for (int i = 0; i < max; i++) {
+            Map.Entry<Object, Object> e = it.next();
+            Object key = e.getKey();
+            Object value = e.getValue();
+            sb.append(key == this ? "(this Map)" : key.toString());
+            sb.append('=');
+            sb.append(value == this ? "(this Map)" : "***");
+
+            if (i == max) {
+                return sb.append('}').toString();
+            }
+            sb.append(", ");
+        }
+        return sb.toString();
     }
 }
