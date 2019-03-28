@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.koryphe.util.IterableUtil;
@@ -63,7 +64,7 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      */
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
+        final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(), StorePropertiesUtil.getAdminAuth(store.getProperties()));
         return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
     }
 

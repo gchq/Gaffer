@@ -16,12 +16,12 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class FederatedStoreITs extends AbstractStoreITs {
-    private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {

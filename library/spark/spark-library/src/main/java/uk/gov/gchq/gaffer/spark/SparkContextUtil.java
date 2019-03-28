@@ -103,10 +103,10 @@ public final class SparkContextUtil {
 
     public static SparkSession createSparkSession(final StoreProperties storeProperties) {
         SparkSession.Builder builder = SparkSession.builder()
-                .appName(storeProperties.get(SparkConstants.APP_NAME, SparkConstants.DEFAULT_APP_NAME));
-        if (Boolean.parseBoolean(storeProperties.get(SparkConstants.USE_SPARK_DEFAULT_CONF, "false"))) {
+                .appName(storeProperties.getProperty(SparkConstants.APP_NAME, SparkConstants.DEFAULT_APP_NAME));
+        if (Boolean.parseBoolean(storeProperties.getProperty(SparkConstants.USE_SPARK_DEFAULT_CONF, "false"))) {
             final Properties properties = new Properties();
-            final String sparkDefaultConfPath = storeProperties.get(SparkConstants.SPARK_DEFAULT_CONF_PATH, SparkConstants.DEFAULT_SPARK_DEFAULT_CONF_PATH);
+            final String sparkDefaultConfPath = storeProperties.getProperty(SparkConstants.SPARK_DEFAULT_CONF_PATH, SparkConstants.DEFAULT_SPARK_DEFAULT_CONF_PATH);
             try {
                 properties.load(Files.newBufferedReader(Paths.get(sparkDefaultConfPath)));
             } catch (final IOException e) {
@@ -115,13 +115,13 @@ public final class SparkContextUtil {
             for (final Map.Entry<Object, Object> entry : properties.entrySet()) {
                 builder.config((String) entry.getKey(), (String) entry.getValue());
             }
-            final String sparkMaster = storeProperties.get(SparkConstants.MASTER);
+            final String sparkMaster = storeProperties.getProperty(SparkConstants.MASTER);
             builder = (sparkMaster == null || sparkMaster.isEmpty()) ? builder : builder.master(sparkMaster);
         } else {
-            builder.master(storeProperties.get(SparkConstants.MASTER, SparkConstants.MASTER_DEFAULT));
+            builder.master(storeProperties.getProperty(SparkConstants.MASTER, SparkConstants.MASTER_DEFAULT));
         }
-        builder.config(SparkConstants.SERIALIZER, storeProperties.get(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER))
-                .config(SparkConstants.KRYO_REGISTRATOR, storeProperties.get(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR));
+        builder.config(SparkConstants.SERIALIZER, storeProperties.getProperty(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER))
+                .config(SparkConstants.KRYO_REGISTRATOR, storeProperties.getProperty(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR));
         return builder.getOrCreate();
     }
 }

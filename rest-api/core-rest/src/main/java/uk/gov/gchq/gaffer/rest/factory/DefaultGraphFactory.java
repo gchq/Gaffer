@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 
 import java.nio.file.Path;
@@ -100,10 +101,10 @@ public class DefaultGraphFactory implements GraphFactory {
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
         }
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
+        final StoreProperties storeProperties = new StoreProperties(storePropertiesPath);
 
         // Disable any operations required
-        storeProperties.addOperationDeclarationPaths("disableOperations.json");
+        StorePropertiesUtil.addOperationDeclarationPaths(storeProperties, "disableOperations.json");
 
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storeProperties);

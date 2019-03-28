@@ -23,6 +23,7 @@ import org.apache.hadoop.hbase.client.Table;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.HBaseStorePropertiesUtil;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -61,7 +62,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final Table table = store.getTable();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
             final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
-            final int batchSize = store.getProperties().getWriteBufferSize();
+            final int batchSize = HBaseStorePropertiesUtil.getWriteBufferSize(store.getProperties());
             List<Put> puts = new ArrayList<>(batchSize);
             while (elements.hasNext()) {
                 for (int i = 0; i < batchSize && elements.hasNext(); i++) {

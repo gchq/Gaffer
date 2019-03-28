@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
@@ -51,7 +52,7 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
     @Override
     public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
-            cache.deleteNamedOperation(operation.getOperationName(), context.getUser(), store.getProperties().getAdminAuth());
+            cache.deleteNamedOperation(operation.getOperationName(), context.getUser(), StorePropertiesUtil.getAdminAuth(store.getProperties()));
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

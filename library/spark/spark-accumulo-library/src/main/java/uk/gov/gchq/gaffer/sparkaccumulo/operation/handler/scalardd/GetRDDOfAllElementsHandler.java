@@ -31,6 +31,7 @@ import scala.collection.Iterator;
 import scala.runtime.AbstractFunction1;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -142,10 +143,10 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             final byte[] serialisedConf = Utils.serialiseConfiguration(conf);
             final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
                     SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext(),
-                    accumuloStore.getProperties().getInstance(),
-                    accumuloStore.getProperties().getZookeepers(),
-                    accumuloStore.getProperties().getUser(),
-                    accumuloStore.getProperties().getPassword(),
+                    AccumuloStorePropertiesUtil.getInstance(accumuloStore.getProperties()),
+                    AccumuloStorePropertiesUtil.getZookeepers(accumuloStore.getProperties()),
+                    AccumuloStorePropertiesUtil.getUser(accumuloStore.getProperties()),
+                    AccumuloStorePropertiesUtil.getPassword(accumuloStore.getProperties()),
                     accumuloStore.getTableName(),
                     context.getUser().getDataAuths(),
                     serialisedConf);
@@ -156,7 +157,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
     }
 
     private void addValidationIterator(final AccumuloStore accumuloStore, final Configuration conf) {
-        if (accumuloStore.getProperties().getEnableValidatorIterator()) {
+        if (AccumuloStorePropertiesUtil.getEnableValidatorIterator(accumuloStore.getProperties())) {
             final IteratorSetting itrSetting = accumuloStore
                     .getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(accumuloStore);
             if (null == itrSetting) {

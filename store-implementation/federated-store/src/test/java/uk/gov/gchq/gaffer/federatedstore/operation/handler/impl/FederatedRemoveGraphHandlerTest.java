@@ -19,16 +19,17 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStorePropertiesUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -52,12 +53,12 @@ public class FederatedRemoveGraphHandlerTest {
     @Test
     public void shouldRemoveGraph() throws Exception {
         FederatedStore store = new FederatedStore();
-        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        final StoreProperties federatedStoreProperties = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(federatedStoreProperties, CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        StoreProperties storeProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(storeProperties, SingleUseMockAccumuloStore.class);
 
         store.addGraphs(testUser.getOpAuths(), null, false, new GraphSerialisable.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))

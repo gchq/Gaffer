@@ -26,10 +26,11 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
@@ -50,8 +51,8 @@ public class TestUtils {
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
 
-    public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
+    public static StoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
+        final StoreProperties properties = new StoreProperties();
         File dataFolder = new File(temporaryFolder.getRoot() + "/data");
         File tmpDataFolder = new File(temporaryFolder.getRoot() + "/tmpdata");
         if (!dataFolder.exists()) {
@@ -60,8 +61,8 @@ public class TestUtils {
         if (!tmpDataFolder.exists()) {
             tmpDataFolder = temporaryFolder.newFolder("tmpdata");
         }
-        properties.setDataDir(dataFolder.getAbsolutePath());
-        properties.setTempFilesDir(tmpDataFolder.getAbsolutePath());
+        ParquetStorePropertiesUtil.setDataDir(properties, dataFolder.getAbsolutePath());
+        ParquetStorePropertiesUtil.setTempFilesDir(properties, tmpDataFolder.getAbsolutePath());
         return properties;
     }
 
@@ -69,11 +70,11 @@ public class TestUtils {
         return JavaSparkContext.fromSparkContext(SparkSessionProvider.getSparkSession().sparkContext());
     }
 
-    public static ParquetStoreProperties getParquetStoreProperties(final String directory) {
-        final ParquetStoreProperties parquetStoreProperties = ParquetStoreProperties.loadStoreProperties(
+    public static StoreProperties getParquetStoreProperties(final String directory) {
+        final StoreProperties parquetStoreProperties = StoreProperties.loadStoreProperties(
                 AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
-        parquetStoreProperties.setDataDir(directory + "/data");
-        parquetStoreProperties.setTempFilesDir(directory + "/tmpdata");
+        ParquetStorePropertiesUtil.setDataDir(parquetStoreProperties, directory + "/data");
+        ParquetStorePropertiesUtil.setTempFilesDir(parquetStoreProperties, directory + "/tmpdata");
         return parquetStoreProperties;
     }
 

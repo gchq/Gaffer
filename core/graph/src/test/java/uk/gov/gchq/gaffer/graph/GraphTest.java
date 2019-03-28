@@ -71,6 +71,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -161,7 +162,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaModules() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -1111,14 +1112,14 @@ public class GraphTest {
                     .build();
             fail("exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + GRAPH_ID, e.getMessage());
+            assertEquals("The Store class name was not found in the store properties for key: " + StorePropertiesUtil.STORE_CLASS + ", GraphId: " + GRAPH_ID, e.getMessage());
         }
     }
 
     @Test
     public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1226,7 +1227,7 @@ public class GraphTest {
 
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         //When / Then
         try {
@@ -1249,7 +1250,7 @@ public class GraphTest {
     public void shouldThrowExceptionWithNullSchema() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         //When / Then
         try {
@@ -1278,7 +1279,7 @@ public class GraphTest {
     @Test
     public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(StorePropertiesUtil.getJobExecutorThreadCount(properties)).willReturn(1);
 
         try {
             new Graph.Builder()
@@ -1296,7 +1297,7 @@ public class GraphTest {
     public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -1383,7 +1384,7 @@ public class GraphTest {
     public void shouldAddHooksVarArgsAndGetGraphHooks() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
         final GraphHook graphHook1 = mock(GraphHook.class);
         final Log4jLogger graphHook2 = mock(Log4jLogger.class);
 
@@ -1405,7 +1406,7 @@ public class GraphTest {
     public void shouldAddHookAndGetGraphHooks() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStore.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStore.class.getName());
         TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final GraphHook graphHook1 = mock(GraphHook.class);
@@ -1430,7 +1431,7 @@ public class GraphTest {
     public void shouldAddNamedViewResolverHookAfterNamedOperationResolver() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStore.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStore.class.getName());
         TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final GraphHook graphHook1 = mock(GraphHook.class);
@@ -1455,7 +1456,7 @@ public class GraphTest {
     public void shouldAddHooksFromPathAndGetGraphHooks() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final File graphHooks = tempFolder.newFile("graphHooks.json");
         FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
@@ -1481,7 +1482,7 @@ public class GraphTest {
     public void shouldAddHookFromPathAndGetGraphHooks() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final File graphHook1File = tempFolder.newFile("opChainLimiter.json");
         FileUtils.writeLines(graphHook1File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
@@ -1508,7 +1509,7 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigFile() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1533,7 +1534,7 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final String graphId1 = "graphId1";
         final String graphId2 = "graphId2";
@@ -1579,7 +1580,7 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigAndOverrideFields() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final String graphId1 = "graphId1";
         final String graphId2 = "graphId2";
@@ -1625,7 +1626,7 @@ public class GraphTest {
     public void shouldReturnClonedViewFromConfig() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
 
         final String graphId = "graphId";
 
@@ -1653,10 +1654,10 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenDifferent() {
         // Given
         final StoreProperties libraryStoreProperties = new StoreProperties();
-        libraryStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(libraryStoreProperties, TestStoreImpl.class.getName());
 
         final StoreProperties graphStoreProperties = new StoreProperties();
-        graphStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(graphStoreProperties, TestStoreImpl.class.getName());
 
         final Schema librarySchema = new Schema.Builder().build();
 
@@ -1697,7 +1698,7 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenIdentical() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(storeProperties, TestStoreImpl.class.getName());
         String storePropertiesId1 = "storePropertiesId1";
 
         final Schema schema = new Schema.Builder().build();
@@ -1736,10 +1737,10 @@ public class GraphTest {
     public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenGraphSchemaAndStorePropertiesIdsAreNull() {
         // Given
         final StoreProperties libraryStoreProperties = new StoreProperties();
-        libraryStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(libraryStoreProperties, TestStoreImpl.class.getName());
 
         final StoreProperties graphStoreProperties = new StoreProperties();
-        graphStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        StorePropertiesUtil.setStoreClass(graphStoreProperties, TestStoreImpl.class.getName());
 
         final Schema librarySchema = new Schema.Builder().build();
 

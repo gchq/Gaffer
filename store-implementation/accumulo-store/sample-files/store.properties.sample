@@ -50,17 +50,6 @@
 gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
 
 ################################################################################
-# generic store property - gaffer.store.properties.class
-# description - name of internal gaffer class used to read the gaffer properties file where the store properties file contains properties that are specific to the particular type of store being used by Gaffer. Eg. Accumulo.
-# notes
-#   - property is required
-#   - no default value provided
-
-gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
-
-################################################################################
-
-################################################################################
 # generic store property - gaffer.store.schema.class
 # description - name of internal gaffer class used to serialise and deserialise a gaffer schema definition to file.
 #

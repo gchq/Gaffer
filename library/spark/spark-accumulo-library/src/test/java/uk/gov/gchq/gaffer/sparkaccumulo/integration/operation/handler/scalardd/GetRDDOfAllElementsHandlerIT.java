@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -349,14 +349,14 @@ public class GetRDDOfAllElementsHandlerIT {
     }
 
     private StoreProperties getAccumuloProperties(final KeyPackage keyPackage) {
-        final AccumuloProperties storeProperties = AccumuloProperties
+        final StoreProperties storeProperties = StoreProperties
                 .loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (keyPackage) {
             case BYTE_ENTITY:
-                storeProperties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setKeyPackageClass(storeProperties, ByteEntityKeyPackage.class.getName());
                 break;
             case CLASSIC:
-                storeProperties.setKeyPackageClass(ClassicKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setKeyPackageClass(storeProperties, ClassicKeyPackage.class.getName());
         }
         return storeProperties;
     }
@@ -410,7 +410,7 @@ public class GetRDDOfAllElementsHandlerIT {
             throws InterruptedException, AccumuloException, AccumuloSecurityException, IOException, OperationException,
             TableNotFoundException {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
-        final AccumuloProperties properties = MiniAccumuloClusterProvider.getAccumuloProperties();
+        final StoreProperties properties = MiniAccumuloClusterProvider.getAccumuloProperties();
         updateAccumuloPropertiesWithKeyPackage(keyPackage);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -432,15 +432,15 @@ public class GetRDDOfAllElementsHandlerIT {
         return graph;
     }
 
-    private AccumuloProperties updateAccumuloPropertiesWithKeyPackage(final KeyPackage keyPackage)
+    private StoreProperties updateAccumuloPropertiesWithKeyPackage(final KeyPackage keyPackage)
             throws InterruptedException, AccumuloSecurityException, AccumuloException, IOException {
-        final AccumuloProperties storeProperties = MiniAccumuloClusterProvider.getAccumuloProperties();
+        final StoreProperties storeProperties = MiniAccumuloClusterProvider.getAccumuloProperties();
         switch (keyPackage) {
             case BYTE_ENTITY:
-                storeProperties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setKeyPackageClass(storeProperties, ByteEntityKeyPackage.class.getName());
                 break;
             case CLASSIC:
-                storeProperties.setKeyPackageClass(ClassicKeyPackage.class.getName());
+                AccumuloStorePropertiesUtil.setKeyPackageClass(storeProperties, ClassicKeyPackage.class.getName());
         }
         return storeProperties;
     }

@@ -20,12 +20,13 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
@@ -41,7 +42,7 @@ public class FederatedStorePublicAccessTest {
     public static final String TEST_FED_STORE_ID = "testFedStore";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore store;
-    private FederatedStoreProperties fedProps;
+    private StoreProperties fedProps;
     private HashMapGraphLibrary library;
     private Context blankUserContext;
     private Context testUserContext;
@@ -49,15 +50,15 @@ public class FederatedStorePublicAccessTest {
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
-        fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProps = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(fedProps, CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        StoreProperties storeProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(storeProperties, SingleUseMockAccumuloStore.class);
 
         library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
@@ -94,7 +95,7 @@ public class FederatedStorePublicAccessTest {
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPublic() throws Exception {
-        fedProps.setFalseGraphsCanHavePublicAccess();
+        FederatedStorePropertiesUtil.setFalseGraphsCanHavePublicAccess(fedProps);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
         store.execute(getAddGraphOp(true), testUserContext);
         getAllGraphsIdsHasNext(false);
@@ -102,7 +103,7 @@ public class FederatedStorePublicAccessTest {
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPrivate() throws Exception {
-        fedProps.setFalseGraphsCanHavePublicAccess();
+        FederatedStorePropertiesUtil.setFalseGraphsCanHavePublicAccess(fedProps);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
         store.execute(getAddGraphOp(false), testUserContext);
         getAllGraphsIdsHasNext(false);
@@ -110,7 +111,7 @@ public class FederatedStorePublicAccessTest {
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPublicAndGraphIsSetPrivate() throws Exception {
-        fedProps.setTrueGraphsCanHavePublicAccess();
+        FederatedStorePropertiesUtil.setTrueGraphsCanHavePublicAccess(fedProps);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
         store.execute(getAddGraphOp(false), testUserContext);
         getAllGraphsIdsHasNext(false);
@@ -118,7 +119,7 @@ public class FederatedStorePublicAccessTest {
 
     @Test
     public void shouldBePublicWhenAllGraphsSetPublicAndGraphIsSetPublic() throws Exception {
-        fedProps.setTrueGraphsCanHavePublicAccess();
+        FederatedStorePropertiesUtil.setTrueGraphsCanHavePublicAccess(fedProps);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
         store.execute(getAddGraphOp(true), testUserContext);
         getAllGraphsIdsHasNext(true);

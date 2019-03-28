@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
@@ -66,7 +67,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class HBaseStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(HBaseStoreTest.class));
-    private static final HBaseProperties PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+    private static final StoreProperties PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
     private static final String GRAPH_ID = "graphId";
     private static SingleUseMiniHBaseStore store;
 
@@ -125,8 +126,8 @@ public class HBaseStoreTest {
     @Test
     public void shouldCreateAStoreUsingTableName() throws Exception {
         // Given
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-        properties.setTable("tableName");
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        HBaseStorePropertiesUtil.setTable(properties, "tableName");
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When
@@ -140,8 +141,8 @@ public class HBaseStoreTest {
     @Test
     public void shouldBuildGraphAndGetGraphIdFromTableName() throws Exception {
         // Given
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-        properties.setTable("tableName");
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        HBaseStorePropertiesUtil.setTable(properties, "tableName");
 
         // When
         final Graph graph = new Graph.Builder()
@@ -156,8 +157,8 @@ public class HBaseStoreTest {
     @Test
     public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
         // Given
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-        properties.setTable("tableName");
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        HBaseStorePropertiesUtil.setTable(properties, "tableName");
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When
@@ -170,8 +171,8 @@ public class HBaseStoreTest {
     @Test
     public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws Exception {
         // Given
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-        properties.setTable("tableName");
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        HBaseStorePropertiesUtil.setTable(properties, "tableName");
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When / Then
@@ -186,7 +187,7 @@ public class HBaseStoreTest {
     @Test
     public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
         final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When

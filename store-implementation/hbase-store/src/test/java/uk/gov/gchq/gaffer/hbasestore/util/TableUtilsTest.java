@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
@@ -83,7 +82,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final HBaseProperties props = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(GRAPH_ID, schema, props);
 
         // When
@@ -110,7 +109,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final HBaseProperties props = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(GRAPH_ID, schema, props);
 
         // Remove coprocessor
@@ -147,7 +146,7 @@ public class TableUtilsTest {
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
+        assertEquals(new StoreProperties(STORE_PROPS_PATH), pair.getSecond());
     }
 
     @Test
@@ -165,7 +164,7 @@ public class TableUtilsTest {
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
+        assertEquals(new StoreProperties(STORE_PROPS_2_PATH), pair.getSecond());
     }
 
     @Test

@@ -23,9 +23,11 @@ import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.commons.io.FileUtils;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class MiniAccumuloClusterProvider {
             + "MiniAccumuloCluster-spark-accumulo-library-tests");
 
     private static MiniAccumuloCluster cluster;
-    private static AccumuloProperties accumuloProperties;
+    private static StoreProperties accumuloProperties;
 
     public static synchronized MiniAccumuloCluster getMiniAccumuloCluster() throws IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException {
@@ -48,7 +50,7 @@ public class MiniAccumuloClusterProvider {
         return cluster;
     }
 
-    public static synchronized AccumuloProperties getAccumuloProperties() throws IOException, InterruptedException,
+    public static synchronized StoreProperties getAccumuloProperties() throws IOException, InterruptedException,
             AccumuloException, AccumuloSecurityException {
         // Ensure cluster has been created - can ignore the result of the next method
         getMiniAccumuloCluster();
@@ -77,12 +79,12 @@ public class MiniAccumuloClusterProvider {
         cluster.getConnector(ROOT, PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
         cluster.getConnector(ROOT, PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
         // Create properties
-        accumuloProperties = new AccumuloProperties();
-        accumuloProperties.setStoreClass(AccumuloStore.class);
-        accumuloProperties.setInstance(cluster.getInstanceName());
-        accumuloProperties.setZookeepers(cluster.getZooKeepers());
-        accumuloProperties.setUser(MiniAccumuloClusterProvider.USER);
-        accumuloProperties.setPassword(MiniAccumuloClusterProvider.PASSWORD);
-        accumuloProperties.setOperationDeclarationPaths("sparkAccumuloOperationsDeclarations.json");
+        accumuloProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(accumuloProperties, AccumuloStore.class);
+        AccumuloStorePropertiesUtil.setInstance(accumuloProperties, cluster.getInstanceName());
+        AccumuloStorePropertiesUtil.setZookeepers(accumuloProperties, cluster.getZooKeepers());
+        AccumuloStorePropertiesUtil.setUser(accumuloProperties, MiniAccumuloClusterProvider.USER);
+        AccumuloStorePropertiesUtil.setPassword(accumuloProperties, MiniAccumuloClusterProvider.PASSWORD);
+        StorePropertiesUtil.setOperationDeclarationPaths(accumuloProperties, "sparkAccumuloOperationsDeclarations.json");
     }
 }

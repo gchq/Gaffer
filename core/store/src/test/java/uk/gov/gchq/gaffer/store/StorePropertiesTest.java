@@ -26,7 +26,13 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +47,92 @@ public class StorePropertiesTest {
     }
 
     @Test
+    public void shouldConstructFromPath() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Paths.get("store.properties"));
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromPathString() {
+        // Given / When
+        StoreProperties properties = new StoreProperties("store.properties");
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromInputStream() throws IOException {
+        // Given
+        InputStream in = StorePropertiesTest.class.getClassLoader().getResourceAsStream("store.properties");
+
+        // When
+        StoreProperties properties = new StoreProperties(in);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+
+        in.close();
+    }
+
+    @Test
+    public void shouldConstructFromExistingProperties() {
+        // Given
+        Properties existing = new Properties();
+        existing.put("key1", "value1");
+        existing.put("testKey", "value1");
+
+        // When
+        StoreProperties properties = new StoreProperties(existing);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+    }
+
+    @Test
+    public void shouldConstructFromExistingPropertiesAndSetStoreClass() {
+        // Given
+        Properties existing = new Properties();
+        existing.put("key1", "value1");
+        existing.put("testKey", "value1");
+
+        // When
+        StoreProperties properties = new StoreProperties(existing, Store.class);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
+    }
+
+    @Test
+    public void shouldConstructFromStoreClass() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Store.class);
+
+        // Then
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
+    }
+
+    @Test
+    public void shouldConstructFromPathAndStoreClass() {
+        // Given / When
+        StoreProperties properties = new StoreProperties(Paths.get("store.properties"), Store.class);
+
+        // Then
+        assertEquals("value1", properties.getProperty("key1"));
+        assertEquals("value1", properties.getProperty("testKey"));
+        assertEquals(Store.class.getName(), properties.getProperty(StorePropertiesUtil.STORE_CLASS));
+    }
+
+    @Test
     public void shouldMergeProperties() {
         // Given
         final StoreProperties props1 = createStoreProperties();
@@ -50,9 +142,9 @@ public class StorePropertiesTest {
         props1.merge(props2);
 
         // Then
-        assertEquals("value1", props1.get("key1"));
-        assertEquals("value2", props1.get("key2"));
-        assertEquals("value2", props1.get("testKey"));
+        assertEquals("value1", props1.getProperty("key1"));
+        assertEquals("value2", props1.getProperty("key2"));
+        assertEquals("value2", props1.getProperty("testKey"));
     }
 
     @Test
@@ -61,10 +153,10 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        props.set("testKey", null);
+        props.setProperty("testKey", null);
 
         // Then
-        assertNull(props.get("testKey"));
+        assertNull(props.getProperty("testKey"));
     }
 
     @Test
@@ -73,7 +165,7 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        String value = props.get("key1");
+        String value = props.getProperty("key1");
 
         // Then
         assertEquals("value1", value);
@@ -85,8 +177,8 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        props.set("key2", "value2");
-        String value = props.get("key2");
+        props.setProperty("key2", "value2");
+        String value = props.getProperty("key2");
 
         // Then
         assertEquals("value2", value);
@@ -98,7 +190,7 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        String value = props.get("key1", "property not found");
+        String value = props.getProperty("key1", "property not found");
 
         // Then
         assertEquals("value1", value);
@@ -110,7 +202,7 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        String value = props.get("a key that does not exist");
+        String value = props.getProperty("a key that does not exist");
 
         // Then
         assertNull(value);
@@ -120,26 +212,26 @@ public class StorePropertiesTest {
     public void shouldAddOperationDeclarationPathsWhenNullExisting() {
         // Given
         final StoreProperties props = createStoreProperties();
-        assertNull(props.getOperationDeclarationPaths());
+        assertNull(StorePropertiesUtil.getOperationDeclarationPaths(props));
 
         // When
-        props.addOperationDeclarationPaths("1", "2");
+        StorePropertiesUtil.addOperationDeclarationPaths(props, "1", "2");
 
         // Then
-        assertEquals("1,2", props.getOperationDeclarationPaths());
+        assertEquals("1,2", StorePropertiesUtil.getOperationDeclarationPaths(props));
     }
 
     @Test
     public void shouldAddOperationDeclarationPathsWhenExisting() {
         // Given
         final StoreProperties props = createStoreProperties();
-        props.setOperationDeclarationPaths("1");
+        StorePropertiesUtil.setOperationDeclarationPaths(props, "1");
 
         // When
-        props.addOperationDeclarationPaths("2", "3");
+        StorePropertiesUtil.addOperationDeclarationPaths(props, "2", "3");
 
         // Then
-        assertEquals("1,2,3", props.getOperationDeclarationPaths());
+        assertEquals("1,2,3", StorePropertiesUtil.getOperationDeclarationPaths(props));
     }
 
     @Test
@@ -148,10 +240,10 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        props.setReflectionPackages("package1,package2");
+        StorePropertiesUtil.setReflectionPackages(props, "package1,package2");
 
         // Then
-        assertEquals("package1,package2", props.getReflectionPackages());
+        assertEquals("package1,package2", StorePropertiesUtil.getReflectionPackages(props));
         final Set<String> expectedPackages = Sets.newHashSet(ReflectionUtil.DEFAULT_PACKAGES);
         expectedPackages.add("package1");
         expectedPackages.add("package2");
@@ -164,7 +256,7 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        String value = props.get("a key that does not exist", "property not found");
+        String value = props.getProperty("a key that does not exist", "property not found");
 
         // Then
         assertEquals("property not found", value);
@@ -184,12 +276,12 @@ public class StorePropertiesTest {
         );
 
         // When
-        props.setJsonSerialiserModules(modules);
+        StorePropertiesUtil.setJsonSerialiserModules(props, modules);
 
         // Then
         assertEquals(
                 TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
-                props.getJsonSerialiserModules()
+                props.getProperty(StorePropertiesUtil.JSON_SERIALISER_MODULES)
         );
     }
 
@@ -200,10 +292,10 @@ public class StorePropertiesTest {
         final StoreProperties props = createStoreProperties();
 
         // When
-        props.setAdminAuth(adminAuth);
+        StorePropertiesUtil.setAdminAuth(props, adminAuth);
 
         // Then
-        assertEquals(adminAuth, props.getAdminAuth());
+        assertEquals(adminAuth, StorePropertiesUtil.getAdminAuth(props));
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {

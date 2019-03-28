@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
@@ -214,7 +213,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
         graph.execute(new AddElements.Builder().input(elements).build(), user);
 
         // When
-        final ParquetStoreProperties storeProperties = (ParquetStoreProperties) graph.getStoreProperties();
+        final StoreProperties storeProperties = graph.getStoreProperties();
         final Graph graph2 = createGraph(storeProperties);
         final CloseableIterable<? extends Element> results = graph2.execute(
                 new GetAllElements.Builder().build(), user);

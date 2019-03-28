@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStorePropertiesUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -61,7 +62,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         final MapImpl mapImpl = mapStore.getMapImpl();
         final Schema schema = mapStore.getSchema();
 
-        final int bufferSize = mapStore.getProperties().getIngestBufferSize();
+        final int bufferSize = MapStorePropertiesUtil.getIngestBufferSize(mapStore.getProperties());
 
         if (bufferSize < 1) {
             // Add all elements directly

@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
@@ -73,7 +74,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         validate(namedViewDetail.getViewWithDefaultParams(), namedViewDetail);
 
         try {
-            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag(), context.getUser(), store.getProperties().getAdminAuth());
+            cache.addNamedView(namedViewDetail, operation.isOverwriteFlag(), context.getUser(), StorePropertiesUtil.getAdminAuth(store.getProperties()));
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

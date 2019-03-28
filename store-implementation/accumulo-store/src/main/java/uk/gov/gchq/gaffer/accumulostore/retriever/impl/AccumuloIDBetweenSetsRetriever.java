@@ -21,6 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
@@ -130,8 +131,8 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
 
             // Create Bloom filter, read through set of entities B and add them
             // to Bloom filter
-            final BloomFilter filter = BloomFilterUtils.getBloomFilter(store.getProperties().getFalsePositiveRate(),
-                    verticesB.size(), store.getProperties().getMaxBloomFilterToPassToAnIterator());
+            final BloomFilter filter = BloomFilterUtils.getBloomFilter(AccumuloStorePropertiesUtil.getFalsePositiveRate(store.getProperties()),
+                    verticesB.size(), AccumuloStorePropertiesUtil.getMaxBloomFilterToPassToAnIterator(store.getProperties()));
             addToBloomFilter(verticesB, filter);
             initialise(filter);
         }

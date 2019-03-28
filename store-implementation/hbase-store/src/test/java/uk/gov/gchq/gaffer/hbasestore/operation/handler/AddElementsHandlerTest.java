@@ -37,8 +37,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.HBaseStorePropertiesUtil;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.util.CellUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -139,9 +140,9 @@ public class AddElementsHandlerTest {
         final HTable table = mock(HTable.class);
         given(store.getTable()).willReturn(table);
 
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         final int writeBufferSize = 5;
-        properties.setWriteBufferSize(writeBufferSize);
+        HBaseStorePropertiesUtil.setWriteBufferSize(properties, writeBufferSize);
         given(store.getProperties()).willReturn(properties);
 
         given(store.getSchema()).willReturn(SCHEMA);
@@ -183,7 +184,7 @@ public class AddElementsHandlerTest {
         final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         given(store.getProperties()).willReturn(properties);
 
         given(store.getSchema()).willReturn(SCHEMA);
@@ -266,7 +267,7 @@ public class AddElementsHandlerTest {
         final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
-        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final StoreProperties properties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         given(store.getProperties()).willReturn(properties);
 
         given(store.getSchema()).willReturn(SCHEMA);

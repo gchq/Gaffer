@@ -84,12 +84,12 @@ public class GafferAdder implements Serializable {
         this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
         graphId = store.getGraphId();
         schema = store.getSchema().toCompactJson();
-        properties = store.getProperties().getProperties();
+        properties = store.getProperties();
     }
 
     public void initialise() {
         if (null == store) {
-            store = Store.createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+            store = Store.createStore(graphId, Schema.fromJson(schema), new StoreProperties(properties));
         }
     }
 

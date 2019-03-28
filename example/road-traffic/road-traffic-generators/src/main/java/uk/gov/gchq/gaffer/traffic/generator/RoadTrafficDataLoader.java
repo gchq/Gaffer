@@ -104,7 +104,7 @@ public class RoadTrafficDataLoader {
 
         final GraphConfig config = new GraphConfig.Builder().json(new File(graphConfigFile).toPath()).build();
         final Schema schema = Schema.fromJson(new File(schemaDir).toPath());
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesFile);
+        final StoreProperties storeProperties = new StoreProperties(storePropertiesFile);
 
         final Graph graph = new Graph.Builder()
                 .config(config)

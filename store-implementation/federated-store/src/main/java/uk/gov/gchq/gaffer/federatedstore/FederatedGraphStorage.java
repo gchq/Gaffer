@@ -424,7 +424,7 @@ public class FederatedGraphStorage {
 
     private void validateSameAsFromCache(final Graph newGraph, final String graphId) {
         final Graph fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId).getGraph(graphLibrary);
-        if (!newGraph.getStoreProperties().getProperties().equals(fromCache.getStoreProperties().getProperties())) {
+        if (!newGraph.getStoreProperties().equals(fromCache.getStoreProperties())) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.PROPERTIES.toString(), graphId));
         } else {
             if (!JsonUtil.equals(newGraph.getSchema().toJson(false), fromCache.getSchema().toJson(false))) {

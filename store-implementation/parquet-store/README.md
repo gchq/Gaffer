@@ -74,7 +74,6 @@ A complete Gaffer properties file using a `ParquetStore` will look like:
 
 ```
 gaffer.store.class=uk.gov.gchq.gaffer.parquetstore.ParquetStore
-gaffer.store.properties.class=uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties
 spark.master=yarn
 parquet.data.dir=/User/me/my_gaffer_parquet_store
 parquet.temp_data_dir=/tmp/my_gaffer_parquet_store_tmp

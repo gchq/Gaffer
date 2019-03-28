@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
@@ -48,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -150,7 +150,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
+        final StoreProperties properties = StoreProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
@@ -211,7 +211,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
+        final StoreProperties properties = StoreProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
@@ -272,7 +272,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
+        final StoreProperties properties = StoreProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
@@ -340,7 +340,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
+        final StoreProperties properties = StoreProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();

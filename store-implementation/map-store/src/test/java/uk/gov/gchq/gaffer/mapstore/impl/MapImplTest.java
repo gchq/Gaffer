@@ -25,10 +25,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.MapStorePropertiesUtil;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
@@ -55,15 +56,15 @@ public class MapImplTest {
     public void shouldCreateMapsUsingMapFactory() throws StoreException {
         // Given
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final Map aggElements = mock(Map.class);
         final Map nonAggElements = mock(Map.class);
         final MultiMap entityIdToElements = mock(MultiMap.class);
         final MultiMap edgeIdToElements = mock(MultiMap.class);
 
         given(schema.getGroups()).willReturn(Sets.newHashSet(TestGroups.EDGE));
-        given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());
-        given(properties.getCreateIndex()).willReturn(true);
+        given(MapStorePropertiesUtil.getMapFactory(properties)).willReturn(TestMapFactory.class.getName());
+        given(MapStorePropertiesUtil.getCreateIndex(properties)).willReturn(true);
         given(mockMapFactory.getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class)).willReturn(aggElements);
         given(mockMapFactory.getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class)).willReturn(nonAggElements);
         given(mockMapFactory.getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS, EntityId.class, Element.class)).willReturn(entityIdToElements);
@@ -83,13 +84,13 @@ public class MapImplTest {
     public void shouldNotCreateIndexesIfNotRequired() throws StoreException {
         // Given
         final Schema schema = mock(Schema.class);
-        final MapStoreProperties properties = mock(MapStoreProperties.class);
+        final StoreProperties properties = mock(StoreProperties.class);
         final Map aggElements = mock(Map.class);
         final Map nonAggElements = mock(Map.class);
 
         given(schema.getGroups()).willReturn(Sets.newHashSet(TestGroups.EDGE));
-        given(properties.getMapFactory()).willReturn(TestMapFactory.class.getName());
-        given(properties.getCreateIndex()).willReturn(false);
+        given(MapStorePropertiesUtil.getMapFactory(properties)).willReturn(TestMapFactory.class.getName());
+        given(MapStorePropertiesUtil.getCreateIndex(properties)).willReturn(false);
         given(mockMapFactory.getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class)).willReturn(aggElements);
         given(mockMapFactory.getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class)).willReturn(nonAggElements);
 
@@ -106,7 +107,7 @@ public class MapImplTest {
     public static final class TestMapFactory implements MapFactory {
 
         @Override
-        public void initialise(final Schema schema, final MapStoreProperties properties) {
+        public void initialise(final Schema schema, final StoreProperties properties) {
             mockMapFactory.initialise(schema, properties);
         }
 

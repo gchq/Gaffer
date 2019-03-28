@@ -1,36 +1,12 @@
-/*
- * Copyright 2016-2019 Crown Copyright
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package uk.gov.gchq.gaffer.accumulostore;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
-import java.io.InputStream;
-import java.nio.file.Path;
-
-/**
- * An {@code AccumuloProperties} contains specific configuration information for the
- * {@link uk.gov.gchq.gaffer.accumulostore.AccumuloStore}, such as database connection strings. It wraps
- * {@link uk.gov.gchq.gaffer.data.element.Properties} and lazy loads the all properties from
- * a file when first used.
- */
-public class AccumuloProperties extends StoreProperties {
+public class AccumuloStorePropertiesUtil extends StorePropertiesUtil {
 
     public static final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
     public static final String INSTANCE_NAME = "accumulo.instance";
@@ -65,59 +41,38 @@ public class AccumuloProperties extends StoreProperties {
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
 
-    public AccumuloProperties() {
-        super(AccumuloStore.class);
-    }
-
-    public AccumuloProperties(final Path propFileLocation) {
-        super(propFileLocation, AccumuloStore.class);
-    }
-
-    public static AccumuloProperties loadStoreProperties(final String pathStr) {
-        return StoreProperties.loadStoreProperties(pathStr, AccumuloProperties.class);
-    }
-
-    public static AccumuloProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return StoreProperties.loadStoreProperties(storePropertiesStream, AccumuloProperties.class);
-    }
-
-    public static AccumuloProperties loadStoreProperties(final Path storePropertiesPath) {
-        return StoreProperties.loadStoreProperties(storePropertiesPath, AccumuloProperties.class);
-    }
-
-    @Override
-    public AccumuloProperties clone() {
-        return (AccumuloProperties) super.clone();
-    }
 
     /**
      * Sets the number of threads that should be used for the Accumulo batch
      * writers.
      *
+     * @param accumuloProperties
      * @param numThreadsForBatchWriter The number of concurrent threads to use in the batch writer.
      */
-    public void setNumThreadsForBatchWriter(final String numThreadsForBatchWriter) {
-        set(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
+    public static void setNumThreadsForBatchWriter(final StoreProperties accumuloProperties, final String numThreadsForBatchWriter) {
+        accumuloProperties.setProperty(NUM_THREADS_FOR_BATCH_WRITER, numThreadsForBatchWriter);
     }
 
     /**
      * Sets the time out/latency that should be used for the Accumulo batch
      * writers.
      *
+     * @param accumuloProperties
      * @param maxTimeOutForBatchWriterInMilliseconds The timeout to use on the batch writer.
      */
-    public void setMaxTimeOutForBatchWriterInMilliseconds(final String maxTimeOutForBatchWriterInMilliseconds) {
-        set(MAX_TIME_OUT_FOR_BATCH_WRITER, maxTimeOutForBatchWriterInMilliseconds);
+    public static void setMaxTimeOutForBatchWriterInMilliseconds(final StoreProperties accumuloProperties, final String maxTimeOutForBatchWriterInMilliseconds) {
+        accumuloProperties.setProperty(MAX_TIME_OUT_FOR_BATCH_WRITER, maxTimeOutForBatchWriterInMilliseconds);
     }
 
     /**
      * Sets the memory buffer size that should be used for the Accumulo batch
      * writers.
      *
+     * @param accumuloProperties
      * @param maxBufferSizeForBatchWriterInBytes The buffer size in bytes to use in the batch writer.
      */
-    public void setMaxBufferSizeForBatchWriterInBytes(final String maxBufferSizeForBatchWriterInBytes) {
-        set(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, maxBufferSizeForBatchWriterInBytes);
+    public static void setMaxBufferSizeForBatchWriterInBytes(final StoreProperties accumuloProperties, final String maxBufferSizeForBatchWriterInBytes) {
+        accumuloProperties.setProperty(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, maxBufferSizeForBatchWriterInBytes);
     }
 
     /**
@@ -125,9 +80,10 @@ public class AccumuloProperties extends StoreProperties {
      * writers.
      *
      * @return The number of concurrent threads to use in the batch writer.
+     * @param accumuloProperties
      */
-    public int getNumThreadsForBatchWriter() {
-        return Integer.parseInt(get(NUM_THREADS_FOR_BATCH_WRITER, NUM_THREADS_FOR_BATCH_WRITER_DEFAULT));
+    public static int getNumThreadsForBatchWriter(final StoreProperties accumuloProperties) {
+        return Integer.parseInt(accumuloProperties.getProperty(NUM_THREADS_FOR_BATCH_WRITER, NUM_THREADS_FOR_BATCH_WRITER_DEFAULT));
     }
 
     /**
@@ -135,9 +91,10 @@ public class AccumuloProperties extends StoreProperties {
      * writers.
      *
      * @return The timeout to use on the batch writer.
+     * @param accumuloProperties
      */
-    public Long getMaxTimeOutForBatchWriterInMilliseconds() {
-        return Long.parseLong(get(MAX_TIME_OUT_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT));
+    public static Long getMaxTimeOutForBatchWriterInMilliseconds(final StoreProperties accumuloProperties) {
+        return Long.parseLong(accumuloProperties.getProperty(MAX_TIME_OUT_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT));
     }
 
     /**
@@ -145,45 +102,50 @@ public class AccumuloProperties extends StoreProperties {
      * writers.
      *
      * @return The buffer size in bytes to use in the batch writer.
+     * @param accumuloProperties
      */
-    public Long getMaxBufferSizeForBatchWriterInBytes() {
-        return Long.parseLong(get(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT));
+    public static Long getMaxBufferSizeForBatchWriterInBytes(final StoreProperties accumuloProperties) {
+        return Long.parseLong(accumuloProperties.getProperty(MAX_BUFFER_SIZE_FOR_BATCH_WRITER, MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT));
     }
 
     /**
      * Gets the list of Zookeeper servers.
      *
      * @return A comma separated list of Zookeeper servers.
+     * @param accumuloProperties
      */
-    public String getZookeepers() {
-        return get(ZOOKEEPERS);
+    public static String getZookeepers(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(ZOOKEEPERS);
     }
 
     /**
      * Sets the list of Zookeeper servers.
      *
+     * @param accumuloProperties
      * @param zookeepers the list of Zookeeper servers.
      */
-    public void setZookeepers(final String zookeepers) {
-        set(ZOOKEEPERS, zookeepers);
+    public static void setZookeepers(final StoreProperties accumuloProperties, final String zookeepers) {
+        accumuloProperties.setProperty(ZOOKEEPERS, zookeepers);
     }
 
     /**
      * Gets the Accumulo instance name.
      *
      * @return Return the instance name of Accumulo set in the properties file.
+     * @param accumuloProperties
      */
-    public String getInstance() {
-        return get(INSTANCE_NAME);
+    public static String getInstance(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(INSTANCE_NAME);
     }
 
     /**
      * Sets the Accumulo instance name.
      *
+     * @param accumuloProperties
      * @param instance the Accumulo instance name.
      */
-    public void setInstance(final String instance) {
-        set(INSTANCE_NAME, instance);
+    public static void setInstance(final StoreProperties accumuloProperties, final String instance) {
+        accumuloProperties.setProperty(INSTANCE_NAME, instance);
     }
 
     /**
@@ -191,57 +153,63 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return The Accumulo table to use as set in the properties file.
      * @deprecated use {@link AccumuloStore#getTableName}.
+     * @param accumuloProperties
      */
     @Deprecated
-    public String getTable() {
-        return get(TABLE);
+    public static String getTable(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(TABLE);
     }
 
     /**
      * Sets the table name.
      *
+     * @param accumuloProperties
      * @param tableName the table name.
      * @deprecated use a graphId.
      */
     @Deprecated
-    public void setTable(final String tableName) {
-        set(TABLE, tableName);
+    public static void setTable(final StoreProperties accumuloProperties, final String tableName) {
+        accumuloProperties.setProperty(TABLE, tableName);
     }
 
     /**
      * Gets the configured Accumulo user.
      *
      * @return Get the configured accumulo user.
+     * @param accumuloProperties
      */
-    public String getUser() {
-        return get(USER);
+    public static String getUser(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(USER);
     }
 
     /**
      * Sets the configured Accumulo user.
      *
+     * @param accumuloProperties
      * @param user the configured Accumulo user.
      */
-    public void setUser(final String user) {
-        set(USER, user);
+    public static void setUser(final StoreProperties accumuloProperties, final String user) {
+        accumuloProperties.setProperty(USER, user);
     }
 
     /**
      * Gets the password for the Accumulo user.
      *
      * @return the password for the configured Accumulo user.
+     * @param accumuloProperties
      */
-    public String getPassword() {
-        return get(PASSWORD);
+    public static String getPassword(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(PASSWORD);
     }
 
     /**
      * Sets the password to use for the Accumulo user.
      *
+     * @param accumuloProperties
      * @param password the password to use for the Accumulo user.
      */
-    public void setPassword(final String password) {
-        set(PASSWORD, password);
+    public static void setPassword(final StoreProperties accumuloProperties, final String password) {
+        accumuloProperties.setProperty(PASSWORD, password);
     }
 
     /**
@@ -249,18 +217,20 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return An integer representing the number of threads to use in the batch
      * scanner.
+     * @param accumuloProperties
      */
-    public int getThreadsForBatchScanner() {
-        return Integer.parseInt(get(THREADS_FOR_BATCH_SCANNER, THREADS_FOR_BATCH_SCANNER_DEFAULT));
+    public static int getThreadsForBatchScanner(final StoreProperties accumuloProperties) {
+        return Integer.parseInt(accumuloProperties.getProperty(THREADS_FOR_BATCH_SCANNER, THREADS_FOR_BATCH_SCANNER_DEFAULT));
     }
 
     /**
      * Sets the number of threads to use in the batch scanner.
      *
+     * @param accumuloProperties
      * @param threadsForBatchScanner the number of threads to use in the batch scanner.
      */
-    public void setThreadsForBatchScanner(final String threadsForBatchScanner) {
-        set(THREADS_FOR_BATCH_SCANNER, threadsForBatchScanner);
+    public static void setThreadsForBatchScanner(final StoreProperties accumuloProperties, final String threadsForBatchScanner) {
+        accumuloProperties.setProperty(THREADS_FOR_BATCH_SCANNER, threadsForBatchScanner);
     }
 
     /**
@@ -269,19 +239,21 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return An integer representing the max number of items that should be
      * read into the scanner at any one time.
+     * @param accumuloProperties
      */
-    public int getMaxEntriesForBatchScanner() {
-        return Integer.parseInt(get(MAX_ENTRIES_FOR_BATCH_SCANNER, MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT));
+    public static int getMaxEntriesForBatchScanner(final StoreProperties accumuloProperties) {
+        return Integer.parseInt(accumuloProperties.getProperty(MAX_ENTRIES_FOR_BATCH_SCANNER, MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT));
     }
 
     /**
      * Sets the max number of items that should be read into the scanner at any
      * one time.
      *
+     * @param accumuloProperties
      * @param maxEntriesForBatchScanner the max number of items that should be read into the scanner at any one time.
      */
-    public void setMaxEntriesForBatchScanner(final String maxEntriesForBatchScanner) {
-        set(MAX_ENTRIES_FOR_BATCH_SCANNER, maxEntriesForBatchScanner);
+    public static void setMaxEntriesForBatchScanner(final StoreProperties accumuloProperties, final String maxEntriesForBatchScanner) {
+        accumuloProperties.setProperty(MAX_ENTRIES_FOR_BATCH_SCANNER, maxEntriesForBatchScanner);
     }
 
     /**
@@ -290,19 +262,21 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return An integer representing the size that should be used for the
      * creation of bloom filters on the client side.
+     * @param accumuloProperties
      */
-    public int getClientSideBloomFilterSize() {
-        return Integer.parseInt(get(CLIENT_SIDE_BLOOM_FILTER_SIZE, CLIENT_SIDE_BLOOM_FILTER_SIZE_DEFAULT));
+    public static int getClientSideBloomFilterSize(final StoreProperties accumuloProperties) {
+        return Integer.parseInt(accumuloProperties.getProperty(CLIENT_SIDE_BLOOM_FILTER_SIZE, CLIENT_SIDE_BLOOM_FILTER_SIZE_DEFAULT));
     }
 
     /**
      * Sets the size that should be used for the creation of bloom filters on the
      * client side.
      *
+     * @param accumuloProperties
      * @param clientSideBloomFilterSize the size that should be used for the creation of bloom filters on the client side.
      */
-    public void setClientSideBloomFilterSize(final String clientSideBloomFilterSize) {
-        set(CLIENT_SIDE_BLOOM_FILTER_SIZE, clientSideBloomFilterSize);
+    public static void setClientSideBloomFilterSize(final StoreProperties accumuloProperties, final String clientSideBloomFilterSize) {
+        accumuloProperties.setProperty(CLIENT_SIDE_BLOOM_FILTER_SIZE, clientSideBloomFilterSize);
     }
 
     /**
@@ -311,20 +285,22 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return A number representing the rate of false positives for bloom
      * filters (Generally the higher the value the faster the filter).
+     * @param accumuloProperties
      */
-    public double getFalsePositiveRate() {
-        return Double.parseDouble(get(FALSE_POSITIVE_RATE, FALSE_POSITIVE_RATE_DEFAULT));
+    public static double getFalsePositiveRate(final StoreProperties accumuloProperties) {
+        return Double.parseDouble(accumuloProperties.getProperty(FALSE_POSITIVE_RATE, FALSE_POSITIVE_RATE_DEFAULT));
     }
 
     /**
      * Sets the allowable rate of false positives for bloom filters (Generally
      * the higher the value the faster the filter).
      *
+     * @param accumuloProperties
      * @param falsePositiveRate the allowable rate of false positives for bloom
      *                          filters (Generally the higher the value the faster the filter).
      */
-    public void setFalsePositiveRate(final String falsePositiveRate) {
-        set(FALSE_POSITIVE_RATE, falsePositiveRate);
+    public static void setFalsePositiveRate(final StoreProperties accumuloProperties, final String falsePositiveRate) {
+        accumuloProperties.setProperty(FALSE_POSITIVE_RATE, falsePositiveRate);
     }
 
     /**
@@ -333,21 +309,23 @@ public class AccumuloProperties extends StoreProperties {
      *
      * @return An integer representing the size that should be used for the
      * creation of bloom filters on the server side.
+     * @param accumuloProperties
      */
-    public int getMaxBloomFilterToPassToAnIterator() {
+    public static int getMaxBloomFilterToPassToAnIterator(final StoreProperties accumuloProperties) {
         return Integer.parseInt(
-                get(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT));
+                accumuloProperties.getProperty(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT));
     }
 
     /**
      * Sets the size that should be used for the creation of bloom filters on the
      * server side.
      *
+     * @param accumuloProperties
      * @param maxBloomFilterToPassToAnIterator the size that should be used
      *                                         for the creation of bloom filters on the server side.
      */
-    public void setMaxBloomFilterToPassToAnIterator(final String maxBloomFilterToPassToAnIterator) {
-        set(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, maxBloomFilterToPassToAnIterator);
+    public static void setMaxBloomFilterToPassToAnIterator(final StoreProperties accumuloProperties, final String maxBloomFilterToPassToAnIterator) {
+        accumuloProperties.setProperty(MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR, maxBloomFilterToPassToAnIterator);
     }
 
     /**
@@ -356,18 +334,20 @@ public class AccumuloProperties extends StoreProperties {
      * @return An implementation of
      * {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} to be used
      * for this accumulo table.
+     * @param accumuloProperties
      */
-    public String getKeyPackageClass() {
-        return get(KEY_PACKAGE_CLASS, ByteEntityKeyPackage.class.getName());
+    public static String getKeyPackageClass(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(KEY_PACKAGE_CLASS, ByteEntityKeyPackage.class.getName());
     }
 
     /**
      * Sets the key package that should be used in conjunction with this table.
      *
+     * @param accumuloProperties
      * @param keyPackageClass the key package that should be used in conjunction with this table.
      */
-    public void setKeyPackageClass(final String keyPackageClass) {
-        set(KEY_PACKAGE_CLASS, keyPackageClass);
+    public static void setKeyPackageClass(final StoreProperties accumuloProperties, final String keyPackageClass) {
+        accumuloProperties.setProperty(KEY_PACKAGE_CLASS, keyPackageClass);
     }
 
     /**
@@ -376,9 +356,10 @@ public class AccumuloProperties extends StoreProperties {
      * value.
      *
      * @return The replication factor to be applied to tables created by Gaffer.
+     * @param accumuloProperties
      */
-    public String getTableFileReplicationFactor() {
-        return get(TABLE_REPLICATION_FACTOR, null);
+    public static String getTableFileReplicationFactor(final StoreProperties accumuloProperties) {
+        return accumuloProperties.getProperty(TABLE_REPLICATION_FACTOR, null);
     }
 
     /**
@@ -386,37 +367,39 @@ public class AccumuloProperties extends StoreProperties {
      * not set then the table will use your general Accumulo settings default
      * value.
      *
+     * @param accumuloProperties
      * @param replicationFactor the replication factor to be applied to tables
      *                          created by gaffer, if not set then the table
      *                          will use your general accumulo settings default value.
      */
-    public void setTableFileReplicationFactor(final String replicationFactor) {
-        set(TABLE_REPLICATION_FACTOR, replicationFactor);
+    public static void setTableFileReplicationFactor(final StoreProperties accumuloProperties, final String replicationFactor) {
+        accumuloProperties.setProperty(TABLE_REPLICATION_FACTOR, replicationFactor);
     }
 
     /**
      * Gets the flag determining whether the validator iterator should be enabled.
      *
      * @return true if the validator iterator should be enabled.
+     * @param accumuloProperties
      */
-    public boolean getEnableValidatorIterator() {
-        return Boolean.parseBoolean(get(ENABLE_VALIDATOR_ITERATOR, ENABLE_VALIDATOR_ITERATOR_DEFAULT));
+    public static boolean getEnableValidatorIterator(final StoreProperties accumuloProperties) {
+        return Boolean.parseBoolean(accumuloProperties.getProperty(ENABLE_VALIDATOR_ITERATOR, ENABLE_VALIDATOR_ITERATOR_DEFAULT));
     }
 
     /**
      * Sets the flag determining whether the validator iterator should be enabled.
      *
+     * @param accumuloProperties
      * @param enableValidatorIterator true if the validator iterator should be enabled.
      */
-    public void setEnableValidatorIterator(final boolean enableValidatorIterator) {
-        set(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableValidatorIterator));
+    public static void setEnableValidatorIterator(final StoreProperties accumuloProperties, final boolean enableValidatorIterator) {
+        accumuloProperties.setProperty(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableValidatorIterator));
     }
 
-    @Override
-    public String getJsonSerialiserModules() {
+    public static String getJsonSerialiserModules(final StoreProperties storeProperties) {
         return new StringDeduplicateConcat().apply(
                 SketchesJsonModules.class.getName(),
-                super.getJsonSerialiserModules()
+                StorePropertiesUtil.getJsonSerialiserModules(storeProperties)
         );
     }
 }

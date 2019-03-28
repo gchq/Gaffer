@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -99,7 +100,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
             idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
-            while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
+            while (idsIterator.hasNext() && count < AccumuloStorePropertiesUtil.getMaxEntriesForBatchScanner(store.getProperties())) {
                 count++;
                 try {
                     addToRanges(idsIterator.next(), ranges);
@@ -153,7 +154,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
             while (idsIterator.hasNext() && !scannerIterator.hasNext()) {
                 count = 0;
                 final Set<Range> ranges = new HashSet<>();
-                while (idsIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
+                while (idsIterator.hasNext() && count < AccumuloStorePropertiesUtil.getMaxEntriesForBatchScanner(store.getProperties())) {
                     count++;
                     try {
                         addToRanges(idsIterator.next(), ranges);

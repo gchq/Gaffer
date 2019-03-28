@@ -23,7 +23,6 @@ import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -34,6 +33,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -73,7 +74,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(GRAPH_ID, schema, props);
 
         // When
@@ -127,7 +128,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(GRAPH_ID, schema, props);
 
         invalidateTable.run();
@@ -154,7 +155,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(LOCALITY_GRAPH_ID, schema, props);
 
         // When
@@ -185,7 +186,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+        final StoreProperties props = StoreProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
         store.initialise(NO_AGGREGATORS_GRAPH_ID, schema, props);
 
         // When
@@ -232,8 +233,8 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        final StoreProperties properties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(properties, SingleUseMockAccumuloStore.class.getName());
 
         final AccumuloStore store = new AccumuloStore();
         store.initialise(null, schema, properties);
@@ -256,8 +257,8 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        final StoreProperties properties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(properties, SingleUseMockAccumuloStore.class.getName());
 
         final AccumuloStore store = new AccumuloStore();
         store.initialise(null, schema, properties);
@@ -280,8 +281,8 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        final StoreProperties properties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(properties, SingleUseMockAccumuloStore.class.getName());
 
         // When
         new Graph.Builder()

@@ -32,7 +32,7 @@
 //import uk.gov.gchq.gaffer.operation.OperationException;
 //import uk.gov.gchq.gaffer.operation.impl.Map;
 //import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-//import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+//import uk.gov.gchq.gaffer.parquetstore.StoreProperties;
 //import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 //import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 //import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
@@ -203,7 +203,7 @@
 //                           final String elementsSchema,
 //                           final List<Element> elements) throws OperationException, IOException {
 //        final String folder = testFolder.newFolder().getAbsolutePath();
-//        final ParquetStoreProperties properties = TestUtils.getParquetStoreProperties(folder);
+//        final StoreProperties properties = TestUtils.getParquetStoreProperties(folder);
 //        final Graph graph = new Graph.Builder()
 //                .config(new GraphConfig.Builder()
 //                        .graphId(graphId)

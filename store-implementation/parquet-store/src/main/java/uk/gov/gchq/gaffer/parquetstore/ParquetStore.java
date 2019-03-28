@@ -146,20 +146,16 @@ public class ParquetStore extends Store {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        if (!(properties instanceof ParquetStoreProperties)) {
-            throw new StoreException("ParquetStore must be initialised with properties of class ParquetStoreProperties");
+        if (null == ParquetStorePropertiesUtil.getDataDir(properties)) {
+            throw new StoreException("The StoreProperties must contain a non-null data directory ("
+                    + ParquetStorePropertiesUtil.DATA_DIR + ")");
         }
-        final ParquetStoreProperties parquetStoreProperties = (ParquetStoreProperties) properties;
-        if (null == parquetStoreProperties.getDataDir()) {
-            throw new StoreException("The ParquetStoreProperties must contain a non-null data directory ("
-                    + ParquetStoreProperties.DATA_DIR + ")");
-        }
-        if (null == parquetStoreProperties.getTempFilesDir()) {
-            throw new StoreException("The ParquetStoreProperties must contain a non-null temporary data directory ("
-                    + ParquetStoreProperties.TEMP_FILES_DIR + ")");
+        if (null == ParquetStorePropertiesUtil.getTempFilesDir(properties)) {
+            throw new StoreException("The StoreProperties must contain a non-null temporary data directory ("
+                    + ParquetStorePropertiesUtil.TEMP_FILES_DIR + ")");
         }
         LOGGER.info("Initialising ParquetStore for graph id {}", graphId);
-        super.initialise(graphId, schema, parquetStoreProperties);
+        super.initialise(graphId, schema, properties);
         try {
             fs = FileSystem.get(new Configuration());
             schemaUtils = new SchemaUtils(getSchema());
@@ -238,7 +234,7 @@ public class ParquetStore extends Store {
     }
 
     public Path getGraphPartitionerPath() {
-        return new Path(getProperties().getDataDir() + "/" + SNAPSHOT + "=" + currentSnapshot, "graphPartitioner");
+        return new Path(ParquetStorePropertiesUtil.getDataDir(getProperties()) + "/" + SNAPSHOT + "=" + currentSnapshot, "graphPartitioner");
     }
 
     private void loadGraphPartitioner() throws StoreException {
@@ -287,11 +283,11 @@ public class ParquetStore extends Store {
     }
 
     public String getDataDir() {
-        return getProperties().getDataDir();
+        return ParquetStorePropertiesUtil.getDataDir(getProperties());
     }
 
     public String getTempFilesDir() {
-        return getProperties().getTempFilesDir();
+        return ParquetStorePropertiesUtil.getTempFilesDir(getProperties());
     }
 
     public String getFile(final String group, final Partition partition) {
@@ -362,17 +358,6 @@ public class ParquetStore extends Store {
                 + "/" + getSnapshotPath(currentSnapshot)
                 + "/" + REVERSED_EDGES
                 + "/" + GROUP + "=" + group);
-    }
-
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
-    @Override
-    public ParquetStoreProperties getProperties() {
-        return (ParquetStoreProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<ParquetStoreProperties> getPropertiesClass() {
-        return ParquetStoreProperties.class;
     }
 
     @Override

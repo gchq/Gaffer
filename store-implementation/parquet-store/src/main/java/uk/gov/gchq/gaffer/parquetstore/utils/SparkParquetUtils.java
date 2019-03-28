@@ -22,7 +22,8 @@ import org.apache.spark.sql.internal.SQLConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 /**
  * This is where all the Spark configure required to write out the data is set.
@@ -33,8 +34,8 @@ public final class SparkParquetUtils {
     private SparkParquetUtils() {
     }
 
-    public static void configureSparkForAddElements(final SparkSession spark, final ParquetStoreProperties props) {
-        final Integer numberOfOutputFiles = props.getAddElementsOutputFilesPerGroup();
+    public static void configureSparkForAddElements(final SparkSession spark, final StoreProperties props) {
+        final Integer numberOfOutputFiles = ParquetStorePropertiesUtil.getAddElementsOutputFilesPerGroup(props);
         String shufflePartitions = spark.conf().getOption("spark.sql.shuffle.partitions").get();
         if (null == shufflePartitions) {
             shufflePartitions = SQLConf.SHUFFLE_PARTITIONS().defaultValueString();
@@ -47,13 +48,13 @@ public final class SparkParquetUtils {
         configureSparkConfForAddElements(hadoopConf, props);
     }
 
-    private static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
+    private static void configureSparkConfForAddElements(final Configuration hadoopConf, final StoreProperties props) {
         LOGGER.debug("Setting the parquet file properties");
-        LOGGER.debug("Row group size: {}", props.getRowGroupSize());
-        LOGGER.debug("Page size: {}", props.getPageSize());
-        hadoopConf.setInt("parquet.block.size", props.getRowGroupSize());
-        hadoopConf.setInt("parquet.page.size", props.getPageSize());
-        hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
+        LOGGER.debug("Row group size: {}", ParquetStorePropertiesUtil.getRowGroupSize(props));
+        LOGGER.debug("Page size: {}", ParquetStorePropertiesUtil.getPageSize(props));
+        hadoopConf.setInt("parquet.block.size", ParquetStorePropertiesUtil.getRowGroupSize(props));
+        hadoopConf.setInt("parquet.page.size", ParquetStorePropertiesUtil.getPageSize(props));
+        hadoopConf.setInt("parquet.dictionary.page.size", ParquetStorePropertiesUtil.getPageSize(props));
         hadoopConf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false");
         hadoopConf.set("parquet.enable.summary-metadata", "false");
     }

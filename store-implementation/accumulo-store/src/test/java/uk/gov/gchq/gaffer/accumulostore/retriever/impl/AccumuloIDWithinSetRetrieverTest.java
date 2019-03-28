@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -64,8 +65,8 @@ public class AccumuloIDWithinSetRetrieverTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final StoreProperties PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
+    private static final StoreProperties CLASSIC_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
@@ -299,7 +300,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // one that GraphElementsWithStatisticsWithinSetRetriever creates.
         final int numItemsToBeAdded = loadIntoMemory ? seeds.size() : 20;
         if (!loadIntoMemory) {
-            store.getProperties().setMaxEntriesForBatchScanner("20");
+            AccumuloStorePropertiesUtil.setMaxEntriesForBatchScanner(store.getProperties(), "20");
         }
 
         // Find something that will give a false positive
@@ -307,7 +308,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Calculate sensible size of filter, aiming for false positive rate of 1 in 10000, with a maximum size of
         // maxBloomFilterToPassToAnIterator bytes.
         int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / Math.pow(Math.log(2.0), 2.0));
-        size = Math.min(size, store.getProperties().getMaxBloomFilterToPassToAnIterator());
+        size = Math.min(size, AccumuloStorePropertiesUtil.getMaxBloomFilterToPassToAnIterator(store.getProperties()));
 
         // Work out optimal number of hashes to use in Bloom filter based on size of set - optimal number of hashes is
         // (m/n)ln 2 where m is the size of the filter in bits and n is the number of items that will be added to the set.
@@ -321,7 +322,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
         // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
         int count = 0;
-        int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
+        int maxNumberOfTries = 50 * AccumuloStorePropertiesUtil.getMaxBloomFilterToPassToAnIterator(store.getProperties());
         while (count < maxNumberOfTries) {
             count++;
             if (filter.membershipTest(new Key(("" + count).getBytes()))) {
@@ -424,7 +425,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     private void shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        store.getProperties().setMaxEntriesForBatchScanner("1");
+        AccumuloStorePropertiesUtil.setMaxEntriesForBatchScanner(store.getProperties(), "1");
 
         // Query for all edges in set {A0, A23}
         final Set<EntityId> seeds = new HashSet<>();

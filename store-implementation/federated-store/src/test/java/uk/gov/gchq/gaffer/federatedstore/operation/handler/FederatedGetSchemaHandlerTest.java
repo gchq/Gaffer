@@ -20,13 +20,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,6 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -52,7 +51,7 @@ public class FederatedGetSchemaHandlerTest {
     private Context context;
     private User user;
     private StoreProperties properties;
-    private AccumuloProperties accProperties;
+    private StoreProperties accProperties;
     private static final String ACC_PROP_ID = "accProp";
     private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
@@ -74,13 +73,12 @@ public class FederatedGetSchemaHandlerTest {
         handler = new FederatedGetSchemaHandler();
         user = new User("testUser");
         context = new Context(user);
-        properties = new FederatedStoreProperties();
-        properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+        properties = new StoreProperties();
+        properties.setProperty(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
-        accProperties = new AccumuloProperties();
+        accProperties = new StoreProperties();
 
-        accProperties.setStoreClass(MockAccumuloStore.class);
-        accProperties.setStorePropertiesClass(AccumuloProperties.class);
+        StorePropertiesUtil.setStoreClass(accProperties, MockAccumuloStore.class);
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, properties);

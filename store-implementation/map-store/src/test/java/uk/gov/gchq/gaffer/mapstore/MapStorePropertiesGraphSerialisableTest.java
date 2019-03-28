@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
@@ -53,9 +54,7 @@ public class MapStorePropertiesGraphSerialisableTest {
                         .build())
                 .type("string", String.class)
                 .build();
-        final MapStoreProperties storeProperties = new MapStoreProperties();
-        storeProperties.setStorePropertiesClass(MapStoreProperties.class);
-        properties = storeProperties.getProperties();
+        properties = new StoreProperties();
         expected = getGraphSerialisable();
     }
 
@@ -77,8 +76,8 @@ public class MapStorePropertiesGraphSerialisableTest {
 
     @Test
     public void shouldConsumeGraph() throws Exception {
-        final MapStoreProperties mapStoreProperties = new MapStoreProperties();
-        mapStoreProperties.setProperties(properties);
+        final StoreProperties mapStoreProperties = new StoreProperties();
+        mapStoreProperties.putAll(properties);
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(mapStoreProperties).config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
         assertEquals(expected, result);

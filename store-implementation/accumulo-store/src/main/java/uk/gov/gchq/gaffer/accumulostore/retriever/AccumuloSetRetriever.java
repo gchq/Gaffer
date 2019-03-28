@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -278,11 +279,11 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         public AbstractElementIteratorFromBatches() {
             // Set up client side filter
-            clientSideFilter = BloomFilterUtils.getBloomFilter(store.getProperties().getClientSideBloomFilterSize());
+            clientSideFilter = BloomFilterUtils.getBloomFilter(AccumuloStorePropertiesUtil.getClientSideBloomFilterSize(store.getProperties()));
             // Create Bloom filter to be passed to iterators.
-            filter = BloomFilterUtils.getBloomFilter(store.getProperties().getFalsePositiveRate(),
-                    store.getProperties().getMaxEntriesForBatchScanner(),
-                    store.getProperties().getMaxBloomFilterToPassToAnIterator());
+            filter = BloomFilterUtils.getBloomFilter(AccumuloStorePropertiesUtil.getFalsePositiveRate(store.getProperties()),
+                    AccumuloStorePropertiesUtil.getMaxEntriesForBatchScanner(store.getProperties()),
+                    AccumuloStorePropertiesUtil.getMaxBloomFilterToPassToAnIterator(store.getProperties()));
             currentSeeds = new HashSet<>();
         }
 
@@ -348,7 +349,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             // and add them to a set.
             count = 0;
             final Set<Range> ranges = new HashSet<>();
-            while (idsAIterator.hasNext() && count < store.getProperties().getMaxEntriesForBatchScanner()) {
+            while (idsAIterator.hasNext() && count < AccumuloStorePropertiesUtil.getMaxEntriesForBatchScanner(store.getProperties())) {
                 final EntityId seed = idsAIterator.next();
                 currentSeeds.add(seed.getVertex());
                 count++;

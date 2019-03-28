@@ -80,7 +80,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStorePropertiesUtil.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
 /**
@@ -115,24 +115,13 @@ public class FederatedStore extends Store {
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
-        isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+        isPublicAccessAllowed = Boolean.valueOf(FederatedStorePropertiesUtil.getIsPublicAccessAllowed(getProperties()));
     }
 
     @Override
     public void setGraphLibrary(final GraphLibrary library) {
         super.setGraphLibrary(library);
         graphStorage.setGraphLibrary(library);
-    }
-
-    /**
-     * Get this Store's {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}.
-     *
-     * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties},
-     * this may contain details such as database connection details.
-     */
-    @Override
-    public FederatedStoreProperties getProperties() {
-        return (FederatedStoreProperties) super.getProperties();
     }
 
     /**
@@ -318,11 +307,6 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected Class<FederatedStoreProperties> getPropertiesClass() {
-        return FederatedStoreProperties.class;
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
         // Override the Operations that don't have an output
         getSupportedOperations()
@@ -397,7 +381,7 @@ public class FederatedStore extends Store {
     }
 
     private Set<String> getCustomPropertiesAuths() {
-        final String value = getProperties().getCustomPropsValue();
+        final String value = FederatedStorePropertiesUtil.getCustomPropsValue(getProperties());
         return (Strings.isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 

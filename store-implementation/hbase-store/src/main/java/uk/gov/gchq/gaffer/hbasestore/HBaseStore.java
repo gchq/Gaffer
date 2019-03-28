@@ -125,7 +125,7 @@ public class HBaseStore extends Store {
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         setProperties(properties);
-        final String deprecatedTableName = getProperties().getTableName();
+        final String deprecatedTableName = HBaseStorePropertiesUtil.getTableName(getProperties());
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
             super.initialise(deprecatedTableName, schema, getProperties());
@@ -140,8 +140,8 @@ public class HBaseStore extends Store {
 
     public Configuration getConfiguration() {
         final Configuration conf = HBaseConfiguration.create();
-        if (null != getProperties().getZookeepers()) {
-            conf.set("hbase.zookeeper.quorum", getProperties().getZookeepers());
+        if (null != HBaseStorePropertiesUtil.getZookeepers(getProperties())) {
+            conf.set("hbase.zookeeper.quorum", HBaseStorePropertiesUtil.getZookeepers(getProperties()));
         }
         return conf;
     }
@@ -207,17 +207,6 @@ public class HBaseStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
-    }
-
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be HBaseProperties")
-    @Override
-    public HBaseProperties getProperties() {
-        return (HBaseProperties) super.getProperties();
-    }
-
-    @Override
-    protected Class<HBaseProperties> getPropertiesClass() {
-        return HBaseProperties.class;
     }
 
     @Override

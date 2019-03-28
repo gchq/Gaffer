@@ -24,7 +24,6 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +44,7 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialise
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -125,8 +125,8 @@ public class ParquetStoreTest {
     @Test
     public void testMissingDataDirectory() {
         // Given
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        properties.setTempFilesDir("/tmp/tmpdata");
+        final StoreProperties properties = new StoreProperties();
+        ParquetStorePropertiesUtil.setTempFilesDir(properties, "/tmp/tmpdata");
 
         // When / Then
         try {
@@ -141,8 +141,8 @@ public class ParquetStoreTest {
     @Test
     public void testMissingTmpDataDirectory() {
         // Given
-        final ParquetStoreProperties properties = new ParquetStoreProperties();
-        properties.setDataDir("/tmp/data");
+        final StoreProperties properties = new StoreProperties();
+        ParquetStorePropertiesUtil.setDataDir(properties, "/tmp/data");
 
         // When / Then
         try {
@@ -157,7 +157,7 @@ public class ParquetStoreTest {
     @Test
     public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
         //Given
-        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        final StoreProperties properties = getParquetStoreProperties(testFolder);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
 
@@ -175,7 +175,7 @@ public class ParquetStoreTest {
     @Test
     public void shouldNotFailSettingSnapshotWhenSnapshotExists() throws IOException {
         //Given
-        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        final StoreProperties properties = getParquetStoreProperties(testFolder);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
         testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
@@ -257,8 +257,8 @@ public class ParquetStoreTest {
                             .build())
                     .vertexSerialiser(new StringParquetSerialiser())
                     .build();
-            final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
-            parquetStoreProperties.setCompressionCodecName(compressionType);
+            final StoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
+            ParquetStorePropertiesUtil.setCompressionCodecName(parquetStoreProperties, compressionType);
             final ParquetStore parquetStore = (ParquetStore) ParquetStore.createStore("graphId", schema, parquetStoreProperties);
             final List<Element> elements = new ArrayList<>();
             elements.add(new Entity.Builder()

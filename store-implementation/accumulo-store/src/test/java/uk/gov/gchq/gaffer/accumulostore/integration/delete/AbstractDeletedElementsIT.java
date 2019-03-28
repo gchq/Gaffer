@@ -30,7 +30,6 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -46,6 +45,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -85,7 +85,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                         .type(TestTypes.ID_STRING, String.class)
                         .type(TestTypes.DIRECTED_EITHER, Boolean.class)
                         .build(),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );
 
         final Graph graph = new Graph.Builder()

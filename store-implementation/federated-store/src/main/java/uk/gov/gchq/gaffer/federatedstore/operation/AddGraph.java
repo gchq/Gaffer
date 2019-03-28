@@ -174,7 +174,7 @@ public class AddGraph implements FederatedOperation {
 
     @JsonGetter("storeProperties")
     public Properties getProperties() {
-        return null != storeProperties ? storeProperties.getProperties() : null;
+        return storeProperties;
     }
 
     @JsonSetter("storeProperties")
@@ -182,7 +182,7 @@ public class AddGraph implements FederatedOperation {
         if (null == properties) {
             setStoreProperties(null);
         } else {
-            setStoreProperties(StoreProperties.loadStoreProperties(properties));
+            setStoreProperties(new StoreProperties(properties));
         }
     }
 

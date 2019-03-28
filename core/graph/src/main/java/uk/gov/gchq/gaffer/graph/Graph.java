@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -622,31 +623,31 @@ public final class Graph {
         }
 
         public Builder storeProperties(final Properties properties) {
-            return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
+            return storeProperties(null != properties ? new StoreProperties(properties) : null);
         }
 
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
-                ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
+                ReflectionUtil.addReflectionPackages(StorePropertiesUtil.getReflectionPackages(properties));
                 JSONSerialiser.update(
-                        properties.getJsonSerialiserClass(),
-                        properties.getJsonSerialiserModules(),
-                        properties.getStrictJson()
+                        StorePropertiesUtil.getJsonSerialiserClass(properties),
+                        StorePropertiesUtil.getJsonSerialiserModules(properties),
+                        StorePropertiesUtil.getStrictJson(properties)
                 );
             }
             return this;
         }
 
         public Builder storeProperties(final String propertiesPath) {
-            return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
+            return storeProperties(null != propertiesPath ? new StoreProperties(propertiesPath) : null);
         }
 
         public Builder storeProperties(final Path propertiesPath) {
             if (null == propertiesPath) {
                 properties = null;
             } else {
-                storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+                storeProperties(new StoreProperties(propertiesPath));
             }
             return this;
         }
@@ -674,7 +675,7 @@ public final class Graph {
 
         public Builder addStoreProperties(final Properties properties) {
             if (null != properties) {
-                addStoreProperties(StoreProperties.loadStoreProperties(properties));
+                addStoreProperties(new StoreProperties(properties));
             }
             return this;
         }
@@ -692,21 +693,21 @@ public final class Graph {
 
         public Builder addStoreProperties(final String updatePropertiesPath) {
             if (null != updatePropertiesPath) {
-                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+                addStoreProperties(new StoreProperties(updatePropertiesPath));
             }
             return this;
         }
 
         public Builder addStoreProperties(final Path updatePropertiesPath) {
             if (null != updatePropertiesPath) {
-                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+                addStoreProperties(new StoreProperties(updatePropertiesPath));
             }
             return this;
         }
 
         public Builder addStoreProperties(final InputStream updatePropertiesStream) {
             if (null != updatePropertiesStream) {
-                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+                addStoreProperties(new StoreProperties(updatePropertiesStream));
             }
             return this;
         }
@@ -1032,7 +1033,7 @@ public final class Graph {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
                 }
 
-                final Class<? extends Schema> schemaClass = properties.getSchemaClass();
+                final Class<? extends Schema> schemaClass = StorePropertiesUtil.getSchemaClass(properties);
                 final Schema newSchema = new Schema.Builder()
                         .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
                         .build();

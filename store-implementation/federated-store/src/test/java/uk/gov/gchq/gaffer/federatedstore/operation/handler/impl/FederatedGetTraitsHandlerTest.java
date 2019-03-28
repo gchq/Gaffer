@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -60,12 +59,12 @@ public class FederatedGetTraitsHandlerTest {
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
     private FederatedStore federatedStore;
-    private FederatedStoreProperties properties;
+    private StoreProperties properties;
 
     @Before
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
-        properties = new FederatedStoreProperties();
+        properties = new StoreProperties();
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
     }
@@ -168,7 +167,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(new StoreProperties("/properties/singleUseMockAccStore.properties"))
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -207,7 +206,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(new StoreProperties("/properties/singleUseMockAccStore.properties"))
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 

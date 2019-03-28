@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks.Builder;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -31,7 +30,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
@@ -46,7 +44,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
-        StoreProperties storeProperties = new AccumuloProperties();
+        StoreProperties storeProperties = new StoreProperties();
         Log4jLogger log4jLogger = new Log4jLogger();
 
         AddGraphWithHooks op = new Builder()
@@ -58,8 +56,6 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
         assertEquals(expectedSchema, op.getSchema());
-        assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
-        assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
         assertEquals(1, op.getHooks().length);
         assertEquals(log4jLogger, op.getHooks()[0]);
     }

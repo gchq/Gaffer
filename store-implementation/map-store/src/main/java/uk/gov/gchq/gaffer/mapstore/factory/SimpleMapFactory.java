@@ -16,10 +16,10 @@
 package uk.gov.gchq.gaffer.mapstore.factory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
@@ -49,8 +49,8 @@ public class SimpleMapFactory implements MapFactory {
     }
 
     @Override
-    public void initialise(final Schema schema, final MapStoreProperties properties) {
-        final String mapClassName = properties.get(MAP_CLASS, MAP_CLASS_DEFAULT);
+    public void initialise(final Schema schema, final StoreProperties properties) {
+        final String mapClassName = properties.getProperty(MAP_CLASS, MAP_CLASS_DEFAULT);
         try {
             mapClass = Class.forName(SimpleClassNameIdResolver.getClassName(mapClassName)).asSubclass(Map.class);
         } catch (final ClassNotFoundException | ClassCastException e) {

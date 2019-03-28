@@ -35,10 +35,11 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStorePropertiesUtil;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.LongVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitionerTest;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
@@ -68,9 +69,9 @@ public class QueryGeneratorTest {
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
         // - Initialise store
-        final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        storeProperties.setDataDir(folder);
-        storeProperties.setTempFilesDir(folder + "/tmpdata");
+        final StoreProperties storeProperties = new StoreProperties();
+        ParquetStorePropertiesUtil.setDataDir(storeProperties, folder);
+        ParquetStorePropertiesUtil.setTempFilesDir(storeProperties, folder + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
 
         // When 1 - no view
@@ -176,9 +177,9 @@ public class QueryGeneratorTest {
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
         // - Initialise store
-        final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        storeProperties.setDataDir(folder);
-        storeProperties.setTempFilesDir(folder + "/tmpdata");
+        final StoreProperties storeProperties = new StoreProperties();
+        ParquetStorePropertiesUtil.setDataDir(storeProperties, folder);
+        ParquetStorePropertiesUtil.setTempFilesDir(storeProperties, folder + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
 
         // When 1 - no view, query for vertex 0
@@ -323,9 +324,9 @@ public class QueryGeneratorTest {
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
         // - Initialise store
-        final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        storeProperties.setDataDir(folder);
-        storeProperties.setTempFilesDir(folder + "/tmpdata");
+        final StoreProperties storeProperties = new StoreProperties();
+        ParquetStorePropertiesUtil.setDataDir(storeProperties, folder);
+        ParquetStorePropertiesUtil.setTempFilesDir(storeProperties, folder + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
 
         // When 1 - no view, query for edges 0->1, 10--10000, 10000--10 with seed matching type set to EQUAL

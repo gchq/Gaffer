@@ -90,8 +90,7 @@ public abstract class RestApiTestClient {
                 .toJson(true));
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
-            storeProperties.getProperties()
-                    .store(out, "This is an optional header comment string");
+            storeProperties.store(out, "This is an optional header comment string");
         }
 
         // set properties for REST service

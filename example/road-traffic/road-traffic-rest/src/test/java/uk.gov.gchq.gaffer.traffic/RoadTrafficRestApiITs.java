@@ -24,11 +24,12 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.ProxyStorePropertiesUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
@@ -75,14 +76,13 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @Override
     public void prepareProxy() throws IOException {
         // Create a proxy store that will proxy all queries to the REST API that has been spun up
-        ProxyProperties props = new ProxyProperties(System.getProperties());
-        props.setStoreClass(ProxyStore.class);
-        props.setStorePropertiesClass(props.getClass());
+        StoreProperties props = new StoreProperties(System.getProperties());
+        StorePropertiesUtil.setStoreClass(props, ProxyStore.class);
 
         final URL restURL = new URL(client.getRoot());
-        props.setGafferHost(restURL.getHost());
-        props.setGafferPort(restURL.getPort());
-        props.setGafferContextRoot(client.getPath());
+        ProxyStorePropertiesUtil.setGafferHost(props, restURL.getHost());
+        ProxyStorePropertiesUtil.setGafferPort(props, restURL.getPort());
+        ProxyStorePropertiesUtil.setGafferContextRoot(props, client.getPath());
 
         this.graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))

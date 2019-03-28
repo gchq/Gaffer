@@ -88,7 +88,7 @@ public class ExportToOtherGraphHandlerTest {
     @Before
     public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
+        storeProperties.setProperty(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
@@ -482,7 +482,7 @@ public class ExportToOtherGraphHandlerTest {
             () {
         // Given
         StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.set("testKey", "testValue");
+        storeProperties1.setProperty("testKey", "testValue");
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
@@ -518,7 +518,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldValidatePropsCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
         StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.set("testKey", "testValue");
+        storeProperties1.setProperty("testKey", "testValue");
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
@@ -540,7 +540,7 @@ public class ExportToOtherGraphHandlerTest {
             () {
         // Given
         StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.set("testKey", "testValue");
+        storeProperties1.setProperty("testKey", "testValue");
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)

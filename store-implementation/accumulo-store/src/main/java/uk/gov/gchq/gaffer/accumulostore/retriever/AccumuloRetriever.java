@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStorePropertiesUtil;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
@@ -118,9 +119,9 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
         final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
-                authorisations, store.getProperties().getThreadsForBatchScanner());
+                authorisations, AccumuloStorePropertiesUtil.getThreadsForBatchScanner(store.getProperties()));
         LOGGER.debug("Initialised BatchScanner on table {} with authorisations {} using {} threads",
-                store.getTableName(), authorisations, store.getProperties().getThreadsForBatchScanner());
+                store.getTableName(), authorisations, AccumuloStorePropertiesUtil.getThreadsForBatchScanner(store.getProperties()));
         if (null != iteratorSettings) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
                 if (null != iteratorSetting) {

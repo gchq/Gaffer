@@ -40,14 +40,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class MockAccumuloStore extends AccumuloStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
 
-    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken(AccumuloProperties.PASSWORD);
+    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken(AccumuloStorePropertiesUtil.PASSWORD);
     private MockInstance mockAccumulo = null;
     private Connector mockConnector;
 
     @Override
     public Connector getConnection() throws StoreException {
         try {
-            mockConnector = mockAccumulo.getConnector(AccumuloProperties.USER, PASSWORD_TOKEN);
+            mockConnector = mockAccumulo.getConnector(AccumuloStorePropertiesUtil.USER, PASSWORD_TOKEN);
         } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
@@ -57,7 +57,7 @@ public class MockAccumuloStore extends AccumuloStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
-        mockAccumulo = new MockInstance(getProperties().getInstance());
+        mockAccumulo = new MockInstance(AccumuloStorePropertiesUtil.getInstance(getProperties()));
         super.preInitialise(graphId, schema, getProperties());
     }
 
@@ -65,7 +65,7 @@ public class MockAccumuloStore extends AccumuloStore {
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
-                AccumuloProperties.USER,
+                AccumuloStorePropertiesUtil.USER,
                 PASSWORD_TOKEN);
     }
 
@@ -73,7 +73,7 @@ public class MockAccumuloStore extends AccumuloStore {
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setMockInstance(AccumuloInputFormat.class,
                 conf,
-                getProperties().getInstance());
+                AccumuloStorePropertiesUtil.getInstance(getProperties()));
     }
 
     public MockInstance getMockAccumulo() {

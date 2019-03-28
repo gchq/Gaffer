@@ -71,7 +71,7 @@ public final class GraphSerialisable implements Serializable {
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to serialise config", e);
         }
-        this.deserialisedProperties = StoreProperties.loadStoreProperties(properties);
+        this.deserialisedProperties = new StoreProperties(properties);
         this.properties = properties;
     }
 
@@ -159,7 +159,7 @@ public final class GraphSerialisable implements Serializable {
     public StoreProperties getDeserialisedProperties() {
         if (null == deserialisedProperties) {
             if (null == graph) {
-                deserialisedProperties = null != properties ? StoreProperties.loadStoreProperties(properties) : null;
+                deserialisedProperties = null != properties ? new StoreProperties(properties) : null;
             } else {
                 deserialisedProperties = graph.getStoreProperties();
             }
@@ -213,13 +213,13 @@ public final class GraphSerialisable implements Serializable {
             if (null == properties) {
                 this.properties = null;
             } else {
-                this.properties = properties.getProperties();
+                this.properties = properties;
             }
             return _self();
         }
 
         public Builder properties(final InputStream properties) {
-            return properties(StoreProperties.loadStoreProperties(properties));
+            return properties(new StoreProperties(properties));
         }
 
         public Builder config(final GraphConfig config) {
@@ -230,7 +230,7 @@ public final class GraphSerialisable implements Serializable {
         @JsonIgnore
         public Builder graph(final Graph graph) {
             schema = graph.getSchema();
-            properties = graph.getStoreProperties().getProperties();
+            properties = graph.getStoreProperties();
             config = graph.getConfig();
             return _self();
         }

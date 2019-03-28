@@ -26,6 +26,8 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 
 import java.util.List;
 
@@ -35,76 +37,74 @@ public class ParquetStorePropertiesTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private ParquetStoreProperties props;
+    private StoreProperties props;
 
     @Before
     public void setUp() {
-        props = new ParquetStoreProperties();
+        props = new StoreProperties();
     }
 
     @Test
     public void threadsAvailableTest() {
-        assertEquals((Integer) 3, props.getThreadsAvailable());
-        props.setThreadsAvailable(9);
-        assertEquals((Integer) 9, props.getThreadsAvailable());
+        assertEquals((Integer) 3, ParquetStorePropertiesUtil.getThreadsAvailable(props));
+        ParquetStorePropertiesUtil.setThreadsAvailable(props, 9);
+        assertEquals((Integer) 9, ParquetStorePropertiesUtil.getThreadsAvailable(props));
     }
 
     @Test
     public void dataDirTest() {
-        assertEquals(null, props.getDataDir());
-        props.setDataDir("Test");
-        assertEquals("Test", props.getDataDir());
+        assertEquals(null, ParquetStorePropertiesUtil.getDataDir(props));
+        ParquetStorePropertiesUtil.setDataDir(props, "Test");
+        assertEquals("Test", ParquetStorePropertiesUtil.getDataDir(props));
     }
 
     @Test
     public void tempFilesDirTest() {
-        assertEquals(null, props.getTempFilesDir());
-        props.setTempFilesDir("Test");
-        assertEquals("Test", props.getTempFilesDir());
+        assertEquals(null, ParquetStorePropertiesUtil.getTempFilesDir(props));
+        ParquetStorePropertiesUtil.setTempFilesDir(props, "Test");
+        assertEquals("Test", ParquetStorePropertiesUtil.getTempFilesDir(props));
     }
 
     @Test
     public void rowGroupSizeTest() {
-        assertEquals((Integer) 4194304, props.getRowGroupSize());
-        props.setRowGroupSize(100000);
-        assertEquals((Integer) 100000, props.getRowGroupSize());
+        assertEquals((Integer) 4194304, ParquetStorePropertiesUtil.getRowGroupSize(props));
+        ParquetStorePropertiesUtil.setRowGroupSize(props, 100000);
+        assertEquals((Integer) 100000, ParquetStorePropertiesUtil.getRowGroupSize(props));
     }
 
     @Test
     public void pageSizeTest() {
-        assertEquals((Integer) 1048576, props.getPageSize());
-        props.setPageSize(100000);
-        assertEquals((Integer) 100000, props.getPageSize());
+        assertEquals((Integer) 1048576, ParquetStorePropertiesUtil.getPageSize(props));
+        ParquetStorePropertiesUtil.setPageSize(props, 100000);
+        assertEquals((Integer) 100000, ParquetStorePropertiesUtil.getPageSize(props));
     }
-
-
 
     @Test
     public void sparkMasterTest() {
         //might fail if Spark is properly installed
-        assertEquals("local[*]", props.getSparkMaster());
-        props.setSparkMaster("Test");
-        assertEquals("Test", props.getSparkMaster());
+        assertEquals("local[*]", ParquetStorePropertiesUtil.getSparkMaster(props));
+        ParquetStorePropertiesUtil.setSparkMaster(props, "Test");
+        assertEquals("Test", ParquetStorePropertiesUtil.getSparkMaster(props));
     }
 
     @Test
     public void compressionTest() {
-        assertEquals(CompressionCodecName.GZIP, props.getCompressionCodecName());
-        props.setCompressionCodecName(CompressionCodecName.SNAPPY.name());
-        assertEquals(CompressionCodecName.SNAPPY, props.getCompressionCodecName());
-        props.setCompressionCodecName(CompressionCodecName.LZO.name());
-        assertEquals(CompressionCodecName.LZO, props.getCompressionCodecName());
-        props.setCompressionCodecName(CompressionCodecName.UNCOMPRESSED.name());
-        assertEquals(CompressionCodecName.UNCOMPRESSED, props.getCompressionCodecName());
+        assertEquals(CompressionCodecName.GZIP, ParquetStorePropertiesUtil.getCompressionCodecName(props));
+        ParquetStorePropertiesUtil.setCompressionCodecName(props, CompressionCodecName.SNAPPY.name());
+        assertEquals(CompressionCodecName.SNAPPY, ParquetStorePropertiesUtil.getCompressionCodecName(props));
+        ParquetStorePropertiesUtil.setCompressionCodecName(props, CompressionCodecName.LZO.name());
+        assertEquals(CompressionCodecName.LZO, ParquetStorePropertiesUtil.getCompressionCodecName(props));
+        ParquetStorePropertiesUtil.setCompressionCodecName(props, CompressionCodecName.UNCOMPRESSED.name());
+        assertEquals(CompressionCodecName.UNCOMPRESSED, ParquetStorePropertiesUtil.getCompressionCodecName(props));
     }
 
     @Test
     public void shouldMergeParquetJsonModules() {
         // Given
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = ParquetStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(), modules);
@@ -113,10 +113,10 @@ public class ParquetStorePropertiesTest {
     @Test
     public void shouldMergeParquetJsonModulesAndDeduplicate() {
         // Given
-        props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
+        StorePropertiesUtil.setJsonSerialiserModules(props, TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
 
         // When
-        final String modules = props.getJsonSerialiserModules();
+        final String modules = ParquetStorePropertiesUtil.getJsonSerialiserModules(props);
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);

@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -31,6 +30,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -54,7 +55,7 @@ public class FederatedStoreWrongGraphIDsTest {
     public static final String USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION = "Using the wrong graphId should have thrown exception.";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore store;
-    private FederatedStoreProperties fedProps;
+    private StoreProperties fedProps;
     private HashMapGraphLibrary library;
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
@@ -62,15 +63,15 @@ public class FederatedStoreWrongGraphIDsTest {
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
-        fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProps = new StoreProperties();
+        FederatedStorePropertiesUtil.setCacheProperties(fedProps, CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        StoreProperties storeProperties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(storeProperties, SingleUseMockAccumuloStore.class);
 
         library.addProperties(PROP_1, storeProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder()
