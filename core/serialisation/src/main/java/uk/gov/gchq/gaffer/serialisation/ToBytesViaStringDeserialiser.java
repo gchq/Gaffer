@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
@@ -88,27 +86,4 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
 
     protected abstract String serialiseToString(final T object) throws SerialisationException;
 
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (null == obj || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        final ToBytesViaStringDeserialiser serialiser = (ToBytesViaStringDeserialiser) obj;
-
-        return new EqualsBuilder()
-                .append(charset, serialiser.charset)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(charset)
-                .toHashCode();
-    }
 }
