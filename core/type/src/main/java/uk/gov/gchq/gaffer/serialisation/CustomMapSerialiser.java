@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
@@ -159,6 +162,34 @@ public class CustomMapSerialiser implements ToBytesSerialiser<CustomMap> {
 
         public byte[] getByteMap() {
             return byteMap;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (null == obj || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final CustomMapInterim serialiser = (CustomMapInterim) obj;
+
+            return new EqualsBuilder()
+                    .append(byteMap, serialiser.byteMap)
+                    .append(keySerialiser, serialiser.keySerialiser)
+                    .append(valueSerialiser, serialiser.valueSerialiser)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(byteMap)
+                    .append(keySerialiser)
+                    .append(valueSerialiser)
+                    .toHashCode();
         }
     }
 }

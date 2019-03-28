@@ -25,8 +25,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 import java.util.Collection;
@@ -225,25 +223,22 @@ public class CustomMap<K, V> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        boolean rtn = (this == o);
-        if (!rtn && o != null && getClass() == o.getClass()) {
-            final CustomMap that = (CustomMap) o;
-            try {
-                rtn = new EqualsBuilder()
-                        /*
-                         * JSONSerialiser is used because ToByteSerialisers.equals checks for sames instance.
-                         * All these serialises would require equals method to be updated.
-                         */
-                        .append(JSONSerialiser.serialise(this.keySerialiser), JSONSerialiser.serialise(that.keySerialiser))
-                        .append(JSONSerialiser.serialise(this.valueSerialiser), JSONSerialiser.serialise(that.valueSerialiser))
-                        .append(this.delegateMap, that.delegateMap)
-                        .isEquals();
-            } catch (final SerialisationException e) {
-                throw new RuntimeException("Error occurred during equals check.", e);
-            }
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return rtn;
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final CustomMap serialiser = (CustomMap) obj;
+
+        return new EqualsBuilder()
+                .append(keySerialiser, serialiser.keySerialiser)
+                .append(valueSerialiser, serialiser.valueSerialiser)
+                .append(delegateMap, serialiser.delegateMap)
+                .isEquals();
     }
 
     @Override
