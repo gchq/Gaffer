@@ -15,20 +15,24 @@
  */
 package uk.gov.gchq.gaffer.time;
 
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +41,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-
 /**
  * An {@code RBMBackedTimestampSet} is an implementation of {@link TimestampSet} that stores timestamps
  * truncated to a certain {@link TimeBucket}, e.g. if a {@link TimeBucket} of a minute is specified then a timestamp
@@ -131,7 +134,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
      * Applies a time range mask. Timestamps which fall outside the range and filtered.
      *
      * @param timeRangeStart filter start time
-     * @param timeRangeEnd filter end time
+     * @param timeRangeEnd   filter end time
      */
     public void applyTimeRangeMask(final Instant timeRangeStart, final Instant timeRangeEnd) {
         RoaringBitmap timeRange = new RoaringBitmap();
