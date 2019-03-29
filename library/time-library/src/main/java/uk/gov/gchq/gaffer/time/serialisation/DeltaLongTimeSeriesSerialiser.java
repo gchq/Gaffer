@@ -183,4 +183,14 @@ public class DeltaLongTimeSeriesSerialiser implements ToBytesSerialiser<LongTime
                         || e.getValue() > HALF_MAX_VALUE);
         return noneMatch ? Mode.DELTA : Mode.LITERAL;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return DeltaLongTimeSeriesSerialiser.class.getName().hashCode();
+    }
 }

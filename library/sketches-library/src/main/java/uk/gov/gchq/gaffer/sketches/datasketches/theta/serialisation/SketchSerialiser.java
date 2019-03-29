@@ -57,4 +57,14 @@ public class SketchSerialiser implements ToBytesSerialiser<Sketch> {
     public boolean isConsistent() {
         return false;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return SketchSerialiser.class.getName().hashCode();
+    }
 }

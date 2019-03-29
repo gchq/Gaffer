@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -151,5 +153,31 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     @JsonIgnore
     public void setSetClass(final Class<? extends Set> setClass) {
         this.setClass = setClass;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final SetSerialiser serialiser = (SetSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(objectSerialiser, serialiser.objectSerialiser)
+                .append(setClass, serialiser.setClass)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(objectSerialiser)
+                .append(setClass)
+                .toHashCode();
     }
 }

@@ -64,4 +64,14 @@ public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     public boolean isConsistent() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return IntegerSerialiser.class.getName().hashCode();
+    }
 }

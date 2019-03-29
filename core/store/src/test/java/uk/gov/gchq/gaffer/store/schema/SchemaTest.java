@@ -16,9 +16,19 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Sets;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -43,7 +53,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -54,17 +63,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
@@ -1405,6 +1403,16 @@ public class SchemaTest {
         @Override
         public boolean isConsistent() {
             return true;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return this == obj || obj != null && this.getClass() == obj.getClass();
+        }
+
+        @Override
+        public int hashCode() {
+            return SchemaTest.class.getName().hashCode();
         }
     }
 }
