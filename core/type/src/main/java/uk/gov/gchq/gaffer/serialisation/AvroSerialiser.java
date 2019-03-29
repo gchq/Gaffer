@@ -114,4 +114,14 @@ public class AvroSerialiser implements ToBytesSerialiser<Object> {
     public boolean isConsistent() {
         return false;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return AvroSerialiser.class.getName().hashCode();
+    }
 }

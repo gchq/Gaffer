@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Simple POJO providing parameter details for {@link NamedOperation}s.
@@ -37,8 +38,9 @@ public class ParameterDetail implements Serializable {
     private Object defaultValue;
     private Class valueClass;
     private boolean required;
+    private List options;
 
-    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue) {
+    public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue, final List options) {
         if (null == description) {
             throw new IllegalArgumentException("description must not be empty");
         }
@@ -53,6 +55,7 @@ public class ParameterDetail implements Serializable {
         this.required = required;
         this.defaultValue = defaultValue;
         this.valueClass = clazz;
+        this.options = options;
 
         try {
             byte[] json = JSONSerialiser.serialise(defaultValue);
@@ -64,6 +67,14 @@ public class ParameterDetail implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    public List getOptions() {
+        return options;
+    }
+
+    public void setOptions(final List options) {
+        this.options = options;
     }
 
     public Object getDefaultValue() {
@@ -95,6 +106,7 @@ public class ParameterDetail implements Serializable {
                 .append(required, pd.required)
                 .append(description, pd.description)
                 .append(valueClass, pd.valueClass)
+                .append(options, pd.options)
                 .isEquals();
     }
 
@@ -105,6 +117,7 @@ public class ParameterDetail implements Serializable {
                 .append(required)
                 .append(description)
                 .append(valueClass)
+                .append(options)
                 .hashCode();
     }
 
@@ -116,6 +129,7 @@ public class ParameterDetail implements Serializable {
                 .append("valueClass", valueClass)
                 .append("required", required)
                 .append("defaultValue", defaultValue)
+                .append("options", options)
                 .toString();
     }
 
@@ -125,6 +139,7 @@ public class ParameterDetail implements Serializable {
         private Object defaultValue;
         private boolean required = false;
         private Class valueClass;
+        private List options;
 
         public Builder defaultValue(final Object defaultValue) {
             this.defaultValue = defaultValue;
@@ -146,8 +161,13 @@ public class ParameterDetail implements Serializable {
             return this;
         }
 
+        public Builder options(final List options) {
+            this.options = options;
+            return this;
+        }
+
         public ParameterDetail build() {
-            return new ParameterDetail(description, valueClass, required, defaultValue);
+            return new ParameterDetail(description, valueClass, required, defaultValue, options);
         }
     }
 }

@@ -104,4 +104,14 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
     public boolean isConsistent() {
         return true;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return TypeValueSerialiser.class.getName().hashCode();
+    }
 }

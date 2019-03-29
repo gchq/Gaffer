@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfItemsSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -61,5 +63,29 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ReservoirItemsSketchSerialiser serialiser = (ReservoirItemsSketchSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(arrayOfItemsSerDe, serialiser.arrayOfItemsSerDe)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(arrayOfItemsSerDe)
+                .toHashCode();
     }
 }

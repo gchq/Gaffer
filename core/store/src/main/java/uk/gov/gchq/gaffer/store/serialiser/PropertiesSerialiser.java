@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -75,6 +78,30 @@ public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {
             final Object property = LengthValueBytesSerialiserUtil.deserialise(serialiser, bytes, delimiter);
             properties.put(propertyName, property);
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final PropertiesSerialiser serialiser = (PropertiesSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(schema, serialiser.schema)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(schema)
+                .toHashCode();
     }
 }
 
