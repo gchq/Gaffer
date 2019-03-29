@@ -51,7 +51,9 @@ import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.graph.hook.UpdateViewHook;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -88,11 +90,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1903,6 +1906,104 @@ public class GraphTest {
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("A user is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext() throws OperationException {
+        // Given
+        final Context context = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        final Job job = new Job(null, opChain);
+
+        // When / Then
+        try {
+            graph.executeJob(job, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("A context is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() throws OperationException {
+        // Given
+        final Context context = new Context();
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        final Job job = new Job(new Repeat(), new OperationChain<>());
+
+        // When / Then
+        try {
+            graph.executeJob(job, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("An operation is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException {
+        // Given
+        final Context context = new Context();
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        final Job job = null;
+
+        // When / Then
+        try {
+            graph.executeJob(job, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("A job is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser() throws OperationException {
+        // Given
+        final User user = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        final Job job = new Job(null, opChain);
+
+        // When / Then
+        try {
+            graph.executeJob(job, user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("User is required", e.getMessage());
         }
     }
 

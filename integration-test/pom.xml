@@ -33,6 +33,17 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <version>${mockserver.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
@@ -59,7 +70,6 @@
             <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- Hamcrest testing helpers -->
         <dependency>
             <groupId>org.hamcrest</groupId>

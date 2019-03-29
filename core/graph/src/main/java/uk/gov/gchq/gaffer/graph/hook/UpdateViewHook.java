@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -59,6 +60,7 @@ import java.util.Set;
  * @see GraphHook
  * @see uk.gov.gchq.gaffer.store.schema.Schema#visibilityProperty
  */
+@JsonPropertyOrder(alphabetic = true)
 public class UpdateViewHook implements GraphHook {
 
     public static final boolean ADD_EXTRA_GROUPS_DEFAULT = false;

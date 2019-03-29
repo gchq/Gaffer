@@ -151,6 +151,11 @@ public abstract class RestApiTestClient {
         }
     }
 
+    public void restartServer() throws IOException {
+        stopServer();
+        startServer();
+    }
+
     public String getPath() {
         return path;
     }
