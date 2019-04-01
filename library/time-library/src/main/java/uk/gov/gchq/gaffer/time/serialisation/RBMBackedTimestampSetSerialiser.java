@@ -110,4 +110,14 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
     public boolean isConsistent() {
         return false;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return RBMBackedTimestampSetSerialiser.class.getName().hashCode();
+    }
 }

@@ -35,7 +35,7 @@ public class PartitionKeySerialiserTest {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
-    public void test() throws IOException {
+    public void shouldCreatePartitionKey() throws IOException {
         // Given
         final Object[] key = new Object[]{true, 1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[]{(byte) 1, (byte) 2, (byte) 3}};
         final PartitionKey partitionKey = new PartitionKey(key);

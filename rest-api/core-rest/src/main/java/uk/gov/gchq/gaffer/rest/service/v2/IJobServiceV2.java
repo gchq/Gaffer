@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -78,6 +79,22 @@ public interface IJobServiceV2 {
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
     Response executeJob(@ApiParam(value = "The operation job to be submitted to the graph") final Operation operation) throws OperationException;
+
+    @POST
+    @Path("/schedule")
+    @ApiOperation(value = "Performs the given scheduled operation chain job on the graph",
+            response = JobDetail.class, code = 201, produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = JOB_ID_HEADER, description = JOB_ID_HEADER_DESCRIPTION),
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 201, message = JOB_CREATED),
+            @ApiResponse(code = 400, message = BAD_REQUEST),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
+            @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
+    Response executeJob(final Job job) throws OperationException;
 
     @GET
     @ApiOperation(value = "Get the details of all jobs",

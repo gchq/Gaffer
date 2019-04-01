@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -34,6 +35,7 @@ import java.util.Map;
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class NamedViewResolver implements GraphHook {
     private final NamedViewCache cache;
 

@@ -60,4 +60,15 @@ public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
     public boolean canHandle(final Class clazz) {
         return Date.class.equals(clazz);
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return OrderedDateSerialiser.class.getName().hashCode();
+    }
+
 }

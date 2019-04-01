@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -82,6 +83,28 @@ public class JobServiceV2 implements IJobServiceV2 {
                     .build();
         } finally {
             postOperationHook(opChain, context);
+        }
+    }
+
+    @Override
+    public Response executeJob(final Job job) throws OperationException {
+        final Context context = userFactory.createContext();
+        preOperationHook(job.getOpChainAsOperationChain(), context);
+
+        try {
+            final JobDetail jobDetail = graphFactory.getGraph().executeJob(job, context);
+            LOGGER.info("Job started = {}", jobDetail);
+
+            final URI location = uriInfo.getAbsolutePathBuilder()
+                    .path(jobDetail.getJobId())
+                    .build();
+
+            return Response.created(location).entity(jobDetail)
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .header(JOB_ID_HEADER, context.getJobId())
+                    .build();
+        } finally {
+            postOperationHook(job.getOpChainAsOperationChain(), context);
         }
     }
 

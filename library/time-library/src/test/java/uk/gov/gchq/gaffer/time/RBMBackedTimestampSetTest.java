@@ -15,14 +15,19 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
@@ -30,12 +35,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
     private SortedSet<Instant> instants = new TreeSet<>();
@@ -109,6 +108,57 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
 
         // Then
         assertEquals(4, numberOfTimestamps);
+    }
+
+    @Test
+    public void shouldFilterByTimeRangeWhenTwoValidTimestampsAreSupplied() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(200L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(300L)));
+
+        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(200L)));
+
+        // When
+        timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(100L)), instant1.plus(Duration.ofDays(250L)));
+
+        // Then
+        assertEquals(expectedTimestampSet, timestampSet);
+    }
+
+    @Test
+    public void testFilterByTimeRangeForTimeRangeStartAfterEnd() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+
+        // When
+        timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(150L)), instant1.plus(Duration.ofDays(50L)));
+
+        // Then
+        assertEquals(expectedTimestampSet, timestampSet);
+    }
+
+    @Test
+    public void testFilterByTimeRangeForNullTimeRange() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+
+        try {
+            // When
+            timestampSet.applyTimeRangeMask(null, instant1.plus(Duration.ofDays(50L)));
+            Assert.fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+            // Then
+        }
     }
 
     @Test
