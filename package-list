@@ -176,6 +176,7 @@ uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation
 uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator
@@ -248,6 +249,7 @@ uk.gov.gchq.gaffer.store.serialiser
 uk.gov.gchq.gaffer.store.util
 uk.gov.gchq.gaffer.time
 uk.gov.gchq.gaffer.time.binaryoperator
+uk.gov.gchq.gaffer.time.function
 uk.gov.gchq.gaffer.time.serialisation
 uk.gov.gchq.gaffer.traffic
 uk.gov.gchq.gaffer.traffic.generator
