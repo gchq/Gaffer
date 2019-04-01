@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 public class GroupPartitionerTest {
 
     @Test
-    public void test() {
+    public void shouldCorrectlyAssignPartitionIDs() {
         // Given
         final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
         final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
