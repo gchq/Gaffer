@@ -3,7 +3,6 @@ package uk.gov.gchq.gaffer.types;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.bitmap.serialisation.json.BitmapJsonModules;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;

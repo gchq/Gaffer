@@ -98,7 +98,8 @@ public class FileGraphLibrary extends GraphLibrary {
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
         } catch (final IOException e) {
-            throw new IllegalArgumentException("Could not write Graphs to path: " + getSchemaPath(graphId), e);
+            throw new IllegalArgumentException("Could not write Graphs to " +
+                    "path: " + getGraphsPath(graphId), e);
         }
     }
 
@@ -124,7 +125,8 @@ public class FileGraphLibrary extends GraphLibrary {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
+                throw new IllegalArgumentException("Could not write " +
+                        "properties to path: " + getPropertiesPath(propertiesId), e);
             }
         } else {
             throw new IllegalArgumentException("StoreProperties cannot be null");
