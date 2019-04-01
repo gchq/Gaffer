@@ -20,6 +20,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,7 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
             throw new OperationException("This operation does not currently support views");
         }
         LOGGER.debug("Creating a Dataset<Row> from path {} with option mergeSchema=true", store.getGraphPath());
+
         final StructType schema = new SchemaUtils(store.getSchema()).getMergedSparkSchema(store.getSchema().getGroups());
         final Dataset<Row> dataframe = spark
                 .read()
