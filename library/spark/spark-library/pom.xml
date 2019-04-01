@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>spark</artifactId>
-        <version>1.8.4-SNAPSHOT</version>
+        <version>1.9.0-RC1</version>
     </parent>
 
     <artifactId>spark-library</artifactId>
