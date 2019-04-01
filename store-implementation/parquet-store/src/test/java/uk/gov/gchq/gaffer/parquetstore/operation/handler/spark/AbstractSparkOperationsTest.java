@@ -140,7 +140,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getDataFrameOfElementsTest() throws OperationException {
+    public void shouldReturnCorrectResultsWhenGetDataFrameOfElementsCalledWithNoView() throws OperationException {
         // Given
         final Graph graph = createGraph();
         final List<Element> elements = getInputDataForGetAllElementsTestAsList();
@@ -153,50 +153,4 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
         final List<Element> elementsFromRows = convertRowsToElements(results.collectAsList());
         ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), elementsFromRows);
     }
-
-//    @Test
-//    public void getDataFrameOfElementsWithViewTest() throws IOException, OperationException, StoreException {
-//        final Graph graph = genData(false);
-//        final View view = new View.Builder()
-//                .entity(TestGroups.ENTITY,
-//                        new ViewElementDefinition.Builder().preAggregationFilter(
-//                                new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
-//                        ).build())
-//                .build();
-//        try {
-//            graph.execute(new GetDataFrameOfElements.Builder()
-//                    .view(view).build(), user);
-//            fail();
-//        } catch (final OperationException e) {
-//            assertEquals("Views are not supported by this operation yet", e.getMessage());
-//        } catch (final Exception e) {
-//            fail();
-//        }
-//    }
-//
-//    @Test
-//    public void getDataFrameOfElementsWithVisibilitiesTest() throws OperationException, StoreException, IOException {
-//        final Graph graph = genData(true);
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-//                .build(), user);
-//        checkGetDataFrameOfElements(data, true);
-//    }
-
-    //    @Test
-//    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws IOException, OperationException {
-//        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-//        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
-//        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
-//        final Graph graph = new Graph.Builder()
-//                .config(new GraphConfig.Builder()
-//                        .graphId("emptyStore2")
-//                        .build())
-//                .addSchemas(gafferSchema)
-//                .storeProperties(parquetStoreProperties)
-//                .build();
-//
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), user);
-//
-//        assertEquals(0, data.count());
-//    }
 }

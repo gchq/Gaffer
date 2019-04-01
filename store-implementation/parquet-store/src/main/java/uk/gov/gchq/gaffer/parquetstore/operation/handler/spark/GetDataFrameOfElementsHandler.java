@@ -68,14 +68,4 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
                 .parquet(store.getGraphPath());
         return dataframe;
     }
-
-//    private boolean isVisible(final Row e, final String visibility, final Authorisations auths) throws VisibilityParseException {
-//        if (e.getAs(visibility) != null) {
-//            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(auths);
-//            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getAs(visibility));
-//            return visibilityEvaluator.evaluate(elementVisibility);
-//        } else {
-//            return true;
-//        }
-//    }
 }
