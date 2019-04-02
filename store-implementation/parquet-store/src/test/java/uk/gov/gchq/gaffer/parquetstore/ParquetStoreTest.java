@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StorePropertiesUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -142,6 +143,7 @@ public class ParquetStoreTest {
     public void testMissingTmpDataDirectory() {
         // Given
         final StoreProperties properties = new StoreProperties();
+        StorePropertiesUtil.setStoreClass(properties, ParquetStore.class);
         ParquetStorePropertiesUtil.setDataDir(properties, "/tmp/data");
 
         // When / Then
@@ -158,6 +160,7 @@ public class ParquetStoreTest {
     public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
         //Given
         final StoreProperties properties = getParquetStoreProperties(testFolder);
+        StorePropertiesUtil.setStoreClass(properties, ParquetStore.class);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
 
@@ -176,6 +179,7 @@ public class ParquetStoreTest {
     public void shouldNotFailSettingSnapshotWhenSnapshotExists() throws IOException {
         //Given
         final StoreProperties properties = getParquetStoreProperties(testFolder);
+        StorePropertiesUtil.setStoreClass(properties, ParquetStore.class);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
         testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
