@@ -15,16 +15,12 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.io.Serializable;
 
@@ -130,16 +126,6 @@ public class JobDetail implements Serializable {
 
     public void setEndTime(final Long endTime) {
         this.endTime = endTime;
-    }
-
-    @JsonIgnore
-    public OperationChain<?> getOpChainAsOperationChain() {
-        try {
-            return JSONSerialiser.deserialise(opChain,
-                    OperationChainDAO.class);
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
-        }
     }
 
     public void setParentJobId(final String parentJobId) {

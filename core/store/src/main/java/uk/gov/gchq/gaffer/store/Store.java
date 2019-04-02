@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -384,21 +385,23 @@ public abstract class Store {
         }
         final JobDetail jobDetail = addOrUpdateJobDetail(job.getOpChainAsOperationChain(), context, null, JobStatus.RUNNING);
         jobDetail.setRepeat(job.getRepeat());
-        return executeJob(jobDetail, context);
+        return executeJob(job.getOpChainAsOperationChain(), jobDetail, context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final JobDetail jobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
-        return executeJob(jobDetail, context);
+        return executeJob(operationChain, jobDetail, context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
         JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         childJobDetail.setParentJobId(parentJobId);
-        return executeJob(childJobDetail, context);
+        return executeJob(operationChain, childJobDetail,
+                context);
     }
 
-    private JobDetail executeJob(final JobDetail jobDetail,
+    private JobDetail executeJob(final Operation operation,
+                                 final JobDetail jobDetail,
                                  final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("JobTracker has not been configured.");
@@ -409,62 +412,73 @@ public abstract class Store {
         }
 
         if (null != jobDetail.getRepeat()) {
-            return scheduleJob(jobDetail, context);
+            return scheduleJob(operation, jobDetail, context);
         } else {
-            return runJob(jobDetail, context);
+            return runJob(operation, jobDetail, context);
         }
 
     }
 
-    private JobDetail scheduleJob(final JobDetail parentJobDetail,
+    private JobDetail scheduleJob(final Operation operation,
+                                  final JobDetail parentJobDetail,
                                   final Context context) {
+        final OperationChain<?> clonedOp =
+                (operation instanceof Operations)
+                        ? (OperationChain) operation.shallowClone()
+                        : OperationChain.wrap(operation).shallowClone();
         getExecutorService().scheduleAtFixedRate(() -> {
             if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
                 Thread.currentThread().interrupt();
                 return;
             }
-            final OperationChain operationChain = parentJobDetail.getOpChainAsOperationChain().shallowClone();
             final Context newContext = context.shallowClone();
             try {
-                executeJob(operationChain, newContext, parentJobDetail.getJobId());
+                executeJob(clonedOp, newContext, parentJobDetail.getJobId());
             } catch (final OperationException e) {
                 throw new RuntimeException("Exception within scheduled job", e);
             }
         }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
 
-        return addOrUpdateJobDetail(parentJobDetail.getOpChainAsOperationChain(), context, null, JobStatus.SCHEDULED_PARENT);
+        return addOrUpdateJobDetail(clonedOp, context, null,
+                JobStatus.SCHEDULED_PARENT);
     }
 
-    private JobDetail runJob(final JobDetail jobDetail, final Context context) {
-        OperationChain<?> operationChain = jobDetail.getOpChainAsOperationChain();
+    private JobDetail runJob(final Operation operation,
+                             final JobDetail jobDetail,
+                             final Context context) {
+        final OperationChain<?> clonedOp =
+                (operation instanceof Operations)
+                        ? (OperationChain) operation.shallowClone()
+                        : OperationChain.wrap(operation).shallowClone();
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
-            for (final Operation operation : operationChain.getOperations()) {
+            for (final Operation op : clonedOp.getOperations()) {
                 if (operation instanceof ExportToGafferResultCache) {
                     hasExport = true;
                     break;
                 }
             }
             if (!hasExport) {
-                operationChain.getOperations()
+                clonedOp.getOperations()
                         .add(new ExportToGafferResultCache());
             }
         }
 
         runAsync(() -> {
             try {
-                handleOperation(operationChain, context);
-                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                handleOperation(clonedOp, context);
+                addOrUpdateJobDetail(clonedOp, context, null, JobStatus.FINISHED);
             } catch (final Error e) {
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
+                        JobStatus.FAILED);
                 throw e;
             } catch (final Exception e) {
                 LOGGER.warn("Operation chain job failed to execute", e);
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
+                        JobStatus.FAILED);
             }
         });
-
         return jobDetail;
     }
 
