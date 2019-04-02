@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 
 /**
  * POJO containing details of a Gaffer job.
@@ -42,7 +41,7 @@ public class JobDetail implements Serializable {
     private JobStatus status;
     private Long startTime;
     private Long endTime;
-    private OperationChain<?> opChain;
+    private String opChain;
     private String description;
 
     public JobDetail() {
@@ -79,7 +78,7 @@ public class JobDetail implements Serializable {
         this.userId = userId;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
-        this.opChain = opChain;
+        this.opChain = null != opChain ? opChain.toOverviewString() : "";
         this.description = description;
     }
 
@@ -133,24 +132,14 @@ public class JobDetail implements Serializable {
         this.endTime = endTime;
     }
 
-    public String getOpChain() {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                return new String(JSONSerialiser.serialise(opChain),
-                        Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                return new String(JSONSerialiser.serialise(dao),
-                        Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
-        }
-    }
-
     @JsonIgnore
     public OperationChain<?> getOpChainAsOperationChain() {
-        return opChain;
+        try {
+            return JSONSerialiser.deserialise(opChain,
+                    OperationChainDAO.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+        }
     }
 
     public void setParentJobId(final String parentJobId) {
@@ -161,13 +150,12 @@ public class JobDetail implements Serializable {
         return parentJobId;
     }
 
+    public String getOpChain() {
+        return opChain;
+    }
+
     public void setOpChain(final String opChain) {
-        try {
-            this.opChain = JSONSerialiser.deserialise(opChain,
-                    OperationChainDAO.class);
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
-        }
+        this.opChain = opChain;
     }
 
     public String getDescription() {

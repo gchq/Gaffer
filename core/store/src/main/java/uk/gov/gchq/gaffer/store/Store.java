@@ -399,7 +399,7 @@ public abstract class Store {
     }
 
     private JobDetail executeJob(final JobDetail jobDetail,
-                                  final Context context) throws OperationException {
+                                 final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("JobTracker has not been configured.");
         }

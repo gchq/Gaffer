@@ -24,8 +24,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
-import java.nio.charset.Charset;
-
 /**
  * POJO containing details of a scheduled Gaffer job,
  * a {@link Repeat} and an Operation chain as a String.
@@ -34,7 +32,7 @@ import java.nio.charset.Charset;
 public class Job {
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private Repeat repeat;
-    private OperationChain<?> opChain;
+    private String opChain;
 
     public Job() {
     }
@@ -50,7 +48,17 @@ public class Job {
 
     public Job(final Repeat repeat, final OperationChain<?> opChain) {
         this.repeat = repeat;
-        this.opChain = opChain;
+        this.opChain = null != opChain ? opChain.toOverviewString() : "";
+    }
+
+    @JsonIgnore
+    public OperationChain<?> getOpChainAsOperationChain() {
+        try {
+            return JSONSerialiser.deserialise(opChain,
+                    OperationChainDAO.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+        }
     }
 
     public Repeat getRepeat() {
@@ -62,31 +70,10 @@ public class Job {
     }
 
     public String getOpChain() {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                return new String(JSONSerialiser.serialise(opChain),
-                        Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                return new String(JSONSerialiser.serialise(dao),
-                        Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
-        }
-    }
-
-    @JsonIgnore
-    public OperationChain<?> getOpChainAsOperationChain() {
         return opChain;
     }
 
     public void setOpChain(final String opChain) {
-        try {
-            this.opChain = JSONSerialiser.deserialise(opChain,
-                    OperationChainDAO.class);
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
-        }
+        this.opChain = opChain;
     }
 }
