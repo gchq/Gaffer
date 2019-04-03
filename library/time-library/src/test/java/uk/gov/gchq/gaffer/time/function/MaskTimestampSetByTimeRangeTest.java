@@ -88,6 +88,27 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
     }
 
+    @Test
+    public void shouldFilterInclusively() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = createTimestampSet();
+
+        // When
+        maskTimestampSetByTimeRange.setStartTime(instant.plus(Duration.ofDays(100)).toEpochMilli());
+        maskTimestampSetByTimeRange.setEndTime(instant.plus(Duration.ofDays(200)).toEpochMilli());
+
+        final RBMBackedTimestampSet actualTimestampSet = maskTimestampSetByTimeRange.apply(timestampSet);
+
+        // Then
+        RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timestamps(Sets.newHashSet(instant.plus(Duration.ofDays(100L)), instant.plus(Duration.ofDays(200L))))
+                .build();
+
+        assertEquals(expectedTimestampSet, actualTimestampSet);
+
+    }
+
     private RBMBackedTimestampSet createTimestampSet() {
         final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
         timestampSet.add(instant);
