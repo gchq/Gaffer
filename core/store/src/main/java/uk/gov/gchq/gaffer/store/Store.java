@@ -454,7 +454,7 @@ public abstract class Store {
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
             for (final Operation op : clonedOp.getOperations()) {
-                if (operation instanceof ExportToGafferResultCache) {
+                if (op instanceof ExportToGafferResultCache) {
                     hasExport = true;
                     break;
                 }

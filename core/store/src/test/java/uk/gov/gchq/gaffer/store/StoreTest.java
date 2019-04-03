@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -128,7 +127,6 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -911,7 +909,7 @@ public class StoreTest {
                 .first(new DiscardOutput())
                 .build();
         final Context context = new Context(user);
-        final String opChainString = new String(JSONSerialiser.serialise(new OperationChainDAO(opChain.getOperations())), Charset.forName(CommonConstants.UTF_8));
+        final String opChainOverviewString = opChain.toOverviewString();
 
         // When - setup job
         JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
@@ -927,7 +925,7 @@ public class StoreTest {
 
         // Then - assert job detail is as expected
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
-        assertEquals(opChainString, parentJobDetail.getOpChain());
+        assertEquals(opChainOverviewString, parentJobDetail.getOpChain());
         assertEquals(context.getUser().getUserId(), parentJobDetail.getUserId());
     }
 
