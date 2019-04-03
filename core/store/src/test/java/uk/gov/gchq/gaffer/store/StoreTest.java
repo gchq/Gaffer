@@ -761,6 +761,33 @@ public class StoreTest {
     }
 
     @Test
+    public void shouldExecuteOperationJobAndWrapJobOperationInChain() throws OperationException, InterruptedException, StoreException {
+        // Given
+        final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise("graphId", schema, properties);
+
+        // When
+        final JobDetail resultJobDetail = store.executeJob(operation, context);
+
+        // Then
+        Thread.sleep(1000);
+        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), eq(user));
+        assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
+        assertEquals(OperationChain.wrap(operation).toOverviewString(), resultJobDetail.getOpChain());
+        assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
+
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
+        assertSame(user, contextCaptor.getValue().getUser());
+    }
+
+    @Test
     public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, InterruptedException, StoreException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
@@ -898,7 +925,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        
+
         StoreImpl2 store = new StoreImpl2();
 
         store.initialise("graphId", schema, properties);
