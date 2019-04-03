@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -31,8 +30,6 @@ import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +38,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+
 /**
  * An {@code RBMBackedTimestampSet} is an implementation of {@link TimestampSet} that stores timestamps
  * truncated to a certain {@link TimeBucket}, e.g. if a {@link TimeBucket} of a minute is specified then a timestamp
@@ -131,14 +131,34 @@ public class RBMBackedTimestampSet implements TimestampSet {
     }
 
     /**
-     * Applies a time range mask. Timestamps which fall outside the range and filtered.
+     * Applies a time range mask. Timestamps which fall outside the range are filtered.
      *
-     * @param timeRangeStart filter start time
-     * @param timeRangeEnd   filter end time
+     * @param startMillis filter start time in milliseconds
+     * @param endMillis   filter end time in milliseconds
      */
-    public void applyTimeRangeMask(final Instant timeRangeStart, final Instant timeRangeEnd) {
+    public void applyTimeRangeMask(final Long startMillis, final Long endMillis) {
+        final int startTime;
+        final int endTime;
+
+        if (startMillis != null && endMillis != null && startMillis > endMillis) {
+            throw new IllegalArgumentException("The start time should not be chronologically later than the end time");
+        }
+
+        if (startMillis == null) {
+            startTime = toInt(getEarliest().toEpochMilli());
+        } else {
+            startTime = toInt(startMillis);
+        }
+
+        if (endMillis == null) {
+            endTime = toInt(getLatest().toEpochMilli());
+        } else {
+            endTime = toInt(endMillis);
+        }
+
         RoaringBitmap timeRange = new RoaringBitmap();
-        timeRange.add(toInt(timeRangeStart.toEpochMilli()), toInt(timeRangeEnd.toEpochMilli()));
+        // end date is exclusive
+        timeRange.add(startTime, endTime + 1);
         rbm.and(timeRange);
     }
 
@@ -167,6 +187,14 @@ public class RBMBackedTimestampSet implements TimestampSet {
 
     public void addAll(final RBMBackedTimestampSet other) {
         rbm.or(other.getRbm());
+    }
+
+    @JsonIgnore
+    public RBMBackedTimestampSet getShallowClone() {
+        return new Builder()
+                .timeBucket(timeBucket)
+                .timestamps(getTimestamps())
+                .build();
     }
 
     @Override

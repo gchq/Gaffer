@@ -1,11 +1,14 @@
 package uk.gov.gchq.gaffer.time.function;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.function.FunctionTest;
+import uk.gov.gchq.koryphe.util.TimeUnit;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -13,6 +16,7 @@ import java.time.Instant;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
@@ -25,15 +29,11 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     @Test
-    public void filtersTimestampSet() {
-        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
-        timestampSet.add(instant);
-        timestampSet.add(instant.plus(Duration.ofDays(100L)));
-        timestampSet.add(instant.plus(Duration.ofDays(200L)));
-        timestampSet.add(instant.plus(Duration.ofDays(300L)));
+    public void shouldFilterUsingMillisecondsByDefault() {
+        final RBMBackedTimestampSet timestampSet = createTimestampSet();
 
-        maskTimestampSetByTimeRange.setTimeRangeStartEpochMilli(instant.plus(Duration.ofDays(100)).toEpochMilli());
-        maskTimestampSetByTimeRange.setTimeRangeEndEpochMilli(instant.plus(Duration.ofDays(250)).toEpochMilli());
+        maskTimestampSetByTimeRange.setStartTime(instant.plus(Duration.ofDays(100)).toEpochMilli());
+        maskTimestampSetByTimeRange.setEndTime(instant.plus(Duration.ofDays(250)).toEpochMilli());
 
         final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
         expectedTimestampSet.add(instant.plus(Duration.ofDays(100L)));
@@ -42,6 +42,59 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         final RBMBackedTimestampSet actualTimestampSet = maskTimestampSetByTimeRange.apply(timestampSet);
 
         assertEquals(expectedTimestampSet, actualTimestampSet);
+    }
+
+    @Test
+    public void shouldBeAbleToChangeTimeUnit() {
+
+        // Given
+        final RBMBackedTimestampSet timestampSet = createTimestampSet();
+
+        final long instantInDays = instant.toEpochMilli() / 1000 / 60 / 60 / 24;
+
+        final MaskTimestampSetByTimeRange mask = new MaskTimestampSetByTimeRange.Builder()
+                .startTime(instantInDays)
+                .endTime(instantInDays + 150L)
+                .timeUnit(TimeUnit.DAY)
+                .build();
+
+        // When
+
+        final RBMBackedTimestampSet output = mask.apply(timestampSet);
+
+        // Then
+
+        final RBMBackedTimestampSet expected = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timestamps(Sets.newHashSet(instant, instant.plus(Duration.ofDays(100))))
+                .build();
+
+        assertEquals(expected, output);
+
+    }
+
+
+    @Test
+    public void shouldNotMutateOriginalValue() {
+        final RBMBackedTimestampSet timestampSet = createTimestampSet();
+
+        maskTimestampSetByTimeRange.setStartTime(instant.plus(Duration.ofDays(100)).toEpochMilli());
+        maskTimestampSetByTimeRange.setEndTime(instant.plus(Duration.ofDays(250)).toEpochMilli());
+
+        final RBMBackedTimestampSet actualTimestampSet = maskTimestampSetByTimeRange.apply(timestampSet);
+
+        assertNotEquals(actualTimestampSet, timestampSet);
+        assertEquals(4, timestampSet.getTimestamps().size());
+
+    }
+
+    private RBMBackedTimestampSet createTimestampSet() {
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        timestampSet.add(instant);
+        timestampSet.add(instant.plus(Duration.ofDays(100L)));
+        timestampSet.add(instant.plus(Duration.ofDays(200L)));
+        timestampSet.add(instant.plus(Duration.ofDays(300L)));
+        return timestampSet;
     }
 
     @Override
@@ -57,7 +110,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
-        final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange(1l,2l);
+        final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange(1l, 2l);
 
         // When
         final String json = new String(JSONSerialiser.serialise(maskTimestampSetByTimeRange));
@@ -65,7 +118,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
         // Then
         assertEquals(maskTimestampSetByTimeRange, deserialisedMaskTimestampSetByTimeRange);
-        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.MaskTimestampSetByTimeRange\",\"timeRangeStartEpochMilli\":1,\"timeRangeEndEpochMilli\":2}"
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.MaskTimestampSetByTimeRange\",\"startTime\":1,\"endTime\":2,\"timeUnit\":\"MILLISECOND\"}"
                 , json);
     }
 }
