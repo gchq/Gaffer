@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
-
-import java.time.Instant;
+import uk.gov.gchq.koryphe.util.TimeUnit;
 
 /**
  * A {@code MaskTimestampSetByTimeRange} is a {@link uk.gov.gchq.koryphe.function.KorypheFunction} that takes in a
@@ -29,37 +28,77 @@ import java.time.Instant;
 @Since("1.9.0")
 @Summary("Masks a RBMBackedTimestampSet by a time range")
 public class MaskTimestampSetByTimeRange extends KorypheFunction<RBMBackedTimestampSet, RBMBackedTimestampSet> {
-    long timeRangeStartEpochMilli;
-    long timeRangeEndEpochMilli;
+    private Long startTime;
+    private Long endTime;
+    private TimeUnit timeUnit;
 
     public MaskTimestampSetByTimeRange() {
-        // Required for serialisation
+        this(null, null);
     }
 
-    public MaskTimestampSetByTimeRange(final long timeRangeStartEpochMilli, final long timeRangeEndEpochMilli) {
-        this.timeRangeStartEpochMilli = timeRangeStartEpochMilli;
-        this.timeRangeEndEpochMilli = timeRangeEndEpochMilli;
+    public MaskTimestampSetByTimeRange(final Long startTime, final Long endTime) {
+        this(startTime, endTime, TimeUnit.MILLISECOND);
+    }
+
+    public MaskTimestampSetByTimeRange(final Long startTime, final Long endTime, final TimeUnit timeUnit) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.timeUnit = timeUnit;
     }
 
     @Override
     public RBMBackedTimestampSet apply(final RBMBackedTimestampSet rbmBackedTimestampSet) {
-        rbmBackedTimestampSet.applyTimeRangeMask(Instant.ofEpochMilli(timeRangeStartEpochMilli), Instant.ofEpochMilli(timeRangeEndEpochMilli));
-        return rbmBackedTimestampSet;
+        RBMBackedTimestampSet cloned = rbmBackedTimestampSet.getShallowClone();
+        cloned.applyTimeRangeMask(timeUnit.asMilliSeconds(startTime), timeUnit.asMilliSeconds(endTime));
+        return cloned;
     }
 
-    public long getTimeRangeStartEpochMilli() {
-        return timeRangeStartEpochMilli;
+    public Long getStartTime() {
+        return startTime;
     }
 
-    public void setTimeRangeStartEpochMilli(final long timeRangeStartEpochMilli) {
-        this.timeRangeStartEpochMilli = timeRangeStartEpochMilli;
+    public void setStartTime(final Long startTime) {
+        this.startTime = startTime;
     }
 
-    public long getTimeRangeEndEpochMilli() {
-        return timeRangeEndEpochMilli;
+    public Long getEndTime() {
+        return endTime;
     }
 
-    public void setTimeRangeEndEpochMilli(final long timeRangeEndEpochMilli) {
-        this.timeRangeEndEpochMilli = timeRangeEndEpochMilli;
+    public void setEndTime(final Long endTime) {
+        this.endTime = endTime;
+    }
+
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
+    }
+
+    public void setTimeUnit(final TimeUnit timeUnit) {
+        this.timeUnit = timeUnit;
+    }
+
+    public static final class Builder {
+        private TimeUnit timeUnit = TimeUnit.MILLISECOND;
+        private Long startTime;
+        private Long endTime;
+
+        public MaskTimestampSetByTimeRange build() {
+            return new MaskTimestampSetByTimeRange(startTime, endTime, timeUnit);
+        }
+
+        public Builder startTime(final Long startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public Builder endTime(final Long endTime) {
+            this.endTime = endTime;
+            return this;
+        }
+
+        public Builder timeUnit(final TimeUnit timeUnit) {
+            this.timeUnit = timeUnit;
+            return this;
+        }
     }
 }
