@@ -287,7 +287,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             final Walk walk = buildWalk(edgeQueue, entityQueue);
             walks.add(walk);
         } else {
-            Set<Object> dests = graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr);
+            final Set<Object> dests = graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr);
             if(dests.isEmpty()) {
                 if(includePartial) {
                     final Walk walk = buildWalk(edgeQueue, entityQueue);
