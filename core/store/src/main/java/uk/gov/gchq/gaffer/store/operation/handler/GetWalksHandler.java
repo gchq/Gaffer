@@ -53,8 +53,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
-
 /**
  * An operation handler for {@link GetWalks} operations.
  * <p>
@@ -288,8 +286,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             walks.add(walk);
         } else {
             final Set<Object> dests = graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr);
-            if(dests.isEmpty()) {
-                if(includePartial) {
+            if (dests.isEmpty()) {
+                if (includePartial) {
                     final Walk walk = buildWalk(edgeQueue, entityQueue);
                     walks.add(walk);
                 }
