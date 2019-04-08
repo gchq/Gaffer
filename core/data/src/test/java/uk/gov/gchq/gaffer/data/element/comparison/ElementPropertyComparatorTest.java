@@ -266,7 +266,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     private static class IntegerWrapper {
         private Integer field;
 
-        public IntegerWrapper(final Integer field) {
+        IntegerWrapper(final Integer field) {
             this.field = field;
         }
     }

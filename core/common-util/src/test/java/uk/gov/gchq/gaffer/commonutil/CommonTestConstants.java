@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class CommonTestConstants {
+public final class CommonTestConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonTestConstants.class);
-    public static File TMP_DIRECTORY;
+    public static final File TMP_DIRECTORY;
 
     static {
         final String tmpDirectoryProperty = System.getProperty("java.io.tmpdir");
