@@ -48,7 +48,6 @@ public class JoinTest extends OperationTest<Join> {
                 .flatten(false)
                 .collectionLimit(10)
                 .build();
-        ;
 
         // Then
         assertEquals(Arrays.asList(1, 2, 3), op.getInput());
