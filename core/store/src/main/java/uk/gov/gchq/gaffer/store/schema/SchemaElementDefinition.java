@@ -217,7 +217,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementAggregator getIngestAggregator() {
+    public synchronized ElementAggregator getIngestAggregator() {
         if (null == ingestAggregatorCache) {
             ingestAggregatorCache = new ElementAggregator();
             if (aggregate) {
