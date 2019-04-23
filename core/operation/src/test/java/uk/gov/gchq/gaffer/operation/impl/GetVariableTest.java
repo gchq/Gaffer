@@ -26,14 +26,14 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetVariable getVariableOp = new GetVariable.Builder().variableName(varName).build();;
+        final GetVariable getVariableOp = new GetVariable.Builder().variableName(varName).build();
 
         assertEquals(varName, getVariableOp.getVariableName());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        final GetVariable op = new GetVariable.Builder().variableName(varName).build();;
+        final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
         final GetVariable opClone = op.shallowClone();
 

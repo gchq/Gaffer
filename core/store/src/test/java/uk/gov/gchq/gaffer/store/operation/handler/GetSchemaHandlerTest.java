@@ -96,7 +96,7 @@ public class GetSchemaHandlerTest {
                 .build();
 
         // When
-        final Schema result = handler.doOperation(operation, context ,store);
+        final Schema result = handler.doOperation(operation, context, store);
 
         // Then
         assertNotNull(result);
@@ -113,7 +113,7 @@ public class GetSchemaHandlerTest {
         final GetSchema operation = new GetSchema();
 
         // When
-        final Schema result = handler.doOperation(operation, context ,store);
+        final Schema result = handler.doOperation(operation, context, store);
 
         // Then
         assertNotNull(result);

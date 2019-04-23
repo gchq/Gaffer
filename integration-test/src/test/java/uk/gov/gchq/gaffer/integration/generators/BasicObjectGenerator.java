@@ -17,17 +17,15 @@ package uk.gov.gchq.gaffer.integration.generators;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
-import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
 
 /**
- * Implementation of {@link OneToOneElementGenerator} to translate between integration test 'edge'
+ * Implementation of {@link uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator} to translate between integration test 'edge'
  * object, and a Gaffer framework edge.
  * <br>
  * Allows translation of one domain object to one graph object only, where the domain object being translated is an instance
- * of {@link EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
+ * of {@link uk.gov.gchq.gaffer.integration.domain.EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
 public class BasicObjectGenerator implements OneToOneObjectGenerator<DomainObject> {

@@ -28,7 +28,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Date;
 
-public class TestTypes {
+public final class TestTypes {
     // Type Names
     public static final String TIMESTAMP = "timestamp";
     public static final String TIMESTAMP_2 = "timestamp2";
@@ -45,6 +45,10 @@ public class TestTypes {
     public static final String PROP_SET_STRING = "prop.set.string";
     public static final String VERTEX_STRING = "vertex.string";
     public static final String PROP_DATE = "prop.date";
+
+    private TestTypes() {
+        // private constructor to prevent instantiation
+    }
 
     // Type implementations
     public static final TypeDefinition STRING_TYPE = new TypeDefinition.Builder()

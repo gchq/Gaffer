@@ -18,7 +18,8 @@
 
 <suppressions>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="finalParameters"/>
-    <suppress files="[\\/]src[\\/]test[\\/].*" id="LocalFinalVariableName"/>
-    <suppress files="[\\/]src[\\/]test[\\/].*" id="LocalVariableName"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="localFinalVariableName"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="localVariableName"/>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="equalsHashCode"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="fileLength"/>
 </suppressions>
