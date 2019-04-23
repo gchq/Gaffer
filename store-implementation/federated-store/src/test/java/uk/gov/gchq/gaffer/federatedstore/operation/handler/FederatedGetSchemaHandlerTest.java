@@ -56,9 +56,9 @@ public class FederatedGetSchemaHandlerTest {
     private static final String ACC_PROP_ID = "accProp";
     private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
-    private final String TEST_FED_STORE = "testFedStore";
+    private static final String TEST_FED_STORE = "testFedStore";
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
-    private final Schema STRING_SCHEMA = new Schema.Builder()
+    private static final Schema STRING_SCHEMA = new Schema.Builder()
             .type("string", new TypeDefinition.Builder()
                     .clazz(String.class)
                     .serialiser(new StringSerialiser())

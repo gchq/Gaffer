@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
@@ -56,7 +55,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -72,7 +70,7 @@ public class RowIdAggregatorTest {
 
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
 
@@ -80,17 +78,17 @@ public class RowIdAggregatorTest {
     private static AccumuloElementConverter gaffer1ElementConverter;
 
     @BeforeClass
-    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
 
     @Before
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }

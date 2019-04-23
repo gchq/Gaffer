@@ -50,7 +50,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,12 +62,12 @@ public class AccumuloIDWithinSetRetrieverTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloIDWithinSetRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -76,8 +75,8 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     @Before
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
@@ -107,6 +106,8 @@ public class AccumuloIDWithinSetRetrieverTest {
      * (unless the return edges only option has been set on the {@link GetElementsWithinSet}). It is desirable
      * for {@link uk.gov.gchq.gaffer.data.element.Entity}s to be returned as a common use-case is to use this method to complete the "half-hop"
      * in a breadth-first search, and then getting all the information about the nodes is often required.
+     *
+     * @throws StoreException if StoreException
      */
     @Test
     public void shouldGetCorrectEdgesInMemoryFromByteEntityStore() throws StoreException {
@@ -208,6 +209,8 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     /**
      * Tests that the directed edges only and undirected edges only options are respected.
+     *
+     * @throws StoreException if StoreException
      */
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryByteEntityStore() throws StoreException {
@@ -263,6 +266,8 @@ public class AccumuloIDWithinSetRetrieverTest {
      * Tests that false positives are filtered out. It does this by explicitly finding a false positive (i.e. something
      * that matches the Bloom filter but that wasn't put into the filter) and adding that to the data, and then
      * checking that isn't returned.
+     *
+     * @throws StoreException if StoreException
      */
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
@@ -346,6 +351,8 @@ public class AccumuloIDWithinSetRetrieverTest {
     /**
      * Tests that standard filtering (e.g. by summary type, or by time window, or to only receive entities) is still
      * applied.
+     *
+     * @throws StoreException if StoreException
      */
     @Test
     public void shouldStillApplyOtherFilterByteEntityStoreInMemoryEntities() throws StoreException {

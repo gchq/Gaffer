@@ -22,4 +22,7 @@
     <suppress files="[\\/]src[\\/]test[\\/].*" id="localVariableName"/>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="equalsHashCode"/>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="fileLength"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="missingSwitchDefault"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="methodLengthMax"/>
+    <suppress files="[\\/]src[\\/]test[\\/].*" id="parameterNumber"/>
 </suppressions>

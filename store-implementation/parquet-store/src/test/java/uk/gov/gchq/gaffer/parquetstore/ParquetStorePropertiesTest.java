@@ -21,8 +21,8 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
@@ -76,7 +76,6 @@ public class ParquetStorePropertiesTest {
         props.setPageSize(100000);
         assertEquals((Integer) 100000, props.getPageSize());
     }
-
 
 
     @Test

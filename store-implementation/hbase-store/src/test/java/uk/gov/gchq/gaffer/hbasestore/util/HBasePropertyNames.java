@@ -16,11 +16,30 @@
 
 package uk.gov.gchq.gaffer.hbasestore.util;
 
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+public final class HBasePropertyNames {
 
-public class HBasePropertyNames extends TestPropertyNames {
+    public static final String INT = "intProperty";
+    public static final String STRING = "stringProperty";
+    public static final String SET = "setProperty";
+    public static final String DATE = "dateProperty";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String COUNT = "count";
+    public static final String VISIBILITY = "visibility";
+
+    public static final String PROP_1 = "property1";
+    public static final String PROP_2 = "property2";
+    public static final String PROP_3 = "property3";
+    public static final String PROP_4 = "property4";
+    public static final String PROP_5 = "property5";
+
+    public static final String TRANSIENT_1 = "transientProperty1";
+
     public static final String COLUMN_QUALIFIER = "columnQualifier";
     public static final String COLUMN_QUALIFIER_2 = "columnQualifier2";
     public static final String COLUMN_QUALIFIER_3 = "columnQualifier3";
     public static final String COLUMN_QUALIFIER_4 = "columnQualifier4";
+
+    private HBasePropertyNames() {
+        // private to prevent instantiation
+    }
 }
