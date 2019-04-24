@@ -111,7 +111,6 @@ public class AggregateAndSortDataTest {
         Assert.assertTrue(fs.exists(new Path(outputFolder)));
         final Row[] results = (Row[]) sparkSession
                 .read()
-                .option("mergeSchema", true)
                 .parquet(outputFolder)
                 .collect();
         // Should be sorted by vertex and date

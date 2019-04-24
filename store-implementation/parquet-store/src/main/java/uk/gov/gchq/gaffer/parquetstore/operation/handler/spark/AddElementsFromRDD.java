@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Executes the process of importing a {@link JavaRDD} of {@link Element}s into a {@link ParquetStore}.
+ * Executes the process of importing a {@link JavaRDD} or {@link RDD} of {@link Element}s into a {@link ParquetStore}.
  */
 public class AddElementsFromRDD {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDD.class);
@@ -93,13 +93,22 @@ public class AddElementsFromRDD {
                 + "_"
                 + (aggregated ? "aggregated" : "unaggregated")
                 + "_new/"
-                + (reversed ? "reversed-" : "")
-                + (null != group ? "group=" + group : "")
-                + "/";
+                + (reversed ? "reversedEdges/" : "graph/")
+                + (null != group ? "group=" + group + "/" : "");
+    }
+
+    private String getSortedAggregatedDirectory(final boolean sorted, final boolean aggregated) {
+        return tempDir
+                + "/AddElementsFromRDDTemp/"
+                + (sorted ? "sorted" : "unsorted")
+                + "_"
+                + (aggregated ? "aggregated" : "unaggregated")
+                + "_new/";
     }
 
     /**
-     * Writes the provided {@link JavaRDD} of {@link Element}s to files split by group and partition. The data is
+     * Writes the provided {@link JavaRDD} of {@link Element}s to files split by group and input partition (i.e. the
+     * partition of the input {@link JavaRDD}, not the partition of the existing graph). The data is
      * written in the order the {@link JavaRDD} provides it, with no sorting or aggregation.
      *
      * @param input the JavaRDD of Elements
@@ -247,7 +256,7 @@ public class AddElementsFromRDD {
         final GraphPartitioner newPartitioner;
         try {
             newPartitioner = new CalculatePartitioner(
-                    new Path(getDirectory(null, true, true, false)),
+                    new Path(getSortedAggregatedDirectory(true, true)),
                     store.getSchema(), fs).call();
         } catch (final IOException e) {
             throw new OperationException("IOException calculating new graph partitioner", e);
@@ -258,7 +267,7 @@ public class AddElementsFromRDD {
         // Write out graph partitioner
         Path newGraphPartitionerPath = null;
         try {
-            newGraphPartitionerPath = new Path(getDirectory(null, true, true, false) + "graphPartitioner");
+            newGraphPartitionerPath = new Path(getSortedAggregatedDirectory(true, true) + "graphPartitioner");
             final FSDataOutputStream stream = fs.create(newGraphPartitionerPath);
             LOGGER.info("Writing graph partitioner to {}", newGraphPartitionerPath);
             new GraphPartitionerSerialiser().write(newPartitioner, stream);
@@ -284,11 +293,11 @@ public class AddElementsFromRDD {
         LOGGER.info("Moving aggregated and sorted data to new snapshot-tmp directory {}", newDataDir);
         try {
             fs.mkdirs(new Path(newDataDir));
-            final FileStatus[] fss = fs.listStatus(new Path(getDirectory(null, true, true, false)));
+            final FileStatus[] fss = fs.listStatus(new Path(getSortedAggregatedDirectory(true, true)));
             for (int i = 0; i < fss.length; i++) {
                 final Path destination = new Path(newDataDir, fss[i].getPath().getName());
+                LOGGER.debug("Renaming {} to {}", fss[i].getPath(), destination);
                 fs.rename(fss[i].getPath(), destination);
-                LOGGER.debug("Renamed {} to {}", fss[i].getPath(), destination);
             }
 
             // Move snapshot-tmp directory to snapshot

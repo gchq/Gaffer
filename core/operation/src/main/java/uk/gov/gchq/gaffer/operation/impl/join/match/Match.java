@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,18 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Match {
+
+    /**
+     * Initialises the match and stores the match candidates.
+     * @param matchCandidates candidate pool to check for matches
+     */
+    void init(final Iterable matchCandidates);
+
     /**
      * Compares a list of Objects against a test Object and returns matched Objects.
      *
      * @param testObject Object to test against.
-     * @param testList   List to test against.
      * @return List containing matched Objects.
      */
-    List matching(final Object testObject, final List testList);
+    List matching(final Object testObject);
 }

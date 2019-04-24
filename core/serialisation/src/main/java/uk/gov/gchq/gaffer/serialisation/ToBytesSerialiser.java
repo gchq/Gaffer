@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,10 +73,9 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
      * @param bytes the bytes to deserialise
      * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
-     *
+     * <p>
      * Note that this implementation is less efficient than using deserialise
      * with an offset and a length, but may still be used if necessary.
-     *
      * @see #deserialise(byte[], int, int)
      */
     @Override

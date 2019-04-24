@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -34,6 +35,7 @@ import java.util.Map;
 /**
  * A {@link GraphHook} to resolve {@link NamedView}s.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class NamedViewResolver implements GraphHook {
     private final NamedViewCache cache;
 

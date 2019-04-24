@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -90,7 +91,7 @@ public class ProxyStore extends Store {
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
         client = createClient();
-        schema = getRemoteSchema();
+        schema = fetchSchema();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -103,7 +104,7 @@ public class ProxyStore extends Store {
     }
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
-    protected Set<Class<? extends Operation>> getRemoteSupportedOperations() {
+    protected Set<Class<? extends Operation>> fetchOperations() {
         try {
             URL url = getProperties().getGafferUrl("graph/operations");
             return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
@@ -115,7 +116,7 @@ public class ProxyStore extends Store {
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
         HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
-        allSupportedOperations.addAll(getRemoteSupportedOperations());
+        allSupportedOperations.addAll(fetchOperations());
         allSupportedOperations.addAll(super.getSupportedOperations());
         return Collections.unmodifiableSet(allSupportedOperations);
     }
@@ -125,7 +126,7 @@ public class ProxyStore extends Store {
         return getSupportedOperations().contains(operationClass);
     }
 
-    protected Set<StoreTrait> getRemoteTraits() throws StoreException {
+    protected Set<StoreTrait> fetchTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
@@ -137,7 +138,7 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema getRemoteSchema() throws StoreException {
+    protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
@@ -279,7 +280,8 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(OperationChain.class, new OperationChainHandler());
+        addOperationHandler(OperationChain.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
+        addOperationHandler(OperationChainDAO.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
     }
 
     @Override
@@ -290,7 +292,7 @@ public class ProxyStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         try {
-            return getRemoteTraits();
+            return fetchTraits();
         } catch (final StoreException e) {
             throw new GafferRuntimeException(e.getMessage(), e);
         }
@@ -318,7 +320,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected Client createClient() {

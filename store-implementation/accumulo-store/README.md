@@ -1,4 +1,4 @@
-Copyright 2016-2018 Crown Copyright
+Copyright 2016-2019 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -512,6 +512,7 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | vis1              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
 | vis2              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
 | public            | [SchemaHidingIT](../../core/graph/src/test/java/uk/gov/gchq/gaffer/integration/graph/SchemaHidingIT.java) |
+| private           | [ParameterizedLoaderIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/loader/ParameterizedLoaderIT.java#L63)
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 

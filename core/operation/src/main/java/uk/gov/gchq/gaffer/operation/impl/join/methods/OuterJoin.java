@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,39 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
-
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
-import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class OuterJoin implements JoinFunction {
+/**
+ * {@code OuterJoin} is a Join function which returns values from an iterable (together with an empty list)
+ * where they do not match with any value in the list.
+ */
+public class OuterJoin extends JoinFunction {
     @Override
-    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        List resultList = new ArrayList<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            left.stream().filter(listObj -> match.matching(listObj, right).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, Collections.emptyList())));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.stream().filter(listObj -> match.matching(listObj, left).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, Collections.emptyList())));
+    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+
+        List<MapTuple> resultList = new ArrayList<>();
+
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj);
+            if (matching.isEmpty()) {
+
+                MapTuple<String> tuple = new MapTuple<>();
+                tuple.put(keyName, keyObj);
+
+                // flattening will output a null value instead of an empty list
+                if (flatten) {
+                    tuple.put(matchingValuesName, null);
+                } else {
+                    tuple.put(matchingValuesName, matching);
+                }
+                resultList.add(tuple);
+            }
         }
+
         return resultList;
     }
 }

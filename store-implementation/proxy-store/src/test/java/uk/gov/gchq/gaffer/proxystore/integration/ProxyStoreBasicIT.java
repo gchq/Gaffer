@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -235,6 +235,15 @@ public class ProxyStoreBasicIT {
     private void addDefaultElements() throws OperationException {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
+                .build();
+        graph.execute(add, USER);
+    }
+
+    @Test
+    public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
+        final AddElements add = new AddElements.Builder()
+                .input(DEFAULT_ELEMENTS)
+                .option("Anything","Value") //any value to create a optionsMap
                 .build();
         graph.execute(add, USER);
     }

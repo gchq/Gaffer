@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2019. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,10 +32,12 @@ import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
@@ -49,6 +53,8 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 
     protected abstract RDD<Element> getInputDataForGetAllElementsTest();
 
+    protected abstract List<Element> getInputDataForGetAllElementsTestAsList();
+
     protected abstract int getNumberOfItemsInInputDataForGetAllElementsTest();
 
     protected abstract List<Element> getResultsForGetAllElementsTest();
@@ -57,11 +63,7 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 
     protected abstract List<Element> getResultsForGetElementsWithSeedsRelatedTest();
 
-//    protected abstract void checkGetDataFrameOfElements(Dataset<Row> data, boolean withVisibilities);
-//
-//    protected abstract Graph genData(final boolean withVisibilities) throws OperationException, StoreException, IOException;
-
-//    protected abstract JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities);
+    protected abstract List<Element> convertRowsToElements(List<Row> rows);
 
     @Override
     public User getUser() {
@@ -137,57 +139,18 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
         ElementUtil.assertElementEquals(getResultsForGetElementsWithSeedsRelatedTest(), results);
     }
 
-//    @Test
-//    public void getDataFrameOfElementsTest() throws IOException, OperationException, StoreException {
-//        final Graph graph = genData(false);
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-//                .build(), user);
-//        checkGetDataFrameOfElements(data, false);
-//    }
-//
-//    @Test
-//    public void getDataFrameOfElementsWithViewTest() throws IOException, OperationException, StoreException {
-//        final Graph graph = genData(false);
-//        final View view = new View.Builder()
-//                .entity(TestGroups.ENTITY,
-//                        new ViewElementDefinition.Builder().preAggregationFilter(
-//                                new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
-//                        ).build())
-//                .build();
-//        try {
-//            graph.execute(new GetDataFrameOfElements.Builder()
-//                    .view(view).build(), user);
-//            fail();
-//        } catch (final OperationException e) {
-//            assertEquals("Views are not supported by this operation yet", e.getMessage());
-//        } catch (final Exception e) {
-//            fail();
-//        }
-//    }
-//
-//    @Test
-//    public void getDataFrameOfElementsWithVisibilitiesTest() throws OperationException, StoreException, IOException {
-//        final Graph graph = genData(true);
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-//                .build(), user);
-//        checkGetDataFrameOfElements(data, true);
-//    }
+    @Test
+    public void shouldReturnCorrectResultsWhenGetDataFrameOfElementsCalledWithNoView() throws OperationException {
+        // Given
+        final Graph graph = createGraph();
+        final List<Element> elements = getInputDataForGetAllElementsTestAsList();
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
 
-    //    @Test
-//    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws IOException, OperationException {
-//        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
-//        final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
-//        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
-//        final Graph graph = new Graph.Builder()
-//                .config(new GraphConfig.Builder()
-//                        .graphId("emptyStore2")
-//                        .build())
-//                .addSchemas(gafferSchema)
-//                .storeProperties(parquetStoreProperties)
-//                .build();
-//
-//        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), user);
-//
-//        assertEquals(0, data.count());
-//    }
+        // When
+        final Dataset<Row> results = graph.execute(new GetDataFrameOfElements.Builder().build(), user);
+
+        // Then
+        final List<Element> elementsFromRows = convertRowsToElements(results.collectAsList());
+        ElementUtil.assertElementEquals(getResultsForGetAllElementsTest(), elementsFromRows);
+    }
 }

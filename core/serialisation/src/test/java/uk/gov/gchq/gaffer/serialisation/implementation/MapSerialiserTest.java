@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class MapSerialiserTest extends ToBytesSerialisationTest<Map<? extends Object, ? extends Object>> {
+public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseOverlappingMapValuesWithDifferentKeys() throws SerialisationException {
@@ -86,7 +86,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map<? extends Ob
     }
 
     @Override
-    public Serialiser<Map<? extends Object, ? extends Object>, byte[]> getSerialisation() {
+    public Serialiser<Map, byte[]> getSerialisation() {
         MapSerialiser serialiser = new MapSerialiser();
         serialiser.setKeySerialiser(new StringSerialiser());
         serialiser.setValueSerialiser(new LongSerialiser());
@@ -95,7 +95,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map<? extends Ob
 
     @SuppressWarnings("unchecked")
     @Override
-    public Pair<Map<? extends Object, ? extends Object>, byte[]>[] getHistoricSerialisationPairs() {
+    public Pair<Map, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 4, 102, 111, 117, 114, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 3, 111, 110, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 3, 116, 119, 111, 9, 51, 52, 50, 57, 48, 51, 51, 51, 57, 5, 116, 104, 114, 101, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 4, 102, 105, 118, 101, 9, 49, 50, 51, 51, 51, 56, 51, 51, 51})};
     }
 }

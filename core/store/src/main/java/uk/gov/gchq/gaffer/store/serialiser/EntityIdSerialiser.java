@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package uk.gov.gchq.gaffer.store.serialiser;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -86,5 +89,29 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
     @Override
     public boolean isConsistent() {
         return null != vertexSerialiser && vertexSerialiser.isConsistent();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final EntityIdSerialiser serialiser = (EntityIdSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(vertexSerialiser, serialiser.vertexSerialiser)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(vertexSerialiser)
+                .toHashCode();
     }
 }

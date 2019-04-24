@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
-public class FilterTest extends OperationTest {
+public class FilterTest extends OperationTest<Filter> {
     @Override
-    @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Filter filter = new Filter.Builder()
@@ -53,7 +52,6 @@ public class FilterTest extends OperationTest {
     }
 
     @Override
-    @Test
     public void shouldShallowCloneOperation() {
         // Given
         final List<Element> input = new ArrayList<>();

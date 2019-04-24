@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,5 +70,15 @@ public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
     @Override
     public boolean canHandle(final Class clazz) {
         return Double.class.equals(clazz);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return OrderedDoubleSerialiser.class.getName().hashCode();
     }
 }

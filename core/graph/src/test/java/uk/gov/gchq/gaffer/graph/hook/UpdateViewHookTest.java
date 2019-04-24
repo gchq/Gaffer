@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class UpdateViewHookTest {
+public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
 
     public static final String TEST_WITH_VALUE = "withTestValue";
     public static final String TEST_WITHOUT_VALUE = "withoutTestValue";
@@ -65,6 +65,8 @@ public class UpdateViewHookTest {
     private HashSet<String> userAuths = Sets.newHashSet();
     private Builder userBuilder;
     private UpdateViewHook updateViewHook;
+
+    public UpdateViewHookTest() { super(UpdateViewHook.class); }
 
     @Before
     public void setUp() throws Exception {
@@ -674,4 +676,6 @@ public class UpdateViewHookTest {
         assertTrue(updateViewHook.validateAuths(userAuths, null, true));
     }
 
+    @Override
+    protected UpdateViewHook getTestObject() { return new UpdateViewHook(); }
 }

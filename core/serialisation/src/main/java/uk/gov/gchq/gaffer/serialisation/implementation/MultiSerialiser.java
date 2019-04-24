@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package uk.gov.gchq.gaffer.serialisation.implementation;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -153,9 +156,32 @@ public class MultiSerialiser implements ToBytesSerialiser<Object> {
         return supportedSerialisers.isConsistent();
     }
 
-
     @Override
     public boolean canHandle(final Class clazz) {
         return supportedSerialisers.canHandle(clazz);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final MultiSerialiser serialiser = (MultiSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(supportedSerialisers, serialiser.supportedSerialisers)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(supportedSerialisers)
+                .toHashCode();
     }
 }

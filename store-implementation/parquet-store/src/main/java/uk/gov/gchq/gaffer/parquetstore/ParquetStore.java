@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2019. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.GetDataFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitioner;
@@ -62,6 +63,7 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerial
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -98,12 +100,13 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  */
 public class ParquetStore extends Store {
     public static final String GROUP = "group";
+    public static final String GRAPH = "graph";
     public static final String VERTEX = IdentifierType.VERTEX.name();
     public static final String SOURCE = IdentifierType.SOURCE.name();
     public static final String DESTINATION = IdentifierType.DESTINATION.name();
     public static final String DIRECTED = IdentifierType.DIRECTED.name();
     public static final String SNAPSHOT = "snapshot";
-    public static final String REVERSED_GROUP = "reversed-" + GROUP;
+    public static final String REVERSED_EDGES = "reversedEdges";
     public static final String PARTITION = "partition";
     public static final int LENGTH_OF_PARTITION_NUMBER_IN_FILENAME = 7;
 
@@ -185,13 +188,13 @@ public class ParquetStore extends Store {
             fs.mkdirs(snapshotPath);
             LOGGER.info("Creating group directories under {}", snapshotPath);
             for (final String group : getSchema().getGroups()) {
-                final Path groupDir = new Path(snapshotPath, GROUP + "=" + group);
+                final Path groupDir = getGroupPath(group);
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
             LOGGER.info("Creating group directories for reversed edges under {}", snapshotPath);
             for (final String group : getSchema().getEdgeGroups()) {
-                final Path groupDir = new Path(snapshotPath, REVERSED_GROUP + "=" + group);
+                final Path groupDir = getGroupPathForReversedEdges(group);
                 fs.mkdirs(groupDir);
                 LOGGER.info("Created directory {}", groupDir);
             }
@@ -216,22 +219,21 @@ public class ParquetStore extends Store {
                 LOGGER.error("Data directory {} should contain a snapshot directory", dataDirPath);
                 throw new StoreException("Data directory should contain a snapshot directory");
             }
-            final long snapshot = getLatestSnapshot();
-            final String snapshotPath = dataDirPath + "/" + SNAPSHOT + "=" + snapshot;
-            LOGGER.info("Latest snapshot directory in data directory {} is {}", dataDirPath, snapshot);
+            this.currentSnapshot = getLatestSnapshot();
+            LOGGER.info("Latest snapshot directory in data directory {} is {}", dataDirPath, this.currentSnapshot);
             LOGGER.info("Verifying snapshot directory contains the correct directories");
             for (final String group : getSchema().getGroups()) {
-                final Path groupDir = new Path(snapshotPath, GROUP + "=" + group);
+                final Path groupDir = getGroupPath(group);
                 if (!fs.exists(groupDir)) {
                     LOGGER.error("Directory {} should exist", groupDir);
-                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + snapshotPath);
+                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + getSnapshotPath(this.currentSnapshot));
                 }
             }
             for (final String group : getSchema().getEdgeGroups()) {
-                final Path groupDir = new Path(snapshotPath, REVERSED_GROUP + "=" + group);
+                final Path groupDir = getGroupPathForReversedEdges(group);
                 if (!fs.exists(groupDir)) {
                     LOGGER.error("Directory {} should exist", groupDir);
-                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + snapshotPath);
+                    throw new StoreException("Group directory " + groupDir + " should exist in snapshot directory " + getSnapshotPath(this.currentSnapshot));
                 }
             }
         }
@@ -301,6 +303,7 @@ public class ParquetStore extends Store {
     public String getFile(final String group, final Integer partitionId) {
         return getDataDir()
                 + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GRAPH
                 + "/" + GROUP + "=" + group
                 + "/" + getFile(partitionId);
     }
@@ -324,19 +327,50 @@ public class ParquetStore extends Store {
     public String getFileForReversedEdges(final String group, final Integer partitionId) {
         return getDataDir()
                 + "/" + getSnapshotPath(currentSnapshot)
-                + "/" + REVERSED_GROUP + "=" + group
+                + "/" + REVERSED_EDGES
+                + "/" + GROUP + "=" + group
                 + "/" + getFile(partitionId);
     }
 
     public List<Path> getFilesForGroup(final String group) throws IOException {
         final Path dir = new Path(getDataDir()
                 + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GRAPH
                 + "/" + GROUP + "=" + group);
         final FileStatus[] files = fs.listStatus(dir, path -> path.getName().endsWith(".parquet"));
         return Arrays
                 .stream(files)
                 .map(FileStatus::getPath)
                 .collect(Collectors.toList());
+    }
+
+    public Path getGroupPath(final String group) {
+        return new Path(getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GRAPH
+                + "/" + GROUP + "=" + group);
+    }
+
+    public static String getGroupSubDir(final String group, final boolean reversed) {
+        return (reversed ? REVERSED_EDGES : GRAPH)
+                + "/" + GROUP + "=" + group;
+    }
+
+    public Path getGroupPathForReversedEdges(final String group) {
+        if (!getSchema().getEdgeGroups().contains(group)) {
+            throw new IllegalArgumentException("Invalid group: " + group + " is not an edge group");
+        }
+        return new Path(getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + REVERSED_EDGES
+                + "/" + GROUP + "=" + group);
+    }
+
+    public String getGraphPath() {
+        return getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GRAPH
+                + "/";
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
@@ -372,7 +406,7 @@ public class ParquetStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-//        addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
+        addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsHandler());
         addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
 //        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());
@@ -405,7 +439,15 @@ public class ParquetStore extends Store {
     }
 
     public void setLatestSnapshot(final long snapshot) throws StoreException {
-        // TODO validate that a directory with this name exists
+        final Path snapshotPath = new Path(getDataDir(), getSnapshotPath(snapshot));
+        try {
+            if (!fs.exists(snapshotPath)) {
+                throw new StoreException(String.format("Failed setting currentSnapshot: '%s' does not exist", snapshotPath.toString()));
+            }
+        } catch (final IOException e) {
+            throw new StoreException("IOException checking Path: ", e);
+        }
+
         LOGGER.info("Setting currentSnapshot to {} and reloading graph partitioner", snapshot);
         this.currentSnapshot = snapshot;
         loadGraphPartitioner();

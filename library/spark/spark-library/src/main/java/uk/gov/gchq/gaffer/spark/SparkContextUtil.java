@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,8 +120,7 @@ public final class SparkContextUtil {
         } else {
             builder.master(storeProperties.get(SparkConstants.MASTER, SparkConstants.MASTER_DEFAULT));
         }
-        builder.config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-                .config(SparkConstants.SERIALIZER, storeProperties.get(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER))
+        builder.config(SparkConstants.SERIALIZER, storeProperties.get(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER))
                 .config(SparkConstants.KRYO_REGISTRATOR, storeProperties.get(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR));
         return builder.getOrCreate();
     }

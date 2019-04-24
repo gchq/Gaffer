@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,10 @@ public class JobTracker {
      * Add or update the job details relating to a job in the job tracker cache.
      *
      * @param jobDetail the job details to update
-     * @param user the user making the request
+     * @param user      the user making the request
      */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
-
         try {
             CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
         } catch (final CacheOperationException e) {
@@ -55,8 +54,7 @@ public class JobTracker {
      * Get the details of a specific job.
      *
      * @param jobId the ID of the job to lookup
-     * @param user the user making the request to the job tracker
-     *
+     * @param user  the user making the request to the job tracker
      * @return the {@link JobDetail} object for the requested job
      */
     public JobDetail getJob(final String jobId, final User user) {

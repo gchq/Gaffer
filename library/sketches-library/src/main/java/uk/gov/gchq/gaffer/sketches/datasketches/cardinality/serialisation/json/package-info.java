@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler.join.merge;
-
 /**
- * Used to specify how the {@link uk.gov.gchq.gaffer.operation.impl.join.merge.Merge} should be done.
+ * JSON serialisation classes for the Clearspring HyperLogLogPlus objects.
  */
-public enum MergeType {
-    NONE,
-    RELATED_ONLY,
-    BOTH
-}
+package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json;

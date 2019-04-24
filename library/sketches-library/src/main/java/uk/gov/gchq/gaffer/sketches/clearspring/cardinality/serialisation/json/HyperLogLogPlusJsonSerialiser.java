@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.io.IOException;
  */
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
 
-    // TODO - See 'Can't create HyperLogLogPlus sketches in JSON'
     @Override
     public void serialize(final HyperLogLogPlus hyperLogLogPlus, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
         jsonGenerator.writeStartObject();

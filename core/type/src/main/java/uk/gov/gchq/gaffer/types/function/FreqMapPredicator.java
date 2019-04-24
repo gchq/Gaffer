@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +27,16 @@ import java.io.Serializable;
  * A {@code FreqMapPredicator} is a {@link KorypheFunction} that extracts a
  * a clone of the current frequency map provided a valid {@link uk.gov.gchq.koryphe.predicate.KoryphePredicate}.
  */
-@Since("1.7.0")
+@Since("1.8.0")
 @Summary("Returns a frequency map based on the predicate provided")
 public class FreqMapPredicator extends KorypheFunction<FreqMap, FreqMap>
-implements Serializable {
+        implements Serializable {
 
     private KoryphePredicate<String> predicate;
 
     /**
      * Constructor for FreqMapPredicator.<br>
      * As an empty constructor, null is defaulted for the predicate.<br>
-     *
      * If null supplied as predicate then {@link FreqMapPredicator#apply(FreqMap)} will yield a clone of the input map.
      */
     public FreqMapPredicator() {

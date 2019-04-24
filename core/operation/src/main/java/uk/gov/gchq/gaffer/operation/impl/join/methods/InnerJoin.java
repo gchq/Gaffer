@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,41 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
 
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
-import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InnerJoin implements JoinFunction {
+/**
+ * {@code InnerJoin} is a join function which returns matched items from an iterable and list.
+ */
+public class InnerJoin extends JoinFunction {
     @Override
-    public List join(final List left, final List right, final Match match, final MatchKey matchKey) {
-        List resultList = new ArrayList<>();
-        if (matchKey.equals(MatchKey.LEFT)) {
-            left.stream().filter(listObj -> !match.matching(listObj, right).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, match.matching(listObj, right))));
-        } else if (matchKey.equals(MatchKey.RIGHT)) {
-            right.stream().filter(listObj -> !match.matching(listObj, left).isEmpty()).forEach(listObj -> resultList.add(ImmutableMap.of(listObj, match.matching(listObj, left))));
+    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+
+        List<MapTuple> resultList = new ArrayList<>();
+
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj);
+
+            MapTuple<String> tuple = new MapTuple<>();
+            tuple.put(keyName, keyObj);
+
+            // flattening will output a tuple for each value in the matching list
+            if (flatten) {
+                for (final Object matched : matching) {
+                    tuple.put(matchingValuesName, matched);
+                    resultList.add(tuple);
+                }
+            } else if (!matching.isEmpty()) {
+                tuple.put(matchingValuesName, matching);
+                resultList.add(tuple);
+            }
         }
+
+
         return resultList;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2019. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
 import org.apache.spark.sql.execution.datasources.parquet.ParquetToSparkSchemaConverter;
+import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,6 +225,19 @@ public class SchemaUtils {
 
     public StructType getSparkSchema(final String group) {
         return groupToSparkSchema.get(group);
+    }
+
+    public StructType getMergedSparkSchema(final Set<String> groups) {
+        StructType merged = new StructType();
+        for (final String group : groups) {
+            final StructType groupSchema = getSparkSchema(group);
+            for (final StructField field : groupSchema.fields()) {
+                if (!merged.contains(field)) {
+                    merged = merged.add(field);
+                }
+            }
+        }
+        return merged;
     }
 
     private void buildParquetSchema() throws SerialisationException {
