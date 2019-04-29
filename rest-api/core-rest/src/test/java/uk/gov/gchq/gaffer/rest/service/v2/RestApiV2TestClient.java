@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -45,6 +46,14 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
     }
 
+    public Response scheduleJob(final Job job) throws IOException {
+        startServer();
+        return client.target(uriString)
+                .path("/graph/jobs/schedule")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(job), APPLICATION_JSON_TYPE));
+    }
+
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
@@ -57,6 +66,15 @@ public class RestApiV2TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
         return executeOperationChunked(opChain);
+    }
+
+    public Response executeOperationChainChunkedWithHeaders(final OperationChain opChain, final String authHeaderVal) throws IOException {
+        startServer();
+        return client.target(uriString)
+                .path("/graph/operations/execute/chunked")
+                .request()
+                .header("Authorization", authHeaderVal)
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), APPLICATION_JSON_TYPE));
     }
 
     @Override

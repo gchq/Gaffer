@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
@@ -87,6 +85,7 @@ public class FederatedStoreSchemaTest {
         String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
                 .edge("e1", getProp("prop1"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -102,6 +101,7 @@ public class FederatedStoreSchemaTest {
         String bSchema1ID = "bSchema";
         final Schema bSchema = new Schema.Builder()
                 .edge("e1", getProp("prop2"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -130,11 +130,13 @@ public class FederatedStoreSchemaTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.add("a", new Schema.Builder()
                 .edge("e1", getProp("prop1"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
         library.add("b", new Schema.Builder()
                 .edge("e1", getProp("prop2"))
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), ACCUMULO_PROPERTIES);
 
@@ -158,42 +160,11 @@ public class FederatedStoreSchemaTest {
         assertFalse(a.iterator().hasNext());
     }
 
-    @Test
-    public void shouldThrowWhenSelectedGraphsSchemaClash() throws Exception {
-        final HashMapGraphLibrary library = new HashMapGraphLibrary();
-        library.add("a", new Schema.Builder()
-                .edge("e1", getProp("prop1"))
-                .merge(STRING_SCHEMA)
-                .build(), ACCUMULO_PROPERTIES);
-
-        library.add("b", new Schema.Builder()
-                .edge("e1", getProp("prop2"))
-                .merge(STRING_SCHEMA)
-                .build(), ACCUMULO_PROPERTIES);
-
-        fStore.execute(new AddGraph.Builder()
-                .graphId("a")
-                .build(), testContext);
-
-        fStore.execute(new AddGraph.Builder()
-                .graphId("b")
-                .build(), testContext);
-
-        try {
-            fStore.execute(new OperationChain.Builder()
-                    .first(new GetAllElements.Builder()
-                            .build())
-                    .build(), testContext);
-            fail("exception expected");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains(UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS.split("%s")[0]));
-        }
-    }
-
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
                 .destination(STRING)
+                .directed(DIRECTED_EITHER)
                 .property(propName, STRING)
                 .build();
     }

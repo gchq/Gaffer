@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,28 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
+import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.AddElementsIT;
+import uk.gov.gchq.gaffer.integration.impl.loader.AddElementsLoaderIT;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 public class HBaseStoreITs extends AbstractStoreITs {
     private static final HBaseProperties STORE_PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
 
     public HBaseStoreITs() {
-        super(STORE_PROPERTIES);
+        this(STORE_PROPERTIES);
         try {
             TableUtils.dropAllTables(new SingleUseMiniHBaseStore().getConnection());
         } catch (final StoreException e) {
             // ignore any errors that occur when dropping test tables
         }
-        skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithoutAggregation", "There is a known issue around defining custom timestamps that are the same");
-        skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithAggregation", "There is a known issue around defining custom timestamps that are the same");
+    }
+
+    protected HBaseStoreITs(final HBaseProperties storeProperties) {
+        super(storeProperties);
+        addExtraTest(AddElementsFromHdfsLoaderIT.class);
+        skipTestMethod(AddElementsLoaderIT.class, "shouldGetElementsWithMatchedVertex", "known issue with INGEST/QUERY AGGREGATION");
+        skipTestMethod(AddElementsFromHdfsLoaderIT.class, "shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist", "Known issue that directory is not empty");
+        skipTestMethod(AddElementsFromHdfsLoaderIT.class, "shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles", "known issue that directory is not empty");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -128,12 +128,12 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     @Override
     public Iterator<E> iterator() {
         if (backingMap.isEmpty()) {
-            return Iterators.emptyIterator();
+            return Collections.emptyIterator();
         }
 
         final Iterable[] values = Iterables.toArray(backingMap.values(), Iterable.class);
         if (0 == values.length) {
-            return Iterators.emptyIterator();
+            return Collections.emptyIterator();
         }
 
         return new ChainedIterable<E>(values).iterator();

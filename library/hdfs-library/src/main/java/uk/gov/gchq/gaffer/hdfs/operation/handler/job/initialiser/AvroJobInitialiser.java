@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * An {@code AvroJobInitialiser} is an {@link JobInitialiser} that
- * initialises the provided {@link Job} to handle Avro input data.
+ * A {@link JobInitialiser} that initialises the provided {@link Job} to handle Avro input data.
  */
 public class AvroJobInitialiser implements JobInitialiser {
     private String avroSchemaFilePath;

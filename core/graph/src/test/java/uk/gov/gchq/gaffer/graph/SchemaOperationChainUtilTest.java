@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
     Graph graph;
@@ -47,11 +48,13 @@ public class SchemaOperationChainUtilTest {
             .type("vertex", new TypeDefinition.Builder()
                     .clazz(String.class)
                     .build())
+            .type(DIRECTED_EITHER, Boolean.class)
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                     .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                     .aggregate(false)
                     .source("vertex")
                     .destination("vertex")
+                    .directed(DIRECTED_EITHER)
                     .build())
             .build();
     final String GRAPH_ID = "graphId";

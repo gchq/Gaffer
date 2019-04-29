@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -57,6 +58,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -108,7 +110,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        final Pair<Object, String> resultAndJobId = _execute(operation);
+        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return Response.ok(resultAndJobId.getFirst())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -116,28 +118,77 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
-    public ChunkedOutput<String> executeChunked(final Operation operation) {
+    public Response executeChunked(final Operation operation) {
         return executeChunkedChain(OperationChain.wrap(operation));
     }
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+    public Response executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
+        final Throwable[] threadException = new Throwable[1];
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+        final Context context = userFactory.createContext();
 
-        // write chunks to the chunked output object
-        new Thread(() -> {
+        // create thread to write chunks to the chunked output object
+        Thread thread = new Thread(() -> {
             try {
-                final Object result = _execute(opChain).getFirst();
+                final Object result = _execute(opChain, context).getFirst();
                 chunkResult(result, output);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
             } finally {
                 CloseableUtil.close(output);
                 CloseableUtil.close(opChain);
             }
-        }).start();
+        });
 
-        return output;
+        // By default threads throw nothing, so set the ExceptionHandler
+        thread.setUncaughtExceptionHandler((thread1, exception) -> threadException[0] = exception.getCause());
+
+        thread.start();
+
+        // Sleep to check exception will be caught
+        try {
+            Thread.sleep(1000);
+        } catch (final InterruptedException e) {
+            return Response.status(INTERNAL_SERVER_ERROR)
+                    .entity(new Error.ErrorBuilder()
+                            .status(Status.INTERNAL_SERVER_ERROR)
+                            .statusCode(500)
+                            .simpleMessage(e.getMessage())
+                            .build())
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
+        }
+
+        // If there was an UnauthorisedException thrown return 403, else return a 500
+        if (null != threadException[0]) {
+            if (threadException.getClass().equals(UnauthorisedException.class)) {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.FORBIDDEN)
+                                .statusCode(403)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            } else {
+                return Response.status(INTERNAL_SERVER_ERROR)
+                        .entity(new Error.ErrorBuilder()
+                                .status(Status.INTERNAL_SERVER_ERROR)
+                                .statusCode(500)
+                                .simpleMessage(threadException[0].getMessage())
+                                .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
+        }
+
+        // Return ok output
+        return Response.ok(output)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -217,11 +268,10 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> Pair<O, String> _execute(final Operation operation) {
+    protected <O> Pair<O, String> _execute(final Operation operation, final Context context) {
 
         OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
-        final Context context = userFactory.createContext();
         preOperationHook(opChain, context);
 
         GraphResult<O> result;

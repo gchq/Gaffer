@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,20 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
@@ -168,6 +174,45 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
         );
         assertEquals(fields, opDetails.getFields());
+    }
+
+    @Test
+    public void shouldAllowUserWithAuthThroughHeaders() throws IOException {
+        System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
+        client.stopServer();
+        client.startServer();
+
+        Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(StreamUtil.STORE_PROPERTIES)
+                .addSchema(new Schema())
+                .build();
+        client.reinitialiseGraph(graph);
+
+        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+        Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
+
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void shouldNotAllowUserWithNoAuthThroughHeaders() throws IOException {
+        System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
+        client.stopServer();
+        client.startServer();
+
+        Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(StreamUtil.STORE_PROPERTIES)
+                .addSchema(new Schema())
+                .build();
+        client.reinitialiseGraph(graph);
+
+        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+
+        Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "BasicUser");
+
+        assertEquals(500, response.getStatus());
     }
 
     @Override
@@ -365,6 +410,21 @@ public class OperationServiceV2IT extends OperationServiceIT {
                     .append("summary", summary)
                     .append("options", options)
                     .toString();
+        }
+    }
+
+    public static class TestUserFactory implements UserFactory {
+
+        @javax.ws.rs.core.Context
+        private HttpHeaders httpHeaders;
+
+        @Override
+        public User createUser() {
+            final String headerAuthVal = httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION);
+            return new User.Builder()
+                    .userId("unknown")
+                    .opAuth(headerAuthVal)
+                    .build();
         }
     }
 }

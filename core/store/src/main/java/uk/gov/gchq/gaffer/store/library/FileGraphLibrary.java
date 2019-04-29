@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,8 @@ public class FileGraphLibrary extends GraphLibrary {
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
         } catch (final IOException e) {
-            throw new IllegalArgumentException("Could not write Graphs to path: " + getSchemaPath(graphId), e);
+            throw new IllegalArgumentException("Could not write Graphs to " +
+                    "path: " + getGraphsPath(graphId), e);
         }
     }
 
@@ -124,7 +125,8 @@ public class FileGraphLibrary extends GraphLibrary {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
+                throw new IllegalArgumentException("Could not write " +
+                        "properties to path: " + getPropertiesPath(propertiesId), e);
             }
         } else {
             throw new IllegalArgumentException("StoreProperties cannot be null");

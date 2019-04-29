@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,7 +109,10 @@ public final class TypeReferenceImpl {
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
-    public static class MapStringSet extends TypeReference<java.util.Map<String, Set<Object>>> {
+    public static class MapStringObject extends TypeReference<java.util.Map<java.lang.String, java.lang.Object>> {
+    }
+
+    public static class MapStringSet extends TypeReference<java.util.Map<java.lang.String, java.util.Set<java.lang.Object>>> {
     }
 
     public static class Operations extends TypeReference<Set<Class<uk.gov.gchq.gaffer.operation.Operation>>> {

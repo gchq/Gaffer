@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
-            StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
+            StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);

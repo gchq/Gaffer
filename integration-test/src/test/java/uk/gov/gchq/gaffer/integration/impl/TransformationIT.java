@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -50,31 +49,9 @@ public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
 
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
-
-        final Collection<Element> elements = Arrays.asList(
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source(VERTEX + SOURCE)
-                        .dest(VERTEX + DEST)
-                        .directed(true)
-                        .property(TestPropertyNames.COUNT, 1L)
-                        .property(TestPropertyNames.TRANSIENT_1, "test")
-                        .build(),
-
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex(VERTEX)
-                        .property(TestPropertyNames.TRANSIENT_1, "test")
-                        .build()
-        );
-
-        graph.execute(new AddElements.Builder()
-                .input(elements)
-                .build(), getUser());
+        addAdditionalElements();
     }
 
     /**
@@ -213,5 +190,28 @@ public class TransformationIT extends AbstractStoreIT {
         for (final Element result : results) {
             assertEquals("A1,[3]", ((Entity) result).getVertex());
         }
+    }
+
+    private void addAdditionalElements() throws OperationException {
+        final Collection<Element> elements = Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX + SOURCE)
+                        .dest(VERTEX + DEST)
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build(),
+
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build()
+        );
+
+        graph.execute(new AddElements.Builder()
+                .input(elements)
+                .build(), getUser());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,8 +116,8 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
         this.operation = new OperationChain<>(Lists.newArrayList(operations));
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         return OperationChain.wrap(operation).getOperations();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,15 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -23,7 +32,6 @@ import org.apache.hadoop.hbase.client.Table;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -45,19 +53,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class AddElementsHandlerTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -252,5 +250,28 @@ public class AddElementsHandlerTest {
                         .property("count", 1)
                         .build()
         );
+    }
+
+    @Test
+    public void shouldThrowNoExceptionsWhenValidateFlagSetToFalse() throws OperationException, StoreException {
+        final AddElements addElements = new AddElements.Builder()
+                .input(new Edge("Unknown group", "source", "dest", true))
+                .validate(false)
+                .build();
+
+        final AddElementsHandler handler = new AddElementsHandler();
+        final Context context = mock(Context.class);
+        final HBaseStore store = mock(HBaseStore.class);
+
+        final Table table = mock(Table.class);
+        given(store.getTable()).willReturn(table);
+
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        given(store.getProperties()).willReturn(properties);
+
+        given(store.getSchema()).willReturn(SCHEMA);
+
+        // When / Then - no exceptions
+        handler.doOperation(addElements,context, store);
     }
 }

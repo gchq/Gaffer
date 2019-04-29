@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,10 +81,10 @@ public class ElementUtil {
                 }
             }
 
-            assertTrue("\nMissing entities:\n" + missingEntities.toString()
-                            + "\nUnexpected entities:\n" + incorrectEntities.toString()
-                            + "\nMissing edges:\n" + missingEdges.toString()
-                            + "\nUnexpected edges:\n" + incorrectEdges.toString(),
+            assertTrue("\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
+                            + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
+                            + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
+                            + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString(),
                     missingEntities.isEmpty() && incorrectEntities.isEmpty()
                             && missingEdges.isEmpty() && incorrectEdges.isEmpty());
         }

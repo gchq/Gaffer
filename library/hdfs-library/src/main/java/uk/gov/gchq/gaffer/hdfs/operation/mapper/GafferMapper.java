@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
             if (!doValidation || isValid(element)) {
                 map(element, context);
             } else {
-                LOGGER.warn("Element {} did not validate.", element);
+                LOGGER.warn("Element {} did not validate: {}", element, getValidationFailureMessage(element));
                 context.getCounter("Bulk import", "Invalid element count").increment(1L);
             }
         }
@@ -83,6 +83,10 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
 
     protected boolean isValid(final Element element) {
         return elementValidator.validateWithSchema(element);
+    }
+
+    protected String getValidationFailureMessage(final Element element) {
+        return elementValidator.validateWithValidationResult(element).getErrorString();
     }
 
     protected abstract void map(final Element element, final Context context) throws IOException, InterruptedException;

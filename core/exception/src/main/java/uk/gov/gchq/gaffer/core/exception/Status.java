@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public enum Status {
     }
 
     /**
-     * Converts a HTTP status code into the matching  object.
+     * Converts a HTTP status code into the matching object.
      *
      * @param statusCode the status code to lookup
      * @return the corresponding status object
@@ -100,7 +100,7 @@ public enum Status {
                 .stream()
                 .filter(v -> v.getStatusCode() == statusCode)
                 .findFirst()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new GafferRuntimeException("Status code not recognised: " + statusCode));
     }
 
     public int getStatusCode() {

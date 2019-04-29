@@ -35,7 +35,6 @@ public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
-    @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final IntegerFreqMapAggregator aggregator = new IntegerFreqMapAggregator();

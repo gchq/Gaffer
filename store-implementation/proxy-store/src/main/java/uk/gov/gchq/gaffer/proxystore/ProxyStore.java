@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -34,12 +36,14 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -76,9 +80,11 @@ import java.util.Set;
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
-    private Set<StoreTrait> traits;
     private Schema schema;
-    private Set<Class<? extends Operation>> supportedOperations;
+
+    public ProxyStore() {
+        super(false);
+    }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
@@ -86,8 +92,6 @@ public class ProxyStore extends Store {
         setProperties(properties);
         client = createClient();
         schema = fetchSchema();
-        traits = fetchTraits();
-        supportedOperations = fetchOperations();
 
         super.initialise(graphId, schema, getProperties());
         checkDelegateStoreStatus();
@@ -100,20 +104,26 @@ public class ProxyStore extends Store {
     }
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
-    protected Set<Class<? extends Operation>> fetchOperations() throws StoreException {
-        final URL url = getProperties().getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
-        }, null));
+    protected Set<Class<? extends Operation>> fetchOperations() {
+        try {
+            URL url = getProperties().getGafferUrl("graph/operations");
+            return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
+        } catch (final StoreException e) {
+            throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
+        }
     }
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        return supportedOperations;
+        HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+        allSupportedOperations.addAll(fetchOperations());
+        allSupportedOperations.addAll(super.getSupportedOperations());
+        return Collections.unmodifiableSet(allSupportedOperations);
     }
 
     @Override
     public boolean isSupported(final Class<? extends Operation> operationClass) {
-        return supportedOperations.contains(operationClass);
+        return getSupportedOperations().contains(operationClass);
     }
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
@@ -128,8 +138,7 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema() throws
-            StoreException {
+    protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
@@ -271,7 +280,8 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        // no operation handlers to add.
+        addOperationHandler(OperationChain.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
+        addOperationHandler(OperationChainDAO.class, new OperationChainHandler(opChainValidator, opChainOptimisers));
     }
 
     @Override
@@ -281,7 +291,11 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<StoreTrait> getTraits() {
-        return traits;
+        try {
+            return fetchTraits();
+        } catch (final StoreException e) {
+            throw new GafferRuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -306,7 +320,7 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 
     protected Client createClient() {

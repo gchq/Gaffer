@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package uk.gov.gchq.gaffer.serialisation;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
@@ -30,6 +32,7 @@ import java.io.UnsupportedEncodingException;
  */
 public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialiser<T> {
 
+    @JsonIgnore
     private String charset;
 
     public ToBytesViaStringDeserialiser(final String charsetName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.util.Set;
 
 /**
@@ -28,6 +30,9 @@ public final class TypeReferenceStoreImpl {
     }
 
     public static class StoreTraits extends TypeReference<Set<StoreTrait>> {
+    }
+
+    public static class Operations extends TypeReference<Set<Class<? extends Operation>>> {
     }
 
     private TypeReferenceStoreImpl() {

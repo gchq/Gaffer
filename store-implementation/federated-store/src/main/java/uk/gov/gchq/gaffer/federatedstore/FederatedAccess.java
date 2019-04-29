@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,7 +165,7 @@ public class FederatedAccess implements Serializable {
     }
 
     public static class Builder {
-        private String addingUser;
+        private String addingUserId;
         private Set<String> graphAuths;
         private final Builder self = this;
         private boolean isPublic = false;
@@ -205,7 +205,7 @@ public class FederatedAccess implements Serializable {
         }
 
         public Builder addingUserId(final String addingUser) {
-            this.addingUser = addingUser;
+            this.addingUserId = addingUser;
             return self;
         }
 
@@ -215,7 +215,7 @@ public class FederatedAccess implements Serializable {
         }
 
         public FederatedAccess build() {
-            return new FederatedAccess(graphAuths, addingUser, isPublic, disabledByDefault);
+            return new FederatedAccess(graphAuths, addingUserId, isPublic, disabledByDefault);
         }
 
         public Builder makePublic() {
@@ -225,6 +225,14 @@ public class FederatedAccess implements Serializable {
 
         public Builder makePrivate() {
             isPublic = false;
+            return self;
+        }
+
+        public Builder clone(final FederatedAccess that) {
+            this.graphAuths = that.graphAuths;
+            this.addingUserId = that.addingUserId;
+            this.isPublic = that.isPublic;
+            this.disabledByDefault = that.disabledByDefault;
             return self;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.io;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +24,6 @@ import org.junit.runners.Parameterized;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
@@ -89,18 +85,17 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
         });
     }
 
-    private final String expectedJson;
-    private final Object input;
-
-    public GenericInputTest(final String description, final Object input, final String expectedJson) {
-        this.input = input;
-        this.expectedJson = expectedJson;
-    }
+    @Parameterized.Parameter(0)
+    public String description;
+    @Parameterized.Parameter(1)
+    public Object inputData;
+    @Parameterized.Parameter(2)
+    public String expectedJson;
 
     @Test
-    public void shouldHandleGenericInputType() throws JsonProcessingException, SerialisationException {
+    public void shouldHandleGenericInputType() {
         // Given
-        final GenericInput input = getTestObject();
+        final GenericInput input = new GenericInputImpl(inputData);
 
         // When / Then
         final byte[] json = toJson(input);
@@ -125,7 +120,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
     @Override
     protected GenericInput getTestObject() {
-        return new GenericInputImpl(input);
+        return new GenericInputImpl();
     }
 
     private void assertInputEquals(final Object expected, final Object actual) {

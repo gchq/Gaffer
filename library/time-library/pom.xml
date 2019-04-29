@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2018 Crown Copyright
+  ~ Copyright 2016-2019 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.7.1-SNAPSHOT</version>
+        <version>1.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>time-library</artifactId>
@@ -46,6 +46,13 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.koryphe</groupId>
+            <artifactId>core</artifactId>
+            <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

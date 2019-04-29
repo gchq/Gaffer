@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
@@ -444,12 +445,14 @@ public class FederatedGraphStorageTest {
         final String groupEdge = "edg";
         Schema schemaNotToBeExposed = new Schema.Builder()
                 .type(unusualType, String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .entity(groupEnt, new SchemaEntityDefinition.Builder()
                         .vertex(unusualType)
                         .build())
                 .edge(groupEdge, new SchemaEdgeDefinition.Builder()
                         .source(unusualType)
                         .destination(unusualType)
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -491,12 +494,14 @@ public class FederatedGraphStorageTest {
         // Given
         Schema schemaNotToBeExposed = new Schema.Builder()
                 .type(UNUSUAL_TYPE, String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .entity(GROUP_ENT, new SchemaEntityDefinition.Builder()
                         .vertex(UNUSUAL_TYPE)
                         .build())
                 .edge(GROUP_EDGE, new SchemaEdgeDefinition.Builder()
                         .source(UNUSUAL_TYPE)
                         .destination(UNUSUAL_TYPE)
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 
@@ -525,12 +530,14 @@ public class FederatedGraphStorageTest {
         final String groupEdge = "edg";
         Schema schemaNotToBeExposed = new Schema.Builder()
                 .type(unusualType, String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .entity(groupEnt, new SchemaEntityDefinition.Builder()
                         .vertex(unusualType)
                         .build())
                 .edge(groupEdge, new SchemaEdgeDefinition.Builder()
                         .source(unusualType)
                         .destination(unusualType)
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 

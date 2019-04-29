@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -32,12 +31,15 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -51,19 +53,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class AccumuloAggregationIT {
-    private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
-            .storeProps(AccumuloStoreITs.class));
-    private static final String VERTEX = "vertex";
-    private static final String PUBLIC_VISIBILITY = "publicVisibility";
-    private static final String PRIVATE_VISIBILITY = "privateVisibility";
-    private static final User USER = new User.Builder()
-            .dataAuth(PUBLIC_VISIBILITY)
-            .dataAuth(PRIVATE_VISIBILITY)
-            .build();
+public class AccumuloAggregationIT extends StandaloneIT {
+    private final String VERTEX = "vertex";
+    private final String PUBLIC_VISIBILITY = "publicVisibility";
+    private final String PRIVATE_VISIBILITY = "privateVisibility";
+
+    private final User user = getUser();
 
     @Test
-    public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws OperationException, UnsupportedEncodingException {
+    public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -90,7 +88,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder()
                         .input(entity1, entity2, entity3)
                         .build(),
-                USER);
+                user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -101,7 +99,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -133,7 +131,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldAggregateOverAllPropertiesExceptForGroupByProperties() throws OperationException, UnsupportedEncodingException {
+    public void shouldAggregateOverAllPropertiesExceptForGroupByProperties() throws Exception {
         final Graph graph = createGraph();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -163,7 +161,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -176,7 +174,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -216,7 +214,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -229,7 +227,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -262,7 +260,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -275,7 +273,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -308,7 +306,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -321,7 +319,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -393,7 +391,7 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ).build(), user);
 
         // Duplicate the entities to check they are aggregated properly
         graph.execute(new AddElements.Builder().input(
@@ -404,7 +402,7 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ).build(), user);
 
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -417,7 +415,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
         assertNotNull(results);
@@ -523,7 +521,7 @@ public class AccumuloAggregationIT {
                 entity5,
                 entity6,
                 entity7
-        ).build(), USER);
+        ).build(), user);
 
         // Duplicate the entities to check they are not aggregated
         graph.execute(new AddElements.Builder()
@@ -535,7 +533,7 @@ public class AccumuloAggregationIT {
                                 entity6,
                                 entity7)
                         .build(),
-                USER);
+                user);
 
         // Given
         final GetAllElements getAllEntities = new GetAllElements.Builder()
@@ -545,7 +543,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, user));
 
         // Then
         assertNotNull(results);
@@ -593,44 +591,6 @@ public class AccumuloAggregationIT {
                 expectedEntity3,
                 expectedEntity4
         ));
-
-    }
-
-    protected Graph createGraph() {
-        return new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .storeProperties(STORE_PROPERTIES)
-                .addSchema(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type("colQual", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .type("visibility", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .aggregateFunction(new StringConcat())
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
-                                .property(AccumuloPropertyNames.VISIBILITY, "visibility")
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
-                                .build())
-                        .visibilityProperty(AccumuloPropertyNames.VISIBILITY)
-                        .build())
-                .build();
     }
 
     protected Graph createGraphNoVisibility() {
@@ -638,7 +598,7 @@ public class AccumuloAggregationIT {
                 .config(new GraphConfig.Builder()
                         .graphId("graphWithNoVisibility")
                         .build())
-                .storeProperties(STORE_PROPERTIES)
+                .storeProperties(createStoreProperties())
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                                 .clazz(String.class)
@@ -668,7 +628,7 @@ public class AccumuloAggregationIT {
                 .config(new GraphConfig.Builder()
                         .graphId("graphWithNoAggregators")
                         .build())
-                .storeProperties(STORE_PROPERTIES)
+                .storeProperties(createStoreProperties())
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                                 .clazz(String.class)
@@ -687,5 +647,50 @@ public class AccumuloAggregationIT {
                                 .build())
                         .build())
                 .build();
+    }
+
+    @Override
+    protected Schema createSchema() {
+        return new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("colQual", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(new StringConcat())
+                        .serialiser(new StringSerialiser())
+                        .build())
+                .type("visibility", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(new StringConcat())
+                        .serialiser(new StringSerialiser())
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
+                        .property(AccumuloPropertyNames.VISIBILITY, "visibility")
+                        .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                                AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                                AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                                AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                        .build())
+                .visibilityProperty(AccumuloPropertyNames.VISIBILITY)
+                .build();
+    }
+
+    @Override
+    protected User getUser() {
+        return new User.Builder()
+                .dataAuth(PUBLIC_VISIBILITY)
+                .dataAuth(PRIVATE_VISIBILITY)
+                .build();
+    }
+
+    @Override
+    public StoreProperties createStoreProperties() {
+        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.jobtracker;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 
@@ -28,6 +29,9 @@ import java.io.Serializable;
  */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private String parentJobId;
+    private Repeat repeat;
     private String jobId;
     private String userId;
     private JobStatus status;
@@ -45,6 +49,8 @@ public class JobDetail implements Serializable {
         this.opChain = getNewOrOld(oldJobDetail.opChain, newJobDetail.opChain);
         this.description = getNewOrOld(oldJobDetail.description, newJobDetail.description);
         this.status = getNewOrOld(oldJobDetail.status, newJobDetail.status);
+        this.parentJobId = getNewOrOld(oldJobDetail.parentJobId, newJobDetail.parentJobId);
+        this.repeat = getNewOrOld(oldJobDetail.repeat, newJobDetail.repeat);
 
         if (null == oldJobDetail.startTime) {
             this.startTime = System.currentTimeMillis();
@@ -55,13 +61,31 @@ public class JobDetail implements Serializable {
     }
 
     public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
-        final String opChainString = null != opChain ? opChain.toOverviewString() : "";
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
+    public JobDetail(final String jobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+        this.jobId = jobId;
+        this.parentJobId = parentJobId;
+        this.userId = userId;
+        this.startTime = System.currentTimeMillis();
+        this.status = jobStatus;
+        this.opChain = null != opChain ? opChain.toOverviewString() : "";
+        this.description = description;
+    }
+
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        setOpChain(opChain);
         this.jobId = jobId;
         this.userId = userId;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
-        this.opChain = opChainString;
         this.description = description;
+        this.parentJobId = parentJobId;
     }
 
     public String getJobId() {
@@ -104,6 +128,14 @@ public class JobDetail implements Serializable {
         this.endTime = endTime;
     }
 
+    public void setParentJobId(final String parentJobId) {
+        this.parentJobId = parentJobId;
+    }
+
+    public String getParentJobId() {
+        return parentJobId;
+    }
+
     public String getOpChain() {
         return opChain;
     }
@@ -118,6 +150,14 @@ public class JobDetail implements Serializable {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(final Repeat repeat) {
+        this.repeat = repeat;
     }
 
     @Override
@@ -137,6 +177,8 @@ public class JobDetail implements Serializable {
                 .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
                 .append(description, jobDetail.description)
+                .append(parentJobId, jobDetail.parentJobId)
+                .append(repeat, jobDetail.repeat)
                 .isEquals();
     }
 
@@ -150,6 +192,8 @@ public class JobDetail implements Serializable {
                 .append(endTime)
                 .append(status)
                 .append(description)
+                .append(parentJobId)
+                .append(repeat)
                 .toHashCode();
     }
 
@@ -163,6 +207,8 @@ public class JobDetail implements Serializable {
                 .append("endTime", endTime)
                 .append("opChain", opChain)
                 .append("description", description)
+                .append("parentJobId", parentJobId)
+                .append("repeat", repeat)
                 .toString();
     }
 

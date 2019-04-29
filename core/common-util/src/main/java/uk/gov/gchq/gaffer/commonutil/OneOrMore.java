@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -143,7 +144,7 @@ public class OneOrMore<T> implements Iterable<T> {
     public Iterator<T> iterator() {
         if (null == collection) {
             if (null == singleItem) {
-                return Iterators.emptyIterator();
+                return Collections.emptyIterator();
             }
 
             return Iterators.singletonIterator(singleItem);

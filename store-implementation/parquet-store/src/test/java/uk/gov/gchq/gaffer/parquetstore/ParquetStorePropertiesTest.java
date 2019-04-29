@@ -17,9 +17,13 @@
 package uk.gov.gchq.gaffer.parquetstore;
 
 import com.fasterxml.jackson.databind.Module;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
@@ -28,10 +32,13 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class ParquetStorePropertiesTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     private ParquetStoreProperties props;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         props = new ParquetStoreProperties();
     }
 
@@ -70,33 +77,7 @@ public class ParquetStorePropertiesTest {
         assertEquals((Integer) 100000, props.getPageSize());
     }
 
-    @Test
-    public void sampleRateTest(){
-        assertEquals((Integer) 10, props.getSampleRate());
-        props.setSampleRate(100000);
-        assertEquals((Integer) 100000, props.getSampleRate());
-    }
 
-    @Test
-    public void addElementsOutputFilesPerGroupTest() {
-        assertEquals(10, props.getAddElementsOutputFilesPerGroup());
-        props.setAddElementsOutputFilesPerGroup(10000);
-        assertEquals(10000, props.getAddElementsOutputFilesPerGroup());
-    }
-
-    @Test
-    public void aggregateTest() {
-        assertEquals(true, props.getAggregateOnIngest());
-        props.setAggregateOnIngest(false);
-        assertEquals(false, props.getAggregateOnIngest());
-    }
-
-    @Test
-    public void sortBySplitsTest() {
-        assertEquals(false, props.getSortBySplitsOnIngest());
-        props.setSortBySplitsOnIngest(true);
-        assertEquals(true, props.getSortBySplitsOnIngest());
-    }
 
     @Test
     public void sparkMasterTest() {
@@ -104,6 +85,17 @@ public class ParquetStorePropertiesTest {
         assertEquals("local[*]", props.getSparkMaster());
         props.setSparkMaster("Test");
         assertEquals("Test", props.getSparkMaster());
+    }
+
+    @Test
+    public void compressionTest() {
+        assertEquals(CompressionCodecName.GZIP, props.getCompressionCodecName());
+        props.setCompressionCodecName(CompressionCodecName.SNAPPY.name());
+        assertEquals(CompressionCodecName.SNAPPY, props.getCompressionCodecName());
+        props.setCompressionCodecName(CompressionCodecName.LZO.name());
+        assertEquals(CompressionCodecName.LZO, props.getCompressionCodecName());
+        props.setCompressionCodecName(CompressionCodecName.UNCOMPRESSED.name());
+        assertEquals(CompressionCodecName.UNCOMPRESSED, props.getCompressionCodecName());
     }
 
     @Test

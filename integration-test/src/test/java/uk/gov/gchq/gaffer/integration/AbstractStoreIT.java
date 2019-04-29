@@ -1,6 +1,5 @@
 /*
-/*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +15,9 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.After;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -24,24 +25,32 @@ import org.junit.rules.TestName;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View.Builder;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
@@ -55,8 +64,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -66,7 +77,9 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
-    protected static final long AGE_OFF_TIME = 30L * 1000; // 30 seconds;
+    protected static final int DUPLICATES = 2;
+
+    protected static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
 
     // Identifier prefixes
     public static final String SOURCE = "1-Source";
@@ -101,19 +114,25 @@ public abstract class AbstractStoreIT {
     public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
-    protected static Graph graph;
-    private static Schema storeSchema = new Schema();
-    private static StoreProperties storeProperties;
-    private static String singleTestMethod;
+    protected static Schema storeSchema = new Schema();
+    protected static StoreProperties storeProperties;
+    protected static String singleTestMethod;
+    protected Map<EntityId, Entity> entities;
+    protected List<Entity> duplicateEntities;
 
-    private final Map<EntityId, Entity> entities = createEntities();
-    private final Map<EdgeId, Edge> edges = createEdges();
+    protected Map<EdgeId, Edge> edges;
+    private List<Edge> duplicateEdges;
+
+    protected final Map<String, User> userMap = new HashMap<>();
+    protected static Graph graph;
+    protected User user = new User();
 
     @Rule
     public TestName name = new TestName();
     private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
     private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
-
+    protected String originalMethodName;
+    private Method method;
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
         AbstractStoreIT.storeProperties = storeProperties;
@@ -146,52 +165,137 @@ public abstract class AbstractStoreIT {
     /**
      * Setup the Parameterised Graph for each type of Store.
      * Excludes tests where the graph's Store doesn't implement the required StoreTraits.
+     * Do not override, use the _setup method if more is necessary
      *
      * @throws Exception should never be thrown
      */
     @Before
     public void setup() throws Exception {
-        assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
+        initialise();
+        validateTest();
+        createGraph();
+        _setup();
+        validateTraits();
+    }
 
-        final String originalMethodName = name.getMethodName().endsWith("]")
+    protected void _setup() throws Exception {
+        // Override if required;
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        graph = null;
+    }
+
+    protected void initialise() throws Exception {
+        entities = createEntities();
+        duplicateEntities = duplicate(entities.values());
+
+        edges = createEdges();
+        duplicateEdges = duplicate(edges.values());
+
+        originalMethodName = name.getMethodName().endsWith("]")
                 ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
                 : name.getMethodName();
 
+        method = this.getClass().getMethod(originalMethodName);
+    }
+
+    protected void validateTest() throws Exception {
+        assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
         assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
+        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
-        final Method testMethod = this.getClass().getMethod(originalMethodName);
+        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
+        if (null != skippedMethods && !skippedMethods.isEmpty()) {
+            assumeTrue("Skipping test. Justification: " + skippedMethods.get(method.getName()), !skippedMethods.containsKey(originalMethodName));
+        }
+    }
+
+    protected void validateTraits() {
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
-
-        for (final Annotation annotation : testMethod.getDeclaredAnnotations()) {
+        for (final Annotation annotation : method.getDeclaredAnnotations()) {
             if (annotation.annotationType().equals(TraitRequirement.class)) {
                 final TraitRequirement traitRequirement = (TraitRequirement) annotation;
                 requiredTraits.addAll(Arrays.asList(traitRequirement.value()));
             }
         }
-        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
-
-        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
-        if (null != skippedMethods) {
-            assumeTrue("Skipping test. Justification: " + skippedMethods.get(originalMethodName), !skippedMethods.containsKey(originalMethodName));
-        }
-
-        createGraph();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
     }
 
+    protected void applyVisibilityUser() {
+        if (!userMap.isEmpty()) {
+            if (null != method.getDeclaredAnnotations()) {
+                for (final Annotation annotation : method.getDeclaredAnnotations()) {
+                    if (annotation.annotationType().equals(VisibilityUser.class)) {
+                        final VisibilityUser userAnnotation = (VisibilityUser) annotation;
+
+                        final User user = userMap.get(userAnnotation.value());
+
+                        if (null != user) {
+                            this.user = user;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected void createGraph() {
         graph = getGraphBuilder()
                 .build();
+
+        applyVisibilityUser();
+    }
+
+    public void createGraph(final Schema schema) {
+        graph = new Graph.Builder()
+                .config(createGraphConfig())
+                .storeProperties(getStoreProperties())
+                .addSchema(schema)
+                .build();
+
+        applyVisibilityUser();
+    }
+
+    public void createGraph(final GraphConfig config) {
+        graph = new Graph.Builder()
+                .config(config)
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema())
+                .build();
+
+        applyVisibilityUser();
+    }
+
+    public void createGraph(final Schema schema, final StoreProperties properties) {
+        graph = new Graph.Builder()
+                .config(createGraphConfig())
+                .storeProperties(properties)
+                .addSchema(schema)
+                .build();
+
+        applyVisibilityUser();
+    }
+
+    public void createGraph(final StoreProperties properties) {
+        graph = new Graph.Builder()
+                .config(createGraphConfig())
+                .storeProperties(properties)
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema())
+                .build();
+
+        applyVisibilityUser();
     }
 
     protected Graph.Builder getGraphBuilder() {
         return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("integrationTestGraph")
-                        .build())
+                .config(createGraphConfig())
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchema())
                 .addSchema(getStoreSchema());
@@ -207,6 +311,16 @@ public abstract class AbstractStoreIT {
 
     protected Schema createSchema() {
         return createDefaultSchema();
+    }
+
+    protected GraphConfig createGraphConfig() {
+        return createDefaultGraphConfig();
+    }
+
+    public static GraphConfig createDefaultGraphConfig() {
+        return new GraphConfig.Builder()
+                .graphId("integrationTestGraph")
+                .build();
     }
 
     public static Schema createDefaultSchema() {
@@ -265,11 +379,6 @@ public abstract class AbstractStoreIT {
                 .build();
     }
 
-    @After
-    public void tearDown() {
-        graph = null;
-    }
-
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
                 .input(getEntities().values())
@@ -284,8 +393,48 @@ public abstract class AbstractStoreIT {
         return entities;
     }
 
+    public List<Entity> getIngestSummarisedEntities() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEntities), schema));
+    }
+
+    public List<Entity> getQuerySummarisedEntities() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final View view = new Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
+                .build();
+        return getQuerySummarisedEntities(view);
+    }
+
+    public List<Entity> getQuerySummarisedEntities(final View view) {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final List<Entity> ingestSummarisedEntities = getIngestSummarisedEntities();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEntities, schema, view));
+    }
+
     public Map<EdgeId, Edge> getEdges() {
         return edges;
+    }
+
+    public List<Edge> getIngestSummarisedEdges() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.ingestAggregate(jsonClone(duplicateEdges), schema));
+    }
+
+    public List<Edge> getQuerySummarisedEdges() {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final View view = new Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
+                .build();
+        return getQuerySummarisedEdges(view);
+    }
+
+    public List<Edge> getQuerySummarisedEdges(final View view) {
+        final Schema schema = null != graph ? graph.getSchema() : getStoreSchema();
+        final List<Edge> ingestSummarisedEdges = getIngestSummarisedEdges();
+        return (List) Lists.newArrayList((Iterable) AggregatorUtil.queryAggregate(ingestSummarisedEdges, schema, view));
     }
 
     public Entity getEntity(final Object vertex) {
@@ -298,6 +447,10 @@ public abstract class AbstractStoreIT {
 
     protected Map<EdgeId, Edge> createEdges() {
         return createDefaultEdges();
+    }
+
+    protected Iterable<Edge> getDuplicateEdges() {
+        return duplicateEdges;
     }
 
     public static Map<EdgeId, Edge> createDefaultEdges() {
@@ -353,6 +506,18 @@ public abstract class AbstractStoreIT {
         return createDefaultEntities();
     }
 
+    protected Iterable<Entity> getDuplicateEntities() {
+        return duplicateEntities;
+    }
+
+    private <T> List<T> duplicate(final Iterable<T> items) {
+        final List<T> duplicates = new ArrayList<>();
+        for (int i = 0; i < DUPLICATES; i++) {
+            Iterables.addAll(duplicates, items);
+        }
+        return duplicates;
+    }
+
     public static Map<EntityId, Entity> createDefaultEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
@@ -395,7 +560,27 @@ public abstract class AbstractStoreIT {
         entities.put(ElementSeed.createSeed(element), element);
     }
 
-    protected User getUser() {
-        return new User();
+    protected <T> List<T> jsonClone(final Iterable<T> items) {
+        return Streams.toStream(items).map(this::jsonClone).collect(Collectors.toList());
+    }
+
+    protected <T> T jsonClone(final T item) {
+        try {
+            return (T) JSONSerialiser.deserialise(JSONSerialiser.serialise(item), item.getClass());
+        } catch (final SerialisationException e) {
+            throw new RuntimeException("Unable to clone item: " + item);
+        }
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void execute(final Operation op) throws OperationException {
+        graph.execute(op, user);
+    }
+
+    public <T> T execute(final Output<T> op) throws OperationException {
+        return graph.execute(op, user);
     }
 }

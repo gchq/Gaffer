@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     @Override
     public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store)
             throws OperationException {
-        new AddElementsFromRDD().addElementsFromRDD(operation.getInput().toJavaRDD(), context, (ParquetStore) store);
+        new AddElementsFromRDD(context, (ParquetStore) store).addElementsFromRDD(operation.getInput());
         return null;
     }
 }

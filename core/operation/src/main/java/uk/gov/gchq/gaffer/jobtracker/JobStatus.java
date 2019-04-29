@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,5 +36,15 @@ public enum JobStatus {
     /**
      * An error occured while executing the Gaffer job.
      */
-    FAILED
+    FAILED,
+
+    /**
+     * The Gaffer job is a parent job to a scheduled job(s).
+     */
+    SCHEDULED_PARENT,
+
+    /**
+     * The Gaffer job is cancelled (to be used for scheduled jobs).
+     */
+    CANCELLED
 }

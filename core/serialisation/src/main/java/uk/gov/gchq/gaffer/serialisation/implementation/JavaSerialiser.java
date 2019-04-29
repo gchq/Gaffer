@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 
 /**
  * This class is used to serialise and deserialise objects in java.
@@ -97,5 +98,15 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return JavaSerialiser.class.getName().hashCode();
     }
 }
