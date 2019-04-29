@@ -18,13 +18,23 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 
 import org.apache.spark.rdd.RDD;
 
+import org.apache.spark.sql.Row;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.TypeValueVertexOperationsTest;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.types.TypeValue;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 
 public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     private final TypeValueVertexOperationsTest tvvot = new TypeValueVertexOperationsTest();
@@ -38,6 +48,11 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     protected RDD<Element> getInputDataForGetAllElementsTest() {
         final List<Element> elements = tvvot.getInputDataForGetAllElementsTest();
         return TestUtils.getJavaSparkContext().parallelize(elements).rdd();
+    }
+
+    @Override
+    protected List<Element> getInputDataForGetAllElementsTestAsList() {
+        return tvvot.getInputDataForGetAllElementsTest();
     }
 
     @Override
@@ -58,6 +73,50 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     @Override
     protected List<Element> getResultsForGetElementsWithSeedsRelatedTest() {
         return tvvot.getResultsForGetElementsWithSeedsRelatedTest();
+    }
+
+    @Override
+    protected List<Element> convertRowsToElements(final List<Row> rows) {
+        final List<Element> elementList = new ArrayList<>();
+        for (final Row row : rows) {
+            final Element element;
+            final String group = row.getAs(ParquetStore.GROUP);
+            switch (group) {
+                case TestGroups.ENTITY:
+                    // Fall through to ENTITY_2
+                case TestGroups.ENTITY_2:
+                    element = new Entity(group, getTypeValue(row, ParquetStore.VERTEX));
+                    break;
+                case TestGroups.EDGE:
+                    // Fall through to EDGE_2
+                case TestGroups.EDGE_2:
+                    element = new Edge(group, getTypeValue(row, ParquetStore.SOURCE), getTypeValue(row, ParquetStore.DESTINATION), row.getAs(ParquetStore.DIRECTED));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unexpected group of " + group);
+            }
+            addProperties(element, row);
+            elementList.add(element);
+        }
+        return elementList;
+    }
+
+    private static void addProperties(final Element element, final Row row) {
+        element.putProperty("byte", ((byte[]) row.getAs("byte"))[0]);
+        element.putProperty("double", row.getAs("double"));
+        element.putProperty("float", row.getAs("float"));
+        element.putProperty("treeSet", new TreeSet<String>(row.getList(row.fieldIndex("treeSet"))));
+        element.putProperty("long", row.getAs("long"));
+        element.putProperty("short", ((Integer) row.getAs("short")).shortValue());
+        element.putProperty("date", new Date(row.getLong(row.fieldIndex("date"))));
+        element.putProperty("freqMap", new FreqMap(row.getJavaMap(row.fieldIndex("freqMap"))));
+        element.putProperty("count", row.getAs("count"));
+    }
+
+    private static TypeValue getTypeValue(final Row row, final String field) {
+        final String type = row.getString(row.fieldIndex(field + "_type"));
+        final String value = row.getString(row.fieldIndex(field + "_value"));
+        return new TypeValue(type, value);
     }
 
     /*

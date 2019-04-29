@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.8.4-SNAPSHOT</version>
+        <version>1.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>time-library</artifactId>
@@ -59,6 +59,13 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.koryphe</groupId>
+            <artifactId>core</artifactId>
+            <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

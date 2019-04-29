@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
@@ -109,6 +110,105 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
 
         // Then
         assertEquals(4, numberOfTimestamps);
+    }
+
+    @Test
+    public void shouldFilterByTimeRangeWhenTwoValidTimestampsAreSupplied() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(200L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(300L)));
+
+        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(100L)));
+        expectedTimestampSet.add(instant1.plus(Duration.ofDays(200L)));
+
+        // When
+        timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(100L)).toEpochMilli(), instant1.plus(Duration.ofDays(250L)).toEpochMilli());
+
+        // Then
+        assertEquals(expectedTimestampSet, timestampSet);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfStartDateIsAfterEndDate() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(100L)));
+
+        // When / Then
+
+        try {
+            timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(150L)).toEpochMilli(), instant1.plus(Duration.ofDays(50L)).toEpochMilli());
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The start time should not be chronologically later than the end time", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldFilterByTimeRangeWithJustStart() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(1L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(2L)));
+
+        // When
+
+        timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofHours(36L)).toEpochMilli(), null);
+
+        // Then
+        RBMBackedTimestampSet expected = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expected.add(instant1.plus(Duration.ofDays(2L)));
+
+        assertEquals(expected, timestampSet);
+
+    }
+
+    @Test
+    public void shouldFilterByTimeRangeWithJustEnd() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(1L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(2L)));
+
+        // When
+
+        timestampSet.applyTimeRangeMask(null, instant1.plus(Duration.ofHours(36L)).toEpochMilli());
+
+        // Then
+        RBMBackedTimestampSet expected = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expected.add(instant1);
+        expected.add(instant1.plus(Duration.ofDays(1L)));
+
+        assertEquals(expected, timestampSet);
+
+    }
+
+    @Test
+    public void shouldReturnUnfilteredTimestampSetIfNoRangeIsSupplied() {
+        // Given
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet.add(instant1);
+        timestampSet.add(instant1.plus(Duration.ofDays(1L)));
+        timestampSet.add(instant1.plus(Duration.ofDays(2L)));
+
+        // When
+
+        timestampSet.applyTimeRangeMask(null, null);
+
+        // Then
+        RBMBackedTimestampSet expected = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        expected.add(instant1);
+        expected.add(instant1.plus(Duration.ofDays(1L)));
+        expected.add(instant1.plus(Duration.ofDays(2L)));
+
+        assertEquals(expected, timestampSet);
     }
 
     @Test

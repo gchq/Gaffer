@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -132,6 +133,38 @@ public class RBMBackedTimestampSet implements TimestampSet {
         return getInstantFromInt(it.next());
     }
 
+    /**
+     * Applies a time range mask. Timestamps which fall outside the range are filtered.
+     *
+     * @param startMillis filter start time in milliseconds
+     * @param endMillis   filter end time in milliseconds
+     */
+    public void applyTimeRangeMask(final Long startMillis, final Long endMillis) {
+        final int startTime;
+        final int endTime;
+
+        if (startMillis != null && endMillis != null && startMillis > endMillis) {
+            throw new IllegalArgumentException("The start time should not be chronologically later than the end time");
+        }
+
+        if (startMillis == null) {
+            startTime = toInt(getEarliest().toEpochMilli());
+        } else {
+            startTime = toInt(startMillis);
+        }
+
+        if (endMillis == null) {
+            endTime = toInt(getLatest().toEpochMilli());
+        } else {
+            endTime = toInt(endMillis);
+        }
+
+        RoaringBitmap timeRange = new RoaringBitmap();
+        // end date is exclusive
+        timeRange.add(startTime, endTime + 1);
+        rbm.and(timeRange);
+    }
+
     public TimeBucket getTimeBucket() {
         return timeBucket;
     }
@@ -157,6 +190,14 @@ public class RBMBackedTimestampSet implements TimestampSet {
 
     public void addAll(final RBMBackedTimestampSet other) {
         rbm.or(other.getRbm());
+    }
+
+    @JsonIgnore
+    public RBMBackedTimestampSet getShallowClone() {
+        return new Builder()
+                .timeBucket(timeBucket)
+                .timestamps(getTimestamps())
+                .build();
     }
 
     @Override

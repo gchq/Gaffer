@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.GetDataFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.CalculatePartitioner;
@@ -62,6 +63,7 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerial
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -364,6 +366,13 @@ public class ParquetStore extends Store {
                 + "/" + GROUP + "=" + group);
     }
 
+    public String getGraphPath() {
+        return getDataDir()
+                + "/" + getSnapshotPath(currentSnapshot)
+                + "/" + GRAPH
+                + "/";
+    }
+
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
     @Override
     public ParquetStoreProperties getProperties() {
@@ -397,7 +406,7 @@ public class ParquetStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-//        addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
+        addOperationHandler(GetDataFrameOfElements.class, new GetDataFrameOfElementsHandler());
         addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
 //        addOperationHandler(GetGraphFrameOfElements.class, new GetGraphFrameOfElementsHandler());

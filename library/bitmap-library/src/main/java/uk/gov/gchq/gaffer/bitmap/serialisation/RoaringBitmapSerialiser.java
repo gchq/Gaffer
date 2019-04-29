@@ -91,4 +91,13 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
         return new byte[0];
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return RoaringBitmapSerialiser.class.getName().hashCode();
+    }
 }

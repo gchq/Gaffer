@@ -57,4 +57,14 @@ public class LongsSketchSerialiser implements ToBytesSerialiser<LongsSketch> {
     public boolean isConsistent() {
         return false;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return LongsSketchSerialiser.class.getName().hashCode();
+    }
 }
