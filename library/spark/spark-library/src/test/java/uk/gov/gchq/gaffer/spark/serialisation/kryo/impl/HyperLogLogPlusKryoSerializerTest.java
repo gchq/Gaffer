@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;

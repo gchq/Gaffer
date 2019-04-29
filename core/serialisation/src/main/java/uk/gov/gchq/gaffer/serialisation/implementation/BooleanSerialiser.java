@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,5 +64,15 @@ public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
     @Override
     public boolean isConsistent() {
         return true;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return BooleanSerialiser.class.getName().hashCode();
     }
 }

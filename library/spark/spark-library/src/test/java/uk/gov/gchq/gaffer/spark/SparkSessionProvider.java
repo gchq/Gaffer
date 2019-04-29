@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ public class SparkSessionProvider {
                     .appName("spark-library-tests")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)
                     .getOrCreate();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> sparkSession.stop()));
         }

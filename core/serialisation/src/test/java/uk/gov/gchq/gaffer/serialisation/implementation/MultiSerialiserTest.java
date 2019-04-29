@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     }
 
     @Test
-    public void shouldMatchHistoricalSerialisation() throws IOException, GafferCheckedException {
+    public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
         final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), path))
                 .stream()
                 .collect(Collectors.joining("\n"));

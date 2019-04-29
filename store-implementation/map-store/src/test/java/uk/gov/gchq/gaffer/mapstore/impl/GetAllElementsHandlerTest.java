@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,18 +134,6 @@ public class GetAllElementsHandlerTest {
         edge3.putProperty(COUNT, 3 * (NUM_LOOPS / 2));
         expectedResults.add(edge3);
         assertEquals(expectedResults, resultsSet);
-    }
-
-    static Map<Element, Integer> streamToCount(final Stream<? extends Element> elements) {
-        final Map<Element, Integer> elementToCount = new HashMap<>();
-        elements.forEach(element -> {
-            if (elementToCount.containsKey(element)) {
-                elementToCount.put(element, elementToCount.get(element) + 1);
-            } else {
-                elementToCount.put(element, 1);
-            }
-        });
-        return elementToCount;
     }
 
     @Test
@@ -355,46 +343,8 @@ public class GetAllElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
     }
 
-    public static Graph getGraph() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(storeProperties)
-                .build();
-    }
-
-    static Graph getGraphNoAggregation() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .build())
-                .addSchema(getSchemaNoAggregation())
-                .storeProperties(storeProperties)
-                .build();
-    }
-
-    static Graph getGraphNoIndices() {
-        final MapStoreProperties storeProperties = new MapStoreProperties();
-        storeProperties.setCreateIndex(false);
-        return new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphWithNoIndices")
-                        .build())
-                .addSchema(getSchema())
-                .storeProperties(storeProperties)
-                .build();
-    }
-
     public static Schema getSchema() {
         return Schema.fromJson(StreamUtil.schemas(GetAllElementsHandlerTest.class));
-    }
-
-    static Schema getSchemaNoAggregation() {
-        return Schema.fromJson(StreamUtil.openStreams(GetAllElementsHandlerTest.class, "schema-no-aggregation"));
     }
 
     public static List<Element> getElements() {
@@ -428,6 +378,90 @@ public class GetAllElementsHandlerTest {
                             .build());
                 });
         return elements;
+    }
+
+    static Graph getGraph() {
+        final MapStoreProperties storeProperties = new MapStoreProperties();
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
+                .addSchema(getSchema())
+                .storeProperties(storeProperties)
+                .build();
+    }
+
+    static Schema getSchemaNoAggregation() {
+        return Schema.fromJson(StreamUtil.openStreams(GetAllElementsHandlerTest.class, "schema-no-aggregation"));
+    }
+
+    static Graph getGraphNoIndices() {
+        final MapStoreProperties storeProperties = new MapStoreProperties();
+        storeProperties.setCreateIndex(false);
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphWithNoIndices")
+                        .build())
+                .addSchema(getSchema())
+                .storeProperties(storeProperties)
+                .build();
+    }
+
+    static Graph getGraphNoAggregation() {
+        final MapStoreProperties storeProperties = new MapStoreProperties();
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
+                .addSchema(getSchemaNoAggregation())
+                .storeProperties(storeProperties)
+                .build();
+    }
+
+
+    static List<Element> getDuplicateElements() {
+        final List<Element> elements = new ArrayList<>();
+        IntStream.range(0, NUM_LOOPS)
+                .forEach(i -> {
+                    elements.add(new Entity.Builder()
+                            .group(BASIC_ENTITY)
+                            .vertex("0")
+                            .property(PROPERTY1, "p")
+                            .property(COUNT, 1)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE1)
+                            .source("A")
+                            .dest("B")
+                            .directed(true)
+                            .property(PROPERTY1, "q")
+                            .property(COUNT, 2)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE2)
+                            .source("X")
+                            .dest("Y")
+                            .directed(false)
+                            .property(PROPERTY1, "r")
+                            .property(PROPERTY2, "s")
+                            .property(COUNT, 3)
+                            .build());
+                });
+        return elements;
+    }
+
+    static Map<Element, Integer> streamToCount(final Stream<? extends Element> elements) {
+        final Map<Element, Integer> elementToCount = new HashMap<>();
+        elements.forEach(element -> {
+            if (elementToCount.containsKey(element)) {
+                elementToCount.put(element, elementToCount.get(element) + 1);
+            } else {
+                elementToCount.put(element, 1);
+            }
+        });
+        return elementToCount;
     }
 
     private static List<Element> getElementsForAggregation() {
@@ -464,39 +498,6 @@ public class GetAllElementsHandlerTest {
                             .directed(false)
                             .property(PROPERTY1, "r")
                             .property(PROPERTY2, property2)
-                            .property(COUNT, 3)
-                            .build());
-                });
-        return elements;
-    }
-
-    static List<Element> getDuplicateElements() {
-        final List<Element> elements = new ArrayList<>();
-        IntStream.range(0, NUM_LOOPS)
-                .forEach(i -> {
-                    elements.add(new Entity.Builder()
-                            .group(BASIC_ENTITY)
-                            .vertex("0")
-                            .property(PROPERTY1, "p")
-                            .property(COUNT, 1)
-                            .build());
-
-                    elements.add(new Edge.Builder()
-                            .group(BASIC_EDGE1)
-                            .source("A")
-                            .dest("B")
-                            .directed(true)
-                            .property(PROPERTY1, "q")
-                            .property(COUNT, 2)
-                            .build());
-
-                    elements.add(new Edge.Builder()
-                            .group(BASIC_EDGE2)
-                            .source("X")
-                            .dest("Y")
-                            .directed(false)
-                            .property(PROPERTY1, "r")
-                            .property(PROPERTY2, "s")
                             .property(COUNT, 3)
                             .build());
                 });

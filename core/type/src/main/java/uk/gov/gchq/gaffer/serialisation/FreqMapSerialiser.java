@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package uk.gov.gchq.gaffer.serialisation;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -131,5 +134,29 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
     @Override
     public FreqMap deserialiseEmpty() {
         return new FreqMap();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final FreqMapSerialiser serialiser = (FreqMapSerialiser) obj;
+
+        return new EqualsBuilder()
+                .append(longSerialiser, serialiser.longSerialiser)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(longSerialiser)
+                .toHashCode();
     }
 }

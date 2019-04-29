@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class GetGraphFrameOfElements implements
     public ValidationResult validate() {
         final ValidationResult result = Output.super.validate();
 
-        if (!view.hasEdges() && !view.hasEntities()) {
+        if (result.isValid() && !view.hasEdges() && !view.hasEntities()) {
             result.addError("Cannot create a GraphFrame unless the View contains edges or entities.");
         }
 

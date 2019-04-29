@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package uk.gov.gchq.gaffer.graph.hook;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -34,6 +36,7 @@ import java.util.List;
 /**
  * A {@link GraphHook} to resolve named operations.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class NamedOperationResolver implements GraphHook {
     private final NamedOperationCache cache;
 

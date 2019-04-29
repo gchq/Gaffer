@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import static org.junit.Assert.assertNotSame;
@@ -64,6 +63,6 @@ public class ConditionalTest extends JSONSerialisationTest<Conditional> {
 
     @Override
     protected Conditional getTestObject() {
-        return new Conditional(new IsMoreThan(1), new Limit<>(2));
+        return new Conditional();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,107 +21,96 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.Arrays;
 
 public class NoAggregationIT extends AbstractStoreIT {
 
-    public static final String PROPERTY_VALUE = "p1";
-    public static final String B = "B";
-    public static final String A = "A";
-    private static final User USER_DEFAULT = new User();
+    @Override
+    public void _setup() throws Exception {
+        addDuplicatedTestElements();
+    }
 
     @Test
     public void shouldReturnDuplicateEntitiesWhenNoAggregationIsUsed() throws OperationException {
         //Given
-        final ArrayList<Entity> input = Lists.newArrayList(getEntity(), getEntity());
+        final ArrayList<Entity> expected = Lists.newArrayList(getEntity(), getEntity());
 
         //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
-                new Builder()
-                        .first(new AddElements.Builder()
-                                .input(input)
-                                .build())
-                        .then(new GetAllElements.Builder()
+        final CloseableIterable<? extends Element> result = graph.execute(
+                new GetElements.Builder()
+                        .input(ElementSeed.createSeed(getEntity()))
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY)
                                 .build())
                         .build(),
-                USER_DEFAULT);
+                getUser());
 
         //Then
-        assertContainsSame(elements.iterator(), input);
+        ElementUtil.assertElementEquals(expected, result);
+    }
+
+    @Test
+    public void shouldReturnDuplicateEdgesWhenNoAggregationIsUsed() throws OperationException {
+        //Given
+        final ArrayList<Edge> expected = Lists.newArrayList(getEdge(), getEdge());
+
+        //When
+        final CloseableIterable<? extends Element> result = graph.execute(
+                new GetElements.Builder()
+                        .input(ElementSeed.createSeed(getEdge()))
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .build())
+                        .build(),
+                getUser());
+
+        //Then
+        ElementUtil.assertElementEquals(expected, result);
+    }
+
+    public void addDuplicatedTestElements() throws OperationException {
+        graph.execute(new AddElements.Builder()
+                .input(Arrays.asList(getEdge(), getEdge()))
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(Arrays.asList(getEntity(), getEntity()))
+                .build(), getUser());
     }
 
     private Entity getEntity() {
         return new Entity.Builder()
                 .group(TestGroups.ENTITY)
-                .vertex(A)
-                .property(TestPropertyNames.STRING, PROPERTY_VALUE)
+                .vertex(VERTEX_PREFIXES[0])
+                .property(TestPropertyNames.STRING, "prop1")
                 .build();
-    }
-
-
-    @Test
-    public void shouldReturnDuplicateEdgesWhenNoAggregationIsUsed() throws OperationException {
-        //Given
-        final ArrayList<Edge> input = Lists.newArrayList(getEdge(), getEdge());
-
-        //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
-                new Builder()
-                        .first(new AddElements.Builder()
-                                .input(input)
-                                .build())
-                        .then(new GetAllElements.Builder()
-                                .build())
-                        .build(),
-                USER_DEFAULT);
-
-        //Then
-        assertContainsSame(elements.iterator(), input);
     }
 
     private Edge getEdge() {
         return new Edge.Builder()
                 .group(TestGroups.EDGE)
-                .source(A)
-                .dest(B)
-                .property(TestPropertyNames.STRING, PROPERTY_VALUE)
+                .source(SOURCE_1)
+                .dest(DEST_1)
+                .property(TestPropertyNames.STRING, "prop1")
                 .build();
-    }
-
-
-    private void assertContainsSame(final CloseableIterator<? extends Element> elementIterator, final ArrayList<? extends Element> elements) {
-        if (elementIterator == null) {
-            fail("Iterator with expected size was null.");
-        }
-
-        @SuppressWarnings("unchecked") final ArrayList shallowClone = (ArrayList) elements.clone();
-
-        while (elementIterator.hasNext()) {
-            Element next = elementIterator.next();
-            assertTrue("ArrayList did not contain: " + next, shallowClone.remove(next));
-        }
-
-        assertTrue("ArrayList contains more items than Iterator", shallowClone.isEmpty());
     }
 
     @Override
@@ -136,6 +125,7 @@ public class NoAggregationIT extends AbstractStoreIT {
                 .edge(TestGroups.EDGE,
                         new SchemaEdgeDefinition.Builder()
                                 .source(TestTypes.ID_STRING)
+                                .directed(TestTypes.DIRECTED_EITHER)
                                 .destination(TestTypes.ID_STRING)
                                 .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
                                 .aggregate(false)
@@ -148,6 +138,10 @@ public class NoAggregationIT extends AbstractStoreIT {
                         new TypeDefinition.Builder()
                                 .clazz(String.class)
                                 .aggregateFunction(null)
+                                .build())
+                .type(TestTypes.DIRECTED_EITHER,
+                        new TypeDefinition.Builder()
+                                .clazz(Boolean.class)
                                 .build())
                 .build();
     }

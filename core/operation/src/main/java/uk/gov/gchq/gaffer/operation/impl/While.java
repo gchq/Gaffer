@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,8 +130,8 @@ public class While<I, O> extends GenericInput<I> implements InputOutput<I, O>,
         return builder.build();
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public Collection<Operation> getOperations() {
         final List<Operation> ops = new LinkedList<>();
 

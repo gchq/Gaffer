@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore;
 
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,18 +36,15 @@ import java.nio.file.Path;
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
-
     public static final String DATA_DIR = "parquet.data.dir";
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
-    public static final String PARQUET_AGGREGATE_ON_INGEST = "parquet.add_elements.aggregate";
-    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST = "parquet.add_elements.sort_by_splits";
-    public static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE = "parquet.add_elements.split_points.sample_rate";
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
     public static final String PARQUET_SKIP_VALIDATION = "parquet.skip_validation";
+    public static final String COMPRESSION_CODEC = "parquet.compression.codec";
 
     // Default values - NB No default values for DATA_DIR or TEMP_FILES_DIR to
     // avoid the inadvertent storage of data in unexpected folders.
@@ -58,6 +57,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final String PARQUET_SKIP_VALIDATION_DEFAULT = "false";
+    private static final String COMPRESSION_CODEC_DEFAULT = "GZIP";
     private static final long serialVersionUID = 7695540336792378185L;
 
     public ParquetStoreProperties() {
@@ -102,14 +102,6 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setThreadsAvailable(final Integer threadsAvailable) {
         set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
-    }
-
-    public Integer getSampleRate() {
-        return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
-    }
-
-    public void setSampleRate(final Integer sampleRate) {
-        set(PARQUET_SPLIT_POINTS_SAMPLE_RATE, sampleRate.toString());
     }
 
     public Integer getRowGroupSize() {
@@ -171,19 +163,18 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
         );
     }
 
-    public boolean getAggregateOnIngest() {
-        return Boolean.parseBoolean(get(PARQUET_AGGREGATE_ON_INGEST, PARQUET_AGGREGATE_ON_INGEST_DEFAULT));
+    public CompressionCodecName getCompressionCodecName() throws IllegalArgumentException {
+        final String codec = get(COMPRESSION_CODEC, COMPRESSION_CODEC_DEFAULT);
+        if (!EnumUtils.isValidEnum(CompressionCodecName.class, codec)) {
+            throw new IllegalArgumentException("Unknown compression codec " + codec);
+        }
+        return CompressionCodecName.valueOf(codec);
     }
 
-    public void setAggregateOnIngest(final boolean aggregateOnIngest) {
-        set(PARQUET_AGGREGATE_ON_INGEST, String.valueOf(aggregateOnIngest));
-    }
-
-    public boolean getSortBySplitsOnIngest() {
-        return Boolean.parseBoolean(get(PARQUET_SORT_BY_SPLITS_ON_INGEST, PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT));
-    }
-
-    public void setSortBySplitsOnIngest(final boolean sortBySplits) {
-        set(PARQUET_SORT_BY_SPLITS_ON_INGEST, String.valueOf(sortBySplits));
+    public void setCompressionCodecName(final String codec) {
+        if (!EnumUtils.isValidEnum(CompressionCodecName.class, codec)) {
+            throw new IllegalArgumentException("Unknown compression codec " + codec);
+        }
+        set(COMPRESSION_CODEC, codec);
     }
 }

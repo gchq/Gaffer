@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class NamedViewResolverTest {
+public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
 
     private static final String NAMED_VIEW_NAME = "namedViewName";
     private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
@@ -71,6 +71,8 @@ public class NamedViewResolverTest {
             .name(NAMED_VIEW_NAME)
             .view(FULL_VIEW)
             .build();
+
+    public NamedViewResolverTest() { super(NamedViewResolver.class); }
 
     @Test
     public void shouldResolveNamedView() throws CacheOperationFailedException, SerialisationException {
@@ -503,4 +505,7 @@ public class NamedViewResolverTest {
             assert e.getMessage().contains("No NamedView with the name namedViewName1 exists in the cache");
         }
     }
+
+    @Override
+    public NamedViewResolver getTestObject() { return new NamedViewResolver(); }
 }

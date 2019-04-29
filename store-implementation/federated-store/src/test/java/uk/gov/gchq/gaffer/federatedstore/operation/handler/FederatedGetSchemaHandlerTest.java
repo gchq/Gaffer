@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedGetSchemaHandlerTest {
     private FederatedGetSchemaHandler handler;
@@ -102,9 +103,11 @@ public class FederatedGetSchemaHandlerTest {
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
+                        .directed(DIRECTED_EITHER)
                         .property("prop1", "string")
                         .build())
                 .vertexSerialiser(new StringSerialiser())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -139,8 +142,10 @@ public class FederatedGetSchemaHandlerTest {
                         .source("string")
                         .destination("string")
                         .property("prop1", "string")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 
@@ -151,8 +156,10 @@ public class FederatedGetSchemaHandlerTest {
                         .source("string")
                         .destination("string")
                         .property("prop2", "string")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
+                .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build();
 

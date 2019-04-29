@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,16 @@ public class KllFloatsSketchSerialiser implements ToBytesSerialiser<KllFloatsSke
     @Override
     public boolean isConsistent() {
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return KllFloatsSketchSerialiser.class.getName().hashCode();
     }
 }
 

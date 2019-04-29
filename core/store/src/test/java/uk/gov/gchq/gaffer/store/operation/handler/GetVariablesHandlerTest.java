@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,5 +98,32 @@ public class GetVariablesHandlerTest {
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
         assertEquals(expected, resultMap);
+    }
+
+    @Test
+    public void shouldReturnEmptyMapWhenGetVariablesIsNull() throws OperationException {
+        //Given
+        final Context context = mock(Context.class);
+        final GetVariables op = new GetVariables.Builder().variableNames(null).build();
+        final GetVariablesHandler handler = new GetVariablesHandler();
+
+        //When
+        final Map<String, Object> resultMap = handler.doOperation(op, context, store);
+
+        //Then
+        assertEquals(new HashMap<>(), resultMap);
+    }
+
+    @Test
+    public void shouldReturnNothingWhenGetVariablesKeysAreNull() throws OperationException {
+        final Context context = mock(Context.class);
+
+        final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(null, null)).build();
+
+        final GetVariablesHandler handler = new GetVariablesHandler();
+
+        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+
+        assertEquals(new HashMap<>(), resultMap);
     }
 }

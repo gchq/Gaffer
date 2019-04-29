@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+
+import java.util.List;
 
 /**
  * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation
@@ -51,17 +54,33 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
     public Integer getScore(final NamedOperation operation, final ScoreResolver defaultScoreResolver) {
         Integer namedOpScore = null;
         NamedOperationDetail namedOpDetail = null;
-        if (null != operation) {
-            try {
-                namedOpDetail = cache.getFromCache(operation.getOperationName());
-            } catch (final CacheOperationFailedException e) {
-                LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
-            }
+        if (null == operation) {
+            return 0;
         }
+
+        try {
+            namedOpDetail = cache.getFromCache(operation.getOperationName());
+        } catch (final CacheOperationFailedException e) {
+            LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
+        }
+
         if (null != namedOpDetail) {
             namedOpScore = namedOpDetail.getScore();
             if (null == namedOpScore && null != defaultScoreResolver) {
                 namedOpScore = defaultScoreResolver.getScore(namedOpDetail.getOperationChain(operation.getParameters()));
+            }
+        }
+        if (null != defaultScoreResolver) {
+            if (null == namedOpScore) {
+                namedOpScore = 0;
+            }
+            List parameterOperations = operation.getOperations();
+            if (null != parameterOperations) {
+                for (final Object objectOperation : parameterOperations) {
+                    Operation op = (Operation) objectOperation;
+                    Integer parameterOpScore = defaultScoreResolver.getScore(op);
+                    namedOpScore += parameterOpScore;
+                }
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -37,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -48,12 +48,16 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class PartAggregationIT extends AbstractStoreIT {
+
+    @Override
+    public void _setup() throws Exception {
+        // Add Elements twice
+        addDefaultElements();
+        addDefaultElements();
+    }
+
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
-        //Given
-        addDefaultElements();
-        addDefaultElements();
-
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new GetAllElements(), getUser());
@@ -124,10 +128,6 @@ public class PartAggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     @Test
     public void shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation() throws OperationException {
-        //Given
-        addDefaultElements();
-        addDefaultElements();
-
         //When
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new GetAllElements.Builder()

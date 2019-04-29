@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -56,14 +55,12 @@ import static org.junit.Assert.assertTrue;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
     }
 
-    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
+    @TraitRequirement({StoreTrait.INGEST_AGGREGATION})
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
@@ -83,10 +80,9 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
-    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
-    public void shouldGetAllElementsWithFilterWithoutSummarisation() throws
-            Exception {
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
+    public void shouldGetAllElementsWithFilterWithoutSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
         edge1.putProperty(TestPropertyNames.INT, 100);
         edge1.putProperty(TestPropertyNames.COUNT, 1L);
@@ -121,8 +117,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -141,8 +137,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
-    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
+    @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void shouldGetAllFilteredElements() throws Exception {
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -164,8 +160,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     @Test
+    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     public void shouldGetAllTransformedFilteredElements() throws Exception {
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -195,6 +191,52 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 "A1,[3]",
                 resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1)
         );
+    }
+
+    @Test
+    public void shouldGetAllElementsWithProvidedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    @Test
+    public void shouldGetAllElementsWithExcludedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
     }
 
     protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
@@ -256,51 +298,5 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
                 Lists.newArrayList(results).size());
-    }
-
-    @Test
-    public void shouldGetAllElementsWithProvidedProperties() throws Exception {
-        // Given
-        final User user = new User();
-
-        final GetAllElements op = new GetAllElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .properties(TestPropertyNames.COUNT)
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
-
-        // Then
-        for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
-        }
-    }
-
-    @Test
-    public void shouldGetAllElementsWithExcludedProperties() throws Exception {
-        // Given
-        final User user = new User();
-
-        final GetAllElements op = new GetAllElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .properties(TestPropertyNames.COUNT)
-                                .build())
-                        .build())
-                .build();
-
-        // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
-
-        // Then
-        for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
-        }
     }
 }

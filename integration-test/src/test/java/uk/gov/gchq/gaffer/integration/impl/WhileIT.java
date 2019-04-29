@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -36,12 +35,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class WhileIT extends AbstractStoreIT {
-
-    @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
-    }
 
     @Test
     public void shouldRepeatedlyAddElements() throws OperationException {

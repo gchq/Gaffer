@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Runs the full suite of gaffer store integration tests. To run the tests against
@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 public abstract class AbstractStoreITs {
     private final StoreProperties storeProperties;
     private final Schema schema;
-    private final Collection<Class<? extends AbstractStoreIT>> extraTests;
+    private final Set<Class<? extends AbstractStoreIT>> tests = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
     private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
     private final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
     private Class<? extends AbstractStoreIT> singleTestClass;
@@ -53,7 +53,7 @@ public abstract class AbstractStoreITs {
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
         this.schema = schema;
         this.storeProperties = storeProperties;
-        this.extraTests = extraTests;
+        this.tests.addAll(extraTests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
@@ -61,7 +61,7 @@ public abstract class AbstractStoreITs {
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, new ArrayList<Class<? extends AbstractStoreIT>>());
+        this(storeProperties, schema, new ArrayList<>());
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
@@ -86,11 +86,11 @@ public abstract class AbstractStoreITs {
     }
 
     public void addExtraTest(final Class<? extends AbstractStoreIT> extraTest) {
-        extraTests.add(extraTest);
+        tests.add(extraTest);
     }
 
-    public Collection<? extends Class> getExtraTests() {
-        return extraTests;
+    public Set<Class<? extends AbstractStoreIT>> getTests() {
+        return tests;
     }
 
     public Map<? extends Class<? extends AbstractStoreIT>, String> getSkipTests() {
@@ -106,16 +106,12 @@ public abstract class AbstractStoreITs {
     }
 
     protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String method, final String justification) {
-        Map<String, String> methods = skipTestMethods.get(testClass);
-        if (null == methods) {
-            methods = new HashMap<>();
-            skipTestMethods.put(testClass, methods);
-        }
-        methods.put(method, justification);
+        Map<String, String> classMethodsMap = skipTestMethods.get(testClass) != null ? skipTestMethods.get(testClass) : new HashMap<>();
+        classMethodsMap.put(method, justification);
+        skipTestMethods.put(testClass, classMethodsMap);
     }
 
     public static class StoreTestSuite extends Suite {
-        private Consumer<String> cleanUpFunction;
 
         public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
             super(builder, clazz, getTestClasses(clazz));
@@ -136,12 +132,14 @@ public abstract class AbstractStoreITs {
         private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
             final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
             if (null == runner.singleTestClass) {
-                final Set<Class<? extends AbstractStoreIT>> classes = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
+                Set<Class<? extends AbstractStoreIT>> classes = runner.getTests();
                 keepPublicConcreteClasses(classes);
-                classes.addAll((Collection<? extends Class<? extends AbstractStoreIT>>) runner.getExtraTests());
+                if (null != runner.getSkipTests()) {
+                    classes.removeAll(runner.getSkipTests().keySet());
+                }
+                classes = classes.stream().filter(clazz2 -> !Modifier.isAbstract(clazz2.getModifiers())).collect(Collectors.toSet());
                 return classes.toArray(new Class[classes.size()]);
             }
-
             return new Class[]{runner.singleTestClass};
         }
 

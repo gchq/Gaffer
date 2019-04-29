@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,6 @@
  */
 
 /**
- * Utility classes used by the parquet store.
+ * Utility classes used by the Parquet store.
  */
 package uk.gov.gchq.gaffer.parquetstore.utils;

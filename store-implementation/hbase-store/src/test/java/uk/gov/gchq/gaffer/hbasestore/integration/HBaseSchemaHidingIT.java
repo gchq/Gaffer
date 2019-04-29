@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
-import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
+import uk.gov.gchq.gaffer.store.StoreException;
 
 public class HBaseSchemaHidingIT extends SchemaHidingIT {
     public HBaseSchemaHidingIT() {
@@ -28,24 +27,10 @@ public class HBaseSchemaHidingIT extends SchemaHidingIT {
 
     @Override
     protected void cleanUp() {
-        final HBaseProperties storeProps = HBaseProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
-
-        final HBaseStore store;
         try {
-            store = Class.forName(storeProps.getStoreClass()).asSubclass(HBaseStore.class).newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
-        }
-
-        try {
-            store.preInitialise(
-                    "graphId",
-                    createFullSchema(),
-                    storeProps
-            );
-            TableUtils.dropTable(store);
-        } catch (final Exception e) {
-            // ignore exceptions
+            TableUtils.dropAllTables(new MiniHBaseStore().getConnection());
+        } catch (StoreException e) {
+            // ignore any errors that occur when dropping test tables
         }
     }
 }

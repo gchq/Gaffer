@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,25 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.Cache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
-import java.util.Collections;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 /**
- * Wrapper around the {@link CacheServiceLoader} to provide an interface for
+ * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
  * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedStoreCache {
-
-    private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
+public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, FederatedAccess>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
-    /**
-     * Get the cache for the FederatedStore.
-     *
-     * @return the FederatedStore cache
-     */
-    public ICache getCache() {
-        if (CacheServiceLoader.getService() != null) {
-            return CacheServiceLoader.getService().getCache(CACHE_SERVICE_NAME);
-        } else {
-            return null;
-        }
+    public FederatedStoreCache() {
+        super("federatedStoreGraphs");
     }
 
     /**
@@ -55,8 +43,7 @@ public class FederatedStoreCache {
      * @return all the Graph ID's within the cache as unmodifiable set.
      */
     public Set<String> getAllGraphIds() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME);
-        return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
+        return super.getAllKeys();
     }
 
     /**
@@ -68,16 +55,12 @@ public class FederatedStoreCache {
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+        String graphId = graph.getGraphId();
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
-        final ICacheService service = CacheServiceLoader.getService();
         try {
-            if (overwrite) {
-                service.putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
-            } else {
-                service.putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
-            }
+            addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
-            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graph.getGraphId()), e);
+            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graphId), e.getCause());
         }
     }
 
@@ -88,9 +71,8 @@ public class FederatedStoreCache {
      * @return the {@link Graph} related to the specified ID
      */
     public Graph getGraphFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
-        final GraphSerialisable graphSerialisable = (null == fromCache) ? null : fromCache.getFirst();
-        return (null == graphSerialisable) ? null : graphSerialisable.getGraph();
+        final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
+        return (isNull(graphSerialisable)) ? null : graphSerialisable.getGraph();
     }
 
     /**
@@ -99,36 +81,13 @@ public class FederatedStoreCache {
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link Graph} related to the specified ID
      */
-
     public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
-        return (null == fromCache) ? null : fromCache.getFirst();
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
+        return (isNull(fromCache)) ? null : fromCache.getFirst();
     }
 
     public FederatedAccess getAccessFromCache(final String graphId) {
-        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
         return fromCache.getSecond();
-    }
-
-    /**
-     * Delete the {@link Graph} related to the specified ID from the cache.
-     *
-     * @param graphId the ID of the {@link Graph} to be deleted
-     */
-    public void deleteFromCache(final String graphId) {
-        CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);
-    }
-
-    /**
-     * Clear the cache.
-     *
-     * @throws CacheOperationException if there was an error trying to clear the cache
-     */
-    public void clearCache() throws CacheOperationException {
-        CacheServiceLoader.getService().clearCache(CACHE_SERVICE_NAME);
-    }
-
-    public boolean contains(final String graphId) {
-        return getAllGraphIds().contains(graphId);
     }
 }

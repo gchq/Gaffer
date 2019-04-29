@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,11 @@ public class FreqMap extends HashMap<String, Long> {
 
     public FreqMap(final int initialCapacity, final float loadFactor) {
         super(initialCapacity, loadFactor);
+    }
+
+    public FreqMap(final String initialKey) {
+        super();
+        upsert(initialKey);
     }
 
     /**

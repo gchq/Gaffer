@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
@@ -115,8 +116,13 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
 
     protected void setupOutput(final Job job, final AddElementsFromHdfs operation, final HBaseStore store) throws IOException {
         FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
-        final String stagingDir = operation.getOption(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH);
-        if (null != stagingDir && !stagingDir.isEmpty()) {
+        String stagingDir = operation.getOption(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH);
+        if (StringUtils.isEmpty(stagingDir)) {
+            if (StringUtils.isNotEmpty(operation.getWorkingPath())) {
+                stagingDir = operation.getWorkingPath() + (operation.getWorkingPath().endsWith("/") ? "" : "/") + "stagingDir";
+            }
+        }
+        if (StringUtils.isNotEmpty(stagingDir)) {
             job.getConfiguration().set(HConstants.TEMPORARY_FS_DIRECTORY_KEY, stagingDir);
         }
 

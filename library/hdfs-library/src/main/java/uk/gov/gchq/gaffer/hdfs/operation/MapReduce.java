@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,6 +131,11 @@ public interface MapReduce {
 
         default B addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
             _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
+            return _self();
+        }
+
+        default B addInputMapperPair(final String inputPath, final Class<?> mapperGeneratorClass) {
+            _getOp().addInputMapperPair(inputPath, mapperGeneratorClass.getName());
             return _self();
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetVariable getVariableOp = getTestObject();
+        final GetVariable getVariableOp = new GetVariable.Builder().variableName(varName).build();;
 
         assertEquals(varName, getVariableOp.getVariableName());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        final GetVariable op = getTestObject();
+        final GetVariable op = new GetVariable.Builder().variableName(varName).build();;
 
         final GetVariable opClone = op.shallowClone();
 
@@ -43,6 +43,6 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
     @Override
     protected GetVariable getTestObject() {
-        return new GetVariable.Builder().variableName(varName).build();
+        return new GetVariable();
     }
 }

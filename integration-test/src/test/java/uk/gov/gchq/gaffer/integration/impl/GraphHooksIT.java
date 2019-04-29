@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -47,19 +46,13 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class GraphHooksIT extends AbstractStoreIT {
     @Override
-    @Before
-    public void setup() throws Exception {
-        final Properties properties = new Properties();
-        properties.setProperty("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties);
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
     }
 

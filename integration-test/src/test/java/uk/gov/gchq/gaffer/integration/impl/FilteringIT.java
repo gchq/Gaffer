@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,10 +26,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -42,18 +39,15 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 public class FilteringIT extends AbstractStoreIT {
+
     @Override
-    @Before
-    public void setup() throws Exception {
-        super.setup();
+    public void _setup() throws Exception {
         addDefaultElements();
     }
 
@@ -84,7 +78,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(9, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
@@ -100,7 +94,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(1, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 (Element) getEntity("A3")
         ));
     }
@@ -138,7 +132,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(9, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
@@ -154,7 +148,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(3, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 getEdge("A3", "B3", false),
                 getEdge("A3", "B3", true),
                 getEntity("A3")));
@@ -215,9 +209,7 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A5"),
                 getEntity("B5")
         );
-        expectedResults.sort(getJsonSort());
-        resultsWithoutFiltering.sort(getJsonSort());
-        assertEquals(expectedResults, resultsWithoutFiltering);
+        ElementUtil.assertElementEquals(expectedResults, resultsWithoutFiltering);
 
         // Then - with filtering
         List<Element> expectedFilteredResults = Arrays.asList(
@@ -232,9 +224,7 @@ public class FilteringIT extends AbstractStoreIT {
                 getEdge("A3", "D3", true),
                 getEntity("A5")
         );
-        expectedFilteredResults.sort(getJsonSort());
-        resultsWithFiltering.sort(getJsonSort());
-        assertEquals(expectedFilteredResults, resultsWithFiltering);
+        ElementUtil.assertElementEquals(expectedFilteredResults, resultsWithFiltering);
     }
 
     @Test
@@ -270,7 +260,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
         assertEquals(9, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
                 getEdge("A3", "C3", false),
@@ -286,7 +276,7 @@ public class FilteringIT extends AbstractStoreIT {
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
         assertEquals(3, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+        ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 getEdge("A3", "B3", false),
                 getEdge("A3", "B3", true),
                 getEntity("A3")));
@@ -345,9 +335,8 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A5"),
                 getEntity("B5")
         );
-        resultsWithoutFiltering.sort(getJsonSort());
-        expectedResults.sort(getJsonSort());
-        assertEquals(expectedResults, resultsWithoutFiltering);
+
+        ElementUtil.assertElementEquals(expectedResults, resultsWithoutFiltering);
 
         // Then - with filtering
         List<Element> expectedFilteredResults = Arrays.asList(
@@ -364,19 +353,7 @@ public class FilteringIT extends AbstractStoreIT {
 
                 getEntity("A5")
         );
-        resultsWithFiltering.sort(getJsonSort());
-        expectedFilteredResults.sort(getJsonSort());
-        assertEquals(expectedFilteredResults, resultsWithFiltering);
-    }
-
-    private Comparator<Element> getJsonSort() {
-        return Comparator.comparing(a -> {
-            try {
-                return new String(JSONSerialiser.serialise(a));
-            } catch (final SerialisationException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        ElementUtil.assertElementEquals(expectedFilteredResults, resultsWithFiltering);
     }
 
 }

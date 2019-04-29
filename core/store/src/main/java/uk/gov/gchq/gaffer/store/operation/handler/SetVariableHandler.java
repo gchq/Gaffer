@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,14 @@ import uk.gov.gchq.gaffer.store.Store;
 public class SetVariableHandler implements OperationHandler<SetVariable> {
     @Override
     public Void doOperation(final SetVariable operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getVariableName()) {
+            throw new IllegalArgumentException("Variable name cannot be null");
+        }
+
+        if (null == operation.getInput()) {
+            throw new IllegalArgumentException("Variable input value cannot be null");
+        }
+
         context.setVariable(operation.getVariableName(), operation.getInput());
         return null;
     }

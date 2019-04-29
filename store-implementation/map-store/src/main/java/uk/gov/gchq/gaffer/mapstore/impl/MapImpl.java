@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,14 @@ import java.util.stream.Stream;
 /**
  * Map data store implementation use by the Gaffer {@link uk.gov.gchq.gaffer.mapstore.MapStore}
  * class.
- *
+ * <p>
  * This class can be thought of as an analogue to a conventional database. Internally,
  * different {@link Map} and {@link MultiMap} instances are used to keep track of
  * the stored elements and the relationships between those elements. This data store
  * is then abstracted again as a Gaffer {@link uk.gov.gchq.gaffer.store.Store} (by
  * the {@link uk.gov.gchq.gaffer.mapstore.MapStore} class) to give Gaffer-specific
  * functionality.
- *
+ * <p>
  * The internal variables of this class are package-private. This allows operation
  * handlers for the {@link uk.gov.gchq.gaffer.mapstore.MapStore} to be placed in the
  * same package and get access to the maps, without exposing the internal state of
@@ -129,8 +129,10 @@ public class MapImpl {
     }
 
     void addAggElement(final Element elementWithGroupByProperties, final GroupedProperties properties) {
-        aggElements.get(elementWithGroupByProperties.getGroup())
-                .merge(elementWithGroupByProperties, properties, propertyAggregator);
+        if (null != aggElements.get(elementWithGroupByProperties.getGroup())) {
+            aggElements.get(elementWithGroupByProperties.getGroup())
+                    .merge(elementWithGroupByProperties, properties, propertyAggregator);
+        }
     }
 
     Collection<Element> lookup(final EntityId entitId) {
@@ -250,7 +252,8 @@ public class MapImpl {
         return totalCount;
     }
 
-    private MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
+    private MapFactory createMapFactory(final Schema schema,
+                                        final MapStoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
         final String factoryClass = mapStoreProperties.getMapFactory();
         if (null == factoryClass) {

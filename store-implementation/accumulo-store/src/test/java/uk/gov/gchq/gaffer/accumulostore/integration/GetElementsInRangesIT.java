@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
     @Test
@@ -54,8 +55,10 @@ public class GetElementsInRangesIT {
                 .edge("EDGE", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .type("string", String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
         final AccumuloProperties propsByteEntity = new AccumuloProperties();

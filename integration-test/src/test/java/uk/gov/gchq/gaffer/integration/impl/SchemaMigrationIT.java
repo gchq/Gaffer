@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -30,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.migrate.MigrateElement;
 import uk.gov.gchq.gaffer.graph.hook.migrate.SchemaMigration;
@@ -329,117 +327,9 @@ public class SchemaMigrationIT extends AbstractStoreIT {
 
     private SchemaMigration migration;
 
-    @Before
     @Override
-    public void setup() throws Exception {
-        super.setup();
-        addDefaultElements();
-    }
-
-    protected Graph.Builder getGraphBuilder() {
-        migration = createMigration();
-        return super.getGraphBuilder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graph1")
-                        .addHook(migration)
-                        .build());
-    }
-
-    @Override
-    protected Schema createSchema() {
-        return new Schema.Builder()
-                .entity("entityOld", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property("count", "int")
-                        .build())
-                .entity("entityNew", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property("count", "long")
-                        .build())
-                .edge("edgeOld", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "int")
-                        .build())
-                .edge("edgeNew", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "long")
-                        .build())
-                .edge("edgeAgg", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "int")
-                        .groupBy("count")
-                        .build())
-                .edge("edgeAggNew", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "long")
-                        .groupBy("count")
-                        .build())
-                .edge("edgeOldOpChain", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "int")
-                        .groupBy("count")
-                        .build())
-                .edge("edgeNewOpChain", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "long")
-                        .groupBy("count")
-                        .build())
-                .edge("oldEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "int")
-                        .build())
-                .edge("newEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "long")
-                        .build())
-                .edge("oldEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "int")
-                        .build())
-                .edge("newEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .directed("either")
-                        .property("count", "long")
-                        .build())
-                .type("string", String.class)
-                .type("either", Boolean.class)
-                .type("int", new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .aggregateFunction(new Sum())
-                        .build())
-                .type("long", new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .aggregateFunction(new Sum())
-                        .build())
-                .build();
-    }
-
-    @Override
-    public void addDefaultElements() throws OperationException {
-        graph.execute(new AddElements.Builder()
-                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_OP_CHAIN, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
-                        EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
-                        EDGE_NEW_AGG_BEFORE_POST_FILTER)
-                .build(), new User());
+    public void _setup() throws Exception {
+        addExtraElements();
     }
 
     //--- Output NEW ---
@@ -719,9 +609,113 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         .build(), new User());
 
         ElementUtil.assertElementEquals(Arrays.asList(
-                        EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW
+                EDGE_OLD_OP_CHAIN_MIGRATED_TO_NEW
                 ),
                 results);
+    }
+
+    protected Schema createSchema() {
+        return new Schema.Builder()
+                .entity("entityOld", new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .property("count", "int")
+                        .build())
+                .entity("entityNew", new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .property("count", "long")
+                        .build())
+                .edge("edgeOld", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .build())
+                .edge("edgeNew", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .build())
+                .edge("edgeAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .groupBy("count")
+                        .build())
+                .edge("edgeAggNew", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .groupBy("count")
+                        .build())
+                .edge("edgeOldOpChain", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .groupBy("count")
+                        .build())
+                .edge("edgeNewOpChain", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .groupBy("count")
+                        .build())
+                .edge("oldEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .build())
+                .edge("newEdgePostOpAgg", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .build())
+                .edge("oldEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "int")
+                        .build())
+                .edge("newEdgeAggBeforePostFilter", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("either")
+                        .property("count", "long")
+                        .build())
+                .type("string", String.class)
+                .type("either", Boolean.class)
+                .type("int", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Sum())
+                        .build())
+                .type("long", new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Sum())
+                        .build())
+                .build();
+    }
+
+    public void addExtraElements() throws OperationException {
+        graph.execute(new AddElements.Builder()
+                .input(ENTITY_OLD, ENTITY_NEW, EDGE_OLD, EDGE_NEW, EDGE_OLD_OP_CHAIN, EDGE_OLD_AGGREGATION, EDGE_OLD_AGGREGATION_ALT_COUNT,
+                        EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
+                        EDGE_NEW_AGG_BEFORE_POST_FILTER)
+                .build(), new User());
+    }
+
+    @Override
+    protected GraphConfig createGraphConfig() {
+        migration = createMigration();
+        return new GraphConfig.Builder()
+                .graphId("graph1")
+                .addHook(migration)
+                .build();
     }
 
     private SchemaMigration createMigration() {

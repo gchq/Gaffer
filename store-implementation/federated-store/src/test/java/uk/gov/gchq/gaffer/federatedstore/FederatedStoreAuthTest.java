@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -109,12 +110,14 @@ public class FederatedStoreAuthTest {
         final String groupEdge = "edg";
         schema = new Schema.Builder()
                 .type(unusualType, String.class)
+                .type(DIRECTED_EITHER, Boolean.class)
                 .entity(groupEnt, new SchemaEntityDefinition.Builder()
                         .vertex(unusualType)
                         .build())
                 .edge(groupEdge, new SchemaEdgeDefinition.Builder()
                         .source(unusualType)
                         .destination(unusualType)
+                        .directed(DIRECTED_EITHER)
                         .build())
                 .build();
 

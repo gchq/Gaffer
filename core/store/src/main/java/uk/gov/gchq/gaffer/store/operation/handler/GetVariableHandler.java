@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Crown Copyright
+ * Copyright 2018-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ import uk.gov.gchq.gaffer.store.Store;
 public class GetVariableHandler implements OperationHandler<GetVariable> {
     @Override
     public Object doOperation(final GetVariable operation, final Context context, final Store store) throws OperationException {
+        if (operation.getVariableName() == null) {
+            throw new IllegalArgumentException("Variable name cannot be null");
+        }
         return context.getVariable(operation.getVariableName());
     }
 }

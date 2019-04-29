@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Crown Copyright
+ * Copyright 2017-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,20 +106,24 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         if (!mapImpl.isAggregationEnabled(element)) {
             elementForIndexing = addNonAggElement(element, schema, mapImpl);
         } else {
-            elementForIndexing = addAggElement(element, schema, mapImpl);
+            elementForIndexing = addAggElement(element, mapImpl);
         }
         return elementForIndexing;
     }
 
-    private Element addAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
+    private Element addAggElement(final Element element, final MapImpl mapImpl) {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
         final GroupedProperties properties = new GroupedProperties(element.getGroup());
-        for (final String propertyName : mapImpl.getGroupByProperties(group)) {
-            elementWithGroupByProperties.putProperty(propertyName, element.getProperty(propertyName));
+        if (null != mapImpl.getGroupByProperties(group)) {
+            for (final String propertyName : mapImpl.getGroupByProperties(group)) {
+                elementWithGroupByProperties.putProperty(propertyName, element.getProperty(propertyName));
+            }
         }
-        for (final String propertyName : mapImpl.getNonGroupByProperties(group)) {
-            properties.put(propertyName, element.getProperty(propertyName));
+        if (null != mapImpl.getNonGroupByProperties(group)) {
+            for (final String propertyName : mapImpl.getNonGroupByProperties(group)) {
+                properties.put(propertyName, element.getProperty(propertyName));
+            }
         }
 
         mapImpl.addAggElement(elementWithGroupByProperties, properties);
