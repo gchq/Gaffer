@@ -34,7 +34,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimestampSet>{
+public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimestampSet> {
 
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {

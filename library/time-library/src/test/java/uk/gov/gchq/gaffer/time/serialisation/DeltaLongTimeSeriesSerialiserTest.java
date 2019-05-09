@@ -33,7 +33,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<LongTimeSeries> {
-    private static final DeltaLongTimeSeriesSerialiser serialiser = new DeltaLongTimeSeriesSerialiser();
+    private static final DeltaLongTimeSeriesSerialiser SERIALISER = new DeltaLongTimeSeriesSerialiser();
 
     @Test
     public void testSerialiser() throws SerialisationException {
@@ -48,8 +48,8 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
 
     private void testSerialiser(final LongTimeSeries timeSeries) throws SerialisationException {
         // When
-        final byte[] serialised = serialiser.serialise(timeSeries);
-        final LongTimeSeries deserialised = serialiser.deserialise(serialised);
+        final byte[] serialised = SERIALISER.serialise(timeSeries);
+        final LongTimeSeries deserialised = SERIALISER.deserialise(serialised);
 
         // Then
         assertEquals(timeSeries, deserialised);
@@ -65,8 +65,8 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
         final LongTimeSeries timeSeries = new LongTimeSeries(TimeBucket.SECOND);
 
         // When
-        final byte[] serialised = serialiser.serialise(timeSeries);
-        final LongTimeSeries deserialised = serialiser.deserialise(serialised);
+        final byte[] serialised = SERIALISER.serialise(timeSeries);
+        final LongTimeSeries deserialised = SERIALISER.deserialise(serialised);
 
         // Then
         assertEquals(timeSeries, deserialised);
@@ -79,8 +79,8 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
         timeSeries.upsert(Instant.ofEpochMilli(1000L), Long.MAX_VALUE);
 
         // When
-        final byte[] serialised = serialiser.serialise(timeSeries);
-        final LongTimeSeries deserialised = serialiser.deserialise(serialised);
+        final byte[] serialised = SERIALISER.serialise(timeSeries);
+        final LongTimeSeries deserialised = SERIALISER.deserialise(serialised);
 
         // Then
         assertEquals(timeSeries, deserialised);
@@ -89,8 +89,8 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
 
     @Test
     public void testCanHandle() throws SerialisationException {
-        assertTrue(serialiser.canHandle(LongTimeSeries.class));
-        assertFalse(serialiser.canHandle(String.class));
+        assertTrue(SERIALISER.canHandle(LongTimeSeries.class));
+        assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
@@ -103,8 +103,8 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
         timeSeries2.upsert(Instant.ofEpochMilli(1000L), 5L);
 
         // When
-        final byte[] serialised1 = serialiser.serialise(timeSeries1);
-        final byte[] serialised2 = serialiser.serialise(timeSeries2);
+        final byte[] serialised1 = SERIALISER.serialise(timeSeries1);
+        final byte[] serialised2 = SERIALISER.serialise(timeSeries2);
 
         // Then
         assertArrayEquals(serialised1, serialised2);
@@ -120,21 +120,21 @@ public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<
     public Pair<LongTimeSeries, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
                 new Pair(getExampleValueMillisecond(),
-                        new byte[]{7,3,1,-114,3,-24,1,-114,7,-48,9,-115,15,54,-120,-115,-104,-106,118}),
+                        new byte[]{7, 3, 1, -114, 3, -24, 1, -114, 7, -48, 9, -115, 15, 54, -120, -115, -104, -106, 118}),
                 new Pair(getExampleValueSecond(),
-                        new byte[]{0,3,1,-115,1,-122,-96,100,-115,13,-69,-96,0,-117,-24,-44,-107,-51,-64,-116,59,-102,-55,-100}),
+                        new byte[]{0, 3, 1, -115, 1, -122, -96, 100, -115, 13, -69, -96, 0, -117, -24, -44, -107, -51, -64, -116, 59, -102, -55, -100}),
                 new Pair(getExampleValueMinute(),
-                        new byte[]{1,3,1,-115,91,-115,-128,100,-116,35,103,-72,-128,-114,38,-84,-117,13,-44,-124,18,0,-115,15,27,48}),
+                        new byte[]{1, 3, 1, -115, 91, -115, -128, 100, -116, 35, 103, -72, -128, -114, 38, -84, -117, 13, -44, -124, 18, 0, -115, 15, 27, 48}),
                 new Pair(getExampleValueHour(),
-                        new byte[]{2,3,1,-116,21,117,42,0,100,-116,-63,30,122,0,-114,3,-124,-118,3,69,90,36,-4,0,-115,15,62,88}),
+                        new byte[]{2, 3, 1, -116, 21, 117, 42, 0, 100, -116, -63, 30, 122, 0, -114, 3, -124, -118, 3, 69, 90, 36, -4, 0, -115, 15, 62, 88}),
                 new Pair(getExampleValueDay(),
-                        new byte[]{3,3,1,-116,36,12,-124,0,7,-116,36,12,-124,0,7,-117,13,-52,-54,-120,0,-114,2,-82}),
+                        new byte[]{3, 3, 1, -116, 36, 12, -124, 0, 7, -116, 36, 12, -124, 0, 7, -117, 13, -52, -54, -120, 0, -114, 2, -82}),
                 new Pair(getExampleValueWeek(),
-                        new byte[]{4,3,1,-116,20,-103,112,0,7,-117,1,68,112,-92,0,63,-117,12,-84,102,104,0,-114,2,118}),
+                        new byte[]{4, 3, 1, -116, 20, -103, 112, 0, 7, -117, 1, 68, 112, -92, 0, 63, -117, 12, -84, 102, 104, 0, -114, 2, 118}),
                 new Pair(getExampleValueMonth(),
-                        new byte[]{5,3,1,0,30,-117,1,-49,124,88,0,60,-117,17,-56,117,-80,0,-114,3,-114}),
+                        new byte[]{5, 3, 1, 0, 30, -117, 1, -49, 124, 88, 0, 60, -117, 17, -56, 117, -80, 0, -114, 3, -114}),
                 new Pair(getExampleValueYear(),
-                        new byte[]{6,3,1,-118,57,88,37,75,88,0,-114,7,-48,-117,7,92,-41,-120,0,0,-117,117,-113,-84,48,0,0})
+                        new byte[]{6, 3, 1, -118, 57, 88, 37, 75, 88, 0, -114, 7, -48, -117, 7, 92, -41, -120, 0, 0, -117, 117, -113, -84, 48, 0, 0})
         };
     }
 

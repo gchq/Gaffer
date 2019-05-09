@@ -45,19 +45,19 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     public static final String STORE_TYPE_PROPERTY = "store.type";
     public static final String STORE_TYPE_DEFAULT = "accumulo";
 
-    protected static final RestApiTestClient client = new RestApiV2TestClient();
+    protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @ClassRule
-    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @BeforeClass
     public static void prepareRestApi() throws IOException {
         // Spin up the REST API
-        client.startServer();
+        CLIENT.startServer();
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
-        client.reinitialiseGraph(
-                testFolder,
+        CLIENT.reinitialiseGraph(
+                TEST_FOLDER,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );
@@ -69,7 +69,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     @AfterClass
     public static void after() {
-        client.stopServer();
+        CLIENT.stopServer();
     }
 
     @Override
@@ -79,10 +79,10 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         props.setStoreClass(ProxyStore.class);
         props.setStorePropertiesClass(props.getClass());
 
-        final URL restURL = new URL(client.getRoot());
+        final URL restURL = new URL(CLIENT.getRoot());
         props.setGafferHost(restURL.getHost());
         props.setGafferPort(restURL.getPort());
-        props.setGafferContextRoot(client.getPath());
+        props.setGafferContextRoot(CLIENT.getPath());
 
         this.graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))

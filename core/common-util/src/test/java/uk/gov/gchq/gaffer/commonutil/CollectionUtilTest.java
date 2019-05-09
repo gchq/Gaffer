@@ -299,7 +299,7 @@ public class CollectionUtilTest {
     @Test
     public void shouldReturnTrueWhenDistinctCalledWithCollectionOfUniqueValues() {
         // Given
-        final Collection collection = Lists.newArrayList(1,2,3,4,5);
+        final Collection collection = Lists.newArrayList(1, 2, 3, 4, 5);
 
         // When
         final boolean result = CollectionUtil.distinct(collection);
@@ -311,7 +311,7 @@ public class CollectionUtilTest {
     @Test
     public void shouldReturnFalseWhenDistinctCalledWithCollectionOfNonUniqueValues() {
         // Given
-        final Collection collection = Lists.newArrayList(1,2,3,1,2);
+        final Collection collection = Lists.newArrayList(1, 2, 3, 1, 2);
 
         // When
         final boolean result = CollectionUtil.distinct(collection);

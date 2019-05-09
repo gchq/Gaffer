@@ -36,7 +36,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -44,7 +47,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-
 
 public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> {
     private static final String OP_AUTHS_PATH = "/opAuthoriser.json";
@@ -364,7 +366,8 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
     }
 
     @Test
-    public void shouldHandleNestedOperationChain(){}
+    public void shouldHandleNestedOperationChain() {
+    }
 
     @Override
     protected OperationAuthoriser getTestObject() {

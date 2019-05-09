@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.LinkedHashSet;
@@ -46,7 +44,7 @@ public class SchemaUtilsTest {
     public void cleanUp() {
         utils = null;
     }
-    
+
     @Test
     public void getColumnToSerialiserTest() {
         final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser(TestGroups.EDGE);

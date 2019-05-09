@@ -31,12 +31,12 @@ import static org.junit.Assert.assertNotNull;
 
 public class RestApiV2IT extends AbstractRestApiIT {
 
-    private static final Client client = ClientBuilder.newClient();
+    private static final Client CLIENT = ClientBuilder.newClient();
 
     @Test
     public void shouldReturnOkStatusMessage() {
         // When
-        final SystemStatus status = client.target("http://localhost:8080/rest/v2")
+        final SystemStatus status = CLIENT.target("http://localhost:8080/rest/v2")
                 .path("graph/status")
                 .request()
                 .get(SystemStatus.class);
@@ -48,7 +48,7 @@ public class RestApiV2IT extends AbstractRestApiIT {
     @Test
     public void shouldRetrieveSchema() {
         // Given
-        final Response response = client.target("http://localhost:8080/rest/v2")
+        final Response response = CLIENT.target("http://localhost:8080/rest/v2")
                 .path("graph/config/schema")
                 .request()
                 .get();

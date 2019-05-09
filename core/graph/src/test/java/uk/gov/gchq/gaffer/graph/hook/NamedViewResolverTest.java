@@ -48,7 +48,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
+public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     private static final String NAMED_VIEW_NAME = "namedViewName";
     private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
@@ -72,10 +72,12 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
             .view(FULL_VIEW)
             .build();
 
-    public NamedViewResolverTest() { super(NamedViewResolver.class); }
+    public NamedViewResolverTest() {
+        super(NamedViewResolver.class);
+    }
 
     @Test
-    public void shouldResolveNamedView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
 
@@ -96,7 +98,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
@@ -120,7 +122,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
@@ -146,7 +148,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
     }
 
     @Test
-    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException, SerialisationException {
+    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException {
         // Given
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).entity(TestGroups.ENTITY_2).build();
         final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).view(new View.Builder().entity(TestGroups.ENTITY_2).build()).build();
@@ -426,7 +428,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
     }
 
     @Test
-    public void shouldBuildFullViewWhenAViewToBeMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
+    public void shouldBuildFullViewWhenAViewToBeMergedIsSupplied() throws CacheOperationFailedException {
         // Given
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
         final View finalExpectedView = new View.Builder()
@@ -501,11 +503,13 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver>{
         try {
             RESOLVER.preExecute(opChain, CONTEXT);
             fail("Exception expected");
-        } catch(final RuntimeException e){
+        } catch (final RuntimeException e) {
             assert e.getMessage().contains("No NamedView with the name namedViewName1 exists in the cache");
         }
     }
 
     @Override
-    public NamedViewResolver getTestObject() { return new NamedViewResolver(); }
+    public NamedViewResolver getTestObject() {
+        return new NamedViewResolver();
+    }
 }

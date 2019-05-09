@@ -22,13 +22,13 @@ import java.time.OffsetDateTime;
 
 import static java.time.OffsetDateTime.parse;
 import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.DAY;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MONTH;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.YEAR;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.timeToBucket;
 

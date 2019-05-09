@@ -83,7 +83,7 @@ public class BloomFilterIT {
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
-    private RangeFactory Gaffer1RangeFactory;
+    private RangeFactory gaffer1RangeFactory;
     private AccumuloElementConverter gafferV1ElementConverter;
 
     @Before
@@ -100,14 +100,14 @@ public class BloomFilterIT {
                 .build();
         byteEntityRangeFactory = new ByteEntityRangeFactory(schema);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
-        Gaffer1RangeFactory = new ClassicRangeFactory(schema);
+        gaffer1RangeFactory = new ClassicRangeFactory(schema);
         gafferV1ElementConverter = new ClassicAccumuloElementConverter(schema);
     }
 
     @Test
     public void test() throws RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory);
-        testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
+        testFilter(gafferV1ElementConverter, gaffer1RangeFactory);
     }
 
     private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws RangeFactoryException, IOException {
@@ -201,7 +201,7 @@ public class BloomFilterIT {
                 .withTableConfiguration(accumuloConf)
                 .seekToBeginning(false)
                 .build();
-        
+
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;

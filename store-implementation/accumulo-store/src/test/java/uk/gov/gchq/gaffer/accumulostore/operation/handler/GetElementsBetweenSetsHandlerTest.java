@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,42 +64,42 @@ public class GetElementsBetweenSetsHandlerTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private static final Element expectedEdge1 =
+    private final Element expectedEdge1 =
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("A0")
                     .dest("A23")
                     .directed(true)
                     .build();
-    private static final Element expectedEdge2 =
+    private final Element expectedEdge2 =
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("A0")
                     .dest("A23")
                     .directed(true)
                     .build();
-    private static final Element expectedEdge3 =
+    private final Element expectedEdge3 =
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("A0")
                     .dest("A23")
                     .directed(true)
                     .build();
-    private static final Element expectedEntity1 =
+    private final Element expectedEntity1 =
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("A0")
                     .build();
-    private static final Element expectedEntity1B =
+    private final Element expectedEntity1B =
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("A23")
                     .build();
-    private static final Element expectedSummarisedEdge =
+    private final Element expectedSummarisedEdge =
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("A0")
@@ -111,7 +110,7 @@ public class GetElementsBetweenSetsHandlerTest {
     private User user = new User();
 
     @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
@@ -146,8 +145,8 @@ public class GetElementsBetweenSetsHandlerTest {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
@@ -372,37 +371,37 @@ public class GetElementsBetweenSetsHandlerTest {
         data.add(entity);
         for (int i = 1; i < 100; i++) {
             data.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source("A0")
-                            .dest("A" + i)
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COUNT, 23)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                            .property(AccumuloPropertyNames.PROP_1, 0)
-                            .property(AccumuloPropertyNames.PROP_2, 0)
-                            .property(AccumuloPropertyNames.PROP_3, 0)
-                            .property(AccumuloPropertyNames.PROP_4, 0)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COUNT, 23)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build()
             );
 
             data.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source("A0")
-                            .dest("A" + i)
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COUNT, 23)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COUNT, 23)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                    .build()
             );
 
             data.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source("A0")
-                            .dest("A" + i)
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COUNT, 23)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COUNT, 23)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                    .build()
             );
 
             data.add(new Entity.Builder()

@@ -53,9 +53,9 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     private void shouldAggregateHyperLogLogPlus() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         HyperLogLogPlus currentState = hyperLogLogPlus1;
-        assertEquals(2l, currentState.cardinality());
+        assertEquals(2L, currentState.cardinality());
         currentState = hyperLogLogPlusAggregator.apply(currentState, hyperLogLogPlus2);
-        assertEquals(4l, currentState.cardinality());
+        assertEquals(4L, currentState.cardinality());
     }
 
     @Test

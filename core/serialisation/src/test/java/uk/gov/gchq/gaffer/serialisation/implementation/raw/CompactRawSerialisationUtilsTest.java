@@ -54,7 +54,7 @@ public class CompactRawSerialisationUtilsTest {
 
         byte[] bytesUpper = writeLong(lUpperLimit);
         assertEquals(LENGTH_SHOULD_BE_1_AS_IT_DOES_NOT_REQUIRE_A_LENGTH_BYTE, 1, bytesUpper.length);
-        assertEquals(LENGTH_SHOULD_BE_1_AS_IT_DOES_NOT_REQUIRE_A_LENGTH_BYTE,bytesUpper.length, decodeVIntSize(bytesUpper[0]));
+        assertEquals(LENGTH_SHOULD_BE_1_AS_IT_DOES_NOT_REQUIRE_A_LENGTH_BYTE, bytesUpper.length, decodeVIntSize(bytesUpper[0]));
     }
 
     @Test

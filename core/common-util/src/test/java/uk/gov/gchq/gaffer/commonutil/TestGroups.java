@@ -16,7 +16,12 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-public class TestGroups {
+public final class TestGroups {
+
+    private TestGroups() {
+        //Private to prevent instantiation
+    }
+
     public static final String ENTITY = "BasicEntity";
     public static final String ENTITY_2 = "BasicEntity2";
     public static final String ENTITY_3 = "BasicEntity3";

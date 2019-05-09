@@ -52,7 +52,7 @@ public class FederatedStoreSchemaTest {
     public User testUser;
     public Context testContext;
     public static final String TEST_FED_STORE = "testFedStore";
-    public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
+    public static final HashMapGraphLibrary LIBRARY = new HashMapGraphLibrary();
     public static final String ACC_PROP = "accProp";
 
     private FederatedStore fStore;
@@ -71,7 +71,7 @@ public class FederatedStoreSchemaTest {
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
 
-        fStore.setGraphLibrary(library);
+        fStore.setGraphLibrary(LIBRARY);
 
         testUser = testUser();
         testContext = new Context(testUser);
@@ -79,8 +79,8 @@ public class FederatedStoreSchemaTest {
 
     @Test
     public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
-        library.addProperties(ACC_PROP, ACCUMULO_PROPERTIES);
-        fStore.setGraphLibrary(library);
+        LIBRARY.addProperties(ACC_PROP, ACCUMULO_PROPERTIES);
+        fStore.setGraphLibrary(LIBRARY);
 
         String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
@@ -89,7 +89,7 @@ public class FederatedStoreSchemaTest {
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(aSchema1ID, aSchema);
+        LIBRARY.addSchema(aSchema1ID, aSchema);
 
         fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
@@ -105,9 +105,9 @@ public class FederatedStoreSchemaTest {
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(bSchema1ID, bSchema);
+        LIBRARY.addSchema(bSchema1ID, bSchema);
 
-        assertFalse(library.exists("b"));
+        assertFalse(LIBRARY.exists("b"));
 
         fStore.execute(OperationChain.wrap(new AddGraph.Builder()
                 .graphId("b")

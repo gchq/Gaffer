@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.store.Context;
@@ -29,7 +28,9 @@ import static org.mockito.Mockito.mock;
 
 public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
 
-    public Log4jLoggerTest() { super(Log4jLogger.class); }
+    public Log4jLoggerTest() {
+        super(Log4jLogger.class);
+    }
 
     @Test
     public void shouldReturnResultWithoutModification() {
@@ -51,5 +52,7 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
     }
 
     @Override
-    public Log4jLogger getTestObject() { return new Log4jLogger(); }
+    public Log4jLogger getTestObject() {
+        return new Log4jLogger();
+    }
 }

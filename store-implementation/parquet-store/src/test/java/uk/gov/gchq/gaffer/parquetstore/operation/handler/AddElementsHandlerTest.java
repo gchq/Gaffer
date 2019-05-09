@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
@@ -177,7 +177,7 @@ public class AddElementsHandlerTest {
         // - There should be 1 file named partition-0.parquet (and an associated .crc file) in the "group=BasicEntity"
         //   directory.
         assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0))));
-        assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/." + ParquetStore.getFile( 0) + ".crc")));
+        assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/." + ParquetStore.getFile(0) + ".crc")));
         // - The files should contain the data sorted by vertex and date.
         Row[] results = (Row[]) sparkSession
                 .read()

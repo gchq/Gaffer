@@ -29,7 +29,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -92,7 +96,7 @@ public class NamedOperationScoreResolverTest {
         given(namedOp.getOperations()).willReturn(operations);
 
         //When
-        final Integer result = resolver.getScore(namedOp,scoreResolver);
+        final Integer result = resolver.getScore(namedOp, scoreResolver);
 
         //Then
         assertEquals(expectedScore, result);

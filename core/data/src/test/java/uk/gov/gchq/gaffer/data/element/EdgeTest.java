@@ -687,7 +687,7 @@ public class EdgeTest extends ElementTest {
     private class Vertex {
         private final String property;
 
-        public Vertex(final String property) {
+        Vertex(final String property) {
             this.property = property;
         }
 
@@ -728,7 +728,7 @@ public class EdgeTest extends ElementTest {
     private class Vertex2 {
         private final String property;
 
-        public Vertex2(final String property) {
+        Vertex2(final String property) {
             this.property = property;
         }
 

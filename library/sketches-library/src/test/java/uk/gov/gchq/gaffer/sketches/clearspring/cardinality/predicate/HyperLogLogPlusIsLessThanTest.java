@@ -43,19 +43,19 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         for (int i = 1; i <= 5; i++) {
             hyperLogLogPlusWithCardinality5.offer(i);
         }
-        assertEquals(5l, hyperLogLogPlusWithCardinality5.cardinality());
+        assertEquals(5L, hyperLogLogPlusWithCardinality5.cardinality());
 
         hyperLogLogPlusWithCardinality15 = new HyperLogLogPlus(5, 5);
         for (int i = 1; i <= 18; i++) {
             hyperLogLogPlusWithCardinality15.offer(i);
         }
-        assertEquals(15l, hyperLogLogPlusWithCardinality15.cardinality());
+        assertEquals(15L, hyperLogLogPlusWithCardinality15.cardinality());
 
         hyperLogLogPlusWithCardinality31 = new HyperLogLogPlus(5, 5);
         for (int i = 1; i <= 32; i++) {
             hyperLogLogPlusWithCardinality31.offer(i);
         }
-        assertEquals(31l, hyperLogLogPlusWithCardinality31.cardinality());
+        assertEquals(31L, hyperLogLogPlusWithCardinality31.cardinality());
     }
 
     @Test

@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
@@ -41,7 +40,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-public class DataGen {
+public final class DataGen {
+
+    private DataGen() {
+        // private to prevent instantiation
+    }
 
     public static Entity getEntity(final String group, final Object vertex, final Byte aByte,
                                    final Float aFloat, final TreeSet<String> treeSet, final Long aLong,
@@ -82,7 +85,7 @@ public class DataGen {
     public static GenericRowWithSchema generateEntityRow(final SchemaUtils utils, final String group, final String vertex,
                                                          final Byte aByte, final Double aDouble, final Float aFloat,
                                                          final TreeSet<String> treeSet, final Long aLong, final Short aShort,
-                                                         final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
+                                                         final Date date, final FreqMap freqMap, final String visibility) throws SerialisationException {
         final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(
                 group,
                 utils.getCoreProperties(group),
@@ -118,7 +121,7 @@ public class DataGen {
                                                        final String src, final String dst, final Boolean directed,
                                                        final Byte aByte, final Double aDouble, final Float aFloat,
                                                        final TreeSet<String> treeSet, final Long aLong, final Short aShort,
-                                                       final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
+                                                       final Date date, final FreqMap freqMap, final String visibility) throws SerialisationException {
         final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(
                 group,
                 utils.getCoreProperties(group),

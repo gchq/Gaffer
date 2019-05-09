@@ -78,8 +78,8 @@ public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
         return new Pair[]{
                 new Pair<>(Long.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -1, 127}),
                 new Pair<>(Long.MIN_VALUE, new byte[]{0, 0, 0, 0, 0, 0, 0, -128}),
-                new Pair<>(0l, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1l, new byte[]{1, 0, 0, 0, 0, 0, 0, 0})
+                new Pair<>(0L, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1L, new byte[]{1, 0, 0, 0, 0, 0, 0, 0})
         };
     }
 }

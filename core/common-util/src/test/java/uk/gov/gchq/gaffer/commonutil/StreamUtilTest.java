@@ -32,7 +32,9 @@ public class StreamUtilTest {
     public void testOpenStreamsURLNotEmpty() throws Exception {
         //Given
         final URI resource = getClass().getClassLoader().getResource(FILE_NAME).toURI();
-        if (null == resource) fail("Test json file not found:" + FILE_NAME);
+        if (null == resource) {
+            fail("Test json file not found:" + FILE_NAME);
+        }
 
         //When
         final InputStream[] inputStreams = StreamUtil.openStreams(resource);

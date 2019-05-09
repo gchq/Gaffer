@@ -49,7 +49,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class ReduceHandlerTest {
         // When
         try {
             final Integer result = handler.doOperation(reduce, null, null);
-        } catch(final OperationException oe) {
+        } catch (final OperationException oe) {
 
             // Then
             assertThat(oe.getMessage(), is("Input cannot be null"));
@@ -123,7 +123,7 @@ public class ReduceHandlerTest {
         // When
         try {
             final Integer result = handler.doOperation(null, null, null);
-        } catch(final OperationException oe) {
+        } catch (final OperationException oe) {
 
             // Then
             assertThat(oe.getMessage(), is("Operation cannot be null"));

@@ -150,13 +150,14 @@ public class JsonSerialisationUtilTest {
     @Test
     public void testClassWithTypeParamAndOtherField() {
         // Given
-        final String ClassWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
+        final String classWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("test", String.class.getName());
         expectedValues.put("t", Object.class.getName());
 
         // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamAndOtherFieldName);
+        final Map<String, String> result =
+                JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamAndOtherFieldName);
 
         // Then
         assertEquals(expectedValues.entrySet(), result.entrySet());
@@ -179,12 +180,14 @@ public class JsonSerialisationUtilTest {
     @Test
     public void testClassWithTypeParamExtendingComparable() {
         // Given
-        final String ClassWithTypeParamExtendingComparableName = ClassWithTypeParamExtendingComparable.class.getName();
+        final String classWithTypeParamExtendingComparableName =
+                ClassWithTypeParamExtendingComparable.class.getName();
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("t", Comparable.class.getName());
 
         // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamExtendingComparableName);
+        final Map<String, String> result =
+                JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamExtendingComparableName);
 
         // Then
         assertEquals(expectedValues.entrySet(), result.entrySet());
@@ -229,7 +232,7 @@ public class JsonSerialisationUtilTest {
         private String field1;
 
         @JsonCreator
-        public ClassWithCreator(@JsonProperty("field1") final String field1) {
+        ClassWithCreator(@JsonProperty("field1") final String field1) {
             this.field1 = field1;
         }
 
