@@ -88,6 +88,11 @@ public class JobDetail implements Serializable {
         this.parentJobId = parentJobId;
     }
 
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
+        this(jobId, parentJobId, userId, opChain, jobStatus, description);
+        this.repeat = repeat;
+    }
+
     public String getJobId() {
         return jobId;
     }
@@ -214,5 +219,59 @@ public class JobDetail implements Serializable {
 
     private <T> T getNewOrOld(final T oldValue, final T newValue) {
         return null == newValue ? oldValue : newValue;
+    }
+
+    public static final class Builder {
+        private String parentJobId;
+        private Repeat repeat;
+        private String jobId;
+        private String userId;
+        private JobStatus status;
+        private String opChain;
+        private String description;
+
+        public Builder parentJobId(final String parentJobId) {
+            this.parentJobId = parentJobId;
+            return this;
+        }
+
+        public Builder repeat(final Repeat repeat) {
+            this.repeat = repeat;
+            return this;
+        }
+
+        public Builder jobId(final String jobId) {
+            this.jobId = jobId;
+            return this;
+        }
+
+        public Builder userId(final String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder status(final JobStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder opChain(final String opChain) {
+            this.opChain = opChain;
+            return this;
+        }
+
+        public Builder opChain(final OperationChain opChain) {
+            this.opChain = opChain != null ? opChain.toOverviewString() : "";
+            return this;
+        }
+
+        public Builder description(final String description) {
+            this.description = description;
+            return this;
+        }
+
+        public JobDetail build() {
+            return new JobDetail(jobId, parentJobId, userId, opChain, status, description, repeat);
+        }
     }
 }
