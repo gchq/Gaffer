@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -269,6 +270,12 @@ public final class Graph {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
+            // TODO Remove unnecessary serialising after merge with gh-2154
+            try {
+                job.setOpChain(new String(JSONSerialiser.serialise(clonedOpChain)));
+            } catch (final SerialisationException e) {
+                throw new OperationException("Failed to serialise operation", e);
+            }
             result = store.executeJob(job, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.postExecute(result, clonedOpChain, clonedContext);
