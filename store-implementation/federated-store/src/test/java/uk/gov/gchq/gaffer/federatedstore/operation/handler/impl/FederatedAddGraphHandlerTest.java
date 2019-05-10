@@ -57,7 +57,7 @@ public class FederatedAddGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
-    private static final AccumuloProperties storeProperties = new AccumuloProperties();
+    private static final AccumuloProperties STORE_PROPERTIES = new AccumuloProperties();
     private User testUser;
     private User authUser;
     private FederatedStore store;
@@ -71,7 +71,7 @@ public class FederatedAddGraphHandlerTest {
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        STORE_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
 
         testUser = testUser();
         authUser = authUser();
@@ -89,7 +89,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -105,7 +105,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -134,7 +134,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .disabledByDefault(true)
                         .build(),
                 new Context(testUser),
@@ -155,7 +155,7 @@ public class FederatedAddGraphHandlerTest {
 
         Schema expectedSchema = new Schema.Builder().build();
 
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
+        STORE_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
         assertEquals(0, store.getGraphs(testUser, null).size());
         assertEquals(0, store.getGraphs(testUser, null).size());
@@ -166,7 +166,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -179,7 +179,7 @@ public class FederatedAddGraphHandlerTest {
         assertEquals(expectedSchema, next.getSchema());
 
         final GraphLibrary library = new HashMapGraphLibrary();
-        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, storeProperties);
+        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, STORE_PROPERTIES);
         store.setGraphLibrary(library);
 
         federatedAddGraphHandler.doOperation(
@@ -221,7 +221,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -234,7 +234,7 @@ public class FederatedAddGraphHandlerTest {
                             .schema(new Schema.Builder()
                                     .type("unusual", String.class)
                                     .build())
-                            .storeProperties(storeProperties)
+                            .storeProperties(STORE_PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -258,7 +258,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -269,7 +269,7 @@ public class FederatedAddGraphHandlerTest {
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
                             .graphAuths("X")
-                            .storeProperties(storeProperties)
+                            .storeProperties(STORE_PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -296,7 +296,7 @@ public class FederatedAddGraphHandlerTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
-                            .storeProperties(storeProperties)
+                            .storeProperties(STORE_PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -309,7 +309,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(STORE_PROPERTIES)
                         .build(),
                 new Context(authUser),
                 store);
@@ -324,7 +324,7 @@ public class FederatedAddGraphHandlerTest {
      * Replicating a bug condition when setting auths the
      * FederatedAddGraphHandler didn't set the adding user.
      *
-     * @throws Exception
+     * @throws Exception if Exception
      */
     @Test
     public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {

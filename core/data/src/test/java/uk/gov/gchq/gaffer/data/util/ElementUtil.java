@@ -28,7 +28,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ElementUtil {
+public final class ElementUtil {
+    private ElementUtil() {
+        // Private to avoid instantiation
+    }
+
     public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
         assertElementEquals(expected, result, false);
     }

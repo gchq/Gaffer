@@ -81,12 +81,14 @@ public class GetRDDOfAllElementsHandlerIT {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private enum KeyPackage {BYTE_ENTITY, CLASSIC}
+    private enum KeyPackage {
+        BYTE_ENTITY, CLASSIC
+    }
 
-    private final User USER = new User();
-    private final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
-    private final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
-    private final String GRAPH_ID = "graphId";
+    private static final User USER = new User();
+    private static final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
+    private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
+    private static final String GRAPH_ID = "graphId";
     private Entity entityRetainedAfterValidation;
 
     @Test
@@ -659,8 +661,8 @@ public class GetRDDOfAllElementsHandlerIT {
     }
 
     private GetRDDOfAllElements getOperationWithBatchScannerEnabled() throws IOException {
-    	final GetRDDOfAllElements op = getOperation();
-    	op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
-    	return op;
+        final GetRDDOfAllElements op = getOperation();
+        op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
+        return op;
     }
 }

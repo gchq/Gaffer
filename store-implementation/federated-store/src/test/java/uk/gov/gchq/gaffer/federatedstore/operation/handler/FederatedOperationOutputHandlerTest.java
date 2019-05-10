@@ -81,7 +81,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     protected abstract OP getExampleOperation();
 
     @Test
-    public final void shouldMergeResultsFromFieldObjects() throws Exception {
+    public void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final OP op = getExampleOperation();
 
@@ -113,7 +113,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    public final void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
+    public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
         final OP op = getExampleOperation();
         op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "1,3");
@@ -144,7 +144,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    final public void shouldThrowException() throws Exception {
+    public void shouldThrowException() throws Exception {
         // Given
         final String message = "Test Exception";
         final OP op = getExampleOperation();
@@ -171,7 +171,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    final public void shouldReturnEmptyIterableWhenNoResults() throws Exception {
+    public void shouldReturnEmptyIterableWhenNoResults() throws Exception {
         // Given
         final OP op = getExampleOperation();
         op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, TEST_GRAPH_ID);
@@ -194,7 +194,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    final public void shouldNotThrowException() throws Exception {
+    public void shouldNotThrowException() throws Exception {
         // Given
         // Given
         final OP op = getExampleOperation();

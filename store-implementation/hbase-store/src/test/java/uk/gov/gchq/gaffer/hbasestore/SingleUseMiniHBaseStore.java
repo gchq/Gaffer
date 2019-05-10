@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.hbasestore;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.hadoop.hbase.HBaseTestingUtility;
 
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -25,7 +24,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * Uses {@link HBaseTestingUtility} to create a mini hbase instance for testing.
+ * Uses {@link org.apache.hadoop.hbase.HBaseTestingUtility} to create a mini hbase instance for testing.
  * Due to the additional dependencies required for the mini hbase instance this store
  * will not work with the Gaffer REST API. There are conflicting versions of JAX-RS
  * - the hbase testing utility requires JAX-RS 1 but the REST API needs JAX-RS 2.

@@ -63,7 +63,7 @@ public abstract class JoinFunctionTest {
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, false);
         List<MapTuple> expected = getExpectedRightKeyResults();
 
-        assertEquals(expected.size(), ((List)result).size());
+        assertEquals(expected.size(), ((List) result).size());
         assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 
@@ -76,7 +76,7 @@ public abstract class JoinFunctionTest {
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, true);
         List<MapTuple> expected = getExpectedLeftKeyResultsFlattened();
 
-        assertEquals(expected.size(), ((List)result).size());
+        assertEquals(expected.size(), ((List) result).size());
         assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 
@@ -89,7 +89,7 @@ public abstract class JoinFunctionTest {
         Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, true);
         List<MapTuple> expected = getExpectedRightKeyResultsFlattened();
 
-        assertEquals(expected.size(), ((List)result).size());
+        assertEquals(expected.size(), ((List) result).size());
         assertTupleListsEquality(expected, (List<MapTuple>) result);
     }
 

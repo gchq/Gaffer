@@ -20,6 +20,10 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 
 public final class TestElements {
 
+    private TestElements() {
+        // Private to avoid instantiation
+    }
+
     public static Edge getBasicEdge(final Object source, final Object destination) {
         return new Edge.Builder()
                 .source(source)

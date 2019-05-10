@@ -48,7 +48,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -122,7 +121,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldCreateExporter() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, OperationException {
+    public void shouldCreateExporter() throws OperationException {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         final Context context = mock(Context.class);
@@ -241,8 +240,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldCreateNewGraphWithMergedParentSchemaIdAndProvidedSchema
-            () {
+    public void shouldCreateNewGraphWithMergedParentSchemaIdAndProvidedSchema() {
         // Given
         Schema schema1 = new Schema.Builder()
                 .entity("entity", new SchemaEntityDefinition.Builder()
@@ -316,8 +314,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldCreateNewGraphWithMergedParentStorePropertiesIdAndProvidedStoreProperties
-            () {
+    public void shouldCreateNewGraphWithMergedParentStorePropertiesIdAndProvidedStoreProperties() {
         // Given
 
         StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -361,8 +358,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateParentPropsIdCannotBeUsedWithoutGraphLibrary
-            () {
+    public void shouldValidateParentPropsIdCannotBeUsedWithoutGraphLibrary() {
         // Given
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -380,8 +376,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateParentSchemaIdCannotBeUsedWithoutGraphLibrary
-            () {
+    public void shouldValidateParentSchemaIdCannotBeUsedWithoutGraphLibrary() {
         // Given
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -409,8 +404,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateParentSchemaIdCannotBeUsedWhenGraphIdAlreadyExists
-            () {
+    public void shouldValidateParentSchemaIdCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID_1, new Schema.Builder().edge("edge", new SchemaEdgeDefinition()).build(), STORE_PROPS_ID, new StoreProperties());
         graphLibrary.addSchema(SCHEMA_ID, new Schema.Builder().build());
@@ -430,8 +424,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateParentSchemaIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame
-            () {
+    public void shouldValidateParentSchemaIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, new StoreProperties());
         graphLibrary.addSchema(SCHEMA_ID, new Schema.Builder().build());
@@ -478,8 +471,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateParentPropsIdCannotBeUsedWhenGraphIdAlreadyExists
-            () {
+    public void shouldValidateParentPropsIdCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
         StoreProperties storeProperties1 = new StoreProperties();
         storeProperties1.set("testKey", "testValue");
@@ -501,8 +493,7 @@ public class ExportToOtherGraphHandlerTest {
 
 
     @Test
-    public void shouldValidateParentPropsIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame
-            () {
+    public void shouldValidateParentPropsIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema(), STORE_PROPS_ID_1, new StoreProperties());
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -536,8 +527,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidatePropsCanBeUsedWhenGraphIdAlreadyExistsAndIsSame
-            () {
+    public void shouldValidatePropsCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
         StoreProperties storeProperties1 = new StoreProperties();
         storeProperties1.set("testKey", "testValue");
@@ -588,8 +578,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionPropertiesCannotBeUsedIfNotDefinedOrFound
-            () {
+    public void shouldThrowExceptionPropertiesCannotBeUsedIfNotDefinedOrFound() {
         // Given
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)

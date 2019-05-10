@@ -47,7 +47,7 @@ public class Gaffer1BloomElementFunctorTest {
     private AccumuloElementConverter elementConverter;
     private Schema schema;
 
-    private static final CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
+    private static final CoreKeyBloomFunctor ELEMENT_FUNCTOR = new CoreKeyBloomFunctor();
 
     @Before
     public void setup() {
@@ -69,7 +69,7 @@ public class Gaffer1BloomElementFunctorTest {
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
         final Range range1 = new Range(key1, true, key1, true);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(Arrays.copyOf(key1.getRowData().getBackingArray(), key1.getRowData().getBackingArray().length));
-        assertTrue(elementFunctor.transform(range1).equals(expectedBloomKey1));
+        assertTrue(ELEMENT_FUNCTOR.transform(range1).equals(expectedBloomKey1));
 
         // Create Range formed from two entities and shouldRetrieveElementsInRangeBetweenSeeds - should get null
         final Entity entity2 = new Entity.Builder()
@@ -78,7 +78,7 @@ public class Gaffer1BloomElementFunctorTest {
                 .build();
         final Key key2 = elementConverter.getKeyFromEntity(entity2);
         final Range range2 = new Range(key1, true, key2, true);
-        assertNull(elementFunctor.transform(range2));
+        assertNull(ELEMENT_FUNCTOR.transform(range2));
     }
 
     @Test
@@ -89,8 +89,8 @@ public class Gaffer1BloomElementFunctorTest {
                 .vertex(1)
                 .build();
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey1, elementFunctor.transform(key1));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey1, ELEMENT_FUNCTOR.transform(key1));
     }
 
     @Test
@@ -102,16 +102,16 @@ public class Gaffer1BloomElementFunctorTest {
                 .dest(2).build();
         final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
         final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey1, elementFunctor.transform(range1));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey1, ELEMENT_FUNCTOR.transform(range1));
 
         final Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey2, elementFunctor.transform(range2));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey2, ELEMENT_FUNCTOR.transform(range2));
 
         // Create Range formed from two keys and shouldRetrieveElementsInRangeBetweenSeeds - should get null
         final Range range3 = new Range(keys.getFirst().getRow(), true, keys.getSecond().getRow(), true);
-        assertNull(elementFunctor.transform(range3));
+        assertNull(ELEMENT_FUNCTOR.transform(range3));
     }
 
     @Test
@@ -123,11 +123,11 @@ public class Gaffer1BloomElementFunctorTest {
                 .dest(2).build();
         final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
         final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey1, elementFunctor.transform(range1));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey1, ELEMENT_FUNCTOR.transform(range1));
         final Range range2 = new Range(keys.getSecond().getRow(), true, keys.getSecond().getRow(), true);
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey2, elementFunctor.transform(range2));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey2, ELEMENT_FUNCTOR.transform(range2));
     }
 
     @Test
@@ -151,11 +151,11 @@ public class Gaffer1BloomElementFunctorTest {
         final Range range = new Range(key1.getRow(), true, key2.getRow(), true);
 
         // Check don't get null Bloom key
-        assertNotNull(elementFunctor.transform(range));
+        assertNotNull(ELEMENT_FUNCTOR.transform(range));
 
         // Check get correct Bloom key
-        final org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
-        assertEquals(expectedBloomKey, elementFunctor.transform(range));
+        final org.apache.hadoop.util.bloom.Key expectedBloomKey = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
+        assertEquals(expectedBloomKey, ELEMENT_FUNCTOR.transform(range));
     }
 
     @Test
@@ -168,9 +168,9 @@ public class Gaffer1BloomElementFunctorTest {
                     .build();
             final Key key = elementConverter.getKeyFromEntity(simpleEntity);
             final Range range = Range.exact(key.getRow());
-            final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
-            assertNotNull(elementFunctor.transform(range));
-            assertEquals(expectedBloomKey1, elementFunctor.transform(range));
+            final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(ELEMENT_FUNCTOR.getVertexFromRangeKey(key.getRowData().getBackingArray()));
+            assertNotNull(ELEMENT_FUNCTOR.transform(range));
+            assertEquals(expectedBloomKey1, ELEMENT_FUNCTOR.transform(range));
         } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
@@ -186,11 +186,11 @@ public class Gaffer1BloomElementFunctorTest {
                     .dest("4").build();
             final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
             final Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
-            assertNull(elementFunctor.transform(range1));
+            assertNull(ELEMENT_FUNCTOR.transform(range1));
 
             // Create Range with unspecified end key and shouldRetrieveElementsInRangeBetweenSeeds - should get null
             final Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
-            assertNull(elementFunctor.transform(range2));
+            assertNull(ELEMENT_FUNCTOR.transform(range2));
         } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
@@ -200,7 +200,7 @@ public class Gaffer1BloomElementFunctorTest {
     public void shouldTransformRangeWhenKeyIsNotEntityOrEdge() {
         // Create arbitrary range
         final Range range = new Range("Blah", true, "MoreBlah", true);
-        assertNull(elementFunctor.transform(range));
+        assertNull(ELEMENT_FUNCTOR.transform(range));
     }
 
 }

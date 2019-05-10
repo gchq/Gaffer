@@ -32,7 +32,7 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    public static final String AuthX = "X";
+    public static final String AUTH_X = "X";
 
     User testUser;
 
@@ -53,7 +53,7 @@ public class FederatedAccessAuthTest {
     @Test
     public void shouldValidateUserWithSubsetAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(ALL_USERS, AuthX)
+                .graphAuths(ALL_USERS, AUTH_X)
                 .build();
 
         assertTrue(access.isValidToExecute(testUser));

@@ -66,7 +66,7 @@ public enum TestSchema {
 
         private Map<String, String> defaultElementProperties = new HashMap<>();
 
-        public Builder() {
+        Builder() {
             this.schemaBuilder = new Schema.Builder();
 
             defaultElementProperties.put(TestPropertyNames.COUNT, TestTypes.PROP_COUNT);

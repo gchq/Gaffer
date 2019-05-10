@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -90,7 +91,7 @@ public class CalculatePartitionerTest {
         //   ...
         //   source = i*10 + 9, destination = i*10 + 10
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
-            final Path groupFolderPath = new Path(folder,ParquetStore.getGroupSubDir(group, false));
+            final Path groupFolderPath = new Path(folder, ParquetStore.getGroupSubDir(group, false));
             for (int partition = 0; partition < 10; partition++) {
                 final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
