@@ -29,7 +29,6 @@ public class JobTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-
         // given
         final String json = "{" +
                 "\"repeat\":{" +
@@ -43,19 +42,14 @@ public class JobTest {
                 "}";
 
         // when
-
         final Job deserialised = JSONSerialiser.deserialise(json, Job.class);
 
         // then
-
         Job expected = new Job(new Repeat(20L, 30L, TimeUnit.SECONDS), new GetAllElements());
-
         assertEquals(expected, deserialised);
 
         // when
-
         final String serialised = new String(JSONSerialiser.serialise(deserialised));
-
 
         // then
         assertEquals(json, serialised);

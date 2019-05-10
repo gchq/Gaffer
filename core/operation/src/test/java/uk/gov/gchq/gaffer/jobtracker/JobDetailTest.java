@@ -31,7 +31,6 @@ public class JobDetailTest {
     @Test
     public void shouldBeSerialisable() throws SerialisationException {
         // given
-
         JobDetail original = new JobDetail.Builder()
                 .description("thing")
                 .jobId("abc")
@@ -45,11 +44,9 @@ public class JobDetailTest {
         final JavaSerialiser serialiser = new JavaSerialiser();
 
         // when
-
         final byte[] serialised = serialiser.serialise(original);
 
         // then
-
         assertEquals(original, serialiser.deserialise(serialised));
     }
 }
