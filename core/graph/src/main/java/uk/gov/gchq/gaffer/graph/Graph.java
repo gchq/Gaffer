@@ -271,6 +271,7 @@ public final class Graph {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
+            job.setOperation(clonedOpChain);
             result = store.executeJob(job, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.postExecute(result, clonedOpChain, clonedContext);
