@@ -68,7 +68,7 @@ import static org.junit.Assert.fail;
 public class ProxyStoreBasicIT {
     private Graph graph;
 
-    private static final RestApiTestClient client = new RestApiV2TestClient();
+    private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -108,17 +108,17 @@ public class ProxyStoreBasicIT {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        client.startServer();
+        CLIENT.startServer();
     }
 
     @AfterClass
     public static void afterClass() {
-        client.stopServer();
+        CLIENT.stopServer();
     }
 
     @Before
     public void before() throws IOException {
-        client.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
+        CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
         graph = new Graph.Builder()
@@ -208,8 +208,7 @@ public class ProxyStoreBasicIT {
                             .first(new GetAllElements())
                             .then(new Limit<>(1, false))
                             .then(new ToList<>())
-                            .build()
-                    , USER);
+                            .build(), USER);
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
             assertEquals(new Error.ErrorBuilder()
@@ -243,7 +242,7 @@ public class ProxyStoreBasicIT {
     public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
-                .option("Anything","Value") //any value to create a optionsMap
+                .option("Anything", "Value") //any value to create a optionsMap
                 .build();
         graph.execute(add, USER);
     }

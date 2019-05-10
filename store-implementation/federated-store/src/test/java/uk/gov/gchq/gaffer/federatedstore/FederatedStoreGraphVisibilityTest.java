@@ -119,7 +119,7 @@ public class FederatedStoreGraphVisibilityTest {
 
     /*
      * Adhoc test to make sure that the naming of props and schemas without ID's
-     * is still retrievable via the name of the graph that is was added to the library.
+     * is still retrievable via the name of the graph that is was added to the LIBRARY.
      */
     @Test
     public void shouldNotShowHiddenGraphIdWithoutIDs() throws Exception {

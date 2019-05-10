@@ -1,7 +1,24 @@
+/*
+ * Copyright 2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -11,7 +28,11 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.koryphe.function.FunctionComposite;
-import uk.gov.gchq.koryphe.impl.function.*;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.function.DivideBy;
+import uk.gov.gchq.koryphe.impl.function.FirstItem;
+import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,7 +222,7 @@ public class KeyFunctionMatchTest {
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(
                         new FunctionComposite(
-                        Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
+                                Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ToInteger(), new DivideBy(10), new FirstItem<>())))
                 .build();
 
@@ -256,7 +277,6 @@ public class KeyFunctionMatchTest {
                         Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ToInteger(), new DivideBy(10), new FirstItem<>())))
                 .build();
-
 
 
         // then

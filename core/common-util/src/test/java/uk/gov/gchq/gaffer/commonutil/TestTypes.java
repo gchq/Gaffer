@@ -22,7 +22,12 @@ package uk.gov.gchq.gaffer.commonutil;
  * @deprecated Please use the equivalent TestTypes class in the store module
  */
 @Deprecated
-public class TestTypes {
+public final class TestTypes {
+
+    private TestTypes() {
+        //Private to prevent instantiation
+    }
+
     public static final String TIMESTAMP = "timestamp";
     public static final String TIMESTAMP_2 = "timestamp2";
     public static final String VISIBILITY = "visibility";

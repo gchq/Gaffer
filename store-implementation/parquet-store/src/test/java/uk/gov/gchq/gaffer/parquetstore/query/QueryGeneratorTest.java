@@ -22,6 +22,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -48,7 +49,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.apache.parquet.filter2.predicate.FilterApi.*;
+import static org.apache.parquet.filter2.predicate.FilterApi.and;
+import static org.apache.parquet.filter2.predicate.FilterApi.eq;
+import static org.apache.parquet.filter2.predicate.FilterApi.gt;
+import static org.apache.parquet.filter2.predicate.FilterApi.or;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
@@ -139,7 +143,7 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, null,false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, null, false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
 
@@ -162,7 +166,7 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10),false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10), false));
         }
         assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
     }
@@ -270,7 +274,7 @@ public class QueryGeneratorTest {
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 0L));
         final FilterPredicate destination1000000AndCount = and(gt(FilterApi.intColumn("count"), 10),
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 1000000L));
-        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false ));
+        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false));
         final Path reversedGroupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, true));
         // Partition 0, vertex 0L
         final Path pathForPartitionFile1 = new Path(groupFolderPath, ParquetStore.getFile(0));

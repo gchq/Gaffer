@@ -58,7 +58,7 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
     }
 
     @Override
-    public void shouldShallowCloneOperation(){
+    public void shouldShallowCloneOperation() {
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
         NamedOperation op = (NamedOperation) new NamedOperation.Builder()

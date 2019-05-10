@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,23 +51,23 @@ import static org.junit.Assert.fail;
 
 public class AccumuloRangeIDRetrieverTest {
 
-    private static final int numEntries = 1000;
+    private static final int NUM_ENTRIES = 1000;
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloRangeIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-        setupGraph(byteEntityStore, numEntries);
-        setupGraph(gaffer1KeyStore, numEntries);
+        setupGraph(byteEntityStore, NUM_ENTRIES);
+        setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
     @AfterClass
@@ -106,7 +105,7 @@ public class AccumuloRangeIDRetrieverTest {
             }
         }
 
-        assertEquals(numEntries, elements.size());
+        assertEquals(NUM_ENTRIES, elements.size());
     }
 
     private static void setupGraph(final AccumuloStore store, final int numEntries) {

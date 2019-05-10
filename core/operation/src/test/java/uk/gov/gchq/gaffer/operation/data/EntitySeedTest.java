@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
+public class EntitySeedTest extends JSONSerialisationTest<EntitySeed> {
     @Test
     public void shouldBeRelatedToEdgeIdWhenSourceEqualsVertex() {
         // Given

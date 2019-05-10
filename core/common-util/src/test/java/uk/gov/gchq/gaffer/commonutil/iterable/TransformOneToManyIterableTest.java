@@ -201,15 +201,15 @@ public class TransformOneToManyIterableTest {
     }
 
     private class TransformOneToManyIterableImpl extends TransformOneToManyIterable<String, String> {
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final boolean autoClose) {
+        TransformOneToManyIterableImpl(final Iterable<String> input, final boolean autoClose) {
             super(input, new AlwaysValid<>(), false, autoClose);
         }
 
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator) {
+        TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);
         }
 
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
+        TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
             super(input, validator, skipInvalid);
         }
 

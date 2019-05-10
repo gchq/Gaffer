@@ -16,17 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import com.google.common.collect.ImmutableMap;
-
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.data.element.Element;
+
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class FullJoinTest extends JoinFunctionTest {
 

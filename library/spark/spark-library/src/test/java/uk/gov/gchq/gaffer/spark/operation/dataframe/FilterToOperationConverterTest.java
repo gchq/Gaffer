@@ -161,7 +161,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter( getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
 
         Operation operation = converter.getOperation();

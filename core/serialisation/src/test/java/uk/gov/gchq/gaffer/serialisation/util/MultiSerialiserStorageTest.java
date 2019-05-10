@@ -57,7 +57,7 @@ public class MultiSerialiserStorageTest {
         mss.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
         mss.put(BYTE, SERIALISER_CLASS2, SUPPORTED_CLASS);
         //then
-        assertNotNull( mss.getKeyFromValue(VALUE));
+        assertNotNull(mss.getKeyFromValue(VALUE));
         assertEquals("Wrong key for value", (Object) BYTE, mss.getKeyFromValue(VALUE));
         ToBytesSerialiser actualClassFromByte = mss.getSerialiserFromKey(BYTE);
         assertNotNull("Byte key not found", actualClassFromByte);
@@ -78,7 +78,7 @@ public class MultiSerialiserStorageTest {
         //then
         checkBasicPut();
 
-        assertEquals( BYTE, (byte) mss.getKeyFromValue(VALUE));
+        assertEquals(BYTE, (byte) mss.getKeyFromValue(VALUE));
         ToBytesSerialiser actualClassFromByte2 = mss.getSerialiserFromKey(serialiserEncoding);
         assertNotNull("Byte key not found", actualClassFromByte2);
         assertEquals("Wrong SerialiserClass returned for key", SERIALISER_CLASS2, actualClassFromByte2);

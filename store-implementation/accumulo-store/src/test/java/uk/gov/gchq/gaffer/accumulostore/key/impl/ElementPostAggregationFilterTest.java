@@ -112,7 +112,6 @@ public class ElementPostAggregationFilterTest {
 
         // When
         final boolean isValid = filter.validateOptions(options);
-        ;
 
         // Then
         assertTrue(isValid);

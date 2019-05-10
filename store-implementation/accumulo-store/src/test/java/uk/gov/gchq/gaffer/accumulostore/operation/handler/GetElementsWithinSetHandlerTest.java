@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,7 @@ import static org.junit.Assert.fail;
 
 public class GetElementsWithinSetHandlerTest {
 
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(GetElementsWithinSetHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
@@ -153,8 +153,8 @@ public class GetElementsWithinSetHandlerTest {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
@@ -298,52 +298,52 @@ public class GetElementsWithinSetHandlerTest {
             data.add(entity);
             for (int i = 1; i < 100; i++) {
                 data.add(new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source("A0")
-                                .dest("A" + i)
-                                .directed(true)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                                .property(AccumuloPropertyNames.COUNT, i)
-                                .property(AccumuloPropertyNames.PROP_1, 0)
-                                .property(AccumuloPropertyNames.PROP_2, 0)
-                                .property(AccumuloPropertyNames.PROP_3, 0)
-                                .property(AccumuloPropertyNames.PROP_4, 0)
-                                .build()
+                        .group(TestGroups.EDGE)
+                        .source("A0")
+                        .dest("A" + i)
+                        .directed(true)
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .property(AccumuloPropertyNames.PROP_1, 0)
+                        .property(AccumuloPropertyNames.PROP_2, 0)
+                        .property(AccumuloPropertyNames.PROP_3, 0)
+                        .property(AccumuloPropertyNames.PROP_4, 0)
+                        .build()
                 );
 
                 data.add(new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source("A0")
-                                .dest("A" + i)
-                                .directed(true)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                                .property(AccumuloPropertyNames.COUNT, i)
-                                .property(AccumuloPropertyNames.PROP_1, 0)
-                                .property(AccumuloPropertyNames.PROP_2, 0)
-                                .property(AccumuloPropertyNames.PROP_3, 0)
-                                .property(AccumuloPropertyNames.PROP_4, 0)
-                                .build()
+                        .group(TestGroups.EDGE)
+                        .source("A0")
+                        .dest("A" + i)
+                        .directed(true)
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .property(AccumuloPropertyNames.PROP_1, 0)
+                        .property(AccumuloPropertyNames.PROP_2, 0)
+                        .property(AccumuloPropertyNames.PROP_3, 0)
+                        .property(AccumuloPropertyNames.PROP_4, 0)
+                        .build()
                 );
 
                 data.add(new Edge.Builder()
-                                .group(TestGroups.EDGE)
-                                .source("A0")
-                                .dest("A" + i)
-                                .directed(true)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                                .property(AccumuloPropertyNames.COUNT, i)
-                                .property(AccumuloPropertyNames.PROP_1, 0)
-                                .property(AccumuloPropertyNames.PROP_2, 0)
-                                .property(AccumuloPropertyNames.PROP_3, 0)
-                                .property(AccumuloPropertyNames.PROP_4, 0)
-                                .build()
+                        .group(TestGroups.EDGE)
+                        .source("A0")
+                        .dest("A" + i)
+                        .directed(true)
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .property(AccumuloPropertyNames.PROP_1, 0)
+                        .property(AccumuloPropertyNames.PROP_2, 0)
+                        .property(AccumuloPropertyNames.PROP_3, 0)
+                        .property(AccumuloPropertyNames.PROP_4, 0)
+                        .build()
                 );
 
                 data.add(new Entity.Builder()
-                                .group(TestGroups.ENTITY)
-                                .vertex("A" + i)
-                                .property(AccumuloPropertyNames.COUNT, i)
-                                .build()
+                        .group(TestGroups.ENTITY)
+                        .vertex("A" + i)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .build()
                 );
             }
             final User user = new User();

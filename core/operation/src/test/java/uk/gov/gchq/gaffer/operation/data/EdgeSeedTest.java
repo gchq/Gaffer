@@ -479,7 +479,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     private class Vertex {
         private final String property;
 
-        public Vertex(final String property) {
+        Vertex(final String property) {
             this.property = property;
         }
 
@@ -520,7 +520,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     private class Vertex2 {
         private final String property;
 
-        public Vertex2(final String property) {
+        Vertex2(final String property) {
             this.property = property;
         }
 
