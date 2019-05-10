@@ -16,41 +16,34 @@
 
 package uk.gov.gchq.gaffer.jobtracker;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
-
-import java.nio.charset.Charset;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
  * POJO containing details of a scheduled Gaffer job,
- * a {@link Repeat} and an Operation chain as a String.
+ * a {@link Repeat} and an Operation.
  * To be used within the ExecuteJob for a ScheduledJob.
  */
 public class Job {
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private Repeat repeat;
-    private OperationChain<?> opChain;
+    private Operation operation;
 
     public Job() {
     }
 
     public Job(final Repeat repeat) {
-        this.repeat = repeat;
+        this(repeat, null);
     }
 
-    public Job(final Repeat repeat, final String opChain) {
+    public Job(final Repeat repeat, final Operation operation) {
         this.repeat = repeat;
-        setOpChain(opChain);
-    }
-
-    public Job(final Repeat repeat, final OperationChain<?> opChain) {
-        this.repeat = repeat;
-        this.opChain = opChain;
+        this.operation = operation;
     }
 
     public Repeat getRepeat() {
@@ -61,32 +54,48 @@ public class Job {
         this.repeat = repeat;
     }
 
-    public String getOpChain() {
-        try {
-            if (opChain instanceof OperationChainDAO) {
-                return new String(JSONSerialiser.serialise(opChain),
-                        Charset.forName(CHARSET_NAME));
-            } else {
-                final OperationChainDAO dao = new OperationChainDAO(opChain.getOperations());
-                return new String(JSONSerialiser.serialise(dao),
-                        Charset.forName(CHARSET_NAME));
-            }
-        } catch (final SerialisationException se) {
-            throw new IllegalArgumentException(se.getMessage());
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(final Operation operation) {
+        this.operation = operation;
+    }
+
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
-    }
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+        final Job job = (Job) obj;
 
-    @JsonIgnore
-    public OperationChain<?> getOpChainAsOperationChain() {
-        return opChain;
-    }
-
-    public void setOpChain(final String opChain) {
         try {
-            this.opChain = JSONSerialiser.deserialise(opChain,
-                    OperationChainDAO.class);
+            return new EqualsBuilder()
+                    .append(JSONSerialiser.serialise(operation), JSONSerialiser.serialise(job.operation))
+                    .append(repeat, job.repeat)
+                    .isEquals();
         } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to deserialise Job OperationChain ", e);
+            throw new GafferRuntimeException("Unable to compare operations as one is not JSON serialisable", e);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 53)
+                .append(operation)
+                .append(repeat)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("operation", operation)
+                .append("repeat", repeat)
+                .toString();
     }
 }
