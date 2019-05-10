@@ -2315,7 +2315,7 @@ public class GraphTest {
         graph.executeJob(job, context);
 
         // then
-        final GetAllElements operation = (GetAllElements) jobCaptor.getValue().getOpChainAsOperationChain().getOperations().get(0);
+        final GetAllElements operation = (GetAllElements) ((OperationChain) jobCaptor.getValue().getOperation()).getOperations().get(0);
 
         assertEquals(new View.Builder().entity(TestGroups.ENTITY, new ViewElementDefinition())
                 .edge(TestGroups.EDGE, new ViewElementDefinition())
