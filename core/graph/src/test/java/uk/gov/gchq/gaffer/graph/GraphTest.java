@@ -2287,7 +2287,6 @@ public class GraphTest {
     @Test
     public void shouldAddSchemaGroupsIfNotIncludedInJob() throws OperationException {
         // given
-
         final Job job = new Job(null, new OperationChain.Builder().first(new GetAllElements()).build());
 
         final Store store = mock(Store.class);
@@ -2313,17 +2312,14 @@ public class GraphTest {
         given(store.executeJob(jobCaptor.capture(), contextCaptor.capture())).willReturn(new JobDetail());
 
         // when
-
         graph.executeJob(job, context);
 
         // then
-
         final GetAllElements operation = (GetAllElements) jobCaptor.getValue().getOpChainAsOperationChain().getOperations().get(0);
 
         assertEquals(new View.Builder().entity(TestGroups.ENTITY, new ViewElementDefinition())
                 .edge(TestGroups.EDGE, new ViewElementDefinition())
                 .edge(TestGroups.EDGE_2, new ViewElementDefinition()).build(), operation.getView());
-
     }
 
     public static class TestStoreImpl extends Store {
