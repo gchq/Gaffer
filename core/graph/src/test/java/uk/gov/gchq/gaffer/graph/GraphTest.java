@@ -2284,6 +2284,44 @@ public class GraphTest {
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
+    @Test
+    public void shouldAddSchemaGroupsIfNotIncludedInJob() throws OperationException {
+        // given
+        final Job job = new Job(null, new OperationChain.Builder().first(new GetAllElements()).build());
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
+                .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<Job> jobCaptor = ArgumentCaptor.forClass(Job.class);
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+
+        given(store.executeJob(jobCaptor.capture(), contextCaptor.capture())).willReturn(new JobDetail());
+
+        // when
+        graph.executeJob(job, context);
+
+        // then
+        final GetAllElements operation = (GetAllElements) ((OperationChain) jobCaptor.getValue().getOperation()).getOperations().get(0);
+
+        assertEquals(new View.Builder().entity(TestGroups.ENTITY, new ViewElementDefinition())
+                .edge(TestGroups.EDGE, new ViewElementDefinition())
+                .edge(TestGroups.EDGE_2, new ViewElementDefinition()).build(), operation.getView());
+    }
+
     public static class TestStoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
