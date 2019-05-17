@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -123,6 +126,7 @@ public class GetElementsInRanges
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -155,6 +159,8 @@ public class GetElementsInRanges
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
             implements InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,

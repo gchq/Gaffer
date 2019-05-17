@@ -16,8 +16,11 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -151,6 +154,7 @@ public class AddElementsFromSocket implements
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -189,6 +193,8 @@ public class AddElementsFromSocket implements
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
             implements Validatable.Builder<AddElementsFromSocket, Builder> {
         public Builder() {

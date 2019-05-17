@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.add;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -96,6 +94,7 @@ public class AddSchemaToLibrary implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -126,6 +125,8 @@ public class AddSchemaToLibrary implements Operation {
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends BaseBuilder<AddSchemaToLibrary, Builder> {
         public Builder() {
             super(new AddSchemaToLibrary());

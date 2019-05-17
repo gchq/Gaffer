@@ -22,8 +22,6 @@ import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -37,7 +35,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
 import static org.junit.Assert.assertFalse;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 import static org.junit.Assume.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
@@ -112,15 +113,6 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         }
         assumeTrue(annotation.value() + " is not a valid value string.",
                 SummaryUtil.validateSummaryString(annotation.value()));
-    }
-
-    @Test
-    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
-        final T testObject = getTestObject();
-        final Operation clone = testObject.shallowClone();
-        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
-        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
-        assertEquals(testObject, clone);
     }
 }
 

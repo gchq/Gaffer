@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -109,6 +107,7 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -137,6 +136,8 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public TypeReference<Iterable<? extends O>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
     }

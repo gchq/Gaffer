@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -284,6 +282,7 @@ public class SampleDataForSplitPoints implements
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -331,6 +330,8 @@ public class SampleDataForSplitPoints implements
                 .append(compressionCodec)
                 .toHashCode();
     }
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
             implements MapReduce.Builder<SampleDataForSplitPoints, Builder> {

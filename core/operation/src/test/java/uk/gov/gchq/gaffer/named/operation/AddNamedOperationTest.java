@@ -189,29 +189,6 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
     }
 
-    @Override
-    @Test
-    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
-        // Given
-        Map<String, ParameterDetail> parameters = new HashMap<>();
-
-        AddNamedOperation testObject = new AddNamedOperation.Builder()
-                .operationChain(OPERATION_CHAIN)
-                .description("Test Named Operation")
-                .name("Test")
-                .overwrite(false)
-                .readAccessRoles(USER)
-                .writeAccessRoles(USER)
-                .score(2)
-                .build();
-
-        AddNamedOperation clone = testObject.shallowClone();
-
-        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
-        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
-        assertEquals(testObject, clone);
-    }
-
     @Test
     public void shouldGetOperationsWithDefaultParameters() {
         // Given

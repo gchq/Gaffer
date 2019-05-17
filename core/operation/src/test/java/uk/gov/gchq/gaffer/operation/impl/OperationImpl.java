@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -89,6 +92,7 @@ public class OperationImpl implements Operation {
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -121,6 +125,8 @@ public class OperationImpl implements Operation {
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public Map<String, String> getOptions() {
         return options;
     }

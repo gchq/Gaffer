@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.operation.impl;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
+=======
+import static org.junit.Assert.assertNotEquals;
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 public class GetVariableTest extends OperationTest<GetVariable> {
     private final String varName = "varName";
@@ -36,7 +40,7 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
         final GetVariable opClone = op.shallowClone();
 
-        assertEquals(op, opClone);
+        assertNotEquals(op, opClone);
         assertEquals(op.getVariableName(), opClone.getVariableName());
     }
 

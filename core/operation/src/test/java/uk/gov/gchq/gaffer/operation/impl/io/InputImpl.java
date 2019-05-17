@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.io;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -101,6 +99,7 @@ public class InputImpl implements MultiInput<String> {
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -135,6 +134,8 @@ public class InputImpl implements MultiInput<String> {
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public Map<String, String> getOptions() {
         return options;
     }

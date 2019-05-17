@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -181,44 +184,6 @@ public class AddElementsFromKafka implements
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
                 .build();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (null == obj || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        final AddElementsFromKafka other = (AddElementsFromKafka) obj;
-
-        return new EqualsBuilder()
-                .append(topic, other.topic)
-                .append(groupId, other.groupId)
-                .append(bootstrapServers, other.bootstrapServers)
-                .append(elementGenerator, other.elementGenerator)
-                .append(parallelism, other.parallelism)
-                .append(validate, other.validate)
-                .append(skipInvalidElements, other.skipInvalidElements)
-                .append(options, other.options)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(67, 23)
-                .append(topic)
-                .append(groupId)
-                .append(bootstrapServers)
-                .append(elementGenerator)
-                .append(parallelism)
-                .append(validate)
-                .append(skipInvalidElements)
-                .append(options)
-                .toHashCode();
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>

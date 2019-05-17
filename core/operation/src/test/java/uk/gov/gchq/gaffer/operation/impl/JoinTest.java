@@ -31,6 +31,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
+=======
+import static org.junit.Assert.assertNotEquals;
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -74,7 +78,7 @@ public class JoinTest extends OperationTest<Join> {
         // When
         final Join clone = op.shallowClone();
 
-        assertEquals(op, clone);
+        assertNotEquals(op, clone);
         assertEquals(clone.getInput(), op.getInput());
         assertEquals(clone.getOperation(), op.getOperation());
         assertEquals(clone.getJoinType(), op.getJoinType());

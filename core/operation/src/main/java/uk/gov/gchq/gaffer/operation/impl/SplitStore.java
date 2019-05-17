@@ -16,8 +16,11 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -68,6 +71,7 @@ public class SplitStore implements Operation {
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -94,6 +98,8 @@ public class SplitStore implements Operation {
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends Operation.BaseBuilder<SplitStore, Builder> {
         public Builder() {
             super(new SplitStore());

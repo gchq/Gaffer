@@ -34,7 +34,10 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
 import static org.junit.Assert.assertFalse;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
@@ -115,29 +118,6 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("props1", clone.getParentStorePropertiesId());
         JsonAssert.assertEquals(schema.toJson(false), clone.getSchema().toJson(false));
         assertEquals(storeProperties, clone.getStoreProperties());
-    }
-
-    @Override
-    @Test
-    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
-        // Given
-        final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
-                .build();
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        final ExportToOtherGraph testObject = new ExportToOtherGraph.Builder()
-                .graphId("graphId")
-                .parentSchemaIds("schema1", "schema2")
-                .parentStorePropertiesId("props1")
-                .schema(schema)
-                .storeProperties(storeProperties)
-                .build();
-
-        ExportToOtherGraph clone = testObject.shallowClone();
-
-        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
-        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
-        assertEquals(testObject, clone);
     }
 
     @Override

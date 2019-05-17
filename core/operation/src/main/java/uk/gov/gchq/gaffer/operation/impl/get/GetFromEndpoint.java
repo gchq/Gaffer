@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -71,6 +69,7 @@ public class GetFromEndpoint implements Output<String>, Operation {
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -97,6 +96,8 @@ public class GetFromEndpoint implements Output<String>, Operation {
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public TypeReference<String> getOutputTypeReference() {
         return new TypeReferenceImpl.String();
     }

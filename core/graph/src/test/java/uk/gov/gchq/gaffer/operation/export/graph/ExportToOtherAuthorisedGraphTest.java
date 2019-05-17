@@ -28,7 +28,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
 import static org.junit.Assert.assertFalse;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
@@ -69,19 +72,6 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         assertEquals("graphId", clone.getGraphId());
         assertEquals(Collections.singletonList("schema1"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());
-    }
-
-    @Override
-    @Test
-    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
-        // Given
-        ExportToOtherAuthorisedGraph testObject = op;
-
-        ExportToOtherAuthorisedGraph clone = op.shallowClone();
-
-        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
-        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
-        assertEquals(testObject, clone);
     }
 
     @Override

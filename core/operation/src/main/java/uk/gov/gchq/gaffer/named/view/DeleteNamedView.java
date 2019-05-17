@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.named.view;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -66,6 +64,7 @@ public class DeleteNamedView implements Operation {
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -92,6 +91,8 @@ public class DeleteNamedView implements Operation {
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends BaseBuilder<DeleteNamedView, Builder> {
         public Builder() {
             super(new DeleteNamedView());

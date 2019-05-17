@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+<<<<<<< HEAD
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -55,6 +58,7 @@ public class GetAllJobDetails implements
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -79,6 +83,8 @@ public class GetAllJobDetails implements
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public Map<String, String> getOptions() {
         return options;
     }

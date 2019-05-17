@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -52,6 +50,7 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -78,6 +77,8 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public boolean isCurrentTraits() {
         return currentTraits;
     }

@@ -17,8 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.spark.rdd.RDD;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -115,6 +113,7 @@ public class GetRDDOfElementsInRanges implements
                 .build();
     }
 
+<<<<<<< HEAD
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -147,6 +146,8 @@ public class GetRDDOfElementsInRanges implements
                 .toHashCode();
     }
 
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public static class Builder extends BaseBuilder<GetRDDOfElementsInRanges, Builder>
             implements InputOutput.Builder<GetRDDOfElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, RDD<Element>, Builder>,
             MultiInput.Builder<GetRDDOfElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,

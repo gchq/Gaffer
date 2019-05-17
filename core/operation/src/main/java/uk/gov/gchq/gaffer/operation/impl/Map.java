@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -79,11 +77,9 @@ public class Map<I, O> implements InputOutput<I, O> {
     @Override
     public Map<I, O> shallowClone() throws CloneFailedException {
         final Map<I, O> clone = new Map<>();
-        if (null != functions) {
-            clone.setFunctions(new ArrayList<>());
-            for (final Function func : functions) {
-                clone.getFunctions().add(func);
-            }
+        clone.setFunctions(new ArrayList<>());
+        for (final Function func : functions) {
+            clone.getFunctions().add(func);
         }
         clone.setInput(input);
         clone.setOptions(options);
@@ -91,6 +87,7 @@ public class Map<I, O> implements InputOutput<I, O> {
     }
 
     @Override
+<<<<<<< HEAD
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -119,6 +116,8 @@ public class Map<I, O> implements InputOutput<I, O> {
     }
 
     @Override
+=======
+>>>>>>> parent of 8ae5ffa172... gh-2157 generated equals/hashcode and fixed erroring tests
     public java.util.Map<String, String> getOptions() {
         return options;
     }
