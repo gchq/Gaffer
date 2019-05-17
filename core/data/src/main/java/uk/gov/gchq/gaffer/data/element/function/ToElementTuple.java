@@ -26,7 +26,7 @@ import static java.util.Objects.isNull;
 /**
  * A {@code ToElementTuple} is a {@link KorypheFunction} that converts an {@link Element} into an {@link ElementTuple}.
  */
-@Since("1.9.0")
+@Since("1.10.0")
 @Summary("Converts an Element into an ElementTuple")
 public class ToElementTuple extends KorypheFunction<Element, ElementTuple> {
 

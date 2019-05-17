@@ -25,7 +25,7 @@ import static java.util.Objects.isNull;
 /**
  * A {@code ToPropertiesTuple} is a {@link KorypheFunction} that converts Element {@link Properties} into a {@link PropertiesTuple}.
  */
-@Since("1.9.0")
+@Since("1.10.0")
 @Summary("Converts a Element Properties into a PropertiesTuple")
 public class ToPropertiesTuple extends KorypheFunction<Properties, PropertiesTuple> {
 
