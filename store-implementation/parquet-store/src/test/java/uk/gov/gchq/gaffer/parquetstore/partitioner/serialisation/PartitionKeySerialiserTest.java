@@ -42,7 +42,7 @@ public class PartitionKeySerialiserTest {
     @Test
     public void shouldCreatePartitionKey() throws IOException {
         // Given
-        final Object[] key = new Object[]{true, 1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[]{(byte) 1, (byte) 2, (byte) 3}};
+        final Object[] key = new Object[] {true, 1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[] {(byte) 1, (byte) 2, (byte) 3}};
         final PartitionKey partitionKey = new PartitionKey(key);
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
@@ -85,7 +85,7 @@ public class PartitionKeySerialiserTest {
     @Test
     public void testEmptyPartitionKey() throws IOException {
         // Given
-        final Object[] key = new Object[]{};
+        final Object[] key = new Object[] {};
         final PartitionKey partitionKey = new PartitionKey(key);
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * The {@code ToListHandler} handles {@link ToList} operations by collecting the
  * items in the input {@link Iterable} into a {@link List}.
- *
+ * <p>
  * Use of this operation will cause all of the items present in the input iterable
  * to be brought into memory, so this operation is not suitable for situations where
  * the size of the input iterable is very large.
@@ -43,6 +43,6 @@ public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<
         }
 
         return Streams.toStream(operation.getInput())
-                      .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 }

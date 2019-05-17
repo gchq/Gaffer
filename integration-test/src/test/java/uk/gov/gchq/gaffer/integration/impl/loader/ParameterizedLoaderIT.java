@@ -70,7 +70,7 @@ public abstract class ParameterizedLoaderIT<T extends Operation> extends Abstrac
         final Map<String, User> userMap = new HashMap<>();
         userMap.put("basic", new User("basic", Sets.newHashSet("public")));
         userMap.put("privileged", new User("privileged", Sets.newHashSet("public", "private")));
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
                 {FULL_SCHEMA, new FullSchemaLoader(), userMap},
                 {VISIBILITY_SCHEMA, new VisibilitySchemaLoader(), userMap},
                 {AGGREGATION_SCHEMA, new AggregationSchemaLoader(), userMap},

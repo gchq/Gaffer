@@ -33,7 +33,6 @@ import static uk.gov.gchq.gaffer.rest.application.ApplicationConfigV2.VERSION;
 
 /**
  * An implementation of {@code ApplicationConfig}, containing v2-specific configuration for the application.
- *
  */
 @Path(VERSION)
 public class ApplicationConfigV2 extends ApplicationConfig {

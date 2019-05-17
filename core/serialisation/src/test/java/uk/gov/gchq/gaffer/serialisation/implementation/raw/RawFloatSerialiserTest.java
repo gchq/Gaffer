@@ -72,11 +72,11 @@ public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Float.MAX_VALUE, new byte[]{-1, -1, 127, 127}),
-                new Pair<>(Float.MIN_VALUE, new byte[]{1, 0, 0, 0}),
-                new Pair<>(0f, new byte[]{0, 0, 0, 0}),
-                new Pair<>(1f, new byte[]{0, 0, -128, 63})
+        return new Pair[] {
+                new Pair<>(Float.MAX_VALUE, new byte[] {-1, -1, 127, 127}),
+                new Pair<>(Float.MIN_VALUE, new byte[] {1, 0, 0, 0}),
+                new Pair<>(0f, new byte[] {0, 0, 0, 0}),
+                new Pair<>(1f, new byte[] {0, 0, -128, 63})
         };
     }
 }

@@ -115,28 +115,28 @@ public class ViewElementDefinitionTest {
 
         final List<TupleAdaptedPredicate<String, ?>> preFilterComponents = deserialisedElementDef.getPreAggregationFilter().getComponents();
         assertEquals(1, preFilterComponents.size());
-        assertArrayEquals(new String[]{TestPropertyNames.COUNT}, preFilterComponents.get(0).getSelection());
+        assertArrayEquals(new String[] {TestPropertyNames.COUNT}, preFilterComponents.get(0).getSelection());
         assertEquals(new IsMoreThan(5), preFilterComponents.get(0).getPredicate());
 
         final List<TupleAdaptedBinaryOperator<String, ?>> aggComponents = deserialisedElementDef.getAggregator().getComponents();
         assertEquals(1, aggComponents.size());
-        assertArrayEquals(new String[]{TestPropertyNames.COUNT}, aggComponents.get(0).getSelection());
+        assertArrayEquals(new String[] {TestPropertyNames.COUNT}, aggComponents.get(0).getSelection());
         assertEquals(new Max(), aggComponents.get(0).getBinaryOperator());
 
         final List<TupleAdaptedPredicate<String, ?>> postFilterComponents = deserialisedElementDef.getPostAggregationFilter().getComponents();
         assertEquals(1, postFilterComponents.size());
-        assertArrayEquals(new String[]{TestPropertyNames.COUNT}, postFilterComponents.get(0).getSelection());
+        assertArrayEquals(new String[] {TestPropertyNames.COUNT}, postFilterComponents.get(0).getSelection());
         assertEquals(new IsLessThan(10), postFilterComponents.get(0).getPredicate());
 
         final List<TupleAdaptedFunction<String, ?, ?>> transformComponents = deserialisedElementDef.getTransformer().getComponents();
         assertEquals(1, transformComponents.size());
-        assertArrayEquals(new String[]{TestPropertyNames.COUNT}, transformComponents.get(0).getSelection());
+        assertArrayEquals(new String[] {TestPropertyNames.COUNT}, transformComponents.get(0).getSelection());
         assertEquals(new TestTransform(), transformComponents.get(0).getFunction());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, transformComponents.get(0).getProjection());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, transformComponents.get(0).getProjection());
 
         final List<TupleAdaptedPredicate<String, ?>> postTransformFilterComponents = deserialisedElementDef.getPostTransformFilter().getComponents();
         assertEquals(1, postTransformFilterComponents.size());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, postTransformFilterComponents.get(0).getSelection());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, postTransformFilterComponents.get(0).getSelection());
         assertEquals(new IsEqual("9"), postTransformFilterComponents.get(0).getPredicate());
 
     }

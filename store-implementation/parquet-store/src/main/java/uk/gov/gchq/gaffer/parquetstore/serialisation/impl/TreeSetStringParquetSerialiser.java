@@ -44,9 +44,9 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
         if (null != object) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
-            return new Object[]{objects};
+            return new Object[] {objects};
         }
-        return new Object[]{null};
+        return new Object[] {null};
     }
 
     @Override

@@ -119,7 +119,7 @@ public final class TableUtils {
             store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException |
                 ClassNotFoundException e
-                ) {
+        ) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 

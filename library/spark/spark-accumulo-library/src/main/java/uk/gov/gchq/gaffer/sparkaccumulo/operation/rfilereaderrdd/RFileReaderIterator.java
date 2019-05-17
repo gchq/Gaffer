@@ -129,7 +129,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         // Apply visibility filtering iterator
         if (null != auths) {
             final Authorizations authorizations = new Authorizations(auths.toArray(new String[auths.size()]));
-            final VisibilityFilter visibilityFilter = new VisibilityFilter(mergedIterator, authorizations, new byte[]{});
+            final VisibilityFilter visibilityFilter = new VisibilityFilter(mergedIterator, authorizations, new byte[] {});
             final IteratorSetting visibilityIteratorSetting = new IteratorSetting(1, "auth", VisibilityFilter.class);
             visibilityFilter.init(mergedIterator, visibilityIteratorSetting.getOptions(), null);
             iteratorAfterIterators = visibilityFilter;

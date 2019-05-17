@@ -58,7 +58,7 @@ public class IntegerFreqMapSerialiser implements ToBytesSerialiser<IntegerFreqMa
         }
         try {
             return builder.toString()
-                          .getBytes(CommonConstants.ISO_8859_1_ENCODING);
+                    .getBytes(CommonConstants.ISO_8859_1_ENCODING);
         } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }

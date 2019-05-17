@@ -208,7 +208,7 @@ public class ComparableOrToStringComparatorTest {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
         // When
-        final int result = comparator.compare(new Integer[]{1, 1}, "[1, 1]");
+        final int result = comparator.compare(new Integer[] {1, 1}, "[1, 1]");
 
         // Then
         assertEquals(0, result);
@@ -220,7 +220,7 @@ public class ComparableOrToStringComparatorTest {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
         // When
-        final int result = comparator.compare(new Integer[]{1, 1}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 1}, new Integer[] {1, 2});
 
         // Then
         assertTrue("Should be less than 0", result < 0);
@@ -232,7 +232,7 @@ public class ComparableOrToStringComparatorTest {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
         // When
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 1});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 1});
 
         // Then
         assertTrue("Should be more than 0", result > 0);
@@ -244,7 +244,7 @@ public class ComparableOrToStringComparatorTest {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
         // When
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 2});
 
         // Then
         assertEquals(0, result);

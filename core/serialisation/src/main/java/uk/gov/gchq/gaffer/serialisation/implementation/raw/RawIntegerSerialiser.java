@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
  * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser}.
  * RawIntegerSerialiser serialises Integers into a little-endian byte array.
  *
- * @deprecated this is unable to preserve object ordering.
  * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser
+ * @deprecated this is unable to preserve object ordering.
  */
 @Deprecated
 public class RawIntegerSerialiser implements ToBytesSerialiser<Integer> {

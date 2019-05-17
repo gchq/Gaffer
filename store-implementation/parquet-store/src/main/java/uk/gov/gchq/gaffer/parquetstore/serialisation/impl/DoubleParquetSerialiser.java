@@ -33,7 +33,7 @@ public class DoubleParquetSerialiser implements ParquetSerialiser<Double> {
 
     @Override
     public Object[] serialise(final Double object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override

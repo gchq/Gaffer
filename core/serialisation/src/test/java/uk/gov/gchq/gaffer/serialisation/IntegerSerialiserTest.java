@@ -70,11 +70,11 @@ public class IntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{50, 49, 52, 55, 52, 56, 51, 54, 52, 55}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{45, 50, 49, 52, 55, 52, 56, 51, 54, 52, 56}),
-                new Pair<>(0, new byte[]{48}),
-                new Pair<>(1, new byte[]{49})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {50, 49, 52, 55, 52, 56, 51, 54, 52, 55}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {45, 50, 49, 52, 55, 52, 56, 51, 54, 52, 56}),
+                new Pair<>(0, new byte[] {48}),
+                new Pair<>(1, new byte[] {49})
         };
     }
 }

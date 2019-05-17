@@ -70,14 +70,14 @@ public class FederatedOperationChainValidatorTest {
                 .build();
 
         try {
-        //when
-        graph.execute(new GetAllElements.Builder()
-                .view(new View.Builder()
-                        .entity("missingEntity")
-                        .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, missingGraph)
-                .build(), new Context());
-        fail("exception expected");
+            //when
+            graph.execute(new GetAllElements.Builder()
+                    .view(new View.Builder()
+                            .entity("missingEntity")
+                            .build())
+                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, missingGraph)
+                    .build(), new Context());
+            fail("exception expected");
         } catch (final IllegalArgumentException e) {
             //then
             assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());

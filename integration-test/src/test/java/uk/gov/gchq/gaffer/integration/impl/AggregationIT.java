@@ -192,7 +192,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
+    @TraitRequirement( {StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})
     public void shouldGetAllElementsWithFilterSummarisation() throws Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
         edge1.putProperty(TestPropertyNames.INT, 100);

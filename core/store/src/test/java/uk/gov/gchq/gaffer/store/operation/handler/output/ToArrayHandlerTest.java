@@ -44,7 +44,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableToArray() throws OperationException {
         // Given
-        final Integer[] originalArray = new Integer[]{1, 2, 3};
+        final Integer[] originalArray = new Integer[] {1, 2, 3};
 
         final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
@@ -62,7 +62,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementsToArray() throws OperationException {
         // Given
-        final Element[] originalArray = new Element[]{
+        final Element[] originalArray = new Element[] {
                 new Entity.Builder()
                         .group("entity")
                         .build(),
@@ -87,7 +87,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementIdsToArray() throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[]{new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
+        final ElementId[] originalArray = new ElementId[] {new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
 
         final Iterable<ElementId> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
@@ -105,7 +105,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementsAndElementIdsToArray() throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[]{
+        final ElementId[] originalArray = new ElementId[] {
                 new Entity.Builder()
                         .group("entity")
                         .build(),
@@ -132,7 +132,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfObjectsToArray() throws OperationException {
         // Given
-        final Object[] originalArray = new Object[]{
+        final Object[] originalArray = new Object[] {
                 new Entity("entity"),
                 new Edge.Builder().group("edge"),
                 new EntitySeed("vertex"),
@@ -191,7 +191,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldHandleZeroLengthInput() throws OperationException {
         // Given
-        final Integer[] originalArray = new Integer[]{};
+        final Integer[] originalArray = new Integer[] {};
 
         final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();

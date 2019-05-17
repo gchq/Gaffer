@@ -37,7 +37,7 @@ public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
     @SuppressWarnings("unchecked")
     public Pair<DoublesUnion, byte[]>[] getHistoricSerialisationPairs() {
         final DoublesUnion union = getExampleOutput();
-        return new Pair[]{new Pair(union, new byte[]{2, 3, 8, 0, -128, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, 0, 0})};
+        return new Pair[] {new Pair(union, new byte[] {2, 3, 8, 0, -128, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, 0, 0})};
     }
 
 

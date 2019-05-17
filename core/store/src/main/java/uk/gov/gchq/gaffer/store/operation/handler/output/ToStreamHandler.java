@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 /**
  * A {@code ToStreamHandler} handles for {@link ToStream} operations.
- *
+ * <p>
  * Simply wraps the operation input items into a {@link java.util.stream.Stream}
  * for further processing.
  */

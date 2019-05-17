@@ -43,8 +43,8 @@ public class ToMapHandlerTest {
     public void shouldConvertElementToMap() throws OperationException {
         // Given
         final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
-                                                  .vertex(1)
-                                                  .build();
+                .vertex(1)
+                .build();
 
         final Map<String, Object> originalMap = new HashMap<>(1);
         originalMap.put("group", TestGroups.ENTITY);

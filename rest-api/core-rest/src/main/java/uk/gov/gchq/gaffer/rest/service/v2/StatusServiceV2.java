@@ -54,16 +54,16 @@ public class StatusServiceV2 implements IStatusServiceV2 {
         try {
             if (null != graphFactory.getGraph()) {
                 return Response.ok(SystemStatus.UP)
-                               .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                               .build();
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
             }
         } catch (final Exception e) {
             throw new GafferRuntimeException("Unable to create graph.", e, Status.INTERNAL_SERVER_ERROR);
         }
 
         return Response.status(503)
-                       .entity(SystemStatus.DOWN)
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .entity(SystemStatus.DOWN)
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 }

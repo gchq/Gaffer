@@ -189,7 +189,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                 tabletName = LAST_TABLET;
             } else {
                 throw new RuntimeException("Row in accumulo.metadata didn't have the expected number of fields: "
-                + "Expected 1 or 2, got " + fields.length);
+                        + "Expected 1 or 2, got " + fields.length);
             }
 
             // Detect start of a new tablet

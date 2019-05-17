@@ -42,7 +42,7 @@ import java.util.Set;
 /**
  * A {@code ToArrayHandler} handles {@link ToArray} operations. The input {@link Iterable}
  * of objects is converted into an array.
- *
+ * <p>
  * Use of this operation will cause all of the items present in the input iterable
  * to be brought into memory, so this operation is not suitable for situations where
  * the size of the input iterable is very large.

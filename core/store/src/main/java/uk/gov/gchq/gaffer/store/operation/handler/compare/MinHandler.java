@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * A {@code MinHandler} handles the {@link Min} operation.
- *
+ * <p>
  * It uses the {@link Comparator}s instances on the operation to determine the
  * object with the minimum value.
  */

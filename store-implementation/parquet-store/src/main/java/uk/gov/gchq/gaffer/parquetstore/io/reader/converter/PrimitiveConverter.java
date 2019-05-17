@@ -71,25 +71,32 @@ public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConve
     @Override
     public void addValueFromDictionary(final int dictionaryId) {
         switch (expectedType) {
-            case "Binary":  final Binary binary = this.dictionary.decodeToBinary(dictionaryId);
-                            addBinary(binary);
-                            break;
-            case "boolean": final boolean bool = this.dictionary.decodeToBoolean(dictionaryId);
-                            addBoolean(bool);
-                            break;
-            case "double":  final double aDouble = this.dictionary.decodeToDouble(dictionaryId);
-                            addDouble(aDouble);
-                            break;
-            case "float":   final float aFloat = this.dictionary.decodeToFloat(dictionaryId);
-                            addFloat(aFloat);
-                            break;
-            case "int":     final int anInt = this.dictionary.decodeToInt(dictionaryId);
-                            addInt(anInt);
-                            break;
-            case "long":    final long aLong = this.dictionary.decodeToLong(dictionaryId);
-                            addLong(aLong);
-                            break;
-            default:        break;
+            case "Binary":
+                final Binary binary = this.dictionary.decodeToBinary(dictionaryId);
+                addBinary(binary);
+                break;
+            case "boolean":
+                final boolean bool = this.dictionary.decodeToBoolean(dictionaryId);
+                addBoolean(bool);
+                break;
+            case "double":
+                final double aDouble = this.dictionary.decodeToDouble(dictionaryId);
+                addDouble(aDouble);
+                break;
+            case "float":
+                final float aFloat = this.dictionary.decodeToFloat(dictionaryId);
+                addFloat(aFloat);
+                break;
+            case "int":
+                final int anInt = this.dictionary.decodeToInt(dictionaryId);
+                addInt(anInt);
+                break;
+            case "long":
+                final long aLong = this.dictionary.decodeToLong(dictionaryId);
+                addLong(aLong);
+                break;
+            default:
+                break;
         }
     }
 

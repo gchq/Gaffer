@@ -41,7 +41,6 @@ public class EntityMap {
      *
      * @param vertex the vertex associated with the entity
      * @param entity the entity object
-     *
      * @return {@code true} if the entity was successfully added, otherwise
      * {@code false}
      */
@@ -52,9 +51,8 @@ public class EntityMap {
     /**
      * Add a {@link Set} of entities to this EntityMap instance.
      *
-     * @param vertex the vertex associated with the entity
+     * @param vertex   the vertex associated with the entity
      * @param entities the set of entities
-     *
      * @return {@code true} if the entity was successfully added, otherwise
      * {@code false}
      */
@@ -66,7 +64,6 @@ public class EntityMap {
      * Get the entries in the EntityMap which match the provided vertex.
      *
      * @param vertex the vertex
-     *
      * @return the {@link Set} of edge objects relating to the specified vertex
      */
     public Set<Entity> get(final Object vertex) {

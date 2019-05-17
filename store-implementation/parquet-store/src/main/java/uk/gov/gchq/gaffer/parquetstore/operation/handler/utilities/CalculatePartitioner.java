@@ -68,7 +68,7 @@ public class CalculatePartitioner {
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
             final SortedSet<Path> sortedFiles = new TreeSet<>();
             Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);
-            final Path[] sortedPaths = sortedFiles.toArray(new Path[]{});
+            final Path[] sortedPaths = sortedFiles.toArray(new Path[] {});
             LOGGER.debug("Found {} files in {}", files.length, groupPath);
             for (int i = 1; i < sortedPaths.length; i++) { // NB Skip first file
                 LOGGER.debug("Reading first line of {}", sortedPaths[i]);
@@ -97,7 +97,7 @@ public class CalculatePartitioner {
             final FileStatus[] files = fs.listStatus(groupPath, p -> p.getName().endsWith(".parquet"));
             final SortedSet<Path> sortedFiles = new TreeSet<>();
             Arrays.stream(files).map(f -> f.getPath()).forEach(sortedFiles::add);
-            final Path[] sortedPaths = sortedFiles.toArray(new Path[]{});
+            final Path[] sortedPaths = sortedFiles.toArray(new Path[] {});
             LOGGER.debug("Found {} files in {}", files.length, groupPath);
             for (int i = 1; i < sortedPaths.length; i++) { // NB Skip first file
                 LOGGER.debug("Reading first line of {}", sortedPaths[i]);

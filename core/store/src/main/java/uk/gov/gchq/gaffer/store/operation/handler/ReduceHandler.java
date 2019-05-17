@@ -58,7 +58,7 @@ public class ReduceHandler<T> implements OutputOperationHandler<Reduce<T>, T> {
         final BinaryOperator aggregateFunction = operation.getAggregateFunction();
 
         return (T) Streams.toStream(input)
-                          .reduce(identity, aggregateFunction, aggregateFunction);
+                .reduce(identity, aggregateFunction, aggregateFunction);
 
     }
 }

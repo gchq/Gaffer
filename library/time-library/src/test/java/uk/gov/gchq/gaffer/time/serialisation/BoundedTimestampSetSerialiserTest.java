@@ -94,6 +94,6 @@ public class BoundedTimestampSetSerialiserTest extends ToBytesSerialisationTest<
     @SuppressWarnings("unchecked")
     @Override
     public Pair<BoundedTimestampSet, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{new Pair(getExampleValue(), new byte[]{0, 10, 0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
+        return new Pair[] {new Pair(getExampleValue(), new byte[] {0, 10, 0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
     }
 }

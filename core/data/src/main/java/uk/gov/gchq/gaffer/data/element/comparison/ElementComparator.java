@@ -29,7 +29,7 @@ import java.util.Set;
  * Base interface describing {@link uk.gov.gchq.gaffer.data.element.Element}
  * {@link java.util.Comparator} instances.
  * <p>
- *     Implementations should be JSON serialiseable
+ * Implementations should be JSON serialiseable
  * </p>
  */
 public interface ElementComparator extends Comparator<Element> {

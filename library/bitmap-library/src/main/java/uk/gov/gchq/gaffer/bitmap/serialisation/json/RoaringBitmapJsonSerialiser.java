@@ -44,7 +44,7 @@ public class RoaringBitmapJsonSerialiser extends JsonSerializer<RoaringBitmap> {
         typeSer.writeTypeSuffixForObject(value, gen);
     }
 
-    private void _serialise(final RoaringBitmap roaringBitmap, final JsonGenerator jsonGenerator) throws  IOException {
+    private void _serialise(final RoaringBitmap roaringBitmap, final JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(RoaringBitmapConstants.BITMAP_WRAPPER_OBJECT_NAME);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         roaringBitmap.serialize(new DataOutputStream(baos));

@@ -72,11 +72,11 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{-1, -1, -1, 127}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0, 0, 0, -128}),
-                new Pair<>(0, new byte[]{0, 0, 0, 0}),
-                new Pair<>(1, new byte[]{1, 0, 0, 0})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {-1, -1, -1, 127}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0, 0, 0, -128}),
+                new Pair<>(0, new byte[] {0, 0, 0, 0}),
+                new Pair<>(1, new byte[] {1, 0, 0, 0})
         };
     }
 }

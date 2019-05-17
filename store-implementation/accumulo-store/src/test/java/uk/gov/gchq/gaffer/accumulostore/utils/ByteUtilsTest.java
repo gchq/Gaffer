@@ -33,12 +33,12 @@ public class ByteUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        a = new byte[]{11, 22, 33, 44, 55};
-        b = new byte[]{11, 22, 33, 44, 55};
-        c = new byte[]{11, 22, 33, 44};
-        d = new byte[]{11, 22, 33, 44, 66};
-        e = new byte[]{11, 22, 33, 44, 55, 11, 22, 33, 44, 55};
-        f = new byte[]{};
+        a = new byte[] {11, 22, 33, 44, 55};
+        b = new byte[] {11, 22, 33, 44, 55};
+        c = new byte[] {11, 22, 33, 44};
+        d = new byte[] {11, 22, 33, 44, 66};
+        e = new byte[] {11, 22, 33, 44, 55, 11, 22, 33, 44, 55};
+        f = new byte[] {};
     }
 
     @Test

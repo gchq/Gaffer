@@ -3,7 +3,7 @@
     "BasicEntity": {
       "vertex": "string",
       "properties": {
-        "fullname" : "string"
+        "fullname": "string"
       }
     },
     "BasicEntity2": {

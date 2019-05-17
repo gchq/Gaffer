@@ -72,11 +72,11 @@ public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Double.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -17, 127}),
-                new Pair<>(Double.MIN_VALUE, new byte[]{1, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(0.0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1.00, new byte[]{0, 0, 0, 0, 0, 0, -16, 63}),
+        return new Pair[] {
+                new Pair<>(Double.MAX_VALUE, new byte[] {-1, -1, -1, -1, -1, -1, -17, 127}),
+                new Pair<>(Double.MIN_VALUE, new byte[] {1, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(0.0, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1.00, new byte[] {0, 0, 0, 0, 0, 0, -16, 63}),
         };
     }
 }

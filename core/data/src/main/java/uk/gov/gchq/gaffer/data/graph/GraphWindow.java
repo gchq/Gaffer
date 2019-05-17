@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.graph.entity.EntityMaps;
 
 /**
  * A {@code GraphWindow} is an immutable in-memory representation of a graph.
- *
+ * <p>
  * A GraphWindow can be used to create a graph representation which tracks changes to
  * a graph, for example temporal changes or different views on a parent graph seen
  * during a Walk.
@@ -35,7 +35,7 @@ public class GraphWindow {
      * Default constructor.
      *
      * @param adjacencyMaps the adjacency maps to set
-     * @param entityMaps the entity maps to set
+     * @param entityMaps    the entity maps to set
      */
     public GraphWindow(final AdjacencyMaps adjacencyMaps, final EntityMaps entityMaps) {
         this.adjacencyMaps = adjacencyMaps;

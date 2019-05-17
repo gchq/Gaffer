@@ -43,7 +43,7 @@ public class AdjacencyMapsTest {
 
     @Parameters
     public static Collection<Object[]> instancesToTest() {
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
                 {new SimpleAdjacencyMaps()},
                 {new PrunedAdjacencyMaps()}
         });

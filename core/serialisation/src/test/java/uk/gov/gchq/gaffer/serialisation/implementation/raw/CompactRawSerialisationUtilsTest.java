@@ -33,7 +33,7 @@ public class CompactRawSerialisationUtilsTest {
     @Before
     public void setUp() throws Exception {
         //-120 is length
-        bytesWithLength = new byte[]{-120, 17, 34, 16, -12, 125, -23, -127, 21};
+        bytesWithLength = new byte[] {-120, 17, 34, 16, -12, 125, -23, -127, 21};
     }
 
     @Test

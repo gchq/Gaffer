@@ -62,7 +62,7 @@ public class MiniHBaseStore extends HBaseStore {
     private static HBaseTestingUtility utility;
     private static Connection connection;
 
-    @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
+    @SuppressFBWarnings( {"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
@@ -125,7 +125,7 @@ public class MiniHBaseStore extends HBaseStore {
                         }
                     };
 
-            final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
+            final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[] {"supergroup"});
             superUser.runAs(action);
         }
     }

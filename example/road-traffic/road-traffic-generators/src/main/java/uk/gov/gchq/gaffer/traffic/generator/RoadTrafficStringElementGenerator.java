@@ -187,6 +187,6 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
             return null;
         }
 
-        return expandedFields.toArray(new String[]{});
+        return expandedFields.toArray(new String[] {});
     }
 }

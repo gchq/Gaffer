@@ -37,59 +37,59 @@ public class ByteArrayEscapeUtilsTest {
 
     @Test
     public void testNoDelims() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30};
         check(bytes);
     }
 
     @Test
     public void testWithOneDelim() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
         check(bytes);
     }
 
     @Test
     public void testWithConsecutiveDelims() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
         check(bytes);
-        final byte[] updatedBytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
+        final byte[] updatedBytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER, (byte) 40, (byte) 50};
         check(updatedBytes);
     }
 
     @Test
     public void testWithEscapeCharacter() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, (byte) 40, (byte) 50};
         check(bytes);
     }
 
     @Test
     public void testWithConsecutiveEscapeCharacter() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, (byte) 40, (byte) 50};
         check(bytes);
-        final byte[] updatedBytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, ESCAPE_CHAR, (byte) 40, (byte) 50};
+        final byte[] updatedBytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, ESCAPE_CHAR, (byte) 40, (byte) 50};
         check(updatedBytes);
     }
 
     @Test
     public void testWithReplacementCharacter() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(bytes);
     }
 
     @Test
     public void testWithConsecutiveReplacementCharacter() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(bytes);
-        final byte[] updatedBytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] updatedBytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, REPLACEMENT_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(updatedBytes);
     }
 
     @Test
     public void testWithEscapeThenReplacementCharacter() {
-        final byte[] bytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(bytes);
-        final byte[] bytesTwoReplacementChar = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] bytesTwoReplacementChar = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(bytesTwoReplacementChar);
-        final byte[] twoEscapeAndReplacementCharbytes = new byte[]{(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
+        final byte[] twoEscapeAndReplacementCharbytes = new byte[] {(byte) 10, (byte) 20, (byte) 30, ESCAPE_CHAR, ESCAPE_CHAR, REPLACEMENT_CHAR, REPLACEMENT_CHAR, (byte) 40, (byte) 50};
         check(twoEscapeAndReplacementCharbytes);
     }
 

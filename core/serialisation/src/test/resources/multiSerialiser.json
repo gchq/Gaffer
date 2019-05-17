@@ -1,21 +1,25 @@
 {
-  "serialisers" : [ {
-    "key" : 0,
-    "serialiser" : {
-      "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+  "serialisers": [
+    {
+      "key": 0,
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+      },
+      "valueClass": "java.lang.String"
     },
-    "valueClass" : "java.lang.String"
-  }, {
-    "key" : 1,
-    "serialiser" : {
-      "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser"
+    {
+      "key": 1,
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser"
+      },
+      "valueClass": "java.lang.Long"
     },
-    "valueClass" : "java.lang.Long"
-  }, {
-    "key" : 2,
-    "serialiser" : {
-      "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
-    },
-    "valueClass" : "java.lang.Integer"
-  } ]
+    {
+      "key": 2,
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      },
+      "valueClass": "java.lang.Integer"
+    }
+  ]
 }

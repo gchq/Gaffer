@@ -155,12 +155,12 @@ public class GafferGroupObjectConverter implements Serializable {
             if (serialiser instanceof ParquetSerialiser) {
                 return (Object[]) serialiser.serialise(gafferObject);
             } else if (null != serialiser) {
-                return new Object[]{serialiser.serialise(gafferObject)};
+                return new Object[] {serialiser.serialise(gafferObject)};
             } else {
-                return new Object[]{gafferObject};
+                return new Object[] {gafferObject};
             }
         } else {
-            return new Object[]{null};
+            return new Object[] {null};
         }
     }
 
@@ -368,7 +368,7 @@ public class GafferGroupObjectConverter implements Serializable {
                     for (int i = 0; i < keys.length; i++) {
                         map.put(keys[i], values[i]);
                     }
-                    gafferObject = parquetObjectsToGafferObject(column, new Object[]{map});
+                    gafferObject = parquetObjectsToGafferObject(column, new Object[] {map});
                 } else {
                     gafferObject = null;
                 }

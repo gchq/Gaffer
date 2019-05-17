@@ -40,7 +40,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
         //given
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         //expected = Size in bytes + bytes of "Empty"
-        byte[] expected = Bytes.concat(new byte[]{5}, "Empty".getBytes());
+        byte[] expected = Bytes.concat(new byte[] {5}, "Empty".getBytes());
         Schema testSchema = new Schema.Builder()
                 .edge("group1", new SchemaEdgeDefinition.Builder()
                         .source("string")

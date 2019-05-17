@@ -44,7 +44,7 @@ public class SerialisationFactory {
 
     private final List<Serialiser> serialisers;
     private static final Serialiser LAST_RESORT_FINALISER = new JavaSerialiser();
-    private static final Serialiser[] CORE_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] CORE_SERIALISERS = new Serialiser[] {
             new OrderedLongSerialiser(),
             new OrderedDateSerialiser(),
             new OrderedIntegerSerialiser(),
@@ -107,8 +107,8 @@ public class SerialisationFactory {
     }
 
     /**
-     * @param objClass      the class of an object to be serialised.
-     * @param preserveOrder if true then the returned serialiser should preserve order.
+     * @param objClass             the class of an object to be serialised.
+     * @param preserveOrder        if true then the returned serialiser should preserve order.
      * @param consistentSerialiser if true then the returned serialiser should be consistent
      * @return a compatible serialiser.
      * @throws IllegalArgumentException if the object class parameter is null or

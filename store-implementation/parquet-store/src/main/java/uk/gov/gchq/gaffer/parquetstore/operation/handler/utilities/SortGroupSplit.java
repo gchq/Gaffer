@@ -104,7 +104,7 @@ public class SortGroupSplit implements Callable<OperationException> {
         LOGGER.info("Sorting data in files {} by columns {} to one file in output directory {}",
                 StringUtils.join(inputFilesThatExist, ','), StringUtils.join(sortColumns, ','), outputDir);
         spark.read()
-                .parquet(inputFilesThatExist.toArray(new String[]{}))
+                .parquet(inputFilesThatExist.toArray(new String[] {}))
                 .sort(firstSortColumn, otherSortColumns.stream().toArray(String[]::new))
                 .coalesce(1)
                 .write()

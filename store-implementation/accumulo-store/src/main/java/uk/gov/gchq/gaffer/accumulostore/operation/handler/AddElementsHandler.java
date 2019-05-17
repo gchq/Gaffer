@@ -38,7 +38,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void addElements(final AddElements operation, final AccumuloStore store)
             throws OperationException {
         try {
-            final Iterable<?extends Element> validatedElements;
+            final Iterable<? extends Element> validatedElements;
             if (operation.isValidate()) {
                 validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
             } else {

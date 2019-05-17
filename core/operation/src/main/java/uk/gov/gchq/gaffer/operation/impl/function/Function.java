@@ -28,7 +28,8 @@ public interface Function {
      * to an {@link uk.gov.gchq.gaffer.data.element.Element} Function,
      * eg. an ElementFilter
      * This is to enable generic handling of each of the implementations of {@link Function}.
-     * @return  A map of Edge group to Element Function
+     *
+     * @return A map of Edge group to Element Function
      */
     Map<String, ?> getEdges();
 
@@ -37,7 +38,8 @@ public interface Function {
      * to an {@link uk.gov.gchq.gaffer.data.element.Element} Function,
      * eg. an ElementFilter
      * This is to enable generic handling of each of the implementations of {@link Function}.
-     * @return  A map of Entity group to Element Function
+     *
+     * @return A map of Entity group to Element Function
      */
     Map<String, ?> getEntities();
 

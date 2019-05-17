@@ -35,14 +35,14 @@ public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair("", new byte[]{}),
-                new Pair(null, new byte[]{}),
-                new Pair("some string", new byte[]{}),
-                new Pair(1L, new byte[]{}),
-                new Pair(0, new byte[]{}),
-                new Pair(true, new byte[]{}),
-                new Pair(false, new byte[]{})
+        return new Pair[] {
+                new Pair("", new byte[] {}),
+                new Pair(null, new byte[] {}),
+                new Pair("some string", new byte[] {}),
+                new Pair(1L, new byte[] {}),
+                new Pair(0, new byte[] {}),
+                new Pair(true, new byte[] {}),
+                new Pair(false, new byte[] {})
         };
     }
 

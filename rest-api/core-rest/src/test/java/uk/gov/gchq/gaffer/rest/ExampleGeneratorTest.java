@@ -66,7 +66,7 @@ public class ExampleGeneratorTest {
 
         return clazzes.stream()
                 .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
-                .map(clazz -> new Object[]{clazz})
+                .map(clazz -> new Object[] {clazz})
                 .collect(Collectors.toList());
     }
 

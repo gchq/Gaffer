@@ -23,6 +23,7 @@ import java.util.Set;
 
 /**
  * Type safe cache, adding and getting is guaranteed to be same type.
+ *
  * @param <V> The type of values to add and get.
  */
 public class Cache<V> {

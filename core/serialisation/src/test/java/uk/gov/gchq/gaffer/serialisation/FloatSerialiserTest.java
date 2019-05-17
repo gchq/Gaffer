@@ -70,11 +70,11 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Float.MAX_VALUE, new byte[]{51, 46, 52, 48, 50, 56, 50, 51, 53, 69, 51, 56}),
-                new Pair<>(Float.MIN_VALUE, new byte[]{49, 46, 52, 69, 45, 52, 53}),
-                new Pair<>(0f, new byte[]{48, 46, 48}),
-                new Pair<>(1f, new byte[]{49, 46, 48})
+        return new Pair[] {
+                new Pair<>(Float.MAX_VALUE, new byte[] {51, 46, 52, 48, 50, 56, 50, 51, 53, 69, 51, 56}),
+                new Pair<>(Float.MIN_VALUE, new byte[] {49, 46, 52, 69, 45, 52, 53}),
+                new Pair<>(0f, new byte[] {48, 46, 48}),
+                new Pair<>(1f, new byte[] {49, 46, 48})
         };
     }
 }

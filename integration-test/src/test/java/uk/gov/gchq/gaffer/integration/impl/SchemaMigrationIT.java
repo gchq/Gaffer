@@ -480,7 +480,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                 results);
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.QUERY_AGGREGATION})
+    @TraitRequirement( {StoreTrait.TRANSFORMATION, StoreTrait.QUERY_AGGREGATION})
     @Test
     public void shouldMigrateOldToNewWithAgg() throws OperationException {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);
@@ -585,7 +585,7 @@ public class SchemaMigrationIT extends AbstractStoreIT {
         );
     }
 
-    @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.POST_TRANSFORMATION_FILTERING})
+    @TraitRequirement( {StoreTrait.TRANSFORMATION, StoreTrait.POST_TRANSFORMATION_FILTERING})
     @Test
     public void shouldAddOperationsAfterEachGetElements() throws OperationException {
         migration.setOutputType(SchemaMigration.MigrationOutputType.NEW);

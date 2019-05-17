@@ -23,7 +23,8 @@
 
     <!-- Copied from Gaffer rest api web.xml-->
     <listener>
-        <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
+        <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener
+        </listener-class>
     </listener>
 
     <servlet>

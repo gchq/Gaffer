@@ -51,6 +51,6 @@ public class FlatMapStreamSupplier<T, U> implements StreamSupplier<U> {
     @Override
     public Stream<U> get() {
         return Streams.toStream(input)
-                      .flatMap(function);
+                .flatMap(function);
     }
 }

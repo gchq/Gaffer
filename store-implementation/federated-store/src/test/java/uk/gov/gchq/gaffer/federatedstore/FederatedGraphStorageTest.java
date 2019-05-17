@@ -419,7 +419,7 @@ public class FederatedGraphStorageTest {
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             //then
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{graphId})), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[] {graphId})), e.getMessage());
         }
     }
 

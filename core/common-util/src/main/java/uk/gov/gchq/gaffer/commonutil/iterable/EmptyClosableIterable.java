@@ -22,7 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 /**
  * An {@code EmptyCloseableIterable} is an {@link java.lang.Iterable} which is backed by a
  * {@link EmptyCloseableIterator}, and contains no objects.
- *
+ * <p>
  * This is useful when a {@link java.lang.Iterable} is required, but there is no data present.
  *
  * @param <T> the type of items in the iterable.

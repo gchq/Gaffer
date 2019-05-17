@@ -39,8 +39,8 @@ public class GafferCheckedExceptionMapper implements ExceptionMapper<GafferCheck
         final Error error = ErrorFactory.from(gce);
 
         return Response.status(error.getStatusCode())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .entity(error)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .entity(error)
+                .build();
     }
 }

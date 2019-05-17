@@ -27,8 +27,8 @@ import java.util.NoSuchElementException;
  * contained in the iterator until the preconfigured starting point is reached
  * (and discarding these), then by retrieving objects until either:
  * <ul>
- *     <li>the end of the iterator is reached, or</li>
- *     <li>the iterator pointer exceeds the specified limit</li>
+ * <li>the end of the iterator is reached, or</li>
+ * <li>the iterator pointer exceeds the specified limit</li>
  * </ul>
  *
  * @param <T> the type of items in the iterator.

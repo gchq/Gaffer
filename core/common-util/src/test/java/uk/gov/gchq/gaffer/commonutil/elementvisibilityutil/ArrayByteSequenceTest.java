@@ -33,7 +33,7 @@ public class ArrayByteSequenceTest {
 
     @Before
     public void setUp() {
-        data = new byte[]{'s', 'm', 'i', 'l', 'e', 's'};
+        data = new byte[] {'s', 'm', 'i', 'l', 'e', 's'};
         abs = new ArrayByteSequence(data);
     }
 

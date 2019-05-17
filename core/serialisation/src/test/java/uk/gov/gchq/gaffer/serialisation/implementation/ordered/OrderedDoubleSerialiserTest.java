@@ -94,11 +94,11 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Double.MAX_VALUE, new byte[]{8, 127, -17, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(Double.MIN_VALUE, new byte[]{1, 1}),
-                new Pair<>(0.0, new byte[]{0}),
-                new Pair<>(1.00, new byte[]{8, 63, -16, 0, 0, 0, 0, 0, 0}),
+        return new Pair[] {
+                new Pair<>(Double.MAX_VALUE, new byte[] {8, 127, -17, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(Double.MIN_VALUE, new byte[] {1, 1}),
+                new Pair<>(0.0, new byte[] {0}),
+                new Pair<>(1.00, new byte[] {8, 63, -16, 0, 0, 0, 0, 0, 0}),
         };
     }
 }

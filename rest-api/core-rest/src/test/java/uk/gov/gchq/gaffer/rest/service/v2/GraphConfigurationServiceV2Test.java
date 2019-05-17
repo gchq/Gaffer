@@ -276,12 +276,12 @@ public class GraphConfigurationServiceV2Test {
 
         // Then
         assertEquals(Sets.newHashSet(
-                        INGEST_AGGREGATION.name(),
-                        PRE_AGGREGATION_FILTERING.name(),
-                        POST_AGGREGATION_FILTERING.name(),
-                        POST_TRANSFORMATION_FILTERING.name(),
-                        TRANSFORMATION.name(),
-                        STORE_VALIDATION.name()
+                INGEST_AGGREGATION.name(),
+                PRE_AGGREGATION_FILTERING.name(),
+                POST_AGGREGATION_FILTERING.name(),
+                POST_TRANSFORMATION_FILTERING.name(),
+                TRANSFORMATION.name(),
+                STORE_VALIDATION.name()
                 ),
                 traits);
     }

@@ -35,9 +35,9 @@ public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
     @Override
     public Object[] serialise(final Short object) throws SerialisationException {
         if (null != object) {
-            return new Object[]{object.intValue()};
+            return new Object[] {object.intValue()};
         } else {
-            return new Object[]{null};
+            return new Object[] {null};
         }
     }
 

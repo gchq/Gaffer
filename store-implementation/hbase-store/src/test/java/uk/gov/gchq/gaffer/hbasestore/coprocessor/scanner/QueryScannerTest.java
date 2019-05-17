@@ -272,7 +272,7 @@ public class QueryScannerTest {
         assertTrue(queryScanner.isFilterDone());
         verify(scanner).isFilterDone();
 
-        final byte[] bytes = new byte[]{0, 1, 2, 3};
+        final byte[] bytes = new byte[] {0, 1, 2, 3};
         given(scanner.reseek(bytes)).willReturn(true);
         assertTrue(queryScanner.reseek(bytes));
         verify(scanner).reseek(bytes);

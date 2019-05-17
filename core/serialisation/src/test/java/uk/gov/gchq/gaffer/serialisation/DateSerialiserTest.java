@@ -65,10 +65,10 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(new Date(60460074000000L), new byte[]{54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
-                new Pair<>(new Date(61406234880000L), new byte[]{54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
-                new Pair<>(new Date(59514676680000L), new byte[]{53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
+        return new Pair[] {
+                new Pair<>(new Date(60460074000000L), new byte[] {54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
+                new Pair<>(new Date(61406234880000L), new byte[] {54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
+                new Pair<>(new Date(59514676680000L), new byte[] {53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
         };
     }
 }

@@ -94,11 +94,11 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Long.MAX_VALUE, new byte[]{16}),
-                new Pair<>(Long.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0L, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1L, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 1})
+        return new Pair[] {
+                new Pair<>(Long.MAX_VALUE, new byte[] {16}),
+                new Pair<>(Long.MIN_VALUE, new byte[] {0}),
+                new Pair<>(0L, new byte[] {8, -128, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1L, new byte[] {8, -128, 0, 0, 0, 0, 0, 0, 1})
         };
     }
 }

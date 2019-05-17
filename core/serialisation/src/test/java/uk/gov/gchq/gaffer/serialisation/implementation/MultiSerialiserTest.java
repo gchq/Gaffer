@@ -50,9 +50,9 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Override
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        Pair[] pairs = new Pair[]{
-                new Pair("hello world", new byte[]{0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
-                new Pair(420L, new byte[]{1, -114, 1, -92}),
+        Pair[] pairs = new Pair[] {
+                new Pair("hello world", new byte[] {0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
+                new Pair(420L, new byte[] {1, -114, 1, -92}),
         };
 
         return pairs;

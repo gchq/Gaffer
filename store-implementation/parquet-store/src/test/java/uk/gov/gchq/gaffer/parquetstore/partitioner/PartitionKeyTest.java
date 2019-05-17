@@ -28,9 +28,9 @@ public class PartitionKeyTest {
     @Test
     public void testEqualsAndHashcode() {
         // Given
-        final PartitionKey partitionKey1 = new PartitionKey(new Object[]{1L, 50, "A"});
-        final PartitionKey partitionKey2 = new PartitionKey(new Object[]{1L, 50, "A"});
-        final PartitionKey partitionKey3 = new PartitionKey(new Object[]{1L, 50, "B"});
+        final PartitionKey partitionKey1 = new PartitionKey(new Object[] {1L, 50, "A"});
+        final PartitionKey partitionKey2 = new PartitionKey(new Object[] {1L, 50, "A"});
+        final PartitionKey partitionKey3 = new PartitionKey(new Object[] {1L, 50, "B"});
 
         // When
         final boolean equal = partitionKey1.equals(partitionKey2);
@@ -50,12 +50,12 @@ public class PartitionKeyTest {
     public void testCompare() {
         // Given
         final PartitionKey[] partitionKeys = new PartitionKey[6];
-        partitionKeys[0] = new PartitionKey(new Object[]{1L, 50, "A"});
-        partitionKeys[1] = new PartitionKey(new Object[]{1L, 50, "B"});
-        partitionKeys[2] = new PartitionKey(new Object[]{1L, 500, "A"});
-        partitionKeys[3] = new PartitionKey(new Object[]{1L, 500, "B"});
-        partitionKeys[4] = new PartitionKey(new Object[]{1L, 5000, "A"});
-        partitionKeys[5] = new PartitionKey(new Object[]{10L, 5000, "A"});
+        partitionKeys[0] = new PartitionKey(new Object[] {1L, 50, "A"});
+        partitionKeys[1] = new PartitionKey(new Object[] {1L, 50, "B"});
+        partitionKeys[2] = new PartitionKey(new Object[] {1L, 500, "A"});
+        partitionKeys[3] = new PartitionKey(new Object[] {1L, 500, "B"});
+        partitionKeys[4] = new PartitionKey(new Object[] {1L, 5000, "A"});
+        partitionKeys[5] = new PartitionKey(new Object[] {10L, 5000, "A"});
 
         // When / Then
         for (int i = 1; i < partitionKeys.length; i++) {
@@ -66,8 +66,8 @@ public class PartitionKeyTest {
     @Test
     public void testLengthMethod() {
         // Given
-        final PartitionKey partitionKey1 = new PartitionKey(new Object[]{1L, 50, "A"});
-        final PartitionKey partitionKey2 = new PartitionKey(new Object[]{1L, 50, "A", "X"});
+        final PartitionKey partitionKey1 = new PartitionKey(new Object[] {1L, 50, "A"});
+        final PartitionKey partitionKey2 = new PartitionKey(new Object[] {1L, 50, "A", "X"});
 
         // When
         final int partitionKey1Length = partitionKey1.getLength();

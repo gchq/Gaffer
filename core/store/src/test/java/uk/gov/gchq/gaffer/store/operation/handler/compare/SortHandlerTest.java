@@ -108,11 +108,11 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                                .groups(TestGroups.ENTITY)
-                                .property("property")
-                                .comparator(new PropertyComparatorImpl())
-                                .reverse(true)
-                                .build()
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
+                        .comparator(new PropertyComparatorImpl())
+                        .reverse(true)
+                        .build()
                 )
                 .build();
 

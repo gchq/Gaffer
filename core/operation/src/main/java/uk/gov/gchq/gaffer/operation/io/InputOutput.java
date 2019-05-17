@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.io;
 /**
  * {@code InputOutput} operations are Gaffer operations which consume a single
  * input and transforms that input into an output type.
- *
+ * <p>
  * This is a marker interface composed of the {@link Input} and {@link Output} interfaces.
  *
  * @param <I> the type of the operation input

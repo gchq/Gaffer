@@ -62,7 +62,8 @@ public class AddGenericHandlerTest {
 
         verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
     }
- @Test
+
+    @Test
     public void shouldNotHandleAnything() throws Exception {
         given(store.isSupported(any())).willReturn(true);
 

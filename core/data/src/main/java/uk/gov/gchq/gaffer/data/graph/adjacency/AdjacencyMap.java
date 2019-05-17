@@ -44,7 +44,6 @@ public class AdjacencyMap {
      *
      * @param source      the source vertex
      * @param destination the destination vertex
-     *
      * @return the {@link Set} of edge objects relating to the specified
      * vertices
      */
@@ -60,7 +59,6 @@ public class AdjacencyMap {
      * @param destination the destination vertex
      * @param set         the {@link Set} of edge objects to associate with the
      *                    specified pair of vertices.
-     *
      * @return the added edge objects
      */
     public Set<Edge> putEdges(final Object source, final Object destination, final Set<Edge> set) {
@@ -75,7 +73,6 @@ public class AdjacencyMap {
      * @param source      the source vertex
      * @param destination the destination vertex
      * @param edge        the edge to add
-     *
      * @return the {@link Set} containing the edge objects associated with the
      * source and destination vertices
      */
@@ -95,7 +92,6 @@ public class AdjacencyMap {
      * that source.
      *
      * @param source the source vertex
-     *
      * @return a {@link Set} of the destination vertices
      */
     public Set<Object> getDestinations(final Object source) {
@@ -107,7 +103,6 @@ public class AdjacencyMap {
      * that destination.
      *
      * @param destination the destination vertex
-     *
      * @return a {@link Set} of the source vertices
      */
     public Set<Object> getSources(final Object destination) {
@@ -152,7 +147,6 @@ public class AdjacencyMap {
      * vertex.
      *
      * @param source the source vertex to query for
-     *
      * @return {@code true} if the adjacency map contains the source, otherwise
      * {@code false}
      */
@@ -165,7 +159,6 @@ public class AdjacencyMap {
      * vertex.
      *
      * @param destination the source vertex to query for
-     *
      * @return {@code true} if the adjacency map contains the destination,
      * otherwise {@code false}
      */

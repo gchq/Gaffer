@@ -62,7 +62,7 @@ public class ConsumableBlockingQueueTest {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        final boolean[] finishedAdding = new boolean[]{false};
+        final boolean[] finishedAdding = new boolean[] {false};
         new Thread(() -> {
             IntStream.range(0, 10)
                     .forEach(i -> {

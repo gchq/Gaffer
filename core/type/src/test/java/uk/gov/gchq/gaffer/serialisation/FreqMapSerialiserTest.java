@@ -138,8 +138,8 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
         freqMap.put("x", 10L);
         freqMap.put("y", 5L);
         freqMap.put("z", 20L);
-        return new Pair[]{
-                new Pair(freqMap, new byte[]{120, 0, 10, 0, 121, 0, 5, 0, 122, 0, 20})
+        return new Pair[] {
+                new Pair(freqMap, new byte[] {120, 0, 10, 0, 121, 0, 5, 0, 122, 0, 20})
         };
     }
 }

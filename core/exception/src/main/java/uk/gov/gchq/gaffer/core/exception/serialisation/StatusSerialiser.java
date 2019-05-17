@@ -32,7 +32,7 @@ public class StatusSerialiser extends JsonSerializer<Status> {
 
     @Override
     public void serialize(final Status statusType, final JsonGenerator generator,
-            final SerializerProvider provider) throws IOException {
+                          final SerializerProvider provider) throws IOException {
         generator.writeString(statusType.getReason());
     }
 }

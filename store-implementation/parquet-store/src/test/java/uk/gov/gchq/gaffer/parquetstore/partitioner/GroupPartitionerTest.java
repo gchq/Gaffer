@@ -33,20 +33,20 @@ public class GroupPartitionerTest {
     @Test
     public void shouldCorrectlyAssignPartitionIDs() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP", splitPoints);
 
         // When
-        final int partition1 = partitioner.getPartitionId(new PartitionKey(new Object[]{0L, "Z"}));
-        final int partition2 = partitioner.getPartitionId(new PartitionKey(new Object[]{1L, "B"}));
-        final int partition3 = partitioner.getPartitionId(new PartitionKey(new Object[]{1L, "C"}));
-        final int partition4 = partitioner.getPartitionId(new PartitionKey(new Object[]{5L, "A"}));
-        final int partition5 = partitioner.getPartitionId(new PartitionKey(new Object[]{5L, "B"}));
-        final int partition6 = partitioner.getPartitionId(new PartitionKey(new Object[]{100L, "Z"}));
-        final int partition7 = partitioner.getPartitionId(new PartitionKey(new Object[]{100L, "ZZ"}));
+        final int partition1 = partitioner.getPartitionId(new PartitionKey(new Object[] {0L, "Z"}));
+        final int partition2 = partitioner.getPartitionId(new PartitionKey(new Object[] {1L, "B"}));
+        final int partition3 = partitioner.getPartitionId(new PartitionKey(new Object[] {1L, "C"}));
+        final int partition4 = partitioner.getPartitionId(new PartitionKey(new Object[] {5L, "A"}));
+        final int partition5 = partitioner.getPartitionId(new PartitionKey(new Object[] {5L, "B"}));
+        final int partition6 = partitioner.getPartitionId(new PartitionKey(new Object[] {100L, "Z"}));
+        final int partition7 = partitioner.getPartitionId(new PartitionKey(new Object[] {100L, "ZZ"}));
 
         // Then
         assertEquals(0, partition1);
@@ -61,9 +61,9 @@ public class GroupPartitionerTest {
     @Test
     public void testGetIthPartitionKey() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP", splitPoints);
 
@@ -105,27 +105,27 @@ public class GroupPartitionerTest {
     @Test
     public void testGetPartitionIds() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, 4L});
-        final PartitionKey key2 = new PartitionKey(new Object[]{1L, 7L});
-        final PartitionKey key3 = new PartitionKey(new Object[]{1L, 9L});
-        final PartitionKey key4 = new PartitionKey(new Object[]{5L, 4L});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, 4L});
+        final PartitionKey key2 = new PartitionKey(new Object[] {1L, 7L});
+        final PartitionKey key3 = new PartitionKey(new Object[] {1L, 9L});
+        final PartitionKey key4 = new PartitionKey(new Object[] {5L, 4L});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2, key3, key4));
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP", splitPoints);
 
         // When
-        final List<Integer> partitionIds1 = partitioner.getPartitionIds(new Object[]{0L});
-        final List<Integer> partitionIds2 = partitioner.getPartitionIds(new Object[]{1L});
-        final List<Integer> partitionIds3 = partitioner.getPartitionIds(new Object[]{2L});
-        final List<Integer> partitionIds4 = partitioner.getPartitionIds(new Object[]{6L});
-        final List<Integer> partitionIds5 = partitioner.getPartitionIds(new Object[]{1L, 2L});
-        final List<Integer> partitionIds6 = partitioner.getPartitionIds(new Object[]{1L, 4L});
-        final List<Integer> partitionIds7 = partitioner.getPartitionIds(new Object[]{1L, 6L});
-        final List<Integer> partitionIds8 = partitioner.getPartitionIds(new Object[]{1L, 7L});
-        final List<Integer> partitionIds9 = partitioner.getPartitionIds(new Object[]{1L, 10L});
-        final List<Integer> partitionIds10 = partitioner.getPartitionIds(new Object[]{2L, 10L});
-        final List<Integer> partitionIds11 = partitioner.getPartitionIds(new Object[]{5L, 3L});
-        final List<Integer> partitionIds12 = partitioner.getPartitionIds(new Object[]{5L, 4L});
-        final List<Integer> partitionIds13 = partitioner.getPartitionIds(new Object[]{10L, 10L});
+        final List<Integer> partitionIds1 = partitioner.getPartitionIds(new Object[] {0L});
+        final List<Integer> partitionIds2 = partitioner.getPartitionIds(new Object[] {1L});
+        final List<Integer> partitionIds3 = partitioner.getPartitionIds(new Object[] {2L});
+        final List<Integer> partitionIds4 = partitioner.getPartitionIds(new Object[] {6L});
+        final List<Integer> partitionIds5 = partitioner.getPartitionIds(new Object[] {1L, 2L});
+        final List<Integer> partitionIds6 = partitioner.getPartitionIds(new Object[] {1L, 4L});
+        final List<Integer> partitionIds7 = partitioner.getPartitionIds(new Object[] {1L, 6L});
+        final List<Integer> partitionIds8 = partitioner.getPartitionIds(new Object[] {1L, 7L});
+        final List<Integer> partitionIds9 = partitioner.getPartitionIds(new Object[] {1L, 10L});
+        final List<Integer> partitionIds10 = partitioner.getPartitionIds(new Object[] {2L, 10L});
+        final List<Integer> partitionIds11 = partitioner.getPartitionIds(new Object[] {5L, 3L});
+        final List<Integer> partitionIds12 = partitioner.getPartitionIds(new Object[] {5L, 4L});
+        final List<Integer> partitionIds13 = partitioner.getPartitionIds(new Object[] {10L, 10L});
 
         // Then
         assertEquals(Arrays.asList(0), partitionIds1);
@@ -149,7 +149,7 @@ public class GroupPartitionerTest {
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP", new ArrayList<>());
 
         // When
-        final List<Integer> partitionIds = partitioner.getPartitionIds(new Object[]{1L});
+        final List<Integer> partitionIds = partitioner.getPartitionIds(new Object[] {1L});
 
         // Then
         assertEquals(Arrays.asList(0), partitionIds);
@@ -158,9 +158,9 @@ public class GroupPartitionerTest {
     @Test
     public void testCannotAddSplitPointsInWrongOrder() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{100L, "Z"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{5L, "A"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {100L, "Z"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {5L, "A"});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2, key3));
 
         // When / Then
@@ -176,8 +176,8 @@ public class GroupPartitionerTest {
     @Test
     public void testCannotAddSplitPointsWithDifferentLengths() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{100L, "Z", (short) 2});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {100L, "Z", (short) 2});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2));
 
         // When / Then
@@ -218,9 +218,9 @@ public class GroupPartitionerTest {
     @Test
     public void testGetPartitions() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP", splitPoints);
 
@@ -238,14 +238,14 @@ public class GroupPartitionerTest {
     @Test
     public void testEqualsAndHashcode() {
         // Given
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints1 = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner1 = new GroupPartitioner("GROUP", splitPoints1);
-        final PartitionKey key4 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key5 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key6 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key4 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key5 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key6 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints2 = new ArrayList<>(Arrays.asList(key4, key5, key6));
         final GroupPartitioner partitioner2 = new GroupPartitioner("GROUP", splitPoints2);
         final List<PartitionKey> splitPoints3 = new ArrayList<>(Arrays.asList(key1, key2));

@@ -186,7 +186,7 @@ public class FederatedStoreTest {
             addGraphWithIds(ACC_ID_2, ID_PROPS_ACC_2, INVALID);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, Arrays.toString(new String[]{INVALID}));
+            assertContains(e.getCause(), SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, Arrays.toString(new String[] {INVALID}));
         }
     }
 
@@ -585,7 +585,7 @@ public class FederatedStoreTest {
 
         // When
         Builder schema = new Builder();
-        for (String path : new String[]{PATH_BASIC_ENTITY_SCHEMA_JSON}) {
+        for (String path : new String[] {PATH_BASIC_ENTITY_SCHEMA_JSON}) {
             schema.merge(getSchemaFromPath(path));
         }
 
@@ -628,7 +628,7 @@ public class FederatedStoreTest {
 
         // When
         Builder tempSchema = new Builder();
-        for (String path : new String[]{PATH_BASIC_EDGE_SCHEMA_JSON}) {
+        for (String path : new String[] {PATH_BASIC_EDGE_SCHEMA_JSON}) {
             tempSchema.merge(getSchemaFromPath(path));
         }
 
@@ -855,7 +855,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldThrowWithPropertiesErrorFromGraphLibrary() throws Exception {
         Builder schema = new Builder();
-        for (String path : new String[]{PATH_BASIC_EDGE_SCHEMA_JSON}) {
+        for (String path : new String[] {PATH_BASIC_EDGE_SCHEMA_JSON}) {
             schema.merge(getSchemaFromPath(path));
         }
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);

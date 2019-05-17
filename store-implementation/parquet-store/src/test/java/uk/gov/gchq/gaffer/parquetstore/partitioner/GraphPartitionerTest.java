@@ -34,15 +34,15 @@ public class GraphPartitionerTest {
     public void test() {
         // Given
         final String group1 = "GROUP1";
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints1 = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner1 = new GroupPartitioner(group1, splitPoints1);
         final String group2 = "GROUP2";
-        final PartitionKey key4 = new PartitionKey(new Object[]{"A", "C", 1000L});
-        final PartitionKey key5 = new PartitionKey(new Object[]{"A", "Z", 1L});
-        final PartitionKey key6 = new PartitionKey(new Object[]{"T", "B", 500L});
+        final PartitionKey key4 = new PartitionKey(new Object[] {"A", "C", 1000L});
+        final PartitionKey key5 = new PartitionKey(new Object[] {"A", "Z", 1L});
+        final PartitionKey key6 = new PartitionKey(new Object[] {"T", "B", 500L});
         final List<PartitionKey> splitPoints2 = new ArrayList<>(Arrays.asList(key4, key5, key6));
         final GroupPartitioner partitioner2 = new GroupPartitioner(group2, splitPoints2);
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
@@ -51,35 +51,35 @@ public class GraphPartitionerTest {
 
         // When
         final int partition1 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{0L, "Z"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {0L, "Z"}));
         final int partition2 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{1L, "B"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {1L, "B"}));
         final int partition3 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{1L, "C"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {1L, "C"}));
         final int partition4 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{5L, "A"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {5L, "A"}));
         final int partition5 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{5L, "B"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {5L, "B"}));
         final int partition6 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{100L, "Z"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {100L, "Z"}));
         final int partition7 = graphPartitioner
-                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[]{100L, "ZZ"}));
+                .getGroupPartitioner(group1).getPartitionId(new PartitionKey(new Object[] {100L, "ZZ"}));
         final int partition8 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"A", "B", 10L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"A", "B", 10L}));
         final int partition9 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"A", "C", 1000L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"A", "C", 1000L}));
         final int partition10 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"A", "D", 10L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"A", "D", 10L}));
         final int partition11 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"A", "Z", 1L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"A", "Z", 1L}));
         final int partition12 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"A", "Z", 12L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"A", "Z", 12L}));
         final int partition13 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"T", "B", 500L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"T", "B", 500L}));
         final int partition14 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"T", "Z", 10L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"T", "Z", 10L}));
         final int partition15 = graphPartitioner
-                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[]{"Z", "Z", 10L}));
+                .getGroupPartitionerForReversedEdges(group2).getPartitionId(new PartitionKey(new Object[] {"Z", "Z", 10L}));
 
         // Then
         assertEquals(0, partition1);
@@ -103,18 +103,18 @@ public class GraphPartitionerTest {
     public void testCannotOverwriteExistingGroupPartitioner() {
         // Given
         final String group = "GROUP1";
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints1 = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner1 = new GroupPartitioner(group, splitPoints1);
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         graphPartitioner.addGroupPartitioner(group, partitioner1);
 
         // When / Then
-        final PartitionKey key4 = new PartitionKey(new Object[]{"A", "C", 1000L});
-        final PartitionKey key5 = new PartitionKey(new Object[]{"A", "Z", 1L});
-        final PartitionKey key6 = new PartitionKey(new Object[]{"T", "B", 500L});
+        final PartitionKey key4 = new PartitionKey(new Object[] {"A", "C", 1000L});
+        final PartitionKey key5 = new PartitionKey(new Object[] {"A", "Z", 1L});
+        final PartitionKey key6 = new PartitionKey(new Object[] {"T", "B", 500L});
         final List<PartitionKey> splitPoints2 = new ArrayList<>(Arrays.asList(key4, key5, key6));
         final GroupPartitioner partitioner2 = new GroupPartitioner(group, splitPoints2);
         try {
@@ -158,15 +158,15 @@ public class GraphPartitionerTest {
 
     private GraphPartitioner getGraphPartitioner() {
         final String group1 = "GROUP1";
-        final PartitionKey key1 = new PartitionKey(new Object[]{1L, "B"});
-        final PartitionKey key2 = new PartitionKey(new Object[]{5L, "A"});
-        final PartitionKey key3 = new PartitionKey(new Object[]{100L, "Z"});
+        final PartitionKey key1 = new PartitionKey(new Object[] {1L, "B"});
+        final PartitionKey key2 = new PartitionKey(new Object[] {5L, "A"});
+        final PartitionKey key3 = new PartitionKey(new Object[] {100L, "Z"});
         final List<PartitionKey> splitPoints1 = new ArrayList<>(Arrays.asList(key1, key2, key3));
         final GroupPartitioner partitioner1 = new GroupPartitioner(group1, splitPoints1);
         final String group2 = "GROUP2";
-        final PartitionKey key4 = new PartitionKey(new Object[]{"A", "C", 1000L});
-        final PartitionKey key5 = new PartitionKey(new Object[]{"A", "Z", 1L});
-        final PartitionKey key6 = new PartitionKey(new Object[]{"T", "B", 500L});
+        final PartitionKey key4 = new PartitionKey(new Object[] {"A", "C", 1000L});
+        final PartitionKey key5 = new PartitionKey(new Object[] {"A", "Z", 1L});
+        final PartitionKey key6 = new PartitionKey(new Object[] {"T", "B", 500L});
         final List<PartitionKey> splitPoints2 = new ArrayList<>(Arrays.asList(key4, key5, key6));
         final GroupPartitioner partitioner2 = new GroupPartitioner(group2, splitPoints2);
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
@@ -181,7 +181,7 @@ public class GraphPartitionerTest {
         final GraphPartitioner graphPartitioner1 = getGraphPartitioner();
         final GraphPartitioner graphPartitioner2 = getGraphPartitioner();
         final GraphPartitioner graphPartitioner3 = getGraphPartitioner();
-        final PartitionKey key = new PartitionKey(new Object[]{1, 2, 3});
+        final PartitionKey key = new PartitionKey(new Object[] {1, 2, 3});
         final GroupPartitioner partitioner = new GroupPartitioner("GROUP3", new ArrayList<>(Arrays.asList(key)));
         graphPartitioner3.addGroupPartitioner("GROUP3", partitioner);
 

@@ -44,7 +44,7 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
 
     @Override
     public ItemsUnion<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsUnion.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
+        return ItemsUnion.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
     }
 
     @Override

@@ -90,7 +90,7 @@ public abstract class AbstractStoreIT {
     public static final String B = "B";
     public static final String C = "C";
     public static final String D = "D";
-    public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
+    public static final String[] VERTEX_PREFIXES = new String[] {A, B, C, D};
 
     // Identifiers
     public static final String SOURCE_1 = SOURCE + 1;

@@ -140,7 +140,7 @@ public abstract class AbstractStoreITs {
                 classes = classes.stream().filter(clazz2 -> !Modifier.isAbstract(clazz2.getModifiers())).collect(Collectors.toSet());
                 return classes.toArray(new Class[classes.size()]);
             }
-            return new Class[]{runner.singleTestClass};
+            return new Class[] {runner.singleTestClass};
         }
 
         private static void keepPublicConcreteClasses(final Set<Class<? extends AbstractStoreIT>> classes) {

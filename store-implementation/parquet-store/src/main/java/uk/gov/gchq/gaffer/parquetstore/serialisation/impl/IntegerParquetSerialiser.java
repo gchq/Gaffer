@@ -33,7 +33,7 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
 
     @Override
     public Object[] serialise(final Integer object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override

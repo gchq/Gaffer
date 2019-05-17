@@ -51,10 +51,10 @@ public class GraphConfigTest {
         final List<GraphHook> graphHooks = config.getHooks();
         assertEquals(1, graphHooks.size());
         final AddOperationsToChain addOperationsToChain = (AddOperationsToChain) graphHooks.get(0);
-        for (final Class op : new Class[]{ToSet.class, ToArray.class, ToList.class, ExportToSet.class}) {
+        for (final Class op : new Class[] {ToSet.class, ToArray.class, ToList.class, ExportToSet.class}) {
             assertEquals(RESULT_LIMIT, (int) ((Limit) addOperationsToChain.getBefore().get(op.getName()).get(0)).getResultLimit());
         }
-        for (final Class op : new Class[]{GetElements.class, GetAllElements.class, GetAdjacentIds.class}) {
+        for (final Class op : new Class[] {GetElements.class, GetAllElements.class, GetAdjacentIds.class}) {
             assertEquals(RESULT_LIMIT, (int) ((Limit) addOperationsToChain.getAfter().get(op.getName()).get(0)).getResultLimit());
         }
     }

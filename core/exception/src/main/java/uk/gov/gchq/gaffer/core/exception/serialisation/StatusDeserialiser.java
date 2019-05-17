@@ -36,14 +36,14 @@ public class StatusDeserialiser extends JsonDeserializer<Status> {
     @SuppressFBWarnings("DM_CONVERT_CASE")
     @Override
     public Status deserialize(final JsonParser jsonParser,
-            final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+                              final DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
 
         final ObjectCodec codec = jsonParser.getCodec();
         final JsonNode node = codec.readTree(jsonParser);
 
         final String statusStr = node.asText()
-                                     .toUpperCase()
-                                     .replace(' ', '_');
+                .toUpperCase()
+                .replace(' ', '_');
 
         return Status.valueOf(statusStr);
     }

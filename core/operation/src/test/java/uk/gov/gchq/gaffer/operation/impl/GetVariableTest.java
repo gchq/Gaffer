@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import static org.junit.Assert.assertEquals;
-
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
+import static org.junit.Assert.assertEquals;
 
 public class GetVariableTest extends OperationTest<GetVariable> {
     private final String varName = "varName";

@@ -31,7 +31,7 @@ public interface MultiMap<K, V> {
     /**
      * Add a value to the specified key.
      *
-     * @param key the key to add a value to
+     * @param key   the key to add a value to
      * @param value the value to add
      * @return true if the operation was successful, otherwise false
      */
@@ -40,7 +40,7 @@ public interface MultiMap<K, V> {
     /**
      * Add a collection of values to the specified key.
      *
-     * @param key the key to add the values to
+     * @param key    the key to add the values to
      * @param values the values to add
      */
     void put(final K key, final Collection<V> values);

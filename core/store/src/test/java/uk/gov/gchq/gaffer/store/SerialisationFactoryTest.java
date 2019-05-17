@@ -124,7 +124,7 @@ public class SerialisationFactoryTest {
     @Test
     public void shouldReturnCustomSerialiserIfCustomSerialiserFound() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[]{
+        final Serialiser[] serialisers = new Serialiser[] {
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
@@ -144,7 +144,7 @@ public class SerialisationFactoryTest {
     @Test
     public void shouldReturnJavaSerialiserIfNoCustomSerialiserFound() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[]{
+        final Serialiser[] serialisers = new Serialiser[] {
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
@@ -164,7 +164,7 @@ public class SerialisationFactoryTest {
     @Test
     public void testAddSerialisers() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[]{
+        final Serialiser[] serialisers = new Serialiser[] {
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
@@ -185,7 +185,7 @@ public class SerialisationFactoryTest {
     @Test
     public void shouldNotReAddClassToFactory() throws SerialisationException {
         // Given / new factory created with only 1 element
-        final Serialiser[] serialisers = new Serialiser[]{
+        final Serialiser[] serialisers = new Serialiser[] {
                 new BooleanSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);

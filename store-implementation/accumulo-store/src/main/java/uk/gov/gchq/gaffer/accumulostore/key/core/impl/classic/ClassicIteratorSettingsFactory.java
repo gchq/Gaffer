@@ -69,8 +69,8 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with "
-                + "priority = {}, includeIncomingOutgoing = {}, directedType = {}, "
-                + "includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
+                        + "priority = {}, includeIncomingOutgoing = {}, directedType = {}, "
+                        + "includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
                 EDGE_DIRECTED_UNDIRECTED_FILTER, AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
                 inOutType, directedType, includeEdges, includeEntities,
                 deduplicateUndirectedEdges);
@@ -94,7 +94,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 .includeEntities(includeEntities)
                 .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
-                + "includeEdges = {}, includeEntities = {}",
+                        + "includeEdges = {}, includeEntities = {}",
                 RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 includeEdges, includeEntities);

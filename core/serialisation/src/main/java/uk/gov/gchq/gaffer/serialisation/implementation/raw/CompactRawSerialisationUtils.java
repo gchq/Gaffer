@@ -35,7 +35,7 @@ public final class CompactRawSerialisationUtils {
     public static byte[] writeLong(final long l) {
         long value = l;
         if (value >= -112 && value <= 127) {
-            return new byte[]{(byte) value};
+            return new byte[] {(byte) value};
         }
         final byte[] temp = new byte[9];
         int len = -112;

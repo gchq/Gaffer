@@ -39,7 +39,7 @@ public interface SchemaLoader {
     String B = "B";
     String C = "C";
     String D = "D";
-    String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
+    String[] VERTEX_PREFIXES = new String[] {A, B, C, D};
 
     Map<EdgeId, Edge> createEdges();
 

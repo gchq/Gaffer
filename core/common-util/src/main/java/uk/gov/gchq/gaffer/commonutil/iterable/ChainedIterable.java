@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 
 /**
  * A {@code ChainedIterable} is an iterable composed of other {@link java.lang.Iterable}s.
- *
+ * <p>
  * As a client iterates through this iterable, the child iterables are consumed
  * sequentially.
  *

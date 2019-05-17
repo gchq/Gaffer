@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
  * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser}.
  * RawFloatSerialiser serialises Floats into an IEEE floating point little-endian byte array.
  *
- * @deprecated this is unable to preserve object ordering.
  * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser
+ * @deprecated this is unable to preserve object ordering.
  */
 @Deprecated
 public class RawFloatSerialiser implements ToBytesSerialiser<Float> {

@@ -132,7 +132,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 .build();
 
         // Then
-        assertArrayEquals(new Operation[]{
+        assertArrayEquals(new Operation[] {
                         addElements1,
                         getAdj1,
                         getAdj2,
@@ -177,7 +177,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 .buildTypeUnsafe(); // again we can use the type unsafe here as we know the output from the set export will be an Iterable of EntityIds
 
         // Then
-        assertArrayEquals(new Operation[]{
+        assertArrayEquals(new Operation[] {
                         getAdjIds1,
                         exportToSet1,
                         discardOutput1,

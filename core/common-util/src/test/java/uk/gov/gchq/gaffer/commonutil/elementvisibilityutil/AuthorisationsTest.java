@@ -92,6 +92,6 @@ public class AuthorisationsTest {
         Authorisations actual = new Authorisations("foo");
 
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
-        actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[]{'a'}));
+        actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
     }
 }

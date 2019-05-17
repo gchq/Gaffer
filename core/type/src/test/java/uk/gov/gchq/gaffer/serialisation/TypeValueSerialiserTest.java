@@ -95,8 +95,8 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
     @Override
     public Pair<TypeValue, byte[]>[] getHistoricSerialisationPairs() {
         TypeValue typeValue = new TypeValue("testType", "testValue");
-        return new Pair[]{
-                new Pair(typeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
+        return new Pair[] {
+                new Pair(typeValue, new byte[] {116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
         };
 
     }

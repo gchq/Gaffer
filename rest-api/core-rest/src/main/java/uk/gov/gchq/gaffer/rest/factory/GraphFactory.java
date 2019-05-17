@@ -46,7 +46,7 @@ public interface GraphFactory {
 
     /**
      * Create a new {@link Graph} instance.
-     *
+     * <p>
      * By default this is created from the {@link Graph.Builder}.
      *
      * @return the graph

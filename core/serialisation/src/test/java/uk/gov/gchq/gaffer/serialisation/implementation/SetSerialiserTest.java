@@ -98,7 +98,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Ob
     @SuppressWarnings("unchecked")
     @Override
     public Pair<Set<? extends Object>, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
+        return new Pair[] {new Pair(getExampleValue(), new byte[] {3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
     }
 
     @Test

@@ -169,8 +169,8 @@ public class TypeSubTypeValueSerialiserTest extends ToBytesSerialisationTest<Typ
         TypeSubTypeValue typeSubTypeValue = new TypeSubTypeValue();
         typeSubTypeValue.setType("testType");
         typeSubTypeValue.setSubType("testSubType");
-        return new Pair[]{
-                new Pair(typeSubTypeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 83, 117, 98, 84, 121, 112, 101, 0})
+        return new Pair[] {
+                new Pair(typeSubTypeValue, new byte[] {116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 83, 117, 98, 84, 121, 112, 101, 0})
         };
     }
 }

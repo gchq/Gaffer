@@ -21,7 +21,7 @@ import java.security.InvalidParameterException;
 
 public class BytesAndRangeTest {
 
-    private byte[] emptyBytes = new byte[]{};
+    private byte[] emptyBytes = new byte[] {};
 
     @Test
     public void shouldThrowNoException() throws Exception {

@@ -133,7 +133,7 @@ public class NamedOperationCache {
     /**
      * Get all the named operations held in the cache.
      *
-     * @param user      The {@link User} object that is used for checking read permissions.
+     * @param user The {@link User} object that is used for checking read permissions.
      * @return a {@link CloseableIterable} containing the named operation details
      */
     public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {

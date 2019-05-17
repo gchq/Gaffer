@@ -38,8 +38,8 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
         final Error error = ErrorFactory.from(ex);
 
         return Response.status(error.getStatusCode())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .entity(error)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .entity(error)
+                .build();
     }
 }

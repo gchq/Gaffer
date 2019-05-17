@@ -51,20 +51,20 @@ public class VisibilityEvaluatorTest {
         assertTrue("'and' and 'or' test", ve.evaluate(new ElementVisibility("(one&two)|(foo&bar)")));
 
         // test for false negatives
-        for (String marking : new String[]{"one", "one|five", "five|one", "(one)",
+        for (String marking : new String[] {"one", "one|five", "five|one", "(one)",
                 "(one&two)|(foo&bar)", "(one|foo)&three", "one|foo|bar",
                 "(one|foo)|bar", "((one|foo)|bar)&two"}) {
             assertTrue(marking, ve.evaluate(new ElementVisibility(marking)));
         }
 
         // test for false positives
-        for (String marking : new String[]{"five", "one&five",
+        for (String marking : new String[] {"five", "one&five",
                 "five&one", "((one|foo)|bar)&goober"}) {
             assertFalse(marking, ve.evaluate(new ElementVisibility(marking)));
         }
 
         // test missing separators; these should throw an exception
-        for (String marking : new String[]{"one(five)", "(five)one",
+        for (String marking : new String[] {"one(five)", "(five)one",
                 "(one)(two)", "a|(b(c))"}) {
             try {
                 ve.evaluate(new ElementVisibility(marking));
@@ -75,7 +75,7 @@ public class VisibilityEvaluatorTest {
         }
 
         // test unexpected separator
-        for (String marking : new String[]{"&(five)", "|(five)", "(five)&",
+        for (String marking : new String[] {"&(five)", "|(five)", "(five)&",
                 "five|", "a|(b)&", "(&five)", "(five|)"}) {
             try {
                 ve.evaluate(new ElementVisibility(marking));
@@ -86,7 +86,7 @@ public class VisibilityEvaluatorTest {
         }
 
         // test mismatched parentheses
-        for (String marking : new String[]{"(", ")", "(a&b", "b|a)"}) {
+        for (String marking : new String[] {"(", ")", "(a&b", "b|a)"}) {
             try {
                 ve.evaluate(new ElementVisibility(marking));
                 fail(marking + " failed to throw");

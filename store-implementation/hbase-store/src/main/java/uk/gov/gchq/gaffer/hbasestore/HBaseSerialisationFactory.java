@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSeriali
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 public class HBaseSerialisationFactory extends SerialisationFactory {
-    private static final Serialiser[] HBASE_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] HBASE_SERIALISERS = new Serialiser[] {
             new HyperLogLogPlusSerialiser(),
             new LongsSketchSerialiser(),
             new StringsSketchSerialiser(),

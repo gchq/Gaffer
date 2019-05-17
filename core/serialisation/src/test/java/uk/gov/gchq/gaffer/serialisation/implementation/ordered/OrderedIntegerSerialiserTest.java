@@ -94,11 +94,11 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{8}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0, new byte[]{4, -128, 0, 0, 0}),
-                new Pair<>(1, new byte[]{4, -128, 0, 0, 1}),
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {8}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0}),
+                new Pair<>(0, new byte[] {4, -128, 0, 0, 0}),
+                new Pair<>(1, new byte[] {4, -128, 0, 0, 1}),
         };
     }
 }

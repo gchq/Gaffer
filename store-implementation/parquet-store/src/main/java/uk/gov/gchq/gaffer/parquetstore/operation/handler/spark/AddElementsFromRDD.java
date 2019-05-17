@@ -217,10 +217,10 @@ public class AddElementsFromRDD {
     /**
      * Sorts the provided data.
      *
-     * @param group the group
-     * @param reversed whether these are edges that need to be sorted by destination then source
+     * @param group      the group
+     * @param reversed   whether these are edges that need to be sorted by destination then source
      * @param inputFiles the input files
-     * @param outputDir the directory to write the output to
+     * @param outputDir  the directory to write the output to
      * @throws OperationException if an {@link IOException} is thrown
      */
     private void sort(final String group, final boolean reversed, final List<String> inputFiles, final String outputDir)
@@ -279,7 +279,7 @@ public class AddElementsFromRDD {
 
     /**
      * Creates a new snapshot directory within the data directory in the store and moves the new data there.
-     *
+     * <p>
      * This is done by first creating the new snapshot directory with "-tmp" at the end, then all files are moved
      * into that directory, and then the directory is renamed so that the "-tmp" is removed. This allows us to make
      * the replacement of the old data with the new data an atomic operation and ensures that a get operation

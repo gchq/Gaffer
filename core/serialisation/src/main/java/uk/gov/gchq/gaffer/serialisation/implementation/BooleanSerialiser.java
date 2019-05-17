@@ -29,7 +29,7 @@ public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
 
     @Override
     public byte[] serialise(final Boolean value) throws SerialisationException {
-        return new byte[]{Boolean.TRUE.equals(value) ? TRUE : FALSE};
+        return new byte[] {Boolean.TRUE.equals(value) ? TRUE : FALSE};
     }
 
     @Override

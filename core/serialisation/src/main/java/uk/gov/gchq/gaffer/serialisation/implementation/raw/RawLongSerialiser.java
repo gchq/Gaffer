@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
  * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser}.
  * RawLongSerialiser serialises Longs into a little-endian byte array.
  *
- * @deprecated this is unable to preserve object ordering.
  * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser
+ * @deprecated this is unable to preserve object ordering.
  */
 @Deprecated
 public class RawLongSerialiser implements ToBytesSerialiser<Long> {

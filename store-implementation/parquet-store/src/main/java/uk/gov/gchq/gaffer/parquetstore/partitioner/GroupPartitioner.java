@@ -72,18 +72,18 @@ public class GroupPartitioner {
 
     /**
      * Returns all the partition ids which could contain data matching the provided partial key.
-     *
+     * <p>
      * e.g. if we have an edge group, the partition keys will consist of source, destination and directed flags. If the
      * data consists of edges 1-2, 1-3, ..., 1-10, the partitions might be:
-     *  Partition 0: 1-2, 1-3
-     *  Partition 1: 1-4, 1-5, 1-6
-     *  Partition 2: 1-7, 1-8
-     *  Partition 3: 1-9
+     * Partition 0: 1-2, 1-3
+     * Partition 1: 1-4, 1-5, 1-6
+     * Partition 2: 1-7, 1-8
+     * Partition 3: 1-9
      * The partition keys would be 1-4, 1-7 and 1-9. Some examples of the partition keys for given partial keys:
-     *  Partial key    Partition ids
-     *     1,2           0
-     *     0             0
-     *     1             0,1,2,3
+     * Partial key    Partition ids
+     * 1,2           0
+     * 0             0
+     * 1             0,1,2,3
      *
      * @param partialKey the partial key
      * @return a list of all the partition ids which could contain data matching the provided partial key

@@ -87,8 +87,8 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         freqMap.put("y", 5);
         freqMap.put("z", 20);
 
-        return new Pair[]{
-                new Pair(freqMap, new byte[]{120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
+        return new Pair[] {
+                new Pair(freqMap, new byte[] {120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
         };
     }
 

@@ -65,9 +65,9 @@ public class JSONSerialiserTest {
         SimpleTestObject simpleTestObject = new SimpleTestObject();
         simpleTestObject.setX("Test");
 
-        this.historicSerialisationPairs = new Pair[]{
-                new Pair(simpleTestObject, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 125}),
-                new Pair(paramTest, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 44, 34, 107, 34, 58, 50, 125})
+        this.historicSerialisationPairs = new Pair[] {
+                new Pair(simpleTestObject, new byte[] {123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 125}),
+                new Pair(paramTest, new byte[] {123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 44, 34, 107, 34, 58, 50, 125})
         };
     }
 

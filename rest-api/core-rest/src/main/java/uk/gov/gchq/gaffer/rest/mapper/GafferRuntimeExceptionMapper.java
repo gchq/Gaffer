@@ -39,8 +39,8 @@ public class GafferRuntimeExceptionMapper implements ExceptionMapper<GafferRunti
         final Error error = ErrorFactory.from(gre);
 
         return Response.status(error.getStatusCode())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .entity(error)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .entity(error)
+                .build();
     }
 }

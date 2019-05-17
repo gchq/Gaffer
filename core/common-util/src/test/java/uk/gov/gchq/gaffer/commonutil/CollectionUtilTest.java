@@ -170,7 +170,7 @@ public class CollectionUtilTest {
     public void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
         // Given
         final Collection collection = Sets.newHashSet(10, 20, 2, 30);
-        final Object[] values = new Object[]{1, 2, 3};
+        final Object[] values = new Object[] {1, 2, 3};
 
         // When
         final boolean result = CollectionUtil.containsAny(collection, values);
@@ -183,7 +183,7 @@ public class CollectionUtilTest {
     public void shouldReturnFalseWhenCollectionDoesNotContainsAProvidedValue() {
         // Given
         final Collection collection = Sets.newHashSet(10, 20, 30);
-        final Object[] values = new Object[]{1, 2, 3};
+        final Object[] values = new Object[] {1, 2, 3};
 
         // When
         final boolean result = CollectionUtil.containsAny(collection, values);
@@ -209,7 +209,7 @@ public class CollectionUtilTest {
     public void shouldReturnFalseWhenContainsAnyCalledWithNullCollection() {
         // Given
         final Collection collection = null;
-        final Object[] values = new Object[]{1, 2, 3};
+        final Object[] values = new Object[] {1, 2, 3};
 
         // When
         final boolean result = CollectionUtil.containsAny(collection, values);
@@ -222,7 +222,7 @@ public class CollectionUtilTest {
     public void shouldReturnFalseWhenAnyMissingCalledWhenTheCollectionContainsAllValues() {
         // Given
         final Collection collection = Sets.newHashSet(10, 20, 30);
-        final Object[] values = new Object[]{10, 20, 30};
+        final Object[] values = new Object[] {10, 20, 30};
 
         // When
         final boolean result = CollectionUtil.anyMissing(collection, values);
@@ -248,7 +248,7 @@ public class CollectionUtilTest {
     public void shouldReturnTrueWhenAnyMissingCalledWhenTheCollectionDoesNotContainAProvidedValue() {
         // Given
         final Collection collection = Sets.newHashSet(10, 20, 30);
-        final Object[] values = new Object[]{1, 2, 3};
+        final Object[] values = new Object[] {1, 2, 3};
 
         // When
         final boolean result = CollectionUtil.anyMissing(collection, values);
@@ -274,7 +274,7 @@ public class CollectionUtilTest {
     public void shouldReturnTrueWhenAnyMissingCalledWithNullCollectionAndSomeValues() {
         // Given
         final Collection collection = null;
-        final Object[] values = new Object[]{1, 2, 3};
+        final Object[] values = new Object[] {1, 2, 3};
 
         // When
         final boolean result = CollectionUtil.anyMissing(collection, values);

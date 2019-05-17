@@ -42,7 +42,7 @@ public class ReservoirStringsSketchSerialiserTest {
 
     private void testSerialiser(final ReservoirItemsSketch<String> sketch) {
         final boolean resultIsNull = sketch == null;
-        String[] sample = new String[]{};
+        String[] sample = new String[] {};
         if (!resultIsNull) {
             sample = sketch.getSamples();
         }

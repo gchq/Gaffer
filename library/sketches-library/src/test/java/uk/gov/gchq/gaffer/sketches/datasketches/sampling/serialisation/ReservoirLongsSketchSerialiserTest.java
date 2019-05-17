@@ -42,7 +42,7 @@ public class ReservoirLongsSketchSerialiserTest {
 
     private void testSerialiser(final ReservoirLongsSketch sketch) {
         final boolean resultIsNull = sketch == null;
-        long[] sample = new long[]{};
+        long[] sample = new long[] {};
         if (!resultIsNull) {
             sample = sketch.getSamples();
         }

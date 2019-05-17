@@ -16,7 +16,7 @@
 
 /**
  * Common utility classes for the Gaffer project.
- *
+ * <p>
  * This package also contains some core constants as well as annotation classes.
  */
 package uk.gov.gchq.gaffer.commonutil;

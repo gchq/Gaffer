@@ -16,6 +16,6 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Source name="~.*\.scala" />
+        <Source name="~.*\.scala"/>
     </Match>
 </FindBugsFilter>

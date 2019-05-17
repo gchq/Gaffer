@@ -44,8 +44,8 @@ public final class JaxRsErrorFactory {
      */
     public static Error from(final WebApplicationException ex) {
         return new ErrorBuilder().statusCode(ex.getResponse().getStatus())
-                                 .simpleMessage(ex.getMessage())
-                                 .detailMessage(ExceptionUtils.getStackTrace(ex))
-                                 .build();
+                .simpleMessage(ex.getMessage())
+                .detailMessage(ExceptionUtils.getStackTrace(ex))
+                .build();
     }
 }

@@ -84,7 +84,7 @@ public interface IOperationServiceV2 {
 
     @POST
     @Path("/execute")
-    @Produces({APPLICATION_JSON, TEXT_PLAIN})
+    @Produces( {APPLICATION_JSON, TEXT_PLAIN})
     @ApiOperation(value = "Performs the given operation on the graph",
             notes = "Attempts to execute the provided operation on the graph, and returns the result below. " +
                     "Simple examples for each operation can be added using the drop-down below.",
@@ -103,7 +103,7 @@ public interface IOperationServiceV2 {
 
     @POST
     @Path("/execute/chunked")
-    @Produces({APPLICATION_JSON, TEXT_PLAIN})
+    @Produces( {APPLICATION_JSON, TEXT_PLAIN})
     @ApiOperation(value = "Performs the given operation on the graph, returning a chunked output",
             notes = "<b>WARNING</b> - This does not work in Swagger.",
             response = Object.class,

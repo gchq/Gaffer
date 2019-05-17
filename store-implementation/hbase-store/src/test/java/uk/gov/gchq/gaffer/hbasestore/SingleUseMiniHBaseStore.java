@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * </p>
  */
 public class SingleUseMiniHBaseStore extends MiniHBaseStore {
-    @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
+    @SuppressFBWarnings( {"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {

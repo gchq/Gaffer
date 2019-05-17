@@ -134,7 +134,7 @@ public class AggregateHandlerTest {
         input.add(entity2);
 
         final AggregatePair pair = new AggregatePair(
-                new String[]{"timestamp"},
+                new String[] {"timestamp"},
                 new ElementAggregator.Builder()
                         .select("count")
                         .execute(new Sum())
@@ -273,7 +273,7 @@ public class AggregateHandlerTest {
         input1.add(localEdge2);
 
         final AggregatePair pair = new AggregatePair(
-                new String[]{"timestamp"},
+                new String[] {"timestamp"},
                 new ElementAggregator.Builder()
                         .select("count")
                         .execute(new Sum())
@@ -350,11 +350,11 @@ public class AggregateHandlerTest {
         input.add(entity3);
 
         final AggregatePair edgePair = new AggregatePair(
-                new String[]{"timestamp"}
+                new String[] {"timestamp"}
         );
 
         final AggregatePair entityPair = new AggregatePair(
-                new String[]{"timestamp"}
+                new String[] {"timestamp"}
         );
 
         edges.put(TestGroups.EDGE, edgePair);

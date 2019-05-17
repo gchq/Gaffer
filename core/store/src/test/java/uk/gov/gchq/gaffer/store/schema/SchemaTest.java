@@ -733,7 +733,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
+        assertArrayEquals(new String[] {TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
                 .getParents()
                 .toArray());
     }
@@ -785,7 +785,7 @@ public class SchemaTest {
 
         // Then
         // Check edges
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -793,7 +793,7 @@ public class SchemaTest {
                 schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
 
         // Check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -803,11 +803,11 @@ public class SchemaTest {
 
         assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
         assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
 
         // Check entities
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -817,7 +817,7 @@ public class SchemaTest {
                         .toArray());
 
         // Check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -829,8 +829,8 @@ public class SchemaTest {
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
     }
 
     @Test
@@ -859,7 +859,7 @@ public class SchemaTest {
 
 
         // Then
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -867,7 +867,7 @@ public class SchemaTest {
                 schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
 
         // Then - check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -912,7 +912,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_2},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -971,7 +971,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_2},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -991,7 +991,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1010,7 +1010,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1030,7 +1030,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
     }
 
@@ -1051,7 +1051,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
     }
 

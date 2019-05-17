@@ -27,8 +27,8 @@ import java.util.Date;
  * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
  *
- * @deprecated this is unable to preserve object ordering.
  * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser
+ * @deprecated this is unable to preserve object ordering.
  */
 @Deprecated
 public class RawDateSerialiser implements ToBytesSerialiser<Date> {

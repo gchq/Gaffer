@@ -120,7 +120,7 @@ public class QueryGenerator {
                 final String group = entry.getKey();
                 final ParquetFileQuery fileQuery = groupToPredicate.containsKey(group) ?
                         new ParquetFileQuery(path, groupToPredicate.get(group).getFirst(), groupToPredicate.get(group).getSecond())
-                                : new ParquetFileQuery(path, null, false);
+                        : new ParquetFileQuery(path, null, false);
                 parquetQuery.add(group, fileQuery);
             }
         }
@@ -189,7 +189,7 @@ public class QueryGenerator {
                 if (!pathToSeeds.containsKey(pathInfo)) {
                     pathToSeeds.put(pathInfo, new ArrayList<>());
                 }
-                pathToSeeds.get(pathInfo).add(new Tuple3<>(tuple.get0(), pathInfo.isReversed(),  tuple.get1()));
+                pathToSeeds.get(pathInfo).add(new Tuple3<>(tuple.get0(), pathInfo.isReversed(), tuple.get1()));
             }
         }
 
@@ -433,13 +433,13 @@ public class QueryGenerator {
                         } else {
                             // Src is seed and edge is undirected
                             filter = getIsEqualFilter(ParquetStore.SOURCE, ((ParquetEntitySeed) seed).getSeed(), group);
-                            filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{false}, group));
+                            filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {false}, group));
                         }
                     } else if (includeIncomingOutgoingType == SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING) {
                         if (reversed) {
                             // Dst is seed and edge is undirected
                             filter = getIsEqualFilter(ParquetStore.DESTINATION, ((ParquetEntitySeed) seed).getSeed(), group);
-                            filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{false}, group));
+                            filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {false}, group));
                         } else {
                             // Src is seed
                             filter = getIsEqualFilter(ParquetStore.SOURCE, ((ParquetEntitySeed) seed).getSeed(), group);
@@ -463,9 +463,9 @@ public class QueryGenerator {
                     filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DESTINATION, edgeSeed.getDestination(), group)); // WRONG seed is already serialised source and dest - now fixed?
                     final DirectedType directedType = edgeSeed.getDirectedType();
                     if (directedType == DirectedType.DIRECTED) {
-                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{true}, group));
+                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {true}, group));
                     } else if (directedType == DirectedType.UNDIRECTED) {
-                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{false}, group));
+                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {false}, group));
                     }
                 } else {
                     // TODO Optimise this - there are times this is unnecessary
@@ -473,9 +473,9 @@ public class QueryGenerator {
                     filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.SOURCE, edgeSeed.getDestination(), group));
                     final DirectedType directedType = edgeSeed.getDirectedType();
                     if (directedType == DirectedType.DIRECTED) {
-                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{true}, group));
+                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {true}, group));
                     } else if (directedType == DirectedType.UNDIRECTED) {
-                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[]{false}, group));
+                        filter = FilterPredicateUtils.and(filter, getIsEqualFilter(ParquetStore.DIRECTED, new Object[] {false}, group));
                     }
 
                 }
