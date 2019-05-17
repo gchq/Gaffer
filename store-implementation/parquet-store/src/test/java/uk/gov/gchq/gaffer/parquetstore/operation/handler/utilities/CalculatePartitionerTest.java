@@ -174,7 +174,7 @@ public class CalculatePartitionerTest {
         final GraphPartitioner expected = new GraphPartitioner();
         final List<PartitionKey> splitPointsEntity = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
-            splitPointsEntity.add(new PartitionKey(new Object[]{10L * i}));
+            splitPointsEntity.add(new PartitionKey(new Object[] {10L * i}));
         }
         final GroupPartitioner groupPartitionerEntity = new GroupPartitioner(TestGroups.ENTITY, splitPointsEntity);
         expected.addGroupPartitioner(TestGroups.ENTITY, groupPartitionerEntity);
@@ -182,7 +182,7 @@ public class CalculatePartitionerTest {
         expected.addGroupPartitioner(TestGroups.ENTITY_2, groupPartitionerEntity2);
         final List<PartitionKey> splitPointsEdge = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
-            splitPointsEdge.add(new PartitionKey(new Object[]{10L * i, 10L * i + 1, true}));
+            splitPointsEdge.add(new PartitionKey(new Object[] {10L * i, 10L * i + 1, true}));
         }
         final GroupPartitioner groupPartitionerEdge = new GroupPartitioner(TestGroups.EDGE, splitPointsEdge);
         expected.addGroupPartitioner(TestGroups.EDGE, groupPartitionerEdge);
@@ -190,7 +190,7 @@ public class CalculatePartitionerTest {
         expected.addGroupPartitioner(TestGroups.EDGE_2, groupPartitionerEdge2);
         final List<PartitionKey> splitPointsReversedEdge = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
-            splitPointsReversedEdge.add(new PartitionKey(new Object[]{10L * i + 1, 10L * i, true}));
+            splitPointsReversedEdge.add(new PartitionKey(new Object[] {10L * i + 1, 10L * i, true}));
         }
         final GroupPartitioner reversedGroupPartitionerEdge = new GroupPartitioner(TestGroups.EDGE, splitPointsReversedEdge);
         expected.addGroupPartitionerForReversedEdges(TestGroups.EDGE, reversedGroupPartitionerEdge);

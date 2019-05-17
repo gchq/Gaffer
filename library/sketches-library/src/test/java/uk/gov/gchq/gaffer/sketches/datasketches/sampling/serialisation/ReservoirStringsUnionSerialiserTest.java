@@ -55,7 +55,7 @@ public class ReservoirStringsUnionSerialiserTest extends ViaCalculatedArrayValue
     @SuppressWarnings("unchecked")
     public Pair<ReservoirItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
         ReservoirItemsUnion<String> union = getExampleOutput();
-        return new Pair[]{new Pair(union, new byte[]{1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
+        return new Pair[] {new Pair(union, new byte[] {1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
     }
 
     @Test

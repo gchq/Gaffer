@@ -34,7 +34,7 @@ public class ElementCloner {
      * Clone an {@link Element}, based on a target {@link Schema}.
      *
      * @param element the element to clone
-     * @param schema the schema
+     * @param schema  the schema
      * @return the cloned element
      */
     public Element cloneElement(final Element element, final Schema schema) {

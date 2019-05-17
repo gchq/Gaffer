@@ -68,6 +68,6 @@ public class RoaringBitmapSerialiserTest extends ToBytesSerialisationTest<Roarin
     @Override
     public Pair<RoaringBitmap, byte[]>[] getHistoricSerialisationPairs() {
         RoaringBitmap testBitmap = getExampleValue();
-        return new Pair[]{new Pair(testBitmap, new byte[]{58, 48, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 2, 0, -72, 11, -32, -109})};
+        return new Pair[] {new Pair(testBitmap, new byte[] {58, 48, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 2, 0, -72, 11, -32, -109})};
     }
 }

@@ -41,12 +41,12 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
         try {
             if (null != object) {
-                return new Object[]{object.getBytes(), object.cardinality()};
+                return new Object[] {object.getBytes(), object.cardinality()};
             }
         } catch (final IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
         }
-        return new Object[]{null};
+        return new Object[] {null};
     }
 
     @Override

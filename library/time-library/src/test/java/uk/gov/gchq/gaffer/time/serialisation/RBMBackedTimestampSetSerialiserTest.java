@@ -99,7 +99,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     @SuppressWarnings("unchecked")
     @Override
     public Pair<RBMBackedTimestampSet, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{new Pair(getExampleValue(), new byte[]{0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
+        return new Pair[] {new Pair(getExampleValue(), new byte[] {0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
 
     }
 }

@@ -72,10 +72,10 @@ public class AggregateGafferRowsFunctionTest {
         }
         final List<Object> expected = new ArrayList<>(11);
         expected.add("vertex");
-        expected.add(new byte[]{(byte) 'c'});
+        expected.add(new byte[] {(byte) 'c'});
         expected.add(0.8999999999999999);
         expected.add(7f);
-        expected.add(new String[]{"A", "B", "C"});
+        expected.add(new String[] {"A", "B", "C"});
         expected.add(12L);
         expected.add(10);
         expected.add(TestUtils.DATE.getTime());
@@ -105,10 +105,10 @@ public class AggregateGafferRowsFunctionTest {
         expected.add("src");
         expected.add("dst");
         expected.add(true);
-        expected.add(new byte[]{(byte) 'c'});
+        expected.add(new byte[] {(byte) 'c'});
         expected.add(0.8999999999999999);
         expected.add(7f);
-        expected.add(new String[]{"A", "B", "C"});
+        expected.add(new String[] {"A", "B", "C"});
         expected.add(12L);
         expected.add(10);
         expected.add(TestUtils.DATE.getTime());

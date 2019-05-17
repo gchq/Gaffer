@@ -27,7 +27,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.collection.Seq;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -116,7 +115,7 @@ public class SortFullGroup implements Callable<OperationException> {
         // breaks our partitioning approach and would make it difficult to do query-time aggregation).
 
         LOGGER.info("Sorting data in {} files by columns {} to {} files in output directory {}",
-            inputFilesThatExist.size(), StringUtils.join(sortColumns, ','), numberOfOutputFiles, outputDir);
+                inputFilesThatExist.size(), StringUtils.join(sortColumns, ','), numberOfOutputFiles, outputDir);
 
         // NB: Don't want to include group-by columns as need to partition by core properties only (e.g. source, destination, directed)
         final ExtractKeyFromRow extractKeyFromRow = new ExtractKeyFromRow(new HashSet<>(),
@@ -124,7 +123,7 @@ public class SortFullGroup implements Callable<OperationException> {
 
         LOGGER.info("Sampling data from {} input files to identify split points for sorting", inputFilesThatExist.size());
         final List<Seq<Object>> rows = spark.read()
-                .parquet(inputFilesThatExist.toArray(new String[]{}))
+                .parquet(inputFilesThatExist.toArray(new String[] {}))
                 .javaRDD()
                 .map(extractKeyFromRow)
                 .takeSample(false, 10000, 1234567890L);
@@ -166,7 +165,7 @@ public class SortFullGroup implements Callable<OperationException> {
 
         LOGGER.info("Partitioning data using split points and sorting within partition, outputting to {}", outputDir);
         final JavaRDD<Row> partitionedData = spark.read()
-                .parquet(inputFilesThatExist.toArray(new String[]{}))
+                .parquet(inputFilesThatExist.toArray(new String[] {}))
                 .javaRDD()
                 .keyBy(new ExtractKeyFromRow(new HashSet<>(),
                         schemaUtils.getColumnToPaths(group), schemaUtils.getEntityGroups().contains(group), isReversed))
@@ -184,7 +183,7 @@ public class SortFullGroup implements Callable<OperationException> {
                 .listStatus(new Path(outputDir), path -> path.getName().endsWith(".parquet"));
         final SortedSet<Path> sortedSortedFiles = new TreeSet<>();
         Arrays.stream(sortedFiles).map(FileStatus::getPath).forEach(sortedSortedFiles::add);
-        final Path[] sortedSortedPaths = sortedSortedFiles.toArray(new Path[]{});
+        final Path[] sortedSortedPaths = sortedSortedFiles.toArray(new Path[] {});
 
         // Rename files, e.g. part-00000-*** to partition-0, removing empty files and adapting numbers accordingly
         LOGGER.info("Renaming part-* files to partition-* files, removing empty files (part-* files are in directory {})", outputDir);

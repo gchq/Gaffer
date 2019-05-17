@@ -56,9 +56,9 @@ public class GafferElementConverter extends GroupConverter {
         int i = 0;
         for (final Type field : schema.getFields()) {
             if (field.isPrimitive()) {
-                fieldToConverter.put(i, new PrimitiveConverter(parquetColumnToObject, field.asPrimitiveType().getPrimitiveTypeName().javaType.getSimpleName(), new String[]{field.getName()}, field.getOriginalType()));
+                fieldToConverter.put(i, new PrimitiveConverter(parquetColumnToObject, field.asPrimitiveType().getPrimitiveTypeName().javaType.getSimpleName(), new String[] {field.getName()}, field.getOriginalType()));
             } else {
-                fieldToConverter.put(i, new BypassGroupConverter(parquetColumnToObject, field.asGroupType(), new String[]{field.getName()}));
+                fieldToConverter.put(i, new BypassGroupConverter(parquetColumnToObject, field.asGroupType(), new String[] {field.getName()}));
             }
             i++;
         }

@@ -186,7 +186,7 @@ public class SchemaUtils {
             }
             final String[] oldPaths = columnToPaths.getOrDefault(col, null);
             if (null == oldPaths) {
-                columnToPaths.put(col, new String[]{newPath});
+                columnToPaths.put(col, new String[] {newPath});
             } else {
                 final String[] newPaths = new String[oldPaths.length + 1];
                 int index = 0;

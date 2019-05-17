@@ -86,7 +86,7 @@ public class FederatedAccessNullEmptyTest {
     }
 
 
-  @Test
+    @Test
     public void shouldInValidateWithUnSetAuth() throws Exception {
 
         final FederatedAccess access = new FederatedAccess.Builder()

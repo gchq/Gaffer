@@ -478,10 +478,10 @@ public class ElementSerialisationTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(HBasePropertyNames.PROP_1, "map")
-                                .property(HBasePropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(HBasePropertyNames.PROP_1, "map")
+                        .property(HBasePropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
@@ -503,7 +503,7 @@ public class ElementSerialisationTest {
         final byte[] value = serialisation.getValue(TestGroups.ENTITY, entity.getProperties());
 
         // Then 1
-        assertArrayEquals(new byte[]{ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER}, value);
+        assertArrayEquals(new byte[] {ByteArrayEscapeUtils.DELIMITER, ByteArrayEscapeUtils.DELIMITER}, value);
 
         // When 2
         final Properties properties = serialisation.getPropertiesFromValue(
@@ -527,7 +527,7 @@ public class ElementSerialisationTest {
         final byte[] value = serialisation.getValue(TestGroups.EDGE, properties);
 
         // Then
-        assertArrayEquals(new byte[]{1, 60, 5, -116, 127, -1, -1, -1, 3, -114, 1, 43, 5, -124, 127, -1, -1, -1, 1, 8, 0}, value);
+        assertArrayEquals(new byte[] {1, 60, 5, -116, 127, -1, -1, -1, 3, -114, 1, 43, 5, -124, 127, -1, -1, -1, 1, 8, 0}, value);
     }
 
     @Test
@@ -551,10 +551,10 @@ public class ElementSerialisationTest {
     public void shouldSerialiseWithHistoricColumnQualifier() throws Exception {
         // Given
         @SuppressWarnings("unchecked")
-        Pair<Element, byte[]>[] historicSerialisationPairs = new Pair[]{
-                new Pair(getExampleEntity(100), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 100, 0, 0, 0, 4, 102, 0, 0, 0, 0, 0}),
-                new Pair(getExampleEntity(Integer.MAX_VALUE), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, -1, -1, -1, 127, 4, 1, 0, 0, -128, 0, 0}),
-                new Pair(getExampleEntity(Integer.MIN_VALUE), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 0, 0, 0, -128, 4, 2, 0, 0, -128, 0, 0})
+        Pair<Element, byte[]>[] historicSerialisationPairs = new Pair[] {
+                new Pair(getExampleEntity(100), new byte[] {11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 100, 0, 0, 0, 4, 102, 0, 0, 0, 0, 0}),
+                new Pair(getExampleEntity(Integer.MAX_VALUE), new byte[] {11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, -1, -1, -1, 127, 4, 1, 0, 0, -128, 0, 0}),
+                new Pair(getExampleEntity(Integer.MIN_VALUE), new byte[] {11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 0, 0, 0, -128, 4, 2, 0, 0, -128, 0, 0})
         };
 
         for (final Pair<Element, byte[]> pair : historicSerialisationPairs) {

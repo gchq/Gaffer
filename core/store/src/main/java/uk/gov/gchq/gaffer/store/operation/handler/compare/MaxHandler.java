@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * A {@code MaxHandler} handles the {@link Max} operation.
- *
+ * <p>
  * It uses the {@link Comparator}s instances on the operation to determine the
  * object with the maximum value.
  */

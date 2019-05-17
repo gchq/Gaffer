@@ -67,7 +67,7 @@ public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
             if (null != _getOp().getInput()) {
                 throw new IllegalStateException("Input has already been set");
             }
-            _getOp().setInput((Iterable) input);
+            _getOp().setInput(input);
             return _self();
         }
     }

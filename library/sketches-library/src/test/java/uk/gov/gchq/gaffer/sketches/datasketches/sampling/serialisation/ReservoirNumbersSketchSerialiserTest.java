@@ -42,7 +42,7 @@ public class ReservoirNumbersSketchSerialiserTest {
 
     private void testSerialiser(final ReservoirItemsSketch<Number> sketch) {
         final boolean resultIsNull = sketch == null;
-        Number[] sample = new Number[]{};
+        Number[] sample = new Number[] {};
         if (!resultIsNull) {
             sample = sketch.getSamples();
         }

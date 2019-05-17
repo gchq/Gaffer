@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 /**
  * Operation handler for {@link NamedOperation}. Named operations are resolved by
  * the {@code NamedOperationResolver} {@code GraphHook}.
- *
+ * <p>
  * If this handler is invoked then it means the named operation could not be resolved.
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {

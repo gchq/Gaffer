@@ -33,7 +33,7 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
 
     @Override
     public Object[] serialise(final Boolean object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override

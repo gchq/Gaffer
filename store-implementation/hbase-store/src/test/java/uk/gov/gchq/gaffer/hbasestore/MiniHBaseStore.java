@@ -125,7 +125,7 @@ public class MiniHBaseStore extends HBaseStore {
                         }
                     };
 
-            final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
+            final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[] {"supergroup"});
             superUser.runAs(action);
         }
     }

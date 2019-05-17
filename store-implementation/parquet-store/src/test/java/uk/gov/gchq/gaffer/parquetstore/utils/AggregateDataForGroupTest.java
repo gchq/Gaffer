@@ -109,7 +109,7 @@ public class AggregateDataForGroupTest {
             assertEquals(26, (int) results[i].getAs("short"));
             assertEquals(TestUtils.DATE.getTime(), (long) results[i].getAs("date"));
             assertEquals(4, (int) results[i].getAs("count"));
-            assertArrayEquals(new String[]{"A", "B", "C"},
+            assertArrayEquals(new String[] {"A", "B", "C"},
                     (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             final FreqMap mergedFreqMap = new FreqMap();
             mergedFreqMap.put("A", 4L);

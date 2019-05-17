@@ -190,7 +190,7 @@ public interface Operation extends Closeable {
     default ValidationResult validate() {
         final ValidationResult result = new ValidationResult();
 
-        HashSet<Field> fields = Sets.<Field>newHashSet();
+        HashSet<Field> fields = Sets.newHashSet();
         Class<?> currentClass = this.getClass();
         while (null != currentClass) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));

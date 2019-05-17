@@ -40,7 +40,7 @@ public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSe
     @Override
     public Pair<ReservoirLongsUnion, byte[]>[] getHistoricSerialisationPairs() {
         final ReservoirLongsUnion union = getExampleOutput();
-        return new Pair[]{new Pair(union, new byte[]{1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0})};
+        return new Pair[] {new Pair(union, new byte[] {1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0})};
     }
 
     @Override

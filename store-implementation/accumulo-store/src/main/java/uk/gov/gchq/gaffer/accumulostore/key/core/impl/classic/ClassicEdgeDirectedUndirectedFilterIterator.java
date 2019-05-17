@@ -144,8 +144,8 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
             deduplicateUndirectedEdges = true;
         }
         LOGGER.debug("Initialised ClassicEdgeDirectedUndirectedFilterIterator with "
-                + "incomingEdges = {}, outgoingEdges = {}, directedEdges = {}, unDirectedEdges = {}, "
-                + " entities = {}, edges = {}, deduplicateUndirectedEdges = {}",
+                        + "incomingEdges = {}, outgoingEdges = {}, directedEdges = {}, unDirectedEdges = {}, "
+                        + " entities = {}, edges = {}, deduplicateUndirectedEdges = {}",
                 incomingEdges, outgoingEdges, directedEdges, unDirectedEdges,
                 entities, edges, deduplicateUndirectedEdges);
     }

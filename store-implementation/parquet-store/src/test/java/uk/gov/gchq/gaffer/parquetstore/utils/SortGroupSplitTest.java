@@ -133,7 +133,7 @@ public class SortGroupSplitTest {
                 assertEquals(new Date(200000L).getTime(), (long) results[i].getAs("date"));
             }
             assertEquals(2, (int) results[i].getAs("count"));
-            Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
+            Assert.assertArrayEquals(new String[] {"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
         }
     }

@@ -121,7 +121,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         try {
             LOGGER.info("Running import job");
-            ToolRunner.run(importTool, new String[]{operation.getOutputPath(), store.getTableName().getNameAsString()});
+            ToolRunner.run(importTool, new String[] {operation.getOutputPath(), store.getTableName().getNameAsString()});
             LOGGER.info("Finished running import job");
         } catch (final Exception e) {
             LOGGER.error("Failed to import elements into HBase: {}", e.getMessage());

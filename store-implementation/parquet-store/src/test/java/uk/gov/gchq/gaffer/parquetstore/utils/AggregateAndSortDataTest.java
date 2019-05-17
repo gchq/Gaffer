@@ -122,7 +122,7 @@ public class AggregateAndSortDataTest {
             assertEquals(i % 2 == 0 ? 14 : 12, (int) results[i].getAs("short"));
             assertEquals(i % 2 == 0 ? 100000L : 200000L, (long) results[i].getAs("date"));
             assertEquals(2, (int) results[i].getAs("count"));
-            assertArrayEquals(i % 2 == 0 ? new String[]{"A", "C"} : new String[]{"A", "B"},
+            assertArrayEquals(i % 2 == 0 ? new String[] {"A", "C"} : new String[] {"A", "B"},
                     (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             final FreqMap mergedFreqMap1 = new FreqMap();
             mergedFreqMap1.put("A", 2L);

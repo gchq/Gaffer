@@ -111,7 +111,7 @@ public class ParquetStore extends Store {
     public static final int LENGTH_OF_PARTITION_NUMBER_IN_FILENAME = 7;
 
     @SuppressFBWarnings("MS_MUTABLE_ARRAY")
-    public static final Serialiser[] SERIALISERS = new Serialiser[]{
+    public static final Serialiser[] SERIALISERS = new Serialiser[] {
             new StringParquetSerialiser(),
             new ByteParquetSerialiser(),
             new IntegerParquetSerialiser(),

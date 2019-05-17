@@ -170,7 +170,7 @@ public class WriteUnsortedDataTest {
         //         10L
         //         20L
         final List<PartitionKey> splitPointsEntity = new ArrayList<>();
-        splitPointsEntity.add(new PartitionKey(new Object[]{10L}));
+        splitPointsEntity.add(new PartitionKey(new Object[] {10L}));
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY, new GroupPartitioner(TestGroups.ENTITY, splitPointsEntity));
         elements.add(createEntityForEntityGroup(5L));
         elements.add(createEntityForEntityGroup(10L));
@@ -183,7 +183,7 @@ public class WriteUnsortedDataTest {
         //        100L
         //       1000L
         final List<PartitionKey> splitPointsEntity_2 = new ArrayList<>();
-        splitPointsEntity_2.add(new PartitionKey(new Object[]{100L}));
+        splitPointsEntity_2.add(new PartitionKey(new Object[] {100L}));
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY_2, new GroupPartitioner(TestGroups.ENTITY_2, splitPointsEntity_2));
         elements.add(createEntityForEntityGroup_2(5L));
         elements.add(createEntityForEntityGroup_2(100L));
@@ -199,10 +199,10 @@ public class WriteUnsortedDataTest {
         //      10000L         400L         false
         //      10000L         400L         true
         final List<PartitionKey> splitPointsEdge = new ArrayList<>();
-        splitPointsEdge.add(new PartitionKey(new Object[]{1000L, 200L, true}));
+        splitPointsEdge.add(new PartitionKey(new Object[] {1000L, 200L, true}));
         graphPartitioner.addGroupPartitioner(TestGroups.EDGE, new GroupPartitioner(TestGroups.EDGE, splitPointsEdge));
         final List<PartitionKey> splitPointsReversedEdge = new ArrayList<>();
-        splitPointsReversedEdge.add(new PartitionKey(new Object[]{1000L, 300L, true}));
+        splitPointsReversedEdge.add(new PartitionKey(new Object[] {1000L, 300L, true}));
         graphPartitioner.addGroupPartitionerForReversedEdges(TestGroups.EDGE, new GroupPartitioner(TestGroups.EDGE, splitPointsReversedEdge));
         elements.add(createEdgeForEdgeGroup(5L, 5000L, true));
         elements.add(createEdgeForEdgeGroup(5L, 200L, false));
@@ -222,10 +222,10 @@ public class WriteUnsortedDataTest {
         //        100L         3000L        false
         //        100L         3000L        true
         final List<PartitionKey> splitPointsEdge_2 = new ArrayList<>();
-        splitPointsEdge_2.add(new PartitionKey(new Object[]{10L, 2000L, true}));
+        splitPointsEdge_2.add(new PartitionKey(new Object[] {10L, 2000L, true}));
         graphPartitioner.addGroupPartitioner(TestGroups.EDGE_2, new GroupPartitioner(TestGroups.EDGE_2, splitPointsEdge_2));
         final List<PartitionKey> splitPointsReversedEdge_2 = new ArrayList<>();
-        splitPointsReversedEdge_2.add(new PartitionKey(new Object[]{3000L, 20L, true}));
+        splitPointsReversedEdge_2.add(new PartitionKey(new Object[] {3000L, 20L, true}));
         graphPartitioner.addGroupPartitionerForReversedEdges(TestGroups.EDGE_2, new GroupPartitioner(TestGroups.EDGE_2, splitPointsReversedEdge_2));
         elements.add(createEdgeForEdgeGroup_2(5L, 5000L, true));
         elements.add(createEdgeForEdgeGroup_2(5L, 200L, false));
@@ -305,8 +305,8 @@ public class WriteUnsortedDataTest {
         //        100L
         //        200L
         final List<PartitionKey> splitPointsEntity = new ArrayList<>();
-        splitPointsEntity.add(new PartitionKey(new Object[]{10L}));
-        splitPointsEntity.add(new PartitionKey(new Object[]{100L}));
+        splitPointsEntity.add(new PartitionKey(new Object[] {10L}));
+        splitPointsEntity.add(new PartitionKey(new Object[] {100L}));
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY, new GroupPartitioner(TestGroups.ENTITY, splitPointsEntity));
         elements.add(createEntityForEntityGroup(5L));
         elements.add(createEntityForEntityGroup(10L));
@@ -324,8 +324,8 @@ public class WriteUnsortedDataTest {
         //       1000L
         //       5000L
         final List<PartitionKey> splitPointsEntity_2 = new ArrayList<>();
-        splitPointsEntity_2.add(new PartitionKey(new Object[]{100L}));
-        splitPointsEntity_2.add(new PartitionKey(new Object[]{1000L}));
+        splitPointsEntity_2.add(new PartitionKey(new Object[] {100L}));
+        splitPointsEntity_2.add(new PartitionKey(new Object[] {1000L}));
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY_2, new GroupPartitioner(TestGroups.ENTITY_2, splitPointsEntity_2));
         elements.add(createEntityForEntityGroup_2(5L));
         elements.add(createEntityForEntityGroup_2(100L));
@@ -342,12 +342,12 @@ public class WriteUnsortedDataTest {
         //       1000L      300000L         true
         //      10000L         400L         false
         final List<PartitionKey> splitPointsEdge = new ArrayList<>();
-        splitPointsEdge.add(new PartitionKey(new Object[]{1000L, 200L, true}));
-        splitPointsEdge.add(new PartitionKey(new Object[]{1000L, 30000L, false}));
+        splitPointsEdge.add(new PartitionKey(new Object[] {1000L, 200L, true}));
+        splitPointsEdge.add(new PartitionKey(new Object[] {1000L, 30000L, false}));
         graphPartitioner.addGroupPartitioner(TestGroups.EDGE, new GroupPartitioner(TestGroups.EDGE, splitPointsEdge));
         final List<PartitionKey> splitPointsReversedEdge = new ArrayList<>();
-        splitPointsReversedEdge.add(new PartitionKey(new Object[]{100L, 1000L, true}));
-        splitPointsReversedEdge.add(new PartitionKey(new Object[]{300L, 2000L, false}));
+        splitPointsReversedEdge.add(new PartitionKey(new Object[] {100L, 1000L, true}));
+        splitPointsReversedEdge.add(new PartitionKey(new Object[] {300L, 2000L, false}));
         graphPartitioner.addGroupPartitionerForReversedEdges(TestGroups.EDGE, new GroupPartitioner(TestGroups.EDGE, splitPointsReversedEdge));
         elements.add(createEdgeForEdgeGroup(5L, 5000L, true));
         elements.add(createEdgeForEdgeGroup(5L, 200L, false));
@@ -366,12 +366,12 @@ public class WriteUnsortedDataTest {
         //        100L         3000L        false
         //        100L         3000L        true
         final List<PartitionKey> splitPointsEdge_2 = new ArrayList<>();
-        splitPointsEdge_2.add(new PartitionKey(new Object[]{10L, 2000L, true}));
-        splitPointsEdge_2.add(new PartitionKey(new Object[]{100L, 1000L, false}));
+        splitPointsEdge_2.add(new PartitionKey(new Object[] {10L, 2000L, true}));
+        splitPointsEdge_2.add(new PartitionKey(new Object[] {100L, 1000L, false}));
         graphPartitioner.addGroupPartitioner(TestGroups.EDGE_2, new GroupPartitioner(TestGroups.EDGE_2, splitPointsEdge_2));
         final List<PartitionKey> splitPointsReversedEdge_2 = new ArrayList<>();
-        splitPointsReversedEdge_2.add(new PartitionKey(new Object[]{1000L, 1500L, true}));
-        splitPointsReversedEdge_2.add(new PartitionKey(new Object[]{2000L, 2500L, false}));
+        splitPointsReversedEdge_2.add(new PartitionKey(new Object[] {1000L, 1500L, true}));
+        splitPointsReversedEdge_2.add(new PartitionKey(new Object[] {2000L, 2500L, false}));
         graphPartitioner.addGroupPartitionerForReversedEdges(TestGroups.EDGE_2, new GroupPartitioner(TestGroups.EDGE_2, splitPointsReversedEdge_2));
         elements.add(createEdgeForEdgeGroup_2(5L, 5000L, true));
         elements.add(createEdgeForEdgeGroup_2(10L, 2000L, false));

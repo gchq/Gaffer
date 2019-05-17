@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
  * An {@code FederatedValidateHandler} extends {@link ValidateHandler} and uses
  * the FederatedStore merged schemas.
  */
-public class FederatedValidateHandler  implements OutputOperationHandler<Validate, Iterable<? extends Element>> {
+public class FederatedValidateHandler implements OutputOperationHandler<Validate, Iterable<? extends Element>> {
     private final ValidateHandler handler;
 
     public FederatedValidateHandler() {

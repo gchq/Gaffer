@@ -288,7 +288,7 @@ public class InputFormatTest {
         FileUtils.deleteDirectory(outputFolder);
         final Driver driver = new Driver(outputFolder.getAbsolutePath());
         driver.setConf(conf);
-        driver.run(new String[]{});
+        driver.run(new String[] {});
 
         // Read results and check correct
         final SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(outputFolder + "/part-m-00000"), conf);

@@ -39,7 +39,7 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then
-        assertArrayEquals(new String[]{"timestamp"}, pair.getGroupBy());
+        assertArrayEquals(new String[] {"timestamp"}, pair.getGroupBy());
         assertNotNull(pair.getElementAggregator());
     }
 

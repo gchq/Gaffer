@@ -120,9 +120,9 @@ public class JavaPredicateToParquetPredicate {
     }
 
     public FilterPredicate getAndFilter(final List<Predicate> predicateList,
-                                               final String[] selection,
-                                               final String group,
-                                               final SchemaUtils schemaUtils) throws SerialisationException {
+                                        final String[] selection,
+                                        final String group,
+                                        final SchemaUtils schemaUtils) throws SerialisationException {
         FilterPredicate combinedFilter = null;
         for (final Predicate predicate : predicateList) {
             final Predicate filterFunction;
@@ -150,9 +150,9 @@ public class JavaPredicateToParquetPredicate {
     }
 
     public FilterPredicate getOrFilter(final List<Predicate> predicateList,
-                                              final String[] selection,
-                                              final String group,
-                                              final SchemaUtils schemaUtils) throws SerialisationException {
+                                       final String[] selection,
+                                       final String group,
+                                       final SchemaUtils schemaUtils) throws SerialisationException {
         FilterPredicate combinedFilter = null;
         for (final Predicate predicate : predicateList) {
             final Predicate filterFunction;

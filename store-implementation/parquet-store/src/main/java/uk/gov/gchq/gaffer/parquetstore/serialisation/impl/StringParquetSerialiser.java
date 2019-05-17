@@ -33,7 +33,7 @@ public class StringParquetSerialiser implements ParquetSerialiser<String> {
 
     @Override
     public Object[] serialise(final String object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override

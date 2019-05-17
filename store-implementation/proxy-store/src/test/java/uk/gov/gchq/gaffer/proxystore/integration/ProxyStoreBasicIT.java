@@ -74,7 +74,7 @@ public class ProxyStoreBasicIT {
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public static final User USER = new User();
-    public static final Element[] DEFAULT_ELEMENTS = new Element[]{
+    public static final Element[] DEFAULT_ELEMENTS = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")

@@ -47,7 +47,7 @@ public class StringsUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
     public Pair<ItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
         final ItemsUnion<String> union = getExampleOutput();
         testSerialiser(union);
-        return new Pair[]{new Pair(union, new byte[]{2, 3, 8, 8, 32, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 51, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
+        return new Pair[] {new Pair(union, new byte[] {2, 3, 8, 8, 32, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 51, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
     }
 
     @Override

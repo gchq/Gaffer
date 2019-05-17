@@ -33,7 +33,7 @@ public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
 
     @Override
     public Object[] serialise(final Float object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override

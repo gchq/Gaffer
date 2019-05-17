@@ -44,7 +44,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsSketch.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
+        return ItemsSketch.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
     }
 
     @Override

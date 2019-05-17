@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotSame;
 public class SetVariableTest extends OperationTest<SetVariable> {
     private final String varName = "varName";
     private final int varVal = 4;
+
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final SetVariable setVariableOp = new SetVariable.Builder()

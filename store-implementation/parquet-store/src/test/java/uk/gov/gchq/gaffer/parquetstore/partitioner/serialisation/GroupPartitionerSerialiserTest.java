@@ -42,9 +42,9 @@ public class GroupPartitionerSerialiserTest {
     @Test
     public void shouldSerialiseKeysToFileAndReadCorrectly() throws IOException {
         // Given
-        final Object[] key1 = new Object[]{1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[]{(byte) 1, (byte) 2, (byte) 3}};
+        final Object[] key1 = new Object[] {1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[] {(byte) 1, (byte) 2, (byte) 3}};
         final PartitionKey partitionKey1 = new PartitionKey(key1);
-        final Object[] key2 = new Object[]{100L, 500, "XYZ", 1000F, (short) 3, (byte) 55, new byte[]{(byte) 10, (byte) 9, (byte) 8, (byte) 7}};
+        final Object[] key2 = new Object[] {100L, 500, "XYZ", 1000F, (short) 3, (byte) 55, new byte[] {(byte) 10, (byte) 9, (byte) 8, (byte) 7}};
         final PartitionKey partitionKey2 = new PartitionKey(key2);
         final List<PartitionKey> splitPoints = new ArrayList<>();
         splitPoints.add(partitionKey1);

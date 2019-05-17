@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
  * is design to provide compatible serialisers for given object classes.
  */
 public class AccumuloSerialisationFactory extends SerialisationFactory {
-    private static final Serialiser[] ACCUMULO_SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] ACCUMULO_SERIALISERS = new Serialiser[] {
             new HyperLogLogPlusSerialiser(),
             new LongsSketchSerialiser(),
             new StringsSketchSerialiser(),

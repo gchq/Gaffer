@@ -34,10 +34,10 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
     @Override
     public Object[] serialise(final Byte object) throws SerialisationException {
         if (null != object) {
-            final byte[] bytes = new byte[]{object};
-            return new Object[]{bytes};
+            final byte[] bytes = new byte[] {object};
+            return new Object[] {bytes};
         } else {
-            return new Object[]{null};
+            return new Object[] {null};
         }
     }
 

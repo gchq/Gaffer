@@ -15,7 +15,7 @@
  */
 
 /**
- *  Implementations of operations for exporting results from Gaffer to another
- *  Gaffer graph.
+ * Implementations of operations for exporting results from Gaffer to another
+ * Gaffer graph.
  */
 package uk.gov.gchq.gaffer.operation.export.graph;

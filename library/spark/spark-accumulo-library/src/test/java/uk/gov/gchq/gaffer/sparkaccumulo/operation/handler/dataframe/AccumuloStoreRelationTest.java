@@ -84,7 +84,7 @@ public class AccumuloStoreRelationTest {
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
         final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
-        filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), new String[]{"property1"}));
+        filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), new String[] {"property1"}));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP, new ViewElementDefinition.Builder()
                         .postAggregationFilterFunctions(filters)
@@ -140,7 +140,7 @@ public class AccumuloStoreRelationTest {
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
-        final String[] requiredColumns = new String[]{"property1"};
+        final String[] requiredColumns = new String[] {"property1"};
         testBuildScanSpecifyColumnsWithView(view, requiredColumns, e -> true);
     }
 

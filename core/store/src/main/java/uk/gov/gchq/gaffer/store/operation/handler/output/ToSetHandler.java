@@ -30,7 +30,7 @@ import java.util.Set;
  * The {@code ToSetHandler} handles {@link ToSet} operations by collecting the
  * items in the input {@link Iterable} into a {@link Set}, removing duplicate items
  * in the process.
- *
+ * <p>
  * Use of this operation will cause all of the items present in the input iterable
  * to be brought into memory, so this operation is not suitable for situations where
  * the size of the input iterable is very large.
@@ -45,6 +45,6 @@ public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? e
         }
 
         return Streams.toStream(operation.getInput())
-                      .collect(GafferCollectors.toLinkedHashSet());
+                .collect(GafferCollectors.toLinkedHashSet());
     }
 }

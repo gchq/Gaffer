@@ -31,10 +31,10 @@ import java.util.Set;
  * @param <K> The object type that acts as the key for the IMap
  * @param <V> The value that is stored in the IMap
  */
-public class HazelcastCache <K, V> implements ICache<K, V> {
+public class HazelcastCache<K, V> implements ICache<K, V> {
     private final IMap<K, V> distributedMap;
 
-    public HazelcastCache(final IMap <K, V> distributedMap) {
+    public HazelcastCache(final IMap<K, V> distributedMap) {
         this.distributedMap = distributedMap;
     }
 

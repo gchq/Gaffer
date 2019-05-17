@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * Abstract class describing how to handle {@link ExportTo} operations.
  *
- * @param <EXPORT> the {@link ExportTo} operation
+ * @param <EXPORT>   the {@link ExportTo} operation
  * @param <EXPORTER> the {@link Exporter} instance
  */
 public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER> {

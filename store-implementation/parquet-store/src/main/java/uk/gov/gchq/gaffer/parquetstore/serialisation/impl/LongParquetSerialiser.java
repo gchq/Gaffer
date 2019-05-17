@@ -33,7 +33,7 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
 
     @Override
     public Object[] serialise(final Long object) throws SerialisationException {
-        return new Object[]{object};
+        return new Object[] {object};
     }
 
     @Override
