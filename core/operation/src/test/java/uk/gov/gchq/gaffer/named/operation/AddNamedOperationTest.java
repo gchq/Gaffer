@@ -16,10 +16,16 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -39,13 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
@@ -187,6 +186,29 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
         assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
+    }
+
+    @Override
+    @Test
+    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
+        // Given
+        Map<String, ParameterDetail> parameters = new HashMap<>();
+
+        AddNamedOperation testObject = new AddNamedOperation.Builder()
+                .operationChain(OPERATION_CHAIN)
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .score(2)
+                .build();
+
+        AddNamedOperation clone = testObject.shallowClone();
+
+        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
+        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
+        assertEquals(testObject, clone);
     }
 
     @Test

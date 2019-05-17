@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
@@ -78,6 +80,30 @@ public class GetGafferResultCacheExport implements
                 .key(key)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetGafferResultCacheExport that = (GetGafferResultCacheExport) o;
+
+        return new EqualsBuilder()
+                .append(jobId, that.jobId)
+                .append(key, that.key)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(jobId)
+                .append(key)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

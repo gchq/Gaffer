@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.add;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -68,6 +70,32 @@ public class AddStorePropertiesToLibrary implements Operation {
                 .options(this.options)
                 .id(id)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddStorePropertiesToLibrary that = (AddStorePropertiesToLibrary) o;
+
+        return new EqualsBuilder()
+                .append(storeProperties, that.storeProperties)
+                .append(id, that.id)
+                .append(parentPropertiesId, that.parentPropertiesId)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(storeProperties)
+                .append(id)
+                .append(parentPropertiesId)
+                .append(options)
+                .toHashCode();
     }
 
     @JsonIgnore

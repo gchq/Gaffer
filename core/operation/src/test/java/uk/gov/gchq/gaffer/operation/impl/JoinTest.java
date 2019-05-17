@@ -16,9 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -29,11 +32,6 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 public class JoinTest extends OperationTest<Join> {
     @Override
@@ -75,7 +73,7 @@ public class JoinTest extends OperationTest<Join> {
         // When
         final Join clone = op.shallowClone();
 
-        assertNotEquals(op, clone);
+        assertEquals(op, clone);
         assertEquals(clone.getInput(), op.getInput());
         assertEquals(clone.getOperation(), op.getOperation());
         assertEquals(clone.getJoinType(), op.getJoinType());

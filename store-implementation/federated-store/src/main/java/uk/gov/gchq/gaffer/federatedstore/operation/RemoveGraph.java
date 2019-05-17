@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang3.exception.CloneFailedException;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
-
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
  * An Operation used for removing graphs from a FederatedStore.
@@ -65,6 +66,28 @@ public class RemoveGraph implements FederatedOperation {
                 .graphId(graphId)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final RemoveGraph that = (RemoveGraph) o;
+
+        return new EqualsBuilder()
+                .append(graphId, that.graphId)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(graphId)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

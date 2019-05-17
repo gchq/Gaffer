@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.graphframes.GraphFrame;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -122,6 +124,32 @@ public class GetGraphFrameOfElements implements
                 .directedType(directedType)
                 .view(view)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetGraphFrameOfElements that = (GetGraphFrameOfElements) o;
+
+        return new EqualsBuilder()
+                .append(converters, that.converters)
+                .append(options, that.options)
+                .append(view, that.view)
+                .append(directedType, that.directedType)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(converters)
+                .append(options)
+                .append(view)
+                .append(directedType)
+                .toHashCode();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetGraphFrameOfElements, Builder>

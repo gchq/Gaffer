@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -282,6 +284,49 @@ public class SampleDataForSplitPoints implements
                 .build();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final SampleDataForSplitPoints that = (SampleDataForSplitPoints) o;
+
+        return new EqualsBuilder()
+                .append(useProvidedSplits, that.useProvidedSplits)
+                .append(validate, that.validate)
+                .append(proportionToSample, that.proportionToSample)
+                .append(splitsFilePath, that.splitsFilePath)
+                .append(numSplits, that.numSplits)
+                .append(inputMapperPairs, that.inputMapperPairs)
+                .append(outputPath, that.outputPath)
+                .append(jobInitialiser, that.jobInitialiser)
+                .append(numMapTasks, that.numMapTasks)
+                .append(minMapTasks, that.minMapTasks)
+                .append(maxMapTasks, that.maxMapTasks)
+                .append(options, that.options)
+                .append(compressionCodec, that.compressionCodec)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(splitsFilePath)
+                .append(numSplits)
+                .append(useProvidedSplits)
+                .append(validate)
+                .append(proportionToSample)
+                .append(inputMapperPairs)
+                .append(outputPath)
+                .append(jobInitialiser)
+                .append(numMapTasks)
+                .append(minMapTasks)
+                .append(maxMapTasks)
+                .append(options)
+                .append(compressionCodec)
+                .toHashCode();
+    }
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
             implements MapReduce.Builder<SampleDataForSplitPoints, Builder> {

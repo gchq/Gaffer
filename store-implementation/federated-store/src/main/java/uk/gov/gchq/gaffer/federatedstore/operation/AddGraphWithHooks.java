@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -50,6 +52,28 @@ public class AddGraphWithHooks extends AddGraph {
         }
 
         return builder.build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddGraphWithHooks that = (AddGraphWithHooks) o;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(hooks, that.hooks)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(hooks)
+                .toHashCode();
     }
 
     public GraphHook[] getHooks() {

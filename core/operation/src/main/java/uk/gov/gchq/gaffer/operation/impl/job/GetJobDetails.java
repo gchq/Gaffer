@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -59,6 +61,28 @@ public class GetJobDetails implements
                 .jobId(jobId)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetJobDetails that = (GetJobDetails) o;
+
+        return new EqualsBuilder()
+                .append(jobId, that.jobId)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(jobId)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

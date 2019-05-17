@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
@@ -148,6 +150,38 @@ public class ExportToOtherGraph implements
                 .storeProperties(storeProperties)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ExportToOtherGraph that = (ExportToOtherGraph) o;
+
+        return new EqualsBuilder()
+                .append(graphId, that.graphId)
+                .append(input, that.input)
+                .append(parentSchemaIds, that.parentSchemaIds)
+                .append(schema, that.schema)
+                .append(parentStorePropertiesId, that.parentStorePropertiesId)
+                .append(storeProperties, that.storeProperties)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(graphId)
+                .append(input)
+                .append(parentSchemaIds)
+                .append(schema)
+                .append(parentStorePropertiesId)
+                .append(storeProperties)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

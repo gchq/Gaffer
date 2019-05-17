@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -133,6 +135,40 @@ public class Join<I> implements InputOutput<Iterable<? extends I>,
                 .collectionLimit(collectionLimit)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Join<?> join = (Join<?>) o;
+
+        return new EqualsBuilder()
+                .append(leftSideInput, join.leftSideInput)
+                .append(rightSideOperation, join.rightSideOperation)
+                .append(matchMethod, join.matchMethod)
+                .append(flatten, join.flatten)
+                .append(matchKey, join.matchKey)
+                .append(joinType, join.joinType)
+                .append(collectionLimit, join.collectionLimit)
+                .append(options, join.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(leftSideInput)
+                .append(rightSideOperation)
+                .append(matchMethod)
+                .append(flatten)
+                .append(matchKey)
+                .append(joinType)
+                .append(collectionLimit)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

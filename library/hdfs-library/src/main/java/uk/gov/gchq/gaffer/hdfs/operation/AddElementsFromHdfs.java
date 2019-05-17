@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.mapreduce.Partitioner;
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -271,6 +272,59 @@ public class AddElementsFromHdfs implements
                 .partitioner(partitioner)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final AddElementsFromHdfs other = (AddElementsFromHdfs) obj;
+
+        return new EqualsBuilder()
+                .append(failurePath, other.failurePath)
+                .append(workingPath, other.workingPath)
+                .append(validate, other.validate)
+                .append(inputMapperPairs, other.outputPath)
+                .append(jobInitialiser, other.jobInitialiser)
+                .append(numMapTasks, other.numMapTasks)
+                .append(numReduceTasks, other.numReduceTasks)
+                .append(minMapTasks, other.minMapTasks)
+                .append(minReduceTasks, other.minReduceTasks)
+                .append(maxMapTasks, other.maxMapTasks)
+                .append(maxReduceTasks, other.maxReduceTasks)
+                .append(useProvidedSplits, other.useProvidedSplits)
+                .append(splitsFilePath, other.splitsFilePath)
+                .append(partitioner, other.partitioner)
+                .append(options, other.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(67, 23)
+                .append(failurePath)
+                .append(workingPath)
+                .append(validate)
+                .append(inputMapperPairs)
+                .append(outputPath)
+                .append(jobInitialiser)
+                .append(numMapTasks)
+                .append(numReduceTasks)
+                .append(minMapTasks)
+                .append(minReduceTasks)
+                .append(maxMapTasks)
+                .append(maxReduceTasks)
+                .append(useProvidedSplits)
+                .append(splitsFilePath)
+                .append(partitioner)
+                .append(options)
+                .toHashCode();
     }
 
     public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>

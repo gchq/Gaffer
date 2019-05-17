@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.operation.impl.function;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -78,6 +80,38 @@ public class Filter implements Function,
                 .globalEntities(globalEntities)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Filter filter = (Filter) o;
+
+        return new EqualsBuilder()
+                .append(input, filter.input)
+                .append(edges, filter.edges)
+                .append(entities, filter.entities)
+                .append(globalElements, filter.globalElements)
+                .append(globalEntities, filter.globalEntities)
+                .append(globalEdges, filter.globalEdges)
+                .append(options, filter.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(edges)
+                .append(entities)
+                .append(globalElements)
+                .append(globalEntities)
+                .append(globalEdges)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

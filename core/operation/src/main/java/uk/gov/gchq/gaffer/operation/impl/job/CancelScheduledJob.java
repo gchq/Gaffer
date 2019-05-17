@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -52,6 +54,28 @@ public class CancelScheduledJob implements Operation {
                 .jobId(jobId)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final CancelScheduledJob that = (CancelScheduledJob) o;
+
+        return new EqualsBuilder()
+                .append(jobId, that.jobId)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(jobId)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation.impl.io;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -96,6 +98,36 @@ public class InputImpl implements MultiInput<String> {
                 .input(input)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final InputImpl input1 = (InputImpl) o;
+
+        return new EqualsBuilder()
+                .append(requiredField2, input1.requiredField2)
+                .append(requiredField1, input1.requiredField1)
+                .append(optionalField1, input1.optionalField1)
+                .append(optionalField2, input1.optionalField2)
+                .append(input, input1.input)
+                .append(options, input1.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(requiredField2)
+                .append(requiredField1)
+                .append(optionalField1)
+                .append(optionalField2)
+                .append(input)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

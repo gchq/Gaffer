@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.spark.rdd.RDD;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -111,6 +113,34 @@ public class GetRDDOfElementsInRanges implements
                 .directedType(directedType)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetRDDOfElementsInRanges that = (GetRDDOfElementsInRanges) o;
+
+        return new EqualsBuilder()
+                .append(input, that.input)
+                .append(includeIncomingOutGoing, that.includeIncomingOutGoing)
+                .append(view, that.view)
+                .append(directedType, that.directedType)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(includeIncomingOutGoing)
+                .append(view)
+                .append(directedType)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends BaseBuilder<GetRDDOfElementsInRanges, Builder>

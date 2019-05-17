@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
@@ -116,6 +118,34 @@ public class Sort implements
                 .deduplicate(deduplicate)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Sort sort = (Sort) o;
+
+        return new EqualsBuilder()
+                .append(deduplicate, sort.deduplicate)
+                .append(input, sort.input)
+                .append(comparators, sort.comparators)
+                .append(resultLimit, sort.resultLimit)
+                .append(options, sort.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(comparators)
+                .append(resultLimit)
+                .append(deduplicate)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

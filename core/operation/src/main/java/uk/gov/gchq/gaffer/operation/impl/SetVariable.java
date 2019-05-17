@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -69,6 +71,30 @@ public class SetVariable implements Input<Object> {
                 .variableName(variableName)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final SetVariable that = (SetVariable) o;
+
+        return new EqualsBuilder()
+                .append(input, that.input)
+                .append(variableName, that.variableName)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(variableName)
+                .append(options)
+                .toHashCode();
     }
 
     public static final class Builder

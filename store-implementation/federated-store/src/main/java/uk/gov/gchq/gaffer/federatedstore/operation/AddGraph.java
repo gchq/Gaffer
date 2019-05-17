@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,8 +25,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -36,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
  * <p>
@@ -118,6 +119,42 @@ public class AddGraph implements FederatedOperation {
         }
 
         return builder.build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddGraph addGraph = (AddGraph) o;
+
+        return new EqualsBuilder()
+                .append(isPublic, addGraph.isPublic)
+                .append(disabledByDefault, addGraph.disabledByDefault)
+                .append(graphId, addGraph.graphId)
+                .append(storeProperties, addGraph.storeProperties)
+                .append(parentPropertiesId, addGraph.parentPropertiesId)
+                .append(schema, addGraph.schema)
+                .append(parentSchemaIds, addGraph.parentSchemaIds)
+                .append(graphAuths, addGraph.graphAuths)
+                .append(options, addGraph.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(graphId)
+                .append(storeProperties)
+                .append(parentPropertiesId)
+                .append(schema)
+                .append(parentSchemaIds)
+                .append(graphAuths)
+                .append(options)
+                .append(isPublic)
+                .append(disabledByDefault)
+                .toHashCode();
     }
 
     public List<String> getParentSchemaIds() {

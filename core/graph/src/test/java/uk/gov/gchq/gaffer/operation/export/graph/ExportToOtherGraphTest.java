@@ -16,10 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -32,9 +35,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.Arrays;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     @Test
@@ -114,6 +114,29 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("props1", clone.getParentStorePropertiesId());
         JsonAssert.assertEquals(schema.toJson(false), clone.getSchema().toJson(false));
         assertEquals(storeProperties, clone.getStoreProperties());
+    }
+
+    @Override
+    @Test
+    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
+                .build();
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final ExportToOtherGraph testObject = new ExportToOtherGraph.Builder()
+                .graphId("graphId")
+                .parentSchemaIds("schema1", "schema2")
+                .parentStorePropertiesId("props1")
+                .schema(schema)
+                .storeProperties(storeProperties)
+                .build();
+
+        ExportToOtherGraph clone = testObject.shallowClone();
+
+        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
+        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
+        assertEquals(testObject, clone);
     }
 
     @Override

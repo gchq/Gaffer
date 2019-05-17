@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -85,6 +87,32 @@ public class Reduce<T> implements InputOutput<Iterable<? extends T>, T>, MultiIn
         clone.setInput(input);
         clone.setOptions(options);
         return clone;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Reduce<?> reduce = (Reduce<?>) o;
+
+        return new EqualsBuilder()
+                .append(input, reduce.input)
+                .append(identity, reduce.identity)
+                .append(options, reduce.options)
+                .append(aggregateFunction, reduce.aggregateFunction)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(identity)
+                .append(options)
+                .append(aggregateFunction)
+                .toHashCode();
     }
 
     @Override

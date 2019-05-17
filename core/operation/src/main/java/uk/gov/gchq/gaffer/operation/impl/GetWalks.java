@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -191,6 +193,32 @@ public class GetWalks implements
                 .operations(clonedOps)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetWalks getWalks = (GetWalks) o;
+
+        return new EqualsBuilder()
+                .append(operations, getWalks.operations)
+                .append(input, getWalks.input)
+                .append(options, getWalks.options)
+                .append(resultsLimit, getWalks.resultsLimit)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(operations)
+                .append(input)
+                .append(options)
+                .append(resultsLimit)
+                .toHashCode();
     }
 
     @Override

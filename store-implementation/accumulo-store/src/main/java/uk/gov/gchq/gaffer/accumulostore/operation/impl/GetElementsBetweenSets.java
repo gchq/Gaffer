@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiEntityIdInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -172,6 +174,38 @@ public class GetElementsBetweenSets implements
                 .inputB(inputB)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetElementsBetweenSets that = (GetElementsBetweenSets) o;
+
+        return new EqualsBuilder()
+                .append(seedMatching, that.seedMatching)
+                .append(view, that.view)
+                .append(includeIncomingOutGoing, that.includeIncomingOutGoing)
+                .append(directedType, that.directedType)
+                .append(input, that.input)
+                .append(inputB, that.inputB)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(seedMatching)
+                .append(view)
+                .append(includeIncomingOutGoing)
+                .append(directedType)
+                .append(input)
+                .append(inputB)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>

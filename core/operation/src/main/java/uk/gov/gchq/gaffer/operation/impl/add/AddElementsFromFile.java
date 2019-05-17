@@ -16,7 +16,8 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -122,6 +123,40 @@ public class AddElementsFromFile implements
                 .skipInvalidElements(skipInvalidElements)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final AddElementsFromFile other = (AddElementsFromFile) obj;
+
+        return new EqualsBuilder()
+                .append(filename, other.filename)
+                .append(elementGenerator, other.elementGenerator)
+                .append(parallelism, other.parallelism)
+                .append(validate, other.validate)
+                .append(skipInvalidElements, other.skipInvalidElements)
+                .append(options, other.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(67, 23)
+                .append(filename)
+                .append(elementGenerator)
+                .append(parallelism)
+                .append(validate)
+                .append(skipInvalidElements)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>

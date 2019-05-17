@@ -16,19 +16,19 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Collections;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
@@ -68,6 +68,19 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         assertEquals("graphId", clone.getGraphId());
         assertEquals(Collections.singletonList("schema1"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());
+    }
+
+    @Override
+    @Test
+    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
+        // Given
+        ExportToOtherAuthorisedGraph testObject = op;
+
+        ExportToOtherAuthorisedGraph clone = op.shallowClone();
+
+        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
+        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
+        assertEquals(testObject, clone);
     }
 
     @Override

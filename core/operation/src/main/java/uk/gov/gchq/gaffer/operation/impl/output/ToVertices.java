@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -85,6 +87,32 @@ public class ToVertices implements
                 .edgeVertices(edgeVertices)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ToVertices that = (ToVertices) o;
+
+        return new EqualsBuilder()
+                .append(input, that.input)
+                .append(useMatchedVertex, that.useMatchedVertex)
+                .append(edgeVertices, that.edgeVertices)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(useMatchedVertex)
+                .append(edgeVertices)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

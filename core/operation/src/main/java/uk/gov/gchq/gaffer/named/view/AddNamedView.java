@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -165,6 +167,38 @@ public class AddNamedView implements Operation {
                 .overwrite(overwriteFlag)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddNamedView that = (AddNamedView) o;
+
+        return new EqualsBuilder()
+                .append(overwriteFlag, that.overwriteFlag)
+                .append(name, that.name)
+                .append(view, that.view)
+                .append(description, that.description)
+                .append(writeAccessRoles, that.writeAccessRoles)
+                .append(parameters, that.parameters)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(name)
+                .append(view)
+                .append(description)
+                .append(writeAccessRoles)
+                .append(parameters)
+                .append(overwriteFlag)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends BaseBuilder<AddNamedView, Builder> {

@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
@@ -84,6 +86,34 @@ public class OperationImpl implements Operation {
                 .optionalField2(optionalField2)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final OperationImpl operation = (OperationImpl) o;
+
+        return new EqualsBuilder()
+                .append(requiredField1, operation.requiredField1)
+                .append(requiredField2, operation.requiredField2)
+                .append(optionalField1, operation.optionalField1)
+                .append(optionalField2, operation.optionalField2)
+                .append(options, operation.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(requiredField1)
+                .append(requiredField2)
+                .append(optionalField1)
+                .append(optionalField2)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

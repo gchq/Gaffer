@@ -16,13 +16,17 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -42,9 +46,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
@@ -166,6 +167,42 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 .options(options)
                 .score(score)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddNamedOperation that = (AddNamedOperation) o;
+
+        return new EqualsBuilder()
+                .append(overwriteFlag, that.overwriteFlag)
+                .append(operations, that.operations)
+                .append(operationName, that.operationName)
+                .append(description, that.description)
+                .append(readAccessRoles, that.readAccessRoles)
+                .append(writeAccessRoles, that.writeAccessRoles)
+                .append(parameters, that.parameters)
+                .append(options, that.options)
+                .append(score, that.score)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(operations)
+                .append(operationName)
+                .append(description)
+                .append(readAccessRoles)
+                .append(writeAccessRoles)
+                .append(overwriteFlag)
+                .append(parameters)
+                .append(options)
+                .append(score)
+                .toHashCode();
     }
 
     @Override

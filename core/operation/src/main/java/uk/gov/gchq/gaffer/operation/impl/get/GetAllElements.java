@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -89,6 +91,30 @@ public class GetAllElements implements
                 .directedType(directedType)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final GetAllElements that = (GetAllElements) o;
+
+        return new EqualsBuilder()
+                .append(view, that.view)
+                .append(directedType, that.directedType)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(view)
+                .append(directedType)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>

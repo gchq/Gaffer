@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -77,13 +79,39 @@ public class Map<I, O> implements InputOutput<I, O> {
     @Override
     public Map<I, O> shallowClone() throws CloneFailedException {
         final Map<I, O> clone = new Map<>();
-        clone.setFunctions(new ArrayList<>());
-        for (final Function func : functions) {
-            clone.getFunctions().add(func);
+        if (null != functions) {
+            clone.setFunctions(new ArrayList<>());
+            for (final Function func : functions) {
+                clone.getFunctions().add(func);
+            }
         }
         clone.setInput(input);
         clone.setOptions(options);
         return clone;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Map<?, ?> map = (Map<?, ?>) o;
+
+        return new EqualsBuilder()
+                .append(input, map.input)
+                .append(options, map.options)
+                .append(functions, map.functions)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(options)
+                .append(functions)
+                .toHashCode();
     }
 
     @Override

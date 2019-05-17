@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
@@ -87,6 +89,30 @@ public class ToMap implements
                 .input(input)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ToMap toMap = (ToMap) o;
+
+        return new EqualsBuilder()
+                .append(elementGenerator, toMap.elementGenerator)
+                .append(input, toMap.input)
+                .append(options, toMap.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(elementGenerator)
+                .append(input)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

@@ -16,23 +16,25 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.Sets;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
     @Override
@@ -74,6 +76,27 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         assertEquals(1, clone.getOperationChain().getOperations().size());
         assertEquals(GetAllElements.class, clone.getOperationChain().getOperations().get(0).getClass());
         assertEquals("value", clone.getOption("key"));
+    }
+
+    @Override
+    @Test
+    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
+        // Given
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .build();
+
+        final FederatedOperationChain testObject = new FederatedOperationChain.Builder<>()
+                .operationChain(opChain)
+                .option("key", "value")
+                .build();
+
+        // When
+        final FederatedOperationChain clone = testObject.shallowClone();
+
+        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
+        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
+        assertEquals(testObject, clone);
     }
 
     @Override

@@ -16,12 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeTrue;
+
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
-
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -33,9 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -109,6 +111,15 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         }
         assumeTrue(annotation.value() + " is not a valid value string.",
                 SummaryUtil.validateSummaryString(annotation.value()));
+    }
+
+    @Test
+    public void shouldCloneAndEqualsOperationTestObject() throws SerialisationException {
+        final T testObject = getTestObject();
+        final Operation clone = testObject.shallowClone();
+        assertEquals(new String(JSONSerialiser.serialise(testObject, true)), new String(JSONSerialiser.serialise(clone, true)));
+        assertFalse("getTestObject should not return the same object instance to correctly test the overridden equals method", testObject == getTestObject());
+        assertEquals(testObject, clone);
     }
 }
 

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.add;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -92,6 +94,32 @@ public class AddSchemaToLibrary implements Operation {
 
     public void setParentSchemaIds(final List<String> parentSchemaIds) {
         this.parentSchemaIds = parentSchemaIds;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddSchemaToLibrary that = (AddSchemaToLibrary) o;
+
+        return new EqualsBuilder()
+                .append(schema, that.schema)
+                .append(id, that.id)
+                .append(parentSchemaIds, that.parentSchemaIds)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(schema)
+                .append(id)
+                .append(parentSchemaIds)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends BaseBuilder<AddSchemaToLibrary, Builder> {

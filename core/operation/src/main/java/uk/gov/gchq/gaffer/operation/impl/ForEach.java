@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -104,6 +106,30 @@ public class ForEach<I, O> implements InputOutput<Iterable<? extends I>, Iterabl
                 .operation(operation)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ForEach<?, ?> forEach = (ForEach<?, ?>) o;
+
+        return new EqualsBuilder()
+                .append(input, forEach.input)
+                .append(operation, forEach.operation)
+                .append(options, forEach.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(operation)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

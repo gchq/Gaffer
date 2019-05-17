@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.koryphe.Since;
@@ -45,6 +47,28 @@ public class SplitStoreFromIterable<T> implements Operation,
                 .input(input)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final SplitStoreFromIterable<?> that = (SplitStoreFromIterable<?>) o;
+
+        return new EqualsBuilder()
+                .append(input, that.input)
+                .append(options, that.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(input)
+                .append(options)
+                .toHashCode();
     }
 
     @Override

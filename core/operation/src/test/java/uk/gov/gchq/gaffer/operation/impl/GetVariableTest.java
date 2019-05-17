@@ -16,10 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import uk.gov.gchq.gaffer.operation.OperationTest;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+
+import uk.gov.gchq.gaffer.operation.OperationTest;
 
 public class GetVariableTest extends OperationTest<GetVariable> {
     private final String varName = "varName";
@@ -37,7 +36,7 @@ public class GetVariableTest extends OperationTest<GetVariable> {
 
         final GetVariable opClone = op.shallowClone();
 
-        assertNotEquals(op, opClone);
+        assertEquals(op, opClone);
         assertEquals(op.getVariableName(), opClone.getVariableName());
     }
 
