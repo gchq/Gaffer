@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-public abstract class GraphHookTest<T> extends JSONSerialisationTest<T>{
+public abstract class GraphHookTest<T> extends JSONSerialisationTest<T> {
     private final Class<T> hookClass;
 
     protected GraphHookTest(final Class<T> hookClass) {

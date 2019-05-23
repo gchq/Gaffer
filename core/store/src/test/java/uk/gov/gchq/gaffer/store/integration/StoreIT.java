@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,7 +50,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreIT {
     @Test
-    public void shouldCreateStoreAndValidateSchemas() throws IOException, SchemaException, StoreException {
+    public void shouldCreateStoreAndValidateSchemas() throws SchemaException, StoreException {
         // Given
         final TestStore testStore = new TestStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
@@ -76,11 +75,11 @@ public class StoreIT {
     }
 
     private class TestStore extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
+        private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
         public Set<StoreTrait> getTraits() {
-            return TRAITS;
+            return traits;
         }
 
         @Override

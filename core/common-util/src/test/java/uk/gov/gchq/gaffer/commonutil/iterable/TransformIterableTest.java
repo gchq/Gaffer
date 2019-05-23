@@ -203,23 +203,23 @@ public class TransformIterableTest {
     }
 
     private class TransformIterableImpl extends TransformIterable<String, String> {
-        public TransformIterableImpl() {
+        TransformIterableImpl() {
             super(null);
         }
 
-        public TransformIterableImpl(final Iterable<String> input) {
+        TransformIterableImpl(final Iterable<String> input) {
             super(input);
         }
 
-        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
+        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);
         }
 
-        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
+        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
             super(input, validator, skipInvalid);
         }
 
-        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid, final boolean autoClose) {
+        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid, final boolean autoClose) {
             super(input, validator, skipInvalid, autoClose);
         }
 

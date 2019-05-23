@@ -174,7 +174,7 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    final public void shouldNotThrowExceptionBecauseSkipFlagSetTrue() throws Exception {
+    public void shouldNotThrowExceptionBecauseSkipFlagSetTrue() throws Exception {
         // Given
         final String graphID = "1,3";
         final Operation op = mock(Operation.class);

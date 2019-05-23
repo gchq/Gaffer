@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;

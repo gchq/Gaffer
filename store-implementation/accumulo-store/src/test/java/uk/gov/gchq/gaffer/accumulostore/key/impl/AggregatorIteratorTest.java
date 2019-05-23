@@ -17,9 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import com.google.common.collect.Lists;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -67,7 +64,7 @@ import static org.mockito.Mockito.verify;
 
 public class AggregatorIteratorTest {
 
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(AggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
@@ -88,9 +85,9 @@ public class AggregatorIteratorTest {
     }
 
     @Before
-    public void reInitialise() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+    public void reInitialise() throws StoreException {
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
     }
 
     @Test

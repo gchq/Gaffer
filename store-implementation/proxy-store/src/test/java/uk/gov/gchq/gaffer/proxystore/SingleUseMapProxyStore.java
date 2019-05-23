@@ -40,8 +40,8 @@ import java.io.IOException;
  * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
 public class SingleUseMapProxyStore extends ProxyStore {
-    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private static final RestApiTestClient client = new RestApiV2TestClient();
+    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
@@ -51,8 +51,8 @@ public class SingleUseMapProxyStore extends ProxyStore {
 
     protected void startMapStoreRestApi(final Schema schema) throws StoreException {
         try {
-            testFolder.delete();
-            testFolder.create();
+            TEST_FOLDER.delete();
+            TEST_FOLDER.create();
         } catch (final IOException e) {
             throw new StoreException("Unable to create temporary folder", e);
         }
@@ -60,14 +60,14 @@ public class SingleUseMapProxyStore extends ProxyStore {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), "map-store.properties"));
         try {
-            client.reinitialiseGraph(testFolder, schema, storeProperties);
+            CLIENT.reinitialiseGraph(TEST_FOLDER, schema, storeProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }
     }
 
     public static void cleanUp() {
-        testFolder.delete();
-        client.stopServer();
+        TEST_FOLDER.delete();
+        CLIENT.stopServer();
     }
 }

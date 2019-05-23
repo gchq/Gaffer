@@ -114,7 +114,7 @@ public class AdjacencyMapTest {
         final Set<Edge> results = adjacencyMap.getEdges(1, 2);
 
         // Then
-        assertThat(results, equalTo(Collections.singleton(makeEdge(1,2))));
+        assertThat(results, equalTo(Collections.singleton(makeEdge(1, 2))));
     }
 
     @Test

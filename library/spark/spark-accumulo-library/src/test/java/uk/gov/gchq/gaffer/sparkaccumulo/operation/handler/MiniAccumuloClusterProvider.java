@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import java.io.File;
 import java.io.IOException;
 
-public class MiniAccumuloClusterProvider {
+public final class MiniAccumuloClusterProvider {
     public static final String ROOT = "root";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
@@ -39,6 +39,10 @@ public class MiniAccumuloClusterProvider {
 
     private static MiniAccumuloCluster cluster;
     private static AccumuloProperties accumuloProperties;
+
+    private MiniAccumuloClusterProvider() {
+        // private to prevent instantiation
+    }
 
     public static synchronized MiniAccumuloCluster getMiniAccumuloCluster() throws IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException {

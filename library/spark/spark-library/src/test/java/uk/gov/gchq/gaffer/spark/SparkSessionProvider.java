@@ -17,8 +17,12 @@ package uk.gov.gchq.gaffer.spark;
 
 import org.apache.spark.sql.SparkSession;
 
-public class SparkSessionProvider {
+public final class SparkSessionProvider {
     private static SparkSession sparkSession;
+
+    private SparkSessionProvider() {
+        //private constructor to prevent instantiation
+    }
 
     public static synchronized SparkSession getSparkSession() {
         if (null == sparkSession) {

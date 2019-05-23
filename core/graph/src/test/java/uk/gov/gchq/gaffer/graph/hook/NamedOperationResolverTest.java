@@ -54,10 +54,12 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    public NamedOperationResolverTest() { super(NamedOperationResolver.class); }
+    public NamedOperationResolverTest() {
+        super(NamedOperationResolver.class);
+    }
 
     @Test
-    public void shouldResolveNamedOperation() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNamedOperation() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -341,7 +343,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
                         .build())
                 .build(), new Context(user));
     }
-  
+
     @Test
     public void shouldReturnOperationsInParameters() {
         // Given
@@ -357,10 +359,12 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         Operation op = paramOperations.get(0);
 
         //Then
-        assertEquals(paramOperations.size(),1);
-        assertEquals(op.getClass(),GetElements.class);
+        assertEquals(paramOperations.size(), 1);
+        assertEquals(op.getClass(), GetElements.class);
     }
 
     @Override
-    public NamedOperationResolver getTestObject() { return new NamedOperationResolver(); }
+    public NamedOperationResolver getTestObject() {
+        return new NamedOperationResolver();
+    }
 }

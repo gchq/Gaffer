@@ -97,8 +97,8 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
         return new Pair[]{
                 new Pair<>(Long.MAX_VALUE, new byte[]{16}),
                 new Pair<>(Long.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0l, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1l, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 1})
+                new Pair<>(0L, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1L, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 1})
         };
     }
 }

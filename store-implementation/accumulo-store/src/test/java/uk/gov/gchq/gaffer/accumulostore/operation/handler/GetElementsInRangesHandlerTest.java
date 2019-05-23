@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,15 +60,15 @@ public class GetElementsInRangesHandlerTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsInRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private static final Context context = new Context();
+    private static final Context CONTEXT = new Context();
     private OutputOperationHandler handler;
 
     @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
@@ -79,8 +78,8 @@ public class GetElementsInRangesHandlerTest {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, NUM_ENTRIES);
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
@@ -275,7 +274,7 @@ public class GetElementsInRangesHandlerTest {
         final List<Element> elements = createElements(numEntries);
 
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), context);
+            store.execute(new AddElements.Builder().input(elements).build(), CONTEXT);
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }
@@ -291,30 +290,30 @@ public class GetElementsInRangesHandlerTest {
             }
 
             elements.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(s)
-                            .dest("B")
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .build()
             );
 
             elements.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(s)
-                            .dest("B")
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                    .build()
             );
 
             elements.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(s)
-                            .dest("B")
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
+                    .build()
             );
         }
         return elements;
@@ -330,12 +329,12 @@ public class GetElementsInRangesHandlerTest {
             }
 
             elements.add(new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(s)
-                            .dest("B")
-                            .directed(true)
-                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 9)
-                            .build()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 9)
+                    .build()
             );
         }
         return elements;
@@ -346,7 +345,7 @@ public class GetElementsInRangesHandlerTest {
     }
 
     protected List<Element> executeOperation(final Output operation, final AccumuloStore store) throws OperationException {
-        final Object results = handler.doOperation(operation, context, store);
+        final Object results = handler.doOperation(operation, CONTEXT, store);
         return parseResults(results);
     }
 

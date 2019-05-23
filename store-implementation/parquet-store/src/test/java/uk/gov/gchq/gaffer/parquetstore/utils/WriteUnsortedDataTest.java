@@ -64,19 +64,19 @@ import static org.junit.Assert.fail;
 
 public class WriteUnsortedDataTest {
     private static FileSystem fs;
-    private static Date DATE0;
-    private static Date DATE1;
-    private static Date DATE2;
-    private static Date DATE3;
+    private static Date date0;
+    private static Date date1;
+    private static Date date2;
+    private static Date date3;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     static {
         DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
-            DATE0 = DATE_FORMAT.parse("1970-01-01 00:00:00");
-            DATE1 = DATE_FORMAT.parse("1971-01-01 00:00:00");
-            DATE2 = DATE_FORMAT.parse("1972-01-01 00:00:00");
-            DATE3 = DATE_FORMAT.parse("1973-01-01 00:00:00");
+            date0 = DATE_FORMAT.parse("1970-01-01 00:00:00");
+            date1 = DATE_FORMAT.parse("1971-01-01 00:00:00");
+            date2 = DATE_FORMAT.parse("1972-01-01 00:00:00");
+            date3 = DATE_FORMAT.parse("1973-01-01 00:00:00");
         } catch (final ParseException e1) {
             // Won't happen
         }
@@ -441,7 +441,7 @@ public class WriteUnsortedDataTest {
 
     private Entity createEntityForEntityGroup(final long vertex) {
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
-        entity.putProperty("date", DATE0);
+        entity.putProperty("date", date0);
         addPropertiesOtherThanVertexAndDate(entity);
         return entity;
     }
@@ -455,7 +455,7 @@ public class WriteUnsortedDataTest {
 
     public static Edge createEdgeForEdgeGroup(final long source, final long destination, final boolean directed) {
         final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
-        edge.putProperty("date", DATE0);
+        edge.putProperty("date", date0);
         addPropertiesOtherThanVertexAndDate(edge);
         return edge;
     }

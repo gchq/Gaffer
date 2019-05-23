@@ -258,10 +258,12 @@ public final class Graph {
             throw new IllegalArgumentException("A job is required");
         }
 
-        context.setOriginalOpChain(job.getOpChainAsOperationChain());
+        OperationChain wrappedOriginal = OperationChain.wrap(job.getOperation());
+
+        context.setOriginalOpChain(wrappedOriginal);
 
         final Context clonedContext = context.shallowClone();
-        final OperationChain clonedOpChain = job.getOpChainAsOperationChain().shallowClone();
+        final OperationChain clonedOpChain = wrappedOriginal.shallowClone();
         JobDetail result = null;
         try {
             updateOperationChainView(clonedOpChain);
@@ -269,6 +271,7 @@ public final class Graph {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
+            job.setOperation(clonedOpChain);
             result = store.executeJob(job, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.postExecute(result, clonedOpChain, clonedContext);

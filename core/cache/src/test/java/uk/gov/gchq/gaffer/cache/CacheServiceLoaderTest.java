@@ -62,7 +62,7 @@ public class CacheServiceLoaderTest {
         ICacheService service = CacheServiceLoader.getService();
 
         // then
-        assert(service instanceof EmptyCacheService);
+        assert (service instanceof EmptyCacheService);
     }
 
     @Test

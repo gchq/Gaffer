@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * Abstract test class provided for convenience.
+ *
  * @param <T> the class for which the serialiser is written
  */
 public abstract class KryoSerializerTest<T> {
@@ -62,17 +63,22 @@ public abstract class KryoSerializerTest<T> {
     /**
      * This method should compare a test object against a deserialised object of the same type,
      * in a manner suitable for the object.
+     *
+     * @param obj          the serialised obj
+     * @param deserialised the deserialised obj
      */
     protected abstract void shouldCompareSerialisedAndDeserialisedObjects(final T obj, final T deserialised);
 
     /**
      * Due to type erasure, this is required for deserialisation.
+     *
      * @return the class of type T, for which the serialiser is written
      */
     protected abstract Class<T> getTestClass();
 
     /**
      * Should return a new object of the class T under test, constructed as necessary.
+     *
      * @return a new object of type T, to be serialised/deserialised
      */
     protected abstract T getTestObject();
