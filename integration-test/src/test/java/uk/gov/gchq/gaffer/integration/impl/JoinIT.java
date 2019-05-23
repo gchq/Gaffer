@@ -93,14 +93,14 @@ public class JoinIT extends AbstractStoreIT {
         boolean entity1 = false, entity2 = false, entity3 = false;
         for (MapTuple current: rightResults) {
             String valueString = current.getValues().values().toString();
-            if (valueString.contains(TestGroups.ENTITY)) {
-                entity1 = true;
+            if (valueString.contains(TestGroups.ENTITY_3)) {
+                entity3 = true;
             }
             else if (valueString.contains(TestGroups.ENTITY_2)) {
                 entity2 = true;
             }
-            else if (valueString.contains(TestGroups.ENTITY_3)) {
-                entity3 = true;
+            else if (valueString.contains(TestGroups.ENTITY)) {
+                entity1 = true;
             }
         }
 
