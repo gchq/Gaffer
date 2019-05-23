@@ -41,6 +41,7 @@ public class InnerJoin extends JoinFunction {
             // flattening will output a tuple for each value in the matching list
             if (flatten) {
                 for (final Object matched : matching) {
+                    tuple = new MapTuple<>();
                     tuple.put(matchingValuesName, matched);
                     resultList.add(tuple);
                 }
