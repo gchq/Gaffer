@@ -138,7 +138,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         Object value;
         if (null == clazz) {
             value = null;
-        } else if (Character.class.equals(clazz)) {
+        } else if (Character.class.equals(clazz) || char.class.equals(clazz)) {
             value = (char) uniqueId;
         } else if (String.class.equals(clazz) || Object.class.equals(clazz)) {
             value = String.valueOf(uniqueId);
