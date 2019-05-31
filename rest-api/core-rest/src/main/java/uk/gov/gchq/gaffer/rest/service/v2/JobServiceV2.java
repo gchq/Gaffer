@@ -89,7 +89,8 @@ public class JobServiceV2 implements IJobServiceV2 {
     @Override
     public Response executeJob(final Job job) throws OperationException {
         final Context context = userFactory.createContext();
-        preOperationHook(job.getOpChainAsOperationChain(), context);
+        OperationChain chain = OperationChain.wrap(job.getOperation());
+        preOperationHook(chain, context);
 
         try {
             final JobDetail jobDetail = graphFactory.getGraph().executeJob(job, context);
@@ -104,7 +105,7 @@ public class JobServiceV2 implements IJobServiceV2 {
                     .header(JOB_ID_HEADER, context.getJobId())
                     .build();
         } finally {
-            postOperationHook(job.getOpChainAsOperationChain(), context);
+            postOperationHook(chain, context);
         }
     }
 

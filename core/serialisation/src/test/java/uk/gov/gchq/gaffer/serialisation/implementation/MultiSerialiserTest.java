@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,13 +35,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
-    private static final String path = "multiSerialiser.json";
+    private static final String PATH = "multiSerialiser.json";
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
         MultiSerialiser multiSerialiser;
         try {
-            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), path), MultiSerialiser.class);
+            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), PATH), MultiSerialiser.class);
         } catch (SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -66,7 +66,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
-        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), path))
+        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
                 .stream()
                 .collect(Collectors.joining("\n"));
 

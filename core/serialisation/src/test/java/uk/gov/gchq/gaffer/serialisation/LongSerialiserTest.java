@@ -74,8 +74,8 @@ public class LongSerialiserTest extends ToBytesSerialisationTest<Long> {
         return new Pair[]{
                 new Pair<>(Long.MAX_VALUE, new byte[]{57, 50, 50, 51, 51, 55, 50, 48, 51, 54, 56, 53, 52, 55, 55, 53, 56, 48, 55}),
                 new Pair<>(Long.MIN_VALUE, new byte[]{45, 57, 50, 50, 51, 51, 55, 50, 48, 51, 54, 56, 53, 52, 55, 55, 53, 56, 48, 56}),
-                new Pair<>(0l, new byte[]{48}),
-                new Pair<>(1l, new byte[]{49})
+                new Pair<>(0L, new byte[]{48}),
+                new Pair<>(1L, new byte[]{49})
         };
     }
 }

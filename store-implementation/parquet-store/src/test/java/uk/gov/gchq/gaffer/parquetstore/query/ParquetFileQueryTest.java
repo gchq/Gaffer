@@ -21,7 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterApi;
 import org.apache.parquet.io.api.Binary;
 import org.junit.Test;
 
-import static org.apache.parquet.filter2.predicate.FilterApi.*;
+import static org.apache.parquet.filter2.predicate.FilterApi.eq;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 

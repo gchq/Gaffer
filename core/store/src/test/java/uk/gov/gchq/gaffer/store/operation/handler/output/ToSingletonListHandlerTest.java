@@ -54,7 +54,7 @@ public class ToSingletonListHandlerTest {
         // When
         try {
             handler.doOperation(operation, new Context(), null);
-        } catch(final OperationException e) {
+        } catch (final OperationException e) {
             assertTrue(e.getMessage().equals("Input cannot be null"));
         }
     }

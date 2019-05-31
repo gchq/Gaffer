@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
 import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.IteratorSetting;
@@ -52,7 +51,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +62,7 @@ import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
 
@@ -72,17 +70,17 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloElementConverter gaffer1ElementConverter;
 
     @BeforeClass
-    public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
+    public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(schema);
-        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
+        byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
 
     @Before
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }
@@ -644,7 +642,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .build();
 
-
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
             final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
@@ -751,7 +748,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.COUNT, 1)
                     .build();
 
-
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
             final Edge edge4 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -766,7 +762,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 2)
                     .build();
-            ;
 
             final Edge edge5 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -781,7 +776,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 10)
                     .build();
-            ;
 
             final Edge edge6 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -954,7 +948,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 1)
                     .build();
-            ;
 
             final Edge edge2 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -969,7 +962,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 1)
                     .build();
-            ;
 
             final Edge edge3 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -984,7 +976,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 1)
                     .build();
-            ;
 
 
             //THIS EDGE WILL BE REDUCED MEANING ITS CQ (columnQualifier) will only occur once because its key is equal.
@@ -1001,7 +992,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 2)
                     .build();
-            ;
 
             final Edge edge5 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -1016,7 +1006,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 10)
                     .build();
-            ;
 
             final Edge edge6 = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -1031,7 +1020,6 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                     .property(AccumuloPropertyNames.PROP_4, 0)
                     .property(AccumuloPropertyNames.COUNT, 5)
                     .build();
-            ;
 
             // Accumulo key
             final Key key = elementConverter.getKeysFromEdge(edge).getFirst();

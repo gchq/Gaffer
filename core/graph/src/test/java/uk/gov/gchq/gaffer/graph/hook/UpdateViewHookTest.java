@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
+public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
     public static final String TEST_WITH_VALUE = "withTestValue";
     public static final String TEST_WITHOUT_VALUE = "withoutTestValue";
@@ -66,7 +66,9 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
     private Builder userBuilder;
     private UpdateViewHook updateViewHook;
 
-    public UpdateViewHookTest() { super(UpdateViewHook.class); }
+    public UpdateViewHookTest() {
+        super(UpdateViewHook.class);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -677,5 +679,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
     }
 
     @Override
-    protected UpdateViewHook getTestObject() { return new UpdateViewHook(); }
+    protected UpdateViewHook getTestObject() {
+        return new UpdateViewHook();
+    }
 }

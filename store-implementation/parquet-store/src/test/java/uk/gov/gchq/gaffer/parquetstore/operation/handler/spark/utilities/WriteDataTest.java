@@ -23,6 +23,7 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -71,7 +72,7 @@ public class WriteDataTest {
                         .destination("string")
                         .property("property2", "int")
                         .aggregate(false)
-                    .build())
+                        .build())
                 .vertexSerialiser(new StringParquetSerialiser())
                 .build();
         testFolder.create();
@@ -97,13 +98,11 @@ public class WriteDataTest {
         final List<Callable<Void>> tasks = new ArrayList<>();
         LongStream.range(1000L, 1003L)
                 .forEach(l -> {
-                    tasks.add(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            writeData.call(elements.iterator(), 1, l);
-                            return null;
-                        }
-                    });});
+                    tasks.add(() -> {
+                        writeData.call(elements.iterator(), 1, l);
+                        return null;
+                    });
+                });
         executorService.invokeAll(tasks);
 
         // Then

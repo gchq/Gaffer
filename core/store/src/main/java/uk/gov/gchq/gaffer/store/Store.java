@@ -380,12 +380,13 @@ public abstract class Store {
      * @throws OperationException thrown if there is an error running the job.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        if (job.getOpChainAsOperationChain().getOperations().isEmpty()) {
+        OperationChain opChain = OperationChain.wrap(job.getOperation());
+        if (opChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("An operation is required");
         }
-        final JobDetail jobDetail = addOrUpdateJobDetail(job.getOpChainAsOperationChain(), context, null, JobStatus.RUNNING);
+        final JobDetail jobDetail = addOrUpdateJobDetail(opChain, context, null, JobStatus.RUNNING);
         jobDetail.setRepeat(job.getRepeat());
-        return executeJob(job.getOpChainAsOperationChain(), jobDetail, context);
+        return executeJob(opChain, jobDetail, context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {

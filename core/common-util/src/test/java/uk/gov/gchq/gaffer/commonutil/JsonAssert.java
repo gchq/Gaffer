@@ -24,8 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class JsonAssert {
+public final class JsonAssert {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private JsonAssert() {
+        //Private to prevent instantiation
+    }
 
     public static void assertEquals(final String expectedJson, final String actualJson) {
         try {

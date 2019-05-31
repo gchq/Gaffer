@@ -97,7 +97,7 @@ public class GetElementsIT extends AbstractStoreIT {
             Arrays.asList(
                     (ElementId) new EdgeSeed(SOURCE_1, "dest2DoesNotExist", false),
                     new EdgeSeed("source2DoesNotExist", DEST_1, false),
-                    new EdgeSeed(SOURCE_1, DEST_1, true));// does not exist
+                    new EdgeSeed(SOURCE_1, DEST_1, true)); // does not exist
 
     public static final Collection<ElementId> ENTITY_SEEDS_DONT_EXIST =
             Collections.singletonList(

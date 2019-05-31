@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
-    private static final String testDescription = "testDescription";
+    private static final String TEST_DESCRIPTION = "testDescription";
     private static final View VIEW = new View.Builder()
             .edge(TestGroups.EDGE)
             .build();
@@ -50,7 +50,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
-                .description(testDescription)
+                .description(TEST_DESCRIPTION)
                 .parameters(parameters)
                 .overwrite(true)
                 .build();
@@ -59,7 +59,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         JsonAssert.assertEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
         assertTrue(addNamedView.isOverwriteFlag());
         assertEquals(parameters, addNamedView.getParameters());
-        assertEquals(testDescription, addNamedView.getDescription());
+        assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
-                .description(testDescription)
+                .description(TEST_DESCRIPTION)
                 .parameters(parameters)
                 .overwrite(false)
                 .build();

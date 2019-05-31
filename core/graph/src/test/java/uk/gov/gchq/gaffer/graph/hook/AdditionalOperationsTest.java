@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
@@ -50,10 +48,12 @@ import static org.junit.Assert.assertNotSame;
 public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations> {
     private static final String ADDITIONAL_OPERATIONS_RESOURCE_PATH = "additionalOperations.json";
 
-    public AdditionalOperationsTest() { super(AdditionalOperations.class); }
+    public AdditionalOperationsTest() {
+        super(AdditionalOperations.class);
+    }
 
     @Test
-    public void shouldReturnClonedOperations() throws IOException {
+    public void shouldReturnClonedOperations() {
         //Given
         final AdditionalOperations additionalOperations = fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
 
@@ -108,6 +108,8 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
     }
 
     @Override
-    protected AdditionalOperations getTestObject() { return new AdditionalOperations(); }
+    protected AdditionalOperations getTestObject() {
+        return new AdditionalOperations();
+    }
 
 }

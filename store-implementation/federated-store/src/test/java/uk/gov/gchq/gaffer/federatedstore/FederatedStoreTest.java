@@ -50,9 +50,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -63,7 +60,6 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -1124,7 +1120,7 @@ public class FederatedStoreTest {
         assertEquals(1, store.getAllGraphIds(blankUser).size());
         //check is in the cache
         assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
-        //check isn't in the library
+        //check isn't in the LIBRARY
         assertNull(store.getGraphLibrary().get(ACC_ID_1));
 
         //restart the store
@@ -1396,15 +1392,15 @@ public class FederatedStoreTest {
 
     protected Entity getEntityB() {
         return new Entity.Builder()
-                    .group("entityB")
-                    .vertex(7)
-                    .build();
+                .group("entityB")
+                .vertex(7)
+                .build();
     }
 
     protected Entity getEntityA() {
         return new Entity.Builder()
-                    .group("entityA")
-                    .vertex("A")
-                    .build();
+                .group("entityA")
+                .vertex("A")
+                .build();
     }
 }
