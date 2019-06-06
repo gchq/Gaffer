@@ -42,6 +42,7 @@ public class AccumuloProperties extends StoreProperties {
     public static final String TABLE = "accumulo.table";
     public static final String USER = "accumulo.user";
     public static final String PASSWORD = "accumulo.password";
+    public static final String NAMESPACE = "accumulo.namespace";
     public static final String THREADS_FOR_BATCH_SCANNER = "accumulo.batchScannerThreads";
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "accumulo.entriesForBatchScanner";
     public static final String CLIENT_SIDE_BLOOM_FILTER_SIZE = "accumulo.clientSideBloomFilterSize";
@@ -242,6 +243,24 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setPassword(final String password) {
         set(PASSWORD, password);
+    }
+
+    /**
+     * Gets the namespace for the Accumulo table.
+     *
+     * @return the namespace for the configured Accumulo table.
+     */
+    public String getNamespace() {
+        return get(NAMESPACE);
+    }
+
+    /**
+     * Sets the namespace to use for the Accumulo table.
+     *
+     * @param namespace the namespace to use for the Accumulo table.
+     */
+    public void setNamespace(final String namespace) {
+        set(NAMESPACE, namespace);
     }
 
     /**
