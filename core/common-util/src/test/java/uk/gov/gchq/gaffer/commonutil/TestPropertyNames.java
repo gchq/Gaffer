@@ -16,7 +16,12 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-public class TestPropertyNames {
+public final class TestPropertyNames {
+
+    private TestPropertyNames() {
+        //Private to prevent instantiation
+    }
+
     public static final String INT = "intProperty";
     public static final String STRING = "stringProperty";
     public static final String SET = "setProperty";

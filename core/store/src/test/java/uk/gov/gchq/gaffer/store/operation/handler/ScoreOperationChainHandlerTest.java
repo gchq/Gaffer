@@ -520,10 +520,10 @@ public class ScoreOperationChainHandlerTest {
     public void shouldReAddDefaultScoreResolversWhenCallingSetMethod() {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
-        final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_RESOLVERS = ScoreOperationChainHandler.getDefaultScoreResolvers();
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers();
 
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
-        expectedMap.putAll(DEFAULT_RESOLVERS);
+        expectedMap.putAll(defaultResolvers);
 
         final Map<Class<? extends Operation>, ScoreResolver> inputMap = new HashMap<>();
         inputMap.put(GetElements.class, new DefaultScoreResolver(null));

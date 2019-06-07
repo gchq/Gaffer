@@ -49,7 +49,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,16 +63,16 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     private static View entityOnlyView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
-    public static void setup() throws StoreException, IOException {
+    public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         edgeOnlyView = new View.Builder().edge(TestGroups.EDGE).build();
         entityOnlyView = new View.Builder().entity(TestGroups.ENTITY).build();
@@ -81,8 +80,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     @Before
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
@@ -162,6 +161,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     /**
      * Tests that the options to set outgoing edges or incoming edges only options work correctly.
+     *
+     * @param store the Store instance
      */
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {

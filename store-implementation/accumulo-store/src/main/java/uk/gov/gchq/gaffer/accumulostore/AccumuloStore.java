@@ -207,6 +207,9 @@ public class AccumuloStore extends Store {
     }
 
     public String getTableName() {
+        if (StringUtils.isNotBlank(getProperties().getNamespace())) {
+            return String.format("%s.%s", getProperties().getNamespace(),  getGraphId());
+        }
         return getGraphId();
     }
 

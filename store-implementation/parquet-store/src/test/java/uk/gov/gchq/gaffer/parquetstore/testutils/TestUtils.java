@@ -17,14 +17,9 @@
 package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
@@ -33,21 +28,22 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.TreeSet;
 
-public class TestUtils {
-    public static TreeSet<String> MERGED_TREESET = getMergedTreeSet();
-    public static FreqMap MERGED_FREQMAP = getMergedFreqMap();
-    public static FreqMap DOUBLED_MERGED_FREQMAP = getDoubledMergedFreqMap();
-    public static Date DATE = new Date();
-    public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
+public final class TestUtils {
+    public static final TreeSet<String> MERGED_TREESET = getMergedTreeSet();
+    public static final FreqMap MERGED_FREQMAP = getMergedFreqMap();
+    public static final FreqMap DOUBLED_MERGED_FREQMAP = getDoubledMergedFreqMap();
+    public static final Date DATE = new Date();
+    public static final Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
+
+    private TestUtils() {
+        // private to prevent instantiation
+    }
 
     public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
         final ParquetStoreProperties properties = new ParquetStoreProperties();

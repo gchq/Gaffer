@@ -29,13 +29,14 @@ import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibil
 public class ElementVisibilityTest {
 
     private void shouldThrow(String... strings) {
-        for (String s : strings)
+        for (String s : strings) {
             try {
                 new ElementVisibility(s.getBytes());
                 fail("Should throw: " + s);
             } catch (IllegalArgumentException e) {
                 // expected
             }
+        }
     }
 
     private void shouldNotThrow(String... strings) {

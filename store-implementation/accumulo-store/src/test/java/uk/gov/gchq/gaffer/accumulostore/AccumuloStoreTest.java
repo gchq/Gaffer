@@ -159,6 +159,22 @@ public class AccumuloStoreTest {
     }
 
     @Test
+    public void shouldCreateAStoreUsingTableNameWithNamespace() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setNamespace("namespaceName");
+
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        // When
+        store.initialise("graphId", SCHEMA, properties);
+
+        // Then
+        assertEquals("namespaceName.graphId", store.getTableName());
+        assertEquals("graphId", store.getGraphId());
+    }
+
+    @Test
     public void shouldBuildGraphAndGetGraphIdFromTableName() {
         // Given
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));

@@ -258,10 +258,12 @@ public final class Graph {
             throw new IllegalArgumentException("A job is required");
         }
 
-        context.setOriginalOpChain(job.getOpChainAsOperationChain());
+        OperationChain wrappedOriginal = OperationChain.wrap(job.getOperation());
+
+        context.setOriginalOpChain(wrappedOriginal);
 
         final Context clonedContext = context.shallowClone();
-        final OperationChain clonedOpChain = job.getOpChainAsOperationChain().shallowClone();
+        final OperationChain clonedOpChain = wrappedOriginal.shallowClone();
         JobDetail result = null;
         try {
             updateOperationChainView(clonedOpChain);
@@ -269,6 +271,7 @@ public final class Graph {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
+            job.setOperation(clonedOpChain);
             result = store.executeJob(job, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.postExecute(result, clonedOpChain, clonedContext);
@@ -314,18 +317,17 @@ public final class Graph {
             updateOperationChainView(clonedOpChain);
             // Runs the updateGraphHook instance (if set) or if not runs a
             // new instance
-            UpdateViewHook hookInstance = null;
+            ArrayList<UpdateViewHook> hookInstances = new ArrayList<>();
             for (final GraphHook graphHook : config.getHooks()) {
                 if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
-                    hookInstance = (UpdateViewHook) graphHook;
-                    break;
+                    hookInstances.add((UpdateViewHook) graphHook);
                 }
             }
-            if (null == hookInstance) {
-                UpdateViewHook updateViewHook = new UpdateViewHook();
-                updateViewHook.preExecute(clonedOpChain, clonedContext);
-            } else {
-                hookInstance.preExecute(clonedOpChain, clonedContext);
+            if (hookInstances.size() == 0) {
+                hookInstances.add(new UpdateViewHook());
+            }
+            for (final UpdateViewHook hook : hookInstances) {
+                hook.preExecute(clonedOpChain, clonedContext);
             }
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {

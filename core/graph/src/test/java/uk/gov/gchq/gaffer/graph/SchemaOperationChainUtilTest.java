@@ -57,7 +57,7 @@ public class SchemaOperationChainUtilTest {
                     .directed(DIRECTED_EITHER)
                     .build())
             .build();
-    final String GRAPH_ID = "graphId";
+    private static final String GRAPH_ID = "graphId";
     final View view = new View.Builder().allEdges(true).build();
     final OperationChain validOperationChain = new OperationChain.Builder()
             .first(new AddElements())

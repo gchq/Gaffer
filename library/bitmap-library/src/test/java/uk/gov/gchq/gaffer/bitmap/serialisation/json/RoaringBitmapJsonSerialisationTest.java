@@ -46,7 +46,7 @@ public class RoaringBitmapJsonSerialisationTest {
         testBitmap.add(2);
         testBitmap.add(3000);
         testBitmap.add(300000);
-        for (int i=400000; i<500000; i+=2) {
+        for (int i = 400000; i < 500000; i += 2) {
             testBitmap.add(i);
         }
         SERIALISER.serialize(testBitmap, jsonGenerator, null);
@@ -67,7 +67,7 @@ public class RoaringBitmapJsonSerialisationTest {
         testBitmap.add(2);
         testBitmap.add(3000);
         testBitmap.add(300000);
-        for (int i=400000; i<500000; i+=2) {
+        for (int i = 400000; i < 500000; i += 2) {
             testBitmap.add(i);
         }
         testBitmap.runOptimize();

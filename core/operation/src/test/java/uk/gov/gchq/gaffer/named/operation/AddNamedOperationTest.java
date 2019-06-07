@@ -31,10 +31,20 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
@@ -46,7 +56,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         //Given
         List options = Arrays.asList("option1", "option2", "option3");
         Map<String, ParameterDetail> parameters = new HashMap<>();
-        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", options));
+        parameters.put("testOption", new ParameterDetail("Description", String.class, false, "On", options));
 
         final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
@@ -83,7 +93,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public void shouldJsonSerialiseAndDeserialiseWithNoOptions() {
         //Given
         Map<String, ParameterDetail> parameters = new HashMap<>();
-        parameters.put("testOption", new ParameterDetail("Description", String.class,false, "On", null));
+        parameters.put("testOption", new ParameterDetail("Description", String.class, false, "On", null));
 
         final AddNamedOperation obj = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)

@@ -16,13 +16,17 @@
 
 package uk.gov.gchq.gaffer.user;
 
-public class StoreUser {
+public final class StoreUser {
 
     public static final String ALL_USERS = "allUsers";
     public static final String TEST_USER = "testUser";
     public static final String AUTH_USER = "authUser";
     public static final String AUTH_1 = "auth1";
     public static final String AUTH_2 = "auth2";
+
+    private StoreUser() {
+        // private to prevent instantiation
+    }
 
     public static User allUsers() {
         return new User.Builder().opAuth(ALL_USERS).build();

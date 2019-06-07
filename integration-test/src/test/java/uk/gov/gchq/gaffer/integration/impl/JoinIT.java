@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -23,11 +25,13 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -36,8 +40,10 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
@@ -58,6 +64,48 @@ public class JoinIT extends AbstractStoreIT {
     @Override
     public void _setup() throws Exception {
         addJoinEntityElements(TestGroups.ENTITY_3);
+    }
+
+    @Test
+    public void shouldRightSideInnerJoin() throws OperationException {
+
+        //Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(4L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 4),
+                getJoinEntity(TestGroups.ENTITY_2, 4),
+                getJoinEntity(TestGroups.ENTITY_3, 4)
+        );
+
+        final Join<Object> rightJoin = new Join.Builder<>()
+                .flatten(true)
+                .matchKey(MatchKey.RIGHT)
+                .joinType(JoinType.INNER)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new Identity(), new ExtractProperty("count")))
+                .input(input)
+                .build();
+        //When
+        final Iterable<? extends MapTuple> rightResults = graph.execute(rightJoin, user);
+
+        //Then
+        boolean entity1 = false, entity2 = false, entity3 = false;
+        for (MapTuple current : rightResults) {
+            String valueString = current.getValues().values().toString();
+            if (valueString.contains(TestGroups.ENTITY_3)) {
+                entity3 = true;
+            } else if (valueString.contains(TestGroups.ENTITY_2)) {
+                entity2 = true;
+            } else if (valueString.contains(TestGroups.ENTITY)) {
+                entity1 = true;
+            }
+        }
+
+        if (!entity1 || !entity2 || !entity3) {
+            Assert.fail("Result set did not contain all expected values.");
+        }
+
     }
 
     @Test

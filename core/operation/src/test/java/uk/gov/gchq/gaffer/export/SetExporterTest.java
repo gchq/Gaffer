@@ -58,7 +58,7 @@ public class SetExporterTest {
 
         // When
         exporter.add("key1", valuesA);
-        exporter.add( "key2", valuesB);
+        exporter.add("key2", valuesB);
 
         // Then
         final CloseableIterable<?> export1 = exporter.get("key1");
