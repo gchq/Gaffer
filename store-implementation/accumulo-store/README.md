@@ -268,6 +268,7 @@ The following properties can also be specified in the properties file. If they a
 - `accumulo.numThreadsForBatchWriter`: The number of threads used in Accumulo `BatchWriter`s when data is being ingested. The default value is 10.
 - `accumulo.file.replication`: The number of replicas of each file in tables created by Gaffer. If this is not set then your general Accumulo setting will apply, which is normally the same as the default on your HDFS instance.
 - `gaffer.store.accumulo.enable.validator.iterator`: This specifies whether the validation iterator is applied. The default value is true.
+- `accumulo.namespace`: The namespace to use for the table in Accumulo. The default is to use the default Accumulo namespace, which is the empty string.
 
 Trouble shooting
 -----------------------------------------------
