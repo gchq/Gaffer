@@ -20,8 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.util.JsonSerialiser;
+import uk.gov.gchq.koryphe.util.TimeUnit;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -47,7 +49,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 .timeBucket(CommonTimeUtil.TimeBucket.SECOND)
                 .build();
 
-        predicate = new RBMBackedTimestampSetInRange();
+        predicate = new RBMBackedTimestampSetInRange().timeUnit(TimeUnit.SECOND);
     }
 
     private Instant secondsAfterEpoch(final Long seconds) {
@@ -64,7 +66,7 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldReturnTrueIfAllTimestampsAreWithinRange() {
         // When
-        predicate.start(Instant.EPOCH).end(Instant.now());
+        predicate.startTime(0L).endTime(Instant.now().toEpochMilli());
 
         // Then
         assertTrue(predicate.test(timestamps));
@@ -73,10 +75,10 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldReturnFalseIfOneTimestampIsOutsideRangeIfIncludeAllTimestampsIsSetToTrue() {
         // Given
-        predicate.setIncludeAllTimestamps();
+        predicate.includeAllTimestamps();
 
         // When
-        predicate.start(Instant.EPOCH.plusSeconds(4L)).end(Instant.now());
+        predicate.startTime(4L).endTime(2000L);
 
         // Then
         assertFalse(predicate.test(timestamps));
@@ -88,7 +90,7 @@ public class RBMBackedTimestampSetInRangeTest {
         predicate.setIncludeAllTimestamps(false);
 
         // When
-        predicate.start(Instant.EPOCH.plusSeconds(4L)).end(Instant.now());
+        predicate.startTime(4L).endTime(2000L);
 
         // Then
         assertTrue(predicate.test(timestamps));
@@ -97,7 +99,7 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldReturnFalseIfNoneOfTheTimestampsAreWithinRange() {
         // When
-        predicate.start(Instant.EPOCH.minusSeconds(5L)).end(Instant.EPOCH.plusSeconds(5L));
+        predicate.startTime(-5L).endTime(5L);
 
         // Then
         assertFalse(predicate.test(timestamps));
@@ -106,7 +108,7 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldThrowExceptionIfTimestampSetIsNull() {
         // Given
-        predicate.start(Instant.EPOCH.minusSeconds(5L)).end(Instant.EPOCH.plusSeconds(5L));
+        predicate.startTime(-5L).endTime(5L);
 
         // When / Then
         try {
@@ -120,7 +122,7 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldThrowExceptionIfTimestampSetIsEmpty() {
         // Given
-        predicate.start(Instant.EPOCH.minusSeconds(5L)).end(Instant.EPOCH.plusSeconds(5L));
+        predicate.startTime(-5L).endTime(5L);
 
         // When / Then
         RBMBackedTimestampSet emptySet = new RBMBackedTimestampSet.Builder()
@@ -138,7 +140,7 @@ public class RBMBackedTimestampSetInRangeTest {
     public void shouldReturnTrueIfTimestampSetContainsValuesAboveLowerBoundWithNoUpperBoundProvided() {
         // Given no end
         // When
-        predicate.setStart(Instant.EPOCH.plusSeconds(5L));
+        predicate.setStartTime(5L);
 
         // Then
         assertTrue(predicate.test(timestamps));
@@ -148,7 +150,7 @@ public class RBMBackedTimestampSetInRangeTest {
     public void shouldReturnTrueIfTimestampSetContainsValuesBelowUpperBoundWithNoLowerBoundProvided() {
         // Given no start
         // When
-        predicate.setEnd(Instant.EPOCH); // also testing if range is inclusive - it should be
+        predicate.setEndTime(0L); // also testing if range is inclusive - it should be
 
         assertTrue(predicate.test(timestamps));
     }
@@ -157,7 +159,7 @@ public class RBMBackedTimestampSetInRangeTest {
     public void shouldReturnFalseIfTimestampSetContainsNoValuesAboveLowerBoundWithNoUpperBoundProvided() {
         // Given no end
         // When
-        predicate.setStart(Instant.now());
+        predicate.setStartTime(2000L);
 
         // Then
         assertFalse(predicate.test(timestamps));
@@ -167,38 +169,103 @@ public class RBMBackedTimestampSetInRangeTest {
     public void shouldReturnFalseIfTimestampSetContainsNoValuesBelowUpperBoundWithNoLowerBoundProvided() {
         // Given no start
         // When
-        predicate.setEnd(Instant.EPOCH.minusSeconds(20));
+        predicate.setEndTime(-20L);
 
         // Then
         assertFalse(predicate.test(timestamps));
     }
 
     @Test
-    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+    public void shouldJsonSerialise() throws IOException {
         // Given
         RBMBackedTimestampSetInRange pred = new RBMBackedTimestampSetInRange()
-                .start(Instant.EPOCH.plusMillis(10))
-                .end(Instant.EPOCH.plusMillis(200))
+                .startTime(10L)
+                .endTime(200L)
+                .timeUnit(TimeUnit.SECOND)
                 .includeAllTimestamps();
 
+        // when
         String expectedSerialisedForm = "{" +
                 "\"class\":\"uk.gov.gchq.gaffer.time.predicate.RBMBackedTimestampSetInRange\"," +
-                "\"start\":{\"java.lang.Long\":10}," +
-                "\"end\":{\"java.lang.Long\":200}," +
+                "\"startTime\":{\"java.lang.Long\":10}," +
+                "\"endTime\":{\"java.lang.Long\":200}," +
+                "\"timeUnit\":\"SECOND\"," +
                 "\"includeAllTimestamps\":true" +
             "}";
 
-        assertEquals(expectedSerialisedForm, JsonSerialiser.serialise(pred));
+        // then
+        JsonAssert.assertEquals(expectedSerialisedForm, JsonSerialiser.serialise(pred));
     }
 
     @Test
-    public void shouldSetIncludeAllTimestampsToFalseByDefault() {
+    public void shouldSetIncludeAllTimestampsToFalseByDefaultWhenDeserialising() throws IOException {
+        // Given
+        String serialised = "{" +
+                "\"class\":\"uk.gov.gchq.gaffer.time.predicate.RBMBackedTimestampSetInRange\"," +
+                "\"startTime\":10," +
+                "\"endTime\":200," +
+                "\"timeUnit\":\"SECOND\"" +
+            "}";
 
+        // When
+        RBMBackedTimestampSetInRange pred = JsonSerialiser.deserialise(serialised, RBMBackedTimestampSetInRange.class);
+
+        // Then
+        assertFalse(pred.isIncludeAllTimestamps());
     }
 
     @Test
-    public void shouldNotAddIncludeAllTimestampsToJsonIfSetToFalse() {
+    public void shouldNotAddIncludeAllTimestampsToJsonIfSetToFalse() throws IOException {
+        // Given
+        RBMBackedTimestampSetInRange pred = new RBMBackedTimestampSetInRange()
+                .startTime(10)
+                .endTime(200)
+                .timeUnit(TimeUnit.SECOND);
 
+        // When
+        String expectedJson = "{" +
+                "\"class\":\"uk.gov.gchq.gaffer.time.predicate.RBMBackedTimestampSetInRange\"," +
+                "\"startTime\":10," +
+                "\"endTime\":200," +
+                "\"timeUnit\":\"SECOND\"" +
+                "}";
+
+        // Then
+        JsonAssert.assertEquals(expectedJson, JsonSerialiser.serialise(pred));
+    }
+
+    @Test
+    public void shouldSetTimeUnitToMillisecondsIfNotSpecifiedInTheJson() throws IOException {
+        // Given
+        String serialised = "{" +
+                "\"class\":\"uk.gov.gchq.gaffer.time.predicate.RBMBackedTimestampSetInRange\"," +
+                "\"startTime\":10," +
+                "\"endTime\":200" +
+                "}";
+
+        // When
+        RBMBackedTimestampSetInRange pred = JsonSerialiser.deserialise(serialised, RBMBackedTimestampSetInRange.class);
+
+        // Then
+        assertEquals(TimeUnit.MILLISECOND, pred.getTimeUnit());
+    }
+
+    @Test
+    public void shouldNotAddTimeUnitToJsonIfSetToMillisecond() throws IOException {
+        // Given
+        RBMBackedTimestampSetInRange pred = new RBMBackedTimestampSetInRange()
+                .startTime(10)
+                .endTime(200);
+
+        // When
+        String expectedJson = "{" +
+                "\"class\":\"uk.gov.gchq.gaffer.time.predicate.RBMBackedTimestampSetInRange\"," +
+                "\"startTime\":10," +
+                "\"endTime\":200" +
+                "}";
+
+        // Then
+        JsonAssert.assertEquals(expectedJson, JsonSerialiser.serialise(pred));
     }
 
 }
