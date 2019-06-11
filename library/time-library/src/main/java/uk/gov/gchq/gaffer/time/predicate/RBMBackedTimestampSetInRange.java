@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import uk.gov.gchq.koryphe.util.TimeUnit;
 
 /**
- * Test whether an RBMBackedTimestampSet contains a value in a given range. If
+ * Tests whether an RBMBackedTimestampSet contains a value in a given range. If
  * required, the user can specify whether all values within the timestamp set
  * should be tested.
  */
@@ -53,7 +53,7 @@ public class RBMBackedTimestampSetInRange extends KoryphePredicate<RBMBackedTime
        this(startTime, endTime, TimeUnit.MILLISECOND, false);
     }
 
-    public RBMBackedTimestampSetInRange(final Number startTime, final Number endTime, TimeUnit timeUnit) {
+    public RBMBackedTimestampSetInRange(final Number startTime, final Number endTime, final TimeUnit timeUnit) {
         this(startTime, endTime, timeUnit, false);
     }
 
@@ -73,7 +73,7 @@ public class RBMBackedTimestampSetInRange extends KoryphePredicate<RBMBackedTime
             throw new IllegalArgumentException("TimestampSet must contain at least one value");
         }
 
-        Long startEpoch = startTime != null ? startTime.longValue(): null;
+        Long startEpoch = startTime != null ? startTime.longValue() : null;
         Long endEpoch = endTime != null ? endTime.longValue() : null;
         RBMBackedTimestampSet masked = new MaskTimestampSetByTimeRange(startEpoch, endEpoch, timeUnit).apply(rbmBackedTimestampSet);
 
