@@ -115,7 +115,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             throw new OperationException("GetWalks operation contains " + hops + " hops. The maximum number of hops is: " + maxHops);
         }
 
-        final AdjacencyMaps adjacencyMaps = prune ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
+        final AdjacencyMaps adjacencyMaps = prune && !getWalks.isIncludePartial() ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
         final EntityMaps entityMaps = new SimpleEntityMaps();
 
         List<?> seeds = originalInput;
@@ -145,7 +145,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Track/recombine the edge objects and convert to return type
         return Streams.toStream(originalInput)
-                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops).stream())
+                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops, getWalks.isIncludePartial()).stream())
                 .collect(Collectors.toList());
     }
 
@@ -272,7 +272,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return new LimitedCloseableIterable<>(store.execute(convertedOp, context), 0, resultLimit, false);
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops) {
+    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops, final boolean includePartial) {
         final List<Walk> walks = new ArrayList<>();
 
         if (null != prev && hops != edgeQueue.size()) {
@@ -285,8 +285,16 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             final Walk walk = buildWalk(edgeQueue, entityQueue);
             walks.add(walk);
         } else {
-            for (final Object obj : graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr)) {
-                walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue, hops));
+            final Set<Object> dests = graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr);
+            if (dests.isEmpty()) {
+                if (includePartial) {
+                    final Walk walk = buildWalk(edgeQueue, entityQueue);
+                    walks.add(walk);
+                }
+            } else {
+                for (final Object obj : dests) {
+                    walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue, hops, includePartial));
+                }
             }
         }
 
