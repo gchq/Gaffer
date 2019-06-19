@@ -206,6 +206,7 @@ public class GraphConfigurationServiceV2Test {
         final Map<String, String> expectedFields = new HashMap<>();
         expectedFields.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
         expectedFields.put("input", "java.lang.Object[]");
+        expectedFields.put("includePartial", "java.lang.Boolean");
         expectedFields.put("options", "java.util.Map<java.lang.String,java.lang.String>");
         expectedFields.put("resultsLimit", Integer.class.getName());
 

@@ -2099,6 +2099,67 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldRerunMultipleUpdateViewHooksToRemoveAllBlacklistedElements() throws OperationException {
+        // Given
+        operation = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2)
+                        .build())
+                .build();
+
+        final UpdateViewHook first = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE))
+                .withOpAuth(Sets.newHashSet("opAuth1"))
+                .build();
+
+        final UpdateViewHook second = new UpdateViewHook.Builder()
+                .blackListElementGroups(Collections.singleton(TestGroups.EDGE_2))
+                .withOpAuth(Sets.newHashSet("opAuth2"))
+                .build();
+
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+
+        final Store store = mock(Store.class);
+
+        given(store.getSchema()).willReturn(new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
+        .build());
+        given(store.getProperties()).willReturn(new StoreProperties());
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(first)
+                        .addHook(second)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
+
+        given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
+
+        User user = new User.Builder()
+                .userId("user")
+                .opAuths("opAuth1", "opAuth2")
+                .build();
+        // When / Then
+        graph.execute(opChain, user);
+
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        JsonAssert.assertEquals(new View.Builder().build().toCompactJson(),
+                ((GetElements) ops.get(0)).getView().toCompactJson());
+    }
+
+    @Test
     public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook() throws OperationException {
         // Given
         operation = new GetElements.Builder()
