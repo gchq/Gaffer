@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  * GetElements} operations. These are executed sequentially, with the output of
  * one operation providing the input {@link EntityId}s for the next.
  */
-@JsonPropertyOrder(value = {"class", "input", "operations"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "operations", "includePartial"}, alphabetic = true)
 @Since("1.1.0")
 @Summary("Walks around the Graph, returning the full walks taken")
 public class GetWalks implements
@@ -65,6 +66,10 @@ public class GetWalks implements
 
     private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean includePartial = false;
+
     private Map<String, String> options;
     private Integer resultsLimit = DEFAULT_RESULTS_LIMIT;
 
@@ -183,14 +188,24 @@ public class GetWalks implements
         return new TypeReferenceImpl.IterableWalk();
     }
 
+
     @Override
     public GetWalks shallowClone() {
         List clonedOps = operations.stream().map(Output::shallowClone).collect(Collectors.toList());
         return new GetWalks.Builder()
                 .input(input)
                 .operations(clonedOps)
+                .includePartial(includePartial)
                 .options(options)
                 .build();
+    }
+
+    public boolean isIncludePartial() {
+        return includePartial;
+    }
+
+    public void setIncludePartial(final boolean includePartial) {
+        this.includePartial = includePartial;
     }
 
     @Override
@@ -263,6 +278,15 @@ public class GetWalks implements
         public Builder resultsLimit(final Integer resultLimit) {
             _getOp().setResultsLimit(resultLimit);
             return _self();
+        }
+
+        public Builder includePartial(final boolean includePartial) {
+            _getOp().setIncludePartial(includePartial);
+            return _self();
+        }
+
+        public Builder includePartial() {
+            return includePartial(true);
         }
     }
 }
