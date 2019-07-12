@@ -1,9 +1,23 @@
+/*
+ * Copyright 2019 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.gaffer;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
-import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
@@ -14,13 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class PythonOperation {
 
     public static void main(String[] args) {
-
-        System.out.println("Got here 1");
 
         // Bind container ports to host ports
         final String[] ports = {"80", "22"};
@@ -31,8 +42,6 @@ public class PythonOperation {
             portBindings.put(port, hostPorts);
         }
 
-        System.out.println("Got here 2");
-
         // Bind container port 443 to an automatically allocated available host port.
         List<PortBinding> randomPort = new ArrayList<>();
         randomPort.add(PortBinding.randomPort("0.0.0.0"));
@@ -40,45 +49,40 @@ public class PythonOperation {
 
         final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
 
-        // Create a client based on DOCKER_HOST and DOCKER_CERT_PATH env vars
-        DockerClient docker = null;
-
-        System.out.println("Got here 3");
         try {
-            System.out.println("Got here 4");
-            docker = DefaultDockerClient.fromEnv().build();
-            System.out.println("Got here 4.1");
 
-            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
+            // Start the docker client
+            System.out.println("Starting the docker client...");
+            DockerClient docker = DefaultDockerClient.fromEnv().build();
 
+            // Build an image from the Dockerfile
+            System.out.println("Building the image from Dockerfile...");
             final String returnedImageId = docker.build(Paths.get("pythonOperation/src/main/resources"),"myimage:latest");
 
-
-            System.out.println("Got here 4.2");
             // Create container with exposed ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
                     .hostConfig(hostConfig)
                     .image(returnedImageId).exposedPorts(ports)
                     .build();
-            System.out.println("Got here 4.3");
             final ContainerCreation creation = docker.createContainer(containerConfig);
-            System.out.println("Got here 4.4");
             final String id = creation.id();
-            System.out.println("Got here 5");
+
             // Inspect container
-            final ContainerInfo info = docker.inspectContainer(id);
+//            final ContainerInfo info = docker.inspectContainer(id);
+//            System.out.println("Container info: " + info);
 
             // Start container
+            System.out.println("Starting the docker container...");
             docker.startContainer(id);
-            System.out.println("Got here 6");
+
             // Exec command inside running container with attached STDOUT and STDERR
-            final String[] command = {"sh", "-c", "ls"};
-            final ExecCreation execCreation = docker.execCreate(
-                    id, command, DockerClient.ExecCreateParam.attachStdout(),
-                    DockerClient.ExecCreateParam.attachStderr());
-            final LogStream output = docker.execStart(execCreation.id());
-            final String execOutput = output.readFully();
-            System.out.println("Got here 7");
+//            final String[] command = {"sh", "-c", "ls"};
+//            final ExecCreation execCreation = docker.execCreate(
+//                    id, command, DockerClient.ExecCreateParam.attachStdout(),
+//                    DockerClient.ExecCreateParam.attachStderr());
+//            final LogStream output = docker.execStart(execCreation.id());
+//            final String execOutput = output.readFully();
+//            System.out.println("logs: " + execOutput);
 
             // Kill container
 //            docker.killContainer(id);
@@ -86,9 +90,19 @@ public class PythonOperation {
             // Remove container
 //            docker.removeContainer(id);
 
+            final String logs;
+            try (LogStream stream = docker.logs(id, DockerClient.LogsParam.stdout(), DockerClient.LogsParam.stderr())) {
+                logs = stream.readFully();
+            }
+
+            System.out.println("Container logs: " + logs);
+
             // Close the docker client
+            System.out.println("Closing the docker client...");
             docker.close();
-            System.out.println("Got here");
+            System.out.println("Closed the docker client");
+
+
 
         } catch (DockerCertificateException e) {
             e.printStackTrace();
