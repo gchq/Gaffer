@@ -3,14 +3,18 @@ package uk.gov.gchq.gaffer;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
+import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PythonOperation {
 
@@ -44,14 +48,17 @@ public class PythonOperation {
             System.out.println("Got here 4");
             docker = DefaultDockerClient.fromEnv().build();
             System.out.println("Got here 4.1");
-            // Pull an image
-            docker.pull("busybox");
+
+            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
+
+            final String returnedImageId = docker.build(Paths.get("pythonOperation/src/main/resources"),"myimage:latest");
+
+
             System.out.println("Got here 4.2");
             // Create container with exposed ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
                     .hostConfig(hostConfig)
-                    .image("busybox").exposedPorts(ports)
-//                    .cmd("sh", "-c", "while :; do sleep 1; done")
+                    .image(returnedImageId).exposedPorts(ports)
                     .build();
             System.out.println("Got here 4.3");
             final ContainerCreation creation = docker.createContainer(containerConfig);
@@ -72,7 +79,7 @@ public class PythonOperation {
             final LogStream output = docker.execStart(execCreation.id());
             final String execOutput = output.readFully();
             System.out.println("Got here 7");
-            
+
             // Kill container
 //            docker.killContainer(id);
 
@@ -88,6 +95,8 @@ public class PythonOperation {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
