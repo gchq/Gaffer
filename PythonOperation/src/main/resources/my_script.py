@@ -2,5 +2,5 @@
 # https://github.com/mmulqueen/pyStrich
 import sys
 
-input0 = sys.argv[0]
-print('Hello world',input0)
+input1 = sys.argv[1]
+print('Hello world',input1)
