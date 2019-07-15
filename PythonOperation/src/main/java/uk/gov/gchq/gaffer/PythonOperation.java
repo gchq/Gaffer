@@ -15,12 +15,17 @@
  */
 package uk.gov.gchq.gaffer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
+import org.apache.commons.lang3.exception.CloneFailedException;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,10 +33,17 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
-public class PythonOperation {
+public class PythonOperation<I_ITEM, O> implements
+        InputOutput<Iterable<? extends I_ITEM>, O>,
+        Operation {
+
+    private Iterable<? extends I_ITEM> input;
+    private Map<String, String> options;
 
     public static void main(String[] args) {
+
 
         final Path hostAbsolutePathRoot = FileSystems.getDefault().getPath(".").toAbsolutePath();
         final String hostAbsolutePathContainerResults = hostAbsolutePathRoot + "/PythonOperation/src/main/resources";
@@ -114,7 +126,36 @@ public class PythonOperation {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public Iterable<? extends I_ITEM> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends I_ITEM> input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<O> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public Operation shallowClone() throws CloneFailedException {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
 }
