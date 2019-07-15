@@ -22,32 +22,22 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PythonOperation {
 
     public static void main(String[] args) {
 
-        // Bind container ports to host ports
-        final String[] ports = {"80", "22"};
-        final Map<String, List<PortBinding>> portBindings = new HashMap<>();
-        for (String port : ports) {
-            List<PortBinding> hostPorts = new ArrayList<>();
-            hostPorts.add(PortBinding.of("0.0.0.0", port));
-            portBindings.put(port, hostPorts);
-        }
-
-        // Bind container port 443 to an automatically allocated available host port.
-        List<PortBinding> randomPort = new ArrayList<>();
-        randomPort.add(PortBinding.randomPort("0.0.0.0"));
-        portBindings.put("443", randomPort);
-
-        final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+        final Path hostAbsolutePathRoot = FileSystems.getDefault().getPath(".").toAbsolutePath();
+        final String hostAbsolutePathContainerResults = hostAbsolutePathRoot + "/PythonOperation/src/main/resources";
+        final String containerResultsPath = "/hostBindMount";
+        final String relativeImagePath = "PythonOperation/src/main/resources";
+        String filename = "/testFileparameter.txt";
 
         try {
 
@@ -55,54 +45,65 @@ public class PythonOperation {
             System.out.println("Starting the docker client...");
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
+            // Define the bind mount between the container and the docker host
+            final HostConfig hostConfig =
+                    HostConfig.builder()
+                        .appendBinds(
+                                HostConfig.Bind
+                                .from(hostAbsolutePathContainerResults)
+                                .to(containerResultsPath)
+                                .build()
+                        )
+                        .build();
+
             // Build an image from the Dockerfile
             System.out.println("Building the image from Dockerfile...");
-            final String returnedImageId = docker.build(Paths.get("pythonOperation/src/main/resources"),"myimage:latest");
+            final String returnedImageId = docker.build(Paths.get(relativeImagePath),"myimage:latest");
 
-            // Create container with exposed ports
+            // Create a container from the image id with a bind mount to the docker host
             final ContainerConfig containerConfig = ContainerConfig.builder()
                     .hostConfig(hostConfig)
-                    .image(returnedImageId).exposedPorts(ports)
+                    .image(returnedImageId)
                     .build();
             final ContainerCreation creation = docker.createContainer(containerConfig);
             final String id = creation.id();
 
-            // Inspect container
-//            final ContainerInfo info = docker.inspectContainer(id);
-//            System.out.println("Container info: " + info);
-
-            // Start container
+            // Start the container
             System.out.println("Starting the docker container...");
             docker.startContainer(id);
 
-            // Exec command inside running container with attached STDOUT and STDERR
-//            final String[] command = {"sh", "-c", "ls"};
-//            final ExecCreation execCreation = docker.execCreate(
-//                    id, command, DockerClient.ExecCreateParam.attachStdout(),
-//                    DockerClient.ExecCreateParam.attachStderr());
-//            final LogStream output = docker.execStart(execCreation.id());
-//            final String execOutput = output.readFully();
-//            System.out.println("logs: " + execOutput);
-
-            // Kill container
-//            docker.killContainer(id);
-
-            // Remove container
-//            docker.removeContainer(id);
-
+            // Print out the logs of the container
             final String logs;
             try (LogStream stream = docker.logs(id, DockerClient.LogsParam.stdout(), DockerClient.LogsParam.stderr())) {
                 logs = stream.readFully();
             }
-
             System.out.println("Container logs: " + logs);
+
+            // Wait for the container to finish then remove the container
+            docker.waitContainer(id);
+            System.out.println("Deleting the container...");
+            docker.removeContainer(id);
 
             // Close the docker client
             System.out.println("Closing the docker client...");
             docker.close();
             System.out.println("Closed the docker client");
 
+            // Get the data from the file created
+            String data = "";
+            data = new String(Files.readAllBytes(Paths.get(hostAbsolutePathContainerResults + filename)));
+            System.out.println("The contents of the file created are: \n" + data);
 
+            // Delete the file
+            File file = new File(hostAbsolutePathContainerResults + filename);
+            if(file.delete())
+            {
+                System.out.println("File deleted successfully");
+            }
+            else
+            {
+                System.out.println("Failed to delete the file");
+            }
 
         } catch (DockerCertificateException e) {
             e.printStackTrace();
