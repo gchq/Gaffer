@@ -84,6 +84,9 @@ public class PythonOperation<I_ITEM, O> implements
             System.out.println("Starting the docker container...");
             docker.startContainer(id);
 
+            // Wait for the container to finish
+            docker.waitContainer(id);
+
             // Print out the logs of the container
             final String logs;
             try (LogStream stream = docker.logs(id, DockerClient.LogsParam.stdout(), DockerClient.LogsParam.stderr())) {
@@ -91,8 +94,7 @@ public class PythonOperation<I_ITEM, O> implements
             }
             System.out.println("Container logs: " + logs);
 
-            // Wait for the container to finish then remove the container
-            docker.waitContainer(id);
+            // Delete the container
             System.out.println("Deleting the container...");
             docker.removeContainer(id);
 
