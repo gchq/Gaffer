@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.traffic;
 import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -30,12 +31,14 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
@@ -60,11 +63,29 @@ public class Queries {
         final User user = new User("user01");
         final Graph graph = createGraph(user);
 
+        runPython(graph, user);
         // Get the schema
-        System.out.println(graph.getSchema().toString());
+        //System.out.println(graph.getSchema().toString());
 
         // Full example
-        runFullExample(graph, user);
+        //runFullExample(graph, user);
+    }
+
+    private void runPython(final Graph graph, final User user) throws OperationException {
+
+        final GetAllElements getAllElements =
+                new GetAllElements.Builder().build();
+
+        final PythonOperation<Element, Void> pythonOperation =
+                new PythonOperation<>();
+
+        OperationChain<Void> opChain =
+                new OperationChain.Builder()
+                .first(getAllElements)
+                .then(pythonOperation)
+                .build();
+
+        graph.execute(opChain, user);
     }
 
     private void runFullExample(final Graph graph, final User user) throws OperationException {
