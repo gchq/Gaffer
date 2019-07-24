@@ -77,5 +77,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-client</artifactId>
+            <version>7.0.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
