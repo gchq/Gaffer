@@ -47,7 +47,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -82,45 +81,44 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
-        final Path hostAbsolutePathRoot = FileSystems.getDefault().getPath(".").toAbsolutePath();
-        final String hostAbsolutePathContainerResults = hostAbsolutePathRoot + "/core/store/src/main/resources";
-        String operationName = "PythonOperation1";
 
-        File dir = new File(hostAbsolutePathContainerResults + "/test");
+        final String pathAbsoluteResources = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
+        final String operationName = "PythonOperation1";
+        final String repoURI = "https://github.com/g609bmsma/test";
+        final String repoName = "test";
+        final String entrypointFilename = "entrypoint" + operationName + ".py";
+        final String scriptFilename = operationName + ".py";
+        final String modulesFilename = operationName + "Modules.txt";
 
+        // Pull or Clone the repo with the files
+        System.out.println("Fetching the repo...");
+        File dir = new File(pathAbsoluteResources + "/" + repoName);
         try {
             if (getGit() != null) {
+                System.out.println("Repo already cloned, pulling files...");
                 getGit().pull().call();
-                System.out.println("git pulled");
+                System.out.println("Pulled the latest files.");
             } else {
-                Git.cloneRepository().setDirectory(dir).setURI("https://github.com/g609bmsma/test").call();
-                System.out.println("git cloned");
+                System.out.println("Repo has not been cloned, cloning the repo...");
+                Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
+                System.out.println("Cloned the repo.");
             }
         } catch (GitAPIException e) {
             e.printStackTrace();
         }
 
+        // Get ready to copy the entrypoint, script and modules files
         File[] sources = new File[3];
         File[] destinations = new File[3];
+        sources[0] = new File(dir + "/" + entrypointFilename);
+        destinations[0] = new File(pathAbsoluteResources + "/" + entrypointFilename);
+        sources[1] = new File(dir + "/" + scriptFilename);
+        destinations[1] = new File(pathAbsoluteResources + "/" + scriptFilename);
+        sources[2] = new File(dir + "/" + modulesFilename);
+        destinations[2] = new File(pathAbsoluteResources + "/" + modulesFilename);
 
-        File source1 = new File(dir + "/entrypointPythonOperation1.py");
-        File dest1 = new File(hostAbsolutePathContainerResults + "/entrypointPythonOperation1.py");
-
-        sources[0] = source1;
-        destinations[0] = dest1;
-
-        File source2 = new File(dir + "/PythonOperation1.py");
-        File dest2 = new File(hostAbsolutePathContainerResults + "/PythonOperation1.py");
-
-        sources[1] = source2;
-        destinations[1] = dest2;
-
-        File source3 = new File(dir + "/pythonOperation1Modules.txt");
-        File dest3 = new File(hostAbsolutePathContainerResults + "/pythonOperation1Modules.txt");
-
-        sources[2] = source3;
-        destinations[2] = dest3;
-
+        // Copy the entrypoint, script and modules files
+        System.out.println("Copying files...");
         for (int i = 0; i < sources.length; i++) {
             try (FileInputStream fis = new FileInputStream(sources[i]);
                  FileOutputStream fos = new FileOutputStream(destinations[i])) {
@@ -137,10 +135,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
         }
 
-        // Load the pythonModules.txt file
+        // Load the python modules file
         String moduleData = "";
         try {
-            FileInputStream fis = new FileInputStream(hostAbsolutePathContainerResults + "/pythonOperation1Modules.txt");
+            FileInputStream fis = new FileInputStream(pathAbsoluteResources + "/" + modulesFilename);
             moduleData = IOUtils.toString(fis, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
@@ -149,8 +147,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         // Create Dockerfile data
         String dockerFileData = "FROM python:3\n";
-        String addEntrypointFileLine = "ADD entrypoint" + operationName + ".py /\n";
-        String addScriptFileLine = "ADD " + operationName + ".py /\n";
+        String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
+        String addScriptFileLine = "ADD " + scriptFilename + " /\n";
         dockerFileData = dockerFileData + addEntrypointFileLine + addScriptFileLine;
 
         for (String module : modules) {
@@ -158,35 +156,36 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             dockerFileData = dockerFileData + installLine;
         }
 
-        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + "entrypoint" + operationName + ".py" + "\"]";
+        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\"]";
         dockerFileData = dockerFileData + entrypointLine;
 
-        // Create a new Dockerfile from the pythonModules.txt
-        File file = new File(hostAbsolutePathContainerResults + "/Dockerfile" + operationName + ".yml");
+        // Create a new Dockerfile from the modules file
+        File file = new File(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml");
+        System.out.println("Checking for Dockerfile...");
         try {
             if(file.createNewFile()) {
                 // File created
-                System.out.println("Created a new file");
-                Files.write(Paths.get(hostAbsolutePathContainerResults + "/Dockerfile" + operationName + ".yml"), dockerFileData.getBytes());
+                System.out.println("Creating a new Dockerfile...");
+                Files.write(Paths.get(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml"), dockerFileData.getBytes());
             } else {
                 // File already created
-                System.out.println("File already created");
+                System.out.println("Dockerfile already exists.");
             }
         } catch (IOException e) {
-            System.out.println("Failed to create Dockerfile");
+            System.out.println("Failed to create a Dockerfile");
             e.printStackTrace();
         }
 
         try {
 
             // Start the docker client
-            System.out.println("Starting the docker client...");
+            System.out.println("Starting the Docker client...");
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            System.out.println("Building the image from Dockerfile...");
+            System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(hostAbsolutePathContainerResults),"myimage:latest", "Dockerfile" + operationName + ".yml", new ProgressHandler() {
+            final String returnedImageId = docker.build(Paths.get(pathAbsoluteResources),"myimage:latest", "Dockerfile" + operationName + ".yml", new ProgressHandler() {
                 @Override
                 public void progress(ProgressMessage message) {
                     final String imageId = message.buildImageId();
@@ -196,7 +195,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println(message);
                 }}, DockerClient.BuildParam.pullNewerImage());
 
-            // Create a containers from the image id with a bind mount to the docker host
+            // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
                     .hostConfig( HostConfig.builder()
                             .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0" + ".1", "8080")))).build())
@@ -208,20 +207,22 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             final String id = creation.id();
 
             // Start the container
-            System.out.println("Starting the docker container...");
+            System.out.println("Starting the Docker container...");
             docker.startContainer(id);
 
             // Keep trying to connect to container and give the container some time to load up
-            boolean failedToConnect = true;
+            Boolean failedToConnect = true;
+            IOException error = null;
             for (int i = 0; i < 10; i++) {
-                System.out.println("Attempting to send data...");
-                Socket clientSocket;
+                System.out.println("Attempting to send data to container...");
+                Socket clientSocket = null;
+
                 try {
                     clientSocket = new Socket("127.0.0.1", 8080);
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
-                    System.out.println("Sending data from " + clientSocket.getLocalSocketAddress() + "...");
+                    System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
                     out.writeUTF("Hello from client at " + clientSocket.getLocalSocketAddress());
@@ -236,13 +237,14 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Closed the connection.");
                     break;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    error = e;
                     TimeUnit.MILLISECONDS.sleep(50);
                 }
             }
 
             if (failedToConnect) {
                 System.out.println("Connection failed, stopping the container...");
+                error.printStackTrace();
                 docker.stopContainer(id,1); // Kill the container after 1 second
             }
 
@@ -260,8 +262,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         }
         return null;
     }
-
-
 }
 
 
