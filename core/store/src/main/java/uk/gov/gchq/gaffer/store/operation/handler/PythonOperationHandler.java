@@ -29,14 +29,42 @@ import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
+
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
+
+    private static Git git;
+
+    private static Git getGit() {
+        if (git == null) {
+            try {
+                git = Git.open(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/PythonOperation/src/main/resources/test"));
+            } catch (RepositoryNotFoundException e) {
+                try {
+                    git = Git.cloneRepository()
+                            .setDirectory(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/PythonOperation/src/main/resources/test"))
+                            .setURI("https://github.com/g609bmsma/test")
+                            .call();
+                    System.out.println("git cloned");
+                } catch (GitAPIException e1) {
+                    e1.printStackTrace();
+                    git = null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                git = null;
+            }
+        }
+        return git;
+    }
 
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
@@ -45,6 +73,39 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         final String containerResultsPath = "/hostBindMount";
         final String relativeImagePath = "PythonOperation/src/main/resources";
         String filename = "/testFileparameter.txt";
+
+        File dir = new File(hostAbsolutePathContainerResults + "/test");
+
+        try {
+            if (getGit() != null) {
+                getGit().pull().call();
+                System.out.println("git pulled");
+            } else {
+                Git.cloneRepository().setDirectory(dir).setURI("https://github.com/g609bmsma/test").call();
+                System.out.println("git cloned");
+            }
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+
+        File source = new File(dir + "/my_script.py");
+        File dest = new File(hostAbsolutePathContainerResults + "/my_script.py");
+
+        try (FileInputStream fis = new FileInputStream(source);
+             FileOutputStream fos = new FileOutputStream(dest)) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = fis.read(buffer)) > 0) {
+
+                fos.write(buffer, 0, length);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
 
@@ -65,7 +126,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Build an image from the Dockerfile
             System.out.println("Building the image from Dockerfile...");
-            final String returnedImageId = docker.build(Paths.get(relativeImagePath),"myimage:latest");
+            final String returnedImageId = docker.build(Paths.get(relativeImagePath), "myimage:latest");
 
             // Create a container from the image id with a bind mount to the docker host
             final ContainerConfig containerConfig = ContainerConfig.builder()
@@ -105,12 +166,9 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Delete the file
             File file = new File(hostAbsolutePathContainerResults + filename);
-            if(file.delete())
-            {
+            if (file.delete()) {
                 System.out.println("File deleted successfully");
-            }
-            else
-            {
+            } else {
                 System.out.println("Failed to delete the file");
             }
 
@@ -125,4 +183,18 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         }
         return null;
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
