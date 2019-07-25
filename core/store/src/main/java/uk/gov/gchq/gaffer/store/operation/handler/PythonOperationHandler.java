@@ -46,11 +46,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private static Git getGit() {
         if (git == null) {
             try {
-                git = Git.open(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/PythonOperation/src/main/resources/test"));
+                git = Git.open(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources/test"));
             } catch (RepositoryNotFoundException e) {
                 try {
                     git = Git.cloneRepository()
-                            .setDirectory(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/PythonOperation/src/main/resources/test"))
+                            .setDirectory(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources/test"))
                             .setURI("https://github.com/g609bmsma/test")
                             .call();
                     System.out.println("git cloned");
@@ -69,9 +69,9 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
         final Path hostAbsolutePathRoot = FileSystems.getDefault().getPath(".").toAbsolutePath();
-        final String hostAbsolutePathContainerResults = hostAbsolutePathRoot + "/PythonOperation/src/main/resources";
+        final String hostAbsolutePathContainerResults = hostAbsolutePathRoot + "/core/store/src/main/resources";
         final String containerResultsPath = "/hostBindMount";
-        final String relativeImagePath = "PythonOperation/src/main/resources";
+        final String relativeImagePath = "/core/store/src/main/resources";
         String filename = "/testFileparameter.txt";
 
         File dir = new File(hostAbsolutePathContainerResults + "/test");
@@ -126,7 +126,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Build an image from the Dockerfile
             System.out.println("Building the image from Dockerfile...");
-            final String returnedImageId = docker.build(Paths.get(relativeImagePath), "myimage:latest");
+            final String returnedImageId = docker.build(Paths.get(hostAbsolutePathContainerResults + "/test"), "myimage:latest");
 
             // Create a container from the image id with a bind mount to the docker host
             final ContainerConfig containerConfig = ContainerConfig.builder()
