@@ -1,0 +1,10 @@
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>file:///</value>
+    </property>
+    <property>
+        <name>mapreduce.jobtracker.address</name>
+        <value>local</value>
+    </property>
+</configuration>
