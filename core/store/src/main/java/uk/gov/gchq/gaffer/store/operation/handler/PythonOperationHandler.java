@@ -18,14 +18,12 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.ImmutableMap;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
-import com.spotify.docker.client.messages.ProgressMessage;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -54,19 +52,23 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
-    private static Git git;
+    private Git git;
+    private final String pathAbsoluteResources = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
+    private final String repoName = "test";
+    private final String repoURI = "https://github.com/g609bmsma/test";
 
-    private static Git getGit() {
+    // Clone the git repo
+    private Git getGit() {
         if (git == null) {
             try {
-                git = Git.open(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources/test"));
+                git = Git.open(new File(pathAbsoluteResources + "/" + repoName));
             } catch (RepositoryNotFoundException e) {
                 try {
                     git = Git.cloneRepository()
-                            .setDirectory(new File(FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources/test"))
-                            .setURI("https://github.com/g609bmsma/test")
+                            .setDirectory(new File(pathAbsoluteResources + "/" + repoName))
+                            .setURI(repoURI)
                             .call();
-                    System.out.println("git cloned");
+                    System.out.println("Cloned the repo.");
                 } catch (GitAPIException e1) {
                     e1.printStackTrace();
                     git = null;
@@ -82,10 +84,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
-        final String pathAbsoluteResources = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
         final String operationName = "PythonOperation1";
-        final String repoURI = "https://github.com/g609bmsma/test";
-        final String repoName = "test";
         final String entrypointFilename = "entrypoint" + operationName + ".py";
         final String scriptFilename = operationName + ".py";
         final String modulesFilename = operationName + "Modules.txt";
@@ -146,18 +145,18 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         String[] modules = moduleData.split("\\n");
 
         // Create Dockerfile data
-        String dockerFileData = "FROM python:3\n";
+        StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-        dockerFileData = dockerFileData + addEntrypointFileLine + addScriptFileLine;
+        dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine);
 
         for (String module : modules) {
             String installLine = "RUN pip install " + module + "\n";
-            dockerFileData = dockerFileData + installLine;
+            dockerFileData.append(installLine);
         }
 
         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\"]";
-        dockerFileData = dockerFileData + entrypointLine;
+        dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
         File file = new File(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml");
@@ -166,7 +165,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if(file.createNewFile()) {
                 // File created
                 System.out.println("Creating a new Dockerfile...");
-                Files.write(Paths.get(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml"), dockerFileData.getBytes());
+                Files.write(Paths.get(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml"), dockerFileData.toString().getBytes());
             } else {
                 // File already created
                 System.out.println("Dockerfile already exists.");
@@ -185,15 +184,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Build an image from the Dockerfile
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsoluteResources),"myimage:latest", "Dockerfile" + operationName + ".yml", new ProgressHandler() {
-                @Override
-                public void progress(ProgressMessage message) {
-                    final String imageId = message.buildImageId();
-                    if (imageId != null) {
-                        imageIdFromMessage.set(imageId);
-                    }
-                    System.out.println(message);
-                }}, DockerClient.BuildParam.pullNewerImage());
+            final String returnedImageId = docker.build(Paths.get(pathAbsoluteResources),"myimage:latest", "Dockerfile" + operationName + ".yml", message -> {
+                final String imageId = message.buildImageId();
+                if (imageId != null) {
+                    imageIdFromMessage.set(imageId);
+                }
+                System.out.println(message);
+            }, DockerClient.BuildParam.pullNewerImage());
 
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
@@ -211,11 +208,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             docker.startContainer(id);
 
             // Keep trying to connect to container and give the container some time to load up
-            Boolean failedToConnect = true;
+            boolean failedToConnect = true;
             IOException error = null;
             for (int i = 0; i < 10; i++) {
                 System.out.println("Attempting to send data to container...");
-                Socket clientSocket = null;
+                Socket clientSocket;
 
                 try {
                     clientSocket = new Socket("127.0.0.1", 8080);
