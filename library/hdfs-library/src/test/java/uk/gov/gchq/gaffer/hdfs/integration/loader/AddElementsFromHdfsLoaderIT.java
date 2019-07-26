@@ -197,7 +197,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
                 }
             }
         } catch (final IOException e) {
-            throw new RuntimeException("Unable to create input files", e);
+            throw new RuntimeException("Unable to create input files: " + e.getMessage(), e);
         }
     }
 
