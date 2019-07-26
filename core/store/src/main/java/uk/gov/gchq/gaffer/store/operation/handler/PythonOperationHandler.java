@@ -225,7 +225,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
-                    out.writeUTF("Hello from client at " + clientSocket.getLocalSocketAddress());
+                    out.writeUTF("{ 'name': 'Joe Bloggs', 'age': 20 }");
 
                     // Get the data from the container
                     System.out.println("Fetching data from container...");
