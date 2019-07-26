@@ -69,6 +69,7 @@ public class AccumuloPropertiesTest {
         final String MAX_BLOOM_FILTER = "7864320";
         final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
         final String REPLICATION_FACTOR = "accumulo.file.replication";
+        final String NAMESPACE = "gaffer.namespace";
 
         // When
         props.setNumThreadsForBatchWriter(NUM_THREADS_WRITER);
@@ -83,6 +84,7 @@ public class AccumuloPropertiesTest {
         props.setKeyPackageClass(KEY_PACKAGE_CLASS);
         props.setTableFileReplicationFactor(REPLICATION_FACTOR);
         props.setEnableValidatorIterator(true);
+        props.setNamespace(NAMESPACE);
 
         // Then
         assertEquals(Integer.parseInt(NUM_THREADS_WRITER), props.getNumThreadsForBatchWriter());
@@ -97,6 +99,7 @@ public class AccumuloPropertiesTest {
         assertEquals(KEY_PACKAGE_CLASS, props.getKeyPackageClass());
         assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
         assertTrue(props.getEnableValidatorIterator());
+        assertEquals(NAMESPACE, props.getNamespace());
 
     }
 
