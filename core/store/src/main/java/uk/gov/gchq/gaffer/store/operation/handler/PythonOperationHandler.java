@@ -53,19 +53,19 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
     private Git git;
-    private final String pathAbsoluteResources = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
+    private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     // Clone the git repo
     private Git getGit() {
         if (git == null) {
             try {
-                git = Git.open(new File(pathAbsoluteResources + "/" + repoName));
+                git = Git.open(new File(pathAbsolutePythonRepo));
             } catch (RepositoryNotFoundException e) {
                 try {
                     git = Git.cloneRepository()
-                            .setDirectory(new File(pathAbsoluteResources + "/" + repoName))
+                            .setDirectory(new File(pathAbsolutePythonRepo))
                             .setURI(repoURI)
                             .call();
                     System.out.println("Cloned the repo.");
@@ -91,7 +91,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
-        File dir = new File(pathAbsoluteResources + "/" + repoName);
+        File dir = new File(pathAbsolutePythonRepo);
         try {
             if (getGit() != null) {
                 System.out.println("Repo already cloned, pulling files...");
@@ -106,38 +106,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
-        // Get ready to copy the entrypoint, script and modules files
-        File[] sources = new File[3];
-        File[] destinations = new File[3];
-        sources[0] = new File(dir + "/" + entrypointFilename);
-        destinations[0] = new File(pathAbsoluteResources + "/" + entrypointFilename);
-        sources[1] = new File(dir + "/" + scriptFilename);
-        destinations[1] = new File(pathAbsoluteResources + "/" + scriptFilename);
-        sources[2] = new File(dir + "/" + modulesFilename);
-        destinations[2] = new File(pathAbsoluteResources + "/" + modulesFilename);
-
-        // Copy the entrypoint, script and modules files
-        System.out.println("Copying files...");
-        for (int i = 0; i < sources.length; i++) {
-            try (FileInputStream fis = new FileInputStream(sources[i]);
-                 FileOutputStream fos = new FileOutputStream(destinations[i])) {
-
-                byte[] buffer = new byte[1024];
-                int length;
-
-                while ((length = fis.read(buffer)) > 0) {
-
-                    fos.write(buffer, 0, length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         // Load the python modules file
         String moduleData = "";
         try {
-            FileInputStream fis = new FileInputStream(pathAbsoluteResources + "/" + modulesFilename);
+            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
             moduleData = IOUtils.toString(fis, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,13 +131,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
-        File file = new File(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml");
+        File file = new File(pathAbsolutePythonRepo + "/Dockerfile" + operationName + ".yml");
         System.out.println("Checking for Dockerfile...");
         try {
             if(file.createNewFile()) {
                 // File created
                 System.out.println("Creating a new Dockerfile...");
-                Files.write(Paths.get(pathAbsoluteResources + "/Dockerfile" + operationName + ".yml"), dockerFileData.toString().getBytes());
+                Files.write(Paths.get(pathAbsolutePythonRepo + "/Dockerfile" + operationName + ".yml"), dockerFileData.toString().getBytes());
             } else {
                 // File already created
                 System.out.println("Dockerfile already exists.");
@@ -184,7 +156,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Build an image from the Dockerfile
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsoluteResources),"myimage:latest", "Dockerfile" + operationName + ".yml", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", "Dockerfile" + operationName + ".yml", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
