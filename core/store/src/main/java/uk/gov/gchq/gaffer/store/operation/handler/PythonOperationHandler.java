@@ -226,6 +226,14 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             docker.close();
             System.out.println("Closed the docker client.");
 
+            // Uploading local changes to the repo
+            try {
+                getGit().push().call();
+            } catch (GitAPIException e) {
+                System.out.println("Failed to update remote repository.");
+                e.printStackTrace();
+            }
+
         } catch (DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
         }
