@@ -34,7 +34,6 @@
         <module>store-implementation</module>
         <module>rest-api</module>
         <module>example</module>
-        <module>PythonOperation</module>
     </modules>
 
     <properties>
