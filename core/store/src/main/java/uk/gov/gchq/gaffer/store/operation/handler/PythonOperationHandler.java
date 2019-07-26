@@ -25,13 +25,10 @@ import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jgit.api.AddCommand;
-import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
-import org.eclipse.jgit.transport.*;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.store.Context;
@@ -62,29 +59,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     // Clone the git repo
     private Git getGit() {
 
-//        // Add the credentials to allow pushing to the remote repo
-//        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-//            @Override
-//            protected void configure(OpenSshConfig.Host host, Session session ) {
-//                session.setUserInfo(new UserInfo() {
-//                    @Override
-//                    public String getPassphrase() {
-//                        return "";
-//                    }
-//                    @Override
-//                    public String getPassword() {return new File("/home/xw/.ssh/id_rsa").getAbsolutePath();}
-//                    @Override
-//                    public boolean promptPassword(String message) {return false;}
-//                    @Override
-//                    public boolean promptPassphrase(String message) {return true;}
-//                    @Override
-//                    public boolean promptYesNo(String message) {return false;}
-//                    @Override
-//                    public void showMessage(String message) {}
-//                });
-//            }
-//        };
-
         if (git == null) {
             try {
                 git = Git.open(new File(pathAbsolutePythonRepo));
@@ -93,12 +67,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     git = Git.cloneRepository()
                             .setDirectory(new File(pathAbsolutePythonRepo))
                             .setURI(repoURI)
-//                            .setTransportConfigCallback(transport -> {
-//                                if (transport instanceof SshTransport) {
-//                                    SshTransport sshTransport = (SshTransport)transport;
-//                                    sshTransport.setSshSessionFactory( sshSessionFactory );
-//                                }
-//                            })
                             .call();
                     System.out.println("Cloned the repo.");
                 } catch (GitAPIException e1) {
@@ -257,39 +225,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         System.out.println("Closing the docker client...");
         docker.close();
         System.out.println("Closed the docker client.");
-
-        // Load SSH Key from file to push changes up
-        String str = System.getProperty("user.home");
-        System.out.println(str);
-        FileInputStream sshFIS = new FileInputStream(System.getProperty("user.home")+ "/.ssh/id_rsa");
-        String sshKey = IOUtils.toString(sshFIS, "UTF-8");
-//        System.out.println(sshKey);
-//        sshKey = sshKey.replace("-----BEGIN OPENSSH PRIVATE KEY-----", "");
-//        sshKey = sshKey.replace("-----END OPENSSH PRIVATE KEY-----", "");
-//        System.out.println(sshKey);
-//        String[] strArr = sshKey.split("\\n");
-//        strArr = Arrays.copyOfRange(strArr, 2, strArr.length-1);
-//        sshKey = String.join("", strArr);
-//        System.out.println(sshKey);
-
-        // Uploading local changes to the repo
-        try {
-            AddCommand add = git.add();
-            add.addFilepattern(".").call();
-
-            CommitCommand commit = git.commit();
-            commit.setMessage("").call();
-
-            getGit().push()
-                    .setCredentialsProvider(
-                            new UsernamePasswordCredentialsProvider("", "")
-                    )
-                    .call();
-            System.out.println("Pushed local changes to the remote repository");
-        } catch (GitAPIException e) {
-            System.out.println("Failed to update remote repository.");
-            e.printStackTrace();
-        }
 
     } catch (DockerCertificateException | InterruptedException | DockerException | IOException e) {
         e.printStackTrace();
