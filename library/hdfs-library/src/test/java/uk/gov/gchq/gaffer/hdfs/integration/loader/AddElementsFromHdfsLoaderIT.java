@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -39,7 +40,10 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -49,6 +53,8 @@ import static org.junit.Assert.fail;
 public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElementsFromHdfs> {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    private static final String FS_URI = "fs.uri";
 
     protected String inputDir1;
     protected String inputDir2;
@@ -82,7 +88,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     @Test
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        final FileSystem fs = createFileSystem();
         fs.mkdirs(new Path(failureDir));
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
             writer.write("Some content");
@@ -102,7 +108,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     public void shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist() throws Exception {
         // Given
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        final FileSystem fs = createFileSystem();
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(failureDir));
 
@@ -117,7 +123,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles() throws Exception {
         // Given
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        final FileSystem fs = createFileSystem();
         fs.mkdirs(new Path(outputDir));
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(outputDir + "/someFile.txt"), true)))) {
             writer.write("Some content");
@@ -158,7 +164,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         final Path inputPath3 = new Path(inputDir3);
         final Path inputFilePath3 = new Path(inputDir3 + "/file.txt");
         try {
-            final FileSystem fs = FileSystem.getLocal(createLocalConf());
+            final FileSystem fs = createFileSystem();
             fs.mkdirs(inputPath1);
             fs.mkdirs(inputPath2);
             fs.mkdirs(inputPath3);
@@ -195,8 +201,21 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         }
     }
 
-    private JobConf createLocalConf() {
-        // Set up local conf
-        return new JobConf("jobConf.xml");
+    private FileSystem createFileSystem() throws IOException {
+        Properties fsProperties = new Properties();
+        fsProperties.load(StreamUtil.openStream(this.getClass(), "filesystem.properties"));
+        final URI fsURI;
+        try {
+            fsURI = new URI(fsProperties.getProperty(FS_URI));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid URI: " + fsProperties.getProperty(FS_URI), e);
+        }
+
+        return FileSystem.get(fsURI, createJobConf());
+    }
+
+    private JobConf createJobConf() {
+        // Set up Job Configuration
+        return new JobConf();
     }
 }
