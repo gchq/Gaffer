@@ -97,5 +97,13 @@ public class ExampleGeneratorTest {
         // Then
         assertThat(operation, notNullValue());
     }
+    @Test
+    public void shouldHandleCharField() throws InstantiationException, IllegalAccessException {
+        // Given
+        final Operation operation = generator.generateExample(ExampleCharOperation.class);
+
+        //Then
+        assertThat(operation, notNullValue());
+    }
 
 }
