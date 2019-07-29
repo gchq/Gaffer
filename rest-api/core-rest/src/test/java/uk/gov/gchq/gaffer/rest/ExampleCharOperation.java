@@ -24,6 +24,7 @@ import java.util.Map;
 public class ExampleCharOperation implements Operation {
 
     private char letter;
+    private Character letterClass;
 
     private char getLetter() {
         return letter;
@@ -31,6 +32,14 @@ public class ExampleCharOperation implements Operation {
 
     private void setLetter(final char letter) {
         this.letter = letter;
+    }
+
+    private Character getLetterClass() {
+        return letterClass;
+    }
+
+    private void setLetterClass(final Character letterClass) {
+        this.letterClass = letterClass;
     }
 
     @Override
@@ -47,6 +56,5 @@ public class ExampleCharOperation implements Operation {
     public void setOptions(final Map<String, String> options) {
 
     }
-
 
 }
