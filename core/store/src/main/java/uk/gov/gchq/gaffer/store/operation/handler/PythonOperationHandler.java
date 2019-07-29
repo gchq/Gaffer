@@ -91,10 +91,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
-        final String operationName = "PythonOperation1";
-        final String entrypointFilename = "entrypoint" + operationName + ".py";
-        final String scriptFilename = operationName + ".py";
-        final String modulesFilename = operationName + "Modules.txt";
+        final String scriptName = "script1";
+        final String scriptFilename = scriptName + ".py";
+        final String entrypointFilename = scriptName + "Entrypoint.py";
+        final String modulesFilename = scriptName + "Modules.txt";
+        final String dockerfileName = scriptName + "Dockerfile.yml";
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
@@ -138,13 +139,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
-        File file = new File(pathAbsolutePythonRepo + "/Dockerfile" + operationName + ".yml");
+        File file = new File(pathAbsolutePythonRepo + "/" + dockerfileName);
         System.out.println("Checking for Dockerfile...");
         try {
             if(file.createNewFile()) {
                 // File created
                 System.out.println("Creating a new Dockerfile...");
-                Files.write(Paths.get(pathAbsolutePythonRepo + "/Dockerfile" + operationName + ".yml"), dockerFileData.toString().getBytes());
+                Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
             } else {
                 // File already created
                 System.out.println("Dockerfile already exists.");
@@ -155,7 +156,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         }
 
         // Create entrypoint file data
-        StringBuilder entrypointFileData = new StringBuilder("from PythonOperation1 import pythonOperation1\n" +
+        String importLine = "from script1 import run\n";
+        StringBuilder entrypointFileData = new StringBuilder(importLine +
                 "import socket\n" +
                 "import json\n" +
                 "\n" +
@@ -210,7 +212,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Build an image from the Dockerfile
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", "Dockerfile" + operationName + ".yml", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", dockerfileName, message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
@@ -221,7 +223,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
                     .hostConfig( HostConfig.builder()
-                            .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0" + ".1", "8080")))).build())
+                            .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build())
                     .image(returnedImageId)
                     .exposedPorts( "8080/tcp" )
                     .cmd("sh", "-c", "while :; do sleep 1; done")
@@ -260,6 +262,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Closed the connection.");
                     break;
                 } catch (IOException e) {
+                    System.out.println("Failed to fetch data.");
                     error = e;
                     TimeUnit.MILLISECONDS.sleep(50);
                 }
