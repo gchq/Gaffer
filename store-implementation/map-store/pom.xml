@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.9.2-SNAPSHOT</version>
+        <version>1.10.0-RC1</version>
     </parent>
 
     <artifactId>map-store</artifactId>
