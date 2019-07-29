@@ -85,7 +85,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
-        final String scriptName = "script2";
+        final String scriptName = "script1";
         final String scriptFilename = scriptName + ".py";
         final String entrypointFilename = scriptName + "Entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
@@ -150,41 +150,24 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
-        // Create entrypoint file data
-        String importLine = "from " + scriptName + " import run\n";
-        StringBuilder entrypointFileData = new StringBuilder(importLine +
-                "import socket\n" +
-                "import json\n" +
-                "\n" +
-                "HOST = socket.gethostbyname(socket.gethostname())\n" +
-                "PORT = 8080\n" +
-                "print('Listening for connections from host: ', socket.gethostbyname(socket.gethostname())) #172.17.0.2\n" +
-                "\n" +
-                "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
-                "    # Setup the port and get it ready for listening for connections\n" +
-                "    s.bind((HOST,PORT))\n" +
-                "    s.listen()\n" +
-                "    print('Yaaas queen it worked')\n" +
-                "    print('Waiting for incoming connections...')\n" +
-                "    conn, addr = s.accept() # Wait for incoming connections # Causes nothing to be printed to logs\n" +
-                "    print('Connected to: ', addr)\n" +
-                "    dataReceived = False\n" +
-                "    while not dataReceived:\n" +
-                "        data = conn.recv(1024)\n" +
-                "        if data:\n" +
-                "            jdata = data.decode(\"utf-8\", errors=\"ignore\")\n" +
-                "            jdata = json.dumps(jdata)\n" +
-                "            print(type(data))\n" +
-                "            print('Recieved data : ', data)\n" +
-                "            dataReceived = True\n" +
-                "            # data = pythonOperation1(data)\n" +
-                "            print('Resulting data : ', data)\n" +
-                "            conn.sendall(data)  # Send the data back");
+        // Load the data from the base entrypoint file
+        String entrypointFileData = "from " + scriptName + " import run\n";
+        System.out.println("Attempting to load the base entrypoint file...");
+        try {
+            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/../entrypoint.py");
+            System.out.println("Entrypoint file found. Loading data...");
+            String entrypointBaseFileData = IOUtils.toString(fis, "UTF-8");
+            entrypointFileData = entrypointFileData + entrypointBaseFileData;
+            System.out.println("Loaded module data.");
+        } catch (IOException e) {
+            System.out.println("Unable to load file.");
+            e.printStackTrace();
+        }
 
         // Create the Entrypoint file
         System.out.println("Creating a new Entrypoint file...");
         try {
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.toString().getBytes());
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.getBytes());
             System.out.println("Entrypoint file created.");
         } catch (IOException e) {
             System.out.println("Failed to create an Entrypoint file.");
