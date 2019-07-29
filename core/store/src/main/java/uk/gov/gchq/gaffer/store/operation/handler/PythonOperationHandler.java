@@ -35,6 +35,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -150,6 +151,53 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
         } catch (IOException e) {
             System.out.println("Failed to create a Dockerfile");
+            e.printStackTrace();
+        }
+
+        // Create entrypoint file data
+        StringBuilder entrypointFileData = new StringBuilder("from PythonOperation1 import pythonOperation1\n" +
+                "import socket\n" +
+                "import json\n" +
+                "\n" +
+                "HOST = socket.gethostbyname(socket.gethostname())\n" +
+                "PORT = 8080\n" +
+                "print('Listening for connections from host: ', socket.gethostbyname(socket.gethostname())) #172.17.0.2\n" +
+                "\n" +
+                "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
+                "    # Setup the port and get it ready for listening for connections\n" +
+                "    s.bind((HOST,PORT))\n" +
+                "    s.listen()\n" +
+                "    print('Yaaas queen it worked')\n" +
+                "    print('Waiting for incoming connections...')\n" +
+                "    conn, addr = s.accept() # Wait for incoming connections # Causes nothing to be printed to logs\n" +
+                "    print('Connected to: ', addr)\n" +
+                "    dataReceived = False\n" +
+                "    while not dataReceived:\n" +
+                "        data = conn.recv(1024)\n" +
+                "        if data:\n" +
+                "            jdata = data.decode(\"utf-8\", errors=\"ignore\")\n" +
+                "            jdata = json.dumps(jdata)\n" +
+                "            print(type(data))\n" +
+                "            print('Recieved data : ', data)\n" +
+                "            dataReceived = True\n" +
+                "            # data = pythonOperation1(data)\n" +
+                "            print('Resulting data : ', data)\n" +
+                "            conn.sendall(data)  # Send the data back");
+
+        // Create entrypoint file
+        File entrypointFile = new File(pathAbsolutePythonRepo + "/" + entrypointFilename);
+        System.out.println("Checking for entrypoint file...");
+        try {
+            if(entrypointFile.createNewFile()) {
+                // File created
+                System.out.println("Creating a new entrypoint file...");
+                Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.toString().getBytes());
+            } else {
+                // File already created
+                System.out.println("Entrypoint file already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to create an entrypoint file.");
             e.printStackTrace();
         }
 
