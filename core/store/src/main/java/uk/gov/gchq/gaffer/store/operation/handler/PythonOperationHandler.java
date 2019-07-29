@@ -117,6 +117,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
         String[] modules = moduleData.split("\\n");
+        System.out.println(modules);
 
         // Create Dockerfile data
         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
@@ -125,8 +126,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine);
 
         for (String module : modules) {
-            String installLine = "RUN pip install " + module + "\n";
-            dockerFileData.append(installLine);
+            if (module != "") {
+                String installLine = "RUN pip install " + module + "\n";
+                dockerFileData.append(installLine);
+            }
         }
 
         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\"]";
