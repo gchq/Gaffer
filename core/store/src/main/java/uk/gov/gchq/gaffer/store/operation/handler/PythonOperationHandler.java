@@ -27,26 +27,25 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import javax.imageio.IIOException;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -86,6 +85,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = "script1";
+        final String supportScript = "DataInputStream.py";
         final String scriptFilename = scriptName + ".py";
         final String entrypointFilename = scriptName + "Entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
@@ -122,7 +122,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-        dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine);
+        String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
+        dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
 
         for (String module : modules) {
             String installLine = "RUN pip install " + module + "\n";
@@ -145,33 +146,36 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         // Create entrypoint file data
         String importLine = "from script1 import run\n";
         StringBuilder entrypointFileData = new StringBuilder(importLine +
-                "import socket\n" +
                 "import json\n" +
+                "import socket\n" +
+                "\n" +
+                "from DataInputStream import DataInputStream\n" +
                 "\n" +
                 "HOST = socket.gethostbyname(socket.gethostname())\n" +
                 "PORT = 8080\n" +
-                "print('Listening for connections from host: ', socket.gethostbyname(socket.gethostname())) #172.17.0.2\n" +
+                "print('Listening for connections from host: ', socket.gethostbyname(\n" +
+                "    socket.gethostname()))  # 172.17.0.2\n" +
                 "\n" +
                 "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
                 "    # Setup the port and get it ready for listening for connections\n" +
-                "    s.bind((HOST,PORT))\n" +
-                "    s.listen()\n" +
+                "    s.bind((HOST, PORT))\n" +
+                "    s.listen(1)\n" +
                 "    print('Yaaas queen it worked')\n" +
                 "    print('Waiting for incoming connections...')\n" +
-                "    conn, addr = s.accept() # Wait for incoming connections # Causes nothing to be printed to logs\n" +
+                "    conn, addr = s.accept()  # Wait for incoming connections\n" +
                 "    print('Connected to: ', addr)\n" +
                 "    dataReceived = False\n" +
                 "    while not dataReceived:\n" +
-                "        data = conn.recv(1024)\n" +
-                "        if data:\n" +
-                "            jdata = data.decode(\"utf-8\", errors=\"ignore\")\n" +
-                "            jdata = json.dumps(jdata)\n" +
-                "            print(type(data))\n" +
-                "            print('Recieved data : ', data)\n" +
+                "        dis = DataInputStream(conn)\n" +
+                "        if dis:\n" +
+                "            sdata = dis.read_utf()\n" +
+                "            jdata = json.loads(sdata)\n" +
+                "            print(type(jdata))\n" +
+                "            print('Received data : ', jdata)\n" +
                 "            dataReceived = True\n" +
-                "            # data = pythonOperation1(data)\n" +
-                "            print('Resulting data : ', data)\n" +
-                "            conn.sendall(data)  # Send the data back");
+                "            #  data = pythonOperation1(data)\n" +
+                "            print('Resulting data : ', jdata)\n" +
+                "            conn.sendall(sdata)  # Return the data\n");
 
         // Create the Entrypoint file
         System.out.println("Creating a new Entrypoint file...");
@@ -192,7 +196,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Build an image from the Dockerfile
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", dockerfileName, message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo), "myimage:latest", dockerfileName, message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
@@ -202,10 +206,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
-                    .hostConfig( HostConfig.builder()
+                    .hostConfig(HostConfig.builder()
                             .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build())
                     .image(returnedImageId)
-                    .exposedPorts( "8080/tcp" )
+                    .exposedPorts("8080/tcp")
                     .cmd("sh", "-c", "while :; do sleep 1; done")
                     .build();
             final ContainerCreation creation = docker.createContainer(containerConfig);
@@ -230,7 +234,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
-                    out.writeUTF("{ 'name': 'Joe Bloggs', 'age': 20 }");
+                    out.writeUTF("{ 'name': 'Joe Bloggs', 'age': 20 }".replaceAll("'", "\""));
 
                     // Get the data from the container
                     System.out.println("Fetching data from container...");
@@ -251,21 +255,21 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (failedToConnect) {
                 System.out.println("Connection failed, stopping the container...");
                 error.printStackTrace();
-                docker.stopContainer(id,1); // Kill the container after 1 second
+                docker.stopContainer(id, 1); // Kill the container after 1 second
             }
 
             // Delete the container
 //            System.out.println("Deleting the container...");
 //            docker.removeContainer(id);
 
-        // Close the docker client
-        System.out.println("Closing the docker client...");
-        docker.close();
-        System.out.println("Closed the docker client.");
+            // Close the docker client
+            System.out.println("Closing the docker client...");
+            docker.close();
+            System.out.println("Closed the docker client.");
 
-    } catch (DockerCertificateException | InterruptedException | DockerException | IOException e) {
-        e.printStackTrace();
-    }
+        } catch (DockerCertificateException | InterruptedException | DockerException | IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
