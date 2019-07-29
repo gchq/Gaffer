@@ -501,6 +501,49 @@ public class GetWalksIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    public void shouldGetPartialPaths() throws Exception {
+        // Given
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final OperationChain operationChain = new OperationChain.Builder()
+                // only walk down entities which have a property set to an integer
+                //larger than 3.
+                .first(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .postAggregationFilter(new ElementFilter.Builder()
+                                                .select(TestPropertyNames.PROP_1)
+                                                .execute(new IsMoreThan(3))
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .then(operation)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seedA)
+                .operations(operation, operationChain)
+                .includePartial()
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, getUser());
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,AB")));
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
         final GetElements operation = new GetElements.Builder()
