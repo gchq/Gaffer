@@ -85,7 +85,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
-        final String scriptName = "script1";
+        final String scriptName = "script2";
         final String scriptFilename = scriptName + ".py";
         final String entrypointFilename = scriptName + "Entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
@@ -112,8 +112,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         String moduleData = "";
         try {
             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
+            System.out.println("Modules file found. Loading module data...");
             moduleData = IOUtils.toString(fis, "UTF-8");
+            System.out.println("Loaded module data.");
+        } catch (FileNotFoundException e) {
+            System.out.println("No modules file found. Continuing without.");
         } catch (IOException e) {
+            System.out.println("Unable to load modules file.");
             e.printStackTrace();
         }
         String[] modules = moduleData.split("\\n");
@@ -146,7 +151,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         }
 
         // Create entrypoint file data
-        String importLine = "from script1 import run\n";
+        String importLine = "from " + scriptName + " import run\n";
         StringBuilder entrypointFileData = new StringBuilder(importLine +
                 "import socket\n" +
                 "import json\n" +
