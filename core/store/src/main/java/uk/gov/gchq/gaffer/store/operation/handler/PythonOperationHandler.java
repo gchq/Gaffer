@@ -40,13 +40,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import javax.imageio.IIOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -139,19 +133,12 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
-        File file = new File(pathAbsolutePythonRepo + "/" + dockerfileName);
-        System.out.println("Checking for Dockerfile...");
+        System.out.println("Creating a new Dockerfile...");
         try {
-            if(file.createNewFile()) {
-                // File created
-                System.out.println("Creating a new Dockerfile...");
-                Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
-            } else {
-                // File already created
-                System.out.println("Dockerfile already exists.");
-            }
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
+            System.out.println("Dockerfile created.");
         } catch (IOException e) {
-            System.out.println("Failed to create a Dockerfile");
+            System.out.println("Failed to create a new Dockerfile");
             e.printStackTrace();
         }
 
@@ -186,20 +173,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 "            print('Resulting data : ', data)\n" +
                 "            conn.sendall(data)  # Send the data back");
 
-        // Create entrypoint file
-        File entrypointFile = new File(pathAbsolutePythonRepo + "/" + entrypointFilename);
-        System.out.println("Checking for entrypoint file...");
+        // Create the Entrypoint file
+        System.out.println("Creating a new Entrypoint file...");
         try {
-            if(entrypointFile.createNewFile()) {
-                // File created
-                System.out.println("Creating a new entrypoint file...");
-                Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.toString().getBytes());
-            } else {
-                // File already created
-                System.out.println("Entrypoint file already exists.");
-            }
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.toString().getBytes());
+            System.out.println("Entrypoint file created.");
         } catch (IOException e) {
-            System.out.println("Failed to create an entrypoint file.");
+            System.out.println("Failed to create an Entrypoint file.");
             e.printStackTrace();
         }
 
