@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,6 +55,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private Git git;
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
+    private final String pathAbsolute = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     // Clone the git repo
@@ -64,10 +66,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 git = Git.open(new File(pathAbsolutePythonRepo));
             } catch (RepositoryNotFoundException e) {
                 try {
-                    git = Git.cloneRepository()
-                            .setDirectory(new File(pathAbsolutePythonRepo))
-                            .setURI(repoURI)
-                            .call();
+                    git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
                     System.out.println("Cloned the repo.");
                 } catch (GitAPIException e1) {
                     e1.printStackTrace();
@@ -108,11 +107,18 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
+        // Copy over DataInputStream.py
+        try {
+            Files.copy(new File(pathAbsolute + "/" + supportScript).toPath(), new File(pathAbsolutePythonRepo + "/" + supportScript).toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Load the python modules file
         String moduleData = "";
         try {
             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-            moduleData = IOUtils.toString(fis, "UTF-8");
+            moduleData = IOUtils.toString(fis, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -145,37 +151,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         // Create entrypoint file data
         String importLine = "from script1 import run\n";
-        StringBuilder entrypointFileData = new StringBuilder(importLine +
-                "import json\n" +
-                "import socket\n" +
-                "\n" +
-                "from DataInputStream import DataInputStream\n" +
-                "\n" +
-                "HOST = socket.gethostbyname(socket.gethostname())\n" +
-                "PORT = 8080\n" +
-                "print('Listening for connections from host: ', socket.gethostbyname(\n" +
-                "    socket.gethostname()))  # 172.17.0.2\n" +
-                "\n" +
-                "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
-                "    # Setup the port and get it ready for listening for connections\n" +
-                "    s.bind((HOST, PORT))\n" +
-                "    s.listen(1)\n" +
-                "    print('Yaaas queen it worked')\n" +
-                "    print('Waiting for incoming connections...')\n" +
-                "    conn, addr = s.accept()  # Wait for incoming connections\n" +
-                "    print('Connected to: ', addr)\n" +
-                "    dataReceived = False\n" +
-                "    while not dataReceived:\n" +
-                "        dis = DataInputStream(conn)\n" +
-                "        if dis:\n" +
-                "            sdata = dis.read_utf()\n" +
-                "            jdata = json.loads(sdata)\n" +
-                "            print(type(jdata))\n" +
-                "            print('Received data : ', jdata)\n" +
-                "            dataReceived = True\n" +
-                "            #  data = pythonOperation1(data)\n" +
-                "            print('Resulting data : ', jdata)\n" +
-                "            conn.sendall(sdata)  # Return the data\n");
+        StringBuilder entrypointFileData = new StringBuilder(importLine + "import json\n" + "import socket\n" + "\n" + "from DataInputStream import DataInputStream\n" + "\n" + "HOST = socket.gethostbyname(socket.gethostname())\n" + "PORT = 8080\n" + "print('Listening for connections from host: ', socket.gethostbyname(\n" + "    socket.gethostname()))  # 172.17.0.2\n" + "\n" + "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" + "    # Setup the port and get it ready for listening for connections\n" + "    s.bind((HOST, PORT))\n" + "    s.listen(1)\n" + "    print('Yaaas queen it worked')\n" + "    print('Waiting for incoming connections...')\n" + "    conn, addr = s.accept()  # Wait for incoming connections\n" + "    print('Connected to: ', addr)\n" + "    dataReceived = False\n" + "    while not dataReceived:\n" + "        dis = DataInputStream(conn)\n" + "        if dis:\n" + "            sdata = dis.read_utf()\n" + "            jdata = json.loads(sdata)\n" + "            print(type(jdata))\n" + "            print('Received data : ', jdata)\n" + "            dataReceived = True\n" + "            #  data = pythonOperation1(data)\n" + "            print('Resulting data : ', jdata)\n" + "            conn.sendall(sdata)  # Return the data\n");
 
         // Create the Entrypoint file
         System.out.println("Creating a new Entrypoint file...");
@@ -205,13 +181,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }, DockerClient.BuildParam.pullNewerImage());
 
             // Create a container from the image and bind ports
-            final ContainerConfig containerConfig = ContainerConfig.builder()
-                    .hostConfig(HostConfig.builder()
-                            .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build())
-                    .image(returnedImageId)
-                    .exposedPorts("8080/tcp")
-                    .cmd("sh", "-c", "while :; do sleep 1; done")
-                    .build();
+            final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build()).image(returnedImageId).exposedPorts("8080/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
             final ContainerCreation creation = docker.createContainer(containerConfig);
             final String id = creation.id();
 
@@ -259,8 +229,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
 
             // Delete the container
-//            System.out.println("Deleting the container...");
-//            docker.removeContainer(id);
+            //            System.out.println("Deleting the container...");
+            //            docker.removeContainer(id);
 
             // Close the docker client
             System.out.println("Closing the docker client...");
