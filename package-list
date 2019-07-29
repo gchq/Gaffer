@@ -250,6 +250,7 @@ uk.gov.gchq.gaffer.store.util
 uk.gov.gchq.gaffer.time
 uk.gov.gchq.gaffer.time.binaryoperator
 uk.gov.gchq.gaffer.time.function
+uk.gov.gchq.gaffer.time.predicate
 uk.gov.gchq.gaffer.time.serialisation
 uk.gov.gchq.gaffer.traffic
 uk.gov.gchq.gaffer.traffic.generator
