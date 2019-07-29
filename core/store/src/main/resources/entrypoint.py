@@ -1,5 +1,6 @@
 from PythonOperation1 import pythonOperation1
 import socket
+import json
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 8080
@@ -17,6 +18,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     while not dataReceived:
         data = conn.recv(1024)
         if data:
+            jdata = data.decode("utf-8", errors="ignore")
+            jdata = json.dumps(jdata)
             print(type(data))
             print('Recieved data : ', data)
             dataReceived = True

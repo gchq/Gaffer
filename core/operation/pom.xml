@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>4.7.0.201704051617-r</version>
+            <version>5.4.0.201906121030-r</version>
         </dependency>
     </dependencies>
 

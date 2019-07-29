@@ -1,7 +1,0 @@
-FROM python:3
-ADD entrypointPythonOperation1.py /
-ADD PythonOperation1.py /
-RUN pip install pandas
-RUN pip install numpy
-RUN pip install scipy
-ENTRYPOINT [ "python", "./entrypointPythonOperation1.py"]
