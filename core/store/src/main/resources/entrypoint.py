@@ -29,6 +29,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(type(data))
             print('Recieved data : ', data)
             dataReceived = True
-            #data = scriptName.run(data)
+            data = scriptName.run(data)
             print('Resulting data : ', data)
             conn.sendall(data)  # Send the data back

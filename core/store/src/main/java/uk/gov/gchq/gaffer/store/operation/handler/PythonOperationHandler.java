@@ -150,13 +150,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"myimage:latest", "Dockerfile", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
                 }
                 System.out.println(message);
-            }, buildParam);
+            }, DockerClient.BuildParam.pullNewerImage());
 
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
@@ -164,7 +164,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                             .portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build())
                     .image(returnedImageId)
                     .exposedPorts( "8080/tcp" )
-                    .cmd("sh", "-c", "while :; do sleep 1; done")
+                    //.cmd("bash", "-c", "while :; do sleep 1; done")
                     .build();
             final ContainerCreation creation = docker.createContainer(containerConfig);
             final String id = creation.id();
