@@ -150,13 +150,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", "Dockerfile", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"myimage:latest", "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
                 }
                 System.out.println(message);
-            }, DockerClient.BuildParam.pullNewerImage());
+            }, buildParam);
 
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
