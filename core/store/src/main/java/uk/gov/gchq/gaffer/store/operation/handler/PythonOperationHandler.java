@@ -153,8 +153,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         String importLine = "from script1 import run\n";
         StringBuilder entrypointFileData = new StringBuilder(importLine + "import json\n" +
                 "import socket\n" +
-                "\n" +
                 "import pandas\n" +
+                "import struct\n" +
                 "\n" +
                 "from DataInputStream import DataInputStream\n" +
                 "\n" +
@@ -185,7 +185,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 "            print('Resulting data : ', dfdata)\n" +
                 "            data = pandas.DataFrame.to_json(dfdata, orient=\"records\")\n" +
                 "            print(data)\n" +
-                "            conn.sendall(sdata)  # Return the data\n");
+                "            conn.send(struct.pack('>H', len(data)))\n" +
+                "            conn.sendall(data.encode('utf-8'))  # Return the data\n");
 
         // Create the Entrypoint file
         System.out.println("Creating a new Entrypoint file...");

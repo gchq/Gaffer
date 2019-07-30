@@ -1,7 +1,7 @@
 import json
 import socket
-
 import pandas
+import struct
 
 from DataInputStream import DataInputStream
 
@@ -32,4 +32,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print('Resulting data : ', dfdata)
             data = pandas.DataFrame.to_json(dfdata, orient="records")
             print(data)
-            conn.sendall(sdata)  # Return the data
+            conn.send(struct.pack('>H', len(data)))
+            conn.sendall(data.encode('utf-8'))  # Return the data
