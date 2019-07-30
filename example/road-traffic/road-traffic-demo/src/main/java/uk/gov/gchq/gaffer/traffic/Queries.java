@@ -73,17 +73,21 @@ public class Queries {
 
     private void runPython(final Graph graph, final User user) throws OperationException {
 
+        final String scriptName = "script1";
+
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
         final PythonOperation<Element, Void> pythonOperation =
-                new PythonOperation<>();
+                new PythonOperation.Builder<Element, Void>()
+                        .name(scriptName)
+                        .build();
 
         OperationChain<Void> opChain =
                 new OperationChain.Builder()
-                .first(getAllElements)
-                .then(pythonOperation)
-                .build();
+                        .first(getAllElements)
+                        .then(pythonOperation)
+                        .build();
 
         graph.execute(opChain, user);
     }
@@ -125,7 +129,7 @@ public class Queries {
                                                 .execute(new PredicateMap<>("BUS", new IsMoreThan(1000L)))
                                                 .build())
 
-                                                // Extract the bus count out of the frequency map and store in transient property "busCount"
+                                        // Extract the bus count out of the frequency map and store in transient property "busCount"
                                         .transientProperty("busCount", Long.class)
                                         .transformer(new ElementTransformer.Builder()
                                                 .select("countByVehicleType")
@@ -145,7 +149,7 @@ public class Queries {
                         .resultLimit(2)
                         .deduplicate(true)
                         .build())
-                        // Convert the result entities to a simple CSV in format: Junction,busCount.
+                // Convert the result entities to a simple CSV in format: Junction,busCount.
                 .then(new ToCsv.Builder()
                         .generator(new CsvGenerator.Builder()
                                 .vertex("Junction")

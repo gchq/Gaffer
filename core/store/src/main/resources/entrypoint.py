@@ -1,7 +1,11 @@
-import socket
 import json
+import socket
+import pandas
+import struct
 import sys
 import importlib
+
+from DataInputStream import DataInputStream
 
 # Dynamically import the script
 scriptNameParam = sys.argv[1]
@@ -10,25 +14,30 @@ print('scriptName is ', scriptName);
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 8080
-print('Listening for connections from host: ', socket.gethostbyname(socket.gethostname())) #172.17.0.2
+print('Listening for connections from host: ', socket.gethostbyname(
+    socket.gethostname()))  # 172.17.0.2
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Setup the port and get it ready for listening for connections
-    s.bind((HOST,PORT))
-    s.listen()
+    s.bind((HOST, PORT))
+    s.listen(1)
     print('Yaaas queen it worked')
     print('Waiting for incoming connections...')
-    conn, addr = s.accept() # Wait for incoming connections # Causes nothing to be printed to logs
+    conn, addr = s.accept()  # Wait for incoming connections
     print('Connected to: ', addr)
     dataReceived = False
     while not dataReceived:
-        data = conn.recv(1024)
-        if data:
-            jdata = data.decode("utf-8", errors="ignore")
-            jdata = json.dumps(jdata)
-            print(type(data))
-            print('Recieved data : ', data)
+        dis = DataInputStream(conn)
+        if dis:
+            sdata = dis.read_utf()
+            jdata = json.loads(sdata)
+            dfdata = pandas.read_json(sdata, orient="records")
+            print(type(dfdata))
+            print('Received data : ', jdata)
             dataReceived = True
-            data = scriptName.run(data)
-            print('Resulting data : ', data)
-            conn.sendall(data)  # Send the data back
+            #data = scriptName.run(data)
+            print('Resulting data : ', dfdata)
+            data = pandas.DataFrame.to_json(dfdata, orient="records")
+            print(data)
+            conn.send(struct.pack('>H', len(data)))
+            conn.sendall(data.encode('utf-8'))  # Return the data
