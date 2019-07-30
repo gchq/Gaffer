@@ -110,8 +110,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         // Copy over DataInputStream.py
         try {
             Files.copy(new File(pathAbsolute + "/" + supportScript).toPath(), new File(pathAbsolutePythonRepo + "/" + supportScript).toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+
         }
 
         // Load the python modules file
@@ -151,7 +151,41 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         // Create entrypoint file data
         String importLine = "from script1 import run\n";
-        StringBuilder entrypointFileData = new StringBuilder(importLine + "import json\n" + "import socket\n" + "\n" + "from DataInputStream import DataInputStream\n" + "\n" + "HOST = socket.gethostbyname(socket.gethostname())\n" + "PORT = 8080\n" + "print('Listening for connections from host: ', socket.gethostbyname(\n" + "    socket.gethostname()))  # 172.17.0.2\n" + "\n" + "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" + "    # Setup the port and get it ready for listening for connections\n" + "    s.bind((HOST, PORT))\n" + "    s.listen(1)\n" + "    print('Yaaas queen it worked')\n" + "    print('Waiting for incoming connections...')\n" + "    conn, addr = s.accept()  # Wait for incoming connections\n" + "    print('Connected to: ', addr)\n" + "    dataReceived = False\n" + "    while not dataReceived:\n" + "        dis = DataInputStream(conn)\n" + "        if dis:\n" + "            sdata = dis.read_utf()\n" + "            jdata = json.loads(sdata)\n" + "            print(type(jdata))\n" + "            print('Received data : ', jdata)\n" + "            dataReceived = True\n" + "            #  data = pythonOperation1(data)\n" + "            print('Resulting data : ', jdata)\n" + "            conn.sendall(sdata)  # Return the data\n");
+        StringBuilder entrypointFileData = new StringBuilder(importLine + "import json\n" +
+                "import socket\n" +
+                "\n" +
+                "import pandas\n" +
+                "\n" +
+                "from DataInputStream import DataInputStream\n" +
+                "\n" +
+                "HOST = socket.gethostbyname(socket.gethostname())\n" +
+                "PORT = 8080\n" +
+                "print('Listening for connections from host: ', socket.gethostbyname(\n" +
+                "    socket.gethostname()))  # 172.17.0.2\n" +
+                "\n" +
+                "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
+                "    # Setup the port and get it ready for listening for connections\n" +
+                "    s.bind((HOST, PORT))\n" +
+                "    s.listen(1)\n" +
+                "    print('Yaaas queen it worked')\n" +
+                "    print('Waiting for incoming connections...')\n" +
+                "    conn, addr = s.accept()  # Wait for incoming connections\n" +
+                "    print('Connected to: ', addr)\n" +
+                "    dataReceived = False\n" +
+                "    while not dataReceived:\n" +
+                "        dis = DataInputStream(conn)\n" +
+                "        if dis:\n" +
+                "            sdata = dis.read_utf()\n" +
+                "            jdata = json.loads(sdata)\n" +
+                "            dfdata = pandas.read_json(sdata, orient=\"records\")\n" +
+                "            print(type(dfdata))\n" +
+                "            print('Received data : ', jdata)\n" +
+                "            dataReceived = True\n" +
+                "            #  data = pythonOperation1(data)\n" +
+                "            print('Resulting data : ', dfdata)\n" +
+                "            data = pandas.DataFrame.to_json(dfdata, orient=\"records\")\n" +
+                "            print(data)\n" +
+                "            conn.sendall(sdata)  # Return the data\n");
 
         // Create the Entrypoint file
         System.out.println("Creating a new Entrypoint file...");
@@ -204,7 +238,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
-                    out.writeUTF("{ 'name': 'Joe Bloggs', 'age': 20 }".replaceAll("'", "\""));
+                    out.writeUTF("[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\""));
 
                     // Get the data from the container
                     System.out.println("Fetching data from container...");

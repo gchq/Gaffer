@@ -1,6 +1,8 @@
 import json
 import socket
 
+import pandas
+
 from DataInputStream import DataInputStream
 
 HOST = socket.gethostbyname(socket.gethostname())
@@ -22,9 +24,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         if dis:
             sdata = dis.read_utf()
             jdata = json.loads(sdata)
-            print(type(jdata))
+            dfdata = pandas.read_json(sdata, orient="records")
+            print(type(dfdata))
             print('Received data : ', jdata)
             dataReceived = True
             #  data = pythonOperation1(data)
-            print('Resulting data : ', jdata)
+            print('Resulting data : ', dfdata)
+            data = pandas.DataFrame.to_json(dfdata, orient="records")
+            print(data)
             conn.sendall(sdata)  # Return the data
