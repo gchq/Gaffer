@@ -35,9 +35,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(type(dfdata))
             print('Received data : ', jdata)
             dataReceived = True
-            #data = scriptName.run(data)
             print('Resulting data : ', dfdata)
             data = pandas.DataFrame.to_json(dfdata, orient="records")
+            data = scriptName.run(data)
             print(data)
             conn.send(struct.pack('>H', len(data)))
             conn.sendall(data.encode('utf-8'))  # Return the data

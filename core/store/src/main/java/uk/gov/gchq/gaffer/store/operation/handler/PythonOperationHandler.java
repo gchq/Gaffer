@@ -86,10 +86,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         final String scriptName = operation.getScriptName();
         final String supportScript = "DataInputStream.py";
-        final String scriptFilename = scriptName + ".py";
-        final String entrypointFilename = "entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
-        final String dockerfileName = scriptName + "Dockerfile.yml";
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
 
         // Pull or Clone the repo with the files
@@ -164,7 +161,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"script1\"}";
+            final String buildargs = "{\"scriptName\":\"" + scriptName + "\"}";
             final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
             System.out.println("Building the image from the Dockerfile...");
