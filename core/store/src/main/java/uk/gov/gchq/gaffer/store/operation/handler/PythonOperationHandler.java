@@ -145,7 +145,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"script2\"}";
+            final String buildargs = "{\"scriptName\":\"script1\"}";
             final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
             System.out.println("Building the image from the Dockerfile...");
