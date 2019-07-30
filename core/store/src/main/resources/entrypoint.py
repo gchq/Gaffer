@@ -1,5 +1,12 @@
 import socket
 import json
+import sys
+import importlib
+
+# Dynamically import the script
+scriptNameParam = sys.argv[1]
+scriptName = importlib.import_module(scriptNameParam)
+print('scriptName is ', scriptName);
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 8080
@@ -22,6 +29,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(type(data))
             print('Recieved data : ', data)
             dataReceived = True
-            # data = pythonOperation1(data)
+            #data = scriptName.run(data)
             print('Resulting data : ', data)
             conn.sendall(data)  # Send the data back

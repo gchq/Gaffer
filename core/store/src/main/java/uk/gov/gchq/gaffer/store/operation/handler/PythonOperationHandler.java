@@ -27,26 +27,19 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import javax.imageio.IIOException;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -87,7 +80,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         final String scriptName = "script1";
         final String scriptFilename = scriptName + ".py";
-        final String entrypointFilename = scriptName + "Entrypoint.py";
+        final String entrypointFilename = "entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
         final String dockerfileName = scriptName + "Dockerfile.yml";
 
@@ -105,6 +98,18 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 System.out.println("Cloned the repo.");
             }
         } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+
+        // Copy the entrypoint file into the script directory
+        System.out.println("Copying the entrypoint file into the script directory...");
+        try {
+            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/../" + entrypointFilename);
+            String entrypointFileData = IOUtils.toString(fis, "UTF-8");
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.getBytes());
+            System.out.println("File copied.");
+        } catch (IOException e) {
+            System.out.println("Failed to copy the entrypoint file.");
             e.printStackTrace();
         }
 
@@ -129,15 +134,14 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine);
-
         for (String module : modules) {
             if (module != "") {
                 String installLine = "RUN pip install " + module + "\n";
                 dockerFileData.append(installLine);
             }
         }
-
-        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\"]";
+        dockerFileData.append("RUN pip install sh\n");
+        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
         dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
@@ -147,30 +151,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Dockerfile created.");
         } catch (IOException e) {
             System.out.println("Failed to create a new Dockerfile");
-            e.printStackTrace();
-        }
-
-        // Load the data from the base entrypoint file
-        String entrypointFileData = "from " + scriptName + " import run\n";
-        System.out.println("Attempting to load the base entrypoint file...");
-        try {
-            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/../entrypoint.py");
-            System.out.println("Entrypoint file found. Loading data...");
-            String entrypointBaseFileData = IOUtils.toString(fis, "UTF-8");
-            entrypointFileData = entrypointFileData + entrypointBaseFileData;
-            System.out.println("Loaded module data.");
-        } catch (IOException e) {
-            System.out.println("Unable to load file.");
-            e.printStackTrace();
-        }
-
-        // Create the Entrypoint file
-        System.out.println("Creating a new Entrypoint file...");
-        try {
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.getBytes());
-            System.out.println("Entrypoint file created.");
-        } catch (IOException e) {
-            System.out.println("Failed to create an Entrypoint file.");
             e.printStackTrace();
         }
 
@@ -209,12 +189,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Keep trying to connect to container and give the container some time to load up
             boolean failedToConnect = true;
             IOException error = null;
+            System.out.println("Attempting to send data to container...");
             for (int i = 0; i < 10; i++) {
-                System.out.println("Attempting to send data to container...");
-                Socket clientSocket;
 
                 try {
-                    clientSocket = new Socket("127.0.0.1", 8080);
+                    Socket clientSocket = new Socket("127.0.0.1", 8080);
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
@@ -232,6 +211,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     clientSocket.close();
                     System.out.println("Closed the connection.");
                     break;
+
                 } catch (IOException e) {
                     System.out.println("Failed to fetch data.");
                     error = e;
