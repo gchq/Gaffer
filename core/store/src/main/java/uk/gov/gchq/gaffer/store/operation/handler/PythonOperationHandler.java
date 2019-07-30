@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -83,6 +84,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         final String entrypointFilename = "entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
         final String dockerfileName = scriptName + "Dockerfile.yml";
+        final String dataToSend = "Some data";
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
@@ -114,45 +116,27 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         }
 
         // Load the python modules file
-        String moduleData = "";
-        try {
-            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-            System.out.println("Modules file found. Loading module data...");
-            moduleData = IOUtils.toString(fis, "UTF-8");
-            System.out.println("Loaded module data.");
-        } catch (FileNotFoundException e) {
-            System.out.println("No modules file found. Continuing without.");
-        } catch (IOException e) {
-            System.out.println("Unable to load modules file.");
-            e.printStackTrace();
-        }
-        String[] modules = moduleData.split("\\n");
-        System.out.println(modules);
-
-        // Create Dockerfile data
-        StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
-        String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
-        String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-        dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine);
-        for (String module : modules) {
-            if (module != "") {
-                String installLine = "RUN pip install " + module + "\n";
-                dockerFileData.append(installLine);
-            }
-        }
-        dockerFileData.append("RUN pip install sh\n");
-        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
-        dockerFileData.append(entrypointLine);
-
-        // Create a new Dockerfile from the modules file
-        System.out.println("Creating a new Dockerfile...");
-        try {
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
-            System.out.println("Dockerfile created.");
-        } catch (IOException e) {
-            System.out.println("Failed to create a new Dockerfile");
-            e.printStackTrace();
-        }
+//        String moduleData = "";
+//        try {
+//            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
+//            System.out.println("Modules file found. Loading module data...");
+//            moduleData = IOUtils.toString(fis, "UTF-8");
+//            System.out.println("Loaded module data.");
+//        } catch (FileNotFoundException e) {
+//            System.out.println("No modules file found. Continuing without.");
+//        } catch (IOException e) {
+//            System.out.println("Unable to load modules file.");
+//            e.printStackTrace();
+//        }
+//        String[] modules = moduleData.split("\\n");
+//        System.out.println(modules);
+//
+//        for (String module : modules) {
+//            if (module != "") {
+//                String installLine = "RUN pip install " + module + "\n";
+//                dockerFileData.append(installLine);
+//            }
+//        }
 
         try {
 
@@ -161,15 +145,18 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
+            final String buildargs = "{\"scriptName\":\"script2\"}";
+            final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
+
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo),"myimage:latest", dockerfileName, message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"myimage:latest", "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
                 }
                 System.out.println(message);
-            }, DockerClient.BuildParam.pullNewerImage());
+            }, buildParam);
 
             // Create a container from the image and bind ports
             final ContainerConfig containerConfig = ContainerConfig.builder()
@@ -200,13 +187,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
-                    out.writeUTF("Hello from client at " + clientSocket.getLocalSocketAddress());
+                    out.writeUTF(dataToSend);
 
                     // Get the data from the container
                     System.out.println("Fetching data from container...");
                     InputStream inFromContainer = clientSocket.getInputStream();
                     DataInputStream in = new DataInputStream(inFromContainer);
-                    System.out.println("Container says " + in.readUTF());
+                    System.out.println("Data from container: " + in.readUTF());
                     failedToConnect = false;
                     clientSocket.close();
                     System.out.println("Closed the connection.");
