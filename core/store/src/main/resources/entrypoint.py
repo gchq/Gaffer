@@ -2,8 +2,15 @@ import json
 import socket
 import pandas
 import struct
+import sys
+import importlib
 
 from DataInputStream import DataInputStream
+
+# Dynamically import the script
+scriptNameParam = sys.argv[1]
+scriptName = importlib.import_module(scriptNameParam)
+print('scriptName is ', scriptName);
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 8080
@@ -28,7 +35,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(type(dfdata))
             print('Received data : ', jdata)
             dataReceived = True
-            #  data = pythonOperation1(data)
             print('Resulting data : ', dfdata)
             data = pandas.DataFrame.to_json(dfdata, orient="records")
             print(data)

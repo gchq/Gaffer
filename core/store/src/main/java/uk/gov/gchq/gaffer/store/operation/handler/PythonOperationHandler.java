@@ -86,7 +86,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         final String scriptName = "script1";
         final String supportScript = "DataInputStream.py";
         final String scriptFilename = scriptName + ".py";
-        final String entrypointFilename = scriptName + "Entrypoint.py";
+        final String entrypointFilename = "entrypoint.py";
         final String modulesFilename = scriptName + "Modules.txt";
         final String dockerfileName = scriptName + "Dockerfile.yml";
 
@@ -111,18 +111,34 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         try {
             Files.copy(new File(pathAbsolute + "/" + supportScript).toPath(), new File(pathAbsolutePythonRepo + "/" + supportScript).toPath());
         } catch (IOException ignored) {
-
+        }
+        // Copy the entrypoint file into the script directory
+        System.out.println("Copying the entrypoint file into the script directory...");
+        try {
+            FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/../" + entrypointFilename);
+            String entrypointFileData = IOUtils.toString(fis, "UTF-8");
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.getBytes());
+            System.out.println("File copied.");
+        } catch (IOException e) {
+            System.out.println("Failed to copy the entrypoint file.");
+            e.printStackTrace();
         }
 
         // Load the python modules file
         String moduleData = "";
         try {
             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-            moduleData = IOUtils.toString(fis, StandardCharsets.UTF_8);
+            System.out.println("Modules file found. Loading module data...");
+            moduleData = IOUtils.toString(fis, "UTF-8");
+            System.out.println("Loaded module data.");
+        } catch (FileNotFoundException e) {
+            System.out.println("No modules file found. Continuing without.");
         } catch (IOException e) {
+            System.out.println("Unable to load modules file.");
             e.printStackTrace();
         }
         String[] modules = moduleData.split("\\n");
+        System.out.println(modules);
 
         // Create Dockerfile data
         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
@@ -130,13 +146,14 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
         String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
-
         for (String module : modules) {
-            String installLine = "RUN pip install " + module + "\n";
-            dockerFileData.append(installLine);
+            if (module != "") {
+                String installLine = "RUN pip install " + module + "\n";
+                dockerFileData.append(installLine);
+            }
         }
-
-        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\"]";
+        dockerFileData.append("RUN pip install sh\n");
+        String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
         dockerFileData.append(entrypointLine);
 
         // Create a new Dockerfile from the modules file
@@ -146,55 +163,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Dockerfile created.");
         } catch (IOException e) {
             System.out.println("Failed to create a new Dockerfile");
-            e.printStackTrace();
-        }
-
-        // Create entrypoint file data
-        String importLine = "from script1 import run\n";
-        StringBuilder entrypointFileData = new StringBuilder(importLine + "import json\n" +
-                "import socket\n" +
-                "import pandas\n" +
-                "import struct\n" +
-                "\n" +
-                "from DataInputStream import DataInputStream\n" +
-                "\n" +
-                "HOST = socket.gethostbyname(socket.gethostname())\n" +
-                "PORT = 8080\n" +
-                "print('Listening for connections from host: ', socket.gethostbyname(\n" +
-                "    socket.gethostname()))  # 172.17.0.2\n" +
-                "\n" +
-                "with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n" +
-                "    # Setup the port and get it ready for listening for connections\n" +
-                "    s.bind((HOST, PORT))\n" +
-                "    s.listen(1)\n" +
-                "    print('Yaaas queen it worked')\n" +
-                "    print('Waiting for incoming connections...')\n" +
-                "    conn, addr = s.accept()  # Wait for incoming connections\n" +
-                "    print('Connected to: ', addr)\n" +
-                "    dataReceived = False\n" +
-                "    while not dataReceived:\n" +
-                "        dis = DataInputStream(conn)\n" +
-                "        if dis:\n" +
-                "            sdata = dis.read_utf()\n" +
-                "            jdata = json.loads(sdata)\n" +
-                "            dfdata = pandas.read_json(sdata, orient=\"records\")\n" +
-                "            print(type(dfdata))\n" +
-                "            print('Received data : ', jdata)\n" +
-                "            dataReceived = True\n" +
-                "            #  data = pythonOperation1(data)\n" +
-                "            print('Resulting data : ', dfdata)\n" +
-                "            data = pandas.DataFrame.to_json(dfdata, orient=\"records\")\n" +
-                "            print(data)\n" +
-                "            conn.send(struct.pack('>H', len(data)))\n" +
-                "            conn.sendall(data.encode('utf-8'))  # Return the data\n");
-
-        // Create the Entrypoint file
-        System.out.println("Creating a new Entrypoint file...");
-        try {
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + entrypointFilename), entrypointFileData.toString().getBytes());
-            System.out.println("Entrypoint file created.");
-        } catch (IOException e) {
-            System.out.println("Failed to create an Entrypoint file.");
             e.printStackTrace();
         }
 
@@ -227,12 +195,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Keep trying to connect to container and give the container some time to load up
             boolean failedToConnect = true;
             IOException error = null;
+            System.out.println("Attempting to send data to container...");
             for (int i = 0; i < 10; i++) {
-                System.out.println("Attempting to send data to container...");
-                Socket clientSocket;
 
                 try {
-                    clientSocket = new Socket("127.0.0.1", 8080);
+                    Socket clientSocket = new Socket("127.0.0.1", 8080);
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
@@ -250,6 +217,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     clientSocket.close();
                     System.out.println("Closed the connection.");
                     break;
+
                 } catch (IOException e) {
                     System.out.println("Failed to fetch data.");
                     error = e;
