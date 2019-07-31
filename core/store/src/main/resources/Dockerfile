@@ -6,8 +6,7 @@ RUN pip install numpy
 RUN pip install scipy
 RUN pip install sh
 ARG modulesName
-COPY test/$modulesName.txt /
-RUN pip install -r $modulesName.txt
+RUN if [ $modulesName = ""]; then COPY test/$modulesName.txt; else echo $modulesName; fi;
 ARG scriptName
 ENV envVarScriptName $scriptName
 COPY test/$scriptName.py /
