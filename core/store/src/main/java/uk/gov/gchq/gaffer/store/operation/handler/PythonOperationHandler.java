@@ -24,7 +24,6 @@ import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -37,15 +36,12 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -84,8 +80,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
-        final String supportScript = "DataInputStream.py";
-        final String modulesFilename = scriptName + "Modules.txt";
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
 
         // Pull or Clone the repo with the files
@@ -104,7 +98,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         } catch (GitAPIException e) {
             e.printStackTrace();
         }
-
 
 //         String moduleData = "";
 //         try {
@@ -175,15 +168,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Start the container
             System.out.println("Starting the Docker container...");
             docker.startContainer(id);
-
             // Keep trying to connect to container and give the container some time to load up
             boolean failedToConnect = true;
             IOException error = null;
+            Socket clientSocket = null;
+            DataInputStream in = null;
             System.out.println("Attempting to send data to container...");
             for (int i = 0; i < 10; i++) {
-
                 try {
-                    Socket clientSocket = new Socket("127.0.0.1", 8080);
+                    clientSocket = new Socket("127.0.0.1", 8080);
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
@@ -191,21 +184,33 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
                     out.writeUTF(dataToSend);
-
+                    System.out.println("Waiting for response from Container...");
                     // Get the data from the container
-                    System.out.println("Fetching data from container...");
                     InputStream inFromContainer = clientSocket.getInputStream();
-                    DataInputStream in = new DataInputStream(inFromContainer);
-                    System.out.println("Data from container: " + in.readUTF());
-                    failedToConnect = false;
-                    clientSocket.close();
-                    System.out.println("Closed the connection.");
+                    in = new DataInputStream(inFromContainer);
+                    System.out.println("Container ready status: " + in.readBoolean());
                     break;
-
                 } catch (IOException e) {
-                    System.out.println("Failed to fetch data.");
+                    System.out.println("Failed to send data.");
                     error = e;
                     TimeUnit.MILLISECONDS.sleep(50);
+                }
+            }
+            if (clientSocket != null && in != null) {
+                int timeout = 0;
+                while (timeout < 100) {
+                    try {
+                        // Get the data from the container
+                        System.out.println("Data from container: " + in.readUTF());
+                        failedToConnect = false;
+                        clientSocket.close();
+                        System.out.println("Closed the connection.");
+                        break;
+                    } catch (IOException e) {
+                        timeout += 1;
+                        error = e;
+                        TimeUnit.MILLISECONDS.sleep(50);
+                    }
                 }
             }
 
