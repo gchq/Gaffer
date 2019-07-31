@@ -99,6 +99,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
+        // Load the modules
 //         String moduleData = "";
 //         try {
 //             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
@@ -147,7 +148,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"" + scriptName + "\"}";
+            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
+            System.out.println(buildargs);
             final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
             System.out.println("Building the image from the Dockerfile...");
