@@ -56,7 +56,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private Git git;
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
-    private final String pathAbsolute = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     // Clone the git repo
@@ -104,12 +103,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
         } catch (GitAPIException e) {
             e.printStackTrace();
-        }
-
-        // Copy over DataInputStream.py
-        try {
-            Files.copy(new File(pathAbsolute + "/" + supportScript).toPath(), new File(pathAbsolutePythonRepo + "/" + supportScript).toPath());
-        } catch (IOException ignored) {
         }
 
 
@@ -166,7 +159,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"myimage:latest", "Dockerfile", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"pythonoperation:" + scriptName, "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
