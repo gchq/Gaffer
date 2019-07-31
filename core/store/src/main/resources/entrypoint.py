@@ -1,4 +1,3 @@
-import json
 import socket
 import pandas
 import struct
@@ -21,7 +20,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Setup the port and get it ready for listening for connections
     s.bind((HOST, PORT))
     s.listen(1)
-    print('Yaaas queen it worked')
     print('Waiting for incoming connections...')
     conn, addr = s.accept()  # Wait for incoming connections
     conn.sendall(struct.pack('?', True))
@@ -30,15 +28,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     while not dataReceived:
         dis = DataInputStream(conn)
         if dis:
-            sdata = dis.read_utf()
-            jdata = json.loads(sdata)
-            dfdata = pandas.read_json(sdata, orient="records")
-            print(type(dfdata))
-            print('Received data : ', jdata)
             dataReceived = True
-            print('Resulting data : ', dfdata)
-            data = pandas.DataFrame.to_json(dfdata, orient="records")
+            tableData = pandas.read_json(dis.read_utf(), orient="records")
+            print('Tabled Data : ', tableData)
+            data = pandas.DataFrame.to_json(tableData, orient="records")
             data = scriptName.run(data)
-            print(data)
+            print('Result Data : ', data)
             conn.send(struct.pack('>H', len(data)))
             conn.sendall(data.encode('utf-8'))  # Return the data
