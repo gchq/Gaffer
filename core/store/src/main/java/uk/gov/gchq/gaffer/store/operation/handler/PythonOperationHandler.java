@@ -60,15 +60,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         if (git == null) {
             try {
                 git = Git.open(new File(pathAbsolutePythonRepo));
-            } catch (RepositoryNotFoundException e) {
+            } catch (final RepositoryNotFoundException e) {
                 try {
                     git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
                     System.out.println("Cloned the repo.");
-                } catch (GitAPIException e1) {
+                } catch (final GitAPIException e1) {
                     e1.printStackTrace();
                     git = null;
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 git = null;
             }
@@ -95,7 +95,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
                 System.out.println("Cloned the repo.");
             }
-        } catch (GitAPIException e) {
+        } catch (final GitAPIException e) {
             e.printStackTrace();
         }
 
@@ -152,7 +152,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             System.out.println("Building the image from the Dockerfile...");
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"),"pythonoperation:" + scriptName, "Dockerfile", message -> {
+            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
@@ -190,7 +190,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     in = new DataInputStream(inFromContainer);
                     System.out.println("Container ready status: " + in.readBoolean());
                     break;
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     System.out.println("Failed to send data.");
                     error = e;
                     TimeUnit.MILLISECONDS.sleep(50);
@@ -206,7 +206,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                         clientSocket.close();
                         System.out.println("Closed the connection.");
                         break;
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         timeout += 1;
                         error = e;
                         TimeUnit.MILLISECONDS.sleep(50);
@@ -229,21 +229,9 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             docker.close();
             System.out.println("Closed the docker client.");
 
-        } catch (DockerCertificateException | InterruptedException | DockerException | IOException e) {
+        } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

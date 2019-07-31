@@ -63,7 +63,7 @@ public class PythonOperation<I_ITEM, O> implements
         this.options = options;
     }
 
-    public void setScriptName(String scriptName) {
+    private void setScriptName(final String scriptName) {
         this.scriptName = scriptName;
     }
 
