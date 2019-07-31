@@ -24,7 +24,6 @@ import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -37,15 +36,12 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +52,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private Git git;
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
-    private final String pathAbsolute = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     // Clone the git repo
@@ -85,8 +80,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
-        final String supportScript = "DataInputStream.py";
-        final String modulesFilename = scriptName + "Modules.txt";
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
 
         // Pull or Clone the repo with the files
@@ -105,54 +98,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         } catch (GitAPIException e) {
             e.printStackTrace();
         }
-
-        // Copy over DataInputStream.py
-        try {
-            Files.copy(new File(pathAbsolute + "/" + supportScript).toPath(), new File(pathAbsolutePythonRepo + "/" + supportScript).toPath());
-        } catch (IOException ignored) {
-        }
-
-
-//         String moduleData = "";
-//         try {
-//             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-//             System.out.println("Modules file found. Loading module data...");
-//             moduleData = IOUtils.toString(fis, "UTF-8");
-//             System.out.println("Loaded module data.");
-//         } catch (FileNotFoundException e) {
-//             System.out.println("No modules file found. Continuing without.");
-//         } catch (IOException e) {
-//             System.out.println("Unable to load modules file.");
-//             e.printStackTrace();
-//         }
-//         String[] modules = moduleData.split("\\n");
-//         System.out.println(modules);
-
-//         // Create Dockerfile data
-//         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
-//         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
-//         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-//         String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
-//         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
-//         for (String module : modules) {
-//             if (module != "") {
-//                 String installLine = "RUN pip install " + module + "\n";
-//                 dockerFileData.append(installLine);
-//             }
-//         }
-//         dockerFileData.append("RUN pip install sh\n");
-//         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
-//         dockerFileData.append(entrypointLine);
-
-//         // Create a new Dockerfile from the modules file
-//         System.out.println("Creating a new Dockerfile...");
-//         try {
-//             Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
-//             System.out.println("Dockerfile created.");
-//         } catch (IOException e) {
-//             System.out.println("Failed to create a new Dockerfile");
-//             e.printStackTrace();
-//         }
 
         try {
 
@@ -182,15 +127,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // Start the container
             System.out.println("Starting the Docker container...");
             docker.startContainer(id);
-
             // Keep trying to connect to container and give the container some time to load up
             boolean failedToConnect = true;
             IOException error = null;
+            Socket clientSocket = null;
+            DataInputStream in = null;
             System.out.println("Attempting to send data to container...");
             for (int i = 0; i < 10; i++) {
-
                 try {
-                    Socket clientSocket = new Socket("127.0.0.1", 8080);
+                    clientSocket = new Socket("127.0.0.1", 8080);
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
@@ -198,21 +143,33 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
                     out.writeUTF(dataToSend);
-
+                    System.out.println("Waiting for response from Container...");
                     // Get the data from the container
-                    System.out.println("Fetching data from container...");
                     InputStream inFromContainer = clientSocket.getInputStream();
-                    DataInputStream in = new DataInputStream(inFromContainer);
-                    System.out.println("Data from container: " + in.readUTF());
-                    failedToConnect = false;
-                    clientSocket.close();
-                    System.out.println("Closed the connection.");
+                    in = new DataInputStream(inFromContainer);
+                    System.out.println("Container ready status: " + in.readBoolean());
                     break;
-
                 } catch (IOException e) {
-                    System.out.println("Failed to fetch data.");
+                    System.out.println("Failed to send data.");
                     error = e;
                     TimeUnit.MILLISECONDS.sleep(50);
+                }
+            }
+            if (clientSocket != null && in != null) {
+                int timeout = 0;
+                while (timeout < 100) {
+                    try {
+                        // Get the data from the container
+                        System.out.println("Data from container: " + in.readUTF());
+                        failedToConnect = false;
+                        clientSocket.close();
+                        System.out.println("Closed the connection.");
+                        break;
+                    } catch (IOException e) {
+                        timeout += 1;
+                        error = e;
+                        TimeUnit.MILLISECONDS.sleep(50);
+                    }
                 }
             }
 

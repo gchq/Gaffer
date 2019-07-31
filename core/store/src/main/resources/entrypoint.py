@@ -24,6 +24,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print('Yaaas queen it worked')
     print('Waiting for incoming connections...')
     conn, addr = s.accept()  # Wait for incoming connections
+    conn.sendall(struct.pack('?', True))
     print('Connected to: ', addr)
     dataReceived = False
     while not dataReceived:
