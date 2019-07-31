@@ -30,7 +30,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         if dis:
             dataReceived = True
             tableData = pandas.read_json(dis.read_utf(), orient="records")
-            print('Tabled Data : ', tableData)
+            print('Tabled Data : \n', tableData)
             data = pandas.DataFrame.to_json(tableData, orient="records")
             data = scriptName.run(data)
             print('Result Data : ', data)
