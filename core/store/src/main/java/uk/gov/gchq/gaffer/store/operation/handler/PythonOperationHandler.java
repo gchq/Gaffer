@@ -44,6 +44,7 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -80,7 +81,9 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
+        final List parameters = operation.getParameters();
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
+        System.out.println("Handler: " + parameters);
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");

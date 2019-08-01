@@ -50,6 +50,8 @@ import uk.gov.gchq.koryphe.impl.predicate.range.InDateRangeDual;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class runs simple java queries against the road traffic graph.
@@ -74,6 +76,10 @@ public class Queries {
     private void runPython(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script1";
+        final List<Object> parameters = new ArrayList();
+        parameters.add("Jeff");
+        parameters.add(true);
+        System.out.println("Queries: " + parameters);
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -81,6 +87,7 @@ public class Queries {
         final PythonOperation<Element, Void> pythonOperation =
                 new PythonOperation.Builder<Element, Void>()
                         .name(scriptName)
+                        .parameters(parameters)
                         .build();
 
         OperationChain<Void> opChain =
