@@ -22,6 +22,8 @@ import org.apache.hadoop.mapred.JobConf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -54,6 +56,8 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsLoaderIT.class);
+
     private static final String FS_URI = "fs.uri";
     private FileSystem fs;
 
@@ -74,6 +78,8 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path(testFolder.getRoot().getAbsolutePath())).toString();
+
+        LOGGER.info("using root dir: " + root);
 
         inputDir1 = root + "/inputDir1";
         inputDir2 = root + "/inputDir2";
