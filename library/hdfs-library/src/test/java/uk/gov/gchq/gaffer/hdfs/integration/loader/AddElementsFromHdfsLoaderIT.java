@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.hdfs.integration.loader;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -58,7 +58,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsLoaderIT.class);
 
-    private static final String FS_URI = "fs.uri";
+    private static final String FS_DEFAULT_NAME = "fs.default.name";
     private FileSystem fs;
 
     private String inputDir1;
@@ -215,16 +215,13 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         fsProperties.load(StreamUtil.openStream(this.getClass(), "filesystem.properties"));
         final URI fsURI;
         try {
-            fsURI = new URI(fsProperties.getProperty(FS_URI));
+            fsURI = new URI(fsProperties.getProperty(FS_DEFAULT_NAME));
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URI: " + fsProperties.getProperty(FS_URI), e);
+            throw new RuntimeException("Invalid URI: " + fsProperties.getProperty(FS_DEFAULT_NAME), e);
         }
 
-        return FileSystem.get(fsURI, createJobConf());
-    }
-
-    private JobConf createJobConf() {
-        // Set up Job Configuration
-        return new JobConf();
+        final Configuration config = new Configuration();
+        config.set(FS_DEFAULT_NAME, fsURI.toString());
+        return FileSystem.get(fsURI, config);
     }
 }
