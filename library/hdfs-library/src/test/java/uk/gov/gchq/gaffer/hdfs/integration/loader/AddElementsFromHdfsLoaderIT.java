@@ -77,7 +77,9 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     public void _setup() throws Exception {
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path(testFolder.getRoot().getAbsolutePath())).toString();
+        final String root = fs.resolvePath(new Path("/")).toString()
+                .replaceFirst("/$", "")
+                + testFolder.getRoot().getAbsolutePath();
 
         LOGGER.info("using root dir: " + root);
 
