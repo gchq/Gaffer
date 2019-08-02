@@ -28,6 +28,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.store.Context;
@@ -82,6 +83,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         final String scriptName = operation.getScriptName();
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
 
+
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
         File dir = new File(pathAbsolutePythonRepo);
@@ -99,46 +101,46 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
-//         String moduleData = "";
-//         try {
-//             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-//             System.out.println("Modules file found. Loading module data...");
-//             moduleData = IOUtils.toString(fis, "UTF-8");
-//             System.out.println("Loaded module data.");
-//         } catch (FileNotFoundException e) {
-//             System.out.println("No modules file found. Continuing without.");
-//         } catch (IOException e) {
-//             System.out.println("Unable to load modules file.");
-//             e.printStackTrace();
-//         }
-//         String[] modules = moduleData.split("\\n");
-//         System.out.println(modules);
+        //         String moduleData = "";
+        //         try {
+        //             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
+        //             System.out.println("Modules file found. Loading module data...");
+        //             moduleData = IOUtils.toString(fis, "UTF-8");
+        //             System.out.println("Loaded module data.");
+        //         } catch (FileNotFoundException e) {
+        //             System.out.println("No modules file found. Continuing without.");
+        //         } catch (IOException e) {
+        //             System.out.println("Unable to load modules file.");
+        //             e.printStackTrace();
+        //         }
+        //         String[] modules = moduleData.split("\\n");
+        //         System.out.println(modules);
 
-//         // Create Dockerfile data
-//         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
-//         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
-//         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-//         String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
-//         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
-//         for (String module : modules) {
-//             if (module != "") {
-//                 String installLine = "RUN pip install " + module + "\n";
-//                 dockerFileData.append(installLine);
-//             }
-//         }
-//         dockerFileData.append("RUN pip install sh\n");
-//         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
-//         dockerFileData.append(entrypointLine);
+        //         // Create Dockerfile data
+        //         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
+        //         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
+        //         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
+        //         String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
+        //         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
+        //         for (String module : modules) {
+        //             if (module != "") {
+        //                 String installLine = "RUN pip install " + module + "\n";
+        //                 dockerFileData.append(installLine);
+        //             }
+        //         }
+        //         dockerFileData.append("RUN pip install sh\n");
+        //         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
+        //         dockerFileData.append(entrypointLine);
 
-//         // Create a new Dockerfile from the modules file
-//         System.out.println("Creating a new Dockerfile...");
-//         try {
-//             Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
-//             System.out.println("Dockerfile created.");
-//         } catch (IOException e) {
-//             System.out.println("Failed to create a new Dockerfile");
-//             e.printStackTrace();
-//         }
+        //         // Create a new Dockerfile from the modules file
+        //         System.out.println("Creating a new Dockerfile...");
+        //         try {
+        //             Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
+        //             System.out.println("Dockerfile created.");
+        //         } catch (IOException e) {
+        //             System.out.println("Failed to create a new Dockerfile");
+        //             e.printStackTrace();
+        //         }
 
         try {
 
@@ -183,7 +185,22 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
-                    out.writeUTF(dataToSend);
+                    boolean firstObject = true;
+                    for (Object current : operation.getInput()) {
+                        out.writeBoolean(false);
+                        if (firstObject) {
+                            out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
+                            firstObject = false;
+                        }
+                        else {
+                            out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
+                        }
+                    }
+                    out.writeBoolean(false);
+                    out.writeUTF("]");
+                    out.writeBoolean(true);
+                    out.flush();
+                    //out.writeUTF(dataToSend);
                     System.out.println("Waiting for response from Container...");
                     // Get the data from the container
                     InputStream inFromContainer = clientSocket.getInputStream();
@@ -193,7 +210,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 } catch (final IOException e) {
                     System.out.println("Failed to send data.");
                     error = e;
-                    TimeUnit.MILLISECONDS.sleep(50);
+                    TimeUnit.MILLISECONDS.sleep(100);
                 }
             }
             if (clientSocket != null && in != null) {
@@ -209,7 +226,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     } catch (final IOException e) {
                         timeout += 1;
                         error = e;
-                        TimeUnit.MILLISECONDS.sleep(50);
+                        TimeUnit.MILLISECONDS.sleep(200);
                     }
                 }
             }

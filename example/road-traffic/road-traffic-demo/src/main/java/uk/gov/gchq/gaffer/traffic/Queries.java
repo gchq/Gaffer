@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -86,6 +87,7 @@ public class Queries {
         OperationChain<Void> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
+                        .then(new Limit.Builder<Element>().resultLimit(5).build())
                         .then(pythonOperation)
                         .build();
 

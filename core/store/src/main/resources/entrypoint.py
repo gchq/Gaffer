@@ -1,8 +1,9 @@
-import socket
-import pandas
-import struct
-import sys
 import importlib
+import socket
+import struct
+import re
+import pandas
+import sys
 
 from DataInputStream import DataInputStream
 
@@ -29,10 +30,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         dis = DataInputStream(conn)
         if dis:
             dataReceived = True
-            tableData = pandas.read_json(dis.read_utf(), orient="records")
+            rawData = None
+            while not dis.read_boolean():
+                if rawData is None:
+                    rawData = dis.read_utf()
+                else:
+                    rawData += dis.read_utf()
+            tableData = pandas.read_json(rawData, orient="records")
             print('Tabled Data : \n', tableData)
             data = pandas.DataFrame.to_json(tableData, orient="records")
-            data = scriptName.run(data)
-            print('Result Data : ', data)
-            conn.send(struct.pack('>H', len(data)))
-            conn.sendall(data.encode('utf-8'))  # Return the data
+            data = scriptName.run(data, None)
+            # print('Result Data : ', data)
+            i = 0
+            if len(data) > 65000:
+                splitData = re.findall(('.'*65000), data)
+
+                while i < len(data)/65000:
+                    conn.sendall(struct.pack('>H', 65000))
+                    conn.sendall(splitData[i].encode('utf-8'))
+                    i += 1
+            conn.sendall(struct.pack('>H', len(data) % 65000))
+            conn.sendall(data[65000*i:].encode('utf-8'))
