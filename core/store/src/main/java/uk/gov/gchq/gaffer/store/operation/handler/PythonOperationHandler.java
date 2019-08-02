@@ -20,6 +20,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.exceptions.DockerRequestException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
@@ -44,8 +45,12 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
@@ -120,14 +125,34 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 System.out.println(message);
             }, buildParam);
 
-            // Create a container from the image and bind ports
-            final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("8080/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", "8080")))).build()).image(returnedImageId).exposedPorts("8080/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
-            final ContainerCreation creation = docker.createContainer(containerConfig);
-            final String id = creation.id();
+            // Keep trying to start a container and find a free port.
+            String port = null;
+            Boolean portAvailable = false;
+            String containerId = null;
+            for (int i = 0; i < 100; i++) {
+                try {
+                    port = getPort();
 
-            // Start the container
-            System.out.println("Starting the Docker container...");
-            docker.startContainer(id);
+                    // Create a container from the image and bind ports
+                    final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
+                    final ContainerCreation creation = docker.createContainer(containerConfig);
+                    containerId = creation.id();
+
+                    // Start the container
+                    System.out.println("Starting the Docker container...");
+                    docker.startContainer(containerId);
+
+                    portAvailable = true;
+                    break;
+                } catch (DockerRequestException e) {
+                }
+            }
+            System.out.println("Port number is: "+ port);
+
+            if (!portAvailable) {
+                System.out.println("Failed to find an available port");
+            }
+
             // Keep trying to connect to container and give the container some time to load up
             boolean failedToConnect = true;
             IOException error = null;
@@ -136,7 +161,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Attempting to send data to container...");
             for (int i = 0; i < 10; i++) {
                 try {
-                    clientSocket = new Socket("127.0.0.1", 8080);
+                    clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
 
                     // Send the data
@@ -156,6 +181,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     TimeUnit.MILLISECONDS.sleep(50);
                 }
             }
+            System.out.println("In is: " + in);
+            System.out.println("clientSocket is: " + clientSocket);
             if (clientSocket != null && in != null) {
                 int timeout = 0;
                 while (timeout < 100) {
@@ -177,12 +204,12 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (failedToConnect) {
                 System.out.println("Connection failed, stopping the container...");
                 error.printStackTrace();
-                docker.stopContainer(id, 1); // Kill the container after 1 second
+                docker.stopContainer(containerId, 1); // Kill the container after 1 second
             }
 
             // Delete the container
             //            System.out.println("Deleting the container...");
-            //            docker.removeContainer(id);
+            //            docker.removeContainer(containerId);
 
             // Close the docker client
             System.out.println("Closing the docker client...");
@@ -193,5 +220,12 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String getPort() {
+        List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
+        Random rand = new Random();
+        Integer portNum = portsList.get(rand.nextInt(portsList.size()));
+        return String.valueOf(portNum);
     }
 }

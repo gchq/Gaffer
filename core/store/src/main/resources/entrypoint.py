@@ -11,8 +11,10 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 
+parameters = "Test parameter"
+
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 8080
+PORT = 80
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
@@ -32,7 +34,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             tableData = pandas.read_json(dis.read_utf(), orient="records")
             print('Tabled Data : \n', tableData)
             data = pandas.DataFrame.to_json(tableData, orient="records")
-            data = scriptName.run(data)
+            data = scriptName.run(data, parameters)
             print('Result Data : ', data)
             conn.send(struct.pack('>H', len(data)))
             conn.sendall(data.encode('utf-8'))  # Return the data
