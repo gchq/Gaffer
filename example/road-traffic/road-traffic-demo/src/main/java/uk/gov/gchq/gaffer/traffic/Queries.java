@@ -52,6 +52,7 @@ import uk.gov.gchq.koryphe.predicate.PredicateMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * This class runs simple java queries against the road traffic graph.
@@ -75,10 +76,15 @@ public class Queries {
 
     private void runPython(final Graph graph, final User user) throws OperationException {
 
-        final String scriptName = "script1";
+        Scanner input = new Scanner(System.in);
+
+        System.out.print("Enter script name: ");
+        final String scriptName = input.next();
         final List<Object> parameters = new ArrayList();
-        parameters.add("Jeff");
-        parameters.add(true);
+
+        System.out.print("Enter list of parameters (values separated by commas, with no spaces): ");
+        final String params = input.next();
+        parameters.add(params);
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
