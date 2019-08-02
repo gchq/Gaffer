@@ -44,6 +44,7 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -80,6 +81,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
+        final List parameters = operation.getParameters();
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
 
         // Pull or Clone the repo with the files
@@ -106,7 +108,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
+            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
             System.out.println(buildargs);
             final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
