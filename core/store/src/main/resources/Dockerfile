@@ -8,6 +8,6 @@ RUN pip install sh
 ARG scriptName
 ENV envVarScriptName $scriptName
 ARG parameters
-ENV envVarScriptName $parameters
+ENV parameters ${parameters}
 ADD test/$scriptName.py /
-ENTRYPOINT "python" "entrypoint.py" $envVarScriptName
+ENTRYPOINT "python" "entrypoint.py" $envVarScriptName $parameters
