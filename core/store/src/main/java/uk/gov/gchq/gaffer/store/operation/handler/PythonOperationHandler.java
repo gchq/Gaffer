@@ -87,8 +87,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         final String scriptName = operation.getScriptName();
         final List parameters = operation.getParameters();
-        final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
-
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
@@ -130,7 +128,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Keep trying to start a container and find a free port.
             String port = null;
-            Boolean portAvailable = false;
+            boolean portAvailable = false;
             String containerId = null;
             for (int i = 0; i < 100; i++) {
                 try {
@@ -147,7 +145,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
                     portAvailable = true;
                     break;
-                } catch (DockerRequestException e) {
+                } catch (DockerRequestException ignored) {
                 }
             }
             System.out.println("Port number is: "+ port);
