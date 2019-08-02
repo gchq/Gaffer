@@ -6,10 +6,15 @@ import importlib
 
 from DataInputStream import DataInputStream
 
+print(sys.argv)
+
 # Dynamically import the script
 scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
+
+parameters = sys.argv[2]
+print('parameters is ', parameters)
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 8080
