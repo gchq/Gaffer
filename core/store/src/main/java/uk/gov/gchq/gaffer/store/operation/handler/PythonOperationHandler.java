@@ -83,7 +83,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         final String scriptName = operation.getScriptName();
         final List parameters = operation.getParameters();
         final String dataToSend = "[{ 'name': 'Joe Bloggs', 'age': 20 }]".replaceAll("'", "\"");
-        System.out.println("Handler: " + parameters);
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");

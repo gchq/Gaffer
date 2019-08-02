@@ -79,7 +79,6 @@ public class Queries {
         final List<Object> parameters = new ArrayList();
         parameters.add("Jeff");
         parameters.add(true);
-        System.out.println("Queries: " + parameters);
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
