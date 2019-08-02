@@ -13,7 +13,7 @@ scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 8080
+PORT = 80
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
