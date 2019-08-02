@@ -11,7 +11,8 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 
-parameters = "Test parameter"
+parameters = sys.argv[2]
+print('parameters is ', parameters)
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
