@@ -31,3 +31,4 @@ __pycache__
 parquet_data/
 */graphLibrary/
 graphLibrary/
+core/store/src/main/resources/test
