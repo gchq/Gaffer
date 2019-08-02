@@ -101,47 +101,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
 
-//         String moduleData = "";
-//         try {
-//             FileInputStream fis = new FileInputStream(pathAbsolutePythonRepo + "/" + modulesFilename);
-//             System.out.println("Modules file found. Loading module data...");
-//             moduleData = IOUtils.toString(fis, "UTF-8");
-//             System.out.println("Loaded module data.");
-//         } catch (FileNotFoundException e) {
-//             System.out.println("No modules file found. Continuing without.");
-//         } catch (IOException e) {
-//             System.out.println("Unable to load modules file.");
-//             e.printStackTrace();
-//         }
-//         String[] modules = moduleData.split("\\n");
-//         System.out.println(modules);
-
-//         // Create Dockerfile data
-//         StringBuilder dockerFileData = new StringBuilder("FROM python:3\n");
-//         String addEntrypointFileLine = "ADD " + entrypointFilename + " /\n";
-//         String addScriptFileLine = "ADD " + scriptFilename + " /\n";
-//         String addSupportScriptFileLine = "ADD " + supportScript + " /\n";
-//         dockerFileData.append(addEntrypointFileLine).append(addScriptFileLine).append(addSupportScriptFileLine);
-//         for (String module : modules) {
-//             if (module != "") {
-//                 String installLine = "RUN pip install " + module + "\n";
-//                 dockerFileData.append(installLine);
-//             }
-//         }
-//         dockerFileData.append("RUN pip install sh\n");
-//         String entrypointLine = "ENTRYPOINT [ \"python\", \"./" + entrypointFilename + "\", \"" + scriptName + "\"]";
-//         dockerFileData.append(entrypointLine);
-
-//         // Create a new Dockerfile from the modules file
-//         System.out.println("Creating a new Dockerfile...");
-//         try {
-//             Files.write(Paths.get(pathAbsolutePythonRepo + "/" + dockerfileName), dockerFileData.toString().getBytes());
-//             System.out.println("Dockerfile created.");
-//         } catch (IOException e) {
-//             System.out.println("Failed to create a new Dockerfile");
-//             e.printStackTrace();
-//         }
-
         try {
 
             // Start the docker client
@@ -149,7 +108,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             DockerClient docker = DefaultDockerClient.fromEnv().build();
 
             // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\"}";
+            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
             System.out.println(buildargs);
             final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
