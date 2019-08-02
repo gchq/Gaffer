@@ -20,4 +20,4 @@ ENV parameters ${parameters}
 
 COPY test/$scriptName.py /
 
-ENTRYPOINT "python" "entrypoint.py" $envVarScriptName
+ENTRYPOINT "python" "entrypoint.py" $envVarScriptName $parameters
