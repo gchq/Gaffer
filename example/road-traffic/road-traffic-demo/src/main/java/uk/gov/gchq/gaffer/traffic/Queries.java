@@ -122,7 +122,7 @@ public class Queries {
             executor.shutdownNow();
         }
 
-//        PythonOperationHandler.close();
+        PythonOperationHandler.close();
 
     }
 

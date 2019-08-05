@@ -61,7 +61,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
     private static DockerClient docker;
 
-    // Clone the git repo
+    /** Clone the git repo */
     private Git getGit() {
 
         if (git == null) {
@@ -108,16 +108,16 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         try {
 
-            // Start the docker client
+            // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
+            // memory leaks, synchronize this code amongst multiple threads.
             System.out.println("Connecting to the Docker client...");
-            System.out.println("Docker is: " + docker);
 
             synchronized(this){
+                System.out.println("Docker is: " + docker);
                 if (docker == null) {
                     docker = DefaultDockerClient.fromEnv().build();
                 }
             }
-
             System.out.println("Docker is now: " + docker);
 
             // Build an image from the Dockerfile
@@ -236,17 +236,13 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             //            System.out.println("Deleting the container...");
             //            docker.removeContainer(containerId);
 
-            // Close the docker client
-            System.out.println("Closing the docker client...");
-//            docker.close();
-            System.out.println("Closed the docker client.");
-
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /** Get a random port number */
     private String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
         Random rand = new Random();
@@ -254,9 +250,12 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         return String.valueOf(portNum);
     }
 
+    /** Close all current connections to the Docker client and release any resources */
     public static void close() {
-        System.out.println("Releasing docker resources");
-        docker.close();
+        System.out.println("Closing all connections to the Docker client and releasing docker resources");
+        if (docker instanceof DockerClient && docker != null) {
+            docker.close();
+        }
     }
 
 }
