@@ -60,7 +60,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
-    // Clone the git repo
+    /** Clone the git repo */
     private Git getGit() {
 
         if (git == null) {
@@ -107,9 +107,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         try {
 
-            // Start the docker client
-            System.out.println("Starting the Docker client...");
-            DockerClient docker = DefaultDockerClient.fromEnv().build();
+            // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
+            // memory leaks, synchronize this code amongst multiple threads.
+            System.out.println("Connecting to the Docker client...");
+
+            DockerClient docker;
+            synchronized(this){
+                docker = DefaultDockerClient.fromEnv().build();
+            }
+            System.out.println("Docker is now: " + docker);
 
             // Build an image from the Dockerfile
             final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
@@ -160,7 +166,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             Socket clientSocket = null;
             DataInputStream in = null;
             System.out.println("Attempting to send data to container...");
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 100; i++) {
                 try {
                     clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
@@ -223,14 +229,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 docker.stopContainer(containerId, 1); // Kill the container after 1 second
             }
 
+            docker.close();
+
             // Delete the container
             //            System.out.println("Deleting the container...");
             //            docker.removeContainer(containerId);
-
-            // Close the docker client
-            System.out.println("Closing the docker client...");
-            docker.close();
-            System.out.println("Closed the docker client.");
 
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
@@ -238,6 +241,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         return null;
     }
 
+    /** Get a random port number */
     private String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
         Random rand = new Random();
