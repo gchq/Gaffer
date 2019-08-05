@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.store.operation.handler.PythonOperationHandler;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficStringElementGenerator;
 import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.user.User;
@@ -120,6 +121,8 @@ public class Queries {
         } catch (InterruptedException e) {
             executor.shutdownNow();
         }
+
+//        PythonOperationHandler.close();
 
     }
 

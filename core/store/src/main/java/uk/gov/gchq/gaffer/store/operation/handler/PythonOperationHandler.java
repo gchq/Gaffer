@@ -59,6 +59,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
+    private static DockerClient docker;
 
     // Clone the git repo
     private Git getGit() {
@@ -108,8 +109,16 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         try {
 
             // Start the docker client
-            System.out.println("Starting the Docker client...");
-            DockerClient docker = DefaultDockerClient.fromEnv().build();
+            System.out.println("Connecting to the Docker client...");
+            System.out.println("Docker is: " + docker);
+
+            synchronized(this){
+                if (docker == null) {
+                    docker = DefaultDockerClient.fromEnv().build();
+                }
+            }
+
+            System.out.println("Docker is now: " + docker);
 
             // Build an image from the Dockerfile
             final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
@@ -244,5 +253,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));
         return String.valueOf(portNum);
     }
-    
+
+    public static void close() {
+        System.out.println("Releasing docker resources");
+        docker.close();
+    }
+
 }
