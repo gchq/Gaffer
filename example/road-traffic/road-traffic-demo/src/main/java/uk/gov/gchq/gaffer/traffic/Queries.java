@@ -54,20 +54,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class runs simple java queries against the road traffic graph.
  */
 public class Queries {
-    public static void main(final String[] args) throws OperationException, IOException {
+    public static void main(final String[] args) throws OperationException, IOException, InterruptedException {
         new Queries().run();
     }
 
-    private void run() throws OperationException, IOException {
+    private void run() throws OperationException, IOException, InterruptedException {
         final User user = new User("user01");
         final Graph graph = createGraph(user);
 
-        runPython(graph, user);
+        pythonPerformanceTest(graph, user);
+//        runPython(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());
 
@@ -75,16 +80,54 @@ public class Queries {
         //runFullExample(graph, user);
     }
 
+    private void pythonPerformanceTest(final Graph graph, final User user) throws OperationException, InterruptedException {
+
+        //create a callable for each method
+        Callable<Void> callable = new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                runPython(graph, user);
+                return null;
+            }
+
+        };
+
+        List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
+        for (int i = 0; i < 10; i++) {
+            taskList.add(callable);
+        }
+
+        //create a pool executor with 3 threads
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+
+        try
+        {
+            //start the threads and wait for them to finish
+            executor.invokeAll(taskList);
+        }
+        catch (InterruptedException ie)
+        {
+            //do something if you care about interruption;
+        }
+
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+
+    }
+
     private void runPython(final Graph graph, final User user) throws OperationException {
 
-        Scanner input = new Scanner(System.in);
-
-        System.out.print("Enter script name: ");
-        final String scriptName = input.next();
+        final String scriptName = "script1";
         final List<Object> parameters = new ArrayList();
-
-        System.out.print("Enter list of parameters (values separated by commas, with no spaces): ");
-        final String params = input.next();
+        final String params = "a parameter";
         parameters.add(params);
 
         final GetAllElements getAllElements =

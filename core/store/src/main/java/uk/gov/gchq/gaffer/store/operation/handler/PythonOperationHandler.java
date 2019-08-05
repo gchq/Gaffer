@@ -160,7 +160,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             Socket clientSocket = null;
             DataInputStream in = null;
             System.out.println("Attempting to send data to container...");
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 100; i++) {
                 try {
                     clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                     System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
@@ -229,7 +229,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Close the docker client
             System.out.println("Closing the docker client...");
-            docker.close();
+//            docker.close();
             System.out.println("Closed the docker client.");
 
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
@@ -244,4 +244,5 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));
         return String.valueOf(portNum);
     }
+    
 }
