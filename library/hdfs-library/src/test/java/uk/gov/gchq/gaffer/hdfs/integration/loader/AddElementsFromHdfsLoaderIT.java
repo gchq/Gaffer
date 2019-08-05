@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -42,10 +41,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -58,7 +54,6 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsLoaderIT.class);
 
-    private static final String FS_DEFAULT_NAME = "fs.default.name";
     private FileSystem fs;
 
     private String inputDir1;
@@ -211,17 +206,6 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     }
 
     private FileSystem createFileSystem() throws IOException {
-        Properties fsProperties = new Properties();
-        fsProperties.load(StreamUtil.openStream(this.getClass(), "filesystem.properties"));
-        final URI fsURI;
-        try {
-            fsURI = new URI(fsProperties.getProperty(FS_DEFAULT_NAME));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URI: " + fsProperties.getProperty(FS_DEFAULT_NAME), e);
-        }
-
-        final Configuration config = new Configuration();
-        config.set(FS_DEFAULT_NAME, fsURI.toString());
-        return FileSystem.get(fsURI, config);
+        return FileSystem.get(new Configuration());
     }
 }
