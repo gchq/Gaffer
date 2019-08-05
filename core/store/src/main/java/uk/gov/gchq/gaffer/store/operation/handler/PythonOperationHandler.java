@@ -59,7 +59,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String repoName = "test";
     private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
-    private static DockerClient docker;
 
     /** Clone the git repo */
     private Git getGit() {
@@ -112,11 +111,9 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             // memory leaks, synchronize this code amongst multiple threads.
             System.out.println("Connecting to the Docker client...");
 
+            DockerClient docker;
             synchronized(this){
-                System.out.println("Docker is: " + docker);
-                if (docker == null) {
-                    docker = DefaultDockerClient.fromEnv().build();
-                }
+                docker = DefaultDockerClient.fromEnv().build();
             }
             System.out.println("Docker is now: " + docker);
 
@@ -232,6 +229,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 docker.stopContainer(containerId, 1); // Kill the container after 1 second
             }
 
+            docker.close();
+
             // Delete the container
             //            System.out.println("Deleting the container...");
             //            docker.removeContainer(containerId);
@@ -249,13 +248,4 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));
         return String.valueOf(portNum);
     }
-
-    /** Close all current connections to the Docker client and release any resources */
-    public static void close() {
-        System.out.println("Closing all connections to the Docker client and releasing docker resources");
-        if (docker instanceof DockerClient && docker != null) {
-            docker.close();
-        }
-    }
-
 }

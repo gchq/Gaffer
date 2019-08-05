@@ -121,9 +121,6 @@ public class Queries {
         } catch (InterruptedException e) {
             executor.shutdownNow();
         }
-
-        PythonOperationHandler.close();
-
     }
 
     private void runPython(final Graph graph, final User user) throws OperationException {
