@@ -87,6 +87,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
         final String scriptName = operation.getScriptName();
         final List parameters = operation.getParameters();
+        Object output = null;
 
         // Pull or Clone the repo with the files
         System.out.println("Fetching the repo...");
@@ -184,6 +185,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                         }
                         else {
                             out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
+                            out.writeBoolean(false);
+                            out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
                         }
                     }
                     out.writeBoolean(false);
@@ -205,15 +208,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
             System.out.println("In is: " + in);
             System.out.println("clientSocket is: " + clientSocket);
+            int incomingDataLength = 0;
             if (clientSocket != null && in != null) {
                 int timeout = 0;
                 while (timeout < 100) {
                     try {
                         // Get the data from the container
-                        System.out.println("Data from container: " + in.readUTF());
+                        incomingDataLength = in.readInt();
+                        System.out.println("Length of container..." + incomingDataLength);
                         failedToConnect = false;
-                        clientSocket.close();
-                        System.out.println("Closed the connection.");
                         break;
                     } catch (final IOException e) {
                         timeout += 1;
@@ -222,14 +225,28 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     }
                 }
             }
-
+            StringBuilder dataReceived = new StringBuilder();
             if (failedToConnect) {
                 System.out.println("Connection failed, stopping the container...");
+                clientSocket.close();
                 error.printStackTrace();
                 docker.stopContainer(containerId, 1); // Kill the container after 1 second
             }
+            else {
+                for (int i = 0; i < incomingDataLength/65000; i++) {
+                   dataReceived.append(in.readUTF());
+                }
+                dataReceived.append(in.readUTF());
+                clientSocket.close();
+            }
+
+            System.out.println("Closed the connection.");
+            System.out.println(dataReceived);
 
             docker.close();
+
+            output = JSONSerialiser.deserialise(dataReceived.toString(),
+                    operation.getOutputClass());
 
             // Delete the container
             //            System.out.println("Deleting the container...");
@@ -238,7 +255,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return output;
     }
 
     /** Get a random port number */

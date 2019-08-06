@@ -44,10 +44,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             i = 0
             if len(data) > 65000:
                 splitData = re.findall(('.'*65000), data)
-
-                while i < len(data)/65000:
+                conn.sendall(struct.pack('>i', len(data)))
+                while i < (len(data)/65000) - 1:
                     conn.sendall(struct.pack('>H', 65000))
                     conn.sendall(splitData[i].encode('utf-8'))
                     i += 1
+
             conn.sendall(struct.pack('>H', len(data) % 65000))
             conn.sendall(data[65000*i:].encode('utf-8'))
