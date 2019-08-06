@@ -21,10 +21,7 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.DockerRequestException;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.PortBinding;
+import com.spotify.docker.client.messages.*;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -132,6 +129,17 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 }
                 System.out.println(message);
             }, buildParam);
+
+            // Remove the old images
+            final List<Image> images;
+            images = docker.listImages();
+            String repoTag = "[<none>:<none>]";
+            for (int i = 0; i < images.size(); i++) {
+                Image image = images.get(i);
+                if (image.repoTags().toString().equals(repoTag)) {
+                    docker.removeImage(image.id());
+                }
+            }
 
             // Keep trying to start a container and find a free port.
             String port = null;
@@ -241,14 +249,14 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Closed the connection.");
             System.out.println(dataReceived);
 
+            // Delete the container
+            System.out.println("Deleting the container...");
+            docker.removeContainer(containerId);
+
             docker.close();
 
             output = JSONSerialiser.deserialise(dataReceived.toString(),
                     operation.getOutputClass());
-
-            // Delete the container
-            //            System.out.println("Deleting the container...");
-            //            docker.removeContainer(containerId);
 
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
