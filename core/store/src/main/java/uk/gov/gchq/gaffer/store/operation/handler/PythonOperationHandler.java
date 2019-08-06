@@ -185,8 +185,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                         }
                         else {
                             out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
-                            out.writeBoolean(false);
-                            out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
                         }
                     }
                     out.writeBoolean(false);
