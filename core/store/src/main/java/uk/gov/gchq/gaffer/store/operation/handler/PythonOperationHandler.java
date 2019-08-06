@@ -21,10 +21,7 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.DockerRequestException;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.PortBinding;
+import com.spotify.docker.client.messages.*;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -118,6 +115,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
             System.out.println("Docker is now: " + docker);
 
+            // Check an image for this script already exists
+            String repoTag = "[pythonoperation:" + scriptName + "]";
+            Image oldImage = getImageByRepoTag(docker, repoTag);
+            System.out.println("old image id is: " + oldImage.id());
+
             // Build an image from the Dockerfile
             final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
             System.out.println(buildargs);
@@ -132,6 +134,22 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 }
                 System.out.println(message);
             }, buildParam);
+
+            // Remove the old image
+            Image currentImage = getImageByRepoTag(docker, repoTag);
+            System.out.println("old image id: " + oldImage.id());
+            System.out.println("new image id: " + currentImage.id());
+            if (!oldImage.id().equals(currentImage.id())) {
+                docker.removeImage(oldImage.id());
+            }
+
+//            final List<Image> images;
+//            images = docker.listImages();
+//            System.out.println("images are: " + images);
+//            for (int i = 0; i < images.size(); i++) {
+//                Image image = images.get(i);
+//                docker.removeImage(image.id(),false, false);
+//            }
 
             // Keep trying to start a container and find a free port.
             String port = null;
@@ -264,5 +282,24 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Random rand = new Random();
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));
         return String.valueOf(portNum);
+    }
+
+    private Image getImageByRepoTag(DockerClient docker, String repoTag) {
+        final List<Image> images;
+        try {
+            images = docker.listImages();
+            System.out.println("images are: " + images);
+            for (int i = 0; i < images.size(); i++) {
+                Image image = images.get(i);
+                System.out.println("repotags are: " + image.repoTags().toString());
+                if (image.repoTags().toString().equals(repoTag)) {
+                    System.out.println("matched image is: " + image.repoTags().toString());
+                    return image;
+                }
+            }
+        } catch (DockerException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
