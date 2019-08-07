@@ -19,14 +19,16 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -59,21 +61,31 @@ import static org.junit.Assert.assertEquals;
 public class CreateSplitPointsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private FileSystem fs;
+
     private String inputDir;
     private String outputDir;
-    public String splitsDir;
     public String splitsFile;
 
     @Before
-    public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "/inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
-        splitsFile = splitsDir + "/splits";
+    public void setup() throws IOException {
+
+        fs = createFileSystem();
+
+        final String root = fs.resolvePath(new Path("/")).toString()
+                .replaceFirst("/$", "")
+                + testFolder.getRoot().getAbsolutePath();
+
+        LOGGER.info("using root dir: " + root);
+
+        inputDir = root + "/inputDir";
+        outputDir = root + "/outputDir";
+        splitsFile = root + "/splitsDir/splits";
     }
 
     @Test
@@ -123,7 +135,6 @@ public class CreateSplitPointsIT {
     private void createInputFile() throws IOException, StoreException {
         final Path inputPath = new Path(inputDir);
         final Path inputFilePath = new Path(inputDir + "/file.txt");
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
@@ -133,13 +144,8 @@ public class CreateSplitPointsIT {
         }
     }
 
-    private JobConf createLocalConf() {
-        // Set up local conf
-        final JobConf conf = new JobConf();
-        conf.set("fs.defaultFS", "file:///");
-        conf.set("mapreduce.jobtracker.address", "local");
-
-        return conf;
+    private FileSystem createFileSystem() throws IOException {
+        return FileSystem.get(new Configuration());
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
