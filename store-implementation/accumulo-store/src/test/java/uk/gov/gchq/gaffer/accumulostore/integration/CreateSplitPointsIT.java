@@ -78,9 +78,7 @@ public class CreateSplitPointsIT {
 
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path("/")).toString()
-                .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
+        final String root = testFolder.getRoot().getAbsolutePath();
 
         LOGGER.info("using root dir: " + root);
 
