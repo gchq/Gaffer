@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>1.9.2-SNAPSHOT</version>
+        <version>1.10.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-test</artifactId>
