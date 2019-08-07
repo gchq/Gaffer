@@ -44,6 +44,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -134,9 +135,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             final List<Image> images;
             images = docker.listImages();
             String repoTag = "[<none>:<none>]";
-            for (int i = 0; i < images.size(); i++) {
-                Image image = images.get(i);
-                if (image.repoTags().toString().equals(repoTag)) {
+            for (Image image : images) {
+                if (Objects.requireNonNull(image.repoTags()).toString().equals(repoTag)) {
                     docker.removeImage(image.id());
                 }
             }
@@ -234,7 +234,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             StringBuilder dataReceived = new StringBuilder();
             if (failedToConnect) {
                 System.out.println("Connection failed, stopping the container...");
-                clientSocket.close();
                 error.printStackTrace();
                 docker.stopContainer(containerId, 1); // Kill the container after 1 second
             }
@@ -254,7 +253,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
             // Delete the container
             System.out.println("Deleting the container...");
-            final ContainerExit exit = docker.waitContainer(containerId);
+            docker.waitContainer(containerId);
             docker.removeContainer(containerId);
 
             docker.close();
