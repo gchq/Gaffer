@@ -41,7 +41,7 @@ import static java.util.Objects.requireNonNull;
 
 @JsonPropertyOrder(value = {"class", "keySerialiser", "valueSerialiser", "jsonStorage"})
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-public class CustomMap<K, V> {
+public class CustomMap<K, V> implements Map<K, V> {
     private final ToBytesSerialiser<? super K> keySerialiser;
     private final ToBytesSerialiser<? super V> valueSerialiser;
     private final HashMap<K, V> delegateMap;
