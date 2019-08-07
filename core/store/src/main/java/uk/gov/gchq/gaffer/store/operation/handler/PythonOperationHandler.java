@@ -249,14 +249,15 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Closed the connection.");
             System.out.println(dataReceived);
 
+            output = JSONSerialiser.deserialise(dataReceived.toString(),
+                    operation.getOutputClass());
+
             // Delete the container
             System.out.println("Deleting the container...");
+            final ContainerExit exit = docker.waitContainer(containerId);
             docker.removeContainer(containerId);
 
             docker.close();
-
-            output = JSONSerialiser.deserialise(dataReceived.toString(),
-                    operation.getOutputClass());
 
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
