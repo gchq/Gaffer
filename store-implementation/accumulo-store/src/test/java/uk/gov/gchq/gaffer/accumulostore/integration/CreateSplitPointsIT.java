@@ -135,7 +135,8 @@ public class CreateSplitPointsIT {
     }
 
     private void createInputFile() throws IOException, StoreException {
-        final Path inputPath = new Path(inputDir);
+        // Resolve the input path using the default file system.
+        final Path inputPath = fs.resolvePath(new Path(inputDir));
         final Path inputFilePath = new Path(inputDir + "/file.txt");
         fs.mkdirs(inputPath);
 

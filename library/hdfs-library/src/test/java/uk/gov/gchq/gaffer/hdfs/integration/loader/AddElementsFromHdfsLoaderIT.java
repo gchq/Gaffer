@@ -142,7 +142,11 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
 
     @Override
     protected void addElements(final Iterable<? extends Element> elements) throws OperationException {
-        createInputFile(elements);
+        try {
+            createInputFile(elements);
+        } catch (IOException e) {
+            throw new OperationException("Failed to populate input files with elements");
+        }
 
         graph.execute(new AddElementsFromHdfs.Builder()
                 .addInputMapperPair(inputDir1, JsonMapperGenerator.class)
@@ -159,12 +163,13 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     }
 
 
-    private void createInputFile(final Iterable<? extends Element> elements) {
-        final Path inputPath1 = new Path(inputDir1);
+    private void createInputFile(final Iterable<? extends Element> elements) throws IOException {
+        // Resolve the paths using the default FileSystem
+        final Path inputPath1 = fs.resolvePath(new Path(inputDir1));
         final Path inputFilePath1 = new Path(inputDir1 + "/file.txt");
-        final Path inputPath2 = new Path(inputDir2);
+        final Path inputPath2 = fs.resolvePath(new Path(inputDir2));
         final Path inputFilePath2 = new Path(inputDir2 + "/file.txt");
-        final Path inputPath3 = new Path(inputDir3);
+        final Path inputPath3 = fs.resolvePath(new Path(inputDir3));
         final Path inputFilePath3 = new Path(inputDir3 + "/file.txt");
         try {
             fs.mkdirs(inputPath1);
