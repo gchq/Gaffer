@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -49,10 +48,12 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -124,8 +125,11 @@ public class CreateSplitPointsIT {
         // Then
         final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
         final List<String> stringSplitsOnTable = Lists.transform(splitsOnTable, t -> StringUtil.toString(t.getBytes()));
-        final List<String> fileSplits = FileUtils.readLines(new File(splitsFile));
-        final List<String> fileSplitsDecoded = Lists.transform(fileSplits, t -> StringUtil.toString(Base64.decodeBase64(t)));
+        final List<String> fileSplitsDecoded = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(splitsFile))));
+        while (br.ready()) {
+            fileSplitsDecoded.add(new String(Base64.decodeBase64(br.readLine())));
+        }
         assertEquals(fileSplitsDecoded, stringSplitsOnTable);
         assertEquals(2, splitsOnTable.size());
         assertEquals(VERTEX_ID_PREFIX + "53\u0000\u0001", stringSplitsOnTable.get(0));
