@@ -136,8 +136,8 @@ public class CreateSplitPointsIT {
 
     private void createInputFile() throws IOException, StoreException {
         // Resolve the input path using the default file system.
-        final Path inputPath = fs.resolvePath(new Path(inputDir));
-        final Path inputFilePath = new Path(inputDir + "/file.txt");
+        final Path inputPath = new Path(fs.resolvePath(new Path("/")), inputDir);
+        final Path inputFilePath = new Path(inputPath, "file.txt");
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
