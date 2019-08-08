@@ -31,24 +31,25 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         if dis:
             dataReceived = True
             rawData = None
-            while not dis.read_boolean():
+            currentPayload = dis.read_utf()
+            while currentPayload != bytes(']', encoding='utf-8'):
                 if rawData is None:
-                    rawData = dis.read_utf()
+                    rawData = bytes() + currentPayload
                 else:
-                    rawData += dis.read_utf()
+                    currentPayload = dis.read_utf()
+                    rawData += currentPayload
             tableData = pandas.read_json(rawData, orient="records")
             print('Tabled Data : \n', tableData)
             data = pandas.DataFrame.to_json(tableData, orient="records")
             data = scriptName.run(data, None)
             # print('Result Data : ', data)
             i = 0
+            conn.sendall(struct.pack('>i', len(data)))
             if len(data) > 65000:
-                splitData = re.findall(('.'*65000), data)
-                conn.sendall(struct.pack('>i', len(data)))
-                while i < (len(data)/65000) - 1:
+                splitData = re.findall(('.' * 65000), data)
+                while i < (len(data) / 65000) - 1:
                     conn.sendall(struct.pack('>H', 65000))
                     conn.sendall(splitData[i].encode('utf-8'))
                     i += 1
-
             conn.sendall(struct.pack('>H', len(data) % 65000))
-            conn.sendall(data[65000*i:].encode('utf-8'))
+            conn.sendall(data[65000 * i:].encode('utf-8'))

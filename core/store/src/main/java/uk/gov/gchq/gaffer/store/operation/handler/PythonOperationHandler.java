@@ -186,7 +186,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     DataOutputStream out = new DataOutputStream(outToContainer);
                     boolean firstObject = true;
                     for (Object current : operation.getInput()) {
-                        out.writeBoolean(false);
                         if (firstObject) {
                             out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
                             firstObject = false;
@@ -195,9 +194,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                             out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
                         }
                     }
-                    out.writeBoolean(false);
                     out.writeUTF("]");
-                    out.writeBoolean(true);
                     out.flush();
                     //out.writeUTF(dataToSend);
                     System.out.println("Waiting for response from Container...");
