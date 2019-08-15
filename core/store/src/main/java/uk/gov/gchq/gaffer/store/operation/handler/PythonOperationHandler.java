@@ -23,8 +23,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.DockerRequestException;
 import com.spotify.docker.client.messages.*;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,7 +32,6 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,6 +50,7 @@ import java.util.stream.IntStream;
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
     private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer(this);
+    private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private Git git = null;
     private final String repoName = "test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
@@ -65,7 +63,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Object output = null;
 
         // Pull or Clone the repo with the files
-        pullOrClone(git);
+        pullOrCloneRepo.pullOrClone(git);
 
         try {
 
@@ -117,7 +115,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
             }
-            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
+            StringBuilder dataReceived = setUpAndCloseContainer(operation, docker, port, containerId);
 
             System.out.println("Closed the connection.");
             System.out.println(dataReceived);
@@ -188,38 +186,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     }
 
     /** Pulls or clones repo of python scripts as needed */
-    private void pullOrClone(Git git) {
-        String repoURI = "https://github.com/g609bmsma/test";
-        if (git == null) {
-            try {
-                git = Git.open(new File(pathAbsolutePythonRepo));
-            } catch (final RepositoryNotFoundException e) {
-                try {
-                    git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
-                } catch (final GitAPIException e1) {
-                    e1.printStackTrace();
-                    git = null;
-                }
-            } catch (final IOException e) {
-                e.printStackTrace();
-                git = null;
-            }
-        }
-        System.out.println("Fetching the repo...");
-        File dir = new File(pathAbsolutePythonRepo);
-        try {
-            if (git != null) {
-                System.out.println("Repo already cloned, pulling files...");
-                git.pull().call();
-                System.out.println("Pulled the latest files.");
-            } else {
-                System.out.println("Repo has not been cloned, cloning the repo...");
-                Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
-                System.out.println("Cloned the repo.");
-            }
-        } catch (final GitAPIException e) {
-            e.printStackTrace();
-        }
+    private void pullOrClone(Git git, String pathAbsolutePythonRepo) {
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo);
     }
 
     /** Get a random port number */
