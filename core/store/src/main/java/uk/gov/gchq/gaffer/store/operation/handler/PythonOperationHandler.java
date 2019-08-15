@@ -35,15 +35,13 @@ import java.nio.file.FileSystems;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
     private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer(this);
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
+    private final GetPort getPort = new GetPort();
     private Git git = null;
     private final String repoName = "test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
@@ -87,7 +85,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             String containerId = null;
             for (int i = 0; i < 100; i++) {
                 try {
-                    port = getPort();
+                    port = getPort.getPort();
 
                     // Create a container from the image and bind ports
                     final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
@@ -108,7 +106,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
             }
-            StringBuilder dataReceived = setUpAndCloseContainer(operation, docker, port, containerId);
+            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
             System.out.println("Closed the connection.");
             System.out.println(dataReceived);
@@ -127,19 +125,5 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
         return output;
-    }
-
-    /** Sets up and closes container */
-    private StringBuilder setUpAndCloseContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
-        // Keep trying to connect to container and give the container some time to load up
-        return setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
-    }
-
-    /** Get a random port number */
-    private String getPort() {
-        List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
-        Random rand = new Random();
-        Integer portNum = portsList.get(rand.nextInt(portsList.size()));
-        return String.valueOf(portNum);
     }
 }
