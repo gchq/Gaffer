@@ -30,12 +30,7 @@ import uk.gov.gchq.gaffer.operation.PythonOperation;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.util.Collections;
 import java.util.List;
@@ -134,47 +129,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         return output;
     }
 
-    /** Builds docker imafe from Dockerfile */
-    private String buildImage(String scriptName, List<Object> parameters, DockerClient docker, String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
-        // Build an image from the Dockerfile
-
-        return buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo);
-    }
-
     /** Sets up and closes container */
     private StringBuilder setUpAndCloseContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         return setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
-    }
-
-    /** Sends data to and gets data from container */
-    DataInputStream sendAndGetData(PythonOperation operation, Socket clientSocket) throws IOException {
-        // Send the data
-        System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
-        OutputStream outToContainer = clientSocket.getOutputStream();
-        DataOutputStream out = new DataOutputStream(outToContainer);
-        boolean firstObject = true;
-        for (Object current : operation.getInput()) {
-            if (firstObject) {
-                out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
-                firstObject = false;
-            }
-            else {
-                out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
-            }
-        }
-        out.writeUTF("]");
-        out.flush();
-        //out.writeUTF(dataToSend);
-        System.out.println("Waiting for response from Container...");
-        // Get the data from the container
-        InputStream inFromContainer = clientSocket.getInputStream();
-        return new DataInputStream(inFromContainer);
-    }
-
-    /** Pulls or clones repo of python scripts as needed */
-    private void pullOrClone(Git git, String pathAbsolutePythonRepo) {
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo);
     }
 
     /** Get a random port number */

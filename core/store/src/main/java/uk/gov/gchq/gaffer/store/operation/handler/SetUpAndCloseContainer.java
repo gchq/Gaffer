@@ -30,7 +30,7 @@ public class SetUpAndCloseContainer {
             try {
                 clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                 System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
-                in = pythonOperationHandler.sendAndGetData(operation, clientSocket);
+                in = SendAndGetDataFromContainer.sendAndGetData(operation, clientSocket);
 
                 System.out.println("Container ready status: " + in.readBoolean());
                 break;
