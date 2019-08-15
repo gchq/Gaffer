@@ -36,14 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.URLEncoder;
 import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -51,6 +48,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
     private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer(this);
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
+    private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private Git git = null;
     private final String repoName = "test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
@@ -63,7 +61,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Object output = null;
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git);
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo);
 
         try {
 
@@ -76,7 +74,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 docker = DefaultDockerClient.fromEnv().build();
             }
             System.out.println("Docker is now: " + docker);
-            final String returnedImageId = buildImage(scriptName, parameters, docker);
+            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo);
 
             // Remove the old images
             final List<Image> images;
@@ -137,21 +135,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     }
 
     /** Builds docker imafe from Dockerfile */
-    private String buildImage(String scriptName, List<Object> parameters, DockerClient docker) throws DockerException, InterruptedException, IOException {
+    private String buildImage(String scriptName, List<Object> parameters, DockerClient docker, String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
-        final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
-        System.out.println(buildargs);
-        final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
-        System.out.println("Building the image from the Dockerfile...");
-        final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-        return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
-            final String imageId = message.buildImageId();
-            if (imageId != null) {
-                imageIdFromMessage.set(imageId);
-            }
-            System.out.println(message);
-        }, buildParam);
+        return buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo);
     }
 
     /** Sets up and closes container */
