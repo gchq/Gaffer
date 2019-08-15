@@ -46,13 +46,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
+    private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer(this);
     private Git git = null;
     private final String repoName = "test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
@@ -61,7 +61,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
-        final List parameters = operation.getParameters();
+        final List<Object> parameters = operation.getParameters();
         Object output = null;
 
         // Pull or Clone the repo with the files
@@ -117,7 +117,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
             }
-            StringBuilder dataReceived = setUpAndCloseContainer(operation, docker, port, containerId);
+            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
             System.out.println("Closed the connection.");
             System.out.println(dataReceived);
@@ -139,7 +139,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     }
 
     /** Builds docker imafe from Dockerfile */
-    private String buildImage(String scriptName, List parameters, DockerClient docker) throws DockerException, InterruptedException, IOException {
+    private String buildImage(String scriptName, List<Object> parameters, DockerClient docker) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
         System.out.println(buildargs);
@@ -159,62 +159,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     /** Sets up and closes container */
     private StringBuilder setUpAndCloseContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
         // Keep trying to connect to container and give the container some time to load up
-        boolean failedToConnect = true;
-        IOException error = null;
-        Socket clientSocket = null;
-        DataInputStream in = null;
-        System.out.println("Attempting to send data to container...");
-        for (int i = 0; i < 100; i++) {
-            try {
-                clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
-                System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
-                in = sendAndGetData(operation, clientSocket);
-
-                System.out.println("Container ready status: " + in.readBoolean());
-                break;
-            } catch (final IOException e) {
-                System.out.println("Failed to send data.");
-                error = e;
-                TimeUnit.MILLISECONDS.sleep(100);
-            }
-        }
-        System.out.println("In is: " + in);
-        System.out.println("clientSocket is: " + clientSocket);
-        int incomingDataLength = 0;
-        if (clientSocket != null && in != null) {
-            int timeout = 0;
-            while (timeout < 100) {
-                try {
-                    // Get the data from the container
-                    incomingDataLength = in.readInt();
-                    System.out.println("Length of container..." + incomingDataLength);
-                    failedToConnect = false;
-                    break;
-                } catch (final IOException e) {
-                    timeout += 1;
-                    error = e;
-                    TimeUnit.MILLISECONDS.sleep(200);
-                }
-            }
-        }
-        StringBuilder dataReceived = new StringBuilder();
-        if (failedToConnect) {
-            System.out.println("Connection failed, stopping the container...");
-            error.printStackTrace();
-            docker.stopContainer(containerId, 1); // Kill the container after 1 second
-        }
-        else {
-            for (int i = 0; i < incomingDataLength/65000; i++) {
-               dataReceived.append(in.readUTF());
-            }
-            dataReceived.append(in.readUTF());
-            clientSocket.close();
-        }
-        return dataReceived;
+        return setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
     }
 
     /** Sends data to and gets data from container */
-    private DataInputStream sendAndGetData(PythonOperation operation, Socket clientSocket) throws IOException {
+    DataInputStream sendAndGetData(PythonOperation operation, Socket clientSocket) throws IOException {
         // Send the data
         System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
         OutputStream outToContainer = clientSocket.getOutputStream();
