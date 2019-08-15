@@ -58,28 +58,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
-    /** Clone the git repo */
-    private Git getGit() {
-
-        if (git == null) {
-            try {
-                git = Git.open(new File(pathAbsolutePythonRepo));
-            } catch (final RepositoryNotFoundException e) {
-                try {
-                    git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
-                    System.out.println("Cloned the repo.");
-                } catch (final GitAPIException e1) {
-                    e1.printStackTrace();
-                    git = null;
-                }
-            } catch (final IOException e) {
-                e.printStackTrace();
-                git = null;
-            }
-        }
-        return git;
-    }
-
     @Override
     public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
 
@@ -88,21 +66,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Object output = null;
 
         // Pull or Clone the repo with the files
-        System.out.println("Fetching the repo...");
-        File dir = new File(pathAbsolutePythonRepo);
-        try {
-            if (getGit() != null) {
-                System.out.println("Repo already cloned, pulling files...");
-                getGit().pull().call();
-                System.out.println("Pulled the latest files.");
-            } else {
-                System.out.println("Repo has not been cloned, cloning the repo...");
-                Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
-                System.out.println("Cloned the repo.");
-            }
-        } catch (final GitAPIException e) {
-            e.printStackTrace();
-        }
+        pullOrClone();
 
         try {
 
@@ -168,82 +132,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
             }
-
-            // Keep trying to connect to container and give the container some time to load up
-            boolean failedToConnect = true;
-            IOException error = null;
-            Socket clientSocket = null;
-            DataInputStream in = null;
-            System.out.println("Attempting to send data to container...");
-            for (int i = 0; i < 100; i++) {
-                try {
-                    clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
-                    System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
-
-                    // Send the data
-                    System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
-                    OutputStream outToContainer = clientSocket.getOutputStream();
-                    DataOutputStream out = new DataOutputStream(outToContainer);
-                    boolean firstObject = true;
-                    for (Object current : operation.getInput()) {
-                        if (firstObject) {
-                            out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
-                            firstObject = false;
-                        }
-                        else {
-                            out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
-                        }
-                    }
-                    out.writeUTF("]");
-                    out.flush();
-                    //out.writeUTF(dataToSend);
-                    System.out.println("Waiting for response from Container...");
-                    // Get the data from the container
-                    InputStream inFromContainer = clientSocket.getInputStream();
-                    in = new DataInputStream(inFromContainer);
-                    System.out.println("Container ready status: " + in.readBoolean());
-                    break;
-                } catch (final IOException e) {
-                    System.out.println("Failed to send data.");
-                    error = e;
-                    TimeUnit.MILLISECONDS.sleep(100);
-                }
-            }
-            System.out.println("In is: " + in);
-            System.out.println("clientSocket is: " + clientSocket);
-            int incomingDataLength = 0;
-            if (clientSocket != null && in != null) {
-                int timeout = 0;
-                while (timeout < 100) {
-                    try {
-                        // Get the data from the container
-                        incomingDataLength = in.readInt();
-                        System.out.println("Length of container..." + incomingDataLength);
-                        failedToConnect = false;
-                        break;
-                    } catch (final IOException e) {
-                        timeout += 1;
-                        error = e;
-                        TimeUnit.MILLISECONDS.sleep(200);
-                    }
-                }
-            }
-            StringBuilder dataReceived = new StringBuilder();
-            if (failedToConnect) {
-                System.out.println("Connection failed, stopping the container...");
-                error.printStackTrace();
-                docker.stopContainer(containerId, 1); // Kill the container after 1 second
-            }
-            else {
-                for (int i = 0; i < incomingDataLength/65000; i++) {
-                   dataReceived.append(in.readUTF());
-                }
-                dataReceived.append(in.readUTF());
-                clientSocket.close();
-            }
-
-            System.out.println("Closed the connection.");
-            System.out.println(dataReceived);
+            StringBuilder dataReceived = startAndStopContainer(operation, docker, port, containerId);
 
             output = JSONSerialiser.deserialise(dataReceived.toString(),
                     operation.getOutputClass());
@@ -259,6 +148,127 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             e.printStackTrace();
         }
         return output;
+    }
+
+    /** Start and stop docker container, send data */
+    private StringBuilder startAndStopContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
+        // Keep trying to connect to container and give the container some time to load up
+        boolean failedToConnect = true;
+        IOException error = null;
+        Socket clientSocket = null;
+        DataInputStream in = null;
+        System.out.println("Attempting to send data to container...");
+        for (int i = 0; i < 100; i++) {
+            try {
+                clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
+                System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
+
+                // Send the data
+                System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
+                OutputStream outToContainer = clientSocket.getOutputStream();
+                DataOutputStream out = new DataOutputStream(outToContainer);
+                boolean firstObject = true;
+                for (Object current : operation.getInput()) {
+                    if (firstObject) {
+                        out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
+                        firstObject = false;
+                    }
+                    else {
+                        out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
+                    }
+                }
+                out.writeUTF("]");
+                out.flush();
+                //out.writeUTF(dataToSend);
+                System.out.println("Waiting for response from Container...");
+                // Get the data from the container
+                InputStream inFromContainer = clientSocket.getInputStream();
+                in = new DataInputStream(inFromContainer);
+                System.out.println("Container ready status: " + in.readBoolean());
+                break;
+            } catch (final IOException e) {
+                System.out.println("Failed to send data.");
+                error = e;
+                TimeUnit.MILLISECONDS.sleep(100);
+            }
+        }
+        System.out.println("In is: " + in);
+        System.out.println("clientSocket is: " + clientSocket);
+        int incomingDataLength = 0;
+        if (clientSocket != null && in != null) {
+            int timeout = 0;
+            while (timeout < 100) {
+                try {
+                    // Get the data from the container
+                    incomingDataLength = in.readInt();
+                    System.out.println("Length of container..." + incomingDataLength);
+                    failedToConnect = false;
+                    break;
+                } catch (final IOException e) {
+                    timeout += 1;
+                    error = e;
+                    TimeUnit.MILLISECONDS.sleep(200);
+                }
+            }
+        }
+        StringBuilder dataReceived = new StringBuilder();
+        if (failedToConnect) {
+            System.out.println("Connection failed, stopping the container...");
+            error.printStackTrace();
+            docker.stopContainer(containerId, 1); // Kill the container after 1 second
+        }
+        else {
+            for (int i = 0; i < incomingDataLength/65000; i++) {
+               dataReceived.append(in.readUTF());
+            }
+            dataReceived.append(in.readUTF());
+            clientSocket.close();
+        }
+
+        System.out.println("Closed the connection.");
+        System.out.println(dataReceived);
+        return dataReceived;
+    }
+
+
+    /** Clone the git repo */
+    private Git getGit() {
+
+        if (git == null) {
+            try {
+                git = Git.open(new File(pathAbsolutePythonRepo));
+            } catch (final RepositoryNotFoundException e) {
+                try {
+                    git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
+                    System.out.println("Cloned the repo.");
+                } catch (final GitAPIException e1) {
+                    e1.printStackTrace();
+                    git = null;
+                }
+            } catch (final IOException e) {
+                e.printStackTrace();
+                git = null;
+            }
+        }
+        return git;
+    }
+
+    private void pullOrClone() {
+        System.out.println("Fetching the repo...");
+        File dir = new File(pathAbsolutePythonRepo);
+        try {
+            if (getGit() != null) {
+                System.out.println("Repo already cloned, pulling files...");
+                getGit().pull().call();
+                System.out.println("Pulled the latest files.");
+            } else {
+                System.out.println("Repo has not been cloned, cloning the repo...");
+                Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
+                System.out.println("Cloned the repo.");
+            }
+        } catch (final GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Get a random port number */
