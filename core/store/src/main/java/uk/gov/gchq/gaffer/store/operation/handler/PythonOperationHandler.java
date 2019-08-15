@@ -53,9 +53,8 @@ import java.util.stream.IntStream;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
-    private Git git;
+    private Git git = null;
     private final String repoName = "test";
-    private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     @Override
@@ -66,7 +65,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         Object output = null;
 
         // Pull or Clone the repo with the files
-        pullOrClone();
+        pullOrClone(git);
 
         try {
 
@@ -79,21 +78,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 docker = DefaultDockerClient.fromEnv().build();
             }
             System.out.println("Docker is now: " + docker);
-
-            // Build an image from the Dockerfile
-            final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
-            System.out.println(buildargs);
-            final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
-
-            System.out.println("Building the image from the Dockerfile...");
-            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            final String returnedImageId = docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
-                final String imageId = message.buildImageId();
-                if (imageId != null) {
-                    imageIdFromMessage.set(imageId);
-                }
-                System.out.println(message);
-            }, buildParam);
+            final String returnedImageId = buildImage(scriptName, parameters, docker);
 
             // Remove the old images
             final List<Image> images;
@@ -132,7 +117,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
             }
-            StringBuilder dataReceived = startAndStopContainer(operation, docker, port, containerId);
+            StringBuilder dataReceived = setUpAndCloseContainer(operation, docker, port, containerId);
+
+            System.out.println("Closed the connection.");
+            System.out.println(dataReceived);
 
             output = JSONSerialiser.deserialise(dataReceived.toString(),
                     operation.getOutputClass());
@@ -150,8 +138,26 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         return output;
     }
 
-    /** Start and stop docker container, send data */
-    private StringBuilder startAndStopContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
+    /** Builds docker imafe from Dockerfile */
+    private String buildImage(String scriptName, List parameters, DockerClient docker) throws DockerException, InterruptedException, IOException {
+        // Build an image from the Dockerfile
+        final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
+        System.out.println(buildargs);
+        final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
+
+        System.out.println("Building the image from the Dockerfile...");
+        final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
+        return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
+            final String imageId = message.buildImageId();
+            if (imageId != null) {
+                imageIdFromMessage.set(imageId);
+            }
+            System.out.println(message);
+        }, buildParam);
+    }
+
+    /** Sets up and closes container */
+    private StringBuilder setUpAndCloseContainer(PythonOperation operation, DockerClient docker, String port, String containerId) throws InterruptedException, DockerException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         boolean failedToConnect = true;
         IOException error = null;
@@ -162,28 +168,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             try {
                 clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                 System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
+                in = sendAndGetData(operation, clientSocket);
 
-                // Send the data
-                System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
-                OutputStream outToContainer = clientSocket.getOutputStream();
-                DataOutputStream out = new DataOutputStream(outToContainer);
-                boolean firstObject = true;
-                for (Object current : operation.getInput()) {
-                    if (firstObject) {
-                        out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
-                        firstObject = false;
-                    }
-                    else {
-                        out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
-                    }
-                }
-                out.writeUTF("]");
-                out.flush();
-                //out.writeUTF(dataToSend);
-                System.out.println("Waiting for response from Container...");
-                // Get the data from the container
-                InputStream inFromContainer = clientSocket.getInputStream();
-                in = new DataInputStream(inFromContainer);
                 System.out.println("Container ready status: " + in.readBoolean());
                 break;
             } catch (final IOException e) {
@@ -224,23 +210,43 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             dataReceived.append(in.readUTF());
             clientSocket.close();
         }
-
-        System.out.println("Closed the connection.");
-        System.out.println(dataReceived);
         return dataReceived;
     }
 
+    /** Sends data to and gets data from container */
+    private DataInputStream sendAndGetData(PythonOperation operation, Socket clientSocket) throws IOException {
+        // Send the data
+        System.out.println("Sending data to docker container from " + clientSocket.getLocalSocketAddress() + "...");
+        OutputStream outToContainer = clientSocket.getOutputStream();
+        DataOutputStream out = new DataOutputStream(outToContainer);
+        boolean firstObject = true;
+        for (Object current : operation.getInput()) {
+            if (firstObject) {
+                out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
+                firstObject = false;
+            }
+            else {
+                out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
+            }
+        }
+        out.writeUTF("]");
+        out.flush();
+        //out.writeUTF(dataToSend);
+        System.out.println("Waiting for response from Container...");
+        // Get the data from the container
+        InputStream inFromContainer = clientSocket.getInputStream();
+        return new DataInputStream(inFromContainer);
+    }
 
-    /** Clone the git repo */
-    private Git getGit() {
-
+    /** Pulls or clones repo of python scripts as needed */
+    private void pullOrClone(Git git) {
+        String repoURI = "https://github.com/g609bmsma/test";
         if (git == null) {
             try {
                 git = Git.open(new File(pathAbsolutePythonRepo));
             } catch (final RepositoryNotFoundException e) {
                 try {
                     git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
-                    System.out.println("Cloned the repo.");
                 } catch (final GitAPIException e1) {
                     e1.printStackTrace();
                     git = null;
@@ -250,16 +256,12 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 git = null;
             }
         }
-        return git;
-    }
-
-    private void pullOrClone() {
         System.out.println("Fetching the repo...");
         File dir = new File(pathAbsolutePythonRepo);
         try {
-            if (getGit() != null) {
+            if (git != null) {
                 System.out.println("Repo already cloned, pulling files...");
-                getGit().pull().call();
+                git.pull().call();
                 System.out.println("Pulled the latest files.");
             } else {
                 System.out.println("Repo has not been cloned, cloning the repo...");
