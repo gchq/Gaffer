@@ -29,6 +29,8 @@ import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.PortBinding;
 import org.eclipse.jgit.api.Git;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.RunPythonScript;
@@ -43,6 +45,7 @@ import java.util.Objects;
 
 public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer();
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
@@ -65,13 +68,13 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
             // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
             // memory leaks, synchronize this code amongst multiple threads.
-            System.out.println("Connecting to the Docker client...");
+            LOGGER.info("Connecting to the Docker client...");
 
             DockerClient docker;
             synchronized (this) {
                 docker = DefaultDockerClient.fromEnv().build();
             }
-            System.out.println("Docker is now: " + docker);
+            LOGGER.info("Docker is now: {}", docker);
             final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo);
 
             // Remove the old images
@@ -98,7 +101,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
                     containerId = creation.id();
 
                     // Start the container
-                    System.out.println("Starting the Docker container...");
+                    LOGGER.info("Starting the Docker container...");
                     docker.startContainer(containerId);
 
                     portAvailable = true;
@@ -106,20 +109,20 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
                 } catch (final DockerRequestException ignored) {
                 }
             }
-            System.out.println("Port number is: " + port);
+            LOGGER.info("Port number is: "+ port);
 
             if (!portAvailable) {
-                System.out.println("Failed to find an available port");
+                LOGGER.info("Failed to find an available port");
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
-            System.out.println("Closed the connection.");
+            LOGGER.info("Closed the connection.");
 
             output = JSONSerialiser.deserialise(dataReceived.toString(),
                     operation.getOutputClass());
 
             // Delete the container
-            System.out.println("Deleting the container...");
+            LOGGER.info("Deleting the container...");
             docker.waitContainer(containerId);
             docker.removeContainer(containerId);
 

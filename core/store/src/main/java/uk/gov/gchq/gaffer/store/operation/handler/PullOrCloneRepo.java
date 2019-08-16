@@ -19,11 +19,15 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
 class PullOrCloneRepo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
+
     PullOrCloneRepo() {
     }
 
@@ -47,17 +51,17 @@ class PullOrCloneRepo {
                 git = null;
             }
         }
-        System.out.println("Fetching the repo...");
+        LOGGER.info("Fetching the repo.");
         File dir = new File(pathAbsolutePythonRepo);
         try {
             if (git != null) {
-                System.out.println("Repo already cloned, pulling files...");
+                LOGGER.info("Repo already cloned, pulling files...");
                 git.pull().call();
-                System.out.println("Pulled the latest files.");
+                LOGGER.info("Pulled the latest files.");
             } else {
-                System.out.println("Repo has not been cloned, cloning the repo...");
+                LOGGER.info("Repo has not been cloned, cloning the repo...");
                 Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
-                System.out.println("Cloned the repo.");
+                LOGGER.info("Cloned the repo");
             }
         } catch (final GitAPIException e) {
             e.printStackTrace();

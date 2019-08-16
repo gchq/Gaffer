@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 
-import uk.gov.gchq.gaffer.operation.PythonOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.operation.RunPythonScript;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
 class SetUpAndCloseContainer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetUpAndCloseContainer.class);
 
     SetUpAndCloseContainer() {
     }
@@ -34,29 +37,29 @@ class SetUpAndCloseContainer {
     /**
      * Sets up and closes container
      */
-    StringBuilder setUpAndCloseContainer(final PythonOperation operation, final DockerClient docker, final String port, final String containerId) throws InterruptedException, DockerException, IOException {
+    StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final DockerClient docker, final String port, final String containerId) throws InterruptedException, DockerException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         boolean failedToConnect = true;
         IOException error = null;
         Socket clientSocket = null;
         DataInputStream in = null;
-        System.out.println("Attempting to send data to container...");
+        LOGGER.info("Attempting to send data to container...");
         for (int i = 0; i < 100; i++) {
             try {
                 clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
-                System.out.println("Connected to container port at " + clientSocket.getRemoteSocketAddress());
+                LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
                 in = SendAndGetDataFromContainer.sendAndGetData(operation, clientSocket);
 
-                System.out.println("Container ready status: " + in.readBoolean());
+                LOGGER.info("Container ready status: {}", in.readBoolean());
                 break;
             } catch (final IOException e) {
-                System.out.println("Failed to send data.");
+                LOGGER.info("Failed to send data.");
                 error = e;
                 TimeUnit.MILLISECONDS.sleep(100);
             }
         }
-        System.out.println("In is: " + in);
-        System.out.println("clientSocket is: " + clientSocket);
+        LOGGER.info("In is: {}", in);
+        LOGGER.info("clientSocket is: {}", clientSocket);
         int incomingDataLength = 0;
         if (clientSocket != null && in != null) {
             int timeout = 0;
@@ -64,7 +67,7 @@ class SetUpAndCloseContainer {
                 try {
                     // Get the data from the container
                     incomingDataLength = in.readInt();
-                    System.out.println("Length of container..." + incomingDataLength);
+                    LOGGER.info("Length of container...{}", incomingDataLength);
                     failedToConnect = false;
                     break;
                 } catch (final IOException e) {
@@ -76,7 +79,7 @@ class SetUpAndCloseContainer {
         }
         StringBuilder dataReceived = new StringBuilder();
         if (failedToConnect) {
-            System.out.println("Connection failed, stopping the container...");
+            LOGGER.info("Connection failed, stopping the container...");
             error.printStackTrace();
             docker.stopContainer(containerId, 1); // Kill the container after 1 second
         } else {

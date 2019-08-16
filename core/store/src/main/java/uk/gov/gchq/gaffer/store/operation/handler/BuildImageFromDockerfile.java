@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 class BuildImageFromDockerfile {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageFromDockerfile.class);
+
     BuildImageFromDockerfile() {
     }
 
@@ -35,17 +39,17 @@ class BuildImageFromDockerfile {
     String buildImage(final String scriptName, final List<Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
-        System.out.println(buildargs);
+        LOGGER.info(buildargs);
         final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
-        System.out.println("Building the image from the Dockerfile...");
+        LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
         return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
             if (imageId != null) {
                 imageIdFromMessage.set(imageId);
             }
-            System.out.println(message);
+            LOGGER.info(String.valueOf(message));
         }, buildParam);
     }
 }
