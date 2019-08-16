@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
@@ -58,7 +59,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
-        final List<Object> parameters = operation.getParameters();
+        final Map<String, Object> parameters = operation.getParameters();
         Object output = null;
 
         // Pull or Clone the repo with the files

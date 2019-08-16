@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-import java.util.List;
 import java.util.Map;
 
 public class RunPythonScript<I_ITEM, O> implements
@@ -33,7 +32,7 @@ public class RunPythonScript<I_ITEM, O> implements
     private Iterable<? extends I_ITEM> input;
     private Map<String, String> options;
     private String scriptName;
-    private List<Object> parameters;
+    private Map<String, Object> parameters;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -73,13 +72,9 @@ public class RunPythonScript<I_ITEM, O> implements
         return scriptName;
     }
 
-    public List<Object> getParameters() {
-        return parameters;
-    }
+    public Map<String, Object> getParameters() { return parameters; }
 
-    public void setParameters(final List<Object> parameters) {
-        this.parameters = parameters;
-    }
+    public void setParameters(final Map<String, Object> parameters) { this.parameters = parameters; }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
@@ -93,7 +88,7 @@ public class RunPythonScript<I_ITEM, O> implements
             return _self();
         }
 
-        public Builder<I_ITEM, O> parameters(final List<Object> parameters) {
+        public Builder<I_ITEM, O> parameters(final Map<String, Object> parameters) {
             _getOp().setParameters(parameters);
             return _self();
         }

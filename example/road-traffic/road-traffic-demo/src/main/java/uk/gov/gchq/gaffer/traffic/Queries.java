@@ -53,7 +53,9 @@ import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -173,9 +175,9 @@ public class Queries {
     private void runPython(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script1";
-        final List<Object> parameters = new ArrayList();
-        final String params = "a parameter";
-        parameters.add(params);
+        final Map<String, Object> parameters = new HashMap<String, Object>() {{
+            put("a", "b");
+        }};
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -199,9 +201,9 @@ public class Queries {
     private void runPython2(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script2";
-        final List<Object> parameters = new ArrayList();
-        final String params = "a parameter";
-        parameters.add(params);
+        final Map<String, Object> parameters = new HashMap<String, Object>() {{
+            put("a", "b");
+        }};
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 class BuildImageFromDockerfile {
@@ -36,7 +36,7 @@ class BuildImageFromDockerfile {
     /**
      * Builds docker imafe from Dockerfile
      */
-    String buildImage(final String scriptName, final List<Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
+    String buildImage(final String scriptName, final Map<String, Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
         LOGGER.info(buildargs);
