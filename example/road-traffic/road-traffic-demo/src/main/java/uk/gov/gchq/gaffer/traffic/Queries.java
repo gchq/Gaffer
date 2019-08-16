@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.PythonOperation;
+import uk.gov.gchq.gaffer.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -180,8 +180,8 @@ public class Queries {
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final PythonOperation<Element, Entity> pythonOperation =
-                new PythonOperation.Builder<Element, Entity>()
+        final RunPythonScript<Element, Entity> runPythonScript =
+                new RunPythonScript.Builder<Element, Entity>()
                         .name(scriptName)
                         .parameters(parameters)
                         .build();
@@ -190,7 +190,7 @@ public class Queries {
                 new OperationChain.Builder()
                         .first(getAllElements)
                         //.then(new Limit.Builder<Element>().resultLimit(300).build())
-                        .then(pythonOperation)
+                        .then(runPythonScript)
                         .build();
 
         graph.execute(opChain, user);
@@ -206,8 +206,8 @@ public class Queries {
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final PythonOperation<Element, Entity> pythonOperation =
-                new PythonOperation.Builder<Element, Entity>()
+        final RunPythonScript<Element, Entity> runPythonScript =
+                new RunPythonScript.Builder<Element, Entity>()
                         .name(scriptName)
                         .parameters(parameters)
                         .build();
@@ -216,7 +216,7 @@ public class Queries {
                 new OperationChain.Builder()
                         .first(getAllElements)
                         .then(new Limit.Builder<Element>().resultLimit(5).build())
-                        .then(pythonOperation)
+                        .then(runPythonScript)
                         .build();
 
         graph.execute(opChain, user);

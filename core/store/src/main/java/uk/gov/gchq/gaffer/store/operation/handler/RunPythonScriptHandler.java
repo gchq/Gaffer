@@ -32,7 +32,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.PythonOperation;
+import uk.gov.gchq.gaffer.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PythonOperationHandler implements OperationHandler<PythonOperation> {
+public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
 
     private Git git;
     private final String repoName = "test";
@@ -86,7 +86,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     }
 
     @Override
-    public Object doOperation(final PythonOperation operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
         final List parameters = operation.getParameters();

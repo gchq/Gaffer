@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 import java.util.Map;
 
-public class PythonOperation<I_ITEM, O> implements
+public class RunPythonScript<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
         MultiInput<I_ITEM>,
         Operation {
@@ -52,7 +52,7 @@ public class PythonOperation<I_ITEM, O> implements
 
     @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new PythonOperation.Builder<>().name(scriptName).parameters(parameters).build();
+        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).build();
     }
 
     @Override
@@ -81,11 +81,11 @@ public class PythonOperation<I_ITEM, O> implements
         this.parameters = parameters;
     }
 
-    public static class Builder<I_ITEM, O> extends BaseBuilder<PythonOperation<I_ITEM, O>, Builder<I_ITEM, O>>
-            implements InputOutput.Builder<PythonOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
-            MultiInput.Builder<PythonOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
+    public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
+            implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
+            MultiInput.Builder<RunPythonScript<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
         public Builder() {
-            super(new PythonOperation<>());
+            super(new RunPythonScript<>());
         }
 
         public Builder<I_ITEM, O> name(final String scriptName) {
