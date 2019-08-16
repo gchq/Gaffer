@@ -21,7 +21,11 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.DockerRequestException;
-import com.spotify.docker.client.messages.*;
+import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.HostConfig;
+import com.spotify.docker.client.messages.Image;
+import com.spotify.docker.client.messages.PortBinding;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -58,7 +62,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
     private final String repoURI = "https://github.com/g609bmsma/test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
-    /** Clone the git repo */
+    /** Clone the git repo
+     * @return cloned git repo */
     private Git getGit() {
 
         if (git == null) {
@@ -111,7 +116,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Connecting to the Docker client...");
 
             DockerClient docker;
-            synchronized(this){
+            synchronized (this) {
                 docker = DefaultDockerClient.fromEnv().build();
             }
             System.out.println("Docker is now: " + docker);
@@ -135,7 +140,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             final List<Image> images;
             images = docker.listImages();
             String repoTag = "[<none>:<none>]";
-            for (Image image : images) {
+            for (final Image image : images) {
                 if (Objects.requireNonNull(image.repoTags()).toString().equals(repoTag)) {
                     docker.removeImage(image.id());
                 }
@@ -160,10 +165,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
                     portAvailable = true;
                     break;
-                } catch (DockerRequestException ignored) {
+                } catch (final DockerRequestException ignored) {
                 }
             }
-            System.out.println("Port number is: "+ port);
+            System.out.println("Port number is: " + port);
 
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
@@ -185,12 +190,11 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                     OutputStream outToContainer = clientSocket.getOutputStream();
                     DataOutputStream out = new DataOutputStream(outToContainer);
                     boolean firstObject = true;
-                    for (Object current : operation.getInput()) {
+                    for (final Object current : operation.getInput()) {
                         if (firstObject) {
                             out.writeUTF("[" + new String(JSONSerialiser.serialise(current)));
                             firstObject = false;
-                        }
-                        else {
+                        } else {
                             out.writeUTF(", " + new String(JSONSerialiser.serialise(current)));
                         }
                     }
@@ -233,9 +237,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
                 System.out.println("Connection failed, stopping the container...");
                 error.printStackTrace();
                 docker.stopContainer(containerId, 1); // Kill the container after 1 second
-            }
-            else {
-                for (int i = 0; i < incomingDataLength/65000; i++) {
+            } else {
+                for (int i = 0; i < incomingDataLength / 65000; i++) {
                    dataReceived.append(in.readUTF());
                 }
                 dataReceived.append(in.readUTF());
@@ -243,7 +246,6 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             }
 
             System.out.println("Closed the connection.");
-            System.out.println(dataReceived);
 
             output = JSONSerialiser.deserialise(dataReceived.toString(),
                     operation.getOutputClass());
@@ -261,7 +263,8 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
         return output;
     }
 
-    /** Get a random port number */
+    /** Get a random port number
+     * @return port for container*/
     private String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
         Random rand = new Random();

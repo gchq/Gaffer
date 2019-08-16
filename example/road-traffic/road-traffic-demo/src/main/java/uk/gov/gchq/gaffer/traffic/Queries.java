@@ -86,8 +86,7 @@ public class Queries {
         Callable<Void> callable = new Callable<Void>()
         {
             @Override
-            public Void call() throws Exception
-            {
+            public Void call() throws Exception {
                 runPython(graph, user);
                 return null;
             }
@@ -97,8 +96,7 @@ public class Queries {
         Callable<Void> callable2 = new Callable<Void>()
         {
             @Override
-            public Void call() throws Exception
-            {
+            public Void call() throws Exception {
                 runPython2(graph, user);
                 return null;
             }
@@ -117,13 +115,10 @@ public class Queries {
         //create a pool executor with 3 threads
         ExecutorService executor = Executors.newFixedThreadPool(20);
 
-        try
-        {
+        try {
             //start the threads and wait for them to finish
             executor.invokeAll(taskList);
-        }
-        catch (InterruptedException ie)
-        {
+        } catch (final InterruptedException ie) {
             //do something if you care about interruption;
         }
 
@@ -132,7 +127,7 @@ public class Queries {
             if (!executor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
                 executor.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             executor.shutdownNow();
         }
     }
@@ -143,8 +138,7 @@ public class Queries {
         Callable<Void> callable = new Callable<Void>()
         {
             @Override
-            public Void call() throws Exception
-            {
+            public Void call() throws Exception {
                 runPython(graph, user);
                 return null;
             }
@@ -159,13 +153,10 @@ public class Queries {
         //create a pool executor with 3 threads
         ExecutorService executor = Executors.newFixedThreadPool(20);
 
-        try
-        {
+        try {
             //start the threads and wait for them to finish
             executor.invokeAll(taskList);
-        }
-        catch (InterruptedException ie)
-        {
+        } catch (final InterruptedException ie) {
             //do something if you care about interruption;
         }
 
@@ -174,7 +165,7 @@ public class Queries {
             if (!executor.awaitTermination(100, TimeUnit.MILLISECONDS)) {
                 executor.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             executor.shutdownNow();
         }
     }
