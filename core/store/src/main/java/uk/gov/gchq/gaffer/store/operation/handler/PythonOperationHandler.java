@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +22,11 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.DockerRequestException;
-import com.spotify.docker.client.messages.*;
+import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.HostConfig;
+import com.spotify.docker.client.messages.Image;
+import com.spotify.docker.client.messages.PortBinding;
 import org.eclipse.jgit.api.Git;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -38,7 +43,7 @@ import java.util.Objects;
 
 public class PythonOperationHandler implements OperationHandler<PythonOperation> {
 
-    private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer(this);
+    private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer();
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private final GetPort getPort = new GetPort();
@@ -63,7 +68,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             System.out.println("Connecting to the Docker client...");
 
             DockerClient docker;
-            synchronized(this){
+            synchronized (this) {
                 docker = DefaultDockerClient.fromEnv().build();
             }
             System.out.println("Docker is now: " + docker);
@@ -73,7 +78,7 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
             final List<Image> images;
             images = docker.listImages();
             String repoTag = "[<none>:<none>]";
-            for (Image image : images) {
+            for (final Image image : images) {
                 if (Objects.requireNonNull(image.repoTags()).toString().equals(repoTag)) {
                     docker.removeImage(image.id());
                 }
@@ -98,10 +103,10 @@ public class PythonOperationHandler implements OperationHandler<PythonOperation>
 
                     portAvailable = true;
                     break;
-                } catch (DockerRequestException ignored) {
+                } catch (final DockerRequestException ignored) {
                 }
             }
-            System.out.println("Port number is: "+ port);
+            System.out.println("Port number is: " + port);
 
             if (!portAvailable) {
                 System.out.println("Failed to find an available port");
