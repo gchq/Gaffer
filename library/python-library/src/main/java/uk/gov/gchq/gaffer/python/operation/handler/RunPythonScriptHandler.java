@@ -56,8 +56,8 @@ public class RunPythonScriptHandler {
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
-        private final String repoName = operation.getRepoName();
-        private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/library/python-library/src" +
+        final String repoName = operation.getRepoName();
+        final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/library/python-library/src" +
                     "/main/resources" + "/" + repoName;
         Object output = null;
         final String scriptName = operation.getScriptName();
