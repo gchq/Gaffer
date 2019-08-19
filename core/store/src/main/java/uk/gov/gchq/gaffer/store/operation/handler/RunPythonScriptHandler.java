@@ -52,18 +52,18 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private final GetPort getPort = new GetPort();
     private Git git = null;
-    private final String repoName = "test";
-    private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
     @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
+        String repoName = operation.getRepoName();
+        String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
+        Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
-        Object output = null;
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo);
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo, operation);
 
         try {
 

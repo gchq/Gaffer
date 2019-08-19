@@ -178,6 +178,8 @@ public class Queries {
         final Map<String, Object> parameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
+        final String repoName = "test";
+        final String repoURI = "https://github.com/g609bmsma/test";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -186,6 +188,8 @@ public class Queries {
                 new RunPythonScript.Builder<Element, Entity>()
                         .name(scriptName)
                         .parameters(parameters)
+                        .repoName(repoName)
+                        .repoURI(repoURI)
                         .build();
 
         OperationChain<Entity> opChain =
