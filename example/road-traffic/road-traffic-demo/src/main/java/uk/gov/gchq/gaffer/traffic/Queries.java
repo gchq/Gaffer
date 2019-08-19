@@ -179,6 +179,7 @@ public class Queries {
             put("a", "b");
         }};
         final String repoName = "test";
+        final String repoURI = "https://github.com/g609bmsma/test";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -188,6 +189,7 @@ public class Queries {
                         .name(scriptName)
                         .parameters(parameters)
                         .repoName(repoName)
+                        .repoURI(repoURI)
                         .build();
 
         OperationChain<Entity> opChain =

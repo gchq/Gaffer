@@ -21,6 +21,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.operation.RunPythonScript;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +35,8 @@ class PullOrCloneRepo {
     /**
      * Pulls or clones repo of python scripts as needed
      */
-    void pullOrClone(Git git, final String pathAbsolutePythonRepo) {
-        String repoURI = "https://github.com/g609bmsma/test";
+    void pullOrClone(Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
+        String repoURI = operation.getRepoURI();
         if (git == null) {
             try {
                 git = Git.open(new File(pathAbsolutePythonRepo));
