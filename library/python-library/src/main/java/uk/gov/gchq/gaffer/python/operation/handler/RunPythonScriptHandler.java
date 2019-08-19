@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.python.operation.handler;/*
+/*
  * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@ package uk.gov.gchq.gaffer.python.operation.handler;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.python.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.spotify.docker.client.DefaultDockerClient;
@@ -26,15 +27,16 @@ import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.PortBinding;
 import org.eclipse.jgit.api.Git;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.*;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
+import uk.gov.gchq.gaffer.python.operation.GetPort;
+import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
+import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -43,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
+public class RunPythonScriptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer();
@@ -54,8 +56,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private final String repoName = "test";
     private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
 
-    @Override
-    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
