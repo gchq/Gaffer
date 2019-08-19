@@ -33,6 +33,7 @@ public class RunPythonScript<I_ITEM, O> implements
     private Map<String, String> options;
     private String scriptName;
     private Map<String, Object> parameters;
+    private String repoName;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -51,7 +52,7 @@ public class RunPythonScript<I_ITEM, O> implements
 
     @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).build();
+        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).repoName(repoName).build();
     }
 
     @Override
@@ -76,6 +77,14 @@ public class RunPythonScript<I_ITEM, O> implements
 
     public void setParameters(final Map<String, Object> parameters) { this.parameters = parameters; }
 
+    public String getRepoName() {
+        return repoName;
+    }
+
+    public void setRepoName(String repoName) {
+        this.repoName = repoName;
+    }
+
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
             MultiInput.Builder<RunPythonScript<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
@@ -90,6 +99,11 @@ public class RunPythonScript<I_ITEM, O> implements
 
         public Builder<I_ITEM, O> parameters(final Map<String, Object> parameters) {
             _getOp().setParameters(parameters);
+            return _self();
+        }
+
+        public Builder<I_ITEM, O> repoName(final String repoName) {
+            _getOp().setRepoName(repoName);
             return _self();
         }
     }

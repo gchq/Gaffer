@@ -178,6 +178,7 @@ public class Queries {
         final Map<String, Object> parameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
+        final String repoName = "test";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -186,6 +187,7 @@ public class Queries {
                 new RunPythonScript.Builder<Element, Entity>()
                         .name(scriptName)
                         .parameters(parameters)
+                        .repoName(repoName)
                         .build();
 
         OperationChain<Entity> opChain =
