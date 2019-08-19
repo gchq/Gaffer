@@ -33,6 +33,7 @@
         <module>cache-library</module>
         <module>flink-library</module>
         <module>time-library</module>
+        <module>python-library</module>
     </modules>
 
     <profiles>

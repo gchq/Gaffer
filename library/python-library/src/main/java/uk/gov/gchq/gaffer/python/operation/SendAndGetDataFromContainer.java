@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.python.operation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.RunPythonScript;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

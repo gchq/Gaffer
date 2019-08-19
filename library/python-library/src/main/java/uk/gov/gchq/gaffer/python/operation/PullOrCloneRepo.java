@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -26,16 +26,16 @@ import uk.gov.gchq.gaffer.operation.RunPythonScript;
 import java.io.File;
 import java.io.IOException;
 
-class PullOrCloneRepo {
+public class PullOrCloneRepo {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
 
-    PullOrCloneRepo() {
+    public PullOrCloneRepo() {
     }
 
     /**
      * Pulls or clones repo of python scripts as needed
      */
-    void pullOrClone(Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
+    public void pullOrClone(Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
         String repoURI = operation.getRepoURI();
         if (git == null) {
             try {

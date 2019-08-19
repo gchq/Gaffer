@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.python.operation;
 
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class GetPort {
-    GetPort() {
+public class GetPort {
+    public GetPort() {
     }
 
     /**
      * Get a random port number
      */
-    String getPort() {
+    public String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
         Random rand = new Random();
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));

@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.python.operation;
 
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.operation.RunPythonScript;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
-class SetUpAndCloseContainer {
+public class SetUpAndCloseContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetUpAndCloseContainer.class);
 
-    SetUpAndCloseContainer() {
+    public SetUpAndCloseContainer() {
     }
 
     /**
      * Sets up and closes container
      */
-    StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final DockerClient docker, final String port, final String containerId) throws InterruptedException, DockerException, IOException {
+    public StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final DockerClient docker, final String port, final String containerId) throws InterruptedException, DockerException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         boolean failedToConnect = true;
         IOException error = null;
