@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.python.operation;
 
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
@@ -27,16 +27,16 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-class BuildImageFromDockerfile {
+public class BuildImageFromDockerfile {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageFromDockerfile.class);
 
-    BuildImageFromDockerfile() {
+    public BuildImageFromDockerfile() {
     }
 
     /**
      * Builds docker imafe from Dockerfile
      */
-    String buildImage(final String scriptName, final Map<String, Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
+    public String buildImage(final String scriptName, final Map<String, Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
         LOGGER.info(buildargs);
