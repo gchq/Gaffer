@@ -54,7 +54,9 @@ public class RunPythonScriptHandler {
     private final GetPort getPort = new GetPort();
     private Git git = null;
     private final String repoName = "test";
-    private final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/core/store/src/main/resources" + "/" + repoName;
+    private final String pathAbsolutePythonRepo =
+            FileSystems.getDefault().getPath(".").toAbsolutePath() + "/library/python-library/src" +
+                    "/main/resources" + "/" + repoName;
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
