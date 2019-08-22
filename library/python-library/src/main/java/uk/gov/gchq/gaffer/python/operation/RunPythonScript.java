@@ -36,7 +36,7 @@ public class RunPythonScript<I_ITEM, O> implements
     private Map<String, Object> parameters;
     private String repoName;
     private String repoURI;
-    private String outputType;
+    private String operationType;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -55,7 +55,7 @@ public class RunPythonScript<I_ITEM, O> implements
 
     @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).repoName(repoName).repoURI(repoURI).outputType(outputType).build();
+        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).repoName(repoName).repoURI(repoURI).operationType(operationType).build();
     }
 
     @Override
@@ -96,9 +96,9 @@ public class RunPythonScript<I_ITEM, O> implements
         this.repoURI = repoURI;
     }
 
-    public String getOutputType() { return outputType; }
+    public String getOperationType() { return operationType; }
 
-    public void setOutputType(String outputType) { this.outputType = outputType; }
+    public void setOperationType(String operationType) { this.operationType = operationType; }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
@@ -127,9 +127,10 @@ public class RunPythonScript<I_ITEM, O> implements
             return _self();
         }
 
-        public Builder<I_ITEM, O> outputType(final String outputType) {
-            _getOp().setOutputType(outputType);
+        public Builder<I_ITEM, O> operationType(final String operationType) {
+            _getOp().setOperationType(operationType);
             return _self();
         }
+
     }
 }

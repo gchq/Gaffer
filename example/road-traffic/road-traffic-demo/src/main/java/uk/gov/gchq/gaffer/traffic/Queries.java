@@ -71,7 +71,7 @@ public class Queries {
         final Graph graph = createGraph(user);
 
 //        pythonPerformanceTest(graph, user);
-        runPython2(graph, user);
+        runPython(graph, user);
 //        parallelTest(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());
@@ -177,7 +177,7 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final String outputType = "table";
+        final String operationType = "table";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -188,7 +188,7 @@ public class Queries {
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
-                        .outputType(outputType)
+                        .operationType(operationType)
                         .build();
 
         OperationChain<Iterable<? extends String>> opChain =
@@ -212,7 +212,7 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final String outputType = "html";
+        final String operationType = "html";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -223,7 +223,7 @@ public class Queries {
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
-                        .outputType(outputType)
+                        .operationType(operationType)
                         .build();
 
         OperationChain<StringBuilder> opChain =

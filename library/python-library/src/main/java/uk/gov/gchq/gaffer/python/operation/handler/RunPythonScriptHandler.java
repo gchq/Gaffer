@@ -62,7 +62,7 @@ public class RunPythonScriptHandler {
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
-        final String outputType = operation.getOutputType();
+        final String operationType = operation.getOperationType();
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo, operation);
@@ -119,7 +119,7 @@ public class RunPythonScriptHandler {
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
-            switch(outputType) {
+            switch(operationType) {
                 case "table":
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
                     break;
@@ -131,8 +131,6 @@ public class RunPythonScriptHandler {
             }
 
             LOGGER.info("Closed the connection.");
-
-            System.out.println("output is: " +  output.toString());
 
             // Delete the container
             LOGGER.info("Deleting the container...");
