@@ -52,10 +52,7 @@ import uk.gov.gchq.koryphe.impl.predicate.range.InDateRangeDual;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -74,7 +71,7 @@ public class Queries {
         final Graph graph = createGraph(user);
 
 //        pythonPerformanceTest(graph, user);
-        runPython(graph, user);
+        runPython2(graph, user);
 //        parallelTest(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());
@@ -180,26 +177,31 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
+        final String outputType = "table";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final RunPythonScript<Element, Entity> runPythonScript =
-                new RunPythonScript.Builder<Element, Entity>()
+        final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
+                new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .name(scriptName)
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
+                        .outputType(outputType)
                         .build();
 
-        OperationChain<Entity> opChain =
+        OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
-                        //.then(new Limit.Builder<Element>().resultLimit(300).build())
+                        .then(new Limit.Builder<Element>().resultLimit(100).build())
                         .then(runPythonScript)
                         .build();
 
-        graph.execute(opChain, user);
+        final Iterable<? extends String> results = graph.execute(opChain, user);
+
+        System.out.println("results are: " + results);
+
     }
 
     private void runPython2(final Graph graph, final User user) throws OperationException {
@@ -208,24 +210,32 @@ public class Queries {
         final Map<String, Object> parameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
+        final String repoName = "test";
+        final String repoURI = "https://github.com/g609bmsma/test";
+        final String outputType = "html";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final RunPythonScript<Element, Entity> runPythonScript =
-                new RunPythonScript.Builder<Element, Entity>()
+        final RunPythonScript<Element, StringBuilder> runPythonScript =
+                new RunPythonScript.Builder<Element, StringBuilder>()
                         .name(scriptName)
                         .parameters(parameters)
+                        .repoName(repoName)
+                        .repoURI(repoURI)
+                        .outputType(outputType)
                         .build();
 
-        OperationChain<Entity> opChain =
+        OperationChain<StringBuilder> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
-                        .then(new Limit.Builder<Element>().resultLimit(5).build())
+                        .then(new Limit.Builder<Element>().resultLimit(100).build())
                         .then(runPythonScript)
                         .build();
 
-        graph.execute(opChain, user);
+        final StringBuilder results = graph.execute(opChain, user);
+
+        System.out.println("results are: " + results);
     }
 
     private void runFullExample(final Graph graph, final User user) throws OperationException {
