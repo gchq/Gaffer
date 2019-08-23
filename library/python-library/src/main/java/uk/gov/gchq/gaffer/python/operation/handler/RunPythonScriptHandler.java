@@ -40,6 +40,8 @@ import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,15 +59,14 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final String pathAbsolutePythonRepo = FileSystems.getDefault().getPath(".").toAbsolutePath() + "/library/python-library/src" +
-                    "/main/resources" + "/" + repoName;
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents/gaffer/myGaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
         final String operationType = operation.getOperationType();
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo, operation);
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
 
         try {
 
@@ -78,7 +79,7 @@ public class RunPythonScriptHandler {
                 docker = DefaultDockerClient.fromEnv().build();
             }
             LOGGER.info("Docker is now: {}", docker);
-            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo);
+            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo.toString());
 
             // Remove the old images
             final List<Image> images;
