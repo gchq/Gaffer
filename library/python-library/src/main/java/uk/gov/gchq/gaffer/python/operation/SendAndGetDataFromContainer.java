@@ -38,7 +38,6 @@ public class SendAndGetDataFromContainer {
      */
     static DataInputStream sendAndGetData(final RunPythonScript operation, final Socket clientSocket) throws IOException {
         // Send the data
-        LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
         OutputStream outToContainer = clientSocket.getOutputStream();
         DataOutputStream out = new DataOutputStream(outToContainer);
         boolean firstObject = true;
@@ -51,8 +50,8 @@ public class SendAndGetDataFromContainer {
             }
         }
         out.writeUTF("]");
+        LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
         out.flush();
-        //out.writeUTF(dataToSend);
         LOGGER.info("Waiting for response from Container...");
         // Get the data from the container
         InputStream inFromContainer = clientSocket.getInputStream();

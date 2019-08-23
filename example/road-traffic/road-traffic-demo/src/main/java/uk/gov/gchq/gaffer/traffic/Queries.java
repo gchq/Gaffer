@@ -195,7 +195,7 @@ public class Queries {
         OperationChain<Entity> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
-                        //.then(new Limit.Builder<Element>().resultLimit(300).build())
+                        .then(new Limit.Builder<Element>().resultLimit(100).truncate(true).build())
                         .then(runPythonScript)
                         .build();
 

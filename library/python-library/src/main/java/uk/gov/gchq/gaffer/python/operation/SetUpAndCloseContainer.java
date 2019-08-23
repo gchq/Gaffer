@@ -48,7 +48,6 @@ public class SetUpAndCloseContainer {
                 clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
                 in = SendAndGetDataFromContainer.sendAndGetData(operation, clientSocket);
-
                 LOGGER.info("Container ready status: {}", in.readBoolean());
                 break;
             } catch (final IOException e) {
