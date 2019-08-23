@@ -177,7 +177,7 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final String operationType = "table";
+        final String scriptOutputType = "TABLE";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -188,7 +188,7 @@ public class Queries {
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
-                        .operationType(operationType)
+                        .scriptOutputType(scriptOutputType)
                         .build();
 
         OperationChain<Iterable<? extends String>> opChain =
@@ -212,7 +212,7 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final String operationType = "html";
+        final String scriptOutputType = "HTML";
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -223,7 +223,7 @@ public class Queries {
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
-                        .operationType(operationType)
+                        .scriptOutputType(scriptOutputType)
                         .build();
 
         OperationChain<StringBuilder> opChain =

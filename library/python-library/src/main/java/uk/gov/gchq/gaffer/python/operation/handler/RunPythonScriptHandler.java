@@ -63,7 +63,7 @@ public class RunPythonScriptHandler {
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
-        final String operationType = operation.getOperationType();
+        final String scriptOutputType = operation.getScriptOutputType();
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
@@ -120,11 +120,11 @@ public class RunPythonScriptHandler {
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
-            switch(operationType) {
-                case "table":
+            switch(scriptOutputType) {
+                case "ELEMENTS":
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
                     break;
-                case "html":
+                case "HTML":
                     output = dataReceived;
                     break;
                 default:
