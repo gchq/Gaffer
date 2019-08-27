@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.traffic;
 
 import org.apache.commons.io.IOUtils;
 
+import sun.font.Script;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficStringElementGenerator;
 import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
@@ -172,25 +174,27 @@ public class Queries {
     private void runPython(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script1";
-        final Map<String, Object> parameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final String ip = "127.0.0.1";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
+        final ScriptInputType scriptInputType = ScriptInputType.JSON;
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
         final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
                 new RunPythonScript.Builder<Element, Iterable<? extends String>>()
-                        .name(scriptName)
-                        .parameters(parameters)
+                        .scriptName(scriptName)
+                        .scriptParameters(scriptParameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
                         .ip(ip)
                         .scriptOutputType(scriptOutputType)
+                        .scriptInputType(scriptInputType)
                         .build();
 
         OperationChain<Iterable<? extends String>> opChain =
@@ -209,23 +213,25 @@ public class Queries {
     private void runPython2(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script2";
-        final Map<String, Object> parameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
+        final ScriptInputType scriptInputType = ScriptInputType.JSON;
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
         final RunPythonScript<Element, StringBuilder> runPythonScript =
                 new RunPythonScript.Builder<Element, StringBuilder>()
-                        .name(scriptName)
-                        .parameters(parameters)
+                        .scriptName(scriptName)
+                        .scriptParameters(scriptParameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
                         .scriptOutputType(scriptOutputType)
+                        .scriptInputType(scriptInputType)
                         .build();
 
         OperationChain<StringBuilder> opChain =

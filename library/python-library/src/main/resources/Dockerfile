@@ -13,11 +13,14 @@ COPY test/$modulesName.txt /
 RUN pip install -r $modulesName.txt
 
 ARG scriptName
-ENV envVarScriptName $scriptName
+ENV scriptName $scriptName
 
-ARG parameters
-ENV parameters ${parameters}
+ARG scriptParameters
+ENV scriptParameters $scriptParameters
+
+ARG scriptInputType
+ENV scriptInputType $scriptInputType
 
 COPY test/$scriptName.py /
 
-ENTRYPOINT "python" "entrypoint.py" $envVarScriptName $parameters
+ENTRYPOINT "python" "entrypoint.py" $scriptName $scriptParameters $scriptInputType

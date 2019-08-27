@@ -60,8 +60,9 @@ public class RunPythonScriptHandler {
         final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents/gaffer/myGaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
-        final Map<String, Object> parameters = operation.getParameters();
+        final Map<String, Object> scriptParameters = operation.getScriptParameters();
         final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
+        final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
@@ -76,7 +77,7 @@ public class RunPythonScriptHandler {
                 docker = DefaultDockerClient.fromEnv().build();
             }
             LOGGER.info("Docker is now: {}", docker);
-            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, parameters, docker, pathAbsolutePythonRepo.toString());
+            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, scriptInputType, docker, pathAbsolutePythonRepo.toString());
 
             // Remove the old images
             final List<Image> images;
@@ -135,13 +136,13 @@ public class RunPythonScriptHandler {
         }
         finally {
             LOGGER.info("Deleting the container...");
-            try {
-                docker.waitContainer(containerId);
-                docker.removeContainer(containerId);
-            }
-            catch (DockerException | InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                docker.waitContainer(containerId);
+//                docker.removeContainer(containerId);
+//            }
+//            catch (DockerException | InterruptedException e) {
+//                e.printStackTrace();
+//            }
             docker.close();
         }
         return output;

@@ -33,11 +33,12 @@ public class RunPythonScript<I_ITEM, O> implements
     private Iterable<? extends I_ITEM> input;
     private Map<String, String> options;
     private String scriptName;
-    private Map<String, Object> parameters;
+    private Map<String, Object> scriptParameters;
     private String repoName;
     private String repoURI;
     private String ip;
     private ScriptOutputType scriptOutputType;
+    private ScriptInputType scriptInputType;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -56,7 +57,7 @@ public class RunPythonScript<I_ITEM, O> implements
 
     @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new RunPythonScript.Builder<>().name(scriptName).parameters(parameters).repoName(repoName).repoURI(repoURI).ip(ip).scriptOutputType(scriptOutputType).build();
+        return new RunPythonScript.Builder<>().scriptName(scriptName).scriptParameters(scriptParameters).repoName(repoName).repoURI(repoURI).ip(ip).scriptOutputType(scriptOutputType).scriptInputType(scriptInputType).build();
     }
 
     @Override
@@ -77,9 +78,9 @@ public class RunPythonScript<I_ITEM, O> implements
         return scriptName;
     }
 
-    public Map<String, Object> getParameters() { return parameters; }
+    public Map<String, Object> getScriptParameters() { return scriptParameters; }
 
-    public void setParameters(final Map<String, Object> parameters) { this.parameters = parameters; }
+    public void setScriptParameters(final Map<String, Object> scriptParameters) { this.scriptParameters = scriptParameters; }
 
     public String getRepoName() {
         return repoName;
@@ -109,6 +110,10 @@ public class RunPythonScript<I_ITEM, O> implements
 
     public void setScriptOutputType(ScriptOutputType scriptOutputType) { this.scriptOutputType = scriptOutputType; }
 
+    public ScriptInputType getScriptInputType() { return scriptInputType; }
+
+    public void setScriptInputType(ScriptInputType scriptInputType) { this.scriptInputType = scriptInputType; }
+
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
             MultiInput.Builder<RunPythonScript<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
@@ -116,13 +121,13 @@ public class RunPythonScript<I_ITEM, O> implements
             super(new RunPythonScript<>());
         }
 
-        public Builder<I_ITEM, O> name(final String scriptName) {
+        public Builder<I_ITEM, O> scriptName(final String scriptName) {
             _getOp().setScriptName(scriptName);
             return _self();
         }
 
-        public Builder<I_ITEM, O> parameters(final Map<String, Object> parameters) {
-            _getOp().setParameters(parameters);
+        public Builder<I_ITEM, O> scriptParameters(final Map<String, Object> scriptParameters) {
+            _getOp().setScriptParameters(scriptParameters);
             return _self();
         }
 
@@ -143,6 +148,11 @@ public class RunPythonScript<I_ITEM, O> implements
 
         public Builder<I_ITEM, O> scriptOutputType(final ScriptOutputType scriptOutputType) {
             _getOp().setScriptOutputType(scriptOutputType);
+            return _self();
+        }
+
+        public Builder<I_ITEM, O> scriptInputType(final ScriptInputType scriptInputType) {
+            _getOp().setScriptInputType(scriptInputType);
             return _self();
         }
 

@@ -11,6 +11,12 @@ from DataInputStream import DataInputStream
 scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
+scriptParameters = sys.argv[2]
+print('scriptParameters are ', scriptParameters)
+print('type of parameters is: ', type(scriptParameters))
+scriptInputType = sys.argv[3]
+print('scriptInputType is ', scriptInputType)
+
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
@@ -39,11 +45,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 else:
                     currentPayload = dis.read_utf()
                     rawData += currentPayload
-            tableData = pandas.read_json(rawData, orient="records")
-            print('Tabled Data : \n', tableData)
-            data = pandas.DataFrame.to_json(tableData, orient="records")
-            data = scriptName.run(data, None)
-            # print('Result Data : ', data)
+            if scriptInputType == 'DATAFRAME':
+                data = pandas.read_json(rawData, orient="records")
+                print('Tabled Data : \n', data)
+            elif scriptInputType == 'JSON':
+                data = rawData
+            data = scriptName.run(data, scriptParameters)
+            if isinstance(data,type(pandas.DataFrame)):
+                data = pandas.DataFrame.to_json(data, orient="records")
+            elif isinstance(data,type(String)):
+                data = pandas.DataFrame.to_json(data, orient="records")
             i = 0
             conn.sendall(struct.pack('>i', len(data)))
             if len(data) > 65000:
