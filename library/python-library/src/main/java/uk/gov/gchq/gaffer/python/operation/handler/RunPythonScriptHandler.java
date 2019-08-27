@@ -91,12 +91,13 @@ public class RunPythonScriptHandler {
             // Keep trying to start a container and find a free port.
             String port = null;
             boolean portAvailable = false;
+            String ip = operation.getIp();
             for (int i = 0; i < 100; i++) {
                 try {
                     port = getPort.getPort();
 
                     // Create a container from the image and bind ports
-                    final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of("127.0.0.1", port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
+                    final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
                     final ContainerCreation creation = docker.createContainer(containerConfig);
                     containerId = creation.id();
 

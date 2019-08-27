@@ -177,6 +177,7 @@ public class Queries {
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
+        final String ip = "127.0.0.1";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
 
         final GetAllElements getAllElements =
@@ -188,6 +189,7 @@ public class Queries {
                         .parameters(parameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
+                        .ip(ip)
                         .scriptOutputType(scriptOutputType)
                         .build();
 
