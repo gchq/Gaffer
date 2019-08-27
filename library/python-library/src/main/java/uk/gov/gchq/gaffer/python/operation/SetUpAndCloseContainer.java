@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,23 +41,24 @@ public class SetUpAndCloseContainer {
         IOException error = null;
         Socket clientSocket = null;
         DataInputStream in = null;
-        LOGGER.info("Attempting to send data to container...");
+        Thread.sleep(1000);
+        LOGGER.info("Attempting to connect with the container...");
         for (int i = 0; i < 100; i++) {
             try {
                 clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
-                in = SendAndGetDataFromContainer.sendAndGetData(operation, clientSocket);
-
+                in = SendAndGetDataFromContainer.getInputStream(clientSocket);
                 LOGGER.info("Container ready status: {}", in.readBoolean());
+                SendAndGetDataFromContainer.sendData(operation, clientSocket);
                 break;
             } catch (final IOException e) {
-                LOGGER.info("Failed to send data.");
+                LOGGER.info(e.getMessage());
                 error = e;
                 TimeUnit.MILLISECONDS.sleep(100);
             }
         }
-        LOGGER.info("In is: {}", in);
         LOGGER.info("clientSocket is: {}", clientSocket);
+        LOGGER.info("In is: {}", in);
         int incomingDataLength = 0;
         if (clientSocket != null && in != null) {
             int timeout = 0;

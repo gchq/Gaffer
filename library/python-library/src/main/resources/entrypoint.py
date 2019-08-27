@@ -18,6 +18,7 @@ print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     # Setup the port and get it ready for listening for connections
     s.bind((HOST, PORT))
     s.listen(1)
