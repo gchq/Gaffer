@@ -51,6 +51,8 @@ public class RunPythonScriptHandler {
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private final GetPort getPort = new GetPort();
     private Git git = null;
+    private DockerClient docker = null;
+    private String containerId = null;
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
@@ -70,7 +72,6 @@ public class RunPythonScriptHandler {
             // memory leaks, synchronize this code amongst multiple threads.
             LOGGER.info("Connecting to the Docker client...");
 
-            DockerClient docker;
             synchronized (this) {
                 docker = DefaultDockerClient.fromEnv().build();
             }
@@ -90,7 +91,6 @@ public class RunPythonScriptHandler {
             // Keep trying to start a container and find a free port.
             String port = null;
             boolean portAvailable = false;
-            String containerId = null;
             for (int i = 0; i < 100; i++) {
                 try {
                     port = getPort.getPort();
@@ -129,15 +129,19 @@ public class RunPythonScriptHandler {
 
             LOGGER.info("Closed the connection.");
 
-            // Delete the container
-            LOGGER.info("Deleting the container...");
-            docker.waitContainer(containerId);
-            docker.removeContainer(containerId);
-
-            docker.close();
-
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            LOGGER.info("Deleting the container...");
+            try {
+                docker.waitContainer(containerId);
+                docker.removeContainer(containerId);
+            }
+            catch (DockerException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            docker.close();
         }
         return output;
     }

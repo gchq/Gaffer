@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -36,9 +36,7 @@ public class SendAndGetDataFromContainer {
     /**
      * Sends data to and gets data from container
      */
-    static DataInputStream sendAndGetData(final RunPythonScript operation, final Socket clientSocket) throws IOException {
-        // Send the data
-        LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
+    static void sendData(final RunPythonScript operation, final Socket clientSocket) throws IOException {
         OutputStream outToContainer = clientSocket.getOutputStream();
         DataOutputStream out = new DataOutputStream(outToContainer);
         boolean firstObject = true;
@@ -51,11 +49,11 @@ public class SendAndGetDataFromContainer {
             }
         }
         out.writeUTF("]");
+        LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
         out.flush();
-        //out.writeUTF(dataToSend);
-        LOGGER.info("Waiting for response from Container...");
-        // Get the data from the container
-        InputStream inFromContainer = clientSocket.getInputStream();
-        return new DataInputStream(inFromContainer);
+    }
+
+    static DataInputStream getInputStream(final Socket clientSocket) throws IOException {
+        return new DataInputStream(clientSocket.getInputStream());
     }
 }
