@@ -32,11 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
-import uk.gov.gchq.gaffer.python.operation.GetPort;
-import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
-import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
-import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
+import uk.gov.gchq.gaffer.python.operation.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -63,7 +59,7 @@ public class RunPythonScriptHandler {
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> parameters = operation.getParameters();
-        final String scriptOutputType = operation.getScriptOutputType();
+        final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
@@ -121,10 +117,10 @@ public class RunPythonScriptHandler {
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
             switch(scriptOutputType) {
-                case "ELEMENTS":
+                case ELEMENTS:
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
                     break;
-                case "HTML":
+                case JSON:
                     output = dataReceived;
                     break;
                 default:
