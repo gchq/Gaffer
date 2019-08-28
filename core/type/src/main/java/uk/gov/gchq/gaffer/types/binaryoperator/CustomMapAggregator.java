@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.binaryoperator;
+package uk.gov.gchq.gaffer.types.binaryoperator;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import uk.gov.gchq.gaffer.types.CustomMap;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
@@ -28,8 +29,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.BinaryOperator;
 
+@Since("1.10.0")
 @Summary("Merges 2 CustomMaps by applying a binary operator to each of the values")
-public class BinaryOperatorCustomMap<K, V> extends KorypheBinaryOperator<CustomMap<K, V>> {
+public class CustomMapAggregator<K, V> extends KorypheBinaryOperator<CustomMap<K, V>> {
     @JsonTypeInfo(
             use = Id.CLASS,
             include = As.PROPERTY,
@@ -37,10 +39,10 @@ public class BinaryOperatorCustomMap<K, V> extends KorypheBinaryOperator<CustomM
     )
     private BinaryOperator<V> binaryOperator;
 
-    public BinaryOperatorCustomMap() {
+    public CustomMapAggregator() {
     }
 
-    public BinaryOperatorCustomMap(final BinaryOperator<V> binaryOperator) {
+    public CustomMapAggregator(final BinaryOperator<V> binaryOperator) {
         this.setBinaryOperator(binaryOperator);
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.binaryoperator;
+package uk.gov.gchq.gaffer.types.binaryoperator;
 
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class BinaryOperatorCustomMapTest {
+public class CustomMapAggregatorTest {
     @Test
     public void testMapAggregation() {
         int inA = 1;
@@ -56,7 +56,7 @@ public class BinaryOperatorCustomMapTest {
             given(aggregator.apply(expectedB, inB)).willReturn(inB + (expectedB == null ? 0 : expectedB));
         }
 
-        BinaryOperatorCustomMap<String, Integer> mapBinaryOperator = new BinaryOperatorCustomMap<>();
+        CustomMapAggregator<String, Integer> mapBinaryOperator = new CustomMapAggregator<>();
         mapBinaryOperator.setBinaryOperator(aggregator);
 
         CustomMap<String, Integer> state = null;
