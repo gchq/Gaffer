@@ -74,6 +74,7 @@ public class Queries {
 
 //        pythonPerformanceTest(graph, user);
         runPython(graph, user);
+//        runPython2(graph, user);
 //        parallelTest(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());
@@ -212,20 +213,20 @@ public class Queries {
 
     private void runPython2(final Graph graph, final User user) throws OperationException {
 
-        final String scriptName = "script2";
+        final String scriptName = "script1";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
             put("a", "b");
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
-        final ScriptInputType scriptInputType = ScriptInputType.JSON;
+        final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
+        final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final RunPythonScript<Element, StringBuilder> runPythonScript =
-                new RunPythonScript.Builder<Element, StringBuilder>()
+        final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
+                new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
                         .repoName(repoName)
@@ -234,14 +235,14 @@ public class Queries {
                         .scriptInputType(scriptInputType)
                         .build();
 
-        OperationChain<StringBuilder> opChain =
+        OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
                         .then(new Limit.Builder<Element>().resultLimit(100).build())
                         .then(runPythonScript)
                         .build();
 
-        final StringBuilder results = graph.execute(opChain, user);
+        final Iterable<? extends String> results = graph.execute(opChain, user);
 
         System.out.println("results are: " + results);
     }
