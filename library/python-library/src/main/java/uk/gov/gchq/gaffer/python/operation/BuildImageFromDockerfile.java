@@ -34,11 +34,11 @@ public class BuildImageFromDockerfile {
     }
 
     /**
-     * Builds docker imafe from Dockerfile
+     * Builds docker image from Dockerfile
      */
-    public String buildImage(final String scriptName, final Map<String, Object> parameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
+    public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
-        final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"parameters\":\"" + parameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\"}";
+        final String buildargs = "{\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + scriptParameters + "\",\"modulesName\":\"" + scriptName + "Modules" + "\",\"scriptInputType\":\"" + scriptInputType.toString() + "\"}";
         LOGGER.info(buildargs);
         final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
 
