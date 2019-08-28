@@ -136,13 +136,13 @@ public class RunPythonScriptHandler {
         }
         finally {
             LOGGER.info("Deleting the container...");
-//            try {
-//                docker.waitContainer(containerId);
-//                docker.removeContainer(containerId);
-//            }
-//            catch (DockerException | InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                docker.waitContainer(containerId);
+                docker.removeContainer(containerId);
+            }
+            catch (DockerException | InterruptedException e) {
+                e.printStackTrace();
+            }
             docker.close();
         }
         return output;
