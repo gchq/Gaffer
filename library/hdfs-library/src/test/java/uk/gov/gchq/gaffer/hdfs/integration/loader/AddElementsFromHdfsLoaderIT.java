@@ -76,6 +76,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
                 .replaceFirst("/$", "")
                 + testFolder.getRoot().getAbsolutePath();
 
+
         LOGGER.info("using root dir: " + root);
 
         inputDir1 = root + "/inputDir1";
@@ -168,6 +169,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         final Path inputFilePath2 = new Path(inputDir2 + "/file.txt");
         final Path inputPath3 = new Path(inputDir3);
         final Path inputFilePath3 = new Path(inputDir3 + "/file.txt");
+
         try {
             fs.mkdirs(inputPath1);
             fs.mkdirs(inputPath2);

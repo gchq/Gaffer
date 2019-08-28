@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -52,6 +54,7 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
     public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
@@ -480,7 +483,11 @@ public class FederatedGraphStorage {
     private void makeAllGraphsFromCache() throws StorageException {
         final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
         for (final String graphId : allGraphIds) {
-            makeGraphFromCache(graphId);
+            try {
+                makeGraphFromCache(graphId);
+            } catch (final Exception e) {
+                LOGGER.error(String.format("Skipping graphId: %s due to: %s", graphId, e.getMessage()), e);
+            }
         }
     }
 }
