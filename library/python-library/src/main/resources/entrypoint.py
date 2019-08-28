@@ -12,11 +12,7 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 scriptParameters = sys.argv[2]
-print('scriptParameters are ', scriptParameters)
-print('type of parameters is: ', type(scriptParameters))
 scriptInputType = sys.argv[3]
-print('scriptInputType is ', scriptInputType)
-
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
@@ -45,16 +41,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 else:
                     currentPayload = dis.read_utf()
                     rawData += currentPayload
+
+            # Convert data into the right form based on scriptInputType
             if scriptInputType == 'DATAFRAME':
                 data = pandas.read_json(rawData, orient="records")
                 print('Tabled Data : \n', data)
             elif scriptInputType == 'JSON':
-                data = rawData
+                data = rawData.decode('utf-8')
+
+            # Run the script passing in the parameters
             data = scriptName.run(data, scriptParameters)
+
+            # Convert the data back into JSON
             if isinstance(data,type(pandas.DataFrame)):
                 data = pandas.DataFrame.to_json(data, orient="records")
-            elif isinstance(data,type(String)):
-                data = pandas.DataFrame.to_json(data, orient="records")
+
+            # Send the results back to the server
+            print('type of output data is: ', type(data))
             i = 0
             conn.sendall(struct.pack('>i', len(data)))
             if len(data) > 65000:
