@@ -66,10 +66,24 @@ public class RBMBackedTimestampSetInRangeTest {
     @Test
     public void shouldReturnTrueIfAllTimestampsAreWithinRange() {
         // When
-        predicate.startTime(0L).endTime(Instant.now().toEpochMilli());
+        predicate.startTime(0L).endTime(Instant.now().toEpochMilli()).timeUnit(TimeUnit.MILLISECOND);
 
         // Then
         assertTrue(predicate.test(timestamps));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfTimestampFallsOutsideTheRangeOfInteger() {
+        // When
+        predicate.startTime(0L).endTime(Instant.now().toEpochMilli()).timeUnit(TimeUnit.DAY);
+
+        // Then
+        try {
+            predicate.test(timestamps);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertEquals("Failed to convert end time to SECOND as the resulting value was outside the range of Integer", e.getMessage());
+        }
     }
 
     @Test
@@ -191,7 +205,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 "\"endTime\":{\"java.lang.Long\":200}," +
                 "\"timeUnit\":\"SECOND\"," +
                 "\"includeAllTimestamps\":true" +
-            "}";
+                "}";
 
         // then
         JsonAssert.assertEquals(expectedSerialisedForm, JsonSerialiser.serialise(pred));
@@ -205,7 +219,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 "\"startTime\":10," +
                 "\"endTime\":200," +
                 "\"timeUnit\":\"SECOND\"" +
-            "}";
+                "}";
 
         // When
         RBMBackedTimestampSetInRange pred = JsonSerialiser.deserialise(serialised, RBMBackedTimestampSetInRange.class);
