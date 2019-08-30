@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.*;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -57,7 +56,8 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents/gaffer/myGaffer","/library/python-library/src/main/resources/",repoName);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents" +
+                "/Gaffer/NeilG/Gaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
@@ -123,7 +123,7 @@ public class RunPythonScriptHandler {
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
                     break;
                 case JSON:
-                    output = dataReceived;
+                    output = dataReceived.toString();
                     break;
                 default:
                     output = null;
@@ -136,13 +136,13 @@ public class RunPythonScriptHandler {
         }
         finally {
             LOGGER.info("Deleting the container...");
-//            try {
-//                docker.waitContainer(containerId);
-//                docker.removeContainer(containerId);
-//            }
-//            catch (DockerException | InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                docker.waitContainer(containerId);
+                docker.removeContainer(containerId);
+            }
+            catch (DockerException | InterruptedException e) {
+                e.printStackTrace();
+            }
             docker.close();
         }
         return output;

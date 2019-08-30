@@ -4,6 +4,7 @@ import struct
 import re
 import pandas
 import sys
+from ast import literal_eval
 
 from DataInputStream import DataInputStream
 
@@ -12,6 +13,8 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 scriptParameters = sys.argv[2]
+dictParameters = literal_eval(scriptParameters)
+print('scriptParams is ', scriptParameters)
 scriptInputType = sys.argv[3]
 
 HOST = socket.gethostbyname(socket.gethostname())
@@ -50,12 +53,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 data = rawData.decode('utf-8')
 
             # Run the script passing in the parameters
-            data = scriptName.run(data, scriptParameters)
+            data = scriptName.run(data, dictParameters)
 
             # Convert the data back into JSON
             print('type of output data before is: ', type(data))
-            print('type of dataframe is: ',type(pandas.DataFrame([0])))
-            if isinstance(data,type(pandas.DataFrame([0]))):
+            print('type of dataframe is: ', type(pandas.DataFrame([0])))
+            if isinstance(data, type(pandas.DataFrame([0]))):
                 data = pandas.DataFrame.to_json(data, orient="records")
 
             # Send the results back to the server
