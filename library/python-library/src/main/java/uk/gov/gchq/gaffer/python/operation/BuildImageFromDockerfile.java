@@ -41,11 +41,13 @@ public class BuildImageFromDockerfile {
     public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         String params = "";
+        if (scriptParameters != null) {
         Map<String, String> map = new HashMap<>();
         for (String current: scriptParameters.keySet()) {
             map.put(current, scriptParameters.get(current).toString());
         }
         params = new Gson().toJson(map).replaceAll("\"", "'");
+        }
         LOGGER.info(params);
         final String buildargs =
                 "{\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + params + "\"," +
@@ -55,6 +57,8 @@ public class BuildImageFromDockerfile {
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
+        LOGGER.info(pathAbsolutePythonRepo + "/../");
+        LOGGER.info(Paths.get(pathAbsolutePythonRepo + "/../").toString());
         return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
             if (imageId != null) {
