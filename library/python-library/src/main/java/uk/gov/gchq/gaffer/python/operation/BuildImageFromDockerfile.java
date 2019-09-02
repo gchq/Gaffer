@@ -41,7 +41,6 @@ public class BuildImageFromDockerfile {
     public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         String params = " ";
-        LOGGER.info("Script Parameters = " + scriptParameters.get("animal"));
         if (scriptParameters != null) {
             Map<String, String> map = new HashMap<>();
             LOGGER.info(scriptParameters.keySet().toArray()[0].toString());
