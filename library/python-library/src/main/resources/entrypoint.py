@@ -13,7 +13,10 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 scriptParameters = sys.argv[2]
-dictParameters = literal_eval(scriptParameters)
+try:
+    dictParameters = literal_eval(scriptParameters)
+except SyntaxError:
+    dictParameters = dict()
 print('scriptParams is ', scriptParameters)
 scriptInputType = sys.argv[3]
 

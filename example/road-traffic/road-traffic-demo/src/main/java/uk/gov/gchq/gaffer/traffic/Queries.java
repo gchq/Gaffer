@@ -184,7 +184,7 @@ public class Queries {
         final String repoURI = "https://github.com/g609bmsma/test";
         final String ip = "127.0.0.1";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
-        final ScriptInputType scriptInputType = ScriptInputType.JSON;
+        final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
@@ -192,7 +192,7 @@ public class Queries {
         final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
                 new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .scriptName(scriptName)
-                        .scriptParameters(scriptParameters)
+                        //.scriptParameters(scriptParameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
                         .ip(ip)
@@ -203,7 +203,7 @@ public class Queries {
         OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
-                        .then(new Limit.Builder<Element>().resultLimit(100).truncate(true).build())
+                        .then(new Limit.Builder<Element>().resultLimit(2).truncate(true).build())
                         .then(runPythonScript)
                         .build();
 
