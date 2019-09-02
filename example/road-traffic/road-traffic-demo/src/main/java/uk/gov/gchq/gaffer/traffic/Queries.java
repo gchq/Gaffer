@@ -176,14 +176,14 @@ public class Queries {
 
     private void runPython(final Graph graph, final User user) throws OperationException {
 
-        final String scriptName = "script1";
+        final String scriptName = "script3";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
-            put("a", "b");
+            put("animal", "dog");
         }};
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final String ip = "127.0.0.1";
-        final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
+        final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
         final GetAllElements getAllElements =
@@ -192,7 +192,7 @@ public class Queries {
         final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
                 new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .scriptName(scriptName)
-                        //.scriptParameters(scriptParameters)
+                        .scriptParameters(scriptParameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
                         .ip(ip)
