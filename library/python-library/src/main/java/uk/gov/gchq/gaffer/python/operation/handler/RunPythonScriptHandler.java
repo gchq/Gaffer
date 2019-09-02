@@ -122,7 +122,7 @@ public class RunPythonScriptHandler {
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
                     break;
                 case JSON:
-                    output = dataReceived.toString();
+                    output = dataReceived;
                     break;
                 default:
                     output = null;
