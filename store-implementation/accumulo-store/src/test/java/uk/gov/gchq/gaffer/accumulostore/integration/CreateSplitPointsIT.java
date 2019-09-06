@@ -78,7 +78,10 @@ public class CreateSplitPointsIT {
 
         fs = createFileSystem();
 
-        final String root = testFolder.getRoot().getAbsolutePath();
+        final String root = fs.resolvePath(new Path("/")).toString()
+                .replaceFirst("/$", "")
+                + testFolder.getRoot().getAbsolutePath();
+
 
         LOGGER.info("using root dir: " + root);
 
@@ -135,9 +138,9 @@ public class CreateSplitPointsIT {
     }
 
     private void createInputFile() throws IOException, StoreException {
-        // Resolve the input path using the default file system.
-        final Path inputPath = new Path(fs.resolvePath(new Path("/")), inputDir);
-        final Path inputFilePath = new Path(inputPath, "file.txt");
+        final Path inputPath = new Path(inputDir);
+        final Path inputFilePath = new Path(inputDir + "/file.txt");
+
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
