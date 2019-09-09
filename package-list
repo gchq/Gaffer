@@ -257,5 +257,6 @@ uk.gov.gchq.gaffer.traffic.generator
 uk.gov.gchq.gaffer.traffic.listeners
 uk.gov.gchq.gaffer.traffic.transform
 uk.gov.gchq.gaffer.types
+uk.gov.gchq.gaffer.types.binaryoperator
 uk.gov.gchq.gaffer.types.function
 uk.gov.gchq.gaffer.user
