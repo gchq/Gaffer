@@ -15,7 +15,20 @@
  */
 package uk.gov.gchq.gaffer.python.operation.handler;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -30,17 +43,28 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.python.operation.*;
 
+import javax.xml.validation.Schema;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class RunPythonScriptHandler {
 
@@ -52,11 +76,12 @@ public class RunPythonScriptHandler {
     private Git git = null;
     private DockerClient docker = null;
     private String containerId = null;
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/Gaffer/NeilG/Gaffer","/library/python-library/src/main/resources/",repoName);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/gaffer/myGaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
@@ -117,9 +142,46 @@ public class RunPythonScriptHandler {
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
+            LOGGER.info("The operation output class is: " + operation.getOutputClass());
+
             switch(scriptOutputType) {
                 case ELEMENTS:
+                    // Deserialise the data recieved into an ArrayList of LinkedHashMaps
                     output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
+                    if (output instanceof ArrayList) {
+                        ArrayList<Object> arrayOutput = (ArrayList<Object>) output;
+
+                        // Convert each LinkedHashMap element into its proper class
+                        for (Object element : arrayOutput) {
+                            if (element instanceof LinkedHashMap) {
+
+                                // Get the class of the element
+                                String[] split = ((LinkedHashMap) element).get("class").toString().split("\\.");
+                                String clazz = split[split.length-1];
+
+                                // Convert the LinkedHashMap to Json and then into its proper class e.g. Entity or Edge
+                                LOGGER.info("element is: " + element);
+                                String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
+                                LOGGER.info("jsonElement is: " + jsonElement);
+                                Object deserialized = null;
+                                switch(clazz) {
+                                    case "Entity":
+                                        deserialized = JSONSerialiser.deserialise(jsonElement, Entity.class);
+                                        break;
+                                    case "Edge":
+                                        deserialized = JSONSerialiser.deserialise(jsonElement, Edge.class);
+                                        break;
+                                }
+                                LOGGER.info("class element is now: " + deserialized.getClass());
+
+                            }
+                        }
+                        JsonParser parser = JSON_FACTORY.createParser(dataReceived.toString());
+                        output = new CloseableIterableDeserializer().deserialize(parser, new DefaultDeserializationContext.Impl);
+                        LOGGER.info("output deserialized is: " + output.toString());
+                        LOGGER.info("output class is: " + output.getClass());
+                    }
+
                     break;
                 case JSON:
                     output = dataReceived;
@@ -144,6 +206,7 @@ public class RunPythonScriptHandler {
             }
             docker.close();
         }
+        LOGGER.info("The class of output is: " + output.getClass());
         return output;
     }
 }

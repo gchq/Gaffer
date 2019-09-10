@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.traffic;
 import org.apache.commons.io.IOUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -75,8 +76,8 @@ public class Queries {
         final Graph graph = createGraph(user);
 
 //        pythonPerformanceTest(graph, user);
-        runPython(graph, user);
-//        runPython2(graph, user);
+//        runPython(graph, user);
+        runPython2(graph, user);
 //        parallelTest(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());
@@ -189,8 +190,8 @@ public class Queries {
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
-                new RunPythonScript.Builder<Element, Iterable<? extends String>>()
+        final RunPythonScript<Element, String> runPythonScript =
+                new RunPythonScript.Builder<Element, String>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
                         .repoName(repoName)
@@ -200,7 +201,7 @@ public class Queries {
                         .scriptInputType(scriptInputType)
                         .build();
 
-        OperationChain<Iterable<? extends String>> opChain =
+        OperationChain<CloseableIterable<? extends String>> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
                         .then(new Limit.Builder<Element>().resultLimit(2).truncate(true).build())
@@ -227,8 +228,8 @@ public class Queries {
         final GetAllElements getAllElements =
                 new GetAllElements.Builder().build();
 
-        final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
-                new RunPythonScript.Builder<Element, Iterable<? extends String>>()
+        final RunPythonScript<Element, Element> runPythonScript =
+                new RunPythonScript.Builder<Element, Element>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
                         .repoName(repoName)
@@ -237,14 +238,14 @@ public class Queries {
                         .scriptInputType(scriptInputType)
                         .build();
 
-        OperationChain<Iterable<? extends String>> opChain =
+        OperationChain<CloseableIterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(getAllElements)
                         .then(new Limit.Builder<Element>().resultLimit(100).build())
                         .then(runPythonScript)
                         .build();
 
-        final Iterable<? extends String> results = graph.execute(opChain, user);
+        final CloseableIterable<? extends Element> results = graph.execute(opChain, user);
 
         System.out.println("results are: " + results);
     }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.python.operation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -26,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 public class RunPythonScript<I_ITEM, O> implements
-        InputOutput<Iterable<? extends I_ITEM>, O>,
+        InputOutput<Iterable<? extends I_ITEM>, CloseableIterable<? extends O>>,
         MultiInput<I_ITEM>,
         Operation {
 
@@ -51,7 +52,7 @@ public class RunPythonScript<I_ITEM, O> implements
     }
 
     @Override
-    public TypeReference<O> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends O>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
@@ -115,7 +116,7 @@ public class RunPythonScript<I_ITEM, O> implements
     public void setScriptInputType(ScriptInputType scriptInputType) { this.scriptInputType = scriptInputType; }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
-            implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
+            implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, CloseableIterable<? extends O>, Builder<I_ITEM, O>>,
             MultiInput.Builder<RunPythonScript<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
         public Builder() {
             super(new RunPythonScript<>());
