@@ -147,9 +147,11 @@ public class RunPythonScriptHandler {
             switch(scriptOutputType) {
                 case ELEMENTS:
                     // Deserialise the data recieved into an ArrayList of LinkedHashMaps
-                    output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
-                    if (output instanceof ArrayList) {
-                        ArrayList<Object> arrayOutput = (ArrayList<Object>) output;
+                    Object serialisedData = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
+                    if (serialisedData instanceof ArrayList) {
+                        ArrayList<Object> arrayOutput = (ArrayList<Object>) serialisedData;
+                        Stream<Element> elementStream = Stream.of();
+                        LOGGER.info("output class is: " + elementStream.getClass());
 
                         // Convert each LinkedHashMap element into its proper class
                         for (Object element : arrayOutput) {
@@ -157,14 +159,14 @@ public class RunPythonScriptHandler {
 
                                 // Get the class of the element
                                 String[] split = ((LinkedHashMap) element).get("class").toString().split("\\.");
-                                String clazz = split[split.length-1];
+                                String clazz = split[split.length - 1];
 
                                 // Convert the LinkedHashMap to Json and then into its proper class e.g. Entity or Edge
                                 LOGGER.info("element is: " + element);
                                 String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
                                 LOGGER.info("jsonElement is: " + jsonElement);
                                 Object deserialized = null;
-                                switch(clazz) {
+                                switch (clazz) {
                                     case "Entity":
                                         deserialized = JSONSerialiser.deserialise(jsonElement, Entity.class);
                                         break;
@@ -173,15 +175,26 @@ public class RunPythonScriptHandler {
                                         break;
                                 }
                                 LOGGER.info("class element is now: " + deserialized.getClass());
-
+                                Stream stream = Stream.of((Element) deserialized);
+                                elementStream = Stream.concat(Stream.of((Element) deserialized), elementStream);
                             }
                         }
-                        JsonParser parser = JSON_FACTORY.createParser(dataReceived.toString());
-                        output = new CloseableIterableDeserializer().deserialize(parser, new DefaultDeserializationContext.Impl);
+                        output = new ElementsIterable(elementStream);
+
+//                        JsonParser parser = JSON_FACTORY.createParser(dataReceived.toString());
+//                        output = new CloseableIterableDeserializer().deserialize(parser, new DefaultDeserializationContext.Impl);
                         LOGGER.info("output deserialized is: " + output.toString());
                         LOGGER.info("output class is: " + output.getClass());
+                        LOGGER.info("input class is: " + operation.getInput().getClass());
                     }
 
+//                    output = new Iterable<Element>() {
+//                        @Override
+//                        public CloseableIterator<Element> iterator() {
+//                            Stream<Element> elements = Streams.toStream(serialisedData);
+//                            return new WrappedCloseableIterator<>(elements.iterator());
+//                        }
+//                    };
                     break;
                 case JSON:
                     output = dataReceived;
@@ -207,6 +220,21 @@ public class RunPythonScriptHandler {
             docker.close();
         }
         LOGGER.info("The class of output is: " + output.getClass());
+        LOGGER.info("Output of handler is: " + output.toString());
         return output;
+    }
+
+    private static class ElementsIterable extends WrappedCloseableIterable<Element> {
+
+        private final Stream elementsStream;
+
+        ElementsIterable(final Stream elementsStream) {
+            this.elementsStream = elementsStream;
+        }
+
+        @Override
+        public CloseableIterator<Element> iterator() {
+            return new WrappedCloseableIterator<>(elementsStream.iterator());
+        }
     }
 }
