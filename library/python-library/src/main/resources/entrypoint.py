@@ -50,8 +50,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # Convert data into the right form based on scriptInputType
             if scriptInputType == 'DATAFRAME':
-                data = pandas.read_json(rawData, orient="records")
-                print('Tabled Data : \n', data)
+                data = pandas.read_json(rawData, orient="records", dtype="Object")
             elif scriptInputType == 'JSON':
                 data = rawData.decode('utf-8')
 
