@@ -17,15 +17,14 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CanceledException;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PullOrCloneRepoTest  {
 
@@ -61,7 +60,11 @@ public class PullOrCloneRepoTest  {
 
         //When
         when(git.pull()).thenThrow(new CanceledException("Pull method called"));
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
+
+        //Then
+        Exception exception = assertThrows(CanceledException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation));
+        Assert.assertEquals("Pull method called", exception.getMessage());
 
     }
 }
+
