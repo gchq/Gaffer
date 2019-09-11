@@ -16,11 +16,16 @@
 package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.CanceledException;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PullOrCloneRepoTest  {
 
@@ -41,5 +46,22 @@ public class PullOrCloneRepoTest  {
 
         //Then
         Assert.assertNotNull(files);
+    }
+
+    @Test
+    public void shouldPullIfAlreadyCloned() {
+        //Given
+        PullOrCloneRepo pOrC = new PullOrCloneRepo();
+        Git git = mock(Git.class);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/ANALYTIC/Gaffer","/library/python-library/src/main/resources/","test");
+        final RunPythonScript<String, String> operation =
+                new RunPythonScript.Builder<String, String>()
+                        .repoURI("https://github.com/g609bmsma/test")
+                        .build();
+
+        //When
+        when(git.pull()).thenThrow(new CanceledException("Pull method called"));
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
+
     }
 }
