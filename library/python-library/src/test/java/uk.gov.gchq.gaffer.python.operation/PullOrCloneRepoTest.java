@@ -19,6 +19,7 @@ import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class PullOrCloneRepoTest  {
@@ -28,17 +29,18 @@ public class PullOrCloneRepoTest  {
         //Given
         PullOrCloneRepo pOrC = new PullOrCloneRepo();
         Git git = null;
-        final String pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/ANALYTIC/Gaffer","/library/python-library/src/main/resources/","test").toString();
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/ANALYTIC/Gaffer","/library/python-library/src/main/resources/","test");
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
+                        .repoURI("https://github.com/g609bmsma/test")
                         .build();
 
         //When
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo, operation);
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
+        String[] files = pathAbsolutePythonRepo.toFile().list();
 
         //Then
-        Assert.assertNotNull(git);
-
+        Assert.assertNotNull(files);
     }
 
     @Test
