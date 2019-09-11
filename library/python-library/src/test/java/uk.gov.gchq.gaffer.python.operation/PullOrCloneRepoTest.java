@@ -42,8 +42,4 @@ public class PullOrCloneRepoTest  {
         //Then
         Assert.assertNotNull(files);
     }
-
-    @Test
-    public void shouldPullIfAlreadyCloned() {
-    }
 }
