@@ -208,7 +208,7 @@ public class Queries {
                         .then(runPythonScript)
                         .build();
 
-        final Iterable<? extends String> results = graph.execute(opChain, user);
+        final Object results = graph.execute(opChain, user);
 
         System.out.println("results are: " + results);
 
@@ -245,7 +245,7 @@ public class Queries {
                         .then(runPythonScript)
                         .build();
 
-        final Iterable<? extends Element> results = graph.execute(opChain, user);
+        final CloseableIterable<? extends Element> results = graph.execute(opChain, user);
 
         System.out.println("results are: " + results);
     }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
@@ -30,7 +29,7 @@ import uk.gov.gchq.gaffer.store.Store;
  *
  * If this handler is invoked then it means the named operation could not be resolved.
  */
-public class PythonHandler implements OperationHandler<RunPythonScript>  {
+public class PythonHandler implements OperationHandler<RunPythonScript> {
     @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
         return new RunPythonScriptHandler().doOperation(operation);

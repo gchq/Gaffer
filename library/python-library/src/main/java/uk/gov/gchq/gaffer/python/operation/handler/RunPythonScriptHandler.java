@@ -15,18 +15,7 @@
  */
 package uk.gov.gchq.gaffer.python.operation.handler;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.spotify.docker.client.DefaultDockerClient;
@@ -43,23 +32,16 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import uk.gov.gchq.gaffer.operation.OperationException;
-
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.python.operation.*;
 
-import javax.xml.validation.Schema;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,7 +58,6 @@ public class RunPythonScriptHandler {
     private Git git = null;
     private DockerClient docker = null;
     private String containerId = null;
-    private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
@@ -142,16 +123,13 @@ public class RunPythonScriptHandler {
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
-            LOGGER.info("The operation output class is: " + operation.getOutputClass());
-
             switch(scriptOutputType) {
                 case ELEMENTS:
                     // Deserialise the data recieved into an ArrayList of LinkedHashMaps
-                    Object serialisedData = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
-                    if (serialisedData instanceof ArrayList) {
-                        ArrayList<Object> arrayOutput = (ArrayList<Object>) serialisedData;
+                    Object deserialisedData = JSONSerialiser.deserialise(dataReceived.toString(), Object.class);
+                    if (deserialisedData instanceof ArrayList) {
+                        ArrayList<Object> arrayOutput = (ArrayList<Object>) deserialisedData;
                         Stream<Element> elementStream = Stream.of();
-                        LOGGER.info("output class is: " + elementStream.getClass());
 
                         // Convert each LinkedHashMap element into its proper class
                         for (Object element : arrayOutput) {
@@ -162,39 +140,23 @@ public class RunPythonScriptHandler {
                                 String clazz = split[split.length - 1];
 
                                 // Convert the LinkedHashMap to Json and then into its proper class e.g. Entity or Edge
-                                LOGGER.info("element is: " + element);
                                 String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
-                                LOGGER.info("jsonElement is: " + jsonElement);
-                                Object deserialized = null;
+                                Object deserializedElement = null;
                                 switch (clazz) {
                                     case "Entity":
-                                        deserialized = JSONSerialiser.deserialise(jsonElement, Entity.class);
+                                        deserializedElement = JSONSerialiser.deserialise(jsonElement, Entity.class);
                                         break;
                                     case "Edge":
-                                        deserialized = JSONSerialiser.deserialise(jsonElement, Edge.class);
+                                        deserializedElement = JSONSerialiser.deserialise(jsonElement, Edge.class);
                                         break;
                                 }
-                                LOGGER.info("class element is now: " + deserialized.getClass());
-                                Stream stream = Stream.of((Element) deserialized);
-                                elementStream = Stream.concat(Stream.of((Element) deserialized), elementStream);
+                                // Create a stream of the deserialised elements
+                                elementStream = Stream.concat(Stream.of((Element) deserializedElement), elementStream);
                             }
                         }
+                        // Convert the stream to a CloseableIterable
                         output = new ElementsIterable(elementStream);
-
-//                        JsonParser parser = JSON_FACTORY.createParser(dataReceived.toString());
-//                        output = new CloseableIterableDeserializer().deserialize(parser, new DefaultDeserializationContext.Impl);
-                        LOGGER.info("output deserialized is: " + output.toString());
-                        LOGGER.info("output class is: " + output.getClass());
-                        LOGGER.info("input class is: " + operation.getInput().getClass());
                     }
-
-//                    output = new Iterable<Element>() {
-//                        @Override
-//                        public CloseableIterator<Element> iterator() {
-//                            Stream<Element> elements = Streams.toStream(serialisedData);
-//                            return new WrappedCloseableIterator<>(elements.iterator());
-//                        }
-//                    };
                     break;
                 case JSON:
                     output = dataReceived;
@@ -219,8 +181,6 @@ public class RunPythonScriptHandler {
             }
             docker.close();
         }
-        LOGGER.info("The class of output is: " + output.getClass());
-        LOGGER.info("Output of handler is: " + output.toString());
         return output;
     }
 
