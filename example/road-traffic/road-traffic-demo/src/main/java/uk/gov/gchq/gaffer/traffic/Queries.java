@@ -76,8 +76,8 @@ public class Queries {
         final Graph graph = createGraph(user);
 
 //        pythonPerformanceTest(graph, user);
-//        runPython(graph, user);
-        runPython2(graph, user);
+        runPython(graph, user);
+//        runPython2(graph, user);
 //        parallelTest(graph, user);
         // Get the schema
         //System.out.println(graph.getSchema().toString());

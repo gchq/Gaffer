@@ -125,7 +125,7 @@ public class RunPythonScriptHandler {
 
             switch(scriptOutputType) {
                 case ELEMENTS:
-                    // Deserialise the data recieved into an ArrayList of LinkedHashMaps
+                    // Deserialise the data recieved into an ArrayList of LinkedHashMaps, to iterate over it
                     Object deserialisedData = JSONSerialiser.deserialise(dataReceived.toString(), Object.class);
                     if (deserialisedData instanceof ArrayList) {
                         ArrayList<Object> arrayOutput = (ArrayList<Object>) deserialisedData;
@@ -135,23 +135,12 @@ public class RunPythonScriptHandler {
                         for (Object element : arrayOutput) {
                             if (element instanceof LinkedHashMap) {
 
-                                // Get the class of the element
-                                String[] split = ((LinkedHashMap) element).get("class").toString().split("\\.");
-                                String clazz = split[split.length - 1];
-
-                                // Convert the LinkedHashMap to Json and then into its proper class e.g. Entity or Edge
+                                // Convert the LinkedHashMap to Json and then deserialise it as an Element
                                 String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
-                                Object deserializedElement = null;
-                                switch (clazz) {
-                                    case "Entity":
-                                        deserializedElement = JSONSerialiser.deserialise(jsonElement, Entity.class);
-                                        break;
-                                    case "Edge":
-                                        deserializedElement = JSONSerialiser.deserialise(jsonElement, Edge.class);
-                                        break;
-                                }
+                                Element deserializedElement = JSONSerialiser.deserialise(jsonElement, Element.class);
+
                                 // Create a stream of the deserialised elements
-                                elementStream = Stream.concat(Stream.of((Element) deserializedElement), elementStream);
+                                elementStream = Stream.concat(Stream.of(deserializedElement), elementStream);
                             }
                         }
                         // Convert the stream to a CloseableIterable
