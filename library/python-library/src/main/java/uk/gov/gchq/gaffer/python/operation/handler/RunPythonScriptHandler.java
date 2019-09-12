@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.python.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -30,17 +31,30 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.*;
+import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
+import uk.gov.gchq.gaffer.python.operation.GetPort;
+import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
+import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
+import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
+import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class RunPythonScriptHandler {
 
@@ -56,7 +70,8 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/ANALYTIC/Gaffer","/library/python-library/src/main/resources/",repoName);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents"
+                ,"/Gaffer/NG/Gaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
@@ -119,7 +134,27 @@ public class RunPythonScriptHandler {
 
             switch(scriptOutputType) {
                 case ELEMENTS:
-                    output = JSONSerialiser.deserialise(dataReceived.toString(), operation.getOutputClass());
+                    // Deserialise the data recieved into an ArrayList of LinkedHashMaps, to iterate over it
+                    Object deserialisedData = JSONSerialiser.deserialise(dataReceived.toString(), Object.class);
+                    if (deserialisedData instanceof ArrayList) {
+                        ArrayList<Object> arrayOutput = (ArrayList<Object>) deserialisedData;
+                        Stream<Element> elementStream = Stream.of();
+
+                        // Convert each LinkedHashMap element into its proper class
+                        for (Object element : arrayOutput) {
+                            if (element instanceof LinkedHashMap) {
+
+                                // Convert the LinkedHashMap to Json and then deserialise it as an Element
+                                String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
+                                Element deserializedElement = JSONSerialiser.deserialise(jsonElement, Element.class);
+
+                                // Create a stream of the deserialised elements
+                                elementStream = Stream.concat(Stream.of(deserializedElement), elementStream);
+                            }
+                        }
+                        // Convert the stream to a CloseableIterable
+                        output = new ElementsIterable(elementStream);
+                    }
                     break;
                 case JSON:
                     output = dataReceived;
@@ -145,5 +180,19 @@ public class RunPythonScriptHandler {
             docker.close();
         }
         return output;
+    }
+
+    private static class ElementsIterable extends WrappedCloseableIterable<Element> {
+
+        private final Stream elementsStream;
+
+        ElementsIterable(final Stream elementsStream) {
+            this.elementsStream = elementsStream;
+        }
+
+        @Override
+        public CloseableIterator<Element> iterator() {
+            return new WrappedCloseableIterator<>(elementsStream.iterator());
+        }
     }
 }
