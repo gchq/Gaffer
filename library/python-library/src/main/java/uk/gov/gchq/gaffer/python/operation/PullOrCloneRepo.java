@@ -28,12 +28,6 @@ import java.io.IOException;
 public class PullOrCloneRepo {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
 
-    public PullOrCloneRepo() {
-    }
-
-    /**
-     * Pulls or clones repo of python scripts as needed
-     */
     public void pullOrClone(Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
         String repoURI = operation.getRepoURI();
         if (git == null) {

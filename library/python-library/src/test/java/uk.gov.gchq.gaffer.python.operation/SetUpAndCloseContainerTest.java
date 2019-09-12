@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
+import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,68 +26,31 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class SendAndGetDataFromContainerTest {
+public class SetUpAndCloseContainerTest {
 
     @Test
-    public void shouldRetrieveInputStream() {
+    public void shouldCreateContainer() {
         // Given
         setupTestServer();
-        Socket testSocket = null;
-        try {
-            testSocket = new Socket("localhost", 7789);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // When
-        DataInputStream dis = null;
-        try {
-            assert testSocket != null;
-            dis = SendAndGetDataFromContainer.getInputStream(testSocket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // Then
-        Assert.assertNotNull(dis);
-    }
-
-    @Test
-    public void shouldSendAndReceiveDataToSocket() {
-        // Given
-        setupTestServer();
+        SetUpAndCloseContainer sUACC = new SetUpAndCloseContainer();
         final RunPythonScript<String, String> runPythonScript =
                 new RunPythonScript.Builder<String, String>()
                         .build();
         ArrayList<String> inputData = new ArrayList<>();
-        inputData.add("Test Data 1");
-        inputData.add("Test Data 2");
+        inputData.add("Test Data");
         runPythonScript.setInput(inputData);
-        Socket testSocket = null;
-        try {
-            testSocket = new Socket("localhost", 7789);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         // When
+        StringBuilder result = null;
         try {
-            assert testSocket != null;
-            SendAndGetDataFromContainer.sendData(runPythonScript, testSocket);
-        } catch (IOException e) {
+            result = sUACC.setUpAndCloseContainer(runPythonScript, null, "7789", null);
+        } catch (InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
-            Assert.fail();
         }
 
         // Then
-        try {
-            DataInputStream dis = new DataInputStream(testSocket.getInputStream());
-            Assert.assertEquals("[\"Test Data 1\"", dis.readUTF());
-            Assert.assertEquals(", \"Test Data 2\"", dis.readUTF());
-            Assert.assertEquals("]", dis.readUTF());
-        } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail();
-        }
+        assert result != null;
+        Assert.assertEquals("Test Complete", result.toString());
     }
 
     private void setupTestServer() {
@@ -97,9 +61,10 @@ public class SendAndGetDataFromContainerTest {
                 Socket clientSocket = serverSocket.accept();
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
-                while(true) {
-                    dos.writeUTF(dis.readUTF());
-                }
+                dos.writeBoolean(true);
+                dis.readUTF();
+                dos.writeInt(1);
+                dos.writeUTF("Test Complete");
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
                 e.printStackTrace();

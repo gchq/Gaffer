@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.python.operation.handler;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.spotify.docker.client.DefaultDockerClient;
@@ -35,17 +34,26 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.*;
+import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
+import uk.gov.gchq.gaffer.python.operation.GetPort;
+import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
+import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
+import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
+import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class RunPythonScriptHandler {
@@ -62,7 +70,8 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/gaffer/myGaffer","/library/python-library/src/main/resources/",repoName);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents"
+                ,"/Gaffer/NG/Gaffer","/library/python-library/src/main/resources/",repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
