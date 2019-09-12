@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CanceledException;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -59,10 +60,11 @@ public class PullOrCloneRepoTest  {
                         .build();
 
         //When
-        when(git.pull()).thenThrow(new CanceledException("Pull method called"));
+        when(git.pull()).thenThrow(new NullPointerException("Pull method called") {
+        });
 
         //Then
-        Exception exception = assertThrows(CanceledException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }
