@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.python.operation.handler;
 import org.junit.Assert;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
@@ -82,12 +85,12 @@ public class RunPythonScriptHandlerTest {
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
-        final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
-        final ArrayList<String> inputData = new ArrayList<>();
-        inputData.add("{\"Test Data\"}");
+        final ScriptInputType scriptInputType = ScriptInputType.JSON;
+        final ArrayList<Element> inputData = new ArrayList<>();
+        inputData.add(new Edge.Builder().build());
 
-        final RunPythonScript<String, Iterable<? extends String>> runPythonScript =
-                new RunPythonScript.Builder<String, Iterable<? extends String>>()
+        final RunPythonScript<Element, Iterable<? extends String>> runPythonScript =
+                new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
                         .repoName(repoName)
@@ -98,10 +101,10 @@ public class RunPythonScriptHandlerTest {
         runPythonScript.setInput(inputData);
 
         // When
-        StringBuilder results = null;
+        CloseableIterable<Element> results = null;
         try {
 
-            results = (StringBuilder) rPSH.doOperation(runPythonScript);
+            results = (CloseableIterable<Element>) rPSH.doOperation(runPythonScript);
         } catch (OperationException e) {
             e.printStackTrace();
             Assert.fail();
@@ -109,6 +112,6 @@ public class RunPythonScriptHandlerTest {
 
         // Then
         assert results != null;
-        Assert.assertEquals("[{\"0\":\"{\\\"Test Data\\\"}\"}]", results.toString());
+        Assert.assertEquals(new Edge.Builder().build(), results.iterator().next());
     }
 }
