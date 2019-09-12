@@ -27,6 +27,8 @@ import java.util.ArrayList;
 
 public class SendAndGetDataFromContainerTest {
 
+    private Thread serverThread;
+
     @Test
     public void shouldRetrieveInputStream() {
         // Given
@@ -43,6 +45,7 @@ public class SendAndGetDataFromContainerTest {
         try {
             assert testSocket != null;
             dis = SendAndGetDataFromContainer.getInputStream(testSocket);
+            serverThread.interrupt();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,6 +86,7 @@ public class SendAndGetDataFromContainerTest {
             Assert.assertEquals("[\"Test Data 1\"", dis.readUTF());
             Assert.assertEquals(", \"Test Data 2\"", dis.readUTF());
             Assert.assertEquals("]", dis.readUTF());
+            serverThread.interrupt();
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail();
@@ -91,21 +95,35 @@ public class SendAndGetDataFromContainerTest {
 
     private void setupTestServer() {
         Runnable serverTask = () -> {
+            ServerSocket serverSocket = null;
             try {
-                ServerSocket serverSocket = new ServerSocket(7789);
+                serverSocket = new ServerSocket(7789);
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected.");
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
-                while(true) {
+                while (true) {
+                    if (Thread.interrupted()) {
+                        throw new InterruptedException();
+                    } else {
+                        Thread.sleep(50);
+                    }
                     dos.writeUTF(dis.readUTF());
                 }
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
                 e.printStackTrace();
+            } catch (InterruptedException f) {
+                try {
+                    serverSocket.close();
+                    System.out.println("Closing Socket.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         };
-        Thread serverThread = new Thread(serverTask);
+        serverThread = new Thread(serverTask);
         serverThread.start();
     }
 }

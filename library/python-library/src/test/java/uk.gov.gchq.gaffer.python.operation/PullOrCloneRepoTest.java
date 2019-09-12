@@ -33,7 +33,8 @@ public class PullOrCloneRepoTest  {
         //Given
         PullOrCloneRepo pOrC = new PullOrCloneRepo();
         Git git = null;
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents","/ANALYTIC/Gaffer","/library/python-library/src/main/resources/","test");
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents"
+                ,"/Gaffer/NG/Gaffer","/library/python-library/src/main/resources/","test");
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .repoURI("https://github.com/g609bmsma/test")

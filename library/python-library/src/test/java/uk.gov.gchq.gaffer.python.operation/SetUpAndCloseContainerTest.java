@@ -28,6 +28,8 @@ import java.util.ArrayList;
 
 public class SetUpAndCloseContainerTest {
 
+    private Thread serverThread;
+
     @Test
     public void shouldCreateContainer() {
         // Given
@@ -55,22 +57,26 @@ public class SetUpAndCloseContainerTest {
 
     private void setupTestServer() {
         Runnable serverTask = () -> {
+            ServerSocket serverSocket = null;
             try {
-                ServerSocket serverSocket = new ServerSocket(7789);
+                serverSocket = new ServerSocket(7789);
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected.");
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
                 dos.writeBoolean(true);
                 dis.readUTF();
                 dos.writeInt(1);
                 dos.writeUTF("Test Complete");
+                serverSocket.close();
+                System.out.println("Closing Socket.");
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
                 e.printStackTrace();
             }
         };
-        Thread serverThread = new Thread(serverTask);
+        serverThread = new Thread(serverTask);
         serverThread.start();
     }
 }
