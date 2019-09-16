@@ -129,7 +129,7 @@ public class RunPythonScriptHandler {
             if (!portAvailable) {
                 LOGGER.info("Failed to find an available port");
             }
-            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
+            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, port);
 
             switch (scriptOutputType) {
                 case ELEMENTS:

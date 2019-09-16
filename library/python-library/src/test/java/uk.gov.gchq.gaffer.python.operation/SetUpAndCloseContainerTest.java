@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,8 +44,8 @@ public class SetUpAndCloseContainerTest {
         // When
         StringBuilder result = null;
         try {
-            result = sUACC.setUpAndCloseContainer(runPythonScript, null, "7789", null);
-        } catch (InterruptedException | DockerException | IOException e) {
+            result = sUACC.setUpAndCloseContainer(runPythonScript, "7789");
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
 
