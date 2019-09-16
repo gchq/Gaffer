@@ -70,8 +70,7 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents"
-                ,"/Gaffer/NG/Gaffer","/library/python-library/src/main/resources/",repoName);
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents", "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/", repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
@@ -125,14 +124,14 @@ public class RunPythonScriptHandler {
                 } catch (final DockerRequestException ignored) {
                 }
             }
-            LOGGER.info("Port number is: "+ port);
+            LOGGER.info("Port number is: " + port);
 
             if (!portAvailable) {
                 LOGGER.info("Failed to find an available port");
             }
             StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, docker, port, containerId);
 
-            switch(scriptOutputType) {
+            switch (scriptOutputType) {
                 case ELEMENTS:
                     // Deserialise the data recieved into an ArrayList of LinkedHashMaps, to iterate over it
                     Object deserialisedData = JSONSerialiser.deserialise(dataReceived.toString(), Object.class);
@@ -141,7 +140,7 @@ public class RunPythonScriptHandler {
                         Stream<Element> elementStream = Stream.of();
 
                         // Convert each LinkedHashMap element into its proper class
-                        for (Object element : arrayOutput) {
+                        for (final Object element : arrayOutput) {
                             if (element instanceof LinkedHashMap) {
 
                                 // Convert the LinkedHashMap to Json and then deserialise it as an Element
@@ -167,14 +166,12 @@ public class RunPythonScriptHandler {
 
         } catch (final DockerCertificateException | InterruptedException | DockerException | IOException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             LOGGER.info("Deleting the container...");
             try {
                 docker.waitContainer(containerId);
                 docker.removeContainer(containerId);
-            }
-            catch (DockerException | InterruptedException e) {
+            } catch (final DockerException | InterruptedException e) {
                 e.printStackTrace();
             }
             docker.close();

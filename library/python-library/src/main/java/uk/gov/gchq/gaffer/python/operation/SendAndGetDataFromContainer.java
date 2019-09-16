@@ -27,14 +27,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class SendAndGetDataFromContainer {
+final class SendAndGetDataFromContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAndGetDataFromContainer.class);
-
-    public SendAndGetDataFromContainer() {
-    }
 
     /**
      * Sends data to and gets data from container
+     * @param operation the RunPythonScript operation
+     * @param clientSocket the socket on which data will be sent to the container
+     * @throws IOException this will be thrown if non-compliant data is sent
      */
     static void sendData(final RunPythonScript operation, final Socket clientSocket) throws IOException {
         OutputStream outToContainer = clientSocket.getOutputStream();

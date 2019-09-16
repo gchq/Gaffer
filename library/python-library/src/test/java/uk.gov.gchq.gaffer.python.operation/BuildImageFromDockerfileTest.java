@@ -33,8 +33,7 @@ public class BuildImageFromDockerfileTest {
         // Given
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
         DockerClient docker = null;
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"),"Documents" +
-                "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/","test");
+        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents" + "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/", "test");
         try {
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException e) {

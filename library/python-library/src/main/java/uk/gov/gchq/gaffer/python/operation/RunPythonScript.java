@@ -79,15 +79,17 @@ public class RunPythonScript<I_ITEM, O> implements
         return scriptName;
     }
 
-    public Map<String, Object> getScriptParameters() { return scriptParameters; }
+    public Map<String, Object> getScriptParameters() {
+        return scriptParameters; }
 
-    public void setScriptParameters(final Map<String, Object> scriptParameters) { this.scriptParameters = scriptParameters; }
+    public void setScriptParameters(final Map<String, Object> scriptParameters) {
+        this.scriptParameters = scriptParameters; }
 
     public String getRepoName() {
         return repoName;
     }
 
-    public void setRepoName(String repoName) {
+    public void setRepoName(final String repoName) {
         this.repoName = repoName;
     }
 
@@ -95,7 +97,7 @@ public class RunPythonScript<I_ITEM, O> implements
         return repoURI;
     }
 
-    public void setRepoURI(String repoURI) {
+    public void setRepoURI(final String repoURI) {
         this.repoURI = repoURI;
     }
 
@@ -103,17 +105,21 @@ public class RunPythonScript<I_ITEM, O> implements
         return ip;
     }
 
-    public void setIp(String ip) {
+    public void setIp(final String ip) {
         this.ip = ip;
     }
 
-    public ScriptOutputType getScriptOutputType() { return scriptOutputType; }
+    public ScriptOutputType getScriptOutputType() {
+        return scriptOutputType; }
 
-    public void setScriptOutputType(ScriptOutputType scriptOutputType) { this.scriptOutputType = scriptOutputType; }
+    public void setScriptOutputType(final ScriptOutputType scriptOutputType) {
+        this.scriptOutputType = scriptOutputType; }
 
-    public ScriptInputType getScriptInputType() { return scriptInputType; }
+    public ScriptInputType getScriptInputType() {
+        return scriptInputType; }
 
-    public void setScriptInputType(ScriptInputType scriptInputType) { this.scriptInputType = scriptInputType; }
+    public void setScriptInputType(final ScriptInputType scriptInputType) {
+        this.scriptInputType = scriptInputType; }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, CloseableIterable<? extends O>, Builder<I_ITEM, O>>,

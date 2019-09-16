@@ -31,9 +31,9 @@ public class RunPythonScriptTest {
         final String repoURI = "https://github.com/g609bmsma/test";
         final String repoName = "test";
         final String scriptName = "script3";
-        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("animal", "dog");
-        }};
+        } };
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
 

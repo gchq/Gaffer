@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.python.operation;
 
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +31,13 @@ public class SetUpAndCloseContainer {
     }
 
     /**
-     * Sets up and closes container
+     * @param operation the RunPythonScript operation
+     * @param port the port of the docker client where the data will be passed
+     * @return Sets up and closes container
+     * @throws InterruptedException should this fail, this will be thrown
+     * @throws IOException this will be thrown if non-compliant data is sent
      */
-    public StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final DockerClient docker, final String port, final String containerId) throws InterruptedException, DockerException, IOException {
+    public StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final String port) throws InterruptedException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         boolean failedToConnect = true;
         IOException error = null;

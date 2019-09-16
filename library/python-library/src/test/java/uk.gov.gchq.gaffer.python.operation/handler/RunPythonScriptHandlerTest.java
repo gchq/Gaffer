@@ -37,9 +37,9 @@ public class RunPythonScriptHandlerTest {
         // Given
         RunPythonScriptHandler rPSH = new RunPythonScriptHandler();
         final String scriptName = "script1";
-        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
-        }};
+        } };
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
@@ -79,9 +79,9 @@ public class RunPythonScriptHandlerTest {
         // Given
         RunPythonScriptHandler rPSH = new RunPythonScriptHandler();
         final String scriptName = "script1";
-        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
-        }};
+        } };
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;

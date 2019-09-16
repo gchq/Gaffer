@@ -26,7 +26,7 @@ public class GetPort {
     }
 
     /**
-     * Get a random port number
+     * @return a random port number
      */
     public String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());

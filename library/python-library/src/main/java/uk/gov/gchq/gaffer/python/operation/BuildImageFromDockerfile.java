@@ -32,11 +32,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public class BuildImageFromDockerfile {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageFromDockerfile.class);
 
-    public BuildImageFromDockerfile() {
-    }
-
     /**
      * Builds docker image from Dockerfile
+     * @param scriptName the name of the python script being run
+     * @param scriptParameters the parameters of the script being run
+     * @param scriptInputType the type of input for the script
+     * @param docker the docker client the script is being run on
+     * @param pathAbsolutePythonRepo the absolute path for the python repo
+     * @return docker image from Dockerfile
+     * @throws DockerException should the docker encounter an error, this will be thrown
+     * @throws InterruptedException should this fail, this will be thrown
+     * @throws IOException this will be thrown if non-compliant data is sent
      */
     public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
@@ -44,7 +50,7 @@ public class BuildImageFromDockerfile {
         if (scriptParameters != null) {
             Map<String, String> map = new HashMap<>();
             LOGGER.info(scriptParameters.keySet().toArray()[0].toString());
-            for (String current: scriptParameters.keySet()) {
+            for (final String current: scriptParameters.keySet()) {
                 if (scriptParameters.get(current) != null) {
                     map.put(current, scriptParameters.get(current).toString());
                 }
