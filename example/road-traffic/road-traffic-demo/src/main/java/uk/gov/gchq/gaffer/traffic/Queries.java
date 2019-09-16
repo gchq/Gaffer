@@ -178,9 +178,9 @@ public class Queries {
     private void runPython(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script3";
-        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("animal", "dog");
-        }};
+        } };
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final String ip = "127.0.0.1";
@@ -217,9 +217,9 @@ public class Queries {
     private void runPython2(final Graph graph, final User user) throws OperationException {
 
         final String scriptName = "script1";
-        final Map<String, Object> scriptParameters = new HashMap<String, Object>() {{
+        final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
-        }};
+        } };
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;

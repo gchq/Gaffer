@@ -28,29 +28,30 @@ import java.io.IOException;
 public class PullOrCloneRepo {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
 
-    public void pullOrClone(Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
+    public void pullOrClone(final Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
         String repoURI = operation.getRepoURI();
+        Git newGit = git;
         if (git == null) {
             try {
-                git = Git.open(new File(pathAbsolutePythonRepo));
+                newGit = Git.open(new File(pathAbsolutePythonRepo));
             } catch (final RepositoryNotFoundException e) {
                 try {
-                    git = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
+                    newGit = Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
                 } catch (final GitAPIException e1) {
                     e1.printStackTrace();
-                    git = null;
+                    newGit = null;
                 }
             } catch (final IOException e) {
                 e.printStackTrace();
-                git = null;
+                newGit = null;
             }
         }
         LOGGER.info("Fetching the repo.");
         File dir = new File(pathAbsolutePythonRepo);
         try {
-            if (git != null) {
+            if (newGit != null) {
                 LOGGER.info("Repo already cloned, pulling files...");
-                git.pull().call();
+                newGit.pull().call();
                 LOGGER.info("Pulled the latest files.");
             } else {
                 LOGGER.info("Repo has not been cloned, cloning the repo...");

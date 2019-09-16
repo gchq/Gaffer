@@ -16,19 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.handler.RunPythonScriptHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-/**
- * Operation handler for {@link NamedOperation}. Named operations are resolved by
- * the {@code NamedOperationResolver} {@code GraphHook}.
- *
- * If this handler is invoked then it means the named operation could not be resolved.
- */
 public class PythonHandler implements OperationHandler<RunPythonScript> {
     @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {

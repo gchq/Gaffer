@@ -30,6 +30,9 @@ import java.net.Socket;
 final class SendAndGetDataFromContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAndGetDataFromContainer.class);
 
+    private SendAndGetDataFromContainer() {
+    }
+
     /**
      * Sends data to and gets data from container
      * @param operation the RunPythonScript operation
