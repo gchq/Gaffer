@@ -27,8 +27,6 @@ import java.util.ArrayList;
 
 public class SetUpAndCloseContainerTest {
 
-    private Thread serverThread;
-
     @Test
     public void shouldCreateContainer() {
         // Given
@@ -56,7 +54,7 @@ public class SetUpAndCloseContainerTest {
 
     private void setupTestServer() {
         Runnable serverTask = () -> {
-            ServerSocket serverSocket = null;
+            ServerSocket serverSocket;
             try {
                 serverSocket = new ServerSocket(7789);
                 System.out.println("Waiting for clients to connect...");
@@ -75,7 +73,7 @@ public class SetUpAndCloseContainerTest {
                 e.printStackTrace();
             }
         };
-        serverThread = new Thread(serverTask);
+        final Thread serverThread = new Thread(serverTask);
         serverThread.start();
     }
 }
