@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +40,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class PythonOperationIT extends AbstractStoreIT {
+
+    @BeforeClass
+    public static void setUpStore() {
+        storeProperties = StoreProperties.loadStoreProperties("store.properties");
+    }
 
     @Test
     public void shouldRunHTMLScripts() throws OperationException {

@@ -27,19 +27,20 @@ import java.util.ArrayList;
 
 public class SendAndGetDataFromContainerTest {
 
-    private Thread serverThread;
-
     @Test
-    public void shouldRetrieveInputStream() {
+    public void shouldRetrieveInputStream() throws InterruptedException {
         // Given
-        setupTestServer();
+        Thread serverThread = setupTestServer(7788);
         Socket testSocket = null;
-        try {
-            testSocket = new Socket("localhost", 7789);
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 3; i++) {
+            try {
+                testSocket = new Socket("localhost", 7788);
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Thread.sleep(10);
         }
-
         // When
         DataInputStream dis = null;
         try {
@@ -54,9 +55,9 @@ public class SendAndGetDataFromContainerTest {
     }
 
     @Test
-    public void shouldSendAndReceiveDataToSocket() {
+    public void shouldSendAndReceiveDataToSocket() throws InterruptedException {
         // Given
-        setupTestServer();
+        Thread serverThread = setupTestServer(7789);
         final RunPythonScript<String, String> runPythonScript =
                 new RunPythonScript.Builder<String, String>()
                         .build();
@@ -65,10 +66,14 @@ public class SendAndGetDataFromContainerTest {
         inputData.add("Test Data 2");
         runPythonScript.setInput(inputData);
         Socket testSocket = null;
-        try {
-            testSocket = new Socket("localhost", 7789);
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 3; i++) {
+            try {
+                testSocket = new Socket("localhost", 7789);
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Thread.sleep(10);
         }
 
         // When
@@ -93,11 +98,11 @@ public class SendAndGetDataFromContainerTest {
         }
     }
 
-    private void setupTestServer() {
+    private Thread setupTestServer(int port) {
         Runnable serverTask = () -> {
             ServerSocket serverSocket = null;
             try {
-                serverSocket = new ServerSocket(7789);
+                serverSocket = new ServerSocket(port);
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected.");
@@ -123,7 +128,8 @@ public class SendAndGetDataFromContainerTest {
                 }
             }
         };
-        serverThread = new Thread(serverTask);
+        Thread serverThread = new Thread(serverTask);
         serverThread.start();
+        return serverThread;
     }
 }

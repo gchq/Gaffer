@@ -42,7 +42,7 @@ public class SetUpAndCloseContainerTest {
         // When
         StringBuilder result = null;
         try {
-            result = sUACC.setUpAndCloseContainer(runPythonScript, "7789");
+            result = sUACC.setUpAndCloseContainer(runPythonScript, "7790");
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class SetUpAndCloseContainerTest {
         Runnable serverTask = () -> {
             ServerSocket serverSocket;
             try {
-                serverSocket = new ServerSocket(7789);
+                serverSocket = new ServerSocket(7790);
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected.");
