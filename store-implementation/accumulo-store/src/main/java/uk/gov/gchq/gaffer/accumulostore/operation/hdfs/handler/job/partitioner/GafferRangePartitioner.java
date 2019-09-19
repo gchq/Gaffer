@@ -26,6 +26,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -48,6 +50,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
     private static final String PREFIX = GafferRangePartitioner.class.getName();
     private static final String CUTFILE_KEY = PREFIX + ".cutFile";
     private static final String NUM_SUBBINS = PREFIX + ".subBins";
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferRangePartitioner.class);
 
     private Configuration conf;
 
@@ -89,7 +92,6 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
         if (null == cutPointArray) {
             final String cutFileName = conf.get(CUTFILE_KEY);
             final Path[] cf = DistributedCacheHelper.getLocalCacheFiles(conf);
-
             if (null != cf) {
                 for (final Path path : cf) {
                     if (path.toUri().getPath().endsWith(cutFileName.substring(cutFileName.lastIndexOf('/')))) {
@@ -115,8 +117,9 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
     private Scanner openCutPointsStream(final Path path) throws IOException {
         try {
             // Original way of opening the file
-            return new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(path.toString()), UTF_8)));
+            return new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(path.toUri().getPath()), UTF_8)));
         } catch (final IOException e) {
+            LOGGER.warn("Failed to open cut points file. Attempting to use configured file system", e);
             return new Scanner(FileSystem.get(conf).open(path));
         }
     }

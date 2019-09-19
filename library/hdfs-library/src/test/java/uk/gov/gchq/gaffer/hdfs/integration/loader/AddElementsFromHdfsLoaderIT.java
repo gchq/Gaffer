@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.gaffer.hdfs.integration.loader;
 
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -52,15 +52,17 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    protected String inputDir1;
-    protected String inputDir2;
-    protected String inputDir3;
-    protected String outputDir;
-    protected String failureDir;
-    protected String splitsDir;
-    protected String splitsFile;
-    protected String workingDir;
-    protected String stagingDir;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsLoaderIT.class);
+
+    private FileSystem fs;
+
+    private String inputDir1;
+    private String inputDir2;
+    private String inputDir3;
+    private String outputDir;
+    private String failureDir;
+    private String splitsFile;
+    private String workingDir;
 
     public AddElementsFromHdfsLoaderIT(final TestSchema schema, final SchemaLoader loader, final Map<String, User> userMap) {
         super(schema, loader, userMap);
@@ -68,23 +70,30 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
 
     @Override
     public void _setup() throws Exception {
-        inputDir1 = testFolder.getRoot().getAbsolutePath() + "/inputDir1";
-        inputDir2 = testFolder.getRoot().getAbsolutePath() + "/inputDir2";
-        inputDir3 = testFolder.getRoot().getAbsolutePath() + "/inputDir3";
+        fs = createFileSystem();
 
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
-        splitsFile = splitsDir + "/splits";
-        workingDir = testFolder.getRoot().getAbsolutePath() + "/workingDir";
-        stagingDir = testFolder.getRoot().getAbsolutePath() + "/stagingDir";
+        final String root = fs.resolvePath(new Path("/")).toString()
+                .replaceFirst("/$", "")
+                + testFolder.getRoot().getAbsolutePath();
+
+
+        LOGGER.info("using root dir: " + root);
+
+        inputDir1 = root + "/inputDir1";
+        inputDir2 = root + "/inputDir2";
+        inputDir3 = root + "/inputDir3";
+
+        outputDir = root + "/outputDir";
+        failureDir = root + "/failureDir";
+
+        splitsFile = root + "/splitsDir/splits";
+        workingDir = root + "/workingDir";
         super._setup();
     }
 
     @Test
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(failureDir));
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
             writer.write("Some content");
@@ -104,7 +113,6 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     public void shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist() throws Exception {
         // Given
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(failureDir));
 
@@ -119,7 +127,6 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles() throws Exception {
         // Given
         tearDown();
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(outputDir));
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(outputDir + "/someFile.txt"), true)))) {
             writer.write("Some content");
@@ -139,10 +146,11 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
     @Override
     protected void addElements(final Iterable<? extends Element> elements) throws OperationException {
         createInputFile(elements);
+
         graph.execute(new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir1).toString(), JsonMapperGenerator.class)
-                .addInputMapperPair(new Path(inputDir2).toString(), JsonMapperGenerator.class)
-                .addInputMapperPair(new Path(inputDir3).toString(), JsonMapperGenerator.class)
+                .addInputMapperPair(inputDir1, JsonMapperGenerator.class)
+                .addInputMapperPair(inputDir2, JsonMapperGenerator.class)
+                .addInputMapperPair(inputDir3, JsonMapperGenerator.class)
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -150,7 +158,9 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
                 .splitsFilePath(splitsFile)
                 .workingPath(workingDir)
                 .build(), user);
+
     }
+
 
     private void createInputFile(final Iterable<? extends Element> elements) {
         final Path inputPath1 = new Path(inputDir1);
@@ -159,8 +169,8 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
         final Path inputFilePath2 = new Path(inputDir2 + "/file.txt");
         final Path inputPath3 = new Path(inputDir3);
         final Path inputFilePath3 = new Path(inputDir3 + "/file.txt");
+
         try {
-            final FileSystem fs = FileSystem.getLocal(createLocalConf());
             fs.mkdirs(inputPath1);
             fs.mkdirs(inputPath2);
             fs.mkdirs(inputPath3);
@@ -193,16 +203,11 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
                 }
             }
         } catch (final IOException e) {
-            throw new RuntimeException("Unable to create input files", e);
+            throw new RuntimeException("Unable to create input files: " + e.getMessage(), e);
         }
     }
 
-    private JobConf createLocalConf() {
-        // Set up local conf
-        final JobConf conf = new JobConf();
-        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
-        conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
-
-        return conf;
+    private FileSystem createFileSystem() throws IOException {
+        return FileSystem.get(new Configuration());
     }
 }
