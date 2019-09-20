@@ -23,8 +23,9 @@ env:
   - MODULES=:integration-test,:federated-store,:map-store,:map-rest
   - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
   - MODULES=:flink-library,:hdfs-library,:spark,:spark-library
-  - MODULES=:library,:time-library,:python-library
+  - MODULES=:library,:time-library
   - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+  - MODULES=:python-library
 
   global:
     - secure: pWproZmuKypqXbd1HjKHWu3CdPhC8i5ghIxpV2yQApM1/Uc151NvRJYzu5L2AQ2pzQ35B90i2uQApJ19dw6Ec2iqvXqmJ2OpWgxD1/eqnVZThB1aQy8PWfKQauoVSBsH1EoD0oiHRmDIZDxR3fSWPikFijLo4MUr8WpwG62RE9JC0PTu50qdIDiS/lSIHoiiH3e1nwNEpXLMjQBZiS7GzzcedZVhF4LEjcdrAl4j/QE4aDksDf33yoLbxQOK+69PYg4Fmw4Ga7WA7G+zL8TM75ok9/bAEyCZ1J2B+scx5HrLK6fNhaAluuLtyn/S3Kl2OP5Uc05/KbJsRKr2bkj4oeFy66B3T8x7e62nAWOPn2tPwdPpJ46gmhbaOuvzHLsEnc0I10ywTjh5zMVMsViNlQ29xGnTP9ipjPZMHCOvb4dUqwUKMBBcEZz02mU/m+XzHFKWIQajYepLkaivEVEaJegseDKlQWFdmtzAUm8mQQufXazlQkcU3J5vo0dsyJNcJmF66vNmZM4OoeUjBHzf166jMp4Al9AgZvAtNxs2+RgbXc8d4jHcWJWlFpCv9X3DeYXdvix3eP/aN9OCsG7n0E8MtWMSi0WBFNYUx0EVncFXazz2La3oFpoHokY+4iae4wk2VCVJdJyB0wTv/2inyqIRBlHzSfI0dFnYzm6dXcM=
