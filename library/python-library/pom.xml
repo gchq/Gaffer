@@ -27,13 +27,13 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
-            <version>1.9.2-SNAPSHOT</version>
+            <version>1.10.0-RC3-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>operation</artifactId>
-            <version>1.9.2-SNAPSHOT</version>
+            <version>1.10.0-RC3-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
