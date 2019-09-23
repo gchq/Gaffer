@@ -28,7 +28,8 @@ import java.io.IOException;
 public class PullOrCloneRepo {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
 
-    public void pullOrClone(final Git git, final String pathAbsolutePythonRepo, final RunPythonScript operation) {
+    public synchronized void pullOrClone(final Git git, final String pathAbsolutePythonRepo,
+                             final RunPythonScript operation) {
         String repoURI = operation.getRepoURI();
         Git newGit = git;
         if (git == null) {
