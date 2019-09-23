@@ -22,7 +22,9 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -33,7 +35,15 @@ public class BuildImageFromDockerfileTest {
         // Given
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
         DockerClient docker = null;
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents" + "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/", "test");
+        final String repoName = "test";
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
         try {
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException e) {
