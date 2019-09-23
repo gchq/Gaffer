@@ -100,6 +100,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -564,7 +565,10 @@ public class StoreTest {
                 // Context variables
                 SetVariable.class,
                 GetVariable.class,
-                GetVariables.class
+                GetVariables.class,
+
+                // Python Operation
+                RunPythonScript.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -673,7 +677,10 @@ public class StoreTest {
                 // Context variables
                 SetVariable.class,
                 GetVariable.class,
-                GetVariables.class
+                GetVariables.class,
+
+                // Python Operations
+                RunPythonScript.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
