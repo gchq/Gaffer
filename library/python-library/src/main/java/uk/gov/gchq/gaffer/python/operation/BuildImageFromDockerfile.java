@@ -111,7 +111,7 @@ public class BuildImageFromDockerfile {
                     "\n" +
                     "ENTRYPOINT \"python\" \"entrypoint.py\" $scriptName $scriptParameters $scriptInputType\n");
             fileWriter.close();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -121,7 +121,7 @@ public class BuildImageFromDockerfile {
                     "numpy\n" +
                     "scipy");
             fileWriter.close();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -205,7 +205,7 @@ public class BuildImageFromDockerfile {
                     "            conn.sendall(struct.pack('>H', len(data) % 65000))\n" +
                     "            conn.sendall(data[65000 * i:].encode('utf-8'))\n");
             fileWriter.close();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -269,7 +269,7 @@ public class BuildImageFromDockerfile {
                     "    def read_int(self):\n" +
                     "        return struct.unpack('>i', self.stream.recv(4))[0]\n");
             fileWriter.close();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             e.printStackTrace();
         }
     }
