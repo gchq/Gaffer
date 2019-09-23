@@ -28,108 +28,52 @@ import java.util.ArrayList;
 public class SendAndGetDataFromContainerTest {
 
     @Test
-    public void shouldRetrieveInputStream() throws InterruptedException {
+    public void shouldCreateContainer() {
         // Given
-        Thread serverThread = setupTestServer(7788);
-        Socket testSocket = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                testSocket = new Socket("localhost", 7788);
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Thread.sleep(10);
-        }
-        // When
-        DataInputStream dis = null;
-        try {
-            assert testSocket != null;
-            dis = SendAndGetDataFromContainer.getInputStream(testSocket);
-            serverThread.interrupt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // Then
-        Assert.assertNotNull(dis);
-    }
-
-    @Test
-    public void shouldSendAndReceiveDataToSocket() throws InterruptedException {
-        // Given
-        Thread serverThread = setupTestServer(7789);
+        setupTestServer();
+        SendAndGetDataFromContainer sUACC = new SendAndGetDataFromContainer();
         final RunPythonScript<String, String> runPythonScript =
                 new RunPythonScript.Builder<String, String>()
                         .build();
         ArrayList<String> inputData = new ArrayList<>();
-        inputData.add("Test Data 1");
-        inputData.add("Test Data 2");
+        inputData.add("Test Data");
         runPythonScript.setInput(inputData);
-        Socket testSocket = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                testSocket = new Socket("localhost", 7789);
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Thread.sleep(10);
-        }
 
         // When
+        StringBuilder result = null;
         try {
-            assert testSocket != null;
-            SendAndGetDataFromContainer.sendData(runPythonScript, testSocket);
-        } catch (IOException e) {
+            result = sUACC.setUpAndCloseContainer(runPythonScript, "7790");
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
-            Assert.fail();
         }
 
         // Then
-        try {
-            DataInputStream dis = new DataInputStream(testSocket.getInputStream());
-            Assert.assertEquals("[\"Test Data 1\"", dis.readUTF());
-            Assert.assertEquals(", \"Test Data 2\"", dis.readUTF());
-            Assert.assertEquals("]", dis.readUTF());
-            serverThread.interrupt();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail();
-        }
+        assert result != null;
+        Assert.assertEquals("Test Complete", result.toString());
     }
 
-    private Thread setupTestServer(int port) {
+    private void setupTestServer() {
         Runnable serverTask = () -> {
-            ServerSocket serverSocket = null;
+            ServerSocket serverSocket;
             try {
-                serverSocket = new ServerSocket(port);
+                serverSocket = new ServerSocket(7790);
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected.");
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
-                while (true) {
-                    if (Thread.interrupted()) {
-                        throw new InterruptedException();
-                    } else {
-                        Thread.sleep(50);
-                    }
-                    dos.writeUTF(dis.readUTF());
-                }
+                dos.writeBoolean(true);
+                dis.readUTF();
+                dos.writeInt(1);
+                dos.writeUTF("Test Complete");
+                serverSocket.close();
+                System.out.println("Closing Socket.");
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
                 e.printStackTrace();
-            } catch (InterruptedException f) {
-                try {
-                    serverSocket.close();
-                    System.out.println("Closing Socket.");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         };
-        Thread serverThread = new Thread(serverTask);
+        final Thread serverThread = new Thread(serverTask);
         serverThread.start();
-        return serverThread;
     }
 }

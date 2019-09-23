@@ -43,7 +43,7 @@ import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
-import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
+import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +61,7 @@ import java.util.stream.Stream;
 public class RunPythonScriptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
-    private final SetUpAndCloseContainer setUpAndCloseContainer = new SetUpAndCloseContainer();
+    private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private final GetPort getPort = new GetPort();
@@ -137,7 +137,7 @@ public class RunPythonScriptHandler {
             if (!portAvailable) {
                 LOGGER.info("Failed to find an available port");
             }
-            StringBuilder dataReceived = setUpAndCloseContainer.setUpAndCloseContainer(operation, port);
+            StringBuilder dataReceived = sendAndGetDataFromContainer.setUpAndCloseContainer(operation, port);
 
             switch (scriptOutputType) {
                 case ELEMENTS:
