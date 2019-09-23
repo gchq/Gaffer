@@ -19,6 +19,8 @@ import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -33,7 +35,16 @@ public class PullOrCloneRepoTest  {
         //Given
         PullOrCloneRepo pOrC = new PullOrCloneRepo();
         Git git = null;
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents", "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/", "test");
+        final String repoName = "test";
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
+        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .repoURI("https://github.com/g609bmsma/test")
@@ -52,7 +63,16 @@ public class PullOrCloneRepoTest  {
         //Given
         PullOrCloneRepo pOrC = new PullOrCloneRepo();
         Git git = mock(Git.class);
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents", "/ANALYTIC/Gaffer", "/library/python-library/src/main/resources/", "test");
+        final String repoName = "test";
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
+        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .repoURI("https://github.com/g609bmsma/test")

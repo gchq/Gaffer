@@ -45,7 +45,9 @@ import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.python.operation.SetUpAndCloseContainer;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -70,7 +72,13 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final Path pathAbsolutePythonRepo = Paths.get(System.getProperty("user.home"), "Documents", "/Gaffer/NG/Gaffer", "/library/python-library/src/main/resources/", repoName);
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();

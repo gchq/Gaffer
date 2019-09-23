@@ -82,7 +82,6 @@ public class SetUpAndCloseContainer {
         if (failedToConnect) {
             LOGGER.info("Connection failed, stopping the container...");
             error.printStackTrace();
-//            docker.stopContainer(containerId, 1); // Kill the container after 1 second
         } else {
             for (int i = 0; i < incomingDataLength / 65000; i++) {
                 dataReceived.append(in.readUTF());
