@@ -59,7 +59,6 @@ public class BuildImageFromDockerfile {
             }
             params = new Gson().toJson(map).replaceAll("\"", "'");
         }
-        buildFiles(pathAbsolutePythonRepo);
         LOGGER.info("params = " + params);
         final String buildargs =
                 "{\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + params + "\"," +

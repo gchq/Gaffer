@@ -85,6 +85,8 @@ public class RunPythonScriptHandler {
         final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
+        buildImageFromDockerfile.buildFiles(pathAbsolutePythonRepo.toString());
+
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
 
