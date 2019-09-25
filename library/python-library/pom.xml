@@ -30,13 +30,11 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>operation</artifactId>
             <version>${project.parent.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- External libraries -->
