@@ -129,6 +129,7 @@ public abstract class JoinFunctionTest {
         actual.forEach(mapTuple -> actualValues.add(mapTuple.getValues()));
 
         assertTrue(actualValues.containsAll(expectedValues));
+        assertTrue(expectedValues.containsAll(actualValues));
     }
 
     /**
