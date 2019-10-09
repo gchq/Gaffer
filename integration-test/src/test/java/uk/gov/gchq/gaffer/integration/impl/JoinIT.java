@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -44,11 +43,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class JoinIT extends AbstractStoreIT {
     private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4), getJoinEntity(TestGroups.ENTITY_3, 6)));
@@ -67,7 +69,7 @@ public class JoinIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldRightSideInnerJoin() throws OperationException {
+    public void shouldRightSideInnerJoinUsingKeyFunctionMatch() throws OperationException {
 
         //Given
         final Map map = new Map.Builder<>().input(Lists.newArrayList(4L)).first(new Identity()).build();
@@ -89,23 +91,57 @@ public class JoinIT extends AbstractStoreIT {
         //When
         final Iterable<? extends MapTuple> rightResults = graph.execute(rightJoin, user);
 
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        rightResults.forEach(e -> loadedResults.add(e.getValues()));
+
         //Then
-        boolean entity1 = false, entity2 = false, entity3 = false;
-        for (MapTuple current : rightResults) {
-            String valueString = current.getValues().values().toString();
-            if (valueString.contains(TestGroups.ENTITY_3)) {
-                entity3 = true;
-            } else if (valueString.contains(TestGroups.ENTITY_2)) {
-                entity2 = true;
-            } else if (valueString.contains(TestGroups.ENTITY)) {
-                entity1 = true;
-            }
-        }
 
-        if (!entity1 || !entity2 || !entity3) {
-            Assert.fail("Result set did not contain all expected values.");
-        }
+        assertEquals(3, loadedResults.size());
+        assertEquals(getJoinEntity(TestGroups.ENTITY, 4), loadedResults.get(0).get(MatchKey.LEFT.name()));
+        assertEquals(4L, loadedResults.get(0).get(MatchKey.RIGHT.name()));
+        assertEquals(getJoinEntity(TestGroups.ENTITY_2, 4), loadedResults.get(1).get(MatchKey.LEFT.name()));
+        assertEquals(4L, loadedResults.get(1).get(MatchKey.RIGHT.name()));
+        assertEquals(getJoinEntity(TestGroups.ENTITY_3, 4), loadedResults.get(2).get(MatchKey.LEFT.name()));
+        assertEquals(4L, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+    }
 
+    @Test
+    public void shouldLeftSideOuterJoinUsingKeyFunctionMatch() throws OperationException {
+
+        // Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(4L, 1L, 2L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 4),
+                getJoinEntity(TestGroups.ENTITY_2, 4),
+                getJoinEntity(TestGroups.ENTITY_3, 2),
+                getJoinEntity(TestGroups.ENTITY_4, 5),
+                getJoinEntity(TestGroups.ENTITY_4, 6),
+                getJoinEntity(TestGroups.ENTITY_5, 5)
+        );
+
+        final Join<Object> leftJoin = new Join.Builder<>()
+                .flatten(true)
+                .matchKey(MatchKey.LEFT)
+                .joinType(JoinType.OUTER)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new ExtractProperty("count"), new ToLong()))
+                .input(input)
+                .build();
+        // When
+        final Iterable<? extends MapTuple> results = graph.execute(leftJoin, user);
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        results.forEach(e -> loadedResults.add(e.getValues()));
+
+        // Then
+
+        assertEquals(3, loadedResults.size());
+        assertEquals(getJoinEntity(TestGroups.ENTITY_4, 5), loadedResults.get(0).get(MatchKey.LEFT.name()));
+        assertEquals(null, loadedResults.get(0).get(MatchKey.RIGHT.name()));
+        assertEquals(getJoinEntity(TestGroups.ENTITY_4, 6), loadedResults.get(1).get(MatchKey.LEFT.name()));
+        assertEquals(null, loadedResults.get(1).get(MatchKey.RIGHT.name()));
+        assertEquals(getJoinEntity(TestGroups.ENTITY_5, 5), loadedResults.get(2).get(MatchKey.LEFT.name()));
+        assertEquals(null, loadedResults.get(2).get(MatchKey.RIGHT.name()));
     }
 
     @Test
