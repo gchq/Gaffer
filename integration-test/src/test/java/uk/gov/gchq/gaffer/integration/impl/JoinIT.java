@@ -71,7 +71,7 @@ public class JoinIT extends AbstractStoreIT {
     @Test
     public void shouldRightSideInnerJoinUsingKeyFunctionMatch() throws OperationException {
 
-        //Given
+        // Given
         final Map map = new Map.Builder<>().input(Lists.newArrayList(4L)).first(new Identity()).build();
 
         final ArrayList<Entity> input = Lists.newArrayList(
@@ -88,13 +88,13 @@ public class JoinIT extends AbstractStoreIT {
                 .matchMethod(new KeyFunctionMatch(new Identity(), new ExtractProperty("count")))
                 .input(input)
                 .build();
-        //When
+        // When
         final Iterable<? extends MapTuple> rightResults = graph.execute(rightJoin, user);
 
         final List<java.util.Map> loadedResults = new ArrayList<>();
         rightResults.forEach(e -> loadedResults.add(e.getValues()));
 
-        //Then
+        // Then
 
         assertEquals(3, loadedResults.size());
         assertEquals(getJoinEntity(TestGroups.ENTITY, 4), loadedResults.get(0).get(MatchKey.LEFT.name()));
@@ -142,6 +142,49 @@ public class JoinIT extends AbstractStoreIT {
         assertEquals(null, loadedResults.get(1).get(MatchKey.RIGHT.name()));
         assertEquals(getJoinEntity(TestGroups.ENTITY_5, 5), loadedResults.get(2).get(MatchKey.LEFT.name()));
         assertEquals(null, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+    }
+
+    @Test
+    public void shouldRightSideFullJoinUsingKeyFunctionMatch() throws OperationException {
+
+        // Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(2L, 1L, 2L, 3L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 1),
+                getJoinEntity(TestGroups.ENTITY_2, 2),
+                getJoinEntity(TestGroups.ENTITY_2, 2),
+                getJoinEntity(TestGroups.ENTITY_5, 5)
+        );
+
+        final Join<Object> leftJoin = new Join.Builder<>()
+                .flatten(false)
+                .matchKey(MatchKey.RIGHT)
+                .joinType(JoinType.FULL)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new ToLong(), new ExtractProperty("count")))
+                .input(input)
+                .build();
+        // When
+        final Iterable<? extends MapTuple> results = graph.execute(leftJoin, user);
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        results.forEach(e -> loadedResults.add(e.getValues()));
+
+        // Then
+
+        assertEquals(4, loadedResults.size());
+
+        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)), loadedResults.get(0).get(MatchKey.LEFT.name()));
+        assertEquals(2L, loadedResults.get(0).get(MatchKey.RIGHT.name()));
+
+        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY, 1)), loadedResults.get(1).get(MatchKey.LEFT.name()));
+        assertEquals(1L, loadedResults.get(1).get(MatchKey.RIGHT.name()));
+
+        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)), loadedResults.get(2).get(MatchKey.LEFT.name()));
+        assertEquals(2L, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+
+        assertEquals(Lists.newArrayList(), loadedResults.get(3).get(MatchKey.LEFT.name()));
+        assertEquals(3L, loadedResults.get(3).get(MatchKey.RIGHT.name()));
     }
 
     @Test
