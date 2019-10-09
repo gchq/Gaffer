@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
@@ -43,8 +45,19 @@ public abstract class JoinFunction {
             match.init(left);
         }
 
-        return join(keys, keyName, matchingValuesName, match, flatten);
+        if (flatten) {
+            return calculateFlattenedMatches(keys, keyName, matchingValuesName, match);
+        } else {
+            return calculateAggregatedMatches(keys, keyName, matchingValuesName, match);
+        }
     }
 
-    protected abstract List<MapTuple> join(Iterable keys, String keyName, String matchingValuesName, Match match, Boolean flatten);
+    @Deprecated
+    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+        throw new NotImplementedException();
+    }
+
+    protected abstract List<MapTuple> calculateFlattenedMatches(Iterable keys, String keyName, String matchingValuesName, Match match);
+
+    protected abstract List<MapTuple> calculateAggregatedMatches(Iterable keys, String keyName, String matchingValuesName, Match match);
 }

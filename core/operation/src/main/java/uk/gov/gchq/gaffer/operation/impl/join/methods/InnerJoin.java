@@ -27,29 +27,57 @@ import java.util.List;
  * {@code InnerJoin} is a join function which returns matched items from an iterable and list.
  */
 public class InnerJoin extends JoinFunction {
-    @Override
-    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
+    /**
+     * Calculates a 1-to-1 mapping pair for each match
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the 1-to-1 mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateFlattenedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
         List<MapTuple> resultList = new ArrayList<>();
 
         for (final Object keyObj : keys) {
             List matching = match.matching(keyObj);
 
-            MapTuple<String> tuple = new MapTuple<>();
-            tuple.put(keyName, keyObj);
+            for (final Object matched : matching) {
+                MapTuple<String> matchingPair = new MapTuple<>();
+                matchingPair.put(keyName, keyObj);
+                matchingPair.put(matchingValuesName, matched);
 
-            // flattening will output a tuple for each value in the matching list
-            if (flatten) {
-                for (final Object matched : matching) {
-                    tuple.put(matchingValuesName, matched);
-                    resultList.add(tuple);
-                }
-            } else if (!matching.isEmpty()) {
-                tuple.put(matchingValuesName, matching);
-                resultList.add(tuple);
+                resultList.add(matchingPair);
             }
         }
 
+        return resultList;
+    }
+
+    /**
+     * Calculates a 1-to-many mapping pair for each key. All matches identified
+     * are returned in a list
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the 1-to-many mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateAggregatedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
+        List<MapTuple> resultList = new ArrayList<>();
+
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj);
+
+            if (!matching.isEmpty()) {
+                MapTuple<String> allMatchingValues = new MapTuple<>();
+                allMatchingValues.put(keyName, keyObj);
+                allMatchingValues.put(matchingValuesName, matching);
+                resultList.add(allMatchingValues);
+            }
+        }
 
         return resultList;
     }

@@ -27,25 +27,56 @@ import java.util.List;
  * where they do not match with any value in the list.
  */
 public class OuterJoin extends JoinFunction {
-    @Override
-    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
+    /**
+     * Calculates a 1-to-null mapping pair for each non-match. Returns a pair for
+     * each key which didn't match. The pair contains the key and a null value.
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateFlattenedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
         List<MapTuple> resultList = new ArrayList<>();
 
         for (final Object keyObj : keys) {
             List matching = match.matching(keyObj);
+
             if (matching.isEmpty()) {
+                MapTuple<String> unMatchedPair = new MapTuple<>();
+                unMatchedPair.put(keyName, keyObj);
+                unMatchedPair.put(matchingValuesName, null);
+                resultList.add(unMatchedPair);
+            }
+        }
 
-                MapTuple<String> tuple = new MapTuple<>();
-                tuple.put(keyName, keyObj);
+        return resultList;
+    }
 
-                // flattening will output a null value instead of an empty list
-                if (flatten) {
-                    tuple.put(matchingValuesName, null);
-                } else {
-                    tuple.put(matchingValuesName, matching);
-                }
-                resultList.add(tuple);
+    /**
+     * Calculates a key-to-[] pair for each key which didn't match. Will return
+     * a pair for each key that didn't match containing the key and an empty
+     * list.
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the 1-to-many mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateAggregatedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
+        List<MapTuple> resultList = new ArrayList<>();
+
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj);
+
+            if (matching.isEmpty()) {
+                MapTuple<String> allMatchingValues = new MapTuple<>();
+                allMatchingValues.put(keyName, keyObj);
+                allMatchingValues.put(matchingValuesName, matching);
+                resultList.add(allMatchingValues);
             }
         }
 

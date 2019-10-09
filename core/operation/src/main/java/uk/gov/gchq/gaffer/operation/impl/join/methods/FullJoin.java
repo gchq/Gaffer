@@ -23,32 +23,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FullJoin extends JoinFunction {
-    @Override
-    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
+    /**
+     * Calculates a 1-to-1 mapping pair for each match. If no match is found,
+     * null will be added as the value.
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the 1-to-1 mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateFlattenedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
         List<MapTuple> resultList = new ArrayList<>();
 
         for (final Object keyObj : keys) {
-            MapTuple<String> tuple = new MapTuple<>();
-            tuple.put(keyName, keyObj);
             List matching = match.matching(keyObj);
 
-            // flattening will output a tuple for each value in the matching list
-            if (flatten) {
-                if (matching.isEmpty()) {
-                    tuple.put(matchingValuesName, null);
-                    resultList.add(tuple);
-                } else {
-                    for (final Object matched : matching) {
-                        tuple.put(matchingValuesName, matched);
-                        resultList.add(tuple);
-                    }
-                }
+            if (matching.isEmpty()) {
+                MapTuple<String> unMatchedPair = new MapTuple<>();
+                unMatchedPair.put(keyName, keyObj);
+                unMatchedPair.put(matchingValuesName, null);
+                resultList.add(unMatchedPair);
             } else {
-                tuple.put(matchingValuesName, matching);
-                resultList.add(tuple);
+                for (final Object matched : matching) {
+                    MapTuple<String> matchingPair = new MapTuple<>();
+                    matchingPair.put(keyName, keyObj);
+                    matchingPair.put(matchingValuesName, matched);
+                    resultList.add(matchingPair);
+                }
             }
+        }
 
+        return resultList;
+    }
+
+    /**
+     * Calculates a 1-to-many mapping pair for each key. All matches identified
+     * are returned in a list. If no matches are discovered, an empty list is
+     * put in the value
+     * @param keys keys to use to match
+     * @param keyName name of the key (LEFT or RIGHT)
+     * @param matchingValuesName name of the value (LEFT or RIGHT)
+     * @param match The {@code Match} to use to identify matches
+     * @return the 1-to-many mapping pair
+     */
+    @Override
+    protected List<MapTuple> calculateAggregatedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
+        List<MapTuple> resultList = new ArrayList<>();
+
+        for (final Object keyObj : keys) {
+            List matching = match.matching(keyObj);
+            MapTuple<String> allMatchingValues = new MapTuple<>();
+            allMatchingValues.put(keyName, keyObj);
+            allMatchingValues.put(matchingValuesName, matching);
+            resultList.add(allMatchingValues);
         }
 
         return resultList;
