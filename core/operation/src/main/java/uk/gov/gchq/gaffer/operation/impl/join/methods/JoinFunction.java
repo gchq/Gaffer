@@ -74,7 +74,7 @@ public abstract class JoinFunction {
         throw new NotImplementedException();
     }
 
-    protected abstract List<MapTuple> joinFlattened(Object Key, List matches, String keyName, String matchingValuesName);
+    protected abstract List<MapTuple> joinFlattened(Object key, List matches, String keyName, String matchingValuesName);
 
-    protected abstract MapTuple joinAggregated(Object Key, List matches, String keyName, String matchingValuesName);
+    protected abstract MapTuple joinAggregated(Object key, List matches, String keyName, String matchingValuesName);
 }
