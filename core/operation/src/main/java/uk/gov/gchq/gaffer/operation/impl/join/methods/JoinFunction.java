@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,11 +46,27 @@ public abstract class JoinFunction {
             match.init(left);
         }
 
+        List<MapTuple> resultList = new ArrayList<>();
+        List matching;
+
         if (flatten) {
-            return calculateFlattenedMatches(keys, keyName, matchingValuesName, match);
+            for (final Object keyObj : keys) {
+                matching = match.matching(keyObj);
+                final List<MapTuple> mapTuples = joinFlattened(keyObj, matching, keyName, matchingValuesName);
+                if (!mapTuples.isEmpty()) {
+                    resultList.addAll(mapTuples);
+                }
+            }
         } else {
-            return calculateAggregatedMatches(keys, keyName, matchingValuesName, match);
+            for (final Object keyObj : keys) {
+                matching = match.matching(keyObj);
+                final MapTuple mapTuple = joinAggregated(keyObj, matching, keyName, matchingValuesName);
+                if (mapTuple != null) {
+                    resultList.add(mapTuple);
+                }
+            }
         }
+        return resultList;
     }
 
     @Deprecated
@@ -57,7 +74,7 @@ public abstract class JoinFunction {
         throw new NotImplementedException();
     }
 
-    protected abstract List<MapTuple> calculateFlattenedMatches(Iterable keys, String keyName, String matchingValuesName, Match match);
+    protected abstract List<MapTuple> joinFlattened(Object Key, List matches, String keyName, String matchingValuesName);
 
-    protected abstract List<MapTuple> calculateAggregatedMatches(Iterable keys, String keyName, String matchingValuesName, Match match);
+    protected abstract MapTuple joinAggregated(Object Key, List matches, String keyName, String matchingValuesName);
 }

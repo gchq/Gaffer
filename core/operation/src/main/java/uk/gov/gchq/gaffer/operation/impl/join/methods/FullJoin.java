@@ -16,70 +16,62 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A Full Join returns the LEFT and RIGHT regardless of whether they match
+ */
 public class FullJoin extends JoinFunction {
 
     /**
-     * Calculates a 1-to-1 mapping pair for each match. If no match is found,
-     * null will be added as the value.
-     * @param keys keys to use to match
-     * @param keyName name of the key (LEFT or RIGHT)
-     * @param matchingValuesName name of the value (LEFT or RIGHT)
-     * @param match The {@code Match} to use to identify matches
-     * @return the 1-to-1 mapping pair
+     * Generates a {@code MapTuple} for each match. If a key doesn't match,
+     * null will be put in the value.
+     * @param key The key
+     * @param matches a list containing the matches
+     * @param keyName the name of the keyed side (LEFT or RIGHT)
+     * @param matchingValuesName the corresponding value side (LEFT or RIGHT)
+     * @return A list containing tuples for each match
      */
     @Override
-    protected List<MapTuple> calculateFlattenedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
+    protected List<MapTuple> joinFlattened(final Object key, final List matches, final String keyName, final String matchingValuesName) {
         List<MapTuple> resultList = new ArrayList<>();
 
-        for (final Object keyObj : keys) {
-            List matching = match.matching(keyObj);
+        if (matches.isEmpty()) {
+            MapTuple<String> unMatchedPair = new MapTuple<>();
+            unMatchedPair.put(keyName, key);
+            unMatchedPair.put(matchingValuesName, null);
+            resultList.add(unMatchedPair);
+        } else {
+            MapTuple<String> matchingPair;
 
-            if (matching.isEmpty()) {
-                MapTuple<String> unMatchedPair = new MapTuple<>();
-                unMatchedPair.put(keyName, keyObj);
-                unMatchedPair.put(matchingValuesName, null);
-                resultList.add(unMatchedPair);
-            } else {
-                for (final Object matched : matching) {
-                    MapTuple<String> matchingPair = new MapTuple<>();
-                    matchingPair.put(keyName, keyObj);
-                    matchingPair.put(matchingValuesName, matched);
-                    resultList.add(matchingPair);
-                }
+            for (final Object matched : matches) {
+                matchingPair = new MapTuple<>();
+                matchingPair.put(keyName, key);
+                matchingPair.put(matchingValuesName, matched);
+                resultList.add(matchingPair);
             }
         }
 
         return resultList;
     }
 
+
     /**
-     * Calculates a 1-to-many mapping pair for each key. All matches identified
-     * are returned in a list. If no matches are discovered, an empty list is
-     * put in the value
-     * @param keys keys to use to match
-     * @param keyName name of the key (LEFT or RIGHT)
-     * @param matchingValuesName name of the value (LEFT or RIGHT)
-     * @param match The {@code Match} to use to identify matches
-     * @return the 1-to-many mapping pair
+     * Creates a {@code MapTuple} containing the key and all the matches
+     * @param key The key
+     * @param matches values matching the key
+     * @param keyName the name of the key (LEFT or RIGHT)
+     * @param matchingValuesName the name of the value (LEFT or RIGHT)
+     * @return A MapTuple with the key and matching values
      */
     @Override
-    protected List<MapTuple> calculateAggregatedMatches(final Iterable keys, final String keyName, final String matchingValuesName, final Match match) {
-        List<MapTuple> resultList = new ArrayList<>();
-
-        for (final Object keyObj : keys) {
-            List matching = match.matching(keyObj);
-            MapTuple<String> allMatchingValues = new MapTuple<>();
-            allMatchingValues.put(keyName, keyObj);
-            allMatchingValues.put(matchingValuesName, matching);
-            resultList.add(allMatchingValues);
-        }
-
-        return resultList;
+    protected MapTuple joinAggregated(final Object key, final List matches, final String keyName, final String matchingValuesName) {
+        MapTuple<String> matchingValues = new MapTuple<>();
+        matchingValues.put(keyName, key);
+        matchingValues.put(matchingValuesName, matches);
+        return matchingValues;
     }
 }
