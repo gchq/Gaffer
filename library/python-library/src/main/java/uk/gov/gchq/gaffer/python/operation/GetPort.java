@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class GetPort {
-    public GetPort() {
+    private GetPort() {
     }
 
     /**
      * @return a random port number
      */
-    public String getPort() {
+    public static String getPort() {
         List<Integer> portsList = IntStream.rangeClosed(50000, 65535).boxed().collect(Collectors.toList());
         Random rand = new Random();
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));

@@ -64,7 +64,6 @@ public class RunPythonScriptHandler {
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
     private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
-    private final GetPort getPort = new GetPort();
     private Git git = null;
     private DockerClient docker = null;
     private String containerId = null;
@@ -119,7 +118,7 @@ public class RunPythonScriptHandler {
             String ip = operation.getIp();
             for (int i = 0; i < 100; i++) {
                 try {
-                    port = getPort.getPort();
+                    port = GetPort.getPort();
 
                     // Create a container from the image and bind ports
                     final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
