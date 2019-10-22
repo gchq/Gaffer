@@ -21,7 +21,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class GetPort {
+public final class GetPort {
+
     private GetPort() {
     }
 

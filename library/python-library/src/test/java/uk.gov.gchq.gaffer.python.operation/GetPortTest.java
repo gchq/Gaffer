@@ -24,8 +24,11 @@ public class GetPortTest {
 
     @Test
     public void shouldGetAPortWithinRange() {
+        //Given
+        int portResult = 0;
+
         //When
-        int portResult = Integer.parseInt(GetPort.getPort());
+        portResult = Integer.parseInt(GetPort.getPort());
 
         //Then
         Assert.assertTrue(portResult < 65535 && portResult > 50000);
@@ -33,8 +36,10 @@ public class GetPortTest {
 
     @Test
     public void shouldReturnMultiplePortsWithinRange() {
-        //When
+        //Given
         ArrayList<Integer> portResults = new ArrayList<>();
+
+        //When
         for (int i = 0; i < 100; i++) {
             portResults.add(Integer.parseInt(GetPort.getPort()));
         }
