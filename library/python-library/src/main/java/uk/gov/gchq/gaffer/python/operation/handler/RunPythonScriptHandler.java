@@ -71,12 +71,12 @@ public class RunPythonScriptHandler {
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
         final String repoName = operation.getRepoName();
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/");
+//        final File directory = new File(directoryPath);
+//        if (!directory.exists()) {
+//            directory.mkdir();
+//        }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
         Object output = null;
         final String scriptName = operation.getScriptName();
@@ -84,11 +84,13 @@ public class RunPythonScriptHandler {
         final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
-
-
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
-        buildImageFromDockerfile.buildFiles(pathAbsolutePythonRepo.toString());
+        try {
+            buildImageFromDockerfile.getFiles(pathAbsolutePythonRepo.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
 
