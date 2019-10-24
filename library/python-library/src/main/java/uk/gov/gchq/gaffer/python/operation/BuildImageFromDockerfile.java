@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class BuildImageFromDockerfile {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageFromDockerfile.class);
@@ -82,24 +83,29 @@ public class BuildImageFromDockerfile {
 
     public void getFiles(final String pathAbsolutePythonRepo) throws IOException {
 
-        // If alternative Dockerfile provided
-        if (false) {
-            // Load the Dockerfile
+        // TODO: Replace with a loop over the files in the resources directory
+        String[] fileNames = new String[4];
+        fileNames[0] = "Dockerfile";
+        fileNames[1] = "DataInputStream.py";
+        fileNames[2] = "entrypoint.py";
+        fileNames[3] = "modules.txt";
 
-
-//            Path copied = Paths.get("/.PythonBin/Dockerfile");
-//            Files.copy(original, copied, StandardCopyOption.REPLACE_EXISTING);
-        } else {
-            // Use the default Dockerfile
-
-
-            InputStream inputStream = StreamUtil.openStream(getClass(),"/Dockerfile");
-            LOGGER.info("Dockerfile inputstream is: " + inputStream.toString());
-//            InputStream in = getClass().getResourceAsStream("/file.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//            InputStream inputStream2 = Object.class.getResourceAsStream("/python-library/.PythonBin/Dockerfile");
-//            System.out.println(inputStream2);
+        for (int i = 0; i <= 3; i++) {
+            // If alternative file provided
+            if (false) {
+                // Load the file
+            } else {
+                // Use the default file
+                InputStream inputStream = StreamUtil.openStream(getClass(),"/" + fileNames[i]);
+                LOGGER.info("Dockerfile inputstream is: " + inputStream.toString());
+                String fileData = null;
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                    fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+                }
+                LOGGER.info("Dockerfile data is: " + fileData);
+                System.out.println("Dockerfile data is: " + fileData);
+                Files.write(Paths.get(pathAbsolutePythonRepo + "/../" + fileNames[i]), fileData.getBytes());
+            }
         }
-
     }
 }
