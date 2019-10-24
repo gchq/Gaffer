@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,8 +91,12 @@ public class BuildImageFromDockerfile {
 //            Files.copy(original, copied, StandardCopyOption.REPLACE_EXISTING);
         } else {
             // Use the default Dockerfile
-            InputStream inputStream = StreamUtil.openStream(Object.class,"./Dockerfile");
-            System.out.println(inputStream);
+
+
+            InputStream inputStream = StreamUtil.openStream(getClass(),"/Dockerfile");
+            LOGGER.info("Dockerfile inputstream is: " + inputStream.toString());
+//            InputStream in = getClass().getResourceAsStream("/file.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 //            InputStream inputStream2 = Object.class.getResourceAsStream("/python-library/.PythonBin/Dockerfile");
 //            System.out.println(inputStream2);
         }
