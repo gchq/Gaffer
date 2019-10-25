@@ -68,7 +68,7 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)
             .build();
-    private static final String OPERATION_NAME = "test";
+    private static final String OPERATION_NAME = ".PythonBin/test";
     private HashMap<String, NamedOperationDetail> storedOperations = new HashMap<>();
 
     @Before

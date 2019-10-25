@@ -26,9 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,7 +69,7 @@ public class BuildImageFromDockerfile {
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
-        LOGGER.info("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo + "/../").toString());
+        System.out.println("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo + "/../").toString());
         return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
             if (imageId != null) {
@@ -96,7 +94,7 @@ public class BuildImageFromDockerfile {
                 // Load the file
             } else {
                 // Use the default file
-                InputStream inputStream = StreamUtil.openStream(getClass(),"/" + fileNames[i]);
+                InputStream inputStream = StreamUtil.openStream(getClass(),"/.PythonBin/" + fileNames[i]);
                 LOGGER.info("Dockerfile inputstream is: " + inputStream.toString());
                 String fileData = null;
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {

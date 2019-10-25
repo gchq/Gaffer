@@ -58,7 +58,7 @@ public class AddElementsFromKafkaDemo {
 
         graph.execute(new AddElementsFromKafka.Builder()
                 .parallelism(1)
-                .topic("test")
+                .topic(".PythonBin/test")
                 .groupId("group1")
                 .bootstrapServers("localhost:9092")
                 .generator(CsvToElement.class)
