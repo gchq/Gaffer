@@ -35,9 +35,6 @@ public class RunPythonScript<I_ITEM, O> implements
     private Map<String, String> options;
     private String scriptName;
     private Map<String, Object> scriptParameters;
-    private String repoName;
-    private String repoURI;
-    private String ip;
     private ScriptOutputType scriptOutputType;
     private ScriptInputType scriptInputType;
 
@@ -60,9 +57,6 @@ public class RunPythonScript<I_ITEM, O> implements
     public Operation shallowClone() throws CloneFailedException {
         return new RunPythonScript.Builder<>().scriptName(scriptName)
                                               .scriptParameters(scriptParameters)
-                                              .repoName(repoName)
-                                              .repoURI(repoURI)
-                                              .ip(ip)
                                               .scriptOutputType(scriptOutputType)
                                               .scriptInputType(scriptInputType).build();
     }
@@ -91,30 +85,6 @@ public class RunPythonScript<I_ITEM, O> implements
     public void setScriptParameters(final Map<String, Object> scriptParameters) {
         this.scriptParameters = scriptParameters; }
 
-    public String getRepoName() {
-        return repoName;
-    }
-
-    public void setRepoName(final String repoName) {
-        this.repoName = repoName;
-    }
-
-    public String getRepoURI() {
-        return repoURI;
-    }
-
-    public void setRepoURI(final String repoURI) {
-        this.repoURI = repoURI;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(final String ip) {
-        this.ip = ip;
-    }
-
     public ScriptOutputType getScriptOutputType() {
         return scriptOutputType; }
 
@@ -141,21 +111,6 @@ public class RunPythonScript<I_ITEM, O> implements
 
         public Builder<I_ITEM, O> scriptParameters(final Map<String, Object> scriptParameters) {
             _getOp().setScriptParameters(scriptParameters);
-            return _self();
-        }
-
-        public Builder<I_ITEM, O> repoName(final String repoName) {
-            _getOp().setRepoName(repoName);
-            return _self();
-        }
-
-        public Builder<I_ITEM, O> repoURI(final String repoURI) {
-            _getOp().setRepoURI(repoURI);
-            return _self();
-        }
-
-        public Builder<I_ITEM, O> ip(final String ip) {
-            _getOp().setIp(ip);
             return _self();
         }
 

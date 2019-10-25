@@ -29,8 +29,7 @@ public class PullOrCloneRepo {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
 
     public synchronized void pullOrClone(final Git git, final String pathAbsolutePythonRepo,
-                             final RunPythonScript operation) {
-        String repoURI = operation.getRepoURI();
+                             final String repoURI) {
         Git newGit = git;
         if (git == null) {
             try {

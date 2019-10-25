@@ -40,8 +40,6 @@ public class RunPythonScriptHandlerTest {
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
         } };
-        final String repoName = "test";
-        final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
         final ArrayList<String> inputData = new ArrayList<>();
@@ -51,8 +49,6 @@ public class RunPythonScriptHandlerTest {
                 new RunPythonScript.Builder<String, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
-                        .repoName(repoName)
-                        .repoURI(repoURI)
                         .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
@@ -82,8 +78,6 @@ public class RunPythonScriptHandlerTest {
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
         } };
-        final String repoName = "test";
-        final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
         final ScriptInputType scriptInputType = ScriptInputType.JSON;
         final ArrayList<Element> inputData = new ArrayList<>();
@@ -93,8 +87,6 @@ public class RunPythonScriptHandlerTest {
                 new RunPythonScript.Builder<Element, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
-                        .repoName(repoName)
-                        .repoURI(repoURI)
                         .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
