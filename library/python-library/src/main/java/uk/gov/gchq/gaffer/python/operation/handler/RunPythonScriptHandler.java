@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
-import uk.gov.gchq.gaffer.python.operation.PullOrCloneRepo;
+import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
@@ -62,7 +62,7 @@ public class RunPythonScriptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
-    private final PullOrCloneRepo pullOrCloneRepo = new PullOrCloneRepo();
+    private final PullOrCloneGitRepo pullOrCloneRepo = new PullOrCloneGitRepo();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private Git git = null;
     private DockerClient docker = null;

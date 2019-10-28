@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class PullOrCloneRepo {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneRepo.class);
+public class PullOrCloneGitRepo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PullOrCloneGitRepo.class);
 
     public synchronized void pullOrClone(final Git git, final String pathAbsolutePythonRepo,
-                             final RunPythonScript operation) {
+                                         final RunPythonScript operation) {
         String repoURI = operation.getRepoURI();
         Git newGit = git;
         if (git == null) {
@@ -55,9 +55,7 @@ public class PullOrCloneRepo {
                 newGit.pull().call();
                 LOGGER.info("Pulled the latest files.");
             } else {
-                LOGGER.info("Repo has not been cloned, cloning the repo...");
-                Git.cloneRepository().setDirectory(dir).setURI(repoURI).call();
-                LOGGER.info("Cloned the repo");
+                throw new RuntimeException("Repo failed to clone!");
             }
         } catch (final GitAPIException e) {
             e.printStackTrace();

@@ -28,12 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PullOrCloneRepoTest  {
+public class PullOrCloneGitRepoTest  {
 
     @Test
     public void shouldCloneIfNotAlreadyCloned() {
         //Given
-        PullOrCloneRepo pOrC = new PullOrCloneRepo();
+        PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = null;
         final String repoName = "test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
@@ -61,7 +61,7 @@ public class PullOrCloneRepoTest  {
     @Test
     public void shouldPullIfAlreadyCloned() {
         //Given
-        PullOrCloneRepo pOrC = new PullOrCloneRepo();
+        PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = mock(Git.class);
         final String repoName = "test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
