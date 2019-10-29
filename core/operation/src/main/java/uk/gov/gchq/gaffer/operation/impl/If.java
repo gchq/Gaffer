@@ -97,7 +97,7 @@ public class If<I, O> extends GenericInput<I> implements InputOutput<I, O>, Oper
             builder = builder.then(then.shallowClone());
         }
         if (null != otherwise) {
-            builder = builder.then(otherwise.shallowClone());
+            builder = builder.otherwise(otherwise.shallowClone());
         }
 
         return builder.build();
