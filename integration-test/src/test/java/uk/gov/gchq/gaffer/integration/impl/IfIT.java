@@ -39,7 +39,7 @@ public class IfIT extends AbstractStoreIT {
     public static final String INPUT_CAMEL_CASE = "AbCd";
 
     @Test
-    public void ShouldRunThenOperationWhenConditionIsTrue() throws OperationException {
+    public void shouldRunThenOperationWhenConditionIsTrue() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(INPUT_CAMEL_CASE);
@@ -56,7 +56,7 @@ public class IfIT extends AbstractStoreIT {
     }
 
     @Test
-    public void ShouldRunOtherwiseOperationsWhenConditionIsFalse() throws OperationException {
+    public void shouldRunOtherwiseOperationsWhenConditionIsFalse() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(INPUT_CAMEL_CASE);
@@ -73,7 +73,7 @@ public class IfIT extends AbstractStoreIT {
     }
 
     @Test
-    public void ShouldReturnOriginalInputWhenConditionIsFalseAndNoOtherwise() throws OperationException {
+    public void shouldReturnOriginalInputWhenConditionIsFalseAndNoOtherwise() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
@@ -105,7 +105,7 @@ public class IfIT extends AbstractStoreIT {
     }
 
     @Test
-    public void ShouldReturnOriginalInputWhenConditionIsTrueAndNoThen() throws OperationException {
+    public void shouldReturnOriginalInputWhenConditionIsTrueAndNoThen() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
