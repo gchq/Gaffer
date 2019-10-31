@@ -82,7 +82,7 @@ public class BuildImageFromDockerfile {
 
         try {
             PrintWriter fileWriter = new PrintWriter(pathAbsolutePythonRepo + "/../Dockerfile");
-            fileWriter.print("FROM python:3\n" +
+            fileWriter.print("FROM python:3.7.0\n" +
                     "\n" +
                     "COPY entrypoint.py /\n" +
                     "COPY DataInputStream.py /\n" +
