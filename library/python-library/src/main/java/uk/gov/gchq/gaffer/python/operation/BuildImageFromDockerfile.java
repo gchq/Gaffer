@@ -85,12 +85,12 @@ public class BuildImageFromDockerfile {
 
     public void getFiles(final String pathAbsolutePythonRepo) throws IOException {
 
-        String[] fileNames = new String[] { "Dockerfile",
+        String[] fileNames = new String[] {"Dockerfile",
                                             "DataInputStream.py",
                                             "entrypoint.py",
                                             "modules.txt" };
 
-        for (String fileName : fileNames) {
+        for (final String fileName : fileNames) {
             // Use the default file
             LOGGER.info("Using the default Dockerfile");
             InputStream inputStream = StreamUtil.openStream(getClass(), "/.PythonBin/" + fileName);
