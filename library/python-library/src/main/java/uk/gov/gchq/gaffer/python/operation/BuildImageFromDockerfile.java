@@ -21,9 +21,13 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -69,7 +73,7 @@ public class BuildImageFromDockerfile {
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
-        System.out.println("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo + "/../").toString());
+        LOGGER.info("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo).toString());
         return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
             if (imageId != null) {
@@ -81,29 +85,19 @@ public class BuildImageFromDockerfile {
 
     public void getFiles(final String pathAbsolutePythonRepo) throws IOException {
 
-        // TODO: Replace with a loop over the files in the resources directory
-        String[] fileNames = new String[4];
-        fileNames[0] = "Dockerfile";
-        fileNames[1] = "DataInputStream.py";
-        fileNames[2] = "entrypoint.py";
-        fileNames[3] = "modules.txt";
+        String[] fileNames = new String[] { "Dockerfile",
+                                            "DataInputStream.py",
+                                            "entrypoint.py",
+                                            "modules.txt" };
 
-        for (int i = 0; i <= 3; i++) {
-            // If alternative file provided
-            if (false) {
-                // Load the file
-            } else {
-                // Use the default file
-                InputStream inputStream = StreamUtil.openStream(getClass(),"/.PythonBin/" + fileNames[i]);
-                LOGGER.info("Dockerfile inputstream is: " + inputStream.toString());
-                String fileData = null;
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                    fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-                }
-                LOGGER.info("Dockerfile data is: " + fileData);
-                System.out.println("Dockerfile data is: " + fileData);
-                Files.write(Paths.get(pathAbsolutePythonRepo + "/../" + fileNames[i]), fileData.getBytes());
-            }
+        for (String fileName : fileNames) {
+            // Use the default file
+            LOGGER.info("Using the default Dockerfile");
+            InputStream inputStream = StreamUtil.openStream(getClass(), "/.PythonBin/" + fileName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            inputStream.close();
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/../" + fileName), fileData.getBytes());
         }
     }
 }

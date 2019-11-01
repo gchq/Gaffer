@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -84,7 +83,7 @@ public class RunPythonScriptHandler {
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
         try {
             buildImageFromDockerfile.getFiles(pathAbsolutePythonRepo.toString());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
