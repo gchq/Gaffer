@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.python.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -35,7 +34,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
@@ -50,9 +48,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -140,37 +136,7 @@ public class RunPythonScriptHandler {
                 LOGGER.info("Failed to find an available port");
             }
             StringBuilder dataReceived = sendAndGetDataFromContainer.setUpAndCloseContainer(operation, port);
-
-            switch (scriptOutputType) {
-                case ELEMENTS:
-                    // Deserialise the data recieved into an ArrayList of LinkedHashMaps, to iterate over it
-                    Object deserialisedData = JSONSerialiser.deserialise(dataReceived.toString(), Object.class);
-                    if (deserialisedData instanceof ArrayList) {
-                        ArrayList<Object> arrayOutput = (ArrayList<Object>) deserialisedData;
-                        Stream<Element> elementStream = Stream.of();
-
-                        // Convert each LinkedHashMap element into its proper class
-                        for (final Object element : arrayOutput) {
-                            if (element instanceof LinkedHashMap) {
-
-                                // Convert the LinkedHashMap to Json and then deserialise it as an Element
-                                String jsonElement = new Gson().toJson(element, LinkedHashMap.class);
-                                Element deserializedElement = JSONSerialiser.deserialise(jsonElement, Element.class);
-
-                                // Create a stream of the deserialised elements
-                                elementStream = Stream.concat(Stream.of(deserializedElement), elementStream);
-                            }
-                        }
-                        // Convert the stream to a CloseableIterable
-                        output = new ElementsIterable(elementStream);
-                    }
-                    break;
-                case JSON:
-                    output = dataReceived;
-                    break;
-                default:
-                    output = null;
-            }
+            output = dataReceived;
 
             LOGGER.info("Closed the connection.");
 
