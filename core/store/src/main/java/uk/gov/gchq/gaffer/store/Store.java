@@ -91,7 +91,6 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -120,7 +119,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.PythonHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
@@ -944,8 +942,6 @@ public abstract class Store {
             addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
             addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
         }
-
-        addOperationHandler(RunPythonScript.class, new PythonHandler());
 
         // ElementComparison
         addOperationHandler(Max.class, new MaxHandler());
