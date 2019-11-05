@@ -56,6 +56,10 @@ import java.util.stream.Stream;
 
 public class RunPythonScriptHandler {
 
+    private String repoName = "test";
+    private String repoURI = "https://github.com/g609bmsma/test";
+    private String ip = "127.0.0.1";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
     private final PullOrCloneGitRepo pullOrCloneRepo = new PullOrCloneGitRepo();
@@ -66,7 +70,6 @@ public class RunPythonScriptHandler {
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
-        final String repoName = operation.getRepoName();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("PythonBin");
         final File directory = new File(directoryPath);
@@ -74,16 +77,16 @@ public class RunPythonScriptHandler {
             directory.mkdir();
         }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+
         Object output = null;
+
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
         final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
-
-
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
         buildImageFromDockerfile.buildFiles(pathAbsolutePythonRepo.toString());
 
         try {
@@ -111,7 +114,6 @@ public class RunPythonScriptHandler {
             // Keep trying to start a container and find a free port.
             String port = null;
             boolean portAvailable = false;
-            String ip = operation.getIp();
             for (int i = 0; i < 100; i++) {
                 try {
                     port = GetPort.getPort();

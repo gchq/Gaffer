@@ -27,9 +27,6 @@ public class RunPythonScriptTest {
     @Test
     public void shouldShallowClone() {
         //Given
-        final String ip = "127.0.0.1";
-        final String repoURI = "https://github.com/g609bmsma/test";
-        final String repoName = "test";
         final String scriptName = "script3";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("animal", "dog");
@@ -38,9 +35,6 @@ public class RunPythonScriptTest {
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
 
         final RunPythonScript runPythonScript = new RunPythonScript.Builder<>()
-                .ip(ip)
-                .repoURI(repoURI)
-                .repoName(repoName)
                 .scriptName(scriptName)
                 .scriptParameters(scriptParameters)
                 .scriptInputType(scriptInputType)
@@ -52,9 +46,6 @@ public class RunPythonScriptTest {
 
         // Then
         Assert.assertNotSame(runPythonScript, clone);
-        Assert.assertEquals(ip, clone.getIp());
-        Assert.assertEquals(repoURI, clone.getRepoURI());
-        Assert.assertEquals(repoName, clone.getRepoName());
         Assert.assertEquals(scriptName, clone.getScriptName());
         Assert.assertEquals(scriptParameters, clone.getScriptParameters());
         Assert.assertEquals(scriptInputType, clone.getScriptInputType());
