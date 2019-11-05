@@ -19,10 +19,8 @@ import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -35,19 +33,15 @@ public class PullOrCloneGitRepoTest  {
         //Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = null;
-        final String repoName = "test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        DockerFileUtils.getDockerFileImage(directoryPath, PythonTestConstants.REPONAME);
+
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
-                        .repoURI("https://github.com/g609bmsma/test")
+                        .repoURI(PythonTestConstants.REPOURI)
                         .build();
 
         //When
@@ -63,19 +57,15 @@ public class PullOrCloneGitRepoTest  {
         //Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = mock(Git.class);
-        final String repoName = "test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        DockerFileUtils.getDockerFileImage(directoryPath, PythonTestConstants.REPONAME);
+
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
-                        .repoURI("https://github.com/g609bmsma/test")
+                        .repoURI(PythonTestConstants.REPOURI)
                         .build();
 
         //When

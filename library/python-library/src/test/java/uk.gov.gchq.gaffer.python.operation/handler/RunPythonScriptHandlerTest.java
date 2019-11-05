@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.python.operation.PythonTestConstants;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
@@ -37,8 +38,6 @@ public class RunPythonScriptHandlerTest {
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
         } };
-        final String repoName = "test";
-        final String repoURI = "https://github.com/g609bmsma/test";
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
         final ArrayList<String> inputData = new ArrayList<>();
@@ -48,8 +47,8 @@ public class RunPythonScriptHandlerTest {
                 new RunPythonScript.Builder<String, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
-                        .repoName(repoName)
-                        .repoURI(repoURI)
+                        .repoName(PythonTestConstants.REPONAME)
+                        .repoURI(PythonTestConstants.REPOURI)
                         .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
