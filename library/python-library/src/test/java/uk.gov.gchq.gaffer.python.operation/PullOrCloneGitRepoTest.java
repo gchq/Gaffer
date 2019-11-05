@@ -41,11 +41,10 @@ public class PullOrCloneGitRepoTest  {
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
-                        .repoURI(PythonTestConstants.REPOURI)
                         .build();
 
         //When
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation);
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
         String[] files = pathAbsolutePythonRepo.toFile().list();
 
         //Then
@@ -65,7 +64,6 @@ public class PullOrCloneGitRepoTest  {
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
-                        .repoURI(PythonTestConstants.REPOURI)
                         .build();
 
         //When
@@ -73,7 +71,7 @@ public class PullOrCloneGitRepoTest  {
         });
 
         //Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), operation));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }

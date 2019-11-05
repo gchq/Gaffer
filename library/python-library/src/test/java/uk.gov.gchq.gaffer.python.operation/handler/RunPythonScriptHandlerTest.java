@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.PythonTestConstants;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
@@ -47,11 +46,10 @@ public class RunPythonScriptHandlerTest {
                 new RunPythonScript.Builder<String, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
-                        .repoName(PythonTestConstants.REPONAME)
-                        .repoURI(PythonTestConstants.REPOURI)
                         .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
+
         runPythonScript.setInput(inputData);
 
         // When

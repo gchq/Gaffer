@@ -35,9 +35,6 @@ public class RunPythonScriptTest {
         final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
 
         final RunPythonScript runPythonScript = new RunPythonScript.Builder<>()
-                .ip(PythonTestConstants.LOCALHOST)
-                .repoURI(PythonTestConstants.REPOURI)
-                .repoName(PythonTestConstants.REPONAME)
                 .scriptName(scriptName)
                 .scriptParameters(scriptParameters)
                 .scriptInputType(scriptInputType)
@@ -49,9 +46,6 @@ public class RunPythonScriptTest {
 
         // Then
         Assert.assertNotSame(runPythonScript, clone);
-        Assert.assertEquals(PythonTestConstants.LOCALHOST, clone.getIp());
-        Assert.assertEquals(PythonTestConstants.REPOURI, clone.getRepoURI());
-        Assert.assertEquals(PythonTestConstants.REPONAME, clone.getRepoName());
         Assert.assertEquals(scriptName, clone.getScriptName());
         Assert.assertEquals(scriptParameters, clone.getScriptParameters());
         Assert.assertEquals(scriptInputType, clone.getScriptInputType());
