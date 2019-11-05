@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +46,11 @@ public class PullOrCloneGitRepoTest  {
         }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
+        try {
+            bIFD.getFiles(pathAbsolutePythonRepo.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .build();
@@ -73,7 +78,11 @@ public class PullOrCloneGitRepoTest  {
         }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
+        try {
+            bIFD.getFiles(pathAbsolutePythonRepo.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .build();

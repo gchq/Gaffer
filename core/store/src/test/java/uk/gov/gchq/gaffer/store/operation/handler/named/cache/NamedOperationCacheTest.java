@@ -233,7 +233,7 @@ public class NamedOperationCacheTest {
         NamedOperationDetail noReadAccess = new NamedOperationDetail.Builder()
                 .creatorId(advancedUser.getUserId())
                 .description("an operation that a standard user cannot execute")
-                .operationName("test")
+                .operationName(".PythonBin/test")
                 .readers(writers)
                 .writers(writers)
                 .operationChain(standardOpChain)

@@ -36,14 +36,19 @@ public class BuildImageFromDockerfileTest {
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
         DockerClient docker = null;
         final String repoName = "test";
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
         final File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdir();
         }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
+        try {
+            bIFD.getFiles(pathAbsolutePythonRepo.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException e) {

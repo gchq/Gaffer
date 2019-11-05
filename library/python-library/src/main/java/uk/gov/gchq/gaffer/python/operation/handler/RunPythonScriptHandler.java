@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -70,12 +69,8 @@ public class RunPythonScriptHandler {
 
     public Object doOperation(final RunPythonScript operation) throws OperationException {
 
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
 
         Object output = null;
@@ -86,8 +81,12 @@ public class RunPythonScriptHandler {
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
-        buildImageFromDockerfile.buildFiles(pathAbsolutePythonRepo.toString());
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoName);
+        try {
+            buildImageFromDockerfile.getFiles(pathAbsolutePythonRepo.toString());
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
 
         try {
 

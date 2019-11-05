@@ -140,7 +140,7 @@ public class ElementMatchTest {
         // When / Then
 
         try {
-            elementMatch.matching(new Entity("testGroup", "test"));
+            elementMatch.matching(new Entity("testGroup", ".PythonBin/test"));
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
