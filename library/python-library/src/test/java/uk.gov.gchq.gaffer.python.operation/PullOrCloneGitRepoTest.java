@@ -37,7 +37,6 @@ public class PullOrCloneGitRepoTest  {
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
 
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
-        DockerFileUtils.getDockerFileImage(directoryPath, PythonTestConstants.REPONAME);
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
@@ -60,7 +59,6 @@ public class PullOrCloneGitRepoTest  {
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
 
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
-        DockerFileUtils.getDockerFileImage(directoryPath, PythonTestConstants.REPONAME);
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()

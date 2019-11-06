@@ -40,22 +40,4 @@ public final class DockerFileUtils {
         return pathAbsolutePythonRepo;
     }
 
-    public static BuildImageFromDockerfile buildDockerFile(Path pathAbsolutePythonRepo) {
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
-
-        return bIFD;
-    }
-
-    public static BuildImageFromDockerfile getDockerFileImage(String directoryPath, String repoName) {
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-
-        createDirectory(directoryPath);
-        Path pathAbsolutePythonRepo = getPathAbsolutePythonRepo(directoryPath, repoName);
-
-        bIFD.buildFiles(pathAbsolutePythonRepo.toString());
-
-        return bIFD;
-    }
 }

@@ -189,7 +189,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .build();
         client.reinitialiseGraph(graph);
 
-        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input(".PythonBin/test").build()).build();
         Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
 
         assertEquals(200, response.getStatus());
@@ -208,7 +208,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
                 .build();
         client.reinitialiseGraph(graph);
 
-        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input(".PythonBin/test").build()).build();
 
         Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "BasicUser");
 
