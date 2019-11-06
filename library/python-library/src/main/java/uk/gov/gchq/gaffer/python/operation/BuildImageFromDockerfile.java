@@ -84,7 +84,7 @@ public class BuildImageFromDockerfile {
     }
 
     public void getFiles(final String pathAbsolutePythonRepo) throws IOException {
-        
+
         String[] fileNames = new String[] {"Dockerfile",
                                             "DataInputStream.py",
                                             "entrypoint.py",
