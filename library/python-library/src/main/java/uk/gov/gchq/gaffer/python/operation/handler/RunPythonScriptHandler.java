@@ -81,9 +81,9 @@ public class RunPythonScriptHandler {
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoName);
+        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
         try {
-            buildImageFromDockerfile.getFiles(pathAbsolutePythonRepo.toString());
+            buildImageFromDockerfile.getFiles(directoryPath);
         } catch (final IOException e) {
             e.printStackTrace();
         }
