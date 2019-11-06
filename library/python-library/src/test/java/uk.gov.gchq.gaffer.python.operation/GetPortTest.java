@@ -28,6 +28,7 @@ public class GetPortTest {
         int portResult = 0;
 
         //When
+
         portResult = Integer.parseInt(GetPort.getPort());
 
         //Then

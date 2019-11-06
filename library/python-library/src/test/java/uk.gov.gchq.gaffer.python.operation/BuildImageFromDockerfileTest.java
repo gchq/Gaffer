@@ -32,6 +32,7 @@ public class BuildImageFromDockerfileTest {
     @Test
     public void shouldBuildImage() {
         // Given
+
         DockerClient docker = null;
         Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();

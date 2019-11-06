@@ -27,9 +27,6 @@ import java.util.concurrent.TimeUnit;
 public class SendAndGetDataFromContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendAndGetDataFromContainer.class);
 
-    public SendAndGetDataFromContainer() {
-    }
-
     /**
      * @param operation the RunPythonScript operation
      * @param port the port of the docker client where the data will be passed
@@ -43,11 +40,11 @@ public class SendAndGetDataFromContainer {
         IOException error = null;
         Socket clientSocket = null;
         DataInputStream in = null;
-        Thread.sleep(1000);
+        Thread.sleep(PythonOperationConstants.ONESECOND);
         LOGGER.info("Attempting to connect with the container...");
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < PythonOperationConstants.MAXTRIES; i++) {
             try {
-                clientSocket = new Socket("127.0.0.1", Integer.parseInt(port));
+                clientSocket = new Socket(PythonOperationConstants.LOCALHOST, Integer.parseInt(port));
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
                 in = WriteDataToContainer.getInputStream(clientSocket);
                 LOGGER.info("Container ready status: {}", in.readBoolean());
@@ -56,7 +53,7 @@ public class SendAndGetDataFromContainer {
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
                 error = e;
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(PythonOperationConstants.TIMEOUT_100);
             }
         }
         LOGGER.info("clientSocket is: {}", clientSocket);
@@ -64,7 +61,7 @@ public class SendAndGetDataFromContainer {
         int incomingDataLength = 0;
         if (clientSocket != null && in != null) {
             int timeout = 0;
-            while (timeout < 100) {
+            while (timeout < PythonOperationConstants.TIMEOUT_100) {
                 try {
                     // Get the data from the container
                     incomingDataLength = in.readInt();
@@ -74,16 +71,18 @@ public class SendAndGetDataFromContainer {
                 } catch (final IOException e) {
                     timeout += 1;
                     error = e;
-                    TimeUnit.MILLISECONDS.sleep(200);
+                    TimeUnit.MILLISECONDS.sleep(PythonOperationConstants.TIMEOUT_200);
                 }
             }
         }
         StringBuilder dataReceived = new StringBuilder();
         if (failedToConnect) {
             LOGGER.info("Connection failed, stopping the container...");
-            error.printStackTrace();
+            if (null != error) {
+                error.printStackTrace();
+            }
         } else {
-            for (int i = 0; i < incomingDataLength / 65000; i++) {
+            for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAXBYTES; i++) {
                 dataReceived.append(in.readUTF());
             }
             dataReceived.append(in.readUTF());
