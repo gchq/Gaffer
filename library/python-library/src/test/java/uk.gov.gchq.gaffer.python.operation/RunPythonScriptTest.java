@@ -32,13 +32,11 @@ public class RunPythonScriptTest {
             put("animal", "dog");
         } };
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
-        final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
 
         final RunPythonScript runPythonScript = new RunPythonScript.Builder<>()
                 .scriptName(scriptName)
                 .scriptParameters(scriptParameters)
                 .scriptInputType(scriptInputType)
-                .scriptOutputType(scriptOutputType)
                 .build();
 
         // When
@@ -49,6 +47,5 @@ public class RunPythonScriptTest {
         Assert.assertEquals(scriptName, clone.getScriptName());
         Assert.assertEquals(scriptParameters, clone.getScriptParameters());
         Assert.assertEquals(scriptInputType, clone.getScriptInputType());
-        Assert.assertEquals(scriptOutputType, clone.getScriptOutputType());
     }
 }

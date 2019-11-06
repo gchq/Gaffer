@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
-import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 
 import java.io.File;
@@ -82,7 +81,6 @@ public class RunPythonScriptHandler {
 
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
-        final ScriptOutputType scriptOutputType = operation.getScriptOutputType();
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files

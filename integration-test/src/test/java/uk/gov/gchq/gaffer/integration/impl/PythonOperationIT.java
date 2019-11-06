@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
-import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +52,6 @@ public class PythonOperationIT extends AbstractStoreIT {
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
         final String ip = "127.0.0.1";
-        final ScriptOutputType scriptOutputType = ScriptOutputType.JSON;
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
         final GetAllElements getAllElements =
@@ -66,7 +64,6 @@ public class PythonOperationIT extends AbstractStoreIT {
                         .repoName(repoName)
                         .repoURI(repoURI)
                         .ip(ip)
-                        .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
 
@@ -95,7 +92,6 @@ public class PythonOperationIT extends AbstractStoreIT {
         } };
         final String repoName = "test";
         final String repoURI = "https://github.com/g609bmsma/test";
-        final ScriptOutputType scriptOutputType = ScriptOutputType.ELEMENTS;
         final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
         final GetAllElements getAllElements =
@@ -107,7 +103,6 @@ public class PythonOperationIT extends AbstractStoreIT {
                         .scriptParameters(scriptParameters)
                         .repoName(repoName)
                         .repoURI(repoURI)
-                        .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
 

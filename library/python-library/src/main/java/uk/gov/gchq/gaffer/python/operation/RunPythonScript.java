@@ -35,7 +35,6 @@ public class RunPythonScript<I_ITEM, O> implements
     private Map<String, String> options;
     private String scriptName;
     private Map<String, Object> scriptParameters;
-    private ScriptOutputType scriptOutputType;
     private ScriptInputType scriptInputType;
 
     @Override
@@ -57,7 +56,6 @@ public class RunPythonScript<I_ITEM, O> implements
     public Operation shallowClone() throws CloneFailedException {
         return new RunPythonScript.Builder<>().scriptName(scriptName)
                                               .scriptParameters(scriptParameters)
-                                              .scriptOutputType(scriptOutputType)
                                               .scriptInputType(scriptInputType).build();
     }
 
@@ -80,22 +78,20 @@ public class RunPythonScript<I_ITEM, O> implements
     }
 
     public Map<String, Object> getScriptParameters() {
-        return scriptParameters; }
+        return scriptParameters;
+    }
 
     public void setScriptParameters(final Map<String, Object> scriptParameters) {
-        this.scriptParameters = scriptParameters; }
-
-    public ScriptOutputType getScriptOutputType() {
-        return scriptOutputType; }
-
-    public void setScriptOutputType(final ScriptOutputType scriptOutputType) {
-        this.scriptOutputType = scriptOutputType; }
+        this.scriptParameters = scriptParameters;
+    }
 
     public ScriptInputType getScriptInputType() {
-        return scriptInputType; }
+        return scriptInputType;
+    }
 
     public void setScriptInputType(final ScriptInputType scriptInputType) {
-        this.scriptInputType = scriptInputType; }
+        this.scriptInputType = scriptInputType;
+    }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<RunPythonScript<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<RunPythonScript<I_ITEM, O>, Iterable<? extends I_ITEM>, CloseableIterable<? extends O>, Builder<I_ITEM, O>>,
@@ -114,15 +110,9 @@ public class RunPythonScript<I_ITEM, O> implements
             return _self();
         }
 
-        public Builder<I_ITEM, O> scriptOutputType(final ScriptOutputType scriptOutputType) {
-            _getOp().setScriptOutputType(scriptOutputType);
-            return _self();
-        }
-
         public Builder<I_ITEM, O> scriptInputType(final ScriptInputType scriptInputType) {
             _getOp().setScriptInputType(scriptInputType);
             return _self();
         }
-
     }
 }
