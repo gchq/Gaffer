@@ -74,7 +74,7 @@ public class BuildImageFromDockerfile {
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
         LOGGER.info("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo).toString());
-        return docker.build(Paths.get(pathAbsolutePythonRepo + "/../"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
+        return docker.build(Paths.get(pathAbsolutePythonRepo + "/"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
             if (imageId != null) {
                 imageIdFromMessage.set(imageId);

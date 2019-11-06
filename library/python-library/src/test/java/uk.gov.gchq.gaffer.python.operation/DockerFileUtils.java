@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -26,7 +27,10 @@ public final class DockerFileUtils {
 
     public static Path getPathAbsolutePythonRepo(String directoryPath, String repoName) {
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
         return pathAbsolutePythonRepo;
     }

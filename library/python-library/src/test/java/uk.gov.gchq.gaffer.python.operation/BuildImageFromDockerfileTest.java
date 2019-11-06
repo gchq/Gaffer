@@ -19,6 +19,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,10 +33,17 @@ public class BuildImageFromDockerfileTest {
     public void shouldBuildImage() {
         // Given
         DockerClient docker = null;
+        Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
+
+        final RunPythonScript<String, String> operation =
+                new RunPythonScript.Builder<String, String>()
+                        .build();
+        final PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
 
         try {
             docker = DefaultDockerClient.fromEnv().build();
@@ -46,8 +54,9 @@ public class BuildImageFromDockerfileTest {
         // When
         String returnedImageId = null;
         try {
+            bIFD.getFiles(directoryPath);
             returnedImageId = bIFD.buildImage("script1", null, ScriptInputType.DATAFRAME, docker,
-                    pathAbsolutePythonRepo.toString());
+                    directoryPath);
         } catch (DockerException | InterruptedException | IOException e) {
             e.printStackTrace();
             Assert.fail();

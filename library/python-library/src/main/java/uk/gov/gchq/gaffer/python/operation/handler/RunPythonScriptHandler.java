@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.ScriptOutputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -72,6 +73,10 @@ public class RunPythonScriptHandler {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+        final File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
 
         Object output = null;
 
@@ -98,7 +103,7 @@ public class RunPythonScriptHandler {
                 docker = DefaultDockerClient.fromEnv().build();
             }
             LOGGER.info("Docker is now: {}", docker);
-            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, scriptInputType, docker, pathAbsolutePythonRepo.toString());
+            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, scriptInputType, docker, directoryPath);
 
             // Remove the old images
             final List<Image> images;
