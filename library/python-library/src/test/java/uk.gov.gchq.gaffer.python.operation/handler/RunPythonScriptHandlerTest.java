@@ -49,6 +49,7 @@ public class RunPythonScriptHandlerTest {
                         .scriptOutputType(scriptOutputType)
                         .scriptInputType(scriptInputType)
                         .build();
+
         runPythonScript.setInput(inputData);
 
         // When

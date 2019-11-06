@@ -22,32 +22,20 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class BuildImageFromDockerfileTest {
 
     @Test
     public void shouldBuildImage() {
         // Given
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
         DockerClient docker = null;
-        final String repoName = "test";
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        try {
-            bIFD.getFiles(pathAbsolutePythonRepo.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
 
         try {
             docker = DefaultDockerClient.fromEnv().build();
@@ -63,7 +51,6 @@ public class BuildImageFromDockerfileTest {
         } catch (DockerException | InterruptedException | IOException e) {
             e.printStackTrace();
             Assert.fail();
-
         }
 
         // Then

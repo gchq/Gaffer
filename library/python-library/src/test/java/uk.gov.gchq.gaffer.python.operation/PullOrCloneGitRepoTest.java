@@ -19,11 +19,8 @@ import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -36,27 +33,17 @@ public class PullOrCloneGitRepoTest  {
         //Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = null;
-        final String repoName = "test";
-        final String repoURI = "https://github.com/g609bmsma/test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        try {
-            bIFD.getFiles(pathAbsolutePythonRepo.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .build();
 
         //When
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
         String[] files = pathAbsolutePythonRepo.toFile().list();
 
         //Then
@@ -68,21 +55,11 @@ public class PullOrCloneGitRepoTest  {
         //Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = mock(Git.class);
-        final String repoName = "test";
-        final String repoURI = "https://github.com/g609bmsma/test";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("PythonBin");
-        final File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
-        try {
-            bIFD.getFiles(pathAbsolutePythonRepo.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .build();
@@ -92,7 +69,7 @@ public class PullOrCloneGitRepoTest  {
         });
 
         //Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }
