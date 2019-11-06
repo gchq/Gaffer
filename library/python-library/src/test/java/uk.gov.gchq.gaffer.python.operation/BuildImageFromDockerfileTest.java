@@ -31,6 +31,7 @@ public class BuildImageFromDockerfileTest {
     @Test
     public void shouldBuildImage() {
         // Given
+
         DockerClient docker = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
