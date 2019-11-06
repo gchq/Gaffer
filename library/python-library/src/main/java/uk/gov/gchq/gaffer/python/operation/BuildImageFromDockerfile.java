@@ -96,7 +96,7 @@ public class BuildImageFromDockerfile {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             inputStream.close();
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/../" + fileName), fileData.getBytes());
+            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + fileName), fileData.getBytes());
         }
     }
 }
