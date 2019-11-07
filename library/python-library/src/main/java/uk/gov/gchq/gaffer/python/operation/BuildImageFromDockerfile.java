@@ -83,20 +83,37 @@ public class BuildImageFromDockerfile {
         }, buildParam);
     }
 
-    public void getFiles(final String pathAbsolutePythonRepo) throws IOException {
-        String[] fileNames = new String[] {"Dockerfile",
-                                            "DataInputStream.py",
+    public void getFiles(final String pathAbsolutePythonRepo, String dockerfilePath) throws IOException {
+        String[] fileNames = new String[] { "DataInputStream.py",
                                             "entrypoint.py",
                                             "modules.txt" };
-
-        for (final String fileName : fileNames) {
+        if (dockerfilePath.equals("")) {
             // Use the default file
-            LOGGER.info("Using the default Dockerfile");
-            InputStream inputStream = StreamUtil.openStream(getClass(), "/.PythonBin/" + fileName);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-            inputStream.close();
-            Files.write(Paths.get(pathAbsolutePythonRepo + "/" + fileName), fileData.getBytes());
+            LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
+            createFile(pathAbsolutePythonRepo, "Dockerfile");
         }
+        else {
+            LOGGER.info("DockerfilePath specified, using non-default dockerfile");
+            createFile(dockerfilePath);
+        }
+        for (final String fileName : fileNames) {
+            createFile(pathAbsolutePythonRepo, fileName);
+        }
+    }
+
+    private void createFile(final String destination, final String fileName) throws IOException {
+        InputStream inputStream = StreamUtil.openStream(getClass(), "/.PythonBin/" + fileName);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        inputStream.close();
+        Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
+    }
+
+    private void createFile(final String destination) throws IOException {
+        InputStream inputStream = StreamUtil.openStream(getClass(), destination);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        inputStream.close();
+        Files.write(Paths.get(destination), fileData.getBytes());
     }
 }

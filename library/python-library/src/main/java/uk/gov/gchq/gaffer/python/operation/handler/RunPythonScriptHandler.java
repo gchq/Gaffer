@@ -67,7 +67,7 @@ public class RunPythonScriptHandler {
     private DockerClient docker = null;
     private String containerId = null;
 
-    public Object doOperation(final RunPythonScript operation) throws OperationException {
+    public Object doOperation(final RunPythonScript operation, final String dockerfilePath) throws OperationException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
@@ -86,7 +86,7 @@ public class RunPythonScriptHandler {
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
         try {
-            buildImageFromDockerfile.getFiles(directoryPath);
+            buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
         } catch (final IOException e) {
             e.printStackTrace();
         }

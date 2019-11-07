@@ -55,7 +55,7 @@ public class BuildImageFromDockerfileTest {
         // When
         String returnedImageId = null;
         try {
-            bIFD.getFiles(directoryPath);
+            bIFD.getFiles(directoryPath, "");
             returnedImageId = bIFD.buildImage("script1", null, ScriptInputType.DATAFRAME, docker,
                     directoryPath);
         } catch (DockerException | InterruptedException | IOException e) {

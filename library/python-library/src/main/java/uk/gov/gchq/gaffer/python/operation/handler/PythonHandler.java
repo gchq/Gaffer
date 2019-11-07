@@ -22,8 +22,18 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class PythonHandler implements OperationHandler<RunPythonScript> {
+
+    private String dockerfilePath = "";
     @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
-        return new RunPythonScriptHandler().doOperation(operation);
+        return new RunPythonScriptHandler().doOperation(operation, dockerfilePath);
+    }
+
+    private String getDockerfilePath() {
+        return dockerfilePath;
+    }
+
+    private void setDockerfilePath(final String dockerfilePath) {
+        this.dockerfilePath = dockerfilePath;
     }
 }
