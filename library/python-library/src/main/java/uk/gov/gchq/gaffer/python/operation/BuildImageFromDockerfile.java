@@ -41,15 +41,16 @@ public class BuildImageFromDockerfile {
 
     /**
      * Builds docker image from Dockerfile
-     * @param scriptName the name of the python script being run
-     * @param scriptParameters the parameters of the script being run
-     * @param scriptInputType the type of input for the script
-     * @param docker the docker client the script is being run on
+     *
+     * @param scriptName             the name of the python script being run
+     * @param scriptParameters       the parameters of the script being run
+     * @param scriptInputType        the type of input for the script
+     * @param docker                 the docker client the script is being run on
      * @param pathAbsolutePythonRepo the absolute path for the python repo
      * @return docker image from Dockerfile
-     * @throws DockerException should the docker encounter an error, this will be thrown
+     * @throws DockerException      should the docker encounter an error, this will be thrown
      * @throws InterruptedException should this fail, this will be thrown
-     * @throws IOException this will be thrown if non-compliant data is sent
+     * @throws IOException          this will be thrown if non-compliant data is sent
      */
     public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
@@ -57,7 +58,7 @@ public class BuildImageFromDockerfile {
         if (scriptParameters != null) {
             Map<String, String> map = new HashMap<>();
 
-            for (final String current: scriptParameters.keySet()) {
+            for (final String current : scriptParameters.keySet()) {
                 if (scriptParameters.get(current) != null) {
                     map.put(current, scriptParameters.get(current).toString());
                 }
@@ -83,37 +84,33 @@ public class BuildImageFromDockerfile {
         }, buildParam);
     }
 
-    public void getFiles(final String pathAbsolutePythonRepo, String dockerfilePath) throws IOException {
-        String[] fileNames = new String[] { "DataInputStream.py",
-                                            "entrypoint.py",
-                                            "modules.txt" };
+    public void getFiles(final String pathAbsolutePythonRepo, final String dockerfilePath) throws IOException {
+        String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         if (dockerfilePath.equals("")) {
             // Use the default file
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile(pathAbsolutePythonRepo, "Dockerfile");
-        }
-        else {
+            createFile("Dockerfile", pathAbsolutePythonRepo);
+        } else {
             LOGGER.info("DockerfilePath specified, using non-default dockerfile");
-            createFile(dockerfilePath);
+            final String[] pathSplit = dockerfilePath.split("/");
+            final String fileName = pathSplit[pathSplit.length - 1];
+            final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
+            createFile(fileName, pathAbsolutePythonRepo, fileLocation);
         }
         for (final String fileName : fileNames) {
-            createFile(pathAbsolutePythonRepo, fileName);
+            createFile(fileName, pathAbsolutePythonRepo);
         }
     }
 
-    private void createFile(final String destination, final String fileName) throws IOException {
-        InputStream inputStream = StreamUtil.openStream(getClass(), "/.PythonBin/" + fileName);
+    private void createFile(final String fileName, final String destination) throws IOException {
+        createFile(fileName, destination, "/.PythonBin/");
+    }
+
+    private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
+        InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
         inputStream.close();
         Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
-    }
-
-    private void createFile(final String destination) throws IOException {
-        InputStream inputStream = StreamUtil.openStream(getClass(), destination);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-        inputStream.close();
-        Files.write(Paths.get(destination), fileData.getBytes());
     }
 }
