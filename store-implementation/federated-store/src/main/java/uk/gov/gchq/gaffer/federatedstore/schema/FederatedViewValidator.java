@@ -40,12 +40,15 @@ public class FederatedViewValidator extends ViewValidator {
 
             final boolean isEntityViewInvalid = !entitiesResult.isValid();
             final boolean isEdgeViewInvalid = !edgeResult.isValid();
+            final boolean isEntityViewInvalidAndTheOnlyViewRequested = isEntityViewInvalid && (isNull(view.getEdges()) || view.getEdges().isEmpty());
+            final boolean isEdgeViewInvalidAndTheOnlyViewRequested = isEdgeViewInvalid && (isNull(view.getEntities()) || view.getEntities().isEmpty());
+
             if (isEntityViewInvalid && isEdgeViewInvalid) {
                 rtn.add(entitiesResult);
                 rtn.add(edgeResult);
-            } else if (isEntityViewInvalid && (isNull(view.getEdges()) || view.getEdges().isEmpty())) {
+            } else if (isEntityViewInvalidAndTheOnlyViewRequested) {
                 rtn.add(entitiesResult);
-            } else if (isEdgeViewInvalid && (isNull(view.getEntities()) || view.getEntities().isEmpty())) {
+            } else if (isEdgeViewInvalidAndTheOnlyViewRequested) {
                 rtn.add(edgeResult);
             }
         }
