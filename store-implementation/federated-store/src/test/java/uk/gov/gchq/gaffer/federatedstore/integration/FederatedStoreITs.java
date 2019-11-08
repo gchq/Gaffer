@@ -27,5 +27,6 @@ public class FederatedStoreITs extends AbstractStoreITs {
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);
         skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
+        addExtraTest(FederatedViewsIT.class);
     }
 }
