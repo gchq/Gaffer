@@ -200,7 +200,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
      * @throws OperationException any
      */
     @Test
-    public void shouldBoth() throws OperationException {
+    public void shouldGetEntitiesAndEdgesFromAnEntityAndAnEdgeGraph() throws OperationException {
         addBasicEntity();
         addBasicEdge();
 
