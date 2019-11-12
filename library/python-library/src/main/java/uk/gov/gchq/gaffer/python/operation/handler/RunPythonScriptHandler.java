@@ -30,10 +30,6 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
@@ -51,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class RunPythonScriptHandler {
 
@@ -161,19 +156,5 @@ public class RunPythonScriptHandler {
             }
         }
         return output;
-    }
-
-    private static class ElementsIterable extends WrappedCloseableIterable<Element> {
-
-        private final Stream elementsStream;
-
-        ElementsIterable(final Stream elementsStream) {
-            this.elementsStream = elementsStream;
-        }
-
-        @Override
-        public CloseableIterator<Element> iterator() {
-            return new WrappedCloseableIterator<>(elementsStream.iterator());
-        }
     }
 }
