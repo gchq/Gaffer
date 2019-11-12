@@ -4,7 +4,7 @@
       "operation": "uk.gov.gchq.gaffer.python.operation.RunPythonScript",
       "handler": {
         "class": "uk.gov.gchq.gaffer.python.operation.handler.PythonHandler",
-        "dockerfilePath": " "
+        "dockerfilePath": ""
       }
     }
   ]
