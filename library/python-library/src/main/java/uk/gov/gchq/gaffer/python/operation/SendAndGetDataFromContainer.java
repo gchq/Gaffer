@@ -60,8 +60,8 @@ public class SendAndGetDataFromContainer {
         LOGGER.info("In is: {}", in);
         int incomingDataLength = 0;
         if (clientSocket != null && in != null) {
-            int timeout = 0;
-            while (timeout < PythonOperationConstants.TIMEOUT_100) {
+            int tries = 0;
+            while (tries < PythonOperationConstants.TIMEOUT_100) {
                 try {
                     // Get the data from the container
                     incomingDataLength = in.readInt();
@@ -69,7 +69,7 @@ public class SendAndGetDataFromContainer {
                     failedToConnect = false;
                     break;
                 } catch (final IOException e) {
-                    timeout += 1;
+                    tries += 1;
                     error = e;
                     TimeUnit.MILLISECONDS.sleep(PythonOperationConstants.TIMEOUT_200);
                 }
