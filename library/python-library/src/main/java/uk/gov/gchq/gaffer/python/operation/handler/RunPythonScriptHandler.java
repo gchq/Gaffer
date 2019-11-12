@@ -134,8 +134,7 @@ public class RunPythonScriptHandler {
             if (!portAvailable) {
                 LOGGER.info("Failed to find an available port");
             }
-            StringBuilder dataReceived = sendAndGetDataFromContainer.setUpAndCloseContainer(operation, port);
-            output = dataReceived;
+            output = sendAndGetDataFromContainer.setUpAndCloseContainer(operation, port);
 
             LOGGER.info("Closed the connection.");
 
