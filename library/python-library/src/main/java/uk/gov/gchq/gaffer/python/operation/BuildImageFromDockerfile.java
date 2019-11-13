@@ -107,10 +107,13 @@ public class BuildImageFromDockerfile {
     }
 
     private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
-        InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-        inputStream.close();
-        Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            inputStream.close();
+            Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 }
