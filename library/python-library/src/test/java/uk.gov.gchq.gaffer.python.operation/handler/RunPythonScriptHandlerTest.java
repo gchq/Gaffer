@@ -54,7 +54,7 @@ public class RunPythonScriptHandlerTest {
         StringBuilder results = null;
         try {
 
-            results = (StringBuilder) rPSH.doOperation(runPythonScript, "");
+            results = (StringBuilder) rPSH.doOperation(runPythonScript, null, null);
         } catch (OperationException e) {
             e.printStackTrace();
             Assert.fail();

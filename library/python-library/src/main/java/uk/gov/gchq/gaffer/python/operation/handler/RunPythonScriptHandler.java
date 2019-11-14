@@ -37,6 +37,9 @@ import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,11 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class RunPythonScriptHandler {
-
-    private String repoName = "test";
-    private String repoURI = "https://github.com/g609bmsma/test";
-    private String ip = "127.0.0.1";
+public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
@@ -62,7 +61,12 @@ public class RunPythonScriptHandler {
     private DockerClient docker = null;
     private String containerId = null;
 
-    public Object doOperation(final RunPythonScript operation, final String dockerfilePath) throws OperationException {
+    private String dockerfilePath = "";
+    private String repoURI = "https://github.com/g609bmsma/test";
+    private String repoName = "test";
+    private String ip = "127.0.0.1";
+
+    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
@@ -155,5 +159,37 @@ public class RunPythonScriptHandler {
             }
         }
         return output;
+    }
+
+    private String getDockerfilePath() {
+        return dockerfilePath;
+    }
+
+    private void setDockerfilePath(final String dockerfilePath) {
+        this.dockerfilePath = dockerfilePath;
+    }
+
+    private String getRepoName() {
+        return repoName;
+    }
+
+    private void setRepoName(final String repoName) {
+        this.repoName = repoName;
+    }
+
+    private String getRepoURI() {
+        return repoURI;
+    }
+
+    private void setRepoURI(final String repoURI) {
+        this.repoURI = repoURI;
+    }
+
+    private String getIp() {
+        return ip;
+    }
+
+    private void setIp(final String ip) {
+        this.ip = ip;
     }
 }
