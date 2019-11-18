@@ -84,11 +84,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
-        try {
-            buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
 
         try {
 
