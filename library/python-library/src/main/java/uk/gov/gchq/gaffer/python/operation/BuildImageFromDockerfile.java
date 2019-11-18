@@ -65,20 +65,18 @@ public class BuildImageFromDockerfile {
             }
             params = new Gson().toJson(stringParameters).replaceAll("\"", "'");
         }
+
         StringBuilder buildargs = new StringBuilder();
-        buildargs.append("{\"scriptName\":\"" + scriptName + "\",");
-        buildargs.append("\"scriptParameters\":\"" + params + "\",");
-        buildargs.append("\"modulesName\":\"" + scriptName + "Modules" + "\",");
-        buildargs.append("\"scriptInputType\":\"" + scriptInputType.toString() + "\"}");
-
-
-
+        buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
+        buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
+        buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\",");
+        buildargs.append("\"scriptInputType\":\"").append(scriptInputType.toString()).append("\"}");
 
         LOGGER.info(String.valueOf(buildargs));
         final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
 
         LOGGER.info("Building the image from the Dockerfile...");
-        final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();
+        final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
         LOGGER.info("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo).toString());
         return docker.build(Paths.get(pathAbsolutePythonRepo + "/"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
             final String imageId = message.buildImageId();
@@ -89,7 +87,7 @@ public class BuildImageFromDockerfile {
         }, buildParam);
     }
 
-    public void getFiles(final String pathAbsolutePythonRepo, final String dockerfilePath) throws IOException {
+    public void getFiles(final String pathAbsolutePythonRepo, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         if (dockerfilePath.equals("")) {
             // Use the default file
@@ -107,11 +105,11 @@ public class BuildImageFromDockerfile {
         }
     }
 
-    private void createFile(final String fileName, final String destination) throws IOException {
+    private void createFile(final String fileName, final String destination) {
         createFile(fileName, destination, "/.PythonBin/");
     }
 
-    private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
+    private void createFile(final String fileName, final String destination, final String fileLocation) {
         try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
