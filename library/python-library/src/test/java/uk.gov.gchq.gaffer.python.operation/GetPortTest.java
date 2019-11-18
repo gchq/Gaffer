@@ -24,28 +24,28 @@ public class GetPortTest {
 
     @Test
     public void shouldGetAPortWithinRange() {
-        //Given
+        // Given
         int portResult = 0;
 
-        //When
+        // When
 
         portResult = Integer.parseInt(GetPort.getPort());
 
-        //Then
+        // Then
         Assert.assertTrue(portResult < PythonTestConstants.MAXPORT && portResult > PythonTestConstants.MINPORT);
     }
 
     @Test
     public void shouldReturnMultiplePortsWithinRange() {
-        //Given
+        // Given
         ArrayList<Integer> portResults = new ArrayList<>();
 
-        //When
+        // When
         for (int i = 0; i < 100; i++) {
             portResults.add(Integer.parseInt(GetPort.getPort()));
         }
 
-        //Then
+        // Then
         for (int i = 0; i < 100; i++) {
             int currentPort = portResults.get(i);
             Assert.assertTrue(currentPort < PythonTestConstants.MAXPORT && currentPort > PythonTestConstants.MINPORT);

@@ -26,7 +26,7 @@ public class RunPythonScriptTest {
 
     @Test
     public void shouldShallowClone() {
-        //Given
+        // Given
         final String scriptName = "script3";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("animal", "dog");

@@ -56,21 +56,27 @@ public class BuildImageFromDockerfile {
         // Build an image from the Dockerfile
         String params = " ";
         if (scriptParameters != null) {
-            Map<String, String> map = new HashMap<>();
+            Map<String, String> stringParameters = new HashMap<>();
 
-            for (final String current : scriptParameters.keySet()) {
-                if (scriptParameters.get(current) != null) {
-                    map.put(current, scriptParameters.get(current).toString());
+            for (final String parameterName: scriptParameters.keySet()) {
+                if (scriptParameters.get(parameterName) != null) {
+                    stringParameters.put(parameterName, scriptParameters.get(parameterName).toString());
                 }
-            }
-            params = new Gson().toJson(map).replaceAll("\"", "'");
+            } //
+            params = new Gson().toJson(stringParameters).replaceAll("\"", "'");
         }
+        StringBuilder buildargs = new StringBuilder();
+        buildargs.append("{\"scriptName\":\"" + scriptName + ")");
+        buildargs.append("\",\"scriptParameters\":\"" + params + "\",");
+        buildargs.append( "\"modulesName\":\"" + scriptName + "Modules" + "\",");
+        buildargs.append("\",\"scriptInputType\":\"" + scriptInputType.toString() + "\"}");
 
-        final String buildargs =
-                "{\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + params + "\"," +
-                        "\"modulesName\":\"" + scriptName + "Modules" + "\",\"scriptInputType\":\"" + scriptInputType.toString() + "\"}";
-        LOGGER.info(buildargs);
-        final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(buildargs, "UTF-8"));
+
+// Changed from {\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + params + "\"," +
+        // "\"modulesName\":\"" + scriptName + "Modules" + "\",\"scriptInputType\":\"" + scriptInputType.toString() + "\"}";
+
+        LOGGER.info(String.valueOf(buildargs));
+        final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<String>();

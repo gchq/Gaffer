@@ -30,7 +30,7 @@ public class PullOrCloneGitRepoTest  {
 
     @Test
     public void shouldCloneIfNotAlreadyCloned() {
-        //Given
+        // Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
@@ -43,17 +43,17 @@ public class PullOrCloneGitRepoTest  {
                         .build();
 
 
-        //When
+        // When
         pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
         String[] files = pathAbsolutePythonRepo.toFile().list();
 
-        //Then
+        // Then
         Assert.assertNotNull(files);
     }
 
     @Test
     public void shouldPullIfAlreadyCloned() {
-        //Given
+        // Given
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = mock(Git.class);
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
@@ -65,11 +65,11 @@ public class PullOrCloneGitRepoTest  {
                 new RunPythonScript.Builder<String, String>()
                         .build();
 
-        //When
+        // When
         when(git.pull()).thenThrow(new NullPointerException("Pull method called") {
         });
 
-        //Then
+        // Then
         Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
