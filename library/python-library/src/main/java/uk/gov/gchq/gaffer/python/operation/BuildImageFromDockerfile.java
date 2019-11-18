@@ -66,10 +66,10 @@ public class BuildImageFromDockerfile {
             params = new Gson().toJson(stringParameters).replaceAll("\"", "'");
         }
         StringBuilder buildargs = new StringBuilder();
-        buildargs.append("{\"scriptName\":\"" + scriptName + ")");
-        buildargs.append("\",\"scriptParameters\":\"" + params + "\",");
-        buildargs.append( "\"modulesName\":\"" + scriptName + "Modules" + "\",");
-        buildargs.append("\",\"scriptInputType\":\"" + scriptInputType.toString() + "\"}");
+        buildargs.append("{\"scriptName\":\"" + scriptName + "\",");
+        buildargs.append("\"scriptParameters\":\"" + params + "\",");
+        buildargs.append("\"modulesName\":\"" + scriptName + "Modules" + "\",");
+        buildargs.append("\"scriptInputType\":\"" + scriptInputType.toString() + "\"}");
 
 
 // Changed from {\"scriptName\":\"" + scriptName + "\",\"scriptParameters\":\"" + params + "\"," +
