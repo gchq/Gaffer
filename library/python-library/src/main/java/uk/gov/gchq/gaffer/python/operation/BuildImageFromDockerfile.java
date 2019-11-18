@@ -72,7 +72,7 @@ public class BuildImageFromDockerfile {
         buildargs.append("\"scriptInputType\":\"" + scriptInputType.toString() + "\"}");
 
 
-// 
+
 
         LOGGER.info(String.valueOf(buildargs));
         final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
