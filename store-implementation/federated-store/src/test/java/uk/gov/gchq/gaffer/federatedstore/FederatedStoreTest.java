@@ -256,11 +256,6 @@ public class FederatedStoreTest {
         }
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldDoUnhandledOperation() throws Exception {
-        store.doUnhandledOperation(null, null);
-    }
-
     @Test
     public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
