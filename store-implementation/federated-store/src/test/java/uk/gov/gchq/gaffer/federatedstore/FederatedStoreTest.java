@@ -255,7 +255,22 @@ public class FederatedStoreTest {
             assertContains(e, "GraphId: ", ACC_ID_2);
         }
     }
-
+    @Test
+    public void shouldThrowAppropriateExceptionWhenHandlingAnUnsupportedOperation() {
+        // Given
+        Operation op = new OperationImpl();
+        // When
+        try {
+            store.handleOperation(op, new Context());
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            fail("Expected an UnsupportedOperationException rather than an OperationException");
+        } catch (final UnsupportedOperationException e) {
+            // Then
+            assertEquals("Operation class uk.gov.gchq.gaffer.operation.impl.OperationImpl is not supported by the FederatedStore.", e.getMessage());
+        }
+    }
+    
     @Test
     public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
