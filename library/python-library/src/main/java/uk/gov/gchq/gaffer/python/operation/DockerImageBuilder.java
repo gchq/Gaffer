@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,28 +37,27 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class BuildImageFromDockerfile {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageFromDockerfile.class);
+public class DockerImageBuilder implements ImageBuilder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
 
     /**
      * Builds docker image from Dockerfile
      *
      * @param scriptName             the name of the python script being run
      * @param scriptParameters       the parameters of the script being run
-     * @param scriptInputType        the type of input for the script
-     * @param docker                 the docker client the script is being run on
-     * @param pathAbsolutePythonRepo the absolute path for the python repo
+     * @param dockerObject           the docker client the script is being run on
+     * @param pathToBuildFiles       the absolute path for the python repo
      * @return docker image from Dockerfile
-     * @throws DockerException      should the docker encounter an error, this will be thrown
-     * @throws InterruptedException should this fail, this will be thrown
-     * @throws IOException          this will be thrown if non-compliant data is sent
      */
 
     // DockerImageBuilder
 
     // Breakdown buildImage() into smaller methods
 
-    public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
+    public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
+                        final Object dockerObject, final String pathToBuildFiles) {
+
+        DockerClient docker = (DockerClient) dockerObject;
         // Build an image from the Dockerfile
         String params = " ";
         if (scriptParameters != null) {
@@ -75,38 +75,48 @@ public class BuildImageFromDockerfile {
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\",");
-        buildargs.append("\"scriptInputType\":\"").append(scriptInputType.toString()).append("\"}");
 
         LOGGER.info(String.valueOf(buildargs));
-        final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
+        DockerClient.BuildParam buildParam = null;
+        try {
+            buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-        LOGGER.info("Absolute Python repo path: " + Paths.get(pathAbsolutePythonRepo).toString());
-        return docker.build(Paths.get(pathAbsolutePythonRepo + "/"), "pythonoperation:" + scriptName, "Dockerfile", message -> {
-            final String imageId = message.buildImageId();
-            if (imageId != null) {
-                imageIdFromMessage.set(imageId);
-            }
-            LOGGER.info(String.valueOf(message));
-        }, buildParam);
+        LOGGER.info("Absolute Python repo path: " + Paths.get(pathToBuildFiles).toString());
+        try {
+            return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
+                    "pythonoperation:" + scriptName, "Dockerfile", message -> {
+                final String imageId = message.buildImageId();
+                if (imageId != null) {
+                    imageIdFromMessage.set(imageId);
+                }
+                LOGGER.info(String.valueOf(message));
+            }, buildParam));
+        } catch (DockerException | InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public void getFiles(final String pathAbsolutePythonRepo, final String dockerfilePath) {
+    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         if (dockerfilePath.equals("")) {
             // Use the default file
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathAbsolutePythonRepo);
+            createFile("Dockerfile", pathToBuildFiles);
         } else {
             LOGGER.info("DockerfilePath specified, using non-default dockerfile");
             final String[] pathSplit = dockerfilePath.split("/");
             final String fileName = pathSplit[pathSplit.length - 1];
             final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
-            createFile(fileName, pathAbsolutePythonRepo, fileLocation);
+            createFile(fileName, pathToBuildFiles, fileLocation);
         }
         for (final String fileName : fileNames) {
-            createFile(fileName, pathAbsolutePythonRepo);
+            createFile(fileName, pathToBuildFiles);
         }
     }
 

@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
+import uk.gov.gchq.gaffer.python.operation.DockerImage;
+import uk.gov.gchq.gaffer.python.operation.DockerImageBuilder;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
@@ -56,7 +57,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
     private final PullOrCloneGitRepo pullOrCloneRepo = new PullOrCloneGitRepo();
-    private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
+    private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
     private Git git = null;
     private DockerClient docker = null;
     private String containerId = null;
@@ -88,7 +89,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
-        buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
+        dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
 
         try {
 
@@ -100,7 +101,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
                 docker = DefaultDockerClient.fromEnv().build();
             }
             LOGGER.info("Docker is now: {}", docker);
-            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, scriptInputType, docker, directoryPath);
+            final DockerImage returnedImageId = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, docker, directoryPath);
 
             // Remove the old images
             final List<Image> images;
@@ -120,7 +121,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
                     port = GetPort.getPort();
 
                     // Create a container from the image and bind ports
-                    final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(returnedImageId).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
+                    final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(returnedImageId.getImageString()).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
                     final ContainerCreation creation = docker.createContainer(containerConfig);
                     containerId = creation.id();
 

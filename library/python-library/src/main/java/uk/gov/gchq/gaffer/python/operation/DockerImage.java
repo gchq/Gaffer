@@ -15,24 +15,16 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+public class DockerImage implements Image {
 
-public final class DockerFileUtils {
+    private String imageString;
 
-    private DockerFileUtils() {
-        // Private constructor to hide default public one
+    public DockerImage(final String imageString) {
+        this.imageString = imageString;
     }
 
-    public static Path getPathAbsolutePythonRepo(String directoryPath, String repoName) {
-        DockerImageBuilder bIFD = new DockerImageBuilder();
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        return pathAbsolutePythonRepo;
+    @Override
+    public String getImageString() {
+        return imageString;
     }
-
 }

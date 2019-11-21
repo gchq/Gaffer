@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-public class BuildImageFromDockerfileTest {
+public class DockerImageBuilderTest {
 
     @Test
     public void shouldBuildImage() {
@@ -38,7 +38,7 @@ public class BuildImageFromDockerfileTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
-        BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
+        DockerImageBuilder bIFD = new DockerImageBuilder();
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
