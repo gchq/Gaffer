@@ -44,7 +44,6 @@ public class BuildImageFromDockerfile {
      *
      * @param scriptName             the name of the python script being run
      * @param scriptParameters       the parameters of the script being run
-     * @param scriptInputType        the type of input for the script
      * @param docker                 the docker client the script is being run on
      * @param pathAbsolutePythonRepo the absolute path for the python repo
      * @return docker image from Dockerfile
@@ -57,7 +56,7 @@ public class BuildImageFromDockerfile {
 
     // Breakdown buildImage() into smaller methods
 
-    public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
+    public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         String params = " ";
         if (scriptParameters != null) {
@@ -75,7 +74,6 @@ public class BuildImageFromDockerfile {
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\",");
-        buildargs.append("\"scriptInputType\":\"").append(scriptInputType.toString()).append("\"}");
 
         LOGGER.info(String.valueOf(buildargs));
         final DockerClient.BuildParam buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));

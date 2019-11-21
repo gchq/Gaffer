@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
-import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -84,7 +83,6 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
-        final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
         pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
@@ -100,7 +98,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
                 docker = DefaultDockerClient.fromEnv().build();
             }
             LOGGER.info("Docker is now: {}", docker);
-            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, scriptInputType, docker, directoryPath);
+            final String returnedImageId = buildImageFromDockerfile.buildImage(scriptName, scriptParameters, docker, directoryPath);
 
             // Remove the old images
             final List<Image> images;

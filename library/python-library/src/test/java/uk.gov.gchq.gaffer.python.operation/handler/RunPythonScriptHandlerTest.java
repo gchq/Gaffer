@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
-import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
