@@ -27,13 +27,14 @@ import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.PortBinding;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
-import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
+import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.python.operation.SendAndGetDataFromContainer;
@@ -55,7 +56,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
     private final SendAndGetDataFromContainer sendAndGetDataFromContainer = new SendAndGetDataFromContainer();
-    private final PullOrCloneGitRepo pullOrCloneRepo = new PullOrCloneGitRepo();
+    private final GitScriptProvider gitScriptProvider = new GitScriptProvider();
     private final BuildImageFromDockerfile buildImageFromDockerfile = new BuildImageFromDockerfile();
     private Git git = null;
     private DockerClient docker = null;
@@ -66,7 +67,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String repoName = "test";
     private String ip = "127.0.0.1";
 
-    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException, GitAPIException, IOException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
@@ -83,7 +84,11 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
+        if (git == null) {
+            gitScriptProvider.cloneRepo(git, pathAbsolutePythonRepo.toString(), repoURI);
+        } else {
+            gitScriptProvider.pullRepo(git,pathAbsolutePythonRepo.toString(), repoURI);
+        }
         buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
 
         try {

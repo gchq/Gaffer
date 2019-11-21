@@ -21,6 +21,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+import java.io.IOException;
+
 /**
  * An {@code OperationHandler} defines how to handle a specific {@link uk.gov.gchq.gaffer.operation.Operation}.
  * All instances of an OperationHandler must be stateless as they are reused for all concurrent operations.
@@ -35,5 +37,5 @@ public interface OperationHandler<OP extends Operation> {
      * @return the output for the operation or null.
      * @throws OperationException thrown if the operation fails
      */
-    Object doOperation(final OP operation, final Context context, final Store store) throws OperationException;
+    Object doOperation(final OP operation, final Context context, final Store store) throws OperationException, GitAPIException, IOException, org.eclipse.jgit.api.errors.GitAPIException;
 }

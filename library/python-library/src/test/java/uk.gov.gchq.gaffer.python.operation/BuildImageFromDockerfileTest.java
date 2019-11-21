@@ -43,7 +43,7 @@ public class BuildImageFromDockerfileTest {
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
                         .build();
-        final PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
+        final GitScriptProvider pOrC = new GitScriptProvider();
         pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
 
         try {
