@@ -67,7 +67,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String repoName = "test";
     private String ip = "127.0.0.1";
 
-    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException, GitAPIException, IOException {
+    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException, IOException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
@@ -85,9 +85,17 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
         // Pull or Clone the repo with the files
         if (git == null) {
-            gitScriptProvider.cloneRepo(git, pathAbsolutePythonRepo.toString(), repoURI);
+            try {
+                gitScriptProvider.cloneRepo(git, pathAbsolutePythonRepo.toString(), repoURI);
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
         } else {
-            gitScriptProvider.pullRepo(git,pathAbsolutePythonRepo.toString(), repoURI);
+            try {
+                gitScriptProvider.pullRepo(git,pathAbsolutePythonRepo.toString(), repoURI);
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
         }
         buildImageFromDockerfile.getFiles(directoryPath, dockerfilePath);
 
