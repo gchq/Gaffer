@@ -34,6 +34,9 @@ public class SendAndGetDataFromContainer {
      * @throws InterruptedException should this fail, this will be thrown
      * @throws IOException this will be thrown if non-compliant data is sent
      */
+
+    // LocalDocker Container, split up into send and receive also need start and close from handler
+
     public StringBuilder setUpAndCloseContainer(final RunPythonScript operation, final String port) throws InterruptedException, IOException {
         // Keep trying to connect to container and give the container some time to load up
         boolean failedToConnect = true;

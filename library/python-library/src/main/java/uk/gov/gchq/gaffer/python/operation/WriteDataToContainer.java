@@ -30,6 +30,9 @@ import java.net.Socket;
 final class WriteDataToContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteDataToContainer.class);
 
+
+    // Also throw into LocalDockerContainer
+
     private WriteDataToContainer() {
     }
 

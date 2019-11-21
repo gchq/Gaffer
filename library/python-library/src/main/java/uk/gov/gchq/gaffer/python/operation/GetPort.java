@@ -23,6 +23,10 @@ import java.util.stream.IntStream;
 
 public final class GetPort {
 
+    // Rename
+
+    // Make not random
+
     private GetPort() {
     }
 

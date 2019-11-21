@@ -18,6 +18,11 @@ package uk.gov.gchq.gaffer.python.operation;
 /**
  * List of possible script input types.
  */
+
+    // Remove this, assume correct type, provide useful error handling for wrong types via try
+    // catch within entrypoint and potentially monitor container stdout()
+
+    // Remove from Operation parameters as well.
 public enum ScriptInputType {
     DATAFRAME,
     JSON

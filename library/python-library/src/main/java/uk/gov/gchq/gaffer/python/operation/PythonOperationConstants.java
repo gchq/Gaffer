@@ -20,7 +20,9 @@ public final class PythonOperationConstants {
     private PythonOperationConstants() {
         // Private constructor to hide default public one
     }
+    // Review need for this class after restructure
 
+    // Underscore between words in constants
     public static final String LOCALHOST = "127.0.0.1";
 
     public static final Integer ONESECOND = 1000;

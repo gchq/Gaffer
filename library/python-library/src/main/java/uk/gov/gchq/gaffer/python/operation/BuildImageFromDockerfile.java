@@ -52,6 +52,11 @@ public class BuildImageFromDockerfile {
      * @throws InterruptedException should this fail, this will be thrown
      * @throws IOException          this will be thrown if non-compliant data is sent
      */
+
+    // DockerImageBuilder
+
+    // Breakdown buildImage() into smaller methods
+
     public String buildImage(final String scriptName, final Map<String, Object> scriptParameters, final ScriptInputType scriptInputType, final DockerClient docker, final String pathAbsolutePythonRepo) throws DockerException, InterruptedException, IOException {
         // Build an image from the Dockerfile
         String params = " ";

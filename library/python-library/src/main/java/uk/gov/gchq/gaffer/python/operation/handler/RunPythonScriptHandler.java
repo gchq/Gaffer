@@ -66,6 +66,10 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String repoName = "test";
     private String ip = "127.0.0.1";
 
+
+    // Static Port Generator is fine for LocalDocker
+    // Move out 99% of code here into LocalDockerPlatform
+
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
