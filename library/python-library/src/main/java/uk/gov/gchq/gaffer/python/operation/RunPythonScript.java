@@ -56,7 +56,8 @@ public class RunPythonScript<I_ITEM, O> implements
     @Override
     public Operation shallowClone() throws CloneFailedException {
         return new RunPythonScript.Builder<>().scriptName(scriptName)
-                                              .scriptParameters(scriptParameters).build();
+                                              .scriptParameters(scriptParameters)
+                                              .build();
     }
 
     @Override
