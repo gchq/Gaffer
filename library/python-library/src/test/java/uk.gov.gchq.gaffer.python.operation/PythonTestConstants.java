@@ -24,7 +24,7 @@ public final class PythonTestConstants {
     public static final String LOCALHOST = "127.0.0.1";
     public static final String REPOURI = "https://github.com/g609bmsma/test";
     public static final String REPONAME = "test";
-    public static final String CURRENTWORKINGDIRECTORY = "PythonBin";
+    public static final String CURRENTWORKINGDIRECTORY = "/src/main/resources/.PythonBin";
     public static final Integer MAXPORT = 65535;
     public static final Integer MINPORT = 50000;
     public static final Integer TESTSERVERPORT1 = 7788;

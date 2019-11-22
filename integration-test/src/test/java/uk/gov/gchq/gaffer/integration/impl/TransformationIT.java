@@ -200,13 +200,13 @@ public class TransformationIT extends AbstractStoreIT {
                         .dest(VERTEX + DEST)
                         .directed(true)
                         .property(TestPropertyNames.COUNT, 1L)
-                        .property(TestPropertyNames.TRANSIENT_1, ".PythonBin/test")
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
                         .build(),
 
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex(VERTEX)
-                        .property(TestPropertyNames.TRANSIENT_1, ".PythonBin/test")
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
                         .build()
         );
 

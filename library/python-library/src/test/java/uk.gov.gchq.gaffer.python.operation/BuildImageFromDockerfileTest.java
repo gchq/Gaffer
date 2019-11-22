@@ -35,7 +35,7 @@ public class BuildImageFromDockerfileTest {
 
         DockerClient docker = null;
         Git git = null;
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
         BuildImageFromDockerfile bIFD = new BuildImageFromDockerfile();
