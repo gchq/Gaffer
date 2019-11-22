@@ -27,6 +27,25 @@ import java.io.IOException;
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
+    @Override
+    public void getScripts(final Git git, final String pathAbsolutePythonRepo,
+                           final String repoURI) {
+        if (git == null) {
+            try {
+                cloneRepo(git, pathAbsolutePythonRepo, repoURI);
+            } catch (final GitAPIException | IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                pullRepo(git, pathAbsolutePythonRepo, repoURI);
+            } catch (final GitAPIException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
     public synchronized void pullRepo(final Git git, final String pathAbsolutePythonRepo,
                                       final String repoURI) throws GitAPIException {
         LOGGER.info("Repo already cloned, pulling files...");
