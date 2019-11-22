@@ -30,6 +30,7 @@ import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.BuildImageFromDockerfile;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
@@ -65,7 +66,8 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String repoName = "test";
     private String ip = "127.0.0.1";
 
-    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) {
+    @Override
+    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
