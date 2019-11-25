@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.python.operation.DockerImageBuilder;
 import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
-import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -59,7 +58,6 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
 
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
-        final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
         gitScriptProvider.getScripts(git, pathAbsolutePythonRepo.toString(), repoURI);
