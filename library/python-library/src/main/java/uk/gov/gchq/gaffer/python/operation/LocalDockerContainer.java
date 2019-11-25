@@ -42,10 +42,10 @@ public class LocalDockerContainer implements Container {
     @Override
     public void sendData(ArrayList data, String port) {
         LOGGER.info("Attempting to connect with the container...");
-        sleep(PythonOperationConstants.ONESECOND);
+        sleep(PythonOperationConstants.ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
-        for (int i = 0; i < PythonOperationConstants.MAXTRIES; i++) {
+        for (int i = 0; i < PythonOperationConstants.MAX_TRIES; i++) {
             try {
                 // Connect to the container
                 clientSocket = new Socket(PythonOperationConstants.LOCALHOST, Integer.parseInt(port));
@@ -117,7 +117,7 @@ public class LocalDockerContainer implements Container {
             }
         } else {
             try {
-                for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAXBYTES; i++) {
+                for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAX_BYTES; i++) {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());

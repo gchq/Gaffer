@@ -43,9 +43,9 @@ public class SendAndGetDataFromContainer {
         IOException error = null;
         Socket clientSocket = null;
         DataInputStream in = null;
-        Thread.sleep(PythonOperationConstants.ONESECOND);
+        Thread.sleep(PythonOperationConstants.ONE_SECOND);
         LOGGER.info("Attempting to connect with the container...");
-        for (int i = 0; i < PythonOperationConstants.MAXTRIES; i++) {
+        for (int i = 0; i < PythonOperationConstants.MAX_TRIES; i++) {
             try {
                 clientSocket = new Socket(PythonOperationConstants.LOCALHOST, Integer.parseInt(port));
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
@@ -85,7 +85,7 @@ public class SendAndGetDataFromContainer {
                 error.printStackTrace();
             }
         } else {
-            for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAXBYTES; i++) {
+            for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAX_BYTES; i++) {
                 dataReceived.append(in.readUTF());
             }
             dataReceived.append(in.readUTF());
