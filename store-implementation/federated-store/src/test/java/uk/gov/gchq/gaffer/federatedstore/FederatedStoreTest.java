@@ -48,6 +48,7 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -255,12 +256,21 @@ public class FederatedStoreTest {
             assertContains(e, "GraphId: ", ACC_ID_2);
         }
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldDoUnhandledOperation() throws Exception {
-        store.doUnhandledOperation(null, null);
+    @Test
+    public void shouldThrowAppropriateExceptionWhenHandlingAnUnsupportedOperation() {
+        // Given
+        Operation op = new OperationImpl();
+        // When
+        try {
+            store.handleOperation(op, new Context());
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            fail("Expected an UnsupportedOperationException rather than an OperationException");
+        } catch (final UnsupportedOperationException e) {
+            // Then
+            assertEquals("Operation class uk.gov.gchq.gaffer.operation.impl.OperationImpl is not supported by the FederatedStore.", e.getMessage());
+        }
     }
-
     @Test
     public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
