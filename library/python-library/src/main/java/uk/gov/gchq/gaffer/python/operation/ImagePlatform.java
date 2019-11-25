@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.python.operation;
 
-import java.util.ArrayList;
+import java.util.Map;
 
-public interface Container {
+public interface ImagePlatform {
 
-    void start(ImagePlatform platform);
+    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
 
-    void sendData(ArrayList data, String port);
-
-    StringBuilder receiveData();
-
-    void close();
-
+    void startContainer(Container container);
 }

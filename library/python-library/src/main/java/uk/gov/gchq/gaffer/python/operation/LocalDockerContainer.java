@@ -26,16 +26,16 @@ import java.util.ArrayList;
 
 public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
-    private final String containerId;
+    public final String containerId;
     private Socket clientSocket = null;
 
-    LocalDockerContainer(String containerId) {
+    public LocalDockerContainer(String containerId) {
         this.containerId = containerId;
     }
 
     @Override
-    public void start(LocalDockerPlatform docker) {
-        docker.startContainer(this.containerId);
+    public void start(ImagePlatform docker) {
+        docker.startContainer(this);
     }
 
     // data will be operation.getInput()
