@@ -19,7 +19,8 @@ import org.eclipse.jgit.api.Git;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.DockerImageBuilder;
-import uk.gov.gchq.gaffer.python.operation.PullOrCloneGitRepo;
+import uk.gov.gchq.gaffer.python.operation.GetPort;
+import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptInputType;
 import uk.gov.gchq.gaffer.store.Context;
@@ -34,8 +35,8 @@ import java.util.Map;
 
 public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
 
-    private final PullOrCloneGitRepo pullOrCloneRepo = new PullOrCloneGitRepo();
     private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
+    private final GitScriptProvider gitScriptProvider = new GitScriptProvider();
     private Git git = null;
 
     private String dockerfilePath = "";
@@ -43,10 +44,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String repoName = "test";
     private String ip = "127.0.0.1";
 
-
-    // Static Port Generator is fine for LocalDocker
-    // Move out 99% of code here into LocalDockerPlatform
-
+    @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
@@ -64,7 +62,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
         final ScriptInputType scriptInputType = operation.getScriptInputType();
 
         // Pull or Clone the repo with the files
-        pullOrCloneRepo.pullOrClone(git, pathAbsolutePythonRepo.toString(), repoURI);
+        gitScriptProvider.getScripts(git, pathAbsolutePythonRepo.toString(), repoURI);
         dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
 
         return output;
