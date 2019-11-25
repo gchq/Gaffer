@@ -271,7 +271,6 @@ public class FederatedStoreTest {
             assertEquals("Operation class uk.gov.gchq.gaffer.operation.impl.OperationImpl is not supported by the FederatedStore.", e.getMessage());
         }
     }
-    
     @Test
     public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
