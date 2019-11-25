@@ -31,11 +31,11 @@ public class WriteDataToContainerTest {
     @Test
     public void shouldRetrieveInputStream() throws InterruptedException {
         // Given
-        Thread serverThread = setupTestServer(PythonTestConstants.TESTSERVERPORT1);
+        Thread serverThread = setupTestServer(PythonTestConstants.TEST_SERVER_PORT_1);
         Socket testSocket = null;
         for (int i = 0; i < 3; i++) {
             try {
-                testSocket = new Socket(PythonTestConstants.LOCALHOST, PythonTestConstants.TESTSERVERPORT1);
+                testSocket = new Socket(PythonTestConstants.LOCALHOST, PythonTestConstants.TEST_SERVER_PORT_1);
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -58,7 +58,7 @@ public class WriteDataToContainerTest {
     @Test
     public void shouldSendAndReceiveDataToSocket() throws InterruptedException {
         // Given
-        Thread serverThread = setupTestServer(PythonTestConstants.TESTSERVERPORT2);
+        Thread serverThread = setupTestServer(PythonTestConstants.TEST_SERVER_PORT_2);
         final RunPythonScript<String, String> runPythonScript =
                 new RunPythonScript.Builder<String, String>()
                         .build();
@@ -69,7 +69,7 @@ public class WriteDataToContainerTest {
         Socket testSocket = null;
         for (int i = 0; i < 3; i++) {
             try {
-                testSocket = new Socket(PythonTestConstants.LOCALHOST, PythonTestConstants.TESTSERVERPORT2);
+                testSocket = new Socket(PythonTestConstants.LOCALHOST, PythonTestConstants.TEST_SERVER_PORT_2);
                 break;
             } catch (IOException e) {
                 e.printStackTrace();

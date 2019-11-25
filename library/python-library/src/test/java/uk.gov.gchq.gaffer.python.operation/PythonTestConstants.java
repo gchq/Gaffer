@@ -22,12 +22,12 @@ public final class PythonTestConstants {
     }
 
     public static final String LOCALHOST = "127.0.0.1";
-    public static final String REPOURI = "https://github.com/g609bmsma/test";
-    public static final String REPONAME = "test";
-    public static final String CURRENTWORKINGDIRECTORY = "/src/main/resources/.PythonBin";
-    public static final Integer MAXPORT = 65535;
-    public static final Integer MINPORT = 50000;
-    public static final Integer TESTSERVERPORT1 = 7788;
-    public static final Integer TESTSERVERPORT2 = 7789;
-    public static final Integer TESTSERVERPORT3 = 7790;
+    public static final String REPO_URI = "https://github.com/g609bmsma/test";
+    public static final String REPO_NAME = "test";
+    public static final String CURRENT_WORKING_DIRECTORY = "/src/main/resources/.PythonBin";
+    public static final Integer MAX_PORT = 65535;
+    public static final Integer MIN_PORT = 50000;
+    public static final Integer TEST_SERVER_PORT_1 = 7788;
+    public static final Integer TEST_SERVER_PORT_2 = 7789;
+    public static final Integer TEST_SERVER_PORT_3 = 7790;
 }

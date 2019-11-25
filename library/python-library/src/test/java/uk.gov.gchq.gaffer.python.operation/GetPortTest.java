@@ -32,7 +32,7 @@ public class GetPortTest {
         portResult = Integer.parseInt(GetPort.getPort());
 
         // Then
-        Assert.assertTrue(portResult < PythonTestConstants.MAXPORT && portResult > PythonTestConstants.MINPORT);
+        Assert.assertTrue(portResult < PythonTestConstants.MAX_PORT && portResult > PythonTestConstants.MIN_PORT);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class GetPortTest {
         // Then
         for (int i = 0; i < 100; i++) {
             int currentPort = portResults.get(i);
-            Assert.assertTrue(currentPort < PythonTestConstants.MAXPORT && currentPort > PythonTestConstants.MINPORT);
+            Assert.assertTrue(currentPort < PythonTestConstants.MAX_PORT && currentPort > PythonTestConstants.MIN_PORT);
         }
     }
 }

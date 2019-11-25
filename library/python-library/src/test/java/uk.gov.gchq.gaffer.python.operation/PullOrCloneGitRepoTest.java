@@ -34,9 +34,9 @@ public class PullOrCloneGitRepoTest  {
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENT_WORKING_DIRECTORY);
 
-        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPO_NAME);
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
@@ -44,7 +44,7 @@ public class PullOrCloneGitRepoTest  {
 
 
         // When
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPO_URI);
         String[] files = pathAbsolutePythonRepo.toFile().list();
 
         // Then
@@ -57,9 +57,9 @@ public class PullOrCloneGitRepoTest  {
         PullOrCloneGitRepo pOrC = new PullOrCloneGitRepo();
         Git git = mock(Git.class);
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENT_WORKING_DIRECTORY);
 
-        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPO_NAME);
 
         final RunPythonScript<String, String> operation =
                 new RunPythonScript.Builder<String, String>()
@@ -70,7 +70,7 @@ public class PullOrCloneGitRepoTest  {
         });
 
         // Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPO_URI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }
