@@ -67,10 +67,9 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
             // Keep trying to start a container and find a free port.
-            String port = null;
-            boolean portAvailable = false;
+            Integer port;
                 try {
-                    port = GetPort.getPort();
+                    port = RandomPortGenerator.getInstance().generatePort();
 
                     // Create a container from the image and bind ports
                     final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(returnedImageId.getImageString()).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();

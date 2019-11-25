@@ -19,7 +19,6 @@ import org.eclipse.jgit.api.Git;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.DockerImageBuilder;
-import uk.gov.gchq.gaffer.python.operation.GetPort;
 import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
 import uk.gov.gchq.gaffer.store.Context;
