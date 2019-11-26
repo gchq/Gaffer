@@ -4,6 +4,13 @@
       "operation": "uk.gov.gchq.gaffer.python.operation.RunPythonScript",
       "handler": {
         "class": "uk.gov.gchq.gaffer.python.operation.handler.RunPythonScriptHandler",
+        "imagePlatform": {
+          "class": "uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform",
+          "dockerfilePath": ""
+        },
+        "scriptProvider": {
+          "class": "uk.gov.gchq.gaffer.python.operation.GitScriptProvider"
+        },
         "repoName": "test",
         "repoURI": "https://github.com/g609bmsma/test",
         "ip": "127.0.0.1"

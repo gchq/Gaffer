@@ -36,7 +36,6 @@ public class RunPythonScriptHandlerTest {
             put("a", "b");
         } };
 
-        final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
         final ArrayList<String> inputData = new ArrayList<>();
         inputData.add("{\"Test Data\"}");
 
@@ -44,7 +43,6 @@ public class RunPythonScriptHandlerTest {
                 new RunPythonScript.Builder<String, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
-                        .scriptInputType(scriptInputType)
                         .build();
 
         runPythonScript.setInput(inputData);

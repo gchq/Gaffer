@@ -42,11 +42,13 @@ public class LocalDockerPlatform implements ImagePlatform {
     private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
     private DockerClient docker = null;
     private String containerId = null;
+    private String dockerfilePath = "";
+    private int port;
 
     @Override
     public Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip) {
         try {
-
+            dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
             // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
             // memory leaks, synchronize this code amongst multiple threads.
             LOGGER.info("Connecting to the Docker client...");
@@ -67,7 +69,6 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
             // Keep trying to start a container and find a free port.
-            Integer port;
                 try {
                     port = RandomPortGenerator.getInstance().generatePort();
 
@@ -94,5 +95,22 @@ public class LocalDockerPlatform implements ImagePlatform {
             } catch (final DockerException | InterruptedException ignored) {
             }
         }
+    }
+
+    @Override
+    public StringBuilder runContainer(final Container container, final Iterable inputData) {
+        container.start(this);
+        container.sendData(inputData, port);
+        StringBuilder output = container.receiveData();
+        container.close();
+        return output;
+    }
+
+    private String getDockerfilePath() {
+        return dockerfilePath;
+    }
+
+    private void setDockerfilePath(final String dockerfilePath) {
+        this.dockerfilePath = dockerfilePath;
     }
 }

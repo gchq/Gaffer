@@ -18,20 +18,18 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
-    public final String containerId;
     private Socket clientSocket = null;
-
-    public LocalDockerContainer(String containerId) {
-        this.containerId = containerId;
-    }
 
     @Override
     public void start(ImagePlatform docker) {
@@ -40,7 +38,7 @@ public class LocalDockerContainer implements Container {
 
     // data will be operation.getInput()
     @Override
-    public void sendData(ArrayList data, String port) {
+    public void sendData(Iterable data, Integer port) {
         LOGGER.info("Attempting to connect with the container...");
         sleep(PythonOperationConstants.ONESECOND);
         // The container will need some time to start up, so keep trying to connect and check
@@ -48,7 +46,7 @@ public class LocalDockerContainer implements Container {
         for (int i = 0; i < PythonOperationConstants.MAXTRIES; i++) {
             try {
                 // Connect to the container
-                clientSocket = new Socket(PythonOperationConstants.LOCALHOST, Integer.parseInt(port));
+                clientSocket = new Socket(PythonOperationConstants.LOCALHOST, port);
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
 
                 // Check the container is ready
@@ -90,7 +88,7 @@ public class LocalDockerContainer implements Container {
         }
         LOGGER.info("Inputstream is: {}", inputStream);
         int incomingDataLength = 0;
-        Boolean failedToConnect = true;
+        boolean failedToConnect = true;
         Exception error = null;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;

@@ -54,10 +54,9 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
         }
 
         // Pull or Clone the repo with the files
-        scriptProvider.getScripts(null, pathAbsolutePythonRepo.toString(), repoURI);
-        final Container container = imagePlatform.createContainer(scriptName, scriptParameters,
-                directoryPath, ip);
-        return container.receiveData();
+        scriptProvider.getScripts(pathAbsolutePythonRepo.toString(), repoURI);
+        final Container container = imagePlatform.createContainer(scriptName, scriptParameters, directoryPath, ip);
+        return imagePlatform.runContainer(container, operation.getInput());
     }
     private ImagePlatform getImagePlatform() {
         return imagePlatform;

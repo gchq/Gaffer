@@ -16,13 +16,11 @@
 
 package uk.gov.gchq.gaffer.python.operation;
 
-import java.util.ArrayList;
-
 public interface Container {
 
     void start(ImagePlatform platform);
 
-    void sendData(ArrayList data, String port);
+    void sendData(Iterable data, Integer port);
 
     StringBuilder receiveData();
 
