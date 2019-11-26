@@ -1,9 +1,9 @@
 {
   "operations": [
     {
-      "operation": "uk.gov.gchq.gaffer.python.operation.RunPythonScript",
+      "operation": "uk.gov.gchq.gaffer.python.operation.RunScript",
       "handler": {
-        "class": "uk.gov.gchq.gaffer.python.operation.handler.RunPythonScriptHandler",
+        "class": "uk.gov.gchq.gaffer.python.operation.handler.RunScriptHandler",
         "imagePlatform": {
           "class": "uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform",
           "dockerfilePath": ""

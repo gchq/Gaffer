@@ -28,13 +28,13 @@ public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
     @Override
-    public void getScripts(final String pathAbsolutePythonRepo,
+    public void getScripts(final String absoluteRepoPath,
                            final String repoURI) {
         try {
-            Git git = Git.open(new File(pathAbsolutePythonRepo));
+            Git git = Git.open(new File(absoluteRepoPath));
             pullRepo(git);
         } catch (final IOException e) {
-            cloneRepo(pathAbsolutePythonRepo, repoURI);
+            cloneRepo(absoluteRepoPath, repoURI);
         }
     }
 

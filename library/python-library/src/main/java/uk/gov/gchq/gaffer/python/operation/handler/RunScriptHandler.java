@@ -46,15 +46,15 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
+        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
+        final Path absoluteRepoPath = Paths.get(directoryPath, repoName);
         final File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdir();
         }
 
         // Pull or Clone the repo with the files
-        scriptProvider.getScripts(pathAbsolutePythonRepo.toString(), repoURI);
+        scriptProvider.getScripts(absoluteRepoPath.toString(), repoURI);
         final Container container = imagePlatform.createContainer(scriptName, scriptParameters, directoryPath, ip);
         return imagePlatform.runContainer(container, operation.getInput());
     }

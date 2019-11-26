@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
-// Remove ScriptInputType, also remove from buildImage and entrypoint
-
 public class RunScript<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, CloseableIterable<? extends O>>,
         MultiInput<I_ITEM>,

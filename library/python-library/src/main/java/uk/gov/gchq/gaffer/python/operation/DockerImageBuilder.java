@@ -43,16 +43,13 @@ public class DockerImageBuilder implements ImageBuilder {
     /**
      * Builds docker image from Dockerfile
      *
-     * @param scriptName             the name of the python script being run
+     * @param scriptName             the name of the script being run
      * @param scriptParameters       the parameters of the script being run
      * @param dockerObject           the docker client the script is being run on
-     * @param pathToBuildFiles       the absolute path for the python repo
+     * @param pathToBuildFiles       the absolute path for the repo
      * @return docker image from Dockerfile
      */
 
-    // DockerImageBuilder
-
-    // Breakdown buildImage() into smaller methods
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                         final Object dockerObject, final String pathToBuildFiles) {
@@ -86,10 +83,10 @@ public class DockerImageBuilder implements ImageBuilder {
 
         LOGGER.info("Building the image from the Dockerfile...");
         final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-        LOGGER.info("Absolute Python repo path: " + Paths.get(pathToBuildFiles).toString());
+        LOGGER.info("Absolute repo path: " + Paths.get(pathToBuildFiles).toString());
         try {
             return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
-                    "pythonoperation:" + scriptName, "Dockerfile", message -> {
+                    "scriptoperation:" + scriptName, "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
                 if (imageId != null) {
                     imageIdFromMessage.set(imageId);
@@ -121,7 +118,7 @@ public class DockerImageBuilder implements ImageBuilder {
     }
 
     private void createFile(final String fileName, final String destination) {
-        createFile(fileName, destination, "/.PythonBin/");
+        createFile(fileName, destination, "/.ScriptBin/");
     }
 
     private void createFile(final String fileName, final String destination, final String fileLocation) {

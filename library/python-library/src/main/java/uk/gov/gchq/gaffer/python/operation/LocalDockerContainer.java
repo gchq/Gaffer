@@ -40,13 +40,13 @@ public class LocalDockerContainer implements Container {
     @Override
     public void sendData(final Iterable data, final Integer port) {
         LOGGER.info("Attempting to connect with the container...");
-        sleep(PythonOperationConstants.ONESECOND);
+        sleep(ScriptOperationConstants.ONESECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
-        for (int i = 0; i < PythonOperationConstants.MAXTRIES; i++) {
+        for (int i = 0; i < ScriptOperationConstants.MAXTRIES; i++) {
             try {
                 // Connect to the container
-                clientSocket = new Socket(PythonOperationConstants.LOCALHOST, port);
+                clientSocket = new Socket(ScriptOperationConstants.LOCALHOST, port);
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
 
                 // Check the container is ready
@@ -72,7 +72,7 @@ public class LocalDockerContainer implements Container {
                 break;
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
-                sleep(PythonOperationConstants.TIMEOUT_100);
+                sleep(ScriptOperationConstants.TIMEOUT_100);
             }
         }
     }
@@ -92,7 +92,7 @@ public class LocalDockerContainer implements Container {
         Exception error = null;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;
-            while (tries < PythonOperationConstants.TIMEOUT_100) {
+            while (tries < ScriptOperationConstants.TIMEOUT_100) {
                 try {
                     incomingDataLength = inputStream.readInt();
                     LOGGER.info("Length of container...{}", incomingDataLength);
@@ -101,7 +101,7 @@ public class LocalDockerContainer implements Container {
                 } catch (final IOException e) {
                     tries += 1;
                     error = e;
-                    sleep(PythonOperationConstants.TIMEOUT_200);
+                    sleep(ScriptOperationConstants.TIMEOUT_200);
                 }
             }
         }
@@ -115,7 +115,7 @@ public class LocalDockerContainer implements Container {
             }
         } else {
             try {
-                for (int i = 0; i < incomingDataLength / PythonOperationConstants.MAXBYTES; i++) {
+                for (int i = 0; i < incomingDataLength / ScriptOperationConstants.MAXBYTES; i++) {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());

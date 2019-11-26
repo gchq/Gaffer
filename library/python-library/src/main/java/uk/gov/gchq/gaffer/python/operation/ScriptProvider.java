@@ -17,6 +17,6 @@
 package uk.gov.gchq.gaffer.python.operation;
 
 public interface ScriptProvider {
-    void getScripts(String pathAbsolutePythonRepo,
+    void getScripts(String absoluteRepoPath,
                     String repoURI);
 }
