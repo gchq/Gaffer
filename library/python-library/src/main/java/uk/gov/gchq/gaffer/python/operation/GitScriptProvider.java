@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class GitScriptProvider implements ScriptProvider {
         }
     }
 
-    public synchronized void pullRepo(final Git git) {
+    private synchronized void pullRepo(final Git git) {
         try {
             LOGGER.info("Repo already cloned, pulling files...");
             git.pull().call();
@@ -49,8 +48,7 @@ public class GitScriptProvider implements ScriptProvider {
         }
     }
 
-    public synchronized void cloneRepo(final String pathAbsolutePythonRepo,
-                                       final String repoURI) {
+    private synchronized void cloneRepo(final String pathAbsolutePythonRepo, final String repoURI) {
         try {
             LOGGER.info("Cloning repo...");
             Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();

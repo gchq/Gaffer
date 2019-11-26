@@ -38,7 +38,7 @@ public class LocalDockerContainer implements Container {
 
     // data will be operation.getInput()
     @Override
-    public void sendData(Iterable data, Integer port) {
+    public void sendData(final Iterable data, final Integer port) {
         LOGGER.info("Attempting to connect with the container...");
         sleep(PythonOperationConstants.ONESECOND);
         // The container will need some time to start up, so keep trying to connect and check
