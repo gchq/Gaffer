@@ -92,19 +92,6 @@ public class LocalDockerPlatform implements ImagePlatform {
                 docker.startContainer(containerId);
                 break;
             } catch (final DockerException | InterruptedException ignored) {
-            } finally {
-                LOGGER.info("Deleting the container...");
-                if (docker != null) {
-                    try {
-                        if (containerId != null) {
-                            docker.waitContainer(containerId);
-                            docker.removeContainer(containerId);
-                        }
-                    } catch (final DockerException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    docker.close();
-                }
             }
         }
     }

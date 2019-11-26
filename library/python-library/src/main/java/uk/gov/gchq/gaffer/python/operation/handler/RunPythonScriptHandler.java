@@ -15,12 +15,13 @@
  */
 package uk.gov.gchq.gaffer.python.operation.handler;
 
-import org.eclipse.jgit.api.Git;
-
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.DockerImageBuilder;
+import uk.gov.gchq.gaffer.python.operation.Container;
 import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
+import uk.gov.gchq.gaffer.python.operation.ImagePlatform;
+import uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform;
 import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.ScriptProvider;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -33,18 +34,17 @@ import java.util.Map;
 
 public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
 
-    private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
-    private final GitScriptProvider gitScriptProvider = new GitScriptProvider();
-    private Git git = null;
-
-    private String dockerfilePath = "";
-    private String repoURI = "https://github.com/g609bmsma/test";
+    private ImagePlatform imagePlatform = new LocalDockerPlatform();
+    private ScriptProvider scriptProvider = new GitScriptProvider();
     private String repoName = "test";
+    private String repoURI = "https://github.com/g609bmsma/test";
     private String ip = "127.0.0.1";
 
     @Override
     public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
 
+        final String scriptName = operation.getScriptName();
+        final Map<String, Object> scriptParameters = operation.getScriptParameters();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/.PythonBin");
         final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
@@ -53,24 +53,26 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
             directory.mkdir();
         }
 
-        Object output = null;
-
-        final String scriptName = operation.getScriptName();
-        final Map<String, Object> scriptParameters = operation.getScriptParameters();
-
         // Pull or Clone the repo with the files
-        gitScriptProvider.getScripts(git, pathAbsolutePythonRepo.toString(), repoURI);
-        dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
-
-        return output;
+        scriptProvider.getScripts(null, pathAbsolutePythonRepo.toString(), repoURI);
+        final Container container = imagePlatform.createContainer(scriptName, scriptParameters,
+                directoryPath, ip);
+        return container.receiveData();
+    }
+    private ImagePlatform getImagePlatform() {
+        return imagePlatform;
     }
 
-    private String getDockerfilePath() {
-        return dockerfilePath;
+    private void setImagePlatform(final ImagePlatform imagePlatform) {
+        this.imagePlatform = imagePlatform;
     }
 
-    private void setDockerfilePath(final String dockerfilePath) {
-        this.dockerfilePath = dockerfilePath;
+    private ScriptProvider getScriptProvider() {
+        return scriptProvider;
+    }
+
+    private void setScriptProvider(final ScriptProvider scriptProvider) {
+        this.scriptProvider = scriptProvider;
     }
 
     private String getRepoName() {

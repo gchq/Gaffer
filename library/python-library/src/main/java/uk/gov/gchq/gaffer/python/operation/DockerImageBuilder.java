@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 public class DockerImageBuilder implements ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
+    private String dockerfilePath = "";
 
     /**
      * Builds docker image from Dockerfile
@@ -57,6 +58,7 @@ public class DockerImageBuilder implements ImageBuilder {
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                         final Object dockerObject, final String pathToBuildFiles) {
 
+        getFiles(pathToBuildFiles);
         DockerClient docker = (DockerClient) dockerObject;
         // Build an image from the Dockerfile
         String params = " ";
@@ -102,7 +104,7 @@ public class DockerImageBuilder implements ImageBuilder {
         return null;
     }
 
-    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
+    public void getFiles(final String pathToBuildFiles) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         if (dockerfilePath.equals("")) {
             // Use the default file
@@ -133,5 +135,13 @@ public class DockerImageBuilder implements ImageBuilder {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String getDockerfilePath() {
+        return dockerfilePath;
+    }
+
+    private void setDockerfilePath(final String dockerfilePath) {
+        this.dockerfilePath = dockerfilePath;
     }
 }
