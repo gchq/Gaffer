@@ -25,9 +25,9 @@ public final class ScriptOperationConstants {
 
     public static final String LOCALHOST = "127.0.0.1";
 
-    public static final Integer ONESECOND = 1000;
+    public static final Integer ONE_SECOND = 1000;
     public static final Integer TIMEOUT_100 = 100;
     public static final Integer TIMEOUT_200 = 200;
-    public static final Integer MAXBYTES = 65000;
-    public static final Integer MAXTRIES = 100;
+    public static final Integer MAX_BYTES = 65000;
+    public static final Integer MAX_TRIES = 100;
 }
