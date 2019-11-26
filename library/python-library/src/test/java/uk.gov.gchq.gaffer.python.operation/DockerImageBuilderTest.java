@@ -36,15 +36,15 @@ public class DockerImageBuilderTest {
         DockerClient docker = null;
         Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENTWORKINGDIRECTORY);
-        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
+        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENT_WORKING_DIRECTORY);
+        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPO_NAME);
         DockerImageBuilder bIFD = new DockerImageBuilder();
 
         final RunScript<String, String> operation =
                 new RunScript.Builder<String, String>()
                         .build();
         final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
+        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPO_URI);
 
         try {
             docker = DefaultDockerClient.fromEnv().build();
