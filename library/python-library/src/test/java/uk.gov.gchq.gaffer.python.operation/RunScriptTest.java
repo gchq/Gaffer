@@ -22,7 +22,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RunPythonScriptTest {
+public class RunScriptTest {
 
     @Test
     public void shouldShallowClone() {
@@ -31,21 +31,18 @@ public class RunPythonScriptTest {
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("animal", "dog");
         } };
-        final ScriptInputType scriptInputType = ScriptInputType.DATAFRAME;
 
-        final RunPythonScript runPythonScript = new RunPythonScript.Builder<>()
+        final RunScript runScript = new RunScript.Builder<>()
                 .scriptName(scriptName)
                 .scriptParameters(scriptParameters)
-                .scriptInputType(scriptInputType)
                 .build();
 
         // When
-        RunPythonScript clone = (RunPythonScript) runPythonScript.shallowClone();
+        RunScript clone = (RunScript) runScript.shallowClone();
 
         // Then
-        Assert.assertNotSame(runPythonScript, clone);
+        Assert.assertNotSame(runScript, clone);
         Assert.assertEquals(scriptName, clone.getScriptName());
         Assert.assertEquals(scriptParameters, clone.getScriptParameters());
-        Assert.assertEquals(scriptInputType, clone.getScriptInputType());
     }
 }

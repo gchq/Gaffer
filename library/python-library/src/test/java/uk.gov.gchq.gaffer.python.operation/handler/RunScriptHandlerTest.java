@@ -19,18 +19,18 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.RunScript;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RunPythonScriptHandlerTest {
+public class RunScriptHandlerTest {
 
     @Test
     public void shouldReturnDataInJSON() {
         // Given
-        RunPythonScriptHandler rPSH = new RunPythonScriptHandler();
+        RunScriptHandler rPSH = new RunScriptHandler();
         final String scriptName = "script1";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
@@ -39,19 +39,19 @@ public class RunPythonScriptHandlerTest {
         final ArrayList<String> inputData = new ArrayList<>();
         inputData.add("{\"Test Data\"}");
 
-        final RunPythonScript<String, Iterable<? extends String>> runPythonScript =
-                new RunPythonScript.Builder<String, Iterable<? extends String>>()
+        final RunScript<String, Iterable<? extends String>> runScript =
+                new RunScript.Builder<String, Iterable<? extends String>>()
                         .scriptName(scriptName)
                         .scriptParameters(scriptParameters)
                         .build();
 
-        runPythonScript.setInput(inputData);
+        runScript.setInput(inputData);
 
         // When
         StringBuilder results = null;
         try {
 
-            results = (StringBuilder) rPSH.doOperation(runPythonScript, null, null);
+            results = (StringBuilder) rPSH.doOperation(runScript, null, null);
         } catch (OperationException e) {
             e.printStackTrace();
             Assert.fail();

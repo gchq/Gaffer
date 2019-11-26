@@ -29,7 +29,7 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.python.operation.handler.RunPythonScriptHandler;
+import uk.gov.gchq.gaffer.python.operation.handler.RunScriptHandler;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.Objects;
 
 public class LocalDockerPlatform implements ImagePlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RunPythonScriptHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
     private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
     private DockerClient docker = null;
     private String containerId = null;
@@ -81,7 +81,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerCertificateException | InterruptedException | DockerException e) {
             e.printStackTrace();
         }
-        return new LocalDockerContainer(containerId);
+        return new LocalDockerContainer();
     }
 
     @Override

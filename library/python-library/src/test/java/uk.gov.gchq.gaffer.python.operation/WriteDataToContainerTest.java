@@ -59,13 +59,13 @@ public class WriteDataToContainerTest {
     public void shouldSendAndReceiveDataToSocket() throws InterruptedException {
         // Given
         Thread serverThread = setupTestServer(PythonTestConstants.TESTSERVERPORT2);
-        final RunPythonScript<String, String> runPythonScript =
-                new RunPythonScript.Builder<String, String>()
+        final RunScript<String, String> runScript =
+                new RunScript.Builder<String, String>()
                         .build();
         ArrayList<String> inputData = new ArrayList<>();
         inputData.add("Test Data 1");
         inputData.add("Test Data 2");
-        runPythonScript.setInput(inputData);
+        runScript.setInput(inputData);
         Socket testSocket = null;
         for (int i = 0; i < 3; i++) {
             try {
@@ -80,7 +80,7 @@ public class WriteDataToContainerTest {
         // When
         try {
             assert testSocket != null;
-            WriteDataToContainer.sendData(runPythonScript, testSocket);
+            WriteDataToContainer.sendData(runScript, testSocket);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail();

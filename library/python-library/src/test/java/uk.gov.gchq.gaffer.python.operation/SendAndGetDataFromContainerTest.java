@@ -32,17 +32,17 @@ public class SendAndGetDataFromContainerTest {
         // Given
         setupTestServer();
         SendAndGetDataFromContainer sUACC = new SendAndGetDataFromContainer();
-        final RunPythonScript<String, String> runPythonScript =
-                new RunPythonScript.Builder<String, String>()
+        final RunScript<String, String> runScript =
+                new RunScript.Builder<String, String>()
                         .build();
         ArrayList<String> inputData = new ArrayList<>();
         inputData.add("Test Data");
-        runPythonScript.setInput(inputData);
+        runScript.setInput(inputData);
 
         // When
         StringBuilder result = null;
         try {
-            result = sUACC.setUpAndCloseContainer(runPythonScript, "7790");
+            result = sUACC.setUpAndCloseContainer(runScript, "7790");
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }

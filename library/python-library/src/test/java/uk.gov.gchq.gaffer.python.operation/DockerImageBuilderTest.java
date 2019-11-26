@@ -40,8 +40,8 @@ public class DockerImageBuilderTest {
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
         DockerImageBuilder bIFD = new DockerImageBuilder();
 
-        final RunPythonScript<String, String> operation =
-                new RunPythonScript.Builder<String, String>()
+        final RunScript<String, String> operation =
+                new RunScript.Builder<String, String>()
                         .build();
         final GitScriptProvider pOrC = new GitScriptProvider();
         pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);

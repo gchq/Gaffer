@@ -38,13 +38,13 @@ public class GitScriptProviderTest {
 
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
 
-        final RunPythonScript<String, String> operation =
-                new RunPythonScript.Builder<String, String>()
+        final RunScript<String, String> operation =
+                new RunScript.Builder<String, String>()
                         .build();
 
 
         // When
-        pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
+        pOrC.getScripts(pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI);
         String[] files = pathAbsolutePythonRepo.toFile().list();
 
         // Then
@@ -61,8 +61,8 @@ public class GitScriptProviderTest {
 
         Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPONAME);
 
-        final RunPythonScript<String, String> operation =
-                new RunPythonScript.Builder<String, String>()
+        final RunScript<String, String> operation =
+                new RunScript.Builder<String, String>()
                         .build();
 
         // When
@@ -70,7 +70,7 @@ public class GitScriptProviderTest {
         });
 
         // Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.pullOrClone(git, pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsolutePythonRepo.toString(), PythonTestConstants.REPOURI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }

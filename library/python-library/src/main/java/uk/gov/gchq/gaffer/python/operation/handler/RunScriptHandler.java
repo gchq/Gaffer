@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.python.operation.Container;
 import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
 import uk.gov.gchq.gaffer.python.operation.ImagePlatform;
 import uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform;
-import uk.gov.gchq.gaffer.python.operation.RunPythonScript;
+import uk.gov.gchq.gaffer.python.operation.RunScript;
 import uk.gov.gchq.gaffer.python.operation.ScriptProvider;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class RunPythonScriptHandler implements OperationHandler<RunPythonScript> {
+public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
@@ -41,7 +41,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
     private String ip = "127.0.0.1";
 
     @Override
-    public Object doOperation(final RunPythonScript operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
 
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
@@ -58,6 +58,7 @@ public class RunPythonScriptHandler implements OperationHandler<RunPythonScript>
         final Container container = imagePlatform.createContainer(scriptName, scriptParameters, directoryPath, ip);
         return imagePlatform.runContainer(container, operation.getInput());
     }
+
     private ImagePlatform getImagePlatform() {
         return imagePlatform;
     }
