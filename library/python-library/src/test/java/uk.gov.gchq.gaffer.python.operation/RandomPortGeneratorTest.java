@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class GetPortTest {
+public class RandomPortGeneratorTest {
 
     @Test
     public void shouldGetAPortWithinRange() {
@@ -28,8 +28,7 @@ public class GetPortTest {
         int portResult = 0;
 
         // When
-
-        portResult = Integer.parseInt(GetPort.getPort());
+        portResult = RandomPortGenerator.getInstance().generatePort();
 
         // Then
         Assert.assertTrue(portResult < PythonTestConstants.MAX_PORT && portResult > PythonTestConstants.MIN_PORT);
@@ -42,7 +41,7 @@ public class GetPortTest {
 
         // When
         for (int i = 0; i < 100; i++) {
-            portResults.add(Integer.parseInt(GetPort.getPort()));
+            portResults.add(RandomPortGenerator.getInstance().generatePort());
         }
 
         // Then
