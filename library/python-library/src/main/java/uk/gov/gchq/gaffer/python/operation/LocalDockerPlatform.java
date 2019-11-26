@@ -46,7 +46,7 @@ public class LocalDockerPlatform implements ImagePlatform {
     private int port;
 
     @Override
-    public Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip) {
+    public Container createContainer(final String scriptName, final Map<String, Object> scriptParameters, final String directoryPath, final String ip) {
         try {
             dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
             // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid

@@ -80,7 +80,7 @@ public class DockerImageBuilder implements ImageBuilder {
         DockerClient.BuildParam buildParam = null;
         try {
             buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
@@ -96,13 +96,13 @@ public class DockerImageBuilder implements ImageBuilder {
                 }
                 LOGGER.info(String.valueOf(message));
             }, buildParam));
-        } catch (DockerException | InterruptedException | IOException e) {
+        } catch (final DockerException | InterruptedException | IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public void getFiles(final String pathToBuildFiles, String dockerfilePath) {
+    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         if (dockerfilePath.equals("")) {
             // Use the default file

@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.python.operation;
 
-import org.eclipse.jgit.api.Git;
-
 public interface ScriptProvider {
     void getScripts(String pathAbsolutePythonRepo,
-                    String repoURI) ;
+                    String repoURI);
 }

@@ -32,7 +32,7 @@ public class LocalDockerContainer implements Container {
     private Socket clientSocket = null;
 
     @Override
-    public void start(ImagePlatform docker) {
+    public void start(final ImagePlatform docker) {
         docker.startContainer(this);
     }
 
@@ -70,7 +70,7 @@ public class LocalDockerContainer implements Container {
                 LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
                 outputStream.flush();
                 break;
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
                 sleep(PythonOperationConstants.TIMEOUT_100);
             }
@@ -83,7 +83,7 @@ public class LocalDockerContainer implements Container {
         DataInputStream inputStream = null;
         try {
             inputStream = getInputStream(clientSocket);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.info(e.getMessage());
         }
         LOGGER.info("Inputstream is: {}", inputStream);
@@ -119,7 +119,7 @@ public class LocalDockerContainer implements Container {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
             }
         }
@@ -132,7 +132,7 @@ public class LocalDockerContainer implements Container {
         if (clientSocket != null) {
             try {
                 clientSocket.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
             }
         }
@@ -145,7 +145,7 @@ public class LocalDockerContainer implements Container {
     private void sleep(final Integer time) {
         try {
             Thread.sleep(time);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             LOGGER.info(e.getMessage());
         }
     }

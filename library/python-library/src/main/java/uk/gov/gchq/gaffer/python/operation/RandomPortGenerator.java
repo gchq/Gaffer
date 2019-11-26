@@ -30,22 +30,21 @@ import java.util.stream.IntStream;
  * </p>
  */
 @Summary("A port generator that returns a random port number")
-public class RandomPortGenerator implements PortGenerator {
-    private volatile static RandomPortGenerator portGenerator;
-    private final static Integer MIN_PORT_NUM = 50000;
-    private final static Integer MAX_PORT_NUM = 65535;
+public final class RandomPortGenerator implements PortGenerator {
+    private static volatile RandomPortGenerator portGenerator;
+    private static final Integer MIN_PORT_NUM = 50000;
+    private static final Integer MAX_PORT_NUM = 65535;
     private static ArrayList<Integer> usedPorts = new ArrayList<>();
 
-    private RandomPortGenerator() {}
+    private RandomPortGenerator() { }
 
-    public static RandomPortGenerator getInstance()
-    {
+    public static RandomPortGenerator getInstance() {
         // Don't wait for other threads if the instance is available
         if (portGenerator == null) {
             // Synchronize the creation of the port generator
             synchronized (RandomPortGenerator.class) {
                 // Only create a port generator if one already exists
-                if (portGenerator==null) {
+                if (portGenerator == null) {
                     portGenerator = new RandomPortGenerator();
                 }
             }
@@ -64,7 +63,7 @@ public class RandomPortGenerator implements PortGenerator {
         return portNum;
     }
 
-    public synchronized void freePort(Integer port) {
+    public synchronized void freePort(final Integer port) {
         usedPorts.remove(port);
     }
 }
