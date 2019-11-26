@@ -19,6 +19,8 @@ import java.util.Map;
 
 public interface ImageBuilder {
 
+    // Ask whether builderObject is an acceptable approach
+
     Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                      final Object builderObject, final String pathToBuildFiles);
 }

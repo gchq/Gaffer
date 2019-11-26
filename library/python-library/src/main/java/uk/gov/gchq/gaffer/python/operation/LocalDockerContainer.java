@@ -31,12 +31,12 @@ public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
     private Socket clientSocket = null;
 
+    // ask about our approach
     @Override
     public void start(final ImagePlatform docker) {
         docker.startContainer(this);
     }
 
-    // data will be operation.getInput()
     @Override
     public void sendData(final Iterable data, final Integer port) {
         LOGGER.info("Attempting to connect with the container...");
@@ -125,6 +125,8 @@ public class LocalDockerContainer implements Container {
         }
         return dataReceived;
     }
+
+    // remove start and close from container
 
     @Override
     public void close() {

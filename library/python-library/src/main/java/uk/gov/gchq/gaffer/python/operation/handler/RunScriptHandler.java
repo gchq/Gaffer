@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
+    // comment for json injection
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
     private String repoName = "test";

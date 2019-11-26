@@ -21,6 +21,7 @@ public final class ScriptOperationConstants {
         // Private constructor to hide default public one
     }
     // Review need for this class after restructure
+    // remove this
 
     public static final String LOCALHOST = "127.0.0.1";
 
