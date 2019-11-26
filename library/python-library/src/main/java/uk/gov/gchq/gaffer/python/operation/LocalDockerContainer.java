@@ -127,6 +127,7 @@ public class LocalDockerContainer implements Container {
     }
 
     // remove start and close from container
+    // fix close to actually stop the container
 
     @Override
     public void close() {
