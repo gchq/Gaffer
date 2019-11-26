@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.python.operation;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,35 +29,34 @@ public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
     @Override
-    public void getScripts(final Git git, final String pathAbsolutePythonRepo,
+    public void getScripts(final String pathAbsolutePythonRepo,
                            final String repoURI) {
-        if (git == null) {
-            try {
-                cloneRepo(git, pathAbsolutePythonRepo, repoURI);
-            } catch (final GitAPIException | IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                pullRepo(git, pathAbsolutePythonRepo, repoURI);
-            } catch (final GitAPIException e) {
-                e.printStackTrace();
-            }
+        try {
+            Git git = Git.open(new File(pathAbsolutePythonRepo));
+            pullRepo(git);
+        } catch (final IOException e) {
+            cloneRepo(pathAbsolutePythonRepo, repoURI);
         }
-
     }
 
-    public synchronized void pullRepo(final Git git, final String pathAbsolutePythonRepo,
-                                      final String repoURI) throws GitAPIException {
-        LOGGER.info("Repo already cloned, pulling files...");
-        git.pull().call();
-        LOGGER.info("Pulled the latest files.");
+    public synchronized void pullRepo(final Git git) {
+        try {
+            LOGGER.info("Repo already cloned, pulling files...");
+            git.pull().call();
+            LOGGER.info("Pulled the latest files.");
+        } catch (final GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 
-    public synchronized void cloneRepo(final Git git, final String pathAbsolutePythonRepo,
-                                       final String repoURI) throws GitAPIException, IOException {
-        Git.open(new File(pathAbsolutePythonRepo));
-        LOGGER.info("Cloning repo...");
-        Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
+    public synchronized void cloneRepo(final String pathAbsolutePythonRepo,
+                                       final String repoURI) {
+        try {
+            LOGGER.info("Cloning repo...");
+            Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
+            LOGGER.info("Cloned the repo");
+        } catch (final GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 }
