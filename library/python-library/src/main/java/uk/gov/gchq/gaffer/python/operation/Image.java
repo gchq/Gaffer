@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.python.operation;
 
-package uk.gov.gchq.gaffer.script.operation;
+public interface Image {
 
-public interface Container {
-
-    void start(ImagePlatform platform);
-
-    void sendData(Iterable data, Integer port);
-
-    StringBuilder receiveData();
-
-    void close();
-
+    String getImageString();
 }

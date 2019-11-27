@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2016-2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation;
 
-import java.util.Map;
+package uk.gov.gchq.gaffer.python.operation;
 
-public interface ImagePlatform {
-
-    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
-
-    void startContainer(Container container);
-
-    StringBuilder runContainer(Container container, Iterable inputData);
+public interface ScriptProvider {
+    void getScripts(String absoluteRepoPath,
+                    String repoURI);
 }

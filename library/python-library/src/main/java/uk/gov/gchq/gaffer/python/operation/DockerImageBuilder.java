@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.script.operation;
+package uk.gov.gchq.gaffer.python.operation;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;

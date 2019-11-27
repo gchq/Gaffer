@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2019 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.script.operation;
+package uk.gov.gchq.gaffer.python.operation;
 
-public interface ScriptProvider {
-    void getScripts(String absoluteRepoPath,
-                    String repoURI);
+/**
+ * A {@code PortGenerator} returns a port number. This may or may not be a free port number due to the race condition.
+ */
+public interface PortGenerator {
+
+    /**
+     * @return a port number.
+     */
+    Integer generatePort();
 }

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation.handler;
+package uk.gov.gchq.gaffer.python.operation.handler;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.script.operation.RunScript;
+import uk.gov.gchq.gaffer.python.operation.RunScript;
 
 import java.util.ArrayList;
 import java.util.HashMap;

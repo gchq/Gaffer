@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation;
+package uk.gov.gchq.gaffer.python.operation;
 
-public interface Image {
+import java.util.Map;
 
-    String getImageString();
+public interface ImagePlatform {
+
+    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
+
+    void startContainer(Container container);
+
+    StringBuilder runContainer(Container container, Iterable inputData);
 }

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation.handler;
+package uk.gov.gchq.gaffer.python.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.script.operation.Container;
-import uk.gov.gchq.gaffer.script.operation.GitScriptProvider;
-import uk.gov.gchq.gaffer.script.operation.ImagePlatform;
-import uk.gov.gchq.gaffer.script.operation.LocalDockerPlatform;
-import uk.gov.gchq.gaffer.script.operation.RunScript;
-import uk.gov.gchq.gaffer.script.operation.ScriptProvider;
+import uk.gov.gchq.gaffer.python.operation.Container;
+import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
+import uk.gov.gchq.gaffer.python.operation.ImagePlatform;
+import uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform;
+import uk.gov.gchq.gaffer.python.operation.RunScript;
+import uk.gov.gchq.gaffer.python.operation.ScriptProvider;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;

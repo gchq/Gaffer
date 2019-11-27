@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation;
+package uk.gov.gchq.gaffer.python.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;

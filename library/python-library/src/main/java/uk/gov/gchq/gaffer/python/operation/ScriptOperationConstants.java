@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.script.operation;
+package uk.gov.gchq.gaffer.python.operation;
 
-public class DockerImage implements Image {
+public final class ScriptOperationConstants {
 
-    private String imageString;
-
-    public DockerImage(final String imageString) {
-        this.imageString = imageString;
+    private ScriptOperationConstants() {
+        // Private constructor to hide default public one
     }
+    // Review need for this class after restructure
+    // remove this
 
-    @Override
-    public String getImageString() {
-        return imageString;
-    }
+    public static final String LOCALHOST = "127.0.0.1";
+
+    public static final Integer ONE_SECOND = 1000;
+    public static final Integer TIMEOUT_100 = 100;
+    public static final Integer TIMEOUT_200 = 200;
+    public static final Integer MAX_BYTES = 65000;
+    public static final Integer MAX_TRIES = 100;
 }
