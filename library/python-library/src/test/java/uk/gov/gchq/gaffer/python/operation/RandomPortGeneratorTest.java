@@ -31,7 +31,7 @@ public class RandomPortGeneratorTest {
         portResult = RandomPortGenerator.getInstance().generatePort();
 
         // Then
-        Assert.assertTrue(portResult < PythonTestConstants.MAX_PORT && portResult > PythonTestConstants.MIN_PORT);
+        Assert.assertTrue(portResult < ScriptTestConstants.MAX_PORT && portResult > ScriptTestConstants.MIN_PORT);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class RandomPortGeneratorTest {
         // Then
         for (int i = 0; i < 100; i++) {
             int currentPort = portResults.get(i);
-            Assert.assertTrue(currentPort < PythonTestConstants.MAX_PORT && currentPort > PythonTestConstants.MIN_PORT);
+            Assert.assertTrue(currentPort < ScriptTestConstants.MAX_PORT && currentPort > ScriptTestConstants.MIN_PORT);
         }
     }
 }

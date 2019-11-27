@@ -54,7 +54,7 @@ public class SendAndGetDataFromContainerTest {
 
     private void setupTestServer() {
         Runnable serverTask = () -> {
-            try (ServerSocket serverSocket = new ServerSocket(PythonTestConstants.TEST_SERVER_PORT_3)) {
+            try (ServerSocket serverSocket = new ServerSocket(ScriptTestConstants.TEST_SERVER_PORT_3)) {
                 System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected.");

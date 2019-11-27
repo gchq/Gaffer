@@ -15,24 +15,19 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+public final class ScriptTestConstants {
 
-public final class DockerFileUtils {
-
-    private DockerFileUtils() {
+    private ScriptTestConstants() {
         // Private constructor to hide default public one
     }
 
-    public static Path getPathAbsolutePythonRepo(String directoryPath, String repoName) {
-        DockerImageBuilder bIFD = new DockerImageBuilder();
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        return pathAbsolutePythonRepo;
-    }
-
+    public static final String LOCALHOST = "127.0.0.1";
+    public static final String REPO_URI = "https://github.com/g609bmsma/test";
+    public static final String REPO_NAME = "test";
+    public static final String CURRENT_WORKING_DIRECTORY = "/src/main/resources/.ScriptBin";
+    public static final Integer MAX_PORT = 65535;
+    public static final Integer MIN_PORT = 50000;
+    public static final Integer TEST_SERVER_PORT_1 = 7788;
+    public static final Integer TEST_SERVER_PORT_2 = 7789;
+    public static final Integer TEST_SERVER_PORT_3 = 7790;
 }
