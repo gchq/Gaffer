@@ -55,25 +55,17 @@ public class DockerImageBuilder implements ImageBuilder {
                         final Object dockerObject, final String pathToBuildFiles) {
 
         DockerClient docker = (DockerClient) dockerObject;
-        // Build an image from the Dockerfile
-        String params = " ";
-        if (scriptParameters != null) {
-            Map<String, String> stringParameters = new HashMap<>();
 
-            for (final String parameterName: scriptParameters.keySet()) {
-                if (scriptParameters.get(parameterName) != null) {
-                    stringParameters.put(parameterName, scriptParameters.get(parameterName).toString());
-                }
-            }
-            params = new Gson().toJson(stringParameters).replaceAll("\"", "'");
-        }
+        // Convert the script parameters into a string
+        String params = stringifyParameters(scriptParameters);
 
+        // Create the build arguments
         StringBuilder buildargs = new StringBuilder();
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\",");
-
         LOGGER.info(String.valueOf(buildargs));
+
         DockerClient.BuildParam buildParam = null;
         try {
             buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
@@ -81,10 +73,11 @@ public class DockerImageBuilder implements ImageBuilder {
             e.printStackTrace();
         }
 
+        // Build an image from the Dockerfile
         LOGGER.info("Building the image from the Dockerfile...");
-        final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
         LOGGER.info("Absolute repo path: " + Paths.get(pathToBuildFiles).toString());
         try {
+            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
             return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
                     "scriptoperation:" + scriptName, "Dockerfile", message -> {
                 final String imageId = message.buildImageId();
@@ -130,5 +123,20 @@ public class DockerImageBuilder implements ImageBuilder {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String stringifyParameters(final Map<String, Object> scriptParameters) {
+        String params = " ";
+        if (scriptParameters != null) {
+            Map<String, String> stringParameters = new HashMap<>();
+
+            for (final String parameterName: scriptParameters.keySet()) {
+                if (scriptParameters.get(parameterName) != null) {
+                    stringParameters.put(parameterName, scriptParameters.get(parameterName).toString());
+                }
+            }
+            params = new Gson().toJson(stringParameters).replaceAll("\"", "'");
+        }
+        return params;
     }
 }
