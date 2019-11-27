@@ -63,7 +63,7 @@ public class DockerImageBuilder implements ImageBuilder {
         StringBuilder buildargs = new StringBuilder();
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
-        buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\",");
+        buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
         LOGGER.info(String.valueOf(buildargs));
 
         DockerClient.BuildParam buildParam = null;
