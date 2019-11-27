@@ -18,12 +18,10 @@ package uk.gov.gchq.gaffer.python.operation;
 
 public interface Container {
 
-    void start(ImagePlatform platform);
-
     void sendData(Iterable data, Integer port);
 
     StringBuilder receiveData();
 
-    void close();
+    String getContainerId();
 
 }

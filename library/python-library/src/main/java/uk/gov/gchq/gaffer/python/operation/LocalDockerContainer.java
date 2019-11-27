@@ -30,11 +30,10 @@ import java.net.Socket;
 public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
     private Socket clientSocket = null;
+    private String containerId;
 
-    // ask about our approach
-    @Override
-    public void start(final ImagePlatform docker) {
-        docker.startContainer(this);
+    public LocalDockerContainer(final String containerId) {
+        this.containerId = containerId;
     }
 
     @Override
@@ -123,22 +122,17 @@ public class LocalDockerContainer implements Container {
                 LOGGER.info(e.getMessage());
             }
         }
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return dataReceived;
     }
 
-    // remove start and close from container
-    // fix close to actually stop the container
-
     @Override
-    public void close() {
-        // Close the socket
-        if (clientSocket != null) {
-            try {
-                clientSocket.close();
-            } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
-            }
-        }
+    public String getContainerId() {
+        return containerId;
     }
 
     private DataInputStream getInputStream(final Socket clientSocket) throws IOException {
