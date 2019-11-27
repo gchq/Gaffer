@@ -41,12 +41,12 @@ public class LocalDockerPlatform implements ImagePlatform {
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
     private final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
     private DockerClient docker = null;
-    private String containerId = null;
     private String dockerfilePath = "";
     private int port;
 
     @Override
     public Container createContainer(final String scriptName, final Map<String, Object> scriptParameters, final String directoryPath, final String ip) {
+        String containerId = "";
         try {
             dockerImageBuilder.getFiles(directoryPath, dockerfilePath);
             // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
@@ -81,28 +81,36 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerCertificateException | InterruptedException | DockerException e) {
             e.printStackTrace();
         }
-        return new LocalDockerContainer();
+        return new LocalDockerContainer(containerId);
     }
 
-    @Override
-    public void startContainer(final Container container) {
+    private void startContainer(final Container container) {
         // Start the container
         for (int i = 0; i < 100; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
-                docker.startContainer(containerId);
+                docker.startContainer(container.getContainerId());
                 break;
             } catch (final DockerException | InterruptedException ignored) {
             }
         }
     }
 
+    private void closeContainer(Container container) {
+        try {
+            LOGGER.info("Closing the Docker container...");
+            docker.waitContainer(container.getContainerId());
+            docker.removeContainer(container.getContainerId());
+        } catch (final DockerException | InterruptedException ignored) {
+        }
+    }
+
     @Override
     public StringBuilder runContainer(final Container container, final Iterable inputData) {
-        container.start(this);
+        startContainer(container);
         container.sendData(inputData, port);
         StringBuilder output = container.receiveData();
-        container.close();
+        closeContainer(container);
         return output;
     }
 

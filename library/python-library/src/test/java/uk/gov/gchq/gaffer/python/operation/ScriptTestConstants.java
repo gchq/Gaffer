@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-public final class PythonTestConstants {
+public final class ScriptTestConstants {
 
-    private PythonTestConstants() {
+    private ScriptTestConstants() {
         // Private constructor to hide default public one
     }
 

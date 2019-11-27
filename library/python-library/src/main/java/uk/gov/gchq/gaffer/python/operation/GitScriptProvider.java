@@ -48,10 +48,10 @@ public class GitScriptProvider implements ScriptProvider {
         }
     }
 
-    private synchronized void cloneRepo(final String pathAbsolutePythonRepo, final String repoURI) {
+    private synchronized void cloneRepo(final String pathAbsoluteScriptRepo, final String repoURI) {
         try {
             LOGGER.info("Cloning repo...");
-            Git.cloneRepository().setDirectory(new File(pathAbsolutePythonRepo)).setURI(repoURI).call();
+            Git.cloneRepository().setDirectory(new File(pathAbsoluteScriptRepo)).setURI(repoURI).call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
             e.printStackTrace();

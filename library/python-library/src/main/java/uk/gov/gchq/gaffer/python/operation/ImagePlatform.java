@@ -21,7 +21,5 @@ public interface ImagePlatform {
 
     Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
 
-    void startContainer(Container container);
-
     StringBuilder runContainer(Container container, Iterable inputData);
 }

@@ -34,9 +34,9 @@ public class GitScriptProviderTest {
         GitScriptProvider pOrC = new GitScriptProvider();
         Git git = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENT_WORKING_DIRECTORY);
+        final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
 
-        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPO_NAME);
+        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         final RunScript<String, String> operation =
                 new RunScript.Builder<String, String>()
@@ -44,8 +44,8 @@ public class GitScriptProviderTest {
 
 
         // When
-        pOrC.getScripts(pathAbsolutePythonRepo.toString(), PythonTestConstants.REPO_URI);
-        String[] files = pathAbsolutePythonRepo.toFile().list();
+        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        String[] files = pathAbsoluteScriptRepo.toFile().list();
 
         // Then
         Assert.assertNotNull(files);
@@ -57,9 +57,9 @@ public class GitScriptProviderTest {
         GitScriptProvider pOrC = new GitScriptProvider();
         Git git = mock(Git.class);
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(PythonTestConstants.CURRENT_WORKING_DIRECTORY);
+        final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
 
-        Path pathAbsolutePythonRepo = DockerFileUtils.getPathAbsolutePythonRepo(directoryPath, PythonTestConstants.REPO_NAME);
+        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         final RunScript<String, String> operation =
                 new RunScript.Builder<String, String>()
@@ -70,7 +70,7 @@ public class GitScriptProviderTest {
         });
 
         // Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsolutePythonRepo.toString(), PythonTestConstants.REPO_URI));
+        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
     }

@@ -25,14 +25,14 @@ public final class DockerFileUtils {
         // Private constructor to hide default public one
     }
 
-    public static Path getPathAbsolutePythonRepo(String directoryPath, String repoName) {
+    public static Path getPathAbsoluteScriptRepo(String directoryPath, String repoName) {
         DockerImageBuilder bIFD = new DockerImageBuilder();
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdir();
         }
-        final Path pathAbsolutePythonRepo = Paths.get(directoryPath, repoName);
-        return pathAbsolutePythonRepo;
+        final Path pathAbsoluteScriptRepo = Paths.get(directoryPath, repoName);
+        return pathAbsoluteScriptRepo;
     }
 
 }
