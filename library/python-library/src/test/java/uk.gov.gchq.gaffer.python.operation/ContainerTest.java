@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,27 +26,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class SendAndGetDataFromContainerTest {
+
+public class ContainerTest {
 
     @Test
     public void shouldCreateContainer() {
         // Given
         setupTestServer();
-        SendAndGetDataFromContainer sUACC = new SendAndGetDataFromContainer();
-        final RunScript<String, String> runScript =
-                new RunScript.Builder<String, String>()
-                        .build();
+        LocalDockerContainer localDockerContainer = new LocalDockerContainer();
         ArrayList<String> inputData = new ArrayList<>();
         inputData.add("Test Data");
-        runScript.setInput(inputData);
 
         // When
         StringBuilder result = null;
         try {
-            result = sUACC.setUpAndCloseContainer(runScript, "7790");
-        } catch (InterruptedException | IOException e) {
+            localDockerContainer.sendData(inputData, PythonTestConstants.TEST_SERVER_PORT_3);
+            result = localDockerContainer.receiveData();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        localDockerContainer.close();
 
         // Then
         assert result != null;
@@ -55,19 +56,19 @@ public class SendAndGetDataFromContainerTest {
     private void setupTestServer() {
         Runnable serverTask = () -> {
             try (ServerSocket serverSocket = new ServerSocket(PythonTestConstants.TEST_SERVER_PORT_3)) {
-                System.out.println("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected.");
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
                 dos.writeBoolean(true);
+                dos.flush();
+                dis.readUTF();
                 dis.readUTF();
                 dos.writeInt(1);
                 dos.writeUTF("Test Complete");
-                serverSocket.close();
-                System.out.println("Closing Socket.");
+                dos.flush();
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
+                System.out.println("Unable to process client request");
                 e.printStackTrace();
             }
         };

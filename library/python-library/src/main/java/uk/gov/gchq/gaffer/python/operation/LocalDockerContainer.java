@@ -40,6 +40,7 @@ public class LocalDockerContainer implements Container {
     @Override
     public void sendData(final Iterable data, final Integer port) {
         LOGGER.info("Attempting to connect with the container...");
+
         sleep(ScriptOperationConstants.ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
@@ -52,7 +53,6 @@ public class LocalDockerContainer implements Container {
                 // Check the container is ready
                 DataInputStream inputStream = getInputStream(clientSocket);
                 LOGGER.info("Container ready status: {}", inputStream.readBoolean());
-                inputStream.close();
 
                 // Send the data
                 OutputStream outToContainer = clientSocket.getOutputStream();
@@ -68,6 +68,7 @@ public class LocalDockerContainer implements Container {
                 }
                 outputStream.writeUTF("]");
                 LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
+
                 outputStream.flush();
                 break;
             } catch (final IOException e) {
@@ -122,6 +123,11 @@ public class LocalDockerContainer implements Container {
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
             }
+        }
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return dataReceived;
     }
