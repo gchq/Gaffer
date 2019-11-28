@@ -18,9 +18,6 @@ ENV scriptName $scriptName
 ARG scriptParameters
 ENV scriptParameters $scriptParameters
 
-ARG scriptInputType
-ENV scriptInputType $scriptInputType
-
 COPY test/$scriptName.py /
 
-ENTRYPOINT "python" "entrypoint.py" $scriptName $scriptParameters $scriptInputType
+ENTRYPOINT "python" "entrypoint.py" $scriptName $scriptParameters
