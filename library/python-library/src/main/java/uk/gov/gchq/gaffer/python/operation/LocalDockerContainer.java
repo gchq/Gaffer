@@ -29,6 +29,14 @@ import java.net.Socket;
 
 public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
+
+    private static final String LOCALHOST = "127.0.0.1";
+    private static final Integer ONE_SECOND = 1000;
+    private static final Integer TIMEOUT_100 = 100;
+    private static final Integer TIMEOUT_200 = 200;
+    private static final Integer MAX_BYTES = 65000;
+    private static final Integer MAX_TRIES = 100;
+
     private Socket clientSocket = null;
     private String containerId;
 
@@ -40,13 +48,13 @@ public class LocalDockerContainer implements Container {
     public void sendData(final Iterable data, final Integer port) {
         LOGGER.info("Attempting to connect with the container...");
 
-        sleep(ScriptOperationConstants.ONE_SECOND);
+        sleep(ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
-        for (int i = 0; i < ScriptOperationConstants.MAX_TRIES; i++) {
+        for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 // Connect to the container
-                clientSocket = new Socket(ScriptOperationConstants.LOCALHOST, port);
+                clientSocket = new Socket(LOCALHOST, port);
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
 
                 // Check the container is ready
@@ -72,7 +80,7 @@ public class LocalDockerContainer implements Container {
                 break;
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
-                sleep(ScriptOperationConstants.TIMEOUT_100);
+                sleep(TIMEOUT_100);
             }
         }
     }
@@ -92,7 +100,7 @@ public class LocalDockerContainer implements Container {
         Exception error = null;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;
-            while (tries < ScriptOperationConstants.TIMEOUT_100) {
+            while (tries < TIMEOUT_100) {
                 try {
                     incomingDataLength = inputStream.readInt();
                     LOGGER.info("Length of container...{}", incomingDataLength);
@@ -101,7 +109,7 @@ public class LocalDockerContainer implements Container {
                 } catch (final IOException e) {
                     tries += 1;
                     error = e;
-                    sleep(ScriptOperationConstants.TIMEOUT_200);
+                    sleep(TIMEOUT_200);
                 }
             }
         }
@@ -115,7 +123,7 @@ public class LocalDockerContainer implements Container {
             }
         } else {
             try {
-                for (int i = 0; i < incomingDataLength / ScriptOperationConstants.MAX_BYTES; i++) {
+                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());
@@ -124,6 +132,7 @@ public class LocalDockerContainer implements Container {
             }
         }
         try {
+            assert inputStream != null;
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
