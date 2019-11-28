@@ -39,6 +39,8 @@ public class LocalDockerContainer implements Container {
 
     private Socket clientSocket = null;
     private String containerId;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
     private int port;
 
     public LocalDockerContainer(final String containerId, final int port) {
@@ -53,6 +55,7 @@ public class LocalDockerContainer implements Container {
         sleep(ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
+        Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 // Connect to the container
@@ -60,12 +63,12 @@ public class LocalDockerContainer implements Container {
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
 
                 // Check the container is ready
-                DataInputStream inputStream = getInputStream(clientSocket);
+                inputStream = getInputStream(clientSocket);
                 LOGGER.info("Container ready status: {}", inputStream.readBoolean());
 
                 // Send the data
                 OutputStream outToContainer = clientSocket.getOutputStream();
-                DataOutputStream outputStream = new DataOutputStream(outToContainer);
+                outputStream = new DataOutputStream(outToContainer);
                 boolean firstObject = true;
                 for (final Object current : data) {
                     if (firstObject) {
@@ -82,20 +85,18 @@ public class LocalDockerContainer implements Container {
                 break;
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
+                error = e;
                 sleep(TIMEOUT_100);
             }
+        }
+        if (error != null) {
+            error.printStackTrace();
         }
     }
 
     @Override
     public StringBuilder receiveData() {
         // First get the length of the data coming from the container. Keep trying until the container is ready.
-        DataInputStream inputStream = null;
-        try {
-            inputStream = getInputStream(clientSocket);
-        } catch (final IOException e) {
-            LOGGER.info(e.getMessage());
-        }
         LOGGER.info("Inputstream is: {}", inputStream);
         int incomingDataLength = 0;
         boolean failedToConnect = true;
