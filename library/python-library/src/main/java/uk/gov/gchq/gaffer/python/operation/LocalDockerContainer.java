@@ -39,13 +39,15 @@ public class LocalDockerContainer implements Container {
 
     private Socket clientSocket = null;
     private String containerId;
+    private int port;
 
-    public LocalDockerContainer(final String containerId) {
+    public LocalDockerContainer(final String containerId, final int port) {
         this.containerId = containerId;
+        this.port = port;
     }
 
     @Override
-    public void sendData(final Iterable data, final Integer port) {
+    public void sendData(final Iterable data) {
         LOGGER.info("Attempting to connect with the container...");
 
         sleep(ONE_SECOND);
@@ -143,6 +145,11 @@ public class LocalDockerContainer implements Container {
     @Override
     public String getContainerId() {
         return containerId;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     private DataInputStream getInputStream(final Socket clientSocket) throws IOException {

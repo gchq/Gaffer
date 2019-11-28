@@ -33,14 +33,14 @@ public class ContainerTest {
         // Given
         setupTestServer();
 
-        LocalDockerContainer localDockerContainer = new LocalDockerContainer("");
+        LocalDockerContainer localDockerContainer = new LocalDockerContainer("", ScriptTestConstants.TEST_SERVER_PORT_3);
         ArrayList<String> inputData = new ArrayList<>();
         inputData.add("Test Data");
 
         // When
         StringBuilder result = null;
         try {
-            localDockerContainer.sendData(inputData, ScriptTestConstants.TEST_SERVER_PORT_3);
+            localDockerContainer.sendData(inputData);
             result = localDockerContainer.receiveData();
         } catch (Exception e) {
             e.printStackTrace();
