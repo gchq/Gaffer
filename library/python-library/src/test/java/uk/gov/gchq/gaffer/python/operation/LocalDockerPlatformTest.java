@@ -80,6 +80,6 @@ public class LocalDockerPlatformTest {
         StringBuilder result = platform.runContainer(container, data);
 
         // Then
-        Assert.assertEquals("[\"testData\"]",result.toString());
+        Assert.assertEquals("[\"testData\"]", result.toString());
     }
 }

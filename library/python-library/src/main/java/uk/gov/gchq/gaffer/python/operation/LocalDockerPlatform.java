@@ -96,7 +96,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         }
     }
 
-    private void closeContainer(Container container) {
+    private void closeContainer(final Container container) {
         try {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
