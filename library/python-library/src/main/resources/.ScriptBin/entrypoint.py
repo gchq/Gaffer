@@ -8,17 +8,18 @@ from ast import literal_eval
 
 from DataInputStream import DataInputStream
 
-# Dynamically import the script
+# Get the script name and dynamically import the script
 scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
+
+# Get the script parameters
 scriptParameters = sys.argv[2]
 try:
     dictParameters = literal_eval(scriptParameters)
 except SyntaxError:
     dictParameters = dict()
 print('scriptParams is ', scriptParameters)
-scriptInputType = sys.argv[3]
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
@@ -48,30 +49,34 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     currentPayload = dis.read_utf()
                     rawData += currentPayload
 
-            # Convert data into the right form based on scriptInputType
-            if scriptInputType == 'DATAFRAME':
-                data = pandas.read_json(rawData, orient="records", dtype="Object")
-            elif scriptInputType == 'JSON':
-                data = rawData.decode('utf-8')
+            # Decode the data
+            data = rawData.decode('utf-8')
 
             # Run the script passing in the parameters
-            data = scriptName.run(data, dictParameters)
-
-            # Convert the data back into JSON
-            print('type of output data before is: ', type(data))
-            print('type of dataframe is: ', type(pandas.DataFrame([0])))
-            if isinstance(data, type(pandas.DataFrame([0]))):
-                data = pandas.DataFrame.to_json(data, orient="records")
+            error = None
+            try:
+                data = scriptName.run(data, dictParameters)
+            except Error as error:
+                print(error)
+                print('Failure while running the script.')
+                data = None
 
             # Send the results back to the server
-            print('type of output data is: ', type(data))
-            i = 0
-            conn.sendall(struct.pack('>i', len(data)))
-            if len(data) > 65000:
-                splitData = re.findall(('.' * 65000), data)
-                while i < (len(data) / 65000) - 1:
-                    conn.sendall(struct.pack('>H', 65000))
-                    conn.sendall(splitData[i].encode('utf-8'))
-                    i += 1
-            conn.sendall(struct.pack('>H', len(data) % 65000))
-            conn.sendall(data[65000 * i:].encode('utf-8'))
+            if (data != None):
+                 print('type of output data is: ', type(data))
+                 i = 0
+                 conn.sendall(struct.pack('>i', len(data)))
+                 if len(data) > 65000:
+                     splitData = re.findall(('.' * 65000), data)
+                     while i < (len(data) / 65000) - 1:
+                         conn.sendall(struct.pack('>H', 65000))
+                         conn.sendall(splitData[i].encode('utf-8'))
+                         i += 1
+                 conn.sendall(struct.pack('>H', len(data) % 65000))
+                 conn.sendall(data[65000 * i:].encode('utf-8'))
+             else:
+                 conn.sendall(struct.pack('>i', 130000))
+                 conn.sendall(struct.pack('>H', 65000))
+                 conn.sendall('Error'.encode('utf-8'))
+                 conn.sendall(struct.pack('>H', 65000))
+                 conn.sendall(error.encode('utf-8'))
