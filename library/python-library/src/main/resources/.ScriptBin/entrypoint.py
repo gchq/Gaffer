@@ -74,7 +74,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                          i += 1
                  conn.sendall(struct.pack('>H', len(data) % 65000))
                  conn.sendall(data[65000 * i:].encode('utf-8'))
-             else:
+            else:
                  conn.sendall(struct.pack('>i', 130000))
                  conn.sendall(struct.pack('>H', 65000))
                  conn.sendall('Error'.encode('utf-8'))
