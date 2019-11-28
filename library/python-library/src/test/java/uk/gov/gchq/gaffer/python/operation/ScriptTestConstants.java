@@ -23,12 +23,10 @@ public final class ScriptTestConstants {
 
     public static final String LOCALHOST = "127.0.0.1";
     public static final String REPO_URI = "https://github.com/g609bmsma/test";
-    public static final String REPO_NAME = ".ScriptBin/test";
+    public static final String REPO_NAME = "test";
     public static final String SCRIPT_NAME = "script1";
     public static final String CURRENT_WORKING_DIRECTORY = "/src/main/resources/.ScriptBin";
     public static final Integer MAX_PORT = 65535;
     public static final Integer MIN_PORT = 50000;
-    public static final Integer TEST_SERVER_PORT_1 = 7788;
-    public static final Integer TEST_SERVER_PORT_2 = 7789;
     public static final Integer TEST_SERVER_PORT_3 = 7790;
 }

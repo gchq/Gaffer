@@ -15,37 +15,25 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class GitScriptProviderTest {
 
     @Test
     public void shouldCloneIfNotAlreadyCloned() {
         // Given
-        GitScriptProvider pOrC = new GitScriptProvider();
-        Git git = null;
+        final GitScriptProvider gsp = new GitScriptProvider();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
-
-        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-
-        final RunScript<String, String> operation =
-                new RunScript.Builder<String, String>()
-                        .build();
-
+        final Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         // When
-        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        String[] files = pathAbsoluteScriptRepo.toFile().list();
+        gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        final String[] files = pathAbsoluteScriptRepo.toFile().list();
 
         // Then
         Assert.assertNotNull(files);
@@ -54,25 +42,16 @@ public class GitScriptProviderTest {
     @Test
     public void shouldPullIfAlreadyCloned() {
         // Given
-        GitScriptProvider pOrC = new GitScriptProvider();
-        Git git = mock(Git.class);
+        GitScriptProvider gsp = new GitScriptProvider();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
 
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
-        final RunScript<String, String> operation =
-                new RunScript.Builder<String, String>()
-                        .build();
-
-        // When
-        when(git.pull()).thenThrow(new NullPointerException("Pull method called") {
-        });
-
-        // Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI));
-        Assert.assertEquals("Pull method called", exception.getMessage());
-
+        //When
+        for (int i = 0; i < 2; i++) {
+            gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        }
     }
 }
 

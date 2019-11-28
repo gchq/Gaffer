@@ -81,7 +81,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerCertificateException | InterruptedException | DockerException e) {
             e.printStackTrace();
         }
-        return new LocalDockerContainer(containerId);
+        return new LocalDockerContainer(containerId, port);
     }
 
     private void startContainer(final Container container) {
@@ -108,7 +108,7 @@ public class LocalDockerPlatform implements ImagePlatform {
     @Override
     public StringBuilder runContainer(final Container container, final Iterable inputData) {
         startContainer(container);
-        container.sendData(inputData, port);
+        container.sendData(inputData);
         StringBuilder output = container.receiveData();
         closeContainer(container);
         return output;

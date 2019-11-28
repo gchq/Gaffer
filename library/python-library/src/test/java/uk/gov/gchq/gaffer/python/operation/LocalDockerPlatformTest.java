@@ -41,13 +41,11 @@ public class LocalDockerPlatformTest {
         // Given
         LocalDockerPlatform platform = new LocalDockerPlatform();
         String scriptName = "script1";
-        Map<String, Object> scriptParameters = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
-        String ip = "127.0.0.1";
 
         // When
-        Container container = platform.createContainer(scriptName, scriptParameters, directoryPath, ip);
+        Container container = platform.createContainer(scriptName, null, directoryPath, ScriptTestConstants.LOCALHOST);
 
         // Then
         Assert.assertTrue(container instanceof LocalDockerContainer);
