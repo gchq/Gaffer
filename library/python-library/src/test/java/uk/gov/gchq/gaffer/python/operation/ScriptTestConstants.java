@@ -28,7 +28,5 @@ public final class ScriptTestConstants {
     public static final String CURRENT_WORKING_DIRECTORY = "/src/main/resources/.ScriptBin";
     public static final Integer MAX_PORT = 65535;
     public static final Integer MIN_PORT = 50000;
-    public static final Integer TEST_SERVER_PORT_1 = 7788;
-    public static final Integer TEST_SERVER_PORT_2 = 7789;
     public static final Integer TEST_SERVER_PORT_3 = 7790;
 }
