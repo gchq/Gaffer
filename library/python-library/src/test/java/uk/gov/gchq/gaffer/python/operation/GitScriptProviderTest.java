@@ -26,36 +26,32 @@ public class GitScriptProviderTest {
     @Test
     public void shouldCloneIfNotAlreadyCloned() {
         // Given
-        final GitScriptProvider pOrC = new GitScriptProvider();
+        final GitScriptProvider gsp = new GitScriptProvider();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         final Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         // When
-        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
         final String[] files = pathAbsoluteScriptRepo.toFile().list();
 
         // Then
         Assert.assertNotNull(files);
     }
 
-    /*@Test
+    @Test
     public void shouldPullIfAlreadyCloned() {
         // Given
-        GitScriptProvider pOrC = new GitScriptProvider();
-        Git git = mock(Git.class);
+        GitScriptProvider gsp = new GitScriptProvider();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
 
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
-        // When
-
-
-        // Then
-        Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI));
-        Assert.assertEquals("Pull method called", exception.getMessage());
-
-    }*/
+        //When
+        for (int i = 0; i < 2; i++) {
+            gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        }
+    }
 }
 
