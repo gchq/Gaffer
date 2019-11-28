@@ -24,7 +24,7 @@
         <version>1.10.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>python-library</artifactId>
+    <artifactId>script-library</artifactId>
 
     <dependencies>
         <!-- Gaffer dependencies -->
