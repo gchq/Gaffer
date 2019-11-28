@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.generator;
 
 import uk.gov.gchq.koryphe.Summary;
 

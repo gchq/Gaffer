@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.platform;
 
 import com.google.common.collect.ImmutableMap;
 import com.spotify.docker.client.DefaultDockerClient;
@@ -29,7 +29,12 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.python.operation.generator.RandomPortGenerator;
+import uk.gov.gchq.gaffer.python.operation.builder.DockerImageBuilder;
+import uk.gov.gchq.gaffer.python.operation.container.Container;
+import uk.gov.gchq.gaffer.python.operation.container.LocalDockerContainer;
 import uk.gov.gchq.gaffer.python.operation.handler.RunScriptHandler;
+import uk.gov.gchq.gaffer.python.operation.image.DockerImage;
 
 import java.util.Collections;
 import java.util.List;

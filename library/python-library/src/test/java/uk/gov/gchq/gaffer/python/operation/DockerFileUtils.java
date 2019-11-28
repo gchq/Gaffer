@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
+import uk.gov.gchq.gaffer.python.operation.builder.DockerImageBuilder;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;

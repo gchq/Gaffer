@@ -13,16 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.python.operation.image;
 
-package uk.gov.gchq.gaffer.python.operation;
+public interface Image {
 
-/**
- * A {@code PortGenerator} returns a port number. This may or may not be a free port number due to the race condition.
- */
-public interface PortGenerator {
-
-    /**
-     * @return a port number.
-     */
-    Integer generatePort();
+    String getImageString();
 }

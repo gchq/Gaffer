@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.builder;
 
-public class DockerImage implements Image {
+import uk.gov.gchq.gaffer.python.operation.image.Image;
 
-    private String imageString;
+import java.util.Map;
 
-    public DockerImage(final String imageString) {
-        this.imageString = imageString;
-    }
+public interface ImageBuilder {
 
-    @Override
-    public String getImageString() {
-        return imageString;
-    }
+    // Ask whether builderObject is an acceptable approach
+
+    Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
+                     final Object builderObject, final String pathToBuildFiles);
 }

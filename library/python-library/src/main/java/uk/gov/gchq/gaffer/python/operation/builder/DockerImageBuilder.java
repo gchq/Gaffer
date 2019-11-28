@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.builder;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;
@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.python.operation.image.DockerImage;
+import uk.gov.gchq.gaffer.python.operation.image.Image;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,7 +54,7 @@ public class DockerImageBuilder implements ImageBuilder {
 
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                        final Object dockerObject, final String pathToBuildFiles) {
+                            final Object dockerObject, final String pathToBuildFiles) {
 
         DockerClient docker = (DockerClient) dockerObject;
 

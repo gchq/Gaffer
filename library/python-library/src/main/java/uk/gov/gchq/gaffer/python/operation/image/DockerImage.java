@@ -13,9 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.image;
 
-public interface Image {
+import uk.gov.gchq.gaffer.python.operation.image.Image;
 
-    String getImageString();
+public class DockerImage implements Image {
+
+    private String imageString;
+
+    public DockerImage(final String imageString) {
+        this.imageString = imageString;
+    }
+
+    @Override
+    public String getImageString() {
+        return imageString;
+    }
 }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.container;
 
 
 import org.junit.Assert;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.python.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.python.operation.container.LocalDockerContainer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

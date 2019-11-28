@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.container;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.platform;
+
+import uk.gov.gchq.gaffer.python.operation.container.Container;
 
 import java.util.Map;
 
-public interface ImageBuilder {
+public interface ImagePlatform {
 
-    // Ask whether builderObject is an acceptable approach
+    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
 
-    Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                     final Object builderObject, final String pathToBuildFiles);
+    StringBuilder runContainer(Container container, Iterable inputData);
 }

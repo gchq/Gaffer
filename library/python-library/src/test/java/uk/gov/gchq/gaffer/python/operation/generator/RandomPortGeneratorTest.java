@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.generator;
 
 import org.junit.Assert;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.python.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.python.operation.generator.RandomPortGenerator;
 
 import java.util.ArrayList;
 

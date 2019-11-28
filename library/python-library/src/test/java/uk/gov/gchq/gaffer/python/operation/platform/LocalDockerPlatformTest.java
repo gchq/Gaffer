@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.python.operation;
+package uk.gov.gchq.gaffer.python.operation.platform;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
@@ -22,6 +22,12 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.python.operation.DockerFileUtils;
+import uk.gov.gchq.gaffer.python.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.python.operation.container.Container;
+import uk.gov.gchq.gaffer.python.operation.container.LocalDockerContainer;
+import uk.gov.gchq.gaffer.python.operation.platform.LocalDockerPlatform;
+import uk.gov.gchq.gaffer.python.operation.provider.GitScriptProvider;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;

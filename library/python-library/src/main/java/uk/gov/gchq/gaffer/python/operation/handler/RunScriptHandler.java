@@ -16,12 +16,12 @@
 package uk.gov.gchq.gaffer.python.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.python.operation.Container;
-import uk.gov.gchq.gaffer.python.operation.GitScriptProvider;
-import uk.gov.gchq.gaffer.python.operation.ImagePlatform;
-import uk.gov.gchq.gaffer.python.operation.LocalDockerPlatform;
+import uk.gov.gchq.gaffer.python.operation.container.Container;
+import uk.gov.gchq.gaffer.python.operation.provider.GitScriptProvider;
+import uk.gov.gchq.gaffer.python.operation.platform.ImagePlatform;
+import uk.gov.gchq.gaffer.python.operation.platform.LocalDockerPlatform;
 import uk.gov.gchq.gaffer.python.operation.RunScript;
-import uk.gov.gchq.gaffer.python.operation.ScriptProvider;
+import uk.gov.gchq.gaffer.python.operation.provider.ScriptProvider;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
