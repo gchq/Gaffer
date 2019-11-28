@@ -101,7 +101,8 @@ public class LocalDockerPlatform implements ImagePlatform {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
-        } catch (final DockerException | InterruptedException ignored) {
+        } catch (final DockerException | InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

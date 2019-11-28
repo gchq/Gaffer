@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +49,14 @@ public class LocalDockerPlatformTest {
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
 
         // When
-        Container container = platform.createContainer(scriptName, null, directoryPath, ScriptTestConstants.LOCALHOST);
+        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(scriptName, null, directoryPath, ScriptTestConstants.LOCALHOST);
+
+        try {
+            DockerClient docker = DefaultDockerClient.fromEnv().build();
+            docker.removeContainer(container.getContainerId());
+        } catch (DockerException | InterruptedException | DockerCertificateException e) {
+            e.printStackTrace();
+        }
 
         // Then
         Assert.assertTrue(container instanceof LocalDockerContainer);
