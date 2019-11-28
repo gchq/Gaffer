@@ -59,6 +59,6 @@ public class RunScriptHandlerTest {
 
         // Then
         assert results != null;
-        Assert.assertEquals("[{\"0\":\"{\\\"Test Data\\\"}\"}]", results.toString());
+        Assert.assertEquals("[\"{\\\"Test Data\\\"}\"]", results.toString());
     }
 }
