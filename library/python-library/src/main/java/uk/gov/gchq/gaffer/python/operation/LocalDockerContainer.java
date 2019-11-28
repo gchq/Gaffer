@@ -130,6 +130,10 @@ public class LocalDockerContainer implements Container {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());
+                // Show the error message if the script failed
+                if (dataReceived.subSequence(0,5) == "Error") {
+                    LOGGER.info(dataReceived.subSequence(5,dataReceived.length()).toString());
+                }
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());
             }
