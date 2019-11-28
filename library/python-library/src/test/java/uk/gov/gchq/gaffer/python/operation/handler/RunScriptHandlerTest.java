@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.python.operation.RunScript;
+import uk.gov.gchq.gaffer.python.operation.ScriptTestConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ public class RunScriptHandlerTest {
     public void shouldReturnDataInJSON() {
         // Given
         RunScriptHandler rPSH = new RunScriptHandler();
-        final String scriptName = "script1";
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
         } };
@@ -41,7 +41,7 @@ public class RunScriptHandlerTest {
 
         final RunScript<String, Iterable<? extends String>> runScript =
                 new RunScript.Builder<String, Iterable<? extends String>>()
-                        .scriptName(scriptName)
+                        .scriptName(ScriptTestConstants.SCRIPT_NAME)
                         .scriptParameters(scriptParameters)
                         .build();
 

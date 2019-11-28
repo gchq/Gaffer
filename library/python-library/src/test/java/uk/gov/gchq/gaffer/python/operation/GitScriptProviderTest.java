@@ -15,15 +15,11 @@
  */
 package uk.gov.gchq.gaffer.python.operation;
 
-import org.eclipse.jgit.api.Git;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 public class GitScriptProviderTest {
 
@@ -43,7 +39,7 @@ public class GitScriptProviderTest {
         Assert.assertNotNull(files);
     }
 
-    @Test
+    /*@Test
     public void shouldPullIfAlreadyCloned() {
         // Given
         GitScriptProvider pOrC = new GitScriptProvider();
@@ -60,6 +56,6 @@ public class GitScriptProviderTest {
         Exception exception = assertThrows(NullPointerException.class, () -> pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI));
         Assert.assertEquals("Pull method called", exception.getMessage());
 
-    }
+    }*/
 }
 

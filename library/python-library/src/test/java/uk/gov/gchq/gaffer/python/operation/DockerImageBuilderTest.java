@@ -35,7 +35,6 @@ public class DockerImageBuilderTest {
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
         DockerImageBuilder bIFD = new DockerImageBuilder();
-        System.out.println(pathAbsoluteScriptRepo);
 
         final GitScriptProvider pOrC = new GitScriptProvider();
         pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
