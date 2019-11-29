@@ -43,15 +43,14 @@ public class DockerImageBuilder implements ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
 
     /**
-     * Builds docker image from Dockerfile
+     * Builds a docker image, which runs a script, from a Dockerfile
      *
      * @param scriptName             the name of the script being run
      * @param scriptParameters       the parameters of the script being run
      * @param dockerObject           the docker client the script is being run on
-     * @param pathToBuildFiles       the absolute path for the repo
-     * @return docker image from Dockerfile
+     * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
+     * @return the docker image
      */
-
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                             final Object dockerObject, final String pathToBuildFiles) {
@@ -77,7 +76,7 @@ public class DockerImageBuilder implements ImageBuilder {
 
         // Build an image from the Dockerfile
         LOGGER.info("Building the image from the Dockerfile...");
-        LOGGER.info("Absolute repo path: " + Paths.get(pathToBuildFiles).toString());
+        LOGGER.info("Path to build files: " + Paths.get(pathToBuildFiles).toString());
         try {
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
             return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
@@ -94,10 +93,16 @@ public class DockerImageBuilder implements ImageBuilder {
         return null;
     }
 
+    /**
+     * Copies the files to be used into the build directory.
+     *
+     * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
+     * @param dockerfilePath         the path to the non-default dockerfile
+     */
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
+        // Copy the Dockerfile
         if (dockerfilePath.equals("")) {
-            // Use the default file
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
             createFile("Dockerfile", pathToBuildFiles);
         } else {
@@ -107,6 +112,7 @@ public class DockerImageBuilder implements ImageBuilder {
             final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
             createFile(fileName, pathToBuildFiles, fileLocation);
         }
+        // Copy the rest of the files
         for (final String fileName : fileNames) {
             createFile(fileName, pathToBuildFiles);
         }
@@ -116,6 +122,13 @@ public class DockerImageBuilder implements ImageBuilder {
         createFile(fileName, destination, "/.ScriptBin/");
     }
 
+    /**
+     * Copies a file from the given file location to the given destination
+     *
+     * @param fileName            the filename of the file to copy
+     * @param destination         the destination of the file
+     * @param fileLocation        the original location of the file
+     */
     private void createFile(final String fileName, final String destination, final String fileLocation) {
         try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -127,6 +140,12 @@ public class DockerImageBuilder implements ImageBuilder {
         }
     }
 
+    /**
+     * Converts the script parameters into a JSON string
+     *
+     * @param scriptParameters            the script parameters
+     * @return the JSON string of script parameters
+     */
     private String stringifyParameters(final Map<String, Object> scriptParameters) {
         String params = " ";
         if (scriptParameters != null) {
