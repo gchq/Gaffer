@@ -139,11 +139,13 @@ public class LocalDockerContainer implements Container {
             }
         }
         try {
-            assert inputStream != null;
-            inputStream.close();
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
         } catch (final IOException e) {
             e.printStackTrace();
         }
+
         return dataReceived;
     }
 
