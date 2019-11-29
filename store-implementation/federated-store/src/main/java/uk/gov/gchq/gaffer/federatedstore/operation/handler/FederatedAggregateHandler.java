@@ -44,7 +44,7 @@ public class FederatedAggregateHandler implements OutputOperationHandler<Aggrega
             throws OperationException {
         try {
             return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
-        } catch (SchemaException e) {
+        } catch (final SchemaException e) {
             throw new OperationException("Unable to get the merged schema for the federated store, add graphId to Aggregate operation using option: " + FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
         }
     }
