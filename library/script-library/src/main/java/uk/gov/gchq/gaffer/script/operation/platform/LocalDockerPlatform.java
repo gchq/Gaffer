@@ -118,6 +118,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         container.sendData(inputData);
         StringBuilder output = container.receiveData();
         closeContainer(container);
+        RandomPortGenerator.getInstance().freePort(port);
         return output;
     }
 
