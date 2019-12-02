@@ -27,6 +27,13 @@ import java.io.IOException;
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
+    /**
+     * Gets the scripts from the given GIT repo URI and places
+     * them at the given path
+     *
+     * @param absoluteRepoPath       the path to clone the repo to
+     * @param repoURI                the URI of the GIT repo with the scripts
+     */
     @Override
     public void getScripts(final String absoluteRepoPath,
                            final String repoURI) {
@@ -38,6 +45,11 @@ public class GitScriptProvider implements ScriptProvider {
         }
     }
 
+    /**
+     * Pull the files using GIT
+     *
+     * @param git                    the git client
+     */
     private synchronized void pullRepo(final Git git) {
         try {
             LOGGER.info("Repo already cloned, pulling files...");
@@ -48,10 +60,16 @@ public class GitScriptProvider implements ScriptProvider {
         }
     }
 
-    private synchronized void cloneRepo(final String pathAbsoluteScriptRepo, final String repoURI) {
+    /**
+     * Clone the files using GIT
+     *
+     * @param absoluteRepoPath       the path to clone the repo to
+     * @param repoURI                the URI of the GIT repo with the scripts
+     */
+    private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) {
         try {
             LOGGER.info("Cloning repo...");
-            Git.cloneRepository().setDirectory(new File(pathAbsoluteScriptRepo)).setURI(repoURI).call();
+            Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
             e.printStackTrace();

@@ -103,7 +103,7 @@ public class LocalDockerContainer implements Container {
     /**
      * Retrieves data from the docker container
      *
-     * @return the data being sent
+     * @return the data
      */
     @Override
     public StringBuilder receiveData() {

@@ -23,6 +23,11 @@ public class DockerImage implements Image {
         this.imageString = imageString;
     }
 
+    /**
+     * Gets the docker image id
+     *
+     * @return the docker image id
+     */
     @Override
     public String getImageString() {
         return imageString;

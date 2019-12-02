@@ -38,6 +38,12 @@ public final class RandomPortGenerator implements PortGenerator {
 
     private RandomPortGenerator() { }
 
+    /**
+     * Retrieves the static synchronized instance of RandomPortGenerator.
+     * Creates the instance if it does not already exist.
+     *
+     * @return the RandomPortGenerator instance
+     */
     public static RandomPortGenerator getInstance() {
         // Don't wait for other threads if the instance is available
         if (portGenerator == null) {
@@ -52,6 +58,11 @@ public final class RandomPortGenerator implements PortGenerator {
         return portGenerator;
     }
 
+    /**
+     * Generates a random port number within a predefined range.
+     *
+     * @return the port number
+     */
     public synchronized Integer generatePort() {
         List<Integer> portsList = IntStream.rangeClosed(MIN_PORT_NUM, MAX_PORT_NUM)
                 .filter(num -> !usedPorts.contains(num))

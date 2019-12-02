@@ -17,6 +17,14 @@
 package uk.gov.gchq.gaffer.script.operation.provider;
 
 public interface ScriptProvider {
+
+    /**
+     * Gets the scripts from the given repo URI and places
+     * them at the given path
+     *
+     * @param absoluteRepoPath       the path to clone the repo to
+     * @param repoURI                the URI of the repo with the scripts
+     */
     void getScripts(String absoluteRepoPath,
                     String repoURI);
 }
