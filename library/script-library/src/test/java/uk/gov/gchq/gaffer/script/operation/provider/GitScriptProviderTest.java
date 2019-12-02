@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.script.operation.provider;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 

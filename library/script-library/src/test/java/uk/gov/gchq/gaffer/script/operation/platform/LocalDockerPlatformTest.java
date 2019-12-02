@@ -22,6 +22,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.container.Container;

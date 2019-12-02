@@ -29,10 +29,10 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
+import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
 import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 
