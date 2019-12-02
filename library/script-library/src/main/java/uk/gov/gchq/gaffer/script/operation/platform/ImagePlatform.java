@@ -15,10 +15,15 @@
  */
 package uk.gov.gchq.gaffer.script.operation.platform;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 
 import java.util.Map;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class", defaultImpl = LocalDockerPlatform.class)
+@JsonDeserialize
 public interface ImagePlatform {
 
     Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
