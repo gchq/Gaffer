@@ -20,6 +20,7 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;

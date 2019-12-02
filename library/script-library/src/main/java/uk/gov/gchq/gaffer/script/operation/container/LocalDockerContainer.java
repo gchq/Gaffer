@@ -48,6 +48,11 @@ public class LocalDockerContainer implements Container {
         this.port = port;
     }
 
+    /**
+     * Sends data to the docker container
+     *
+     * @param data             the data being sent
+     */
     @Override
     public void sendData(final Iterable data) {
         LOGGER.info("Attempting to connect with the container...");
@@ -89,17 +94,22 @@ public class LocalDockerContainer implements Container {
                 sleep(TIMEOUT_100);
             }
         }
+        // Only print an error if it still fails after many tries
         if (error != null) {
             error.printStackTrace();
         }
     }
 
+    /**
+     * Retrieves data from the docker container
+     *
+     * @return the data
+     */
     @Override
     public StringBuilder receiveData() {
         // First get the length of the data coming from the container. Keep trying until the container is ready.
         LOGGER.info("Inputstream is: {}", inputStream);
         int incomingDataLength = 0;
-        boolean failedToConnect = true;
         Exception error = null;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;
@@ -107,7 +117,7 @@ public class LocalDockerContainer implements Container {
                 try {
                     incomingDataLength = inputStream.readInt();
                     LOGGER.info("Length of container...{}", incomingDataLength);
-                    failedToConnect = false;
+                    error = null;
                     break;
                 } catch (final IOException e) {
                     tries += 1;
@@ -119,20 +129,20 @@ public class LocalDockerContainer implements Container {
 
         // If it failed to get the length of the incoming data then show the error, otherwise return the data.
         StringBuilder dataReceived = new StringBuilder();
-        if (failedToConnect) {
+        if (null != error) {
             LOGGER.info("Connection failed, stopping the container...");
-            if (null != error) {
-                error.printStackTrace();
-            }
+            error.printStackTrace();
         } else {
             try {
+                // Get the data
                 for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());
-                // Show the error message if the script failed
+                // Show the error message if the script failed and return no data
                 if (dataReceived.subSequence(0, 5) == "Error") {
                     LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
+                    dataReceived = null;
                 }
             } catch (final IOException e) {
                 LOGGER.info(e.getMessage());

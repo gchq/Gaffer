@@ -21,7 +21,23 @@ import java.util.Map;
 
 public interface ImagePlatform {
 
-    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String directoryPath, String ip);
+    /**
+     * Builds an image and creates a container instance.
+     *
+     * @param scriptName             the name of the script being run
+     * @param scriptParameters       the parameters of the script being run
+     * @param pathToBuildFiles       the path to the directory containing the build files
+     * @param ip                     the ip the container is connected to
+     * @return the container
+     */
+    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles, String ip);
 
+    /**
+     * Runs a container
+     *
+     * @param container              the container to run
+     * @param inputData              the data to pass to the container
+     * @return the result of the container
+     */
     StringBuilder runContainer(Container container, Iterable inputData);
 }

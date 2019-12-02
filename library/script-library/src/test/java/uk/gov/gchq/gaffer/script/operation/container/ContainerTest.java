@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.script.operation.container;
 
-
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 
 import java.io.DataInputStream;

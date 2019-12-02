@@ -21,8 +21,15 @@ import java.util.Map;
 
 public interface ImageBuilder {
 
-    // Ask whether builderObject is an acceptable approach
-
+    /**
+     * Builds an image which runs a script
+     *
+     * @param scriptName             the name of the script being run
+     * @param scriptParameters       the parameters of the script being run
+     * @param builderObject          the client used to build the image
+     * @param pathToBuildFiles       the path to the directory containing any build files
+     * @return the image
+     */
     Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                      final Object builderObject, final String pathToBuildFiles);
 }

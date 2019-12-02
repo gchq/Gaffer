@@ -17,5 +17,10 @@ package uk.gov.gchq.gaffer.script.operation.image;
 
 public interface Image {
 
+    /**
+     * Gets the unique id associated with the image.
+     *
+     * @return the unique image id
+     */
     String getImageString();
 }
