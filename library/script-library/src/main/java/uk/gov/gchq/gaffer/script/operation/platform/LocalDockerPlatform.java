@@ -124,6 +124,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
+            docker.close();
         } catch (final DockerException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -142,6 +143,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         container.sendData(inputData);
         StringBuilder output = container.receiveData();
         closeContainer(container);
+        RandomPortGenerator.getInstance().freePort(port);
         return output;
     }
 

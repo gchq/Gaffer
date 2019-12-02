@@ -104,7 +104,7 @@ public class DockerImageBuilder implements ImageBuilder {
         // Copy the Dockerfile
         if (dockerfilePath.equals("")) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathToBuildFiles);
+            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         } else {
             LOGGER.info("DockerfilePath specified, using non-default dockerfile");
             final String[] pathSplit = dockerfilePath.split("/");
@@ -114,7 +114,7 @@ public class DockerImageBuilder implements ImageBuilder {
         }
         // Copy the rest of the files
         for (final String fileName : fileNames) {
-            createFile(fileName, pathToBuildFiles);
+            createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
         }
     }
 
