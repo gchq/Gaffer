@@ -15,22 +15,32 @@
  */
 package uk.gov.gchq.gaffer.script.operation.platform;
 
+import uk.gov.gchq.gaffer.script.operation.builder.ImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
+import uk.gov.gchq.gaffer.script.operation.image.Image;
 
 import java.util.Map;
 
 public interface ImagePlatform {
 
     /**
-     * Builds an image and creates a container instance.
+     * Builds an image
      *
      * @param scriptName             the name of the script being run
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
+     * @return the image
+     */
+    Image buildImage(String scriptName, Map<String,Object> scriptParameters, String pathToBuildFiles);
+
+    /**
+     * Creates a container
+     *
+     * @param image                  the image to create a container from
      * @param ip                     the ip the container is connected to
      * @return the container
      */
-    Container createContainer(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles, String ip);
+    Container createContainer(Image image, String ip);
 
     /**
      * Runs a container

@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.script.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
+import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
+import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.platform.ImagePlatform;
 import uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatform;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
@@ -47,17 +49,19 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         final String scriptName = operation.getScriptName();
         final Map<String, Object> scriptParameters = operation.getScriptParameters();
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
-        final Path absoluteRepoPath = Paths.get(directoryPath, repoName);
-        final File directory = new File(directoryPath);
+        final String pathToBuildFiles = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
+        final Path absoluteRepoPath = Paths.get(pathToBuildFiles, repoName);
+        final File directory = new File(pathToBuildFiles);
         if (!directory.exists()) {
             directory.mkdir();
         }
 
         // Pull or Clone the repo with the files
         scriptProvider.getScripts(absoluteRepoPath.toString(), repoURI);
+        // Build the image
+        final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
         // Create the container
-        final Container container = imagePlatform.createContainer(scriptName, scriptParameters, directoryPath, ip);
+        final Container container = imagePlatform.createContainer(image, ip);
         // Run the container and return the result
         return imagePlatform.runContainer(container, operation.getInput());
     }
