@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.script.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
-import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.platform.ImagePlatform;

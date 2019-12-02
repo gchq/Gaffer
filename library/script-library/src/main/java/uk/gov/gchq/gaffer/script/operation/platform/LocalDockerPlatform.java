@@ -55,7 +55,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
      */
-    public DockerImage buildImage(String scriptName, Map<String,Object> scriptParameters, String pathToBuildFiles) {
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) {
 
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
@@ -68,7 +68,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         synchronized (this) {
             try {
                 docker = DefaultDockerClient.fromEnv().build();
-            } catch (DockerCertificateException e) {
+            } catch (final DockerCertificateException e) {
                 e.printStackTrace();
             }
         }
@@ -85,7 +85,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                     docker.removeImage(image.id());
                 }
             }
-        } catch (DockerException | InterruptedException e) {
+        } catch (final DockerException | InterruptedException e) {
             e.printStackTrace();
         }
 

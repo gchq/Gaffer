@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.script.operation.platform;
 
-import uk.gov.gchq.gaffer.script.operation.builder.ImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 
@@ -31,7 +30,7 @@ public interface ImagePlatform {
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the image
      */
-    Image buildImage(String scriptName, Map<String,Object> scriptParameters, String pathToBuildFiles);
+    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles);
 
     /**
      * Creates a container
