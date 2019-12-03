@@ -5,11 +5,11 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler",
         "imagePlatform": {
-          "class": "uk.gov.gchq.gaffer.script.operation.LocalDockerPlatform",
+          "class": "uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatform",
           "dockerfilePath": ""
         },
         "scriptProvider": {
-          "class": "uk.gov.gchq.gaffer.script.operation.GitScriptProvider"
+          "class": "uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider"
         },
         "repoName": "test",
         "repoURI": "https://github.com/g609bmsma/test",

@@ -16,6 +16,17 @@
 
 package uk.gov.gchq.gaffer.script.operation.provider;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class", defaultImpl = GitScriptProvider.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = GitScriptProvider.class)})
+@JsonDeserialize
+
 public interface ScriptProvider {
 
     /**

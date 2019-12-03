@@ -15,10 +15,20 @@
  */
 package uk.gov.gchq.gaffer.script.operation.platform;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 
 import java.util.Map;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class", defaultImpl = LocalDockerPlatform.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = LocalDockerPlatform.class)})
+@JsonDeserialize
 
 public interface ImagePlatform {
 
