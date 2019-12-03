@@ -49,7 +49,7 @@ public class RandomPortGeneratorTest {
         // Then
         for (int i = 0; i < 100; i++) {
             int currentPort = portResults.get(i);
-            Assert.assertTrue(currentPort < ScriptTestConstants.MAX_PORT && currentPort > ScriptTestConstants.MIN_PORT);
+            Assert.assertTrue(currentPort <= ScriptTestConstants.MAX_PORT && currentPort >= ScriptTestConstants.MIN_PORT);
         }
     }
 }
