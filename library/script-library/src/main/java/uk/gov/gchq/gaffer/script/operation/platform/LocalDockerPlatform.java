@@ -16,9 +16,7 @@
 package uk.gov.gchq.gaffer.script.operation.platform;
 
 import com.google.common.collect.ImmutableMap;
-import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
@@ -34,6 +32,7 @@ import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
 import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
+import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,13 +64,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
         // memory leaks, synchronize this code amongst multiple threads.
         LOGGER.info("Connecting to the Docker client...");
-        synchronized (this) {
-            try {
-                docker = DefaultDockerClient.fromEnv().build();
-            } catch (final DockerCertificateException e) {
-                e.printStackTrace();
-            }
-        }
+        docker = DockerClientSingleton.getInstance();
         LOGGER.info("Docker is now: {}", docker);
         final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, docker, pathToBuildFiles);
 
@@ -86,7 +79,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.info("Could not remove image, image still in use.");
         }
 
         return dockerImage;
@@ -143,9 +136,9 @@ public class LocalDockerPlatform implements ImagePlatform {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
-            docker.close();
         } catch (final DockerException | InterruptedException e) {
             e.printStackTrace();
+            LOGGER.info("Failed to stop the container");
         }
     }
 
