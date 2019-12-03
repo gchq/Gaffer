@@ -25,15 +25,16 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
+import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class LocalDockerPlatformTest {
 
@@ -50,17 +51,26 @@ public class LocalDockerPlatformTest {
     public void shouldCreateAContainer() {
         // Given
         LocalDockerPlatform platform = new LocalDockerPlatform();
-        String scriptName = "script1";
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
+        DockerImageBuilder imageBuilder = new DockerImageBuilder();
+        imageBuilder.getFiles(directoryPath, "");
+        DockerClient docker = null;
+        try {
+            docker = DefaultDockerClient.fromEnv().build();
+        } catch (DockerCertificateException e) {
+            e.printStackTrace();
+        }
+        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
 
         // When
-        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(scriptName, null, directoryPath, ScriptTestConstants.LOCALHOST);
+        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image, ScriptTestConstants.LOCALHOST);
 
         try {
-            DockerClient docker = DefaultDockerClient.fromEnv().build();
-            docker.removeContainer(container.getContainerId());
-        } catch (DockerException | InterruptedException | DockerCertificateException e) {
+            if (docker != null) {
+                docker.removeContainer(container.getContainerId());
+            }
+        } catch (DockerException | InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -73,12 +83,12 @@ public class LocalDockerPlatformTest {
     public void shouldRunTheContainer() {
         // Given
         LocalDockerPlatform platform = new LocalDockerPlatform();
-        String scriptName = "script1";
-        Map<String, Object> scriptParameters = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
-        String ip = "127.0.0.1";
-        Container container = platform.createContainer(scriptName, scriptParameters, directoryPath, ip);
+        DockerImageBuilder imageBuilder = new DockerImageBuilder();
+        imageBuilder.getFiles(directoryPath, "");
+        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Container container = platform.createContainer(image, ScriptTestConstants.LOCALHOST);
         List data = new ArrayList();
         data.add("testData");
 
