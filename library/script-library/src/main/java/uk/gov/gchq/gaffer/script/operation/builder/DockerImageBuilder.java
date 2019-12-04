@@ -118,10 +118,6 @@ public class DockerImageBuilder implements ImageBuilder {
         }
     }
 
-    private void createFile(final String fileName, final String destination) {
-        createFile(fileName, destination, "/.ScriptBin/");
-    }
-
     /**
      * Copies a file from the given file location to the given destination
      *
