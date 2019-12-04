@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
+import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,15 +48,14 @@ public class DockerImageBuilder implements ImageBuilder {
      *
      * @param scriptName             the name of the script being run
      * @param scriptParameters       the parameters of the script being run
-     * @param dockerObject           the docker client the script is being run on
      * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
      * @return the docker image
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final Object dockerObject, final String pathToBuildFiles) {
+                            final String pathToBuildFiles) {
 
-        DockerClient docker = (DockerClient) dockerObject;
+        DockerClient docker = DockerClientSingleton.getInstance();
 
         // Convert the script parameters into a string
         String params = stringifyParameters(scriptParameters);

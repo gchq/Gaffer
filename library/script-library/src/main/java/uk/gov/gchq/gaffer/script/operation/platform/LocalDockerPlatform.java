@@ -66,7 +66,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         LOGGER.info("Connecting to the Docker client...");
         docker = DockerClientSingleton.getInstance();
         LOGGER.info("Docker is now: {}", docker);
-        final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, docker, pathToBuildFiles);
+        final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, pathToBuildFiles);
 
         // Remove the old images
         final List<com.spotify.docker.client.messages.Image> images;

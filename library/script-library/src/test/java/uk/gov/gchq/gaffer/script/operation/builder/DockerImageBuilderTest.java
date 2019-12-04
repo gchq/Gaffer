@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.script.operation.builder;
 
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +32,6 @@ public class DockerImageBuilderTest {
     public void shouldBuildImage() {
 
         // Given
-        DockerClient docker = null;
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
@@ -44,15 +40,9 @@ public class DockerImageBuilderTest {
         final GitScriptProvider pOrC = new GitScriptProvider();
         pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
 
-        try {
-            docker = DefaultDockerClient.fromEnv().build();
-        } catch (DockerCertificateException e) {
-            e.printStackTrace();
-        }
-
         // When
         bIFD.getFiles(directoryPath, "");
-        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, docker, directoryPath);
+        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
         String returnedImageId = returnedImage.getImageString();
 
         // Then
