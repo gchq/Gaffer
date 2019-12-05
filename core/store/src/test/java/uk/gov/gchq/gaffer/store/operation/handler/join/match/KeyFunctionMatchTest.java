@@ -335,7 +335,7 @@ public class KeyFunctionMatchTest {
     public void shouldMatchElementsOfTheSameGroupBasedOnKeyFunctions() {
         // given
         Entity testItem = new Entity.Builder().group(TEST_ENTITY_GROUP)
-                .vertex(".PythonBin/test")
+                .vertex("test")
                 .property(PROP_1, 3L)
                 .build();
 
@@ -390,7 +390,7 @@ public class KeyFunctionMatchTest {
     public void shouldMatchElementsOfDifferentGroupsBasedOnKeyFunctions() {
         // given
         Entity testItem = new Entity.Builder().group(TEST_ENTITY_GROUP)
-                .vertex(".PythonBin/test")
+                .vertex("test")
                 .property(PROP_1, 2L)
                 .build();
 

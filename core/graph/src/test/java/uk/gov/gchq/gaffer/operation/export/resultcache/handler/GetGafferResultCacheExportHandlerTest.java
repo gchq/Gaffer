@@ -62,7 +62,7 @@ public class GetGafferResultCacheExportHandlerTest {
             .property("timestamp", System.currentTimeMillis())
             .property("visibility", "private")
             .property("resultClass", String.class.getName())
-            .property("result", ".PythonBin/test".getBytes())
+            .property("result", "test".getBytes())
             .build();
     private final Edge oldEdge = new Edge.Builder()
             .group("result")
@@ -73,7 +73,7 @@ public class GetGafferResultCacheExportHandlerTest {
             .property("timestamp", System.currentTimeMillis() - GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE - 1)
             .property("visibility", "private")
             .property("resultClass", String.class.getName())
-            .property("result", ".PythonBin/test".getBytes())
+            .property("result", "test".getBytes())
             .build();
 
     @Test
