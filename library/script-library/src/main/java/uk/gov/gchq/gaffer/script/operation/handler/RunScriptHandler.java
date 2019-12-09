@@ -38,9 +38,9 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     // comment for json injection
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
-    private String repoName = "test";
-    private String repoURI = "https://github.com/g609bmsma/test";
-    private String ip = "127.0.0.1";
+    private String repoName;
+    private String repoURI;
+    private String ip;
 
     @Override
     public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
