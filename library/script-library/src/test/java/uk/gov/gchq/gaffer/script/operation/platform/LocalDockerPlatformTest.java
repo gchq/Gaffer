@@ -44,7 +44,7 @@ public class LocalDockerPlatformTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        scriptProvider.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        scriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
     }
 
     @Test
