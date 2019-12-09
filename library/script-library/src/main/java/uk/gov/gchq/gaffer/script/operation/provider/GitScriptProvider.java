@@ -36,14 +36,10 @@ public class GitScriptProvider implements ScriptProvider {
      */
     @Override
     public void retrieveScripts(final String absoluteRepoPath,
-                                final String repoURI) {
+                                final String repoURI) throws IOException {
         if (absoluteRepoPath == null) {
-            try {
-                Git git = Git.open(new File(absoluteRepoPath));
-                pullRepo(git);
-            } catch (final IOException e) {
-                cloneRepo(absoluteRepoPath, repoURI);
-            }
+            Git git = Git.open(new File(absoluteRepoPath));
+            pullRepo(git);
         } else {
             cloneRepo(absoluteRepoPath,repoURI);
         }

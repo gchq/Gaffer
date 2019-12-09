@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
+import java.io.IOException;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class", defaultImpl = GitScriptProvider.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = GitScriptProvider.class)})
@@ -36,5 +38,5 @@ public interface ScriptProvider {
      * @param repoURI                the URI of the repo with the scripts
      */
     void retrieveScripts(String absoluteRepoPath,
-                         String repoURI);
+                         String repoURI) throws IOException;
 }
