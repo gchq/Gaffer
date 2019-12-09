@@ -38,8 +38,8 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     // comment for json injection
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
-    private String repoName = "test";
-    private String repoURI = "https://github.com/g609bmsma/test";
+    private String repoName;
+    private String repoURI;
 
     @Override
     public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
@@ -84,7 +84,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return repoName;
     }
 
-    private void setRepoName(final String repoName) {
+    public void setRepoName(final String repoName) {
         this.repoName = repoName;
     }
 
@@ -92,7 +92,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return repoURI;
     }
 
-    private void setRepoURI(final String repoURI) {
+    public void setRepoURI(final String repoURI) {
         this.repoURI = repoURI;
     }
 }
