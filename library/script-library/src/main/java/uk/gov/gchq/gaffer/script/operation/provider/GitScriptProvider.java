@@ -36,12 +36,16 @@ public class GitScriptProvider implements ScriptProvider {
      */
     @Override
     public void retrieveScripts(final String absoluteRepoPath,
-                                final String repoURI) throws IOException {
-        if (absoluteRepoPath == null) {
-            Git git = Git.open(new File(absoluteRepoPath));
-            pullRepo(git);
+                                final String repoURI) {
+        if (absoluteRepoPath.isEmpty()) {
+            cloneRepo(absoluteRepoPath, repoURI);
         } else {
-            cloneRepo(absoluteRepoPath,repoURI);
+            try {
+                Git git = Git.open(new File(absoluteRepoPath));
+                pullRepo(git);
+            } catch (final IOException e) {
+                LOGGER.info(e.getMessage());
+            }
         }
     }
 
@@ -56,7 +60,7 @@ public class GitScriptProvider implements ScriptProvider {
             git.pull().call();
             LOGGER.info("Pulled the latest files.");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.info(e.getMessage());
         }
     }
 
@@ -72,7 +76,7 @@ public class GitScriptProvider implements ScriptProvider {
             Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.info(e.getMessage());
         }
     }
 }
