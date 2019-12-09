@@ -80,7 +80,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.info("Could not remove image, image still in use.");
+            LOGGER.error("Could not remove image, image still in use.");
         }
 
         return dockerImage;

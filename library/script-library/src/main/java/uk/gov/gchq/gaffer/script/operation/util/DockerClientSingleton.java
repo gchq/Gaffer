@@ -18,9 +18,12 @@ package uk.gov.gchq.gaffer.script.operation.util;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DockerClientSingleton {
     private static volatile DockerClient dockerClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerClientSingleton.class);
 
     private DockerClientSingleton() { }
 
@@ -34,7 +37,7 @@ public final class DockerClientSingleton {
                     try {
                         dockerClient = DefaultDockerClient.fromEnv().build();
                     } catch (final DockerCertificateException e) {
-                        e.printStackTrace();
+                        LOGGER.error(e.getMessage());
                     }
                 }
             }
