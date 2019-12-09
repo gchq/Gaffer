@@ -71,7 +71,7 @@ public class DockerImageBuilder implements ImageBuilder {
         try {
             buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         // Build an image from the Dockerfile
@@ -88,7 +88,7 @@ public class DockerImageBuilder implements ImageBuilder {
                 LOGGER.info(String.valueOf(message));
             }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
@@ -132,7 +132,7 @@ public class DockerImageBuilder implements ImageBuilder {
             inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 

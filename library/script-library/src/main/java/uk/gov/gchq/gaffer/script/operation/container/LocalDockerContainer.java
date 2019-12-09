@@ -89,7 +89,7 @@ public class LocalDockerContainer implements Container {
                 outputStream.flush();
                 break;
             } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
+                LOGGER.error(e.getMessage());
                 error = e;
                 sleep(TIMEOUT_100);
             }
@@ -145,7 +145,7 @@ public class LocalDockerContainer implements Container {
                     dataReceived = null;
                 }
             } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
         try {
@@ -153,7 +153,7 @@ public class LocalDockerContainer implements Container {
                 clientSocket.close();
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         return dataReceived;
@@ -177,7 +177,7 @@ public class LocalDockerContainer implements Container {
         try {
             Thread.sleep(time);
         } catch (final InterruptedException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 }

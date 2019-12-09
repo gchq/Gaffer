@@ -105,7 +105,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             final ContainerCreation creation = docker.createContainer(containerConfig);
             containerId = creation.id();
         } catch (final DockerException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         return new LocalDockerContainer(containerId, port);
     }
@@ -137,7 +137,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
         } catch (final DockerException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
             LOGGER.info("Failed to stop the container");
         }
     }

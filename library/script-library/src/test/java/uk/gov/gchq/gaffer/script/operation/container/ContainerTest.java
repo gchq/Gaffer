@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.script.operation.container;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.script.operation.RunScriptParallelTest;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 
 import java.io.DataInputStream;
@@ -28,6 +31,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class ContainerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerTest.class);
 
     @Test
     public void shouldCreateContainer() {
@@ -44,7 +48,7 @@ public class ContainerTest {
             localDockerContainer.sendData(inputData);
             result = localDockerContainer.receiveData();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         // Then
@@ -55,9 +59,9 @@ public class ContainerTest {
     private void setupTestServer() {
         Runnable serverTask = () -> {
             try (ServerSocket serverSocket = new ServerSocket(ScriptTestConstants.TEST_SERVER_PORT_3)) {
-                System.out.println("Waiting for clients to connect...");
+                LOGGER.info("Waiting for clients to connect...");
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected.");
+                LOGGER.info("Client connected.");
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
                 dos.writeBoolean(true);
@@ -67,12 +71,12 @@ public class ContainerTest {
                 dos.writeInt(1);
                 dos.writeUTF("Test Complete");
                 serverSocket.close();
-                System.out.println("Closing Socket.");
+                LOGGER.info("Closing Socket.");
                 dos.flush();
             } catch (IOException e) {
-                System.err.println("Unable to process client request");
-                System.out.println("Unable to process client request");
-                e.printStackTrace();
+                LOGGER.error("Unable to process client request");
+                LOGGER.info("Unable to process client request");
+                LOGGER.error(e.getMessage());
             }
         };
         final Thread serverThread = new Thread(serverTask);
