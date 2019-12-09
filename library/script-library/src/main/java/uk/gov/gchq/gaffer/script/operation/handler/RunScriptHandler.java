@@ -40,7 +40,6 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     private ScriptProvider scriptProvider = new GitScriptProvider();
     private String repoName = "test";
     private String repoURI = "https://github.com/g609bmsma/test";
-    private String ip = "127.0.0.1";
 
     @Override
     public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
@@ -60,7 +59,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         // Build the image
         final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
         // Create the container
-        final Container container = imagePlatform.createContainer(image, ip);
+        final Container container = imagePlatform.createContainer(image);
         // Run the container and return the result
         return imagePlatform.runContainer(container, operation.getInput());
     }
@@ -95,13 +94,5 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private void setRepoURI(final String repoURI) {
         this.repoURI = repoURI;
-    }
-
-    private String getIp() {
-        return ip;
-    }
-
-    private void setIp(final String ip) {
-        this.ip = ip;
     }
 }
