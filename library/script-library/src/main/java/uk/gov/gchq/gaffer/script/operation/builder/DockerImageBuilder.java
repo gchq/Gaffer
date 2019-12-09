@@ -106,7 +106,7 @@ public class DockerImageBuilder implements ImageBuilder {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
             createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         } else {
-            LOGGER.info("DockerfilePath specified, using non-default dockerfile");
+            LOGGER.info("DockerfilePath specified, using non-default Dockerfile");
             final String[] pathSplit = dockerfilePath.split("/");
             final String fileName = pathSplit[pathSplit.length - 1];
             final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
