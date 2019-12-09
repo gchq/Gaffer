@@ -102,7 +102,7 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
-        if (dockerfilePath.equals("")) {
+        if (dockerfilePath == null || dockerfilePath.isEmpty()) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
             createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         } else {
