@@ -41,7 +41,7 @@ public interface ImagePlatform {
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the image
      */
-    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles);
+    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles) throws Exception;
 
     /**
      * Creates a container
