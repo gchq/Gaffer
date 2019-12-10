@@ -140,7 +140,6 @@ public class DockerImageBuilder implements ImageBuilder {
         try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-            inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
             LOGGER.error(e.getMessage());
