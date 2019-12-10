@@ -74,7 +74,7 @@ public final class RandomPortGenerator implements PortGenerator {
         return portNum;
     }
 
-    public synchronized void freePort(final Integer port) {
+    public synchronized void releasePort(final Integer port) {
         usedPorts.remove(port);
     }
 }
