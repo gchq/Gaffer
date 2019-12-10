@@ -113,7 +113,7 @@ public class LocalDockerContainer implements Container {
         Exception error = null;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;
-            while (tries < TIMEOUT_100) {
+            while (tries < MAX_TRIES) {
                 try {
                     incomingDataLength = inputStream.readInt();
                     LOGGER.info("Length of container...{}", incomingDataLength);
