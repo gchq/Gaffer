@@ -35,14 +35,14 @@ public class DockerImageBuilderTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        DockerImageBuilder bIFD = new DockerImageBuilder();
+        DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        final GitScriptProvider gitScriptProvider = new GitScriptProvider();
+        gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
 
         // When
-        bIFD.getFiles(directoryPath, "");
-        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        dockerImageBuilder.getFiles(directoryPath, "");
+        Image returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
         String returnedImageId = returnedImage.getImageId();
 
         // Then
