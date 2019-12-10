@@ -101,7 +101,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             port = RandomPortGenerator.getInstance().generatePort();
 
             // Create a container from the image and bind ports
-            final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(image.getImageString()).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
+            final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port)))).build()).image(image.getImageId()).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
             final ContainerCreation creation = docker.createContainer(containerConfig);
             containerId = creation.id();
         } catch (final DockerException | InterruptedException e) {

@@ -43,7 +43,7 @@ public class DockerImageBuilderTest {
         // When
         bIFD.getFiles(directoryPath, "");
         Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        String returnedImageId = returnedImage.getImageString();
+        String returnedImageId = returnedImage.getImageId();
 
         // Then
         Assert.assertNotNull(returnedImageId);
