@@ -21,6 +21,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatform;
+import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,11 @@ public class RunScriptHandlerTest {
     public void shouldReturnDataInJSON() {
         // Given
         RunScriptHandler rPSH = new RunScriptHandler();
+        rPSH.setRepoName(ScriptTestConstants.REPO_NAME);
+        rPSH.setRepoURI(ScriptTestConstants.REPO_URI);
+        rPSH.setIp(ScriptTestConstants.LOCALHOST);
+        rPSH.setImagePlatform(new LocalDockerPlatform());
+        rPSH.setScriptProvider(new GitScriptProvider());
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
             put("a", "b");
         } };

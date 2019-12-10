@@ -69,7 +69,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return imagePlatform;
     }
 
-    private void setImagePlatform(final ImagePlatform imagePlatform) {
+    public void setImagePlatform(final ImagePlatform imagePlatform) {
         this.imagePlatform = imagePlatform;
     }
 
@@ -77,7 +77,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return scriptProvider;
     }
 
-    private void setScriptProvider(final ScriptProvider scriptProvider) {
+    public void setScriptProvider(final ScriptProvider scriptProvider) {
         this.scriptProvider = scriptProvider;
     }
 
@@ -85,7 +85,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return repoName;
     }
 
-    private void setRepoName(final String repoName) {
+    public void setRepoName(final String repoName) {
         this.repoName = repoName;
     }
 
@@ -93,7 +93,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return repoURI;
     }
 
-    private void setRepoURI(final String repoURI) {
+    public void setRepoURI(final String repoURI) {
         this.repoURI = repoURI;
     }
 
@@ -101,7 +101,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return ip;
     }
 
-    private void setIp(final String ip) {
+    public void setIp(final String ip) {
         this.ip = ip;
     }
 }
