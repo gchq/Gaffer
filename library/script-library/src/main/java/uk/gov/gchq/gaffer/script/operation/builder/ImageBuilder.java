@@ -30,5 +30,5 @@ public interface ImageBuilder {
      * @return the image
      */
     Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                     final String pathToBuildFiles);
+                     final String pathToBuildFiles) throws Exception;
 }

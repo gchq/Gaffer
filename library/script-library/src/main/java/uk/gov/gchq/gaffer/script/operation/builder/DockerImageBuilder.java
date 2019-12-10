@@ -53,7 +53,7 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) {
+                            final String pathToBuildFiles) throws Exception {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
@@ -89,8 +89,8 @@ public class DockerImageBuilder implements ImageBuilder {
             }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
             LOGGER.error(e.getMessage());
+            throw new Exception(e);
         }
-        return null;
     }
 
     /**
