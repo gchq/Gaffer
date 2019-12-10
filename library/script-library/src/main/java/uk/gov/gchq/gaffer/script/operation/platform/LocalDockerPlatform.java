@@ -109,7 +109,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                     .exposedPorts("80/tcp")
                     .cmd("sh", "-c", "while :; do sleep 1; done")
                     .build();
-            
+
             final ContainerCreation creation = docker.createContainer(containerConfig);
             containerId = creation.id();
         } catch (final DockerException | InterruptedException e) {
