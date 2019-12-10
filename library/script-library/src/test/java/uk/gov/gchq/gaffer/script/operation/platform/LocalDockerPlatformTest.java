@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
-import uk.gov.gchq.gaffer.script.operation.RunScriptParallelTest;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
@@ -65,7 +64,12 @@ public class LocalDockerPlatformTest {
         } catch (DockerCertificateException e) {
             LOGGER.error(e.getMessage());
         }
-        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Image image = null;
+        try {
+            image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
 
         // When
         LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image, ScriptTestConstants.LOCALHOST);
@@ -91,7 +95,12 @@ public class LocalDockerPlatformTest {
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
         DockerImageBuilder imageBuilder = new DockerImageBuilder();
         imageBuilder.getFiles(directoryPath, "");
-        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Image image = null;
+        try {
+            image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
         Container container = platform.createContainer(image, ScriptTestConstants.LOCALHOST);
         List data = new ArrayList();
         data.add("testData");

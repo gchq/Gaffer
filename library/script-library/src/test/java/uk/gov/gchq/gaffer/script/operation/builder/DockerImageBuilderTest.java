@@ -18,15 +18,20 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
+import uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatformTest;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
+import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 public class DockerImageBuilderTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilderTest.class);
 
     @Test
     public void shouldBuildImage() {
@@ -42,7 +47,12 @@ public class DockerImageBuilderTest {
 
         // When
         dockerImageBuilder.getFiles(directoryPath, "");
-        Image returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Image returnedImage = null;
+        try {
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
         String returnedImageId = returnedImage.getImageId();
 
         // Then
