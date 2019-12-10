@@ -23,7 +23,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
+import uk.gov.gchq.gaffer.script.operation.RunScriptParallelTest;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalDockerPlatformTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerPlatformTest.class);
 
     @Before
     public void setup() {
@@ -44,7 +48,7 @@ public class LocalDockerPlatformTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        scriptProvider.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        scriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
     }
 
     @Test
@@ -59,7 +63,7 @@ public class LocalDockerPlatformTest {
         try {
             docker = DefaultDockerClient.fromEnv().build();
         } catch (DockerCertificateException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
 
@@ -71,7 +75,7 @@ public class LocalDockerPlatformTest {
                 docker.removeContainer(container.getContainerId());
             }
         } catch (DockerException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         // Then

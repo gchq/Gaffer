@@ -56,7 +56,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         }
 
         // Pull or Clone the repo with the files
-        scriptProvider.getScripts(absoluteRepoPath.toString(), repoURI);
+        scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
         // Build the image
         final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
         // Create the container

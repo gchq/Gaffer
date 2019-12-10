@@ -71,7 +71,7 @@ public class DockerImageBuilder implements ImageBuilder {
         try {
             buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
         // Build an image from the Dockerfile
@@ -88,13 +88,13 @@ public class DockerImageBuilder implements ImageBuilder {
                 LOGGER.info(String.valueOf(message));
             }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
 
     /**
-     * Copies the files to be used into the build directory.
+     * Copies the files to be used into the build directory, where a dockerfilePath is specified
      *
      * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
      * @param dockerfilePath         the path to the non-default dockerfile
@@ -102,16 +102,26 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
-        if (dockerfilePath == null || dockerfilePath.isEmpty()) {
-            LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
-        } else {
-            LOGGER.info("DockerfilePath specified, using non-default Dockerfile");
-            final String[] pathSplit = dockerfilePath.split("/");
-            final String fileName = pathSplit[pathSplit.length - 1];
-            final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
-            createFile(fileName, pathToBuildFiles, fileLocation);
+        LOGGER.info("DockerfilePath specified, using non-default dockerfile");
+        final String[] pathSplit = dockerfilePath.split("/");
+        final String fileName = pathSplit[pathSplit.length - 1];
+        final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
+        // Copy the rest of the files
+        for (final String copiedFileName : fileNames) {
+            createFile(copiedFileName, pathToBuildFiles, "/.ScriptBin/");
         }
+    }
+
+    /**
+     * Copies the files to be used into the build directory where no dockerfilePath is specified.
+     *
+     * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
+     */
+    public void getFiles(final String pathToBuildFiles) {
+        String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
+        // Copy the Dockerfile
+        LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
+        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         // Copy the rest of the files
         for (final String fileName : fileNames) {
             createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
@@ -126,13 +136,12 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param fileLocation        the original location of the file
      */
     private void createFile(final String fileName, final String destination, final String fileLocation) {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName); BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 

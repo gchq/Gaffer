@@ -38,7 +38,7 @@ public class DockerImageBuilderTest {
         DockerImageBuilder bIFD = new DockerImageBuilder();
 
         final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        pOrC.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
 
         // When
         bIFD.getFiles(directoryPath, "");

@@ -23,8 +23,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class", defaultImpl = GitScriptProvider.class)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = GitScriptProvider.class)})
+@JsonSubTypes({@JsonSubTypes.Type(value = GitScriptProvider.class)})
 @JsonDeserialize
 
 public interface ScriptProvider {
@@ -36,6 +35,6 @@ public interface ScriptProvider {
      * @param absoluteRepoPath       the path to clone the repo to
      * @param repoURI                the URI of the repo with the scripts
      */
-    void getScripts(String absoluteRepoPath,
-                    String repoURI);
+    void retrieveScripts(String absoluteRepoPath,
+                         String repoURI);
 }
