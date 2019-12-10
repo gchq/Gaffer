@@ -109,7 +109,7 @@ public class DockerImageBuilder implements ImageBuilder {
         createFile(fileName, pathToBuildFiles, fileLocation);
         // Copy the rest of the files
         for (final String copiedFileName : fileNames) {
-            createFile(copiedFileName, pathToBuildFiles, "/.ScriptBin/");
+            createFile(copiedFileName, pathToBuildFiles, "/.ScriptBin");
         }
     }
 
@@ -122,10 +122,10 @@ public class DockerImageBuilder implements ImageBuilder {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
         LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
+        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
         // Copy the rest of the files
         for (final String fileName : fileNames) {
-            createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+            createFile(fileName, pathToBuildFiles, "/.ScriptBin");
         }
     }
 
