@@ -106,6 +106,7 @@ public class DockerImageBuilder implements ImageBuilder {
         final String[] pathSplit = dockerfilePath.split("/");
         final String fileName = pathSplit[pathSplit.length - 1];
         final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
+        createFile(fileName, pathToBuildFiles, fileLocation);
         // Copy the rest of the files
         for (final String copiedFileName : fileNames) {
             createFile(copiedFileName, pathToBuildFiles, "/.ScriptBin/");
