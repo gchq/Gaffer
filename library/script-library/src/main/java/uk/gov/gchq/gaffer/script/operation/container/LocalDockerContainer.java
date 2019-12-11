@@ -33,8 +33,6 @@ public class LocalDockerContainer implements Container {
     private static final String LOCALHOST = "127.0.0.1";
     private static final Integer ONE_SECOND = 1000;
     private static final Integer TIMEOUT_100 = 100;
-    private static final Integer TIMEOUT_200 = 200;
-    private static final Integer MAX_BYTES = 65000;
     private static final Integer MAX_TRIES = 100;
 
     private Socket clientSocket = null;
@@ -106,57 +104,8 @@ public class LocalDockerContainer implements Container {
      * @return the data
      */
     @Override
-    public StringBuilder receiveData() {
-        // First get the length of the data coming from the container. Keep trying until the container is ready.
-        LOGGER.info("Inputstream is: {}", inputStream);
-        int incomingDataLength = 0;
-        Exception error = null;
-        if (clientSocket != null && inputStream != null) {
-            int tries = 0;
-            while (tries < TIMEOUT_100) {
-                try {
-                    incomingDataLength = inputStream.readInt();
-                    LOGGER.info("Length of container...{}", incomingDataLength);
-                    error = null;
-                    break;
-                } catch (final IOException e) {
-                    tries += 1;
-                    error = e;
-                    sleep(TIMEOUT_200);
-                }
-            }
-        }
-
-        // If it failed to get the length of the incoming data then show the error, otherwise return the data.
-        StringBuilder dataReceived = new StringBuilder();
-        if (null != error) {
-            LOGGER.info("Connection failed, stopping the container...");
-            error.printStackTrace();
-        } else {
-            try {
-                // Get the data
-                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
-                    dataReceived.append(inputStream.readUTF());
-                }
-                dataReceived.append(inputStream.readUTF());
-                // Show the error message if the script failed and return no data
-                if (dataReceived.subSequence(0, 5) == "Error") {
-                    LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
-                    dataReceived = null;
-                }
-            } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
-            }
-        }
-        try {
-            if (clientSocket != null) {
-                clientSocket.close();
-            }
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        return dataReceived;
+    public DataInputStream receiveData() {
+        return inputStream;
     }
 
     @Override

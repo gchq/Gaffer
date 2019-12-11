@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.script.operation.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
@@ -27,7 +30,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +40,11 @@ import java.util.Map;
 
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
-    // comment for json injection
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final Integer TIMEOUT_100 = 100;
+    private static final Integer TIMEOUT_200 = 200;
+    private static final Integer MAX_BYTES = 65000;
+
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
     private String repoName = "test";
@@ -61,8 +70,79 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
         // Create the container
         final Container container = imagePlatform.createContainer(image, ip);
-        // Run the container and return the result
-        return imagePlatform.runContainer(container, operation.getInput());
+        // Run the container
+        imagePlatform.runContainer(container, operation.getInput());
+        // Get the input stream
+        DataInputStream inputStream = container.receiveData();
+        // Get the results back from the container
+        Object results = receiveData(inputStream);
+        // Close the container
+        imagePlatform.closeContainer(container);
+
+        return results;
+    }
+
+    private Object receiveData(final DataInputStream inputStream) {
+
+        // First get the length of the data coming from the container. Keep trying until the container is ready.
+        LOGGER.info("Inputstream is: {}", inputStream);
+        int incomingDataLength = 0;
+        Exception error = null;
+        if (inputStream != null) {
+            int tries = 0;
+            while (tries < TIMEOUT_100) {
+                try {
+                    incomingDataLength = inputStream.readInt();
+                    LOGGER.info("Length of container...{}", incomingDataLength);
+                    error = null;
+                    break;
+                } catch (final IOException e) {
+                    tries += 1;
+                    error = e;
+                    sleep(TIMEOUT_200);
+                }
+            }
+        }
+
+        // If it failed to get the length of the incoming data then show the error, otherwise return the data.
+        StringBuilder dataReceived = new StringBuilder();
+        if (null != error) {
+            LOGGER.info("Connection failed, stopping the container...");
+            error.printStackTrace();
+        } else {
+            try {
+                // Get the data
+                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
+                    dataReceived.append(inputStream.readUTF());
+                }
+                dataReceived.append(inputStream.readUTF());
+                // Show the error message if the script failed and return no data
+                if (dataReceived.subSequence(0, 5) == "Error") {
+                    LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
+                    dataReceived = null;
+                }
+            } catch (final IOException e) {
+                LOGGER.info(e.getMessage());
+            }
+        }
+        // Close the connection
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        return dataReceived;
+    }
+
+    private void sleep(final Integer time) {
+        try {
+            Thread.sleep(time);
+        } catch (final InterruptedException e) {
+            LOGGER.info(e.getMessage());
+        }
     }
 
     private ImagePlatform getImagePlatform() {

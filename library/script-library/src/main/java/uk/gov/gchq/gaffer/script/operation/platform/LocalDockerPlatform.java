@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
 import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
-import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
@@ -41,7 +40,7 @@ import java.util.Objects;
 
 public class LocalDockerPlatform implements ImagePlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerPlatform.class);
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
@@ -115,7 +114,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      *
      * @param container             the container
      */
-    private void startContainer(final Container container) {
+    public void startContainer(final Container container) {
         for (int i = 0; i < 100; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
@@ -131,32 +130,24 @@ public class LocalDockerPlatform implements ImagePlatform {
      *
      * @param container             the container
      */
-    private void closeContainer(final Container container) {
+    public void closeContainer(final Container container) {
         try {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
+            // Free the port
+            RandomPortGenerator.getInstance().freePort(port);
         } catch (final DockerException | InterruptedException e) {
             e.printStackTrace();
             LOGGER.info("Failed to stop the container");
         }
     }
 
-    /**
-     * Runs a docker container
-     *
-     * @param container              the container to run
-     * @param inputData              the data to pass to the container
-     * @return the result of the container
-     */
-    @Override
-    public StringBuilder runContainer(final Container container, final Iterable inputData) {
+    public void runContainer(final Container container, final Iterable inputData) {
+        // Start the container
         startContainer(container);
+        // Send the data to the container
         container.sendData(inputData);
-        StringBuilder output = container.receiveData();
-        closeContainer(container);
-        RandomPortGenerator.getInstance().freePort(port);
-        return output;
     }
 
     private String getDockerfilePath() {

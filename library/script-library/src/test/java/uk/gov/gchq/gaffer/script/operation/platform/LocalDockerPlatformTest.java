@@ -22,21 +22,23 @@ import com.spotify.docker.client.exceptions.DockerException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
-import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LocalDockerPlatformTest {
+
+    @Captor
+    ArgumentCaptor<Iterable> dataCaptor;
 
     @Before
     public void setup() {
@@ -77,25 +79,5 @@ public class LocalDockerPlatformTest {
         // Then
         Assert.assertTrue(container instanceof LocalDockerContainer);
         Assert.assertNotNull(container);
-    }
-
-    @Test
-    public void shouldRunTheContainer() {
-        // Given
-        LocalDockerPlatform platform = new LocalDockerPlatform();
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
-        DockerImageBuilder imageBuilder = new DockerImageBuilder();
-        imageBuilder.getFiles(directoryPath, "");
-        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        Container container = platform.createContainer(image, ScriptTestConstants.LOCALHOST);
-        List data = new ArrayList();
-        data.add("testData");
-
-        // When
-        StringBuilder result = platform.runContainer(container, data);
-
-        // Then
-        Assert.assertEquals("[\"testData\"]", result.toString());
     }
 }

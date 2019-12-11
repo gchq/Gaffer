@@ -57,7 +57,10 @@ public interface ImagePlatform {
      *
      * @param container              the container to run
      * @param inputData              the data to pass to the container
-     * @return the result of the container
      */
-    StringBuilder runContainer(Container container, Iterable inputData);
+    void runContainer(Container container, Iterable inputData);
+
+    void closeContainer(Container container);
+
+    void startContainer(Container container);
 }
