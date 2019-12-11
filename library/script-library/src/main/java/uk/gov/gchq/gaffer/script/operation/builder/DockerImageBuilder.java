@@ -122,7 +122,9 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         // Copy the Dockerfile
-        if (dockerfilePath.equals("")) {
+        if (checkPathsAreBlank(pathToBuildFiles, dockerfilePath)) {
+            LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
+        } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
             createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         } else {
@@ -151,6 +153,38 @@ public class DockerImageBuilder implements ImageBuilder {
         for (final String fileName : dockerFiles) {
             createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
         }
+    }
+
+    /**
+     * Checks if the file paths are blank.
+     *
+     * @param pathToBuildFiles the path to the build files.
+     * @param dockerfilePath the docker file path.
+     * @return boolean true if the paths are blank.
+     */
+    private boolean checkPathsAreBlank(final String pathToBuildFiles, final String dockerfilePath) {
+        return ((checkPathToBuildFilesIsBlank(pathToBuildFiles)) ||
+                (checkDockerfilePathIsBlank(dockerfilePath)));
+    }
+
+    /**
+     * Checks if the path to the build files is blank.
+     *
+     * @param pathToBuildFiles the path to the build files.
+     * @return boolean true if the path is blank.
+     */
+    private boolean checkPathToBuildFilesIsBlank(final String pathToBuildFiles) {
+        return (null == pathToBuildFiles || pathToBuildFiles.equals(""));
+    }
+
+    /**
+     * Checks if the docker file path is blank.
+     *
+     * @param dockerfilePath the docker file path.
+     * @return boolean true if the path is blank.
+     */
+    private boolean checkDockerfilePathIsBlank(final String dockerfilePath) {
+        return (null == dockerfilePath || dockerfilePath.equals(""));
     }
 
     /**
