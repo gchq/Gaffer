@@ -56,19 +56,23 @@ public class ContainerTest {
         Runnable serverTask = () -> {
             try (ServerSocket serverSocket = new ServerSocket(ScriptTestConstants.TEST_SERVER_PORT_3)) {
                 System.out.println("Waiting for clients to connect...");
-                Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected.");
-                DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
-                DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
-                dos.writeBoolean(true);
-                dos.flush();
-                dis.readUTF();
-                dis.readUTF();
-                dos.writeInt(1);
-                dos.writeUTF("Test Complete");
-                serverSocket.close();
-                System.out.println("Closing Socket.");
-                dos.flush();
+                try (Socket clientSocket = serverSocket.accept();
+                     DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
+                     DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream())) {
+                    dos.writeBoolean(true);
+                    dos.flush();
+                    dis.readUTF();
+                    dis.readUTF();
+                    dos.writeInt(1);
+                    dos.writeUTF("Test Complete");
+                    System.out.println("Closing Socket.");
+                    dos.flush();
+                } catch (IOException e) {
+                    System.err.println("Unable to process client request");
+                    System.out.println("Unable to process client request");
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
                 System.err.println("Unable to process client request");
                 System.out.println("Unable to process client request");
