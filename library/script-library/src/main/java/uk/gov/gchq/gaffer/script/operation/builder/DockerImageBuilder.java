@@ -59,7 +59,7 @@ public class DockerImageBuilder implements ImageBuilder {
 
         // Convert the script parameters into a string
         String params = stringifyParameters(scriptParameters);
-        String buildArgs = BuildArguments(scriptName, params);
+        String buildArgs = buildArguments(scriptName, params);
         DockerClient.BuildParam buildParam = null;
 
         // Build an image from the Dockerfile
@@ -90,7 +90,7 @@ public class DockerImageBuilder implements ImageBuilder {
      *
      * @return String the build argumnets string.
      */
-    private String BuildArguments(final String scriptName, final String params) {
+    private String buildArguments(final String scriptName, final String params) {
         // Create the build arguments
         String retVal = "";
 
