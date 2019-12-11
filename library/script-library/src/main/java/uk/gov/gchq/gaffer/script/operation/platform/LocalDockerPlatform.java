@@ -109,7 +109,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 // Create a container from the image and bind ports
                 final ContainerConfig containerConfig = ContainerConfig.builder()
                         .hostConfig(HostConfig.builder()
-                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port))))
+                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
                                 .build())
                         .image(image.getImageId())
                         .exposedPorts("80/tcp")

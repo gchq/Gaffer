@@ -109,21 +109,20 @@ public class LocalDockerContainer implements Container {
     public StringBuilder receiveData() {
         // First get the length of the data coming from the container. Keep trying until the container is ready.
         LOGGER.info("Inputstream is: {}", inputStream);
-        int incomingDataLength = 0;
-        Exception error = null;
+        int incomingDataLength;
         if (clientSocket != null && inputStream != null) {
             int tries = 0;
             while (tries < MAX_TRIES) {
                 try {
                     incomingDataLength = inputStream.readInt();
                     LOGGER.info("Length of container...{}", incomingDataLength);
-                    error = null;
                     break;
                 } catch (final IOException e) {
                     tries += 1;
-                    error = e;
                     sleep(TIMEOUT_200);
                 }
+            }
+        }
 
         incomingDataLength = getIncomingDataLength();
 
@@ -165,6 +164,7 @@ public class LocalDockerContainer implements Container {
             }
         } catch (final IOException e) {
             LOGGER.error(e.getMessage());
+    }
         return dataRecvd;
     }
 

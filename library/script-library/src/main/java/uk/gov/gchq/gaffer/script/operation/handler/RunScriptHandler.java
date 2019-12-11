@@ -60,7 +60,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         try {
             final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
             // Create the container
-            final Container container = imagePlatform.createContainer(image, ip);
+            final Container container = imagePlatform.createContainer(image);
             // Run the container and return the result
             return imagePlatform.runContainer(container, operation.getInput());
         } catch (final Exception e) {
