@@ -22,5 +22,5 @@ public interface Image {
      *
      * @return the unique image id
      */
-    String getImageString();
+    String getImageId();
 }

@@ -32,7 +32,7 @@ public final class DockerClientSingleton {
         if (dockerClient == null) {
             // Synchronize the creation of the docker client
             synchronized (DockerClientSingleton.class) {
-                // Only create a docker client if one already exists
+                // Creates a docker client if none already exist
                 if (dockerClient == null) {
                     try {
                         dockerClient = DefaultDockerClient.fromEnv().build();

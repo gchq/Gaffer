@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.script.operation.handler;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
@@ -54,13 +55,17 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         }
 
         // Pull or Clone the repo with the files
-        scriptProvider.getScripts(absoluteRepoPath.toString(), repoURI);
+        scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
         // Build the image
-        final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
-        // Create the container
-        final Container container = imagePlatform.createContainer(image);
-        // Run the container and return the result
-        return imagePlatform.runContainer(container, operation.getInput());
+        try {
+            final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
+            // Create the container
+            final Container container = imagePlatform.createContainer(image, ip);
+            // Run the container and return the result
+            return imagePlatform.runContainer(container, operation.getInput());
+        } catch (final Exception e) {
+            throw new OperationException(e);
+        }
     }
 
     private ImagePlatform getImagePlatform() {

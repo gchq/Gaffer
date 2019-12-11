@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
@@ -27,6 +30,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 public class DockerImageBuilderTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilderTest.class);
 
     @Test
     public void shouldBuildImage() {
@@ -35,15 +39,20 @@ public class DockerImageBuilderTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        DockerImageBuilder bIFD = new DockerImageBuilder();
+        DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        final GitScriptProvider gitScriptProvider = new GitScriptProvider();
+        gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
 
         // When
-        bIFD.getFiles(directoryPath, "");
-        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        String returnedImageId = returnedImage.getImageString();
+        dockerImageBuilder.getFiles(directoryPath, "");
+        Image returnedImage = null;
+        try {
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        String returnedImageId = returnedImage.getImageId();
 
         // Then
         Assert.assertNotNull(returnedImageId);

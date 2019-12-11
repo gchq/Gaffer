@@ -58,8 +58,9 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
+     * @throws Exception             the exception thrown in case of a failure to build image
      */
-    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) {
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws Exception {
 
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
@@ -101,15 +102,24 @@ public class LocalDockerPlatform implements ImagePlatform {
 
         String containerId = "";
         // Keep trying to create a container and find a free port.
-        try {
-            port = RandomPortGenerator.getInstance().generatePort();
+        while (containerId == null || containerId.equals("")) {
+            try {
+                port = RandomPortGenerator.getInstance().generatePort();
 
-            // Create a container from the image and bind ports
-            final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(HostConfig.builder().portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port)))).build()).image(image.getImageString()).exposedPorts("80/tcp").cmd("sh", "-c", "while :; do sleep 1; done").build();
-            final ContainerCreation creation = docker.createContainer(containerConfig);
-            containerId = creation.id();
-        } catch (final DockerException | InterruptedException e) {
-            e.printStackTrace();
+                // Create a container from the image and bind ports
+                final ContainerConfig containerConfig = ContainerConfig.builder()
+                        .hostConfig(HostConfig.builder()
+                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port))))
+                                .build())
+                        .image(image.getImageId())
+                        .exposedPorts("80/tcp")
+                        .cmd("sh", "-c", "while :; do sleep 1; done")
+                        .build();
+                final ContainerCreation creation = docker.createContainer(containerConfig);
+                containerId = creation.id();
+            } catch (final DockerException | InterruptedException e) {
+                LOGGER.error(e.getMessage());
+            }
         }
         return new LocalDockerContainer(containerId, port);
     }
@@ -141,7 +151,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
         } catch (final DockerException | InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
             LOGGER.info("Failed to stop the container");
         }
     }
@@ -159,7 +169,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         container.sendData(inputData);
         StringBuilder output = container.receiveData();
         closeContainer(container);
-        RandomPortGenerator.getInstance().freePort(port);
+        RandomPortGenerator.getInstance().releasePort(port);
         return output;
     }
 

@@ -40,8 +40,9 @@ public interface ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the image
+     * @throws Exception             exception if Image is not built
      */
-    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles);
+    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles) throws Exception;
 
     /**
      * Creates a container

@@ -35,7 +35,7 @@ public class GitScriptProviderTest {
         final Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         // When
-        gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
         final String[] files = pathAbsoluteScriptRepo.toFile().list();
 
         // Then
@@ -53,7 +53,7 @@ public class GitScriptProviderTest {
 
         //When
         for (int i = 0; i < 2; i++) {
-            gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+            gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
         }
     }
 }

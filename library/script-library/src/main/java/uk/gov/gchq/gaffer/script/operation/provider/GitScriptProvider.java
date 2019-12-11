@@ -39,13 +39,17 @@ public class GitScriptProvider implements ScriptProvider {
      * @param repoURI                the URI of the GIT repo with the scripts
      */
     @Override
-    public void getScripts(final String absoluteRepoPath,
-                           final String repoURI) {
-        try {
-            Git git = Git.open(new File(absoluteRepoPath));
-            pullRepo(git);
-        } catch (final IOException e) {
+    public void retrieveScripts(final String absoluteRepoPath,
+                                final String repoURI) {
+        if (absoluteRepoPath.isEmpty()) {
             cloneRepo(absoluteRepoPath, repoURI);
+        } else {
+            try {
+                Git git = Git.open(new File(absoluteRepoPath));
+                pullRepo(git);
+            } catch (final IOException e) {
+                LOGGER.error(e.getMessage());
+            }
         }
     }
 
