@@ -89,14 +89,14 @@ public class LocalDockerContainer implements Container {
                 outputStream.flush();
                 break;
             } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
+                LOGGER.error(e.getMessage());
                 error = e;
                 sleep(TIMEOUT_100);
             }
         }
         // Only print an error if it still fails after many tries
         if (error != null) {
-            error.printStackTrace();
+            LOGGER.error(error.getMessage());
         }
     }
 
@@ -110,28 +110,29 @@ public class LocalDockerContainer implements Container {
         // First get the length of the data coming from the container. Keep trying until the container is ready.
         LOGGER.info("Inputstream is: {}", inputStream);
         int incomingDataLength = 0;
-        Exception error = null;
-        if (clientSocket != null && inputStream != null) {
-            int tries = 0;
-            while (tries < TIMEOUT_100) {
-                try {
-                    incomingDataLength = inputStream.readInt();
-                    LOGGER.info("Length of container...{}", incomingDataLength);
-                    error = null;
-                    break;
-                } catch (final IOException e) {
-                    tries += 1;
-                    error = e;
-                    sleep(TIMEOUT_200);
-                }
+
+        incomingDataLength = getIncomingDataLength();
+
+        StringBuilder dataReceived = new StringBuilder();
+        dataReceived = getDataReceived(incomingDataLength, dataReceived);
+
+        try {
+            if (clientSocket != null) {
+                clientSocket.close();
             }
+        } catch (final IOException e) {
+            LOGGER.error(e.getMessage());
         }
 
+        return dataReceived;
+    }
+
+    private StringBuilder getDataReceived(final int incomingDataLength, final StringBuilder dataReceived) {
         // If it failed to get the length of the incoming data then show the error, otherwise return the data.
-        StringBuilder dataReceived = new StringBuilder();
-        if (null != error) {
+        StringBuilder dataRecvd = dataReceived;
+
+        if (incomingDataLength == 0) {
             LOGGER.info("Connection failed, stopping the container...");
-            error.printStackTrace();
         } else {
             try {
                 // Get the data
@@ -139,24 +140,43 @@ public class LocalDockerContainer implements Container {
                     dataReceived.append(inputStream.readUTF());
                 }
                 dataReceived.append(inputStream.readUTF());
-                // Show the error message if the script failed and return no data
-                if (dataReceived.subSequence(0, 5) == "Error") {
-                    LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
-                    dataReceived = null;
-                }
+                dataRecvd = checkIfDataReceivedBeginsWithError(dataReceived);
             } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
-        try {
-            if (clientSocket != null) {
-                clientSocket.close();
-            }
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
+        return dataRecvd;
+    }
 
-        return dataReceived;
+    private StringBuilder checkIfDataReceivedBeginsWithError(final StringBuilder dataReceived) {
+        // Show the error message if the script failed and return no data
+        StringBuilder dataRecvd = dataReceived;
+
+        if (dataReceived.subSequence(0, 5) == "Error") {
+            LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
+            dataRecvd = null;
+        }
+        return dataRecvd;
+    }
+
+    private int getIncomingDataLength() {
+        int incomingDataLength = 0;
+
+        if (clientSocket != null && inputStream != null) {
+            int tries = 0;
+            while (tries < TIMEOUT_100) {
+                try {
+                    incomingDataLength = inputStream.readInt();
+                    LOGGER.info("Length of container...{}", incomingDataLength);
+                    break;
+                } catch (final IOException e) {
+                    tries += 1;
+                    LOGGER.error(e.getMessage());
+                    sleep(TIMEOUT_200);
+                }
+            }
+        }
+        return incomingDataLength;
     }
 
     @Override
@@ -177,7 +197,7 @@ public class LocalDockerContainer implements Container {
         try {
             Thread.sleep(time);
         } catch (final InterruptedException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 }

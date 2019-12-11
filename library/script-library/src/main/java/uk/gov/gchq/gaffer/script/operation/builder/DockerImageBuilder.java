@@ -59,38 +59,54 @@ public class DockerImageBuilder implements ImageBuilder {
 
         // Convert the script parameters into a string
         String params = stringifyParameters(scriptParameters);
+        String buildArgs = buildArguments(scriptName, params);
+        DockerClient.BuildParam buildParam = null;
 
+        // Build an image from the Dockerfile
+        LOGGER.info("Building the image from the Dockerfile...");
+        LOGGER.info("Path to build files: " + Paths.get(pathToBuildFiles).toString());
+        try {
+            buildParam = DockerClient.BuildParam.create("buildargs", buildArgs);
+            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
+            return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
+                    "scriptoperation:" + scriptName, "Dockerfile", message -> {
+                        final String imageId = message.buildImageId();
+                        if (imageId != null) {
+                            imageIdFromMessage.set(imageId);
+                        }
+                        LOGGER.info(String.valueOf(message));
+                    }, buildParam));
+        } catch (final DockerException | InterruptedException | IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Builds the arguments string to build the Docker Client.
+     *
+     * @param scriptName - String name of the script to run.
+     * @param params - String parameters to be passed to the script to be run.
+     *
+     * @return String the build argumnets string.
+     */
+    private String buildArguments(final String scriptName, final String params) {
         // Create the build arguments
+        String retVal = "";
+
         StringBuilder buildargs = new StringBuilder();
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
         LOGGER.info(String.valueOf(buildargs));
 
-        DockerClient.BuildParam buildParam = null;
         try {
-            buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
+            retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
-        // Build an image from the Dockerfile
-        LOGGER.info("Building the image from the Dockerfile...");
-        LOGGER.info("Path to build files: " + Paths.get(pathToBuildFiles).toString());
-        try {
-            final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
-            return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
-                    "scriptoperation:" + scriptName, "Dockerfile", message -> {
-                final String imageId = message.buildImageId();
-                if (imageId != null) {
-                    imageIdFromMessage.set(imageId);
-                }
-                LOGGER.info(String.valueOf(message));
-            }, buildParam));
-        } catch (final DockerException | InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return retVal;
     }
 
     /**
@@ -132,7 +148,7 @@ public class DockerImageBuilder implements ImageBuilder {
             inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 

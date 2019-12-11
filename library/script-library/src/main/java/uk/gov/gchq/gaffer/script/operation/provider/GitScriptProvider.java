@@ -27,6 +27,10 @@ import java.io.IOException;
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
+    public static GitScriptProvider gitScriptProvider() {
+        return new GitScriptProvider();
+    }
+
     /**
      * Gets the scripts from the given GIT repo URI and places
      * them at the given path
@@ -56,7 +60,7 @@ public class GitScriptProvider implements ScriptProvider {
             git.pull().call();
             LOGGER.info("Pulled the latest files.");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -72,7 +76,7 @@ public class GitScriptProvider implements ScriptProvider {
             Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
     }
 }

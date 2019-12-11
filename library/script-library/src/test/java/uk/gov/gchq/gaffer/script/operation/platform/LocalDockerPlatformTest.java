@@ -64,7 +64,7 @@ public class LocalDockerPlatformTest {
         Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
 
         // When
-        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image, ScriptTestConstants.LOCALHOST);
+        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image);
 
         try {
             if (docker != null) {
@@ -88,7 +88,7 @@ public class LocalDockerPlatformTest {
         DockerImageBuilder imageBuilder = new DockerImageBuilder();
         imageBuilder.getFiles(directoryPath, "");
         Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        Container container = platform.createContainer(image, ScriptTestConstants.LOCALHOST);
+        Container container = platform.createContainer(image);
         List data = new ArrayList();
         data.add("testData");
 

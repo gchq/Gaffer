@@ -47,10 +47,9 @@ public interface ImagePlatform {
      * Creates a container
      *
      * @param image                  the image to create a container from
-     * @param ip                     the ip the container is connected to
      * @return the container
      */
-    Container createContainer(Image image, String ip);
+    Container createContainer(Image image);
 
     /**
      * Runs a container

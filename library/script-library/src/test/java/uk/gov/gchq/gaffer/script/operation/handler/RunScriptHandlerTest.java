@@ -50,7 +50,8 @@ public class RunScriptHandlerTest {
         // When
         StringBuilder results = null;
         try {
-
+            rPSH.setRepoName("test");
+            rPSH.setRepoURI("https://github.com/g609bmsma/test");
             results = (StringBuilder) rPSH.doOperation(runScript, null, null);
         } catch (OperationException e) {
             e.printStackTrace();
