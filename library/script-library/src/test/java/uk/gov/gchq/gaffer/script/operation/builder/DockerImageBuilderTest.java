@@ -42,12 +42,18 @@ public class DockerImageBuilderTest {
         DockerImageBuilder bIFD = new DockerImageBuilder();
 
         final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        pOrC.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        bIFD.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
 
         // When
-        bIFD.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
-        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        String returnedImageId = returnedImage.getImageString();
+        Image returnedImage = null;
+        try {
+            returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String returnedImageId = returnedImage.getImageId();
 
         // Then
         Assert.assertNotNull(returnedImageId);
@@ -88,7 +94,12 @@ public class DockerImageBuilderTest {
 
         // When
         bIFD.getFiles(directoryPath, "");
-        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Image returnedImage = null;
+        try {
+            returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Then
         Assert.assertNull(returnedImage);
