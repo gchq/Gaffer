@@ -97,22 +97,24 @@ public class LocalDockerPlatform implements ImagePlatform {
 
         String containerId = "";
         // Keep trying to create a container and find a free port.
-        try {
-            port = RandomPortGenerator.getInstance().generatePort();
+        while (containerId == null || containerId.equals("")) {
+            try {
+                port = RandomPortGenerator.getInstance().generatePort();
 
-            // Create a container from the image and bind ports
-            final ContainerConfig containerConfig = ContainerConfig.builder()
-                    .hostConfig(HostConfig.builder()
-                            .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port))))
-                            .build())
-                    .image(image.getImageId())
-                    .exposedPorts("80/tcp")
-                    .cmd("sh", "-c", "while :; do sleep 1; done")
-                    .build();
-            final ContainerCreation creation = docker.createContainer(containerConfig);
-            containerId = creation.id();
-        } catch (final DockerException | InterruptedException e) {
-            LOGGER.error(e.getMessage());
+                // Create a container from the image and bind ports
+                final ContainerConfig containerConfig = ContainerConfig.builder()
+                        .hostConfig(HostConfig.builder()
+                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(ip, port))))
+                                .build())
+                        .image(image.getImageId())
+                        .exposedPorts("80/tcp")
+                        .cmd("sh", "-c", "while :; do sleep 1; done")
+                        .build();
+                final ContainerCreation creation = docker.createContainer(containerConfig);
+                containerId = creation.id();
+            } catch (final DockerException | InterruptedException e) {
+                LOGGER.error(e.getMessage());
+            }
         }
         return new LocalDockerContainer(containerId, port);
     }
