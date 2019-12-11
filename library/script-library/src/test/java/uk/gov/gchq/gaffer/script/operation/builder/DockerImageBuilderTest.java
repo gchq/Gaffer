@@ -29,7 +29,28 @@ import java.nio.file.Path;
 public class DockerImageBuilderTest {
 
     @Test
-    public void shouldBuildImage() {
+    public void bothPathsGivenShouldBuildImage() {
+
+        // Given
+        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
+        final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
+        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
+        DockerImageBuilder bIFD = new DockerImageBuilder();
+
+        final GitScriptProvider pOrC = new GitScriptProvider();
+        pOrC.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+
+        // When
+        bIFD.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
+        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        String returnedImageId = returnedImage.getImageString();
+
+        // Then
+        Assert.assertNotNull(returnedImageId);
+    }
+
+    @Test
+    public void blankDirectoryPathShouldBuildImage() {
 
         // Given
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
@@ -47,5 +68,20 @@ public class DockerImageBuilderTest {
 
         // Then
         Assert.assertNotNull(returnedImageId);
+    }
+
+    @Test
+    public void pathsAreBlankCodeShouldReturnNull() {
+        // Given
+        final String directoryPath = "";
+        Path pathAbsoluteScriptRepo = null;
+        DockerImageBuilder bIFD = new DockerImageBuilder();
+
+        // When
+        bIFD.getFiles(directoryPath, "");
+        Image returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+
+        // Then
+        Assert.assertNull(returnedImage);
     }
 }

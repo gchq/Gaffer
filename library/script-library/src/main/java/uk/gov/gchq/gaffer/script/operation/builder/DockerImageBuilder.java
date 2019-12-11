@@ -118,7 +118,9 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
         String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
-        if (dockerfilePath.equals("")) {
+        if (checkPathsAreBlank(pathToBuildFiles, dockerfilePath)) {
+            LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
+        } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
             createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         } else {
@@ -132,6 +134,19 @@ public class DockerImageBuilder implements ImageBuilder {
         for (final String fileName : fileNames) {
             createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
         }
+    }
+
+    private boolean checkPathsAreBlank(final String pathToBuildFiles, final String dockerfilePath) {
+        return ((checkPathToBuildFilesIsBlank(pathToBuildFiles)) ||
+                (checkDockerfilePathIsBlank(dockerfilePath)));
+    }
+
+    private boolean checkPathToBuildFilesIsBlank(final String pathToBuildFiles) {
+        return (null == pathToBuildFiles || pathToBuildFiles.equals(""));
+    }
+
+    private boolean checkDockerfilePathIsBlank(final String dockerfilePath) {
+        return (null == dockerfilePath || dockerfilePath.equals(""));
     }
 
     /**
