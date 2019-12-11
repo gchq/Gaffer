@@ -27,6 +27,10 @@ import java.io.IOException;
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
 
+    public static GitScriptProvider gitScriptProvider() {
+        return new GitScriptProvider();
+    }
+
     /**
      * Gets the scripts from the given GIT repo URI and places
      * them at the given path

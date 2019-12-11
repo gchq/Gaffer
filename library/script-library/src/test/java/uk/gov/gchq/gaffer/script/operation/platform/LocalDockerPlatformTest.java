@@ -73,7 +73,7 @@ public class LocalDockerPlatformTest {
         }
 
         // When
-        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image, ScriptTestConstants.LOCALHOST);
+        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image);
 
         try {
             if (docker != null) {
@@ -96,13 +96,8 @@ public class LocalDockerPlatformTest {
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
         DockerImageBuilder imageBuilder = new DockerImageBuilder();
         imageBuilder.getFiles(directoryPath, "");
-        Image image = null;
-        try {
-            image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        Container container = platform.createContainer(image, ScriptTestConstants.LOCALHOST);
+        Image image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+        Container container = platform.createContainer(image);
         List data = new ArrayList();
         data.add("testData");
 

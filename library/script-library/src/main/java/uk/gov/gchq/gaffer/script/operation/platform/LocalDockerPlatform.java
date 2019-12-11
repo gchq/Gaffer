@@ -45,6 +45,11 @@ public class LocalDockerPlatform implements ImagePlatform {
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
+    private static final String LOCAL_HOST = "127.0.0.1";
+
+    public static LocalDockerPlatform localDockerPlatform() {
+        return new LocalDockerPlatform();
+    }
 
     /**
      * Builds a docker image
@@ -80,7 +85,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.info("Could not remove image, image still in use.");
+            LOGGER.error("Could not remove image, image still in use.");
         }
 
         return dockerImage;
@@ -90,11 +95,10 @@ public class LocalDockerPlatform implements ImagePlatform {
      * Builds a docker image and creates a docker container instance.
      *
      * @param image                  the image to create a container from
-     * @param ip                     the ip the container is connected to
      * @return the docker container
      */
     @Override
-    public Container createContainer(final Image image, final String ip) {
+    public Container createContainer(final Image image) {
 
         String containerId = "";
         // Keep trying to create a container and find a free port.

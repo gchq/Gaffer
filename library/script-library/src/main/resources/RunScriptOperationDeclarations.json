@@ -11,9 +11,9 @@
         "scriptProvider": {
           "class": "uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider"
         },
-        "repoName": "test",
-        "repoURI": "https://github.com/g609bmsma/test",
-        "ip": "127.0.0.1"
+        "repoName": "",
+        "repoURI": "",
+        "ip": ""
       }
     }
   ]
