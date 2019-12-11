@@ -20,12 +20,16 @@ import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static java.util.Objects.nonNull;
 
 /**
  * A <code>TransformStreamSupplier</code> is a {@link StreamSupplier} which uses a
@@ -56,8 +60,22 @@ public class TransformStreamSupplier implements StreamSupplier<Element> {
     public Stream<Element> get() {
 
         final Function<Element, Element> toTransformedElement = e -> {
-            final ElementTransformer elementTransformer = e instanceof Edge ? transform.getEdges().get(e.getGroup()) : transform.getEntities().get(e.getGroup());
-            return elementTransformer.apply(e);
+            final String group = e.getGroup();
+            final Map<String, ElementTransformer> edgesTransform = transform.getEdges();
+            final Map<String, ElementTransformer> entitiesTransform = transform.getEntities();
+
+            final Element rtn;
+            if (e instanceof Edge && nonNull(edgesTransform) && nonNull(group)) {
+                rtn = edgesTransform.get(group).apply(e);
+            } else if (e instanceof Entity && nonNull(entitiesTransform) && nonNull(group)) {
+                rtn = entitiesTransform.get(group).apply(e);
+            } else if (e instanceof Edge || e instanceof Entity) {
+                //either the group or transformer was null for the Edge/Entity.
+                rtn = e;
+            } else {
+                throw new UnsupportedOperationException("Transform is only compatible with Edge or Entity elements, found: " + e.getClass());
+            }
+            return rtn;
         };
 
         return Streams.toStream((Iterable<Element>) input).map(toTransformedElement);
