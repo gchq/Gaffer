@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;

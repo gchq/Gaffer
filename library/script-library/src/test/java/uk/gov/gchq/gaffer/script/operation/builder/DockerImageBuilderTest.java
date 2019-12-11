@@ -20,12 +20,11 @@ import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
-import uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatformTest;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
-import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;

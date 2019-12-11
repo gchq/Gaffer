@@ -28,6 +28,7 @@ public interface ImageBuilder {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing any build files
      * @return the image
+     * @throws Exception             thrown if Image is not built
      */
     Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
                      final String pathToBuildFiles) throws Exception;

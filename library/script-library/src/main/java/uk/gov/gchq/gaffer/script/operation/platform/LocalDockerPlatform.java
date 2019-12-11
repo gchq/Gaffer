@@ -53,6 +53,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
+     * @throws Exception             the exception thrown in case of a failure to build image
      */
     public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws Exception {
 
