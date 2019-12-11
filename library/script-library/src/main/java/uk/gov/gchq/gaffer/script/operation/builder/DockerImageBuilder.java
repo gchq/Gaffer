@@ -35,13 +35,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class DockerImageBuilder implements ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
+    private static List<String> dockerFiles = Collections.unmodifiableList(new ArrayList<>(Arrays.asList("DataInputStream.py", "entrypoint.py", "modules.txt")));
 
     /**
      * Builds a docker image, which runs a script, from a Dockerfile
@@ -100,7 +100,6 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param dockerfilePath         the path to the non-default dockerfile
      */
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
-        String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
         if (dockerfilePath.equals("")) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
@@ -113,7 +112,7 @@ public class DockerImageBuilder implements ImageBuilder {
             createFile(fileName, pathToBuildFiles, fileLocation);
         }
         // Copy the rest of the files
-        for (final String fileName : fileNames) {
+        for (final String fileName : dockerFiles) {
             createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
         }
     }
@@ -124,12 +123,11 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
      */
     public void getFiles(final String pathToBuildFiles) {
-        String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
         // Copy the Dockerfile
         LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
         createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
         // Copy the rest of the files
-        for (final String fileName : fileNames) {
+        for (final String fileName : dockerFiles) {
             createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
         }
     }
