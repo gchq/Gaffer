@@ -112,7 +112,7 @@ public class LocalDockerContainer implements Container {
         int incomingDataLength = 0;
 
         incomingDataLength = getIncomingDataLength();
-        
+
         StringBuilder dataReceived = new StringBuilder();
         dataReceived = getDataReceived(incomingDataLength, dataReceived);
 

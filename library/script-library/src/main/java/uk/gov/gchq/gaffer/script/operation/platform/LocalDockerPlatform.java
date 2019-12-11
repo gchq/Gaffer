@@ -47,6 +47,10 @@ public class LocalDockerPlatform implements ImagePlatform {
     private int port;
     private static final String LOCAL_HOST = "127.0.0.1";
 
+    public static LocalDockerPlatform localDockerPlatform() {
+        return new LocalDockerPlatform();
+    }
+
     /**
      * Builds a docker image
      *
