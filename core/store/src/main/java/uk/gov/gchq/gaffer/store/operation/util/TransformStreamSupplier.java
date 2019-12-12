@@ -34,7 +34,7 @@ import static java.util.Objects.nonNull;
 /**
  * A <code>TransformStreamSupplier</code> is a {@link StreamSupplier} which uses a
  * {@link Transform} to perform a transformation on each {@link Element} in the input
- * {@link Iterable}, and producing an {@link Iterable}.
+ * {@link Iterable}, and producing an {@link Iterable}. Only supports {@link Edge} and {@link Entity}
  */
 public class TransformStreamSupplier implements StreamSupplier<Element> {
     private Iterable<? extends Element> input;
@@ -58,13 +58,13 @@ public class TransformStreamSupplier implements StreamSupplier<Element> {
 
     @Override
     public Stream<Element> get() {
+        final Map<String, ElementTransformer> edgesTransform = transform.getEdges();
+        final Map<String, ElementTransformer> entitiesTransform = transform.getEntities();
 
         final Function<Element, Element> toTransformedElement = e -> {
             final String group = e.getGroup();
-            final Map<String, ElementTransformer> edgesTransform = transform.getEdges();
-            final Map<String, ElementTransformer> entitiesTransform = transform.getEntities();
-
             final Element rtn;
+
             if (e instanceof Edge && nonNull(edgesTransform) && nonNull(group)) {
                 rtn = edgesTransform.get(group).apply(e);
             } else if (e instanceof Entity && nonNull(entitiesTransform) && nonNull(group)) {
@@ -73,7 +73,7 @@ public class TransformStreamSupplier implements StreamSupplier<Element> {
                 //either the group or transformer was null for the Edge/Entity.
                 rtn = e;
             } else {
-                throw new UnsupportedOperationException("Transform is only compatible with Edge or Entity elements, found: " + e.getClass());
+                throw new IllegalArgumentException("Transform is only compatible with Edge or Entity elements, found: " + e.getClass());
             }
             return rtn;
         };
