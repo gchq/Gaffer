@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,17 +88,23 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
 
         // First get the length of the data coming from the container. Keep trying until the container is ready.
         LOGGER.info("Inputstream is: {}", inputStream);
+        Reader inputStreamReader = new InputStreamReader(inputStream);
         int incomingDataLength = 0;
         Exception error = null;
         if (inputStream != null) {
             int tries = 0;
             while (tries < TIMEOUT_100) {
                 try {
-                    incomingDataLength = inputStream.readInt();
-                    LOGGER.info("Length of container...{}", incomingDataLength);
-                    error = null;
-                    break;
-                } catch (final IOException e) {
+                    int asciiCode = inputStreamReader.read();
+                    if (asciiCode != 0) {
+                        incomingDataLength = asciiCode;
+                        LOGGER.info("Length of container...{}", incomingDataLength);
+                        error = null;
+                        break;
+                    } else {
+                       throw new NullPointerException("No data length found");
+                    }
+                } catch (final IOException | NullPointerException e) {
                     tries += 1;
                     error = e;
                     sleep(TIMEOUT_200);
@@ -112,11 +120,11 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         } else {
             try {
                 // Get the data
-                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
-                    dataReceived.append(inputStream.readUTF());
-                }
-                dataReceived.append(inputStream.readUTF());
+                char[] charBuffer = new char[incomingDataLength];
+                inputStreamReader.read(charBuffer, 0, incomingDataLength);
+                dataReceived.append(charBuffer);
                 // Show the error message if the script failed and return no data
+                System.out.println("dataReceived is" + dataReceived);
                 if (dataReceived.subSequence(0, 5) == "Error") {
                     LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
                     dataReceived = null;
