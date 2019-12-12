@@ -25,11 +25,10 @@ PORT = 80
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
-sock.sendall("Server Start\n")
-
+sock.sendall("Container is Active\n")
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
-
+sock.close()
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     # Setup the port and get it ready for listening for connections
@@ -66,7 +65,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 data = None
 
             # Send the results back to the server
-            if (data != None):
+            if data is not None:
                 print('type of output data is: ', type(data))
                 i = 0
                 conn.sendall(struct.pack('>i', len(data)))
