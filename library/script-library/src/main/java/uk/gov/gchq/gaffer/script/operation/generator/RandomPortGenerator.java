@@ -34,7 +34,7 @@ public final class RandomPortGenerator implements PortGenerator {
     private static volatile RandomPortGenerator portGenerator;
     private static final Integer MIN_PORT_NUM = 50000;
     private static final Integer MAX_PORT_NUM = 65535;
-    private static ArrayList<Integer> usedPorts = new ArrayList<>();
+    private final ArrayList<Integer> usedPorts = new ArrayList<>();
     Random rand = new Random();
 
     private RandomPortGenerator() { }
