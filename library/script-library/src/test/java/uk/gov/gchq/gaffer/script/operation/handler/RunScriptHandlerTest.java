@@ -40,7 +40,6 @@ public class RunScriptHandlerTest {
         RunScriptHandler rPSH = new RunScriptHandler();
         rPSH.setRepoName(ScriptTestConstants.REPO_NAME);
         rPSH.setRepoURI(ScriptTestConstants.REPO_URI);
-        rPSH.setIp(ScriptTestConstants.LOCALHOST);
         rPSH.setImagePlatform(new LocalDockerPlatform());
         rPSH.setScriptProvider(new GitScriptProvider());
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {
