@@ -126,7 +126,7 @@ public class DockerImageBuilder implements ImageBuilder {
             LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
         } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
             LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
+            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
         } else {
             LOGGER.info("DockerfilePath specified, using non-default dockerfile");
             final String[] pathSplit = dockerfilePath.split("/");
@@ -148,10 +148,10 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles) {
         // Copy the Dockerfile
         LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
+        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
         // Copy the rest of the files
         for (final String fileName : dockerFiles) {
-            createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+            createFile(fileName, pathToBuildFiles, "/.ScriptBin");
         }
     }
 
