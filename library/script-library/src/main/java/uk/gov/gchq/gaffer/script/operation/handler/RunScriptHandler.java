@@ -44,8 +44,6 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
     private static final Integer TIMEOUT_100 = 100;
-    private static final Integer TIMEOUT_200 = 200;
-    private static final Integer MAX_BYTES = 65000;
 
     private ImagePlatform imagePlatform = new LocalDockerPlatform();
     private ScriptProvider scriptProvider = new GitScriptProvider();
@@ -92,22 +90,28 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         int incomingDataLength = 0;
         Exception error = null;
         if (inputStream != null) {
-            int tries = 0;
-            while (tries < TIMEOUT_100) {
+            long start = System.currentTimeMillis();
+            boolean timedOut = true;
+            while (System.currentTimeMillis() - start < TIMEOUT_100) {
                 try {
-                    int asciiCode = inputStreamReader.read();
-                    if (asciiCode != 0) {
-                        incomingDataLength = asciiCode;
-                        LOGGER.info("Length of container...{}", incomingDataLength);
-                        error = null;
+                    if (inputStreamReader.ready()) {
+                        timedOut = false;
                         break;
-                    } else {
-                       throw new NullPointerException("No data length found");
                     }
-                } catch (final IOException | NullPointerException e) {
-                    tries += 1;
-                    error = e;
-                    sleep(TIMEOUT_200);
+                } catch (final IOException e) {
+                    LOGGER.error(e.getMessage());
+                }
+            }
+            if (!timedOut) {
+                try {
+                    while (incomingDataLength == 0) {
+                        int asciiCode = inputStreamReader.read();
+                        if (asciiCode != 0) {
+                            incomingDataLength = asciiCode;
+                        }
+                    }
+                } catch (final IOException e) {
+                    LOGGER.error(e.getMessage());
                 }
             }
         }
@@ -143,14 +147,6 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         }
 
         return dataReceived;
-    }
-
-    private void sleep(final Integer time) {
-        try {
-            Thread.sleep(time);
-        } catch (final InterruptedException e) {
-            LOGGER.info(e.getMessage());
-        }
     }
 
     private ImagePlatform getImagePlatform() {
