@@ -43,7 +43,7 @@ public class GitScriptProvider implements ScriptProvider {
     @Override
     public void retrieveScripts(final String absoluteRepoPath,
                                 final String repoURI) {
-        if (!Files.exists(Paths.get(absoluteRepoPath))) {
+        if (Files.notExists(Paths.get(absoluteRepoPath))) {
             cloneRepo(absoluteRepoPath, repoURI);
         } else {
             try {
