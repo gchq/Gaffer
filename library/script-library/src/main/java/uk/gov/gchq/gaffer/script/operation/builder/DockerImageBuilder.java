@@ -136,7 +136,8 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param fileLocation        the original location of the file
      */
     private void createFile(final String fileName, final String destination, final String fileLocation) {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName); BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
