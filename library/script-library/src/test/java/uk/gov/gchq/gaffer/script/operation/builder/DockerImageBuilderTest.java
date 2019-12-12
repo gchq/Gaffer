@@ -39,16 +39,16 @@ public class DockerImageBuilderTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        DockerImageBuilder bIFD = new DockerImageBuilder();
+        DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        final GitScriptProvider pOrC = new GitScriptProvider();
-        pOrC.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        bIFD.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
+        final GitScriptProvider gitScriptProvider = new GitScriptProvider();
+        gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        dockerImageBuilder.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
 
         // When
         Image returnedImage = null;
         try {
-            returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,13 +90,13 @@ public class DockerImageBuilderTest {
         // Given
         final String directoryPath = "";
         Path pathAbsoluteScriptRepo = null;
-        DockerImageBuilder bIFD = new DockerImageBuilder();
+        DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
         // When
-        bIFD.getFiles(directoryPath, "");
+        dockerImageBuilder.getFiles(directoryPath, "");
         Image returnedImage = null;
         try {
-            returnedImage = bIFD.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
