@@ -72,7 +72,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return imagePlatform;
     }
 
-    private void setImagePlatform(final ImagePlatform imagePlatform) {
+    public void setImagePlatform(final ImagePlatform imagePlatform) {
         this.imagePlatform = imagePlatform;
     }
 
@@ -80,7 +80,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return scriptProvider;
     }
 
-    private void setScriptProvider(final ScriptProvider scriptProvider) {
+    public void setScriptProvider(final ScriptProvider scriptProvider) {
         this.scriptProvider = scriptProvider;
     }
 
