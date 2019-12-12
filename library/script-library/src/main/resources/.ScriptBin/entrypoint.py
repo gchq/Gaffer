@@ -2,7 +2,6 @@ import importlib
 import socket
 import struct
 import re
-import pandas
 import sys
 from ast import literal_eval
 
@@ -23,6 +22,11 @@ print('scriptParams is ', scriptParameters)
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((HOST, PORT))
+sock.sendall("Server Start\n")
+
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
