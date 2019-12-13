@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
@@ -41,7 +43,7 @@ public class GitScriptProvider implements ScriptProvider {
     @Override
     public void retrieveScripts(final String absoluteRepoPath,
                                 final String repoURI) {
-        if (absoluteRepoPath.isEmpty()) {
+        if (Files.notExists(Paths.get(absoluteRepoPath))) {
             cloneRepo(absoluteRepoPath, repoURI);
         } else {
             try {
