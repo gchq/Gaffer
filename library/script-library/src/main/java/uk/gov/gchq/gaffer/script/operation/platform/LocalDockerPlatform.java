@@ -42,6 +42,7 @@ import java.util.Objects;
 public class LocalDockerPlatform implements ImagePlatform {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final int MAX_TRIES = 100;
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
@@ -128,14 +129,29 @@ public class LocalDockerPlatform implements ImagePlatform {
      * Starts a docker container
      *
      * @param container             the container
+     * @throws DockerException      exception if the container fails to start
+     * @throws InterruptedException exception if the container fails to start
      */
-    private void startContainer(final Container container) {
-        for (int i = 0; i < 100; i++) {
+    private void startContainer(final Container container) throws DockerException, InterruptedException {
+        // Keep trying to start the container
+        Exception error = null;
+        for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
                 docker.startContainer(container.getContainerId());
+                error = null;
                 break;
-            } catch (final DockerException | InterruptedException ignored) {
+            } catch (final DockerException | InterruptedException e) {
+                error = e;
+            }
+        }
+        if (error != null) {
+            LOGGER.error("Failed to start the container");
+            if (error instanceof DockerException) {
+                throw new DockerException(error.getMessage());
+            }
+            if (error instanceof InterruptedException) {
+                throw new InterruptedException(error.getMessage());
             }
         }
     }
@@ -164,13 +180,18 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @return the result of the container
      */
     @Override
-    public StringBuilder runContainer(final Container container, final Iterable inputData) {
-        startContainer(container);
-        container.sendData(inputData);
-        StringBuilder output = container.receiveData();
-        closeContainer(container);
-        RandomPortGenerator.getInstance().releasePort(port);
-        return output;
+    public StringBuilder runContainer(final Container container, final Iterable inputData) throws DockerException, InterruptedException {
+        try {
+            startContainer(container);
+            container.sendData(inputData);
+            StringBuilder output = container.receiveData();
+            closeContainer(container);
+            RandomPortGenerator.getInstance().releasePort(port);
+            return output;
+        } catch (final DockerException | InterruptedException e) {
+            LOGGER.error("Failed to run the container");
+            throw e;
+        }
     }
 
     private String getDockerfilePath() {

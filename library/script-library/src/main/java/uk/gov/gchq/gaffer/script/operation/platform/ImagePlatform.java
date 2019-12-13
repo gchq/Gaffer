@@ -58,6 +58,7 @@ public interface ImagePlatform {
      * @param container              the container to run
      * @param inputData              the data to pass to the container
      * @return the result of the container
+     * @throws Exception             exception if container does not run
      */
-    StringBuilder runContainer(Container container, Iterable inputData);
+    StringBuilder runContainer(Container container, Iterable inputData) throws Exception;
 }

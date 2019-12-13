@@ -107,7 +107,12 @@ public class LocalDockerPlatformTest {
         data.add("testData");
 
         // When
-        StringBuilder result = platform.runContainer(container, data);
+        StringBuilder result = null;
+        try {
+            result = platform.runContainer(container, data);
+        } catch (final DockerException | InterruptedException e) {
+            Assert.fail();
+        }
 
         // Then
         Assert.assertEquals("[\"testData\"]", result.toString());
