@@ -19,6 +19,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -48,7 +50,11 @@ public class LocalDockerPlatformTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
         Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
-        scriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        try {
+            scriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        } catch (GitAPIException | IOException e) {
+            LOGGER.error("Failed getting the scripts during setup of tests");
+        }
     }
 
     @Test
@@ -58,7 +64,11 @@ public class LocalDockerPlatformTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
         DockerImageBuilder imageBuilder = new DockerImageBuilder();
-        imageBuilder.getFiles(directoryPath, "");
+        try {
+            imageBuilder.getFiles(directoryPath, "");
+        } catch (final IOException e) {
+            Assert.fail("Failed to get the build files");
+        }
         DockerClient docker = null;
         try {
             docker = DefaultDockerClient.fromEnv().build();
@@ -95,7 +105,11 @@ public class LocalDockerPlatformTest {
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
         DockerImageBuilder imageBuilder = new DockerImageBuilder();
-        imageBuilder.getFiles(directoryPath, "");
+        try {
+            imageBuilder.getFiles(directoryPath, "");
+        } catch (final IOException e) {
+            Assert.fail("Failed to get the build files");
+        }
         Image image = null;
         try {
             image = platform.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);

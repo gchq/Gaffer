@@ -15,8 +15,10 @@
  */
 package uk.gov.gchq.gaffer.script.operation.handler;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
@@ -36,6 +38,7 @@ import java.util.Map;
 
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
     private ImagePlatform imagePlatform = LocalDockerPlatform.localDockerPlatform();
     private ScriptProvider scriptProvider = GitScriptProvider.gitScriptProvider();
     private String repoName;
@@ -54,16 +57,17 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
             directory.mkdir();
         }
 
-        // Pull or Clone the repo with the files
-        scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
-        // Build the image
         try {
+            // Pull or Clone the repo with the files
+            scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
+            // Build the image
             final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
             // Create the container
             final Container container = imagePlatform.createContainer(image);
             // Run the container and return the result
             return imagePlatform.runContainer(container, operation.getInput());
         } catch (final Exception e) {
+            LOGGER.error("Failed to run the script");
             throw new OperationException(e);
         }
     }

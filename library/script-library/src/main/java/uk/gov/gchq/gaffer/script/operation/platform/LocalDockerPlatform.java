@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,9 +59,11 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
-     * @throws Exception             the exception thrown in case of a failure to build image
+     * @throws InterruptedException             exception if image build fails
+     * @throws DockerException                  exception if image build fails
+     * @throws IOException                      exception if image build fails
      */
-    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws Exception {
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws InterruptedException, DockerException, IOException {
 
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
@@ -85,7 +88,8 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.error("Could not remove image, image still in use.");
+            LOGGER.info(e.getMessage());
+            LOGGER.error("Could not remove the old images, images still in use.");
         }
 
         return dockerImage;

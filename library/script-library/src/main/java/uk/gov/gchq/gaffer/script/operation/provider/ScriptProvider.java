@@ -34,7 +34,8 @@ public interface ScriptProvider {
      *
      * @param absoluteRepoPath       the path to clone the repo to
      * @param repoURI                the URI of the repo with the scripts
+     * @throws Exception             exception if it fails to get the latest scripts
      */
     void retrieveScripts(String absoluteRepoPath,
-                         String repoURI);
+                         String repoURI) throws Exception;
 }
