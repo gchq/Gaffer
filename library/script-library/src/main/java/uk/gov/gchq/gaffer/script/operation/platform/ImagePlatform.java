@@ -50,7 +50,7 @@ public interface ImagePlatform {
      * @param image                  the image to create a container from
      * @return the container
      */
-    Container createContainer(Image image);
+    Container createContainer(Image image) throws Exception;
 
     /**
      * Runs a container

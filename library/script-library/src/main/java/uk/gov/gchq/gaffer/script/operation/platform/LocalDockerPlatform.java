@@ -42,6 +42,7 @@ import java.util.Objects;
 public class LocalDockerPlatform implements ImagePlatform {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final int MAX_TRIES = 100;
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
@@ -98,29 +99,40 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @return the docker container
      */
     @Override
-    public Container createContainer(final Image image) {
+    public Container createContainer(final Image image) throws Exception {
 
         String containerId = "";
+        Exception error = null;
         // Keep trying to create a container and find a free port.
-        while (containerId == null || containerId.equals("")) {
-            try {
-                port = RandomPortGenerator.getInstance().generatePort();
+        for (int i = 0; i < MAX_TRIES; i++) {
+            if (containerId == null || containerId.equals("")) {
+                try {
+                    port = RandomPortGenerator.getInstance().generatePort();
 
-                // Create a container from the image and bind ports
-                final ContainerConfig containerConfig = ContainerConfig.builder()
-                        .hostConfig(HostConfig.builder()
-                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
-                                .build())
-                        .image(image.getImageId())
-                        .exposedPorts("80/tcp")
-                        .cmd("sh", "-c", "while :; do sleep 1; done")
-                        .build();
-                final ContainerCreation creation = docker.createContainer(containerConfig);
-                containerId = creation.id();
-            } catch (final DockerException | InterruptedException e) {
-                LOGGER.error(e.getMessage());
+                    // Create a container from the image and bind ports
+                    final ContainerConfig containerConfig = ContainerConfig.builder()
+                            .hostConfig(HostConfig.builder()
+                                    .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
+                                    .build())
+                            .image(image.getImageId())
+                            .exposedPorts("80/tcp")
+                            .cmd("sh", "-c", "while :; do sleep 1; done")
+                            .build();
+                    final ContainerCreation creation = docker.createContainer(containerConfig);
+                    containerId = creation.id();
+                } catch (final DockerException | InterruptedException e) {
+                    error = e;
+                }
             }
         }
+        // If we still fail to create the container after many tries
+        // then print the error message and throw the error.
+        if (error != null) {
+            LOGGER.error(error.getMessage());
+            LOGGER.error("Failed to create the container");
+            throw error;
+        }
+
         return new LocalDockerContainer(containerId, port);
     }
 
