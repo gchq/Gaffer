@@ -34,6 +34,9 @@ import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +133,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param container             the container
      */
     private void startContainer(final Container container) {
+        this.startContainerListener(container.getPort());
         for (int i = 0; i < 100; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
@@ -138,6 +142,29 @@ public class LocalDockerPlatform implements ImagePlatform {
             } catch (final DockerException | InterruptedException ignored) {
             }
         }
+    }
+
+    private void startContainerListener(final int port) {
+
+        Runnable containerListenerTask = () -> {
+            ServerSocket containerListener = null;
+            try {
+                containerListener = new ServerSocket(port);
+                Socket container = containerListener.accept();
+                container.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (containerListener != null) {
+                try {
+                    containerListener.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        final Thread thread = new Thread(containerListenerTask);
+        thread.start();
     }
 
     /**

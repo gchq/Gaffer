@@ -57,7 +57,6 @@ public class LocalDockerContainer implements Container {
     public void sendData(final Iterable data) {
         LOGGER.info("Attempting to connect with the container...");
 
-        sleep(ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
         Exception error = null;
