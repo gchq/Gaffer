@@ -64,7 +64,7 @@ public class RunScriptHandlerTest {
             rPSH.setRepoURI("https://github.com/g609bmsma/test");
             results = (StringBuilder) rPSH.doOperation(runScript, null, null);
         } catch (OperationException e) {
-            LOGGER.error(e.getMessage());
+            e.printStackTrace();
             Assert.fail();
         }
 

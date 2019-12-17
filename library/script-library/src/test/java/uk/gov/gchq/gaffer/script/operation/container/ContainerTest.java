@@ -17,11 +17,11 @@ package uk.gov.gchq.gaffer.script.operation.container;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
+import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -46,7 +46,7 @@ public class ContainerTest {
         StringBuilder result = null;
         try {
             localDockerContainer.sendData(inputData);
-            result = localDockerContainer.receiveData();
+            result = (StringBuilder) new RunScriptHandler().receiveData(localDockerContainer.receiveData());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -68,7 +68,7 @@ public class ContainerTest {
                     dos.flush();
                     dis.readUTF();
                     dis.readUTF();
-                    dos.writeInt(1);
+                    dos.writeInt(0);
                     dos.writeUTF("Test Complete");
                     System.out.println("Closing Socket.");
                     dos.flush();

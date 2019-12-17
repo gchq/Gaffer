@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.script.operation.container;
 
+import java.io.DataInputStream;
+
 public interface Container {
 
     /**
@@ -30,7 +32,7 @@ public interface Container {
      *
      * @return the data from the container
      */
-    StringBuilder receiveData();
+    DataInputStream receiveData();
 
     /**
      * Get the container id
