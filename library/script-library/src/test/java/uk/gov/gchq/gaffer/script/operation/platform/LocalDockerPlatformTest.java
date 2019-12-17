@@ -23,7 +23,8 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
+import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
@@ -43,6 +45,9 @@ import java.util.List;
 
 public class LocalDockerPlatformTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerPlatformTest.class);
+
+    @Captor
+    ArgumentCaptor<Iterable> dataCaptor;
 
     @Before
     public void setup() {
@@ -83,7 +88,12 @@ public class LocalDockerPlatformTest {
         }
 
         // When
-        LocalDockerContainer container = (LocalDockerContainer) platform.createContainer(image);
+        LocalDockerContainer container = null;
+        try {
+            container = (LocalDockerContainer) platform.createContainer(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         try {
             if (docker != null) {
@@ -116,14 +126,20 @@ public class LocalDockerPlatformTest {
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-        Container container = platform.createContainer(image);
+        Container container = null;
+        try {
+            container = platform.createContainer(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         List data = new ArrayList();
         data.add("testData");
 
         // When
         StringBuilder result = null;
         try {
-            result = platform.runContainer(container, data);
+            platform.runContainer(container, data);
+            result = (StringBuilder) new RunScriptHandler().receiveData(container.receiveData());
         } catch (final DockerException | InterruptedException e) {
             Assert.fail();
         }

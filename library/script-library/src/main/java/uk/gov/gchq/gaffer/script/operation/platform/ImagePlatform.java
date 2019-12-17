@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.script.operation.platform;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.spotify.docker.client.exceptions.DockerException;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 import uk.gov.gchq.gaffer.script.operation.container.Container;
@@ -57,8 +58,11 @@ public interface ImagePlatform {
      *
      * @param container              the container to run
      * @param inputData              the data to pass to the container
-     * @return the result of the container
      * @throws Exception             exception if container does not run
      */
-    StringBuilder runContainer(Container container, Iterable inputData) throws Exception;
+    void runContainer(Container container, Iterable inputData) throws Exception;
+
+    void closeContainer(Container container);
+
+    void startContainer(Container container) throws DockerException, InterruptedException;
 }

@@ -30,7 +30,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,10 +41,14 @@ import java.util.Map;
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final Integer TIMEOUT_200 = 200;
+    private static final int MAX_BYTES = 65000;
+    private static final int MAX_TRIES = 100;
     private ImagePlatform imagePlatform = LocalDockerPlatform.localDockerPlatform();
     private ScriptProvider scriptProvider = GitScriptProvider.gitScriptProvider();
     private String repoName;
     private String repoURI;
+
 
     @Override
     public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
@@ -65,10 +71,89 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
             // Create the container
             final Container container = imagePlatform.createContainer(image);
             // Run the container and return the result
-            return imagePlatform.runContainer(container, operation.getInput());
+            DataInputStream inputStream = container.receiveData();
+            // Get the results back from the container
+            Object results = receiveData(inputStream);
+            // Close the container
+            imagePlatform.closeContainer(container);
+
+            return results;
         } catch (final Exception e) {
             LOGGER.error("Failed to run the script");
             throw new OperationException(e);
+        }
+    }
+
+    public Object receiveData(DataInputStream inputStream) {
+        // First get the length of the data coming from the container. Keep trying until the container is ready.
+        LOGGER.info("Inputstream is: {}", inputStream);
+        int incomingDataLength = getIncomingDataLength(inputStream);
+
+        StringBuilder dataReceived = new StringBuilder();
+        dataReceived = getDataReceived(incomingDataLength, dataReceived, inputStream);
+
+        return dataReceived;
+    }
+
+    private StringBuilder getDataReceived(final int incomingDataLength,
+                                          final StringBuilder dataReceived,
+                                          final DataInputStream inputStream) {
+        // If it failed to get the length of the incoming data then show the error, otherwise return the data.
+        StringBuilder dataRecvd = dataReceived;
+
+        if (incomingDataLength == 0) {
+            LOGGER.info("Connection failed, stopping the container...");
+        } else {
+            try {
+                // Get the data
+                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
+                    dataReceived.append(inputStream.readUTF());
+                }
+                dataReceived.append(inputStream.readUTF());
+                dataRecvd = checkIfDataReceivedBeginsWithError(dataReceived);
+            } catch (final IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+        }
+        return dataRecvd;
+    }
+
+    private StringBuilder checkIfDataReceivedBeginsWithError(final StringBuilder dataReceived) {
+        // Show the error message if the script failed and return no data
+        StringBuilder dataRecvd = dataReceived;
+
+        if (dataReceived.subSequence(0, 5) == "Error") {
+            LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
+            dataRecvd = null;
+        }
+        return dataRecvd;
+    }
+
+    private int getIncomingDataLength(DataInputStream inputStream) {
+        int incomingDataLength = 0;
+
+        if (inputStream != null) {
+            int tries = 0;
+            while (tries < MAX_TRIES) {
+                try {
+                    incomingDataLength = inputStream.readInt();
+                    LOGGER.info("Length of container...{}", incomingDataLength);
+                    break;
+                } catch (final IOException e) {
+                    tries += 1;
+                    LOGGER.error(e.getMessage());
+                    sleep();
+                }
+            }
+        }
+        return incomingDataLength;
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(TIMEOUT_200);
+        } catch (final InterruptedException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 
