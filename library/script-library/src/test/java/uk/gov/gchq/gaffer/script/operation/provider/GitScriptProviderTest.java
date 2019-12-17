@@ -15,12 +15,14 @@
  */
 package uk.gov.gchq.gaffer.script.operation.provider;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -35,7 +37,12 @@ public class GitScriptProviderTest {
         final Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
 
         // When
-        gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        try {
+            gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        } catch (GitAPIException | IOException e) {
+            Assert.fail();
+        }
+
         final String[] files = pathAbsoluteScriptRepo.toFile().list();
 
         // Then
@@ -53,7 +60,11 @@ public class GitScriptProviderTest {
 
         //When
         for (int i = 0; i < 2; i++) {
-            gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+            try {
+                gsp.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+            } catch (GitAPIException | IOException e) {
+                Assert.fail();
+            }
         }
     }
 }
