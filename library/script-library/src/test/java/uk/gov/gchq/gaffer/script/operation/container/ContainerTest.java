@@ -68,7 +68,7 @@ public class ContainerTest {
                     dos.flush();
                     dis.readUTF();
                     dis.readUTF();
-                    dos.writeInt(1);
+                    dos.writeInt(0);
                     dos.writeUTF("Test Complete");
                     System.out.println("Closing Socket.");
                     dos.flush();

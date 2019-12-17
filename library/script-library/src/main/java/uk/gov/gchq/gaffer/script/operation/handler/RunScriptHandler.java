@@ -73,6 +73,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
             // Create the container
             final Container container = imagePlatform.createContainer(image);
             // Run the container and return the result
+            imagePlatform.runContainer(container, operation.getInput());
             DataInputStream inputStream = container.receiveData();
             // Get the results back from the container
             Object results = receiveData(inputStream);
