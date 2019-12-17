@@ -54,6 +54,7 @@ public class LocalDockerContainer implements Container {
 
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
+        sleep();
         Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {

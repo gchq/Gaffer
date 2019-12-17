@@ -141,7 +141,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
                     break;
                 } catch (final IOException e) {
                     tries += 1;
-                    LOGGER.error(e.getMessage());
+                    LOGGER.error(e.toString());
                     sleep();
                 }
             }
@@ -153,7 +153,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         try {
             Thread.sleep(TIMEOUT_200);
         } catch (final InterruptedException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
         }
     }
 

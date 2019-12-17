@@ -23,7 +23,7 @@ print('scriptParams is ', scriptParameters)
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # sock.connect((HOST, PORT))
 # sock.close()
 print('Listening for connections from host: ', socket.gethostbyname(
