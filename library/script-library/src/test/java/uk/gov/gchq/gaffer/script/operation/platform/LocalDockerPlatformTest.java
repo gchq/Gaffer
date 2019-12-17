@@ -132,7 +132,7 @@ public class LocalDockerPlatformTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List data = new ArrayList();
+        List<String> data = new ArrayList<>();
         data.add("testData");
 
         // When

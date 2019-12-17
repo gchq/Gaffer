@@ -67,6 +67,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Send the results back to the server
             if data is not None:
                 print('type of output data is: ', type(data))
+                print('data being sent is: ', data)
                 i = 0
                 conn.sendall(struct.pack('>i', len(data)))
                 if len(data) > 65000:

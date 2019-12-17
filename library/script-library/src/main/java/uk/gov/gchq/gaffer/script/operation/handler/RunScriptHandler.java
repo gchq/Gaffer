@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,9 +43,9 @@ import java.util.Map;
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
-    private static final Integer TIMEOUT_200 = 200;
+    private static final int TIMEOUT_100 = 100;
+    private static final int TIMEOUT_200 = 200;
     private static final int MAX_BYTES = 65000;
-    private static final int MAX_TRIES = 100;
     private ImagePlatform imagePlatform = LocalDockerPlatform.localDockerPlatform();
     private ScriptProvider scriptProvider = GitScriptProvider.gitScriptProvider();
     private String repoName;
@@ -87,35 +89,37 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     public Object receiveData(DataInputStream inputStream) {
         // First get the length of the data coming from the container. Keep trying until the container is ready.
         LOGGER.info("Inputstream is: {}", inputStream);
-        int incomingDataLength = getIncomingDataLength(inputStream);
+        Reader inputStreamReader = new InputStreamReader(inputStream);
+        int incomingDataLength = getIncomingDataLength(inputStreamReader);
 
         StringBuilder dataReceived = new StringBuilder();
-        dataReceived = getDataReceived(incomingDataLength, dataReceived, inputStream);
+        dataReceived = getDataReceived(incomingDataLength, dataReceived, inputStreamReader);
+
+        // Close the connection
+        try {
+            inputStream.close();
+        } catch (final IOException e) {
+            LOGGER.info(e.getMessage());
+        }
 
         return dataReceived;
     }
 
     private StringBuilder getDataReceived(final int incomingDataLength,
                                           final StringBuilder dataReceived,
-                                          final DataInputStream inputStream) {
+                                          final Reader inputStreamReader) {
         // If it failed to get the length of the incoming data then show the error, otherwise return the data.
-        StringBuilder dataRecvd = dataReceived;
-
-        if (incomingDataLength == 0) {
-            LOGGER.info("Connection failed, stopping the container...");
-        } else {
-            try {
-                // Get the data
-                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
-                    dataReceived.append(inputStream.readUTF());
-                }
-                dataReceived.append(inputStream.readUTF());
-                dataRecvd = checkIfDataReceivedBeginsWithError(dataReceived);
-            } catch (final IOException e) {
-                LOGGER.error(e.getMessage());
-            }
+        try {
+            // Get the data
+            char[] charBuffer = new char[incomingDataLength];
+            inputStreamReader.read(charBuffer, 0, incomingDataLength);
+            dataReceived.append(charBuffer);
+            // Show the error message if the script failed and return no data
+            System.out.println("dataReceived is" + dataReceived);
+        } catch (final IOException e) {
+            LOGGER.info(e.getMessage());
         }
-        return dataRecvd;
+        return checkIfDataReceivedBeginsWithError(dataReceived);
     }
 
     private StringBuilder checkIfDataReceivedBeginsWithError(final StringBuilder dataReceived) {
@@ -129,20 +133,31 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return dataRecvd;
     }
 
-    private int getIncomingDataLength(DataInputStream inputStream) {
+    private int getIncomingDataLength(Reader inputStreamReader) {
         int incomingDataLength = 0;
-
-        if (inputStream != null) {
-            int tries = 0;
-            while (tries < MAX_TRIES) {
+        if (inputStreamReader != null) {
+            long start = System.currentTimeMillis();
+            boolean timedOut = true;
+            while (System.currentTimeMillis() - start < TIMEOUT_100) {
                 try {
-                    incomingDataLength = inputStream.readInt();
-                    LOGGER.info("Length of container...{}", incomingDataLength);
-                    break;
+                    if (inputStreamReader.ready()) {
+                        timedOut = false;
+                        break;
+                    }
                 } catch (final IOException e) {
-                    tries += 1;
-                    LOGGER.error(e.toString());
-                    sleep();
+                    LOGGER.error(e.getMessage());
+                }
+            }
+            if (!timedOut) {
+                try {
+                    while (incomingDataLength == 0) {
+                        int asciiCode = inputStreamReader.read();
+                        if (asciiCode != 0) {
+                            incomingDataLength = asciiCode;
+                        }
+                    }
+                } catch (final IOException e) {
+                    LOGGER.error(e.getMessage());
                 }
             }
         }
