@@ -128,19 +128,20 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) throws IOException {
         // Copy the Dockerfile
         try {
-            if (checkPathsAreBlank(pathToBuildFiles, dockerfilePath)) {
-                LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
-            } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
+            if (isPathBlank(pathToBuildFiles)) {
+                throw new NullPointerException("The path to the build files is not specified");
+            } else if (isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
                 createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
-            } else {
+            } else if (!isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath specified, using non-default dockerfile");
                 final String[] pathSplit = dockerfilePath.split("/");
                 final String fileName = pathSplit[pathSplit.length - 1];
                 final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
                 createFile(fileName, pathToBuildFiles, fileLocation);
             }
-        } catch (final IOException e) {
+        } catch (final IOException | NullPointerException e) {
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to copy the Dockerfile");
             throw e;
         }
@@ -156,35 +157,13 @@ public class DockerImageBuilder implements ImageBuilder {
     }
 
     /**
-     * Checks if the file paths are blank.
+     * Checks if the given path is blank.
      *
-     * @param pathToBuildFiles the path to the build files.
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the paths are blank.
-     */
-    private boolean checkPathsAreBlank(final String pathToBuildFiles, final String dockerfilePath) {
-        return ((checkPathToBuildFilesIsBlank(pathToBuildFiles)) ||
-                (checkDockerfilePathIsBlank(dockerfilePath)));
-    }
-
-    /**
-     * Checks if the path to the build files is blank.
-     *
-     * @param pathToBuildFiles the path to the build files.
+     * @param path the path to check.
      * @return boolean true if the path is blank.
      */
-    private boolean checkPathToBuildFilesIsBlank(final String pathToBuildFiles) {
-        return (null == pathToBuildFiles || pathToBuildFiles.equals(""));
-    }
-
-    /**
-     * Checks if the docker file path is blank.
-     *
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the path is blank.
-     */
-    private boolean checkDockerfilePathIsBlank(final String dockerfilePath) {
-        return (null == dockerfilePath || dockerfilePath.equals(""));
+    private boolean isPathBlank(final String path) {
+        return (null == path || path.equals(""));
     }
 
     /**
@@ -201,7 +180,7 @@ public class DockerImageBuilder implements ImageBuilder {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to copy files");
             throw e;
         }
