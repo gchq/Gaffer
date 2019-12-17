@@ -137,6 +137,9 @@ public class LocalDockerPlatform implements ImagePlatform {
         for (int i = 0; i < 100; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
+                while (!listenerActive) {
+                    Thread.sleep(100);
+                }
                 docker.startContainer(container.getContainerId());
                 break;
             } catch (final DockerException | InterruptedException ignored) {
@@ -144,12 +147,15 @@ public class LocalDockerPlatform implements ImagePlatform {
         }
     }
 
+    boolean listenerActive = false;
+
     private void startContainerListener(final int port) {
 
         Runnable containerListenerTask = () -> {
             ServerSocket containerListener = null;
             try {
                 containerListener = new ServerSocket(port);
+                listenerActive = true;
                 Socket container = containerListener.accept();
                 container.close();
             } catch (IOException e) {
