@@ -24,8 +24,8 @@ HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((HOST, PORT))
-sock.close()
+# sock.connect((HOST, PORT))
+# sock.close()
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 

@@ -151,14 +151,14 @@ public class LocalDockerPlatform implements ImagePlatform {
     public void startContainer(final Container container) throws DockerException,
             InterruptedException {
         // Keep trying to start the container
-        this.startContainerListener(container.getPort());
+        // this.startContainerListener(container.getPort());
         Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
-                while (!listenerActive) {
+                /*while (!listenerActive) {
                     Thread.sleep(100);
-                }
+                }*/
                 docker.startContainer(container.getContainerId());
                 error = null;
                 break;
@@ -171,9 +171,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             if (error instanceof DockerException) {
                 throw new DockerException(error.getMessage());
             }
-            if (error instanceof InterruptedException) {
-                throw new InterruptedException(error.getMessage());
-            }
+            throw new InterruptedException(error.getMessage());
         }
     }
 
