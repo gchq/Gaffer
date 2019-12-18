@@ -89,16 +89,22 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         }
     }
 
-
-    public Object receiveData(DataInputStream inputStream) throws TimeoutException, IOException {
+    /**
+     * Gets the data from the container.
+     *
+     * @param inputStream           the input stream from the container
+     * @return the data from the container
+     * @throws TimeoutException     if it times out getting the data from the container
+     * @throws IOException          if it fails to get the data from the container
+     */
+    public Object receiveData(final DataInputStream inputStream) throws TimeoutException, IOException {
         // Get the length of the data coming from the container.
         LOGGER.info("Inputstream is: {}", inputStream);
         Reader inputStreamReader = new InputStreamReader(inputStream);
         int incomingDataLength = getIncomingDataLength(inputStreamReader);
 
         // Get the data from the container
-        StringBuilder dataReceived = new StringBuilder();
-        dataReceived = getDataReceived(incomingDataLength, dataReceived, inputStreamReader);
+        StringBuilder dataReceived = getDataReceived(incomingDataLength, inputStreamReader);
 
         // Close the connection
         try {
@@ -114,12 +120,15 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     /**
      * Gets the data from the container. Checks if any errors occurred within the container itself.
      *
+     * @param incomingDataLength            The length of the data from the container
+     * @param inputStreamReader             the input stream reader
      * @return the data from the container
+     * @throws IOException                  if it fails to get the data
      */
     private StringBuilder getDataReceived(final int incomingDataLength,
-                                          final StringBuilder dataReceived,
                                           final Reader inputStreamReader) throws IOException {
         // Get the data from the container
+        StringBuilder dataReceived = new StringBuilder();
         try {
             char[] charBuffer = new char[incomingDataLength];
             inputStreamReader.read(charBuffer, 0, incomingDataLength);
@@ -133,6 +142,12 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return checkForScriptError(dataReceived);
     }
 
+    /**
+     * Checks if there is a error whilst running the script.
+     *
+     * @param dataReceived          the data received from the container
+     * @return the data from the container or the error message.
+     */
     private StringBuilder checkForScriptError(final StringBuilder dataReceived) {
         // Show the error message if the script failed and return no data
         StringBuilder dataRecvd = dataReceived;
@@ -143,7 +158,15 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         return dataRecvd;
     }
 
-    private int getIncomingDataLength(Reader inputStreamReader) throws TimeoutException, IOException {
+    /**
+     * Gets the length of the data coming from the container
+     *
+     * @param inputStreamReader          the input stream reader
+     * @return the length of the data
+     * @throws TimeoutException          if it times out getting the length of the data
+     * @throws IOException               if it fails to get the length of the data
+     */
+    private int getIncomingDataLength(final Reader inputStreamReader) throws TimeoutException, IOException {
         // Keep trying to get the length of the data until the container is ready.
         int incomingDataLength = 0;
         if (inputStreamReader != null) {

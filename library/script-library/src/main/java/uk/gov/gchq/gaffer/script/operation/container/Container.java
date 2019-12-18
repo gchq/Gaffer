@@ -24,8 +24,8 @@ public interface Container {
     /**
      * Send data to the container
      *
-     * @param data             the data being sent
-     * @throws Exception       if it fails to send the data
+     * @param data               the data being sent
+     * @throws IOException       if it fails to send the data
      */
     void sendData(Iterable data) throws IOException;
 

@@ -62,9 +62,10 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
-     * @throws InterruptedException             exception if image build fails
-     * @throws DockerException                  exception if image build fails
-     * @throws IOException                      exception if image build fails
+     * @throws InterruptedException             if image build fails
+     * @throws DockerException                  if image build fails
+     * @throws IOException                      if image build fails
+     * @throws DockerCertificateException       if image build fails
      */
     public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException {
 
@@ -202,14 +203,14 @@ public class LocalDockerPlatform implements ImagePlatform {
                 listenerActive = true;
                 Socket container = containerListener.accept();
                 container.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.error(e.toString());
                 LOGGER.error("Failed to open a socket to the container");
             }
             if (containerListener != null) {
                 try {
                     containerListener.close();
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     LOGGER.error(e.toString());
                     LOGGER.error("Failed to close the socket to the container");
                 }

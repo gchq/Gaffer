@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.script.operation.builder;
 
-import com.spotify.docker.client.exceptions.DockerException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
