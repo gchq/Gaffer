@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -87,6 +88,7 @@ public class LocalDockerContainer implements Container {
                 LOGGER.error(e.getMessage());
                 error = e;
                 sleep();
+                RandomPortGenerator.getInstance().releasePort(port);
             }
         }
         // Only print an error if it still fails after many tries

@@ -92,6 +92,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerException | InterruptedException e) {
             LOGGER.info(e.getMessage());
             LOGGER.error("Could not remove the old images, images still in use.");
+            RandomPortGenerator.getInstance().releasePort(port);
         }
 
         return dockerImage;
@@ -127,6 +128,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                     containerId = creation.id();
                 } catch (final DockerException | InterruptedException e) {
                     error = e;
+                    RandomPortGenerator.getInstance().releasePort(port);
                 }
             }
         }
@@ -163,6 +165,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 error = null;
                 break;
             } catch (final DockerException | InterruptedException e) {
+                RandomPortGenerator.getInstance().releasePort(container.getPort());
                 error = e;
             }
         }
@@ -187,6 +190,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 Socket container = containerListener.accept();
                 container.close();
             } catch (IOException e) {
+                RandomPortGenerator.getInstance().releasePort(port);
                 e.printStackTrace();
             }
             if (containerListener != null) {
@@ -228,6 +232,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException e) {
             LOGGER.error("Failed to run the container");
+            RandomPortGenerator.getInstance().releasePort(port);
             throw e;
         }
     }
