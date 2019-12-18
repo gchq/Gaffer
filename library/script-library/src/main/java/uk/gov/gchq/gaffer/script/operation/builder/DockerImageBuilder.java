@@ -84,6 +84,7 @@ public class DockerImageBuilder implements ImageBuilder {
         } catch (final DockerException | InterruptedException | IOException e) {
             LOGGER.error(e.getMessage());
             LOGGER.error("Failed to build the image from the Dockerfile");
+            DockerClientSingleton.close();
             throw e;
         }
     }

@@ -118,7 +118,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
             // Show the error message if the script failed and return no data
             System.out.println("dataReceived is" + dataReceived);
         } catch (final IOException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return checkIfDataReceivedBeginsWithError(dataReceived);
     }
@@ -128,7 +128,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         StringBuilder dataRecvd = dataReceived;
 
         if (dataReceived.subSequence(0, 5) == "Error") {
-            LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
+            LOGGER.error(dataReceived.subSequence(5, dataReceived.length()).toString());
             dataRecvd = null;
         }
         return dataRecvd;

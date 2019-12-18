@@ -92,7 +92,6 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerException | InterruptedException e) {
             LOGGER.info(e.getMessage());
             LOGGER.error("Could not remove the old images, images still in use.");
-            RandomPortGenerator.getInstance().releasePort(port);
         }
 
         return dockerImage;
@@ -129,6 +128,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 } catch (final DockerException | InterruptedException e) {
                     error = e;
                     RandomPortGenerator.getInstance().releasePort(port);
+                    DockerClientSingleton.close();
                 }
             }
         }
@@ -165,12 +165,13 @@ public class LocalDockerPlatform implements ImagePlatform {
                 error = null;
                 break;
             } catch (final DockerException | InterruptedException e) {
-                RandomPortGenerator.getInstance().releasePort(container.getPort());
                 error = e;
             }
         }
         if (error != null) {
             LOGGER.error("Failed to start the container");
+            RandomPortGenerator.getInstance().releasePort(container.getPort());
+            DockerClientSingleton.close();
             if (error instanceof DockerException) {
                 throw new DockerException(error.getMessage());
             }
@@ -191,6 +192,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 container.close();
             } catch (IOException e) {
                 RandomPortGenerator.getInstance().releasePort(port);
+                DockerClientSingleton.close();
                 e.printStackTrace();
             }
             if (containerListener != null) {
@@ -216,6 +218,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
             // Free the port
+            DockerClientSingleton.close();
             RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException e) {
             LOGGER.error(e.getMessage());
@@ -229,9 +232,9 @@ public class LocalDockerPlatform implements ImagePlatform {
             startContainer(container);
             // Send the data to the container
             container.sendData(inputData);
-            RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException e) {
             LOGGER.error("Failed to run the container");
+            DockerClientSingleton.close();
             RandomPortGenerator.getInstance().releasePort(port);
             throw e;
         }
