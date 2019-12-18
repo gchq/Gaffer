@@ -65,6 +65,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @throws DockerException                  exception if image build fails
      * @throws IOException                      exception if image build fails
      */
+    @Override
     public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws InterruptedException, DockerException, IOException {
 
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
