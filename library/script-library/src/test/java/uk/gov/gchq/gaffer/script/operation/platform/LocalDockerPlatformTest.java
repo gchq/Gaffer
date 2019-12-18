@@ -42,6 +42,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class LocalDockerPlatformTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerPlatformTest.class);
@@ -140,7 +141,7 @@ public class LocalDockerPlatformTest {
         try {
             platform.runContainer(container, data);
             result = (StringBuilder) new RunScriptHandler().receiveData(container.receiveData());
-        } catch (final DockerException | InterruptedException e) {
+        } catch (final DockerException | InterruptedException | IOException | TimeoutException e) {
             Assert.fail();
         }
 

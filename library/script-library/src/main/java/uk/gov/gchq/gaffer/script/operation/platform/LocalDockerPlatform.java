@@ -219,14 +219,14 @@ public class LocalDockerPlatform implements ImagePlatform {
         }
     }
 
-    public void runContainer(final Container container, final Iterable inputData) throws DockerException, InterruptedException {
+    public void runContainer(final Container container, final Iterable inputData) throws DockerException, InterruptedException, IOException {
         try {
             // Start the container
             startContainer(container);
             // Send the data to the container
             container.sendData(inputData);
             RandomPortGenerator.getInstance().releasePort(port);
-        } catch (final DockerException | InterruptedException e) {
+        } catch (final DockerException | InterruptedException | IOException e) {
             LOGGER.error("Failed to run the container");
             throw e;
         }

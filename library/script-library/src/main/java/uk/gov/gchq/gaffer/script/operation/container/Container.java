@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.script.operation.container;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 
 public interface Container {
 
@@ -26,7 +27,7 @@ public interface Container {
      * @param data             the data being sent
      * @throws Exception       if it fails to send the data
      */
-    void sendData(Iterable data) throws Exception;
+    void sendData(Iterable data) throws IOException;
 
     /**
      * Retrieve data from the container
