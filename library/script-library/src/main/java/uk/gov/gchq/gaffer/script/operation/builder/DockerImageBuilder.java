@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException {
+                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException, DockerCertificateException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
