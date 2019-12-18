@@ -67,8 +67,9 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @throws IOException                      if image build fails
      * @throws DockerCertificateException       if image build fails
      */
-    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException {
-
+    @Override
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException
+{
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
         // Get the user defined dockerfile or use the default
@@ -101,6 +102,7 @@ public class LocalDockerPlatform implements ImagePlatform {
         } catch (final DockerException | InterruptedException e) {
             LOGGER.info(e.toString());
             LOGGER.info("Could not remove the old images, images still in use.");
+            RandomPortGenerator.getInstance().releasePort(port);
         }
 
         return dockerImage;
@@ -137,6 +139,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                     error = null;
                 } catch (final DockerException | InterruptedException e) {
                     error = e;
+                    RandomPortGenerator.getInstance().releasePort(port);
                 }
             }
         }
@@ -177,6 +180,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 error = null;
                 break;
             } catch (final DockerException | InterruptedException e) {
+                RandomPortGenerator.getInstance().releasePort(container.getPort());
                 error = e;
             }
         }
@@ -204,6 +208,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 Socket container = containerListener.accept();
                 container.close();
             } catch (final IOException e) {
+                RandomPortGenerator.getInstance().releasePort(port);
                 LOGGER.error(e.toString());
                 LOGGER.error("Failed to open a socket to the container");
             }
@@ -247,6 +252,7 @@ public class LocalDockerPlatform implements ImagePlatform {
             RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException | IOException e) {
             LOGGER.error("Failed to run the container");
+            RandomPortGenerator.getInstance().releasePort(port);
             throw e;
         }
     }
