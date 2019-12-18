@@ -51,13 +51,13 @@ public class LocalDockerContainer implements Container {
      * @param data             the data being sent
      */
     @Override
-    public void sendData(final Iterable data) {
+    public void sendData(final Iterable data) throws IOException {
         LOGGER.info("Attempting to connect with the container...");
 
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
         sleep();
-        Exception error = null;
+        IOException error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 // Connect to the container
@@ -82,11 +82,10 @@ public class LocalDockerContainer implements Container {
                 }
                 outputStream.writeUTF("]");
                 LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
-
                 outputStream.flush();
+                error = null;
                 break;
             } catch (final IOException e) {
-                LOGGER.error(e.getMessage());
                 error = e;
                 sleep();
 
@@ -94,9 +93,11 @@ public class LocalDockerContainer implements Container {
         }
         // Only print an error if it still fails after many tries
         if (error != null) {
-            LOGGER.error(error.getMessage());
             RandomPortGenerator.getInstance().releasePort(port);
             DockerClientSingleton.close();
+            LOGGER.error(error.toString());
+            LOGGER.error("Failed to send the data to the container");
+            throw error;
         }
     }
 
@@ -128,7 +129,7 @@ public class LocalDockerContainer implements Container {
         try {
             Thread.sleep(LocalDockerContainer.TIMEOUT_100);
         } catch (final InterruptedException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
         }
     }
 }

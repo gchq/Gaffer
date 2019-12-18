@@ -18,14 +18,17 @@ package uk.gov.gchq.gaffer.script.operation.util;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DockerClientSingleton {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerClientSingleton.class);
     private static volatile DockerClient dockerClient;
     private static int threadCount; // Count of threads using dockerClient
 
     private DockerClientSingleton() { }
 
-    public static synchronized DockerClient getInstance() {
+    public static DockerClient getInstance() throws DockerCertificateException {
         // Don't wait for other threads if the instance is available
         if (dockerClient == null) {
             // Synchronize the creation of the docker client
@@ -35,7 +38,9 @@ public final class DockerClientSingleton {
                     try {
                         dockerClient = DefaultDockerClient.fromEnv().build();
                     } catch (final DockerCertificateException e) {
-                        e.printStackTrace();
+                        LOGGER.error(e.toString());
+                        LOGGER.error("Failed to create an instance of the docker client");
+                        throw e;
                     }
                 }
             }

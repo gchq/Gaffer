@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) throws InterruptedException, DockerException, IOException {
+                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException, DockerCertificateException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
@@ -82,7 +83,7 @@ public class DockerImageBuilder implements ImageBuilder {
                         LOGGER.info(String.valueOf(message));
                     }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to build the image from the Dockerfile");
             DockerClientSingleton.close();
             throw e;
@@ -106,13 +107,13 @@ public class DockerImageBuilder implements ImageBuilder {
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
-        LOGGER.debug(String.valueOf(buildargs));
+        LOGGER.debug("Build arguments are: " + buildargs);
 
         try {
             retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
-            LOGGER.error("Failed to create the build argument");
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to create the build arguments");
             throw e;
         }
 
@@ -129,12 +130,12 @@ public class DockerImageBuilder implements ImageBuilder {
     public void getFiles(final String pathToBuildFiles, final String dockerfilePath) throws IOException {
         // Copy the Dockerfile
         try {
-            if (checkPathsAreBlank(pathToBuildFiles, dockerfilePath)) {
-                LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
-            } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
+            if (isPathBlank(pathToBuildFiles)) {
+                throw new NullPointerException("The path to the build files is not specified");
+            } else if (isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
                 createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
-            } else {
+            } else if (!isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath specified, using non-default dockerfile");
                 final String[] pathSplit = dockerfilePath.split("/");
                 final String fileName = pathSplit[pathSplit.length - 1];
@@ -142,6 +143,10 @@ public class DockerImageBuilder implements ImageBuilder {
                 createFile(fileName, pathToBuildFiles, fileLocation);
             }
         } catch (final IOException e) {
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
+        } catch (final NullPointerException e) {
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to copy the Dockerfile");
             throw e;
         }
@@ -157,35 +162,13 @@ public class DockerImageBuilder implements ImageBuilder {
     }
 
     /**
-     * Checks if the file paths are blank.
+     * Checks if the given path is blank.
      *
-     * @param pathToBuildFiles the path to the build files.
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the paths are blank.
-     */
-    private boolean checkPathsAreBlank(final String pathToBuildFiles, final String dockerfilePath) {
-        return ((checkPathToBuildFilesIsBlank(pathToBuildFiles)) ||
-                (checkDockerfilePathIsBlank(dockerfilePath)));
-    }
-
-    /**
-     * Checks if the path to the build files is blank.
-     *
-     * @param pathToBuildFiles the path to the build files.
+     * @param path the path to check.
      * @return boolean true if the path is blank.
      */
-    private boolean checkPathToBuildFilesIsBlank(final String pathToBuildFiles) {
-        return (null == pathToBuildFiles || pathToBuildFiles.equals(""));
-    }
-
-    /**
-     * Checks if the docker file path is blank.
-     *
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the path is blank.
-     */
-    private boolean checkDockerfilePathIsBlank(final String dockerfilePath) {
-        return (null == dockerfilePath || dockerfilePath.equals(""));
+    private boolean isPathBlank(final String path) {
+        return (null == path || path.equals(""));
     }
 
     /**
@@ -197,12 +180,12 @@ public class DockerImageBuilder implements ImageBuilder {
      * @throws IOException        if it fails to copy the files
      */
     private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + "/" + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to copy files");
             throw e;
         }
