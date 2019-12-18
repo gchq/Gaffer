@@ -27,7 +27,7 @@ public final class DockerClientSingleton {
 
     private DockerClientSingleton() { }
 
-    public static DockerClient getInstance() {
+    public static DockerClient getInstance() throws DockerCertificateException {
         // Don't wait for other threads if the instance is available
         if (dockerClient == null) {
             // Synchronize the creation of the docker client
@@ -37,7 +37,9 @@ public final class DockerClientSingleton {
                     try {
                         dockerClient = DefaultDockerClient.fromEnv().build();
                     } catch (final DockerCertificateException e) {
-                        LOGGER.error(e.getMessage());
+                        LOGGER.error(e.toString());
+                        LOGGER.error("Failed to create an instance of the docker client");
+                        throw e;
                     }
                 }
             }

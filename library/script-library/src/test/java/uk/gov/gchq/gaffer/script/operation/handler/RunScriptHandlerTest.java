@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.script.operation.handler;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
@@ -32,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RunScriptHandlerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandlerTest.class);
 
     @Test
     public void shouldReturnDataInJSON() {

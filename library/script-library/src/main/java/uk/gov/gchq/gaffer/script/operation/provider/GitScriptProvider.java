@@ -88,7 +88,7 @@ public class GitScriptProvider implements ScriptProvider {
             Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to clone the repo");
             throw e;
         }
