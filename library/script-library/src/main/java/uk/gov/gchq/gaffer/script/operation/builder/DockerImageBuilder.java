@@ -58,7 +58,7 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) throws InterruptedException, DockerException, IOException {
+                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
@@ -82,7 +82,7 @@ public class DockerImageBuilder implements ImageBuilder {
                         LOGGER.info(String.valueOf(message));
                     }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             LOGGER.error("Failed to build the image from the Dockerfile");
             throw e;
         }
@@ -105,13 +105,13 @@ public class DockerImageBuilder implements ImageBuilder {
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
-        LOGGER.debug(String.valueOf(buildargs));
+        LOGGER.debug("Build arguments are: " + buildargs);
 
         try {
             retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
-            LOGGER.error("Failed to create the build argument");
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to create the build arguments");
             throw e;
         }
 
@@ -140,7 +140,10 @@ public class DockerImageBuilder implements ImageBuilder {
                 final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
                 createFile(fileName, pathToBuildFiles, fileLocation);
             }
-        } catch (final IOException | NullPointerException e) {
+        } catch (final IOException e) {
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
+        } catch (final NullPointerException e) {
             LOGGER.error(e.toString());
             LOGGER.error("Failed to copy the Dockerfile");
             throw e;
@@ -175,7 +178,7 @@ public class DockerImageBuilder implements ImageBuilder {
      * @throws IOException        if it fails to copy the files
      */
     private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + "/" + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());

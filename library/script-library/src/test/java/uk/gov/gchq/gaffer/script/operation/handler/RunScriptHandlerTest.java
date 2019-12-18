@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RunScriptHandlerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandlerTest.class);
 
     @Test
     public void shouldReturnDataInJSON() {

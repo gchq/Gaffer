@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class DockerImageBuilderTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilderTest.class);
 
@@ -106,23 +108,13 @@ public class DockerImageBuilderTest {
     }
 
     @Test
-    public void shouldReturnNullImageIdIfPathsAreBlank() {
+    public void shouldThrowErrorIfPathsAreBlank() {
         // Given
         final String directoryPath = "";
+        final String dockerfilePath = "";
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        // When
-        try {
-            dockerImageBuilder.getFiles(directoryPath, "");
-        } catch (final IOException ignore) {
-        }
-        Image returnedImage = null;
-        try {
-            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        } catch (InterruptedException | DockerException | IOException ignore) {
-        }
-
         // Then
-        Assert.assertNull(returnedImage);
+        assertThrows(NullPointerException.class, () -> dockerImageBuilder.getFiles(directoryPath, dockerfilePath));
     }
 }
