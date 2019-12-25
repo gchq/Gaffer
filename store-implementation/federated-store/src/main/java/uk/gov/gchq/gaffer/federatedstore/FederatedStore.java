@@ -79,6 +79,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
@@ -229,6 +230,14 @@ public class FederatedStore extends Store {
         graphStorage.remove(graphId, user);
     }
 
+    public void removeRemoveWithoutUserChecks(final String graphId, final User user) {
+        if (isValidatedAsAdmin(user.getOpAuths())) {
+            graphStorage.removeWithoutUserChecks(graphId);
+        } else {
+            remove(graphId, user);
+        }
+    }
+
     /**
      * @param user the visibility to use for getting graphIds
      * @return All the graphId(s) within scope of this FederatedStore and within
@@ -236,6 +245,33 @@ public class FederatedStore extends Store {
      */
     public Collection<String> getAllGraphIds(final User user) {
         return graphStorage.getAllIds(user);
+    }
+
+    public Collection<String> getAllGraphIdsWithoutUserChecks(final User user) {
+        final Collection<String> rtn;
+        if (isValidatedAsAdmin(user.getOpAuths())) {
+            rtn = graphStorage.getAllIdsWithoutUserChecks();
+        } else {
+            rtn = graphStorage.getAllIds(user);
+        }
+        return rtn;
+    }
+
+    /**
+     * @param userOpAuths the users operation authorisation
+     * @return true if the requesting user has Admin OpAuths and isUserRequestingAdminUsage is true.
+     */
+    private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
+        boolean rtn = false;
+        final String adminAuths = this.getProperties().get(FederatedStoreConstants.KEY_FEDERATION_ADMIN_OP_AUTHS, "");
+        for (String admin : adminAuths.split(Pattern.quote(","))) {
+            //If match one
+            if (userOpAuths.contains(admin)) {
+                rtn = true;
+                break;
+            }
+        }
+        return rtn;
     }
 
     @Override

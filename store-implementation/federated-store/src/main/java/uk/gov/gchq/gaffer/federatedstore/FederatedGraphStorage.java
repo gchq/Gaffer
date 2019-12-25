@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
@@ -140,7 +141,18 @@ public class FederatedGraphStorage {
      * @return visible graphIds.
      */
     public Collection<String> getAllIds(final User user) {
-        final Set<String> rtn = getAllStream(user)
+        return getIdsFrom(getUserGraphStream(user));
+    }
+
+    public Collection<String> getAllIdsWithoutUserChecks() {
+        final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream());
+
+        return getIdsFrom(allGraphsAsStream);
+    }
+
+    protected Collection<String> getIdsFrom(final Stream<Graph> allStream) {
+        final Set<String> rtn = allStream
                 .map(Graph::getGraphId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -154,7 +166,7 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<Graph> getAll(final User user) {
-        final Set<Graph> rtn = getAllStream(user)
+        final Set<Graph> rtn = getUserGraphStream(user)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
@@ -170,9 +182,17 @@ public class FederatedGraphStorage {
      * @see #isValidToView(User, FederatedAccess)
      */
     public boolean remove(final String graphId, final User user) {
+        return remove(graphId, user, false);
+    }
+
+    public boolean removeWithoutUserChecks(final String graphId) {
+        return remove(graphId, null, true);
+    }
+
+    protected boolean remove(final String graphId, final User user, final boolean overrideUserChecks) {
         boolean isRemoved = false;
         for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-            if (isValidToView(user, entry.getKey())) {
+            if (overrideUserChecks || (nonNull(user) && isValidToView(user, entry.getKey()))) {
                 final Set<Graph> graphs = entry.getValue();
                 if (null != graphs) {
                     HashSet<Graph> remove = Sets.newHashSet();
@@ -403,7 +423,7 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return a stream of graphs the user has visibility for.
      */
-    private Stream<Graph> getAllStream(final User user) {
+    private Stream<Graph> getUserGraphStream(final User user) {
         return storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
