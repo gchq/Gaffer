@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -182,32 +183,34 @@ public class FederatedGraphStorage {
      * @see #isValidToView(User, FederatedAccess)
      */
     public boolean remove(final String graphId, final User user) {
-        return remove(graphId, user, false);
+        return remove(graphId, entry -> nonNull(user) && isValidToView(user, entry.getKey()));
     }
 
     public boolean removeWithoutUserChecks(final String graphId) {
-        return remove(graphId, null, true);
+        return remove(graphId, entry -> true);
     }
 
-    protected boolean remove(final String graphId, final User user, final boolean overrideUserChecks) {
-        boolean isRemoved = false;
-        for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-            if (overrideUserChecks || (nonNull(user) && isValidToView(user, entry.getKey()))) {
-                final Set<Graph> graphs = entry.getValue();
-                if (null != graphs) {
-                    HashSet<Graph> remove = Sets.newHashSet();
-                    for (final Graph graph : graphs) {
-                        if (graph.getGraphId().equals(graphId)) {
-                            remove.add(graph);
-                            deleteFromCache(graphId);
-                            isRemoved = true;
+    protected boolean remove(final String graphId, final Predicate<Entry<FederatedAccess, Set<Graph>>> entryPredicateForGraphRemoval) {
+        return storage.entrySet().stream()
+                .filter(entryPredicateForGraphRemoval)
+                .map(entry -> {
+                    boolean isRemoved = false;
+                    final Set<Graph> graphs = entry.getValue();
+                    if (null != graphs) {
+                        HashSet<Graph> remove = Sets.newHashSet();
+                        for (final Graph graph : graphs) {
+                            if (graph.getGraphId().equals(graphId)) {
+                                remove.add(graph);
+                                deleteFromCache(graphId);
+                                isRemoved = true;
+                            }
                         }
+                        graphs.removeAll(remove);
                     }
-                    graphs.removeAll(remove);
-                }
-            }
-        }
-        return isRemoved;
+                    return isRemoved;
+                })
+                .collect(Collectors.toSet())
+                .contains(true);
     }
 
     private void deleteFromCache(final String graphId) {
