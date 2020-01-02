@@ -3,6 +3,7 @@ import socket
 import struct
 import re
 import sys
+import http.client
 from ast import literal_eval
 
 from DataInputStream import DataInputStream
@@ -13,7 +14,7 @@ scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 
 # Get the script parameters
-scriptParameters = sys.argv[2]
+scriptParameters = sys.argv[3]
 try:
     dictParameters = literal_eval(scriptParameters)
 except SyntaxError:
@@ -22,10 +23,9 @@ print('scriptParams is ', scriptParameters)
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
-
-# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# sock.connect((HOST, PORT))
-# sock.close()
+# Use a HTTPCLIENT here to connect to the http server on the java.
+clientHTTP = http.client.HTTPConnection("host.docker.internal", port=sys.argv[2])
+clientHTTP.request(method='GET', url="/")
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 

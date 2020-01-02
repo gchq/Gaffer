@@ -23,6 +23,9 @@ import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +38,8 @@ import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +130,9 @@ public class LocalDockerPlatform implements ImagePlatform {
                     // Create a container from the image and bind ports
                     final ContainerConfig containerConfig = ContainerConfig.builder()
                             .hostConfig(HostConfig.builder()
-                                    .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
+                                    .portBindings(ImmutableMap.of("80/tcp",
+                                            Collections.singletonList(PortBinding.of(LOCAL_HOST,
+                                                    port))))
                                     .build())
                             .image(image.getImageId())
                             .exposedPorts("80/tcp")
@@ -166,15 +171,18 @@ public class LocalDockerPlatform implements ImagePlatform {
      */
     public void startContainer(final Container container) throws InterruptedException, DockerException {
         // Keep trying to start the container
-        // this.startContainerListener(container.getPort());
+        this.startContainerListener(container.getPort());
         Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
-                /*while (!listenerActive) {
+                while (!listenerActive) {
                     Thread.sleep(100);
-                }*/
+                }
                 docker.startContainer(container.getContainerId());
+                while(!containerActive) {
+                    Thread.sleep(100);
+                }
                 error = null;
                 break;
             } catch (final DockerException | InterruptedException e) {
@@ -194,33 +202,31 @@ public class LocalDockerPlatform implements ImagePlatform {
     }
 
     boolean listenerActive = false;
+    boolean containerActive = false;
 
     private void startContainerListener(final int port) {
+        // Run a HTTP server listener here with a response handler that will then begin the next
+        // method.
+        HttpServer server = null;
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpContext context = server.createContext("/");
+        context.setHandler(this::containerHTTPHandler);
+        server.start();
+        listenerActive = true;
+    }
 
-        Runnable containerListenerTask = () -> {
-            ServerSocket containerListener = null;
-            try {
-                containerListener = new ServerSocket(port);
-                listenerActive = true;
-                Socket container = containerListener.accept();
-                container.close();
-            } catch (final IOException e) {
-                RandomPortGenerator.getInstance().releasePort(port);
-                DockerClientSingleton.close();
-                LOGGER.error(e.toString());
-                LOGGER.error("Failed to open a socket to the container");
-            }
-            if (containerListener != null) {
-                try {
-                    containerListener.close();
-                } catch (final IOException e) {
-                    LOGGER.error(e.toString());
-                    LOGGER.error("Failed to close the socket to the container");
-                }
-            }
-        };
-        final Thread thread = new Thread(containerListenerTask);
-        thread.start();
+    private void containerHTTPHandler(HttpExchange exchange) throws IOException {
+        String response = "Connection Received\n";
+        exchange.sendResponseHeaders(200, response.getBytes().length);//response code and length
+        OutputStream os = exchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+        System.out.println(response);
+        containerActive = true;
     }
 
     /**
