@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -51,6 +52,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.CreateObject;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
@@ -979,12 +981,15 @@ public final class Graph {
         private void updateGraphHooks(final GraphConfig config) {
             boolean hasNamedOpHook = false;
             boolean hasNamedViewHook = false;
+            boolean hasFunctionAuthoriserHook = false;
             for (final GraphHook graphHook : config.getHooks()) {
-                if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                Class hookClass = graphHook.getClass();
+                if (NamedOperationResolver.class.isAssignableFrom(hookClass)) {
                     hasNamedOpHook = true;
-                }
-                if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
+                } else if (NamedViewResolver.class.isAssignableFrom(hookClass)) {
                     hasNamedViewHook = true;
+                } else if (FunctionAuthoriser.class.isAssignableFrom(hookClass)) {
+                    hasFunctionAuthoriserHook = true;
                 }
             }
             if (!hasNamedViewHook) {
@@ -994,6 +999,11 @@ public final class Graph {
                 if (store.isSupported(NamedOperation.class)) {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
+            }
+            if (!hasFunctionAuthoriserHook && !config.isSkipDefaultSecurityHooks()) {
+                config.getHooks().add(new FunctionAuthoriser.Builder()
+                        .unauthorisedFunctions(Lists.newArrayList(CreateObject.class))
+                .build());
             }
         }
 
@@ -1101,6 +1111,8 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+
+
 
     }
 }

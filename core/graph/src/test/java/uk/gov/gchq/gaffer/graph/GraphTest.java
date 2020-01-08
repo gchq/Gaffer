@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
@@ -84,6 +85,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.CreateObject;
+import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.io.File;
 import java.io.IOException;
@@ -2381,6 +2384,77 @@ public class GraphTest {
         assertEquals(new View.Builder().entity(TestGroups.ENTITY, new ViewElementDefinition())
                 .edge(TestGroups.EDGE, new ViewElementDefinition())
                 .edge(TestGroups.EDGE_2, new ViewElementDefinition()).build(), operation.getView());
+    }
+
+    @Test
+    public void shouldAddDefaultSecurityHooksIfNotAddedToHooksAndPropertyIsNotSet() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("test")
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(storeProperties)
+                .config(config)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
+        assertEquals(CreateObject.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+    }
+
+    @Test
+    public void shouldNotAddDefaultSecurityHooksIfAlreadyAddedAndPropertyIsNotSet() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("test")
+                .addHook(new FunctionAuthoriser.Builder().unauthorisedFunctions(Lists.newArrayList(Identity.class)).build())
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(storeProperties)
+                .config(config)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
+        assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+    }
+
+    @Test
+    public void shouldNotAddDefaultSecurityHooksIfNotAddedAndPropertyIsSet() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("test")
+                .skipDefaultSecurityHooks()
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(storeProperties)
+                .config(config)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
+        assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
     }
 
     public static class TestStoreImpl extends Store {

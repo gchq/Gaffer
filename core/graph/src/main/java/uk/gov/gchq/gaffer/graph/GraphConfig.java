@@ -62,6 +62,7 @@ public final class GraphConfig {
     private byte[] view;
     private GraphLibrary library;
     private String description;
+    private boolean skipDefaultSecurityHooks = false;
     private List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
@@ -114,6 +115,14 @@ public final class GraphConfig {
         } else {
             hooks.forEach(this::addHook);
         }
+    }
+
+    public boolean isSkipDefaultSecurityHooks() {
+        return skipDefaultSecurityHooks;
+    }
+
+    public void setSkipDefaultSecurityHooks(final boolean skipDefaultSecurityHooks) {
+        this.skipDefaultSecurityHooks = skipDefaultSecurityHooks;
     }
 
     public void addHook(final GraphHook hook) {
@@ -285,6 +294,11 @@ public final class GraphConfig {
             if (null != graphHooks) {
                 Collections.addAll(this.config.getHooks(), graphHooks);
             }
+            return this;
+        }
+
+        public Builder skipDefaultSecurityHooks() {
+            this.config.setSkipDefaultSecurityHooks(true);
             return this;
         }
 
