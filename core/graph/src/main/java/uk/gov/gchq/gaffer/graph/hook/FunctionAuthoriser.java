@@ -15,20 +15,38 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
 
+import javax.annotation.Nonnull;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+@JsonPropertyOrder(value = { "unauthorisedFunctions", "unauthorisedFunctionPatterns"})
 public class FunctionAuthoriser implements GraphHook {
 
-    private List<Class<? extends Function>> blacklistedFunctions;
+    private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
+
+    private List<Class<? extends Function>> unauthorisedFunctions = new ArrayList<>();
+    private List<Pattern> authorisedFunctionPatterns = new ArrayList<>();
 
     public FunctionAuthoriser() {
+    }
+
+    public FunctionAuthoriser(List<Class< ? extends Function>> unauthorisedFunctions, List<Pattern> authorisedFunctionPatterns) {
+        this.setUnauthorisedFunctions(unauthorisedFunctions);
+        this.setAuthorisedFunctionPatterns(authorisedFunctionPatterns);
     }
 
     @Override
@@ -42,21 +60,93 @@ public class FunctionAuthoriser implements GraphHook {
             throw new RuntimeException(e);
         }
 
-        for (final Class<? extends Function> blacklistedFunction : blacklistedFunctions) {
-            if (chainString.contains(blacklistedFunction.getName())) {
-                throw new UnauthorisedException("Operation contains the " +
-                        blacklistedFunction.getName() + " Function which is " +
-                        "not allowed");
-            }
+        checkNoBlacklistedFunctionsArePresent(chainString);
+        checkAllFunctionsUsedAppearInWhitelist(chainString);
+    }
+
+    private void checkAllFunctionsUsedAppearInWhitelist(final String chainString) {
+        if (authorisedFunctionPatterns.size() == 0) {
+            return;
         }
 
+        int lastIndexMatched = chainString.indexOf("\"class\":\"");
+
+        while (lastIndexMatched != -1) {
+            // find the next index of \"class\":
+            lastIndexMatched += 9; // last index is now at the start of the class name
+            int endIndex = chainString.indexOf('"', lastIndexMatched);
+            String className = chainString.substring(lastIndexMatched, endIndex);
+
+            Class clazz;
+            try {
+                clazz = Class.forName(className);
+            } catch (final ClassNotFoundException e) {
+                // This would have already been thrown so no need to worry
+                throw new RuntimeException(e);
+            }
+
+            if (Function.class.isAssignableFrom(clazz)) { // then we must check it exists in the whitelist
+                // Create an or predicate from the patterns
+                List<Predicate> patterns = authorisedFunctionPatterns.stream()
+                        .map(Pattern::asPredicate)
+                        .collect(Collectors.toList());
+                Or<String> or = new Or<>(patterns);
+                if (!or.test(className)) {
+                    throw new UnauthorisedException(ERROR_MESSAGE_PREFIX + className);
+                }
+            }
+            lastIndexMatched = chainString.indexOf("\"class\":\"", lastIndexMatched);
+        }
     }
 
-    public List<Class<? extends Function>> getBlacklistedFunctions() {
-        return blacklistedFunctions;
+    private void checkNoBlacklistedFunctionsArePresent(final String chainString) {
+        for (final Class<? extends Function> blacklistedFunction : unauthorisedFunctions) {
+            if (chainString.contains(blacklistedFunction.getName())) {
+                throw new UnauthorisedException(ERROR_MESSAGE_PREFIX +
+                        blacklistedFunction.getName());
+            }
+        }
     }
 
-    public void setBlacklistedFunctions(final List<Class<? extends Function>> blacklistedFunctions) {
-        this.blacklistedFunctions = blacklistedFunctions;
+    public List<Class<? extends Function>> getUnauthorisedFunctions() {
+        return unauthorisedFunctions;
+    }
+
+    public void setUnauthorisedFunctions(@Nonnull final List<Class<? extends Function>> unauthorisedFunctions) {
+        this.unauthorisedFunctions = unauthorisedFunctions;
+    }
+
+    public List<Pattern> getAuthorisedFunctionPatterns() {
+        return authorisedFunctionPatterns;
+    }
+
+    public void setAuthorisedFunctionPatterns(@Nonnull final List<Pattern> authorisedFunctionPatterns) {
+        this.authorisedFunctionPatterns = authorisedFunctionPatterns;
+    }
+
+    public static class Builder {
+        private FunctionAuthoriser authoriser = new FunctionAuthoriser();
+
+        public Builder authorisedPatterns(final List<Pattern> authorisedPatterns) {
+            authoriser.setAuthorisedFunctionPatterns(authorisedPatterns);
+            return this;
+        }
+
+        public Builder authorsisedPatterns(final List<String> authorisedPatterns) {
+            authoriser.setAuthorisedFunctionPatterns(authorisedPatterns
+                    .stream()
+                    .map(Pattern::compile)
+                    .collect(Collectors.toList()));
+            return this;
+        }
+
+        public Builder unauthorisedFunctions(final List<Class<? extends Function>> unauthorisedFunctions) {
+            authoriser.setUnauthorisedFunctions(unauthorisedFunctions);
+            return this;
+        }
+
+        public FunctionAuthoriser build() {
+            return authoriser;
+        }
     }
 }

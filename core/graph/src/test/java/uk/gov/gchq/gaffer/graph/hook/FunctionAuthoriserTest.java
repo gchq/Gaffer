@@ -19,21 +19,28 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.function.DivideBy;
 import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.ParseDate;
+import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -47,14 +54,14 @@ public class FunctionAuthoriserTest {
         FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
         // When
-        functionAuthoriser.setBlacklistedFunctions(Lists.newArrayList(Identity.class));
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
         // Then
         try {
             functionAuthoriser.preExecute(badOperation, new Context());
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
-            assertEquals("Operation contains the uk.gov.gchq.koryphe.impl.function.Identity Function which is not allowed", e.getMessage());
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
         }
     }
 
@@ -72,7 +79,7 @@ public class FunctionAuthoriserTest {
         FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
         // When
-        functionAuthoriser.setBlacklistedFunctions(Lists.newArrayList(DivideBy.class));
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
 
         // Then
@@ -80,7 +87,7 @@ public class FunctionAuthoriserTest {
             functionAuthoriser.preExecute(viewOperation, new Context());
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
-            assertEquals("Operation contains the uk.gov.gchq.koryphe.impl.function.DivideBy Function which is not allowed", e.getMessage());
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy", e.getMessage());
         }
 
     }
@@ -92,11 +99,106 @@ public class FunctionAuthoriserTest {
         FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
         // When
-        functionAuthoriser.setBlacklistedFunctions(Lists.newArrayList(DivideBy.class));
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
         // Then
         functionAuthoriser.preExecute(mapOperation, new Context());
         // No exceptions thrown
+    }
+
+    @Test
+    public void shouldNotAllowAnOperationChainWhichContainsFunctionWhichDoesNotExactlyMatchWhitelist() {
+        // Given
+        OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile(Identity.class.getName())));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(mapOperation, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ToString", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotAllowAnOperationChainWhichDoesNotMatchAPatternInTheWhiteList() {
+        // Given
+        OperationChain mapOperation = generateOperation(ToString.class, ToInteger.class, ParseDate.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.To*")));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(mapOperation, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ParseDate", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotAllowOperationChainWhichContainsFunctionsWhichMatchWhitelistButAppearInBlacklist() {
+        // Given
+        OperationChain mapOperation = generateOperation(ToString.class, ToInteger.class, ParseDate.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(ToInteger.class));
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.*")));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(mapOperation, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ToInteger", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotAllowOperationChainWhichContainsNoFunctionsInBlacklistButDontMatchWhitelist() {
+        // Given
+        OperationChain mapOperation = generateOperation(ToString.class, ToInteger.class, ParseDate.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(ToLong.class));
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.To*")));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(mapOperation, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ParseDate", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        String json = "" +
+                "{" +
+                    "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
+                    "\"unauthorisedFunctions\":[" +
+                        "\"uk.gov.gchq.koryphe.impl.function.ToString\"" +
+                    "]," +
+                    "\"authorisedFunctionPatterns\":[" +
+                        "\"uk.gov.gchq.koryphe.*\"" +
+                    "]" +
+                "}";
+
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser.Builder()
+                .authorsisedPatterns(Lists.newArrayList("uk.gov.gchq.koryphe.*"))
+                .unauthorisedFunctions(Lists.newArrayList(ToString.class))
+                .build();
+
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     private OperationChain generateOperation(final Class<? extends Function>... functionClasses) {
