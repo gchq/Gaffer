@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -24,8 +25,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 
-import javax.annotation.Nonnull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,6 +33,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @JsonPropertyOrder(value = { "unauthorisedFunctions", "unauthorisedFunctionPatterns"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FunctionAuthoriser implements GraphHook {
 
     private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
@@ -60,8 +60,12 @@ public class FunctionAuthoriser implements GraphHook {
             throw new RuntimeException(e);
         }
 
-        checkNoBlacklistedFunctionsArePresent(chainString);
-        checkAllFunctionsUsedAppearInWhitelist(chainString);
+        if (unauthorisedFunctions != null) {
+            checkNoBlacklistedFunctionsArePresent(chainString);
+        }
+        if (authorisedFunctionPatterns != null) {
+            checkAllFunctionsUsedAppearInWhitelist(chainString);
+        }
     }
 
     private void checkAllFunctionsUsedAppearInWhitelist(final String chainString) {
@@ -112,7 +116,7 @@ public class FunctionAuthoriser implements GraphHook {
         return unauthorisedFunctions;
     }
 
-    public void setUnauthorisedFunctions(@Nonnull final List<Class<? extends Function>> unauthorisedFunctions) {
+    public void setUnauthorisedFunctions(final List<Class<? extends Function>> unauthorisedFunctions) {
         this.unauthorisedFunctions = unauthorisedFunctions;
     }
 
@@ -120,7 +124,7 @@ public class FunctionAuthoriser implements GraphHook {
         return authorisedFunctionPatterns;
     }
 
-    public void setAuthorisedFunctionPatterns(@Nonnull final List<Pattern> authorisedFunctionPatterns) {
+    public void setAuthorisedFunctionPatterns(final List<Pattern> authorisedFunctionPatterns) {
         this.authorisedFunctionPatterns = authorisedFunctionPatterns;
     }
 

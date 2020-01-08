@@ -181,7 +181,7 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
-    public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+    public void shouldJsonSerialiseAndDeserialiseWithPopulatedFields() throws SerialisationException {
         String json = "" +
                 "{" +
                     "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
@@ -199,6 +199,44 @@ public class FunctionAuthoriserTest {
                 .build();
 
         JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialiseWithNoFields() throws SerialisationException {
+        String json = "" +
+                "{" +
+                    "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"" +
+                "}";
+
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser();
+
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+    }
+
+    @Test
+    public void shouldNotErrorWhenThereAreNoUnauthorisedFunctions() {
+        // Given
+        final OperationChain chain = generateOperation(Identity.class);
+
+        // When
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(null, Lists.newArrayList(Pattern.compile(Identity.class.getName())));
+
+        // Then
+        functionAuthoriser.preExecute(chain, new Context());
+        // no exceptions
+    }
+
+    @Test
+    public void shouldNotErrorWhenNoAuthorisedPatternsAreProvidedInTheJson() {
+        // Given
+        final OperationChain chain = generateOperation(ToString.class);
+
+        // When
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class), null);
+
+        // Then
+        functionAuthoriser.preExecute(chain, new Context());
+        // no exceptions
     }
 
     private OperationChain generateOperation(final Class<? extends Function>... functionClasses) {
