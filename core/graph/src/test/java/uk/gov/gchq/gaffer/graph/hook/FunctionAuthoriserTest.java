@@ -256,7 +256,7 @@ public class FunctionAuthoriserTest {
         final OperationChain chain = generateOperation(Identity.class);
 
         // When
-        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(null, null, Lists.newArrayList(Pattern.compile(Identity.class.getName())) );
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(null, null, Lists.newArrayList(Pattern.compile(Identity.class.getName())));
 
         // Then
         functionAuthoriser.preExecute(chain, new Context());

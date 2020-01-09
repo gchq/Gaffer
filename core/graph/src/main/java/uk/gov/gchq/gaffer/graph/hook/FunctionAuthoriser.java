@@ -36,13 +36,19 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@JsonPropertyOrder(value = { "unauthorisedFunctions", "unauthorisedFunctionPatterns"})
+/**
+ * The FunctionAuthoriser is a {@link GraphHook} which stops a user running
+ * Functions which have been banned. The Authoriser can be configured with a
+ * list of unauthorised function classes, or a list of patterns to check against.
+ * <p>
+ * It should be noted that using the unauthorisedFunctions list will be more
+ * efficient than using any of the patterns.
+ */
+@JsonPropertyOrder(value = {"unauthorisedFunctions", "unauthorisedFunctionPatterns"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FunctionAuthoriser implements GraphHook {
 
-
     private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionAuthoriser.class);
     private List<Class<? extends Function>> unauthorisedFunctions = new ArrayList<>();
     private List<Pattern> authorisedFunctionPatterns = new ArrayList<>();
@@ -51,7 +57,7 @@ public class FunctionAuthoriser implements GraphHook {
     public FunctionAuthoriser() {
     }
 
-    public FunctionAuthoriser(final List<Class< ? extends Function>> unauthorisedFunctions, final List<Pattern> unauthorisedFunctionPatterns, final List<Pattern> authorisedFunctionPatterns) {
+    public FunctionAuthoriser(final List<Class<? extends Function>> unauthorisedFunctions, final List<Pattern> unauthorisedFunctionPatterns, final List<Pattern> authorisedFunctionPatterns) {
         this.setUnauthorisedFunctions(unauthorisedFunctions);
         this.setAuthorisedFunctionPatterns(authorisedFunctionPatterns);
         this.setUnauthorisedFunctionPatterns(unauthorisedFunctionPatterns);
@@ -78,7 +84,7 @@ public class FunctionAuthoriser implements GraphHook {
         }
     }
 
-    private List<Predicate> convertPatternsToPredicates(List<Pattern> patterns) {
+    private List<Predicate> convertPatternsToPredicates(final List<Pattern> patterns) {
         return patterns.stream()
                 .map(Pattern::asPredicate)
                 .collect(Collectors.toList());
@@ -88,20 +94,7 @@ public class FunctionAuthoriser implements GraphHook {
         boolean noWhitelistPatterns = (authorisedFunctionPatterns == null || authorisedFunctionPatterns.isEmpty());
         boolean noBlacklistPatterns = (unauthorisedFunctionPatterns == null || unauthorisedFunctionPatterns.isEmpty());
 
-        if (noBlacklistPatterns && noWhitelistPatterns) {
-            return;
-        }
-
-        List<Predicate> predicateComponents = new ArrayList<>();
-
-        if (!noBlacklistPatterns) {
-            predicateComponents.add(new Not<>(new Or<>(convertPatternsToPredicates(unauthorisedFunctionPatterns))));
-        }
-        if (!noWhitelistPatterns) {
-            predicateComponents.add(new Or<>(convertPatternsToPredicates(authorisedFunctionPatterns)));
-        }
-
-        Predicate<String> isAuthorised = new And<>(predicateComponents);
+        Predicate<String> isAuthorised = createAuthorisationFunction(noBlacklistPatterns, noWhitelistPatterns);
 
         int lastIndexMatched = chainString.indexOf("\"class\":\"");
 
@@ -127,6 +120,19 @@ public class FunctionAuthoriser implements GraphHook {
                 }
             }
         }
+    }
+
+    private Predicate<String> createAuthorisationFunction(final boolean noBlacklistPatterns, final boolean noWhitelistPatterns) {
+        List<Predicate> predicateComponents = new ArrayList<>();
+
+        if (!noBlacklistPatterns) {
+            predicateComponents.add(new Not<>(new Or<>(convertPatternsToPredicates(unauthorisedFunctionPatterns))));
+        }
+        if (!noWhitelistPatterns) {
+            predicateComponents.add(new Or<>(convertPatternsToPredicates(authorisedFunctionPatterns)));
+        }
+
+        return new And<>(predicateComponents);
     }
 
     private void checkNoBlacklistedFunctionsArePresent(final String chainString) {
