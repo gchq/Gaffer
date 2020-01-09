@@ -397,6 +397,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
+                        .skipDefaultSecurityHooks() // Otherwise close() will be invoked when operation chain is serialised
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -426,6 +427,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
+                        .skipDefaultSecurityHooks() // Otherwise close will be invoked when operation is serialised
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -1399,7 +1401,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1424,7 +1426,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1449,7 +1451,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1473,7 +1475,7 @@ public class GraphTest {
 
         // Then
         assertEquals(
-                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class),
+                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class, FunctionAuthoriser.class),
                 graph.getGraphHooks()
         );
     }
@@ -1502,7 +1504,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class, FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1526,7 +1528,7 @@ public class GraphTest {
                         .build())
                 .build(), graph.getView());
         assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class),
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -1572,7 +1574,7 @@ public class GraphTest {
         assertEquals(graphId2, graph.getGraphId());
         assertEquals(view2, graph.getView());
         assertEquals(library2, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass(), FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -1618,7 +1620,7 @@ public class GraphTest {
         assertEquals(graphId1, graph.getGraphId());
         assertEquals(view1, graph.getView());
         assertEquals(library1, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass(), FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -2440,6 +2442,7 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStore.class.getName());
         TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
@@ -2453,8 +2456,8 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
-        assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+        assertEquals(2, graph.getGraphHooks().size());
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class), graph.getGraphHooks());
     }
 
     public static class TestStoreImpl extends Store {

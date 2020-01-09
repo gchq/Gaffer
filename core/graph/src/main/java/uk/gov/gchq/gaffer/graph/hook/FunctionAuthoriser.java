@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -36,15 +38,17 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FunctionAuthoriser implements GraphHook {
 
+
     private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FunctionAuthoriser.class);
     private List<Class<? extends Function>> unauthorisedFunctions = new ArrayList<>();
     private List<Pattern> authorisedFunctionPatterns = new ArrayList<>();
 
     public FunctionAuthoriser() {
     }
 
-    public FunctionAuthoriser(List<Class< ? extends Function>> unauthorisedFunctions, List<Pattern> authorisedFunctionPatterns) {
+    public FunctionAuthoriser(final List<Class< ? extends Function>> unauthorisedFunctions, final List<Pattern> authorisedFunctionPatterns) {
         this.setUnauthorisedFunctions(unauthorisedFunctions);
         this.setAuthorisedFunctionPatterns(authorisedFunctionPatterns);
     }
@@ -55,9 +59,11 @@ public class FunctionAuthoriser implements GraphHook {
         try {
             chainString = new String(JSONSerialiser.serialise(opChain));
         } catch (final SerialisationException e) {
-            // This should never happen as operation chains should always be
-            // json serialisable
-            throw new RuntimeException(e);
+            // This should never happen in real life as operation chains should
+            // always be json serialisable. However this could happen if using a
+            // mock in testing. To account for this, it will be logged.
+            LOGGER.warn("Failed to serialise operation chain: " + opChain);
+            return;
         }
 
         if (unauthorisedFunctions != null) {
@@ -80,13 +86,15 @@ public class FunctionAuthoriser implements GraphHook {
             lastIndexMatched += 9; // last index is now at the start of the class name
             int endIndex = chainString.indexOf('"', lastIndexMatched);
             String className = chainString.substring(lastIndexMatched, endIndex);
-
+            lastIndexMatched = chainString.indexOf("\"class\":\"", lastIndexMatched);
             Class clazz;
             try {
                 clazz = Class.forName(className);
             } catch (final ClassNotFoundException e) {
-                // This would have already been thrown so no need to worry
-                throw new RuntimeException(e);
+                // This can only happen if there is some kind of class field which isn't a java class
+                // As this is technically possible, log it but continue.
+                LOGGER.warn("Operation chain contained a class field which didn't relate to a java class: " + className);
+                continue;
             }
 
             if (Function.class.isAssignableFrom(clazz)) { // then we must check it exists in the whitelist
@@ -99,7 +107,6 @@ public class FunctionAuthoriser implements GraphHook {
                     throw new UnauthorisedException(ERROR_MESSAGE_PREFIX + className);
                 }
             }
-            lastIndexMatched = chainString.indexOf("\"class\":\"", lastIndexMatched);
         }
     }
 

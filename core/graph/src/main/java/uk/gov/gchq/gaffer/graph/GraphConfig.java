@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
@@ -62,8 +63,10 @@ public final class GraphConfig {
     private byte[] view;
     private GraphLibrary library;
     private String description;
-    private boolean skipDefaultSecurityHooks = false;
     private List<GraphHook> hooks = new ArrayList<>();
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean skipDefaultSecurityHooks = false;
 
     public GraphConfig() {
     }
@@ -151,6 +154,7 @@ public final class GraphConfig {
                 .append("view", getView())
                 .append("library", library)
                 .append("hooks", hooks)
+                .append("skipDefaultSecurityHooks", skipDefaultSecurityHooks)
                 .toString();
     }
 
@@ -211,6 +215,7 @@ public final class GraphConfig {
                     this.config.setDescription(config.getDescription());
                 }
                 this.config.getHooks().addAll(config.getHooks());
+                this.config.setSkipDefaultSecurityHooks(config.isSkipDefaultSecurityHooks());
             }
             return this;
         }
@@ -299,6 +304,11 @@ public final class GraphConfig {
 
         public Builder skipDefaultSecurityHooks() {
             this.config.setSkipDefaultSecurityHooks(true);
+            return this;
+        }
+
+        public Builder skipDefaultSecurityHooks(final boolean skipDefaultSecurityHooks) {
+            this.config.setSkipDefaultSecurityHooks(skipDefaultSecurityHooks);
             return this;
         }
 
