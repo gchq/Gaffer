@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.koryphe.impl.predicate.And;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 
 import java.util.ArrayList;
@@ -44,13 +46,15 @@ public class FunctionAuthoriser implements GraphHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionAuthoriser.class);
     private List<Class<? extends Function>> unauthorisedFunctions = new ArrayList<>();
     private List<Pattern> authorisedFunctionPatterns = new ArrayList<>();
+    private List<Pattern> unauthorisedFunctionPatterns = new ArrayList<>();
 
     public FunctionAuthoriser() {
     }
 
-    public FunctionAuthoriser(final List<Class< ? extends Function>> unauthorisedFunctions, final List<Pattern> authorisedFunctionPatterns) {
+    public FunctionAuthoriser(final List<Class< ? extends Function>> unauthorisedFunctions, final List<Pattern> unauthorisedFunctionPatterns, final List<Pattern> authorisedFunctionPatterns) {
         this.setUnauthorisedFunctions(unauthorisedFunctions);
         this.setAuthorisedFunctionPatterns(authorisedFunctionPatterns);
+        this.setUnauthorisedFunctionPatterns(unauthorisedFunctionPatterns);
     }
 
     @Override
@@ -69,15 +73,35 @@ public class FunctionAuthoriser implements GraphHook {
         if (unauthorisedFunctions != null) {
             checkNoBlacklistedFunctionsArePresent(chainString);
         }
-        if (authorisedFunctionPatterns != null) {
-            checkAllFunctionsUsedAppearInWhitelist(chainString);
+        if (authorisedFunctionPatterns != null || unauthorisedFunctionPatterns != null) {
+            checkAllFunctionsUsedAppearInPatterns(chainString);
         }
     }
 
-    private void checkAllFunctionsUsedAppearInWhitelist(final String chainString) {
-        if (authorisedFunctionPatterns.size() == 0) {
+    private List<Predicate> convertPatternsToPredicates(List<Pattern> patterns) {
+        return patterns.stream()
+                .map(Pattern::asPredicate)
+                .collect(Collectors.toList());
+    }
+
+    private void checkAllFunctionsUsedAppearInPatterns(final String chainString) {
+        boolean noWhitelistPatterns = (authorisedFunctionPatterns == null || authorisedFunctionPatterns.isEmpty());
+        boolean noBlacklistPatterns = (unauthorisedFunctionPatterns == null || unauthorisedFunctionPatterns.isEmpty());
+
+        if (noBlacklistPatterns && noWhitelistPatterns) {
             return;
         }
+
+        List<Predicate> predicateComponents = new ArrayList<>();
+
+        if (!noBlacklistPatterns) {
+            predicateComponents.add(new Not<>(new Or<>(convertPatternsToPredicates(unauthorisedFunctionPatterns))));
+        }
+        if (!noWhitelistPatterns) {
+            predicateComponents.add(new Or<>(convertPatternsToPredicates(authorisedFunctionPatterns)));
+        }
+
+        Predicate<String> isAuthorised = new And<>(predicateComponents);
 
         int lastIndexMatched = chainString.indexOf("\"class\":\"");
 
@@ -98,12 +122,7 @@ public class FunctionAuthoriser implements GraphHook {
             }
 
             if (Function.class.isAssignableFrom(clazz)) { // then we must check it exists in the whitelist
-                // Create an or predicate from the patterns
-                List<Predicate> patterns = authorisedFunctionPatterns.stream()
-                        .map(Pattern::asPredicate)
-                        .collect(Collectors.toList());
-                Or<String> or = new Or<>(patterns);
-                if (!or.test(className)) {
+                if (!isAuthorised.test(className)) {
                     throw new UnauthorisedException(ERROR_MESSAGE_PREFIX + className);
                 }
             }
@@ -135,6 +154,14 @@ public class FunctionAuthoriser implements GraphHook {
         this.authorisedFunctionPatterns = authorisedFunctionPatterns;
     }
 
+    public List<Pattern> getUnauthorisedFunctionPatterns() {
+        return unauthorisedFunctionPatterns;
+    }
+
+    public void setUnauthorisedFunctionPatterns(final List<Pattern> unauthorisedFunctionPatterns) {
+        this.unauthorisedFunctionPatterns = unauthorisedFunctionPatterns;
+    }
+
     public static class Builder {
         private FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
@@ -153,6 +180,19 @@ public class FunctionAuthoriser implements GraphHook {
 
         public Builder unauthorisedFunctions(final List<Class<? extends Function>> unauthorisedFunctions) {
             authoriser.setUnauthorisedFunctions(unauthorisedFunctions);
+            return this;
+        }
+
+        public Builder unauthorisedPatterns(final List<Pattern> unauthorisedPatterns) {
+            authoriser.setAuthorisedFunctionPatterns(unauthorisedPatterns);
+            return this;
+        }
+
+        public Builder unauthorsisedPatterns(final List<String> unauthorisedPatterns) {
+            authoriser.setAuthorisedFunctionPatterns(unauthorisedPatterns
+                    .stream()
+                    .map(Pattern::compile)
+                    .collect(Collectors.toList()));
             return this;
         }
 

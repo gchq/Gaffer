@@ -107,6 +107,43 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
+    public void shouldNotAllowOperationChainsWhichContainFunctionListedInTheBlacklistedPatterns() {
+        // Given
+        OperationChain chain = generateOperation(Identity.class, ToString.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setUnauthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.To*")));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(chain, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ToString", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotAllowOperationChainsWhichContainFunctionListedInBothWhitelistAndBlacklistPatterns() {
+        // Given
+        OperationChain chain = generateOperation(Identity.class, ToString.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function")));
+        functionAuthoriser.setUnauthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.To*")));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(chain, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.ToString", e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldNotAllowAnOperationChainWhichContainsFunctionWhichDoesNotExactlyMatchWhitelist() {
         // Given
         OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
@@ -219,7 +256,7 @@ public class FunctionAuthoriserTest {
         final OperationChain chain = generateOperation(Identity.class);
 
         // When
-        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(null, Lists.newArrayList(Pattern.compile(Identity.class.getName())));
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(null, null, Lists.newArrayList(Pattern.compile(Identity.class.getName())) );
 
         // Then
         functionAuthoriser.preExecute(chain, new Context());
@@ -232,7 +269,7 @@ public class FunctionAuthoriserTest {
         final OperationChain chain = generateOperation(ToString.class);
 
         // When
-        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class), null);
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class), null, null);
 
         // Then
         functionAuthoriser.preExecute(chain, new Context());
