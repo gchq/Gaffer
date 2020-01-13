@@ -42,8 +42,7 @@ public class GitScriptProvider implements ScriptProvider {
      */
     @Override
     public void retrieveScripts(final String absoluteRepoPath,
-                                final String repoURI) {
-
+                                final String repoURI) throws GitAPIException, IOException {
         if (Files.notExists(Paths.get(absoluteRepoPath))) {
             cloneRepo(absoluteRepoPath, repoURI);
         } else {
@@ -54,6 +53,8 @@ public class GitScriptProvider implements ScriptProvider {
                 LOGGER.error("absoluteRepoPath: {}", absoluteRepoPath);
                 LOGGER.error("repoURI: {}", repoURI);
                 LOGGER.error(e.getMessage());
+                LOGGER.error("Failed to get the latest scripts");
+                throw e;
             }
         }
     }
@@ -62,14 +63,17 @@ public class GitScriptProvider implements ScriptProvider {
      * Pull the files using GIT
      *
      * @param git                    the git client
+     * @throws GitAPIException       if it fails to pull the repo
      */
-    private synchronized void pullRepo(final Git git) {
+    private synchronized void pullRepo(final Git git) throws GitAPIException {
         try {
             LOGGER.info("Repo already cloned, pulling files...");
             git.pull().call();
             LOGGER.info("Pulled the latest files.");
         } catch (final GitAPIException e) {
             LOGGER.error(e.getMessage());
+            LOGGER.error("Failed to pull the latest files");
+            throw e;
         }
     }
 
@@ -78,8 +82,9 @@ public class GitScriptProvider implements ScriptProvider {
      *
      * @param absoluteRepoPath       the path to clone the repo to
      * @param repoURI                the URI of the GIT repo with the scripts
+     * @throws GitAPIException       if it fails to clone the repo
      */
-    private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) {
+    private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) throws GitAPIException {
         try {
             LOGGER.info("Cloning repo...");
             LOGGER.debug("path: {}", absoluteRepoPath);
@@ -90,7 +95,9 @@ public class GitScriptProvider implements ScriptProvider {
                     .call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to clone the repo");
+            throw e;
         }
     }
 }

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 
 import java.util.ArrayList;
@@ -43,9 +44,9 @@ public class RunScriptParallelTest {
         Callable<Void> callable = () -> {
             try {
                 runScript();
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage());
-                fail("Error running parallel");
+            } catch (final OperationException e) {
+                LOGGER.error(e.toString());
+                fail("Operation Exception whilst running parallel test");
             }
             return null;
         };
@@ -62,7 +63,7 @@ public class RunScriptParallelTest {
             //start the threads and wait for them to finish
             executor.invokeAll(taskList);
         } catch (final InterruptedException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
             fail();
         }
 
@@ -77,7 +78,7 @@ public class RunScriptParallelTest {
         }
     }
 
-    private void runScript() throws Exception {
+    private void runScript() throws OperationException {
 
         RunScriptHandler rPSH = new RunScriptHandler();
         final Map<String, Object> scriptParameters = new HashMap<String, Object>() { {

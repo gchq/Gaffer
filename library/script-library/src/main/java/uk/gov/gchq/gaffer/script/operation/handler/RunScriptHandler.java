@@ -15,31 +15,45 @@
  */
 package uk.gov.gchq.gaffer.script.operation.handler;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.script.operation.RunScript;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
+import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.platform.ImagePlatform;
 import uk.gov.gchq.gaffer.script.operation.platform.LocalDockerPlatform;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 import uk.gov.gchq.gaffer.script.operation.provider.ScriptProvider;
+import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class RunScriptHandler implements OperationHandler<RunScript> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final int TIMEOUT_100 = 100;
+    private static final int TIMEOUT_200 = 200;
+    private static final int MAX_BYTES = 65000;
     private ImagePlatform imagePlatform = LocalDockerPlatform.localDockerPlatform();
     private ScriptProvider scriptProvider = GitScriptProvider.gitScriptProvider();
     private String repoName;
     private String repoURI;
+
 
     @Override
     public Object doOperation(final RunScript operation, final Context context, final Store store) throws OperationException {
@@ -50,22 +64,162 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
         final String pathToBuildFiles = currentWorkingDirectory.concat("/src/main/resources/" + ".ScriptBin");
         final Path absoluteRepoPath = Paths.get(pathToBuildFiles, repoName);
         final File directory = new File(pathToBuildFiles);
+        Container container = null;
         if (!directory.exists()) {
             directory.mkdir();
         }
 
-        // Pull or Clone the repo with the files
-        scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
-        // Build the image
         try {
+            // Pull or Clone the repo with the files
+            scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
+            // Build the image
             final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
             // Create the container
-            final Container container = imagePlatform.createContainer(image);
-            // Run the container and return the result
-            return imagePlatform.runContainer(container, operation.getInput());
+            container = imagePlatform.createContainer(image);
+            // Run the container
+            imagePlatform.runContainer(container, operation.getInput());
+            // Get the input stream
+            DataInputStream inputStream = container.receiveData();
+            // Get the results back from the container
+            Object results = receiveData(inputStream);
+            // Close the container
+            imagePlatform.closeContainer(container);
+
+            return results;
         } catch (final Exception e) {
+            LOGGER.error("Failed to run the script");
+            if (container != null) {
+                RandomPortGenerator.getInstance().releasePort(container.getPort());
+            }
             throw new OperationException(e);
         }
+    }
+
+    /**
+     * Gets the data from the container.
+     *
+     * @param inputStream           the input stream from the container
+     * @return the data from the container
+     * @throws TimeoutException     if it times out getting the data from the container
+     * @throws IOException          if it fails to get the data from the container
+     */
+    public Object receiveData(final DataInputStream inputStream) throws TimeoutException, IOException {
+        // Get the length of the data coming from the container.
+        LOGGER.info("Inputstream is: {}", inputStream);
+        Reader inputStreamReader = new InputStreamReader(inputStream);
+        int incomingDataLength = getIncomingDataLength(inputStreamReader);
+
+        // Get the data from the container
+        StringBuilder dataReceived = getDataReceived(incomingDataLength, inputStreamReader);
+
+        // Close the connection
+        try {
+            inputStream.close();
+        } catch (final IOException e) {
+            LOGGER.info(e.toString());
+            LOGGER.info("Failed to close the input stream from the container");
+        }
+
+        return dataReceived;
+    }
+
+    /**
+     * Gets the data from the container. Checks if any errors occurred within the container itself.
+     *
+     * @param incomingDataLength            The length of the data from the container
+     * @param inputStreamReader             the input stream reader
+     * @return the data from the container
+     * @throws IOException                  if it fails to get the data
+     */
+    private StringBuilder getDataReceived(final int incomingDataLength,
+                                          final Reader inputStreamReader) throws IOException {
+        // Get the data from the container
+        StringBuilder dataReceived = new StringBuilder();
+        try {
+            char[] charBuffer = new char[incomingDataLength];
+            inputStreamReader.read(charBuffer, 0, incomingDataLength);
+            dataReceived.append(charBuffer);
+            LOGGER.info("Data received is: " + dataReceived);
+        } catch (final IOException e) {
+            LOGGER.error(e.toString());
+            LOGGER.error("Error reading the data from the container");
+            DockerClientSingleton.close();
+            throw e;
+        }
+        return checkForScriptError(dataReceived);
+    }
+
+    /**
+     * Checks if there is a error whilst running the script.
+     *
+     * @param dataReceived          the data received from the container
+     * @return the data from the container or the error message.
+     */
+    private StringBuilder checkForScriptError(final StringBuilder dataReceived) {
+        // Show the error message if the script failed and return no data
+        StringBuilder dataRecvd = dataReceived;
+        if (dataReceived.subSequence(0, 5) == "Error") {
+            LOGGER.error(dataReceived.subSequence(5, dataReceived.length()).toString());
+            dataRecvd = null;
+        }
+        return dataRecvd;
+    }
+
+    /**
+     * Gets the length of the data coming from the container
+     *
+     * @param inputStreamReader          the input stream reader
+     * @return the length of the data
+     * @throws TimeoutException          if it times out getting the length of the data
+     * @throws IOException               if it fails to get the length of the data
+     */
+    private int getIncomingDataLength(final Reader inputStreamReader) throws TimeoutException, IOException {
+        // Keep trying to get the length of the data until the container is ready.
+        int incomingDataLength = 0;
+        if (inputStreamReader != null) {
+            long start = System.currentTimeMillis();
+            boolean timedOut = true;
+            IOException error = null;
+            while (System.currentTimeMillis() - start < TIMEOUT_100) {
+                try {
+                    if (inputStreamReader.ready()) {
+                        timedOut = false;
+                        break;
+                    }
+                } catch (final IOException e) {
+                    error = e;
+                }
+            }
+            if (!timedOut) {
+                try {
+                    while (incomingDataLength == 0) {
+                        int asciiCode = inputStreamReader.read();
+                        if (asciiCode != 0) {
+                            incomingDataLength = asciiCode;
+                        }
+                    }
+                } catch (final IOException e) {
+                    LOGGER.error(e.toString());
+                    LOGGER.error("Failed to read from input stream of the container");
+                    DockerClientSingleton.close();
+                    throw e;
+                }
+            } else {
+                // timed out
+                DockerClientSingleton.close();
+                if (error != null) {
+                    LOGGER.error(error.toString());
+                    LOGGER.error("Error checking the input stream of the container is ready");
+                    throw error;
+                } else {
+                    TimeoutException err = new TimeoutException("Timed out waiting for the input stream");
+                    LOGGER.error(error.toString());
+                    LOGGER.error("Timed out checking the input stream is ready");
+                    throw err;
+                }
+            }
+        }
+        return incomingDataLength;
     }
 
     private ImagePlatform getImagePlatform() {

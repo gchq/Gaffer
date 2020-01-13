@@ -2,7 +2,6 @@ import importlib
 import socket
 import struct
 import re
-import pandas
 import sys
 from ast import literal_eval
 
@@ -23,6 +22,10 @@ print('scriptParams is ', scriptParameters)
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
+
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# sock.connect((HOST, PORT))
+# sock.close()
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
@@ -62,17 +65,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 data = None
 
             # Send the results back to the server
-            if (data != None):
+            if data is not None:
                 print('type of output data is: ', type(data))
+                print('data being sent is: ', data)
                 i = 0
                 conn.sendall(struct.pack('>i', len(data)))
                 if len(data) > 65000:
                     splitData = re.findall(('.' * 65000), data)
                     while i < (len(data) / 65000) - 1:
-                        conn.sendall(struct.pack('>H', 65000))
                         conn.sendall(splitData[i].encode('utf-8'))
                         i += 1
-                conn.sendall(struct.pack('>H', len(data) % 65000))
                 conn.sendall(data[65000 * i:].encode('utf-8'))
             else:
                 conn.sendall(struct.pack('>i', 130000))
