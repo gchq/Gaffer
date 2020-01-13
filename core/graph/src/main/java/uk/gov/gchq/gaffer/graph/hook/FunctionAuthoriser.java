@@ -39,12 +39,13 @@ import java.util.stream.Collectors;
 /**
  * The FunctionAuthoriser is a {@link GraphHook} which stops a user running
  * Functions which have been banned. The Authoriser can be configured with a
- * list of unauthorised function classes, or a list of patterns to check against.
+ * list of unauthorised function classes or patterns, or a list of authorised
+ * patterns to check against.
  * <p>
  * It should be noted that using the unauthorisedFunctions list will be more
  * efficient than using any of the patterns.
  */
-@JsonPropertyOrder(value = {"unauthorisedFunctions", "unauthorisedFunctionPatterns"})
+@JsonPropertyOrder(value = {"unauthorisedFunctions", "unauthorisedFunctionPatterns", "authorisedFunctionPatterns"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FunctionAuthoriser implements GraphHook {
 

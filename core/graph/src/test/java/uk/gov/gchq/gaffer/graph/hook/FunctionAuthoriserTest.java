@@ -218,6 +218,19 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
+    public void shouldAllowOperationChainWhichOnlyContainsFunctionsInWhitelist() {
+        // Given
+        OperationChain mapOperation = generateOperation(ToString.class, ToInteger.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        functionAuthoriser.setAuthorisedFunctionPatterns(Lists.newArrayList(Pattern.compile("uk.gov.gchq.koryphe.impl.function.To*")));
+
+        // Then no exceptions
+        functionAuthoriser.preExecute(mapOperation, new Context());
+    }
+
+    @Test
     public void shouldJsonSerialiseAndDeserialiseWithPopulatedFields() throws SerialisationException {
         String json = "" +
                 "{" +
