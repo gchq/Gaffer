@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -52,7 +53,6 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.CreateObject;
 import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.IOException;
@@ -1002,7 +1002,7 @@ public final class Graph {
             }
             if (!hasFunctionAuthoriserHook && !config.isSkipDefaultSecurityHooks()) {
                 config.getHooks().add(new FunctionAuthoriser.Builder()
-                        .unauthorisedFunctions(Lists.newArrayList(CreateObject.class))
+                        .unauthorisedFunctions(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS)
                 .build());
             }
         }

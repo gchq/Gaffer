@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,13 +23,13 @@ import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable.Builder;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.koryphe.impl.function.CreateObject;
 
 import java.util.Properties;
 
@@ -49,7 +48,7 @@ public class GraphSerialisableTest {
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver())
                 .addHook(new FunctionAuthoriser.Builder()
-                        .unauthorisedFunctions(Lists.newArrayList(CreateObject.class))
+                        .unauthorisedFunctions(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS)
                         .build())
                 .view(new View.Builder()
                         .entity("e1")

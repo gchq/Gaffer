@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.mapstore;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,11 +24,11 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.koryphe.impl.function.CreateObject;
 
 import java.util.Properties;
 
@@ -47,7 +46,7 @@ public class MapStorePropertiesGraphSerialisableTest {
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver())
                 .addHook(new FunctionAuthoriser.Builder()
-                        .unauthorisedFunctions(Lists.newArrayList(CreateObject.class))
+                        .unauthorisedFunctions(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS)
                         .build())
                 .view(new View.Builder()
                         .entity("e1")
