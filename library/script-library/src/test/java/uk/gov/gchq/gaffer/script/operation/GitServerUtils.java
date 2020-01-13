@@ -46,7 +46,7 @@ public class GitServerUtils extends Thread {
     private static Path pathAbsoluteScriptRepo;
 
     public GitServerUtils(Path repoPath) {
-        if (null == repoPath || repoPath.toString().equals("")) {
+        if (null == repoPath || repoPath.toString().isEmpty()) {
             setupAndStart = true;
         } else {
             setupAndStart = false;
