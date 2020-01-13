@@ -194,7 +194,7 @@ public class GitServerUtils extends Thread {
 
         try {
             FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-            repositoryBuilder.setMustExist( true );
+            repositoryBuilder.setMustExist(true);
             repositoryBuilder.setGitDir(pathAbsoluteScriptRepo.toFile());
             repository = repositoryBuilder.build();
 
