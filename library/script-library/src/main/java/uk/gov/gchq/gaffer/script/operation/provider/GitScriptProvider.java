@@ -47,9 +47,11 @@ public class GitScriptProvider implements ScriptProvider {
             cloneRepo(absoluteRepoPath, repoURI);
         } else {
             try {
-                Git git = Git.open(new File(absoluteRepoPath));
+                Git git = Git.open(new File(absoluteRepoPath + "/" + repoURI.substring(repoURI.lastIndexOf("/") + 1)));
                 pullRepo(git);
             } catch (final IOException e) {
+                LOGGER.error("absoluteRepoPath: {}", absoluteRepoPath);
+                LOGGER.error("repoURI: {}", repoURI);
                 LOGGER.error(e.getMessage());
                 LOGGER.error("Failed to get the latest scripts");
                 throw e;
@@ -85,7 +87,12 @@ public class GitScriptProvider implements ScriptProvider {
     private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) throws GitAPIException {
         try {
             LOGGER.info("Cloning repo...");
-            Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
+            LOGGER.debug("path: {}", absoluteRepoPath);
+            LOGGER.debug("path: {}", repoURI);
+            Git.cloneRepository()
+                    .setURI(repoURI)
+                    .setDirectory(new File(absoluteRepoPath))
+                    .call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
             LOGGER.error(e.toString());
