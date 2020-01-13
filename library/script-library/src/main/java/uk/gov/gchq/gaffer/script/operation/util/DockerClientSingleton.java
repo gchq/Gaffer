@@ -22,26 +22,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class DockerClientSingleton {
-    private static volatile DockerClient dockerClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerClientSingleton.class);
+    private static volatile DockerClient dockerClient;
+    private static int threadCount; // Count of threads using dockerClient
 
     private DockerClientSingleton() { }
 
-    public static DockerClient getInstance() {
+    public static DockerClient getInstance() throws DockerCertificateException {
         // Don't wait for other threads if the instance is available
         if (dockerClient == null) {
             // Synchronize the creation of the docker client
             synchronized (DockerClientSingleton.class) {
-                // Creates a docker client if none already exist
+                // Only create a docker client if one already exists
                 if (dockerClient == null) {
                     try {
                         dockerClient = DefaultDockerClient.fromEnv().build();
                     } catch (final DockerCertificateException e) {
-                        LOGGER.error(e.getMessage());
+                        LOGGER.error(e.toString());
+                        LOGGER.error("Failed to create an instance of the docker client");
+                        throw e;
                     }
                 }
             }
         }
+        threadCount += 1;
         return dockerClient;
+    }
+
+    public static synchronized void close() {
+        threadCount -= 1;
+        if (threadCount == 0) {
+            if (dockerClient != null) {
+                dockerClient.close();
+                dockerClient = null;
+            }
+        }
     }
 }

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.script.operation.builder;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,8 +27,11 @@ import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DockerImageBuilderTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilderTest.class);
@@ -42,14 +46,23 @@ public class DockerImageBuilderTest {
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
         final GitScriptProvider gitScriptProvider = new GitScriptProvider();
-        gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        dockerImageBuilder.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
+
+        try {
+            gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        } catch (final GitAPIException | IOException e) {
+            Assert.fail("Failed to get the scripts");
+        }
+        try {
+            dockerImageBuilder.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
+        } catch (final IOException e) {
+            Assert.fail("Failed to get the build files");
+        }
+
 
         // When
         Image returnedImage = null;
         try {
             returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,10 +82,18 @@ public class DockerImageBuilderTest {
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
         final GitScriptProvider gitScriptProvider = new GitScriptProvider();
-        gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-
+        try {
+            gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        } catch (GitAPIException | IOException e) {
+            Assert.fail("Failed to retrieve the scripts");
+        }
         // When
-        dockerImageBuilder.getFiles(directoryPath, "");
+        try {
+            dockerImageBuilder.getFiles(directoryPath, "");
+        } catch (final IOException e) {
+            Assert.fail("Failed to get the build files");
+        }
+
         Image returnedImage = null;
         try {
             returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
@@ -86,22 +107,13 @@ public class DockerImageBuilderTest {
     }
 
     @Test
-    public void pathsAreBlankCodeShouldReturnNull() {
+    public void shouldThrowErrorIfPathsAreBlank() {
         // Given
         final String directoryPath = "";
-        Path pathAbsoluteScriptRepo = null;
+        final String dockerfilePath = "";
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        // When
-        dockerImageBuilder.getFiles(directoryPath, "");
-        Image returnedImage = null;
-        try {
-            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         // Then
-        Assert.assertNull(returnedImage);
+        assertThrows(NullPointerException.class, () -> dockerImageBuilder.getFiles(directoryPath, dockerfilePath));
     }
 }

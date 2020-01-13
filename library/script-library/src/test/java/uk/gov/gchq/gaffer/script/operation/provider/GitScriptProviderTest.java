@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.script.operation.provider;
 
 import org.junit.AfterClass;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.script.operation.GitServerUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,8 +58,12 @@ public class GitScriptProviderTest {
         }
 
         // When
-        gsp.retrieveScripts(PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toString(), ScriptTestConstants.REPO_URI);
-        final String[] files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        try {
+          gsp.retrieveScripts(PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toString(), ScriptTestConstants.REPO_URI);
+          final String[] files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        } catch (GitAPIException | IOException e) {
+            Assert.fail();
+        }
 
         // Then
         Assert.assertNotNull(files);
@@ -84,8 +90,12 @@ public class GitScriptProviderTest {
         }
 
         //When
-        gsp.retrieveScripts(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2", ScriptTestConstants.REPO_URI);
-        final String[] files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        try {
+          gsp.retrieveScripts(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2", ScriptTestConstants.REPO_URI);
+          final String[] files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        } catch (GitAPIException | IOException e) {
+            Assert.fail();
+        }
 
         // Then
         Assert.assertNotNull(files);

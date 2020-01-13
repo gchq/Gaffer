@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.script.operation.platform;
 
 import com.google.common.collect.ImmutableMap;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
@@ -29,11 +30,13 @@ import uk.gov.gchq.gaffer.script.operation.builder.DockerImageBuilder;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.container.LocalDockerContainer;
 import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
-import uk.gov.gchq.gaffer.script.operation.handler.RunScriptHandler;
 import uk.gov.gchq.gaffer.script.operation.image.DockerImage;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +44,8 @@ import java.util.Objects;
 
 public class LocalDockerPlatform implements ImagePlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerPlatform.class);
+    private static final int MAX_TRIES = 100;
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
@@ -58,10 +62,14 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the docker image
-     * @throws Exception             the exception thrown in case of a failure to build image
+     * @throws InterruptedException             if image build fails
+     * @throws DockerException                  if image build fails
+     * @throws IOException                      if image build fails
+     * @throws DockerCertificateException       if image build fails
      */
-    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws Exception {
-
+    @Override
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException
+{
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
         // Get the user defined dockerfile or use the default
@@ -75,17 +83,25 @@ public class LocalDockerPlatform implements ImagePlatform {
         final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, pathToBuildFiles);
 
         // Remove the old images
-        final List<com.spotify.docker.client.messages.Image> images;
+        List<com.spotify.docker.client.messages.Image> images = null;
         try {
             images = docker.listImages();
-            String repoTag = "[<none>:<none>]";
-            for (final com.spotify.docker.client.messages.Image image : images) {
-                if (Objects.requireNonNull(image.repoTags()).toString().equals(repoTag)) {
-                    docker.removeImage(image.id());
+        } catch (final DockerException | InterruptedException e) {
+            LOGGER.info(e.toString());
+            LOGGER.info("Failed to get a list of docker images");
+        }
+        try {
+            if (images != null) {
+                String repoTag = "[<none>:<none>]";
+                for (final com.spotify.docker.client.messages.Image image : images) {
+                    if (Objects.requireNonNull(image.repoTags()).toString().equals(repoTag)) {
+                        docker.removeImage(image.id());
+                    }
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.error("Could not remove image, image still in use.");
+            LOGGER.info(e.toString());
+            LOGGER.info("Could not remove the old images, images still in use.");
         }
 
         return dockerImage;
@@ -98,29 +114,46 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @return the docker container
      */
     @Override
-    public Container createContainer(final Image image) {
+    public Container createContainer(final Image image) throws DockerException, InterruptedException {
 
         String containerId = "";
+        Exception error = null;
         // Keep trying to create a container and find a free port.
-        while (containerId == null || containerId.equals("")) {
-            try {
-                port = RandomPortGenerator.getInstance().generatePort();
+        for (int i = 0; i < MAX_TRIES; i++) {
+            if (containerId == null || containerId.equals("")) {
+                try {
+                    port = RandomPortGenerator.getInstance().generatePort();
 
-                // Create a container from the image and bind ports
-                final ContainerConfig containerConfig = ContainerConfig.builder()
-                        .hostConfig(HostConfig.builder()
-                                .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
-                                .build())
-                        .image(image.getImageId())
-                        .exposedPorts("80/tcp")
-                        .cmd("sh", "-c", "while :; do sleep 1; done")
-                        .build();
-                final ContainerCreation creation = docker.createContainer(containerConfig);
-                containerId = creation.id();
-            } catch (final DockerException | InterruptedException e) {
-                LOGGER.error(e.getMessage());
+                    // Create a container from the image and bind ports
+                    final ContainerConfig containerConfig = ContainerConfig.builder()
+                            .hostConfig(HostConfig.builder()
+                                    .portBindings(ImmutableMap.of("80/tcp", Collections.singletonList(PortBinding.of(LOCAL_HOST, port))))
+                                    .build())
+                            .image(image.getImageId())
+                            .exposedPorts("80/tcp")
+                            .cmd("sh", "-c", "while :; do sleep 1; done")
+                            .build();
+                    final ContainerCreation creation = docker.createContainer(containerConfig);
+                    containerId = creation.id();
+                    error = null;
+                } catch (final DockerException | InterruptedException e) {
+                    error = e;
+                    RandomPortGenerator.getInstance().releasePort(port);
+                }
             }
         }
+        // If we still fail to create the container after many tries
+        // then print the error message and throw the error.
+        if (error != null) {
+            LOGGER.error(error.toString());
+            LOGGER.error("Failed to create the container");
+            DockerClientSingleton.close();
+            if (error instanceof DockerException) {
+                throw (DockerException) error;
+            }
+            throw (InterruptedException) error;
+        }
+
         return new LocalDockerContainer(containerId, port);
     }
 
@@ -128,16 +161,66 @@ public class LocalDockerPlatform implements ImagePlatform {
      * Starts a docker container
      *
      * @param container             the container
+     * @throws DockerException      exception if the container fails to start
+     * @throws InterruptedException exception if the container fails to start
      */
-    private void startContainer(final Container container) {
-        for (int i = 0; i < 100; i++) {
+    public void startContainer(final Container container) throws InterruptedException, DockerException {
+        // Keep trying to start the container
+        // this.startContainerListener(container.getPort());
+        Exception error = null;
+        for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
+                /*while (!listenerActive) {
+                    Thread.sleep(100);
+                }*/
                 docker.startContainer(container.getContainerId());
+                error = null;
                 break;
-            } catch (final DockerException | InterruptedException ignored) {
+            } catch (final DockerException | InterruptedException e) {
+                error = e;
             }
         }
+        if (error != null) {
+            LOGGER.error(error.toString());
+            LOGGER.error("Failed to start the container");
+            RandomPortGenerator.getInstance().releasePort(container.getPort());
+            DockerClientSingleton.close();
+            if (error instanceof DockerException) {
+                throw (DockerException) error;
+            }
+            throw (InterruptedException) error;
+        }
+    }
+
+    boolean listenerActive = false;
+
+    private void startContainerListener(final int port) {
+
+        Runnable containerListenerTask = () -> {
+            ServerSocket containerListener = null;
+            try {
+                containerListener = new ServerSocket(port);
+                listenerActive = true;
+                Socket container = containerListener.accept();
+                container.close();
+            } catch (final IOException e) {
+                RandomPortGenerator.getInstance().releasePort(port);
+                DockerClientSingleton.close();
+                LOGGER.error(e.toString());
+                LOGGER.error("Failed to open a socket to the container");
+            }
+            if (containerListener != null) {
+                try {
+                    containerListener.close();
+                } catch (final IOException e) {
+                    LOGGER.error(e.toString());
+                    LOGGER.error("Failed to close the socket to the container");
+                }
+            }
+        };
+        final Thread thread = new Thread(containerListenerTask);
+        thread.start();
     }
 
     /**
@@ -145,32 +228,32 @@ public class LocalDockerPlatform implements ImagePlatform {
      *
      * @param container             the container
      */
-    private void closeContainer(final Container container) {
+    public void closeContainer(final Container container) {
         try {
             LOGGER.info("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
+            // Free the port
+            DockerClientSingleton.close();
+            RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.info(e.toString());
             LOGGER.info("Failed to stop the container");
         }
     }
 
-    /**
-     * Runs a docker container
-     *
-     * @param container              the container to run
-     * @param inputData              the data to pass to the container
-     * @return the result of the container
-     */
-    @Override
-    public StringBuilder runContainer(final Container container, final Iterable inputData) {
-        startContainer(container);
-        container.sendData(inputData);
-        StringBuilder output = container.receiveData();
-        closeContainer(container);
-        RandomPortGenerator.getInstance().releasePort(port);
-        return output;
+    public void runContainer(final Container container, final Iterable inputData) throws DockerException, InterruptedException, IOException {
+        try {
+            // Start the container
+            startContainer(container);
+            // Send the data to the container
+            container.sendData(inputData);
+        } catch (final DockerException | InterruptedException | IOException e) {
+            LOGGER.error("Failed to run the container");
+            DockerClientSingleton.close();
+            RandomPortGenerator.getInstance().releasePort(port);
+            throw e;
+        }
     }
 
     private String getDockerfilePath() {

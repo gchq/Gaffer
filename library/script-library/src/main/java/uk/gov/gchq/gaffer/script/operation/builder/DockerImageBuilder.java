@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class DockerImageBuilder implements ImageBuilder {
      */
     @Override
     public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) throws Exception {
+                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException, DockerCertificateException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
@@ -82,8 +83,10 @@ public class DockerImageBuilder implements ImageBuilder {
                         LOGGER.info(String.valueOf(message));
                     }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            LOGGER.error(e.getMessage());
-            throw new Exception(e);
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to build the image from the Dockerfile");
+            DockerClientSingleton.close();
+            throw e;
         }
     }
 
@@ -93,9 +96,10 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param scriptName - String name of the script to run.
      * @param params - String parameters to be passed to the script to be run.
      *
-     * @return String the build argumnets string.
+     * @return String the build arguments string.
+     * @throws UnsupportedEncodingException       if it fails to encode the build arguments
      */
-    private String buildArguments(final String scriptName, final String params) {
+    private String buildArguments(final String scriptName, final String params) throws UnsupportedEncodingException {
         // Create the build arguments
         String retVal = "";
 
@@ -103,12 +107,14 @@ public class DockerImageBuilder implements ImageBuilder {
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
-        LOGGER.debug(String.valueOf(buildargs));
+        LOGGER.debug("Build arguments are: " + buildargs);
 
         try {
             retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to create the build arguments");
+            throw e;
         }
 
         return retVal;
@@ -119,72 +125,50 @@ public class DockerImageBuilder implements ImageBuilder {
      *
      * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
      * @param dockerfilePath         the path to the non-default dockerfile
+     * @throws IOException           if it fails to copy the image files
      */
-    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
+    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) throws IOException {
         // Copy the Dockerfile
-        if (checkPathsAreBlank(pathToBuildFiles, dockerfilePath)) {
-            LOGGER.error("pathToBuildFiles and dockerfilePath are both blank.");
-        } else if (!checkPathToBuildFilesIsBlank(pathToBuildFiles) && checkDockerfilePathIsBlank(dockerfilePath)) {
-            LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
-        } else {
-            LOGGER.info("DockerfilePath specified, using non-default dockerfile");
-            final String[] pathSplit = dockerfilePath.split("/");
-            final String fileName = pathSplit[pathSplit.length - 1];
-            final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
-            createFile(fileName, pathToBuildFiles, fileLocation);
+        try {
+            if (isPathBlank(pathToBuildFiles)) {
+                throw new NullPointerException("The path to the build files is not specified");
+            } else if (isPathBlank(dockerfilePath)) {
+                LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
+                createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
+            } else if (!isPathBlank(dockerfilePath)) {
+                LOGGER.info("DockerfilePath specified, using non-default dockerfile");
+                final String[] pathSplit = dockerfilePath.split("/");
+                final String fileName = pathSplit[pathSplit.length - 1];
+                final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
+                createFile(fileName, pathToBuildFiles, fileLocation);
+            }
+        } catch (final IOException e) {
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
+        } catch (final NullPointerException e) {
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
         }
         // Copy the rest of the files
-        for (final String fileName : dockerFiles) {
-            createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+        try {
+            for (final String fileName : dockerFiles) {
+                createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+            }
+        } catch (final IOException e) {
+            LOGGER.error("Failed to copy the image files");
+            throw e;
         }
     }
 
     /**
-     * Copies the files to be used into the build directory where no dockerfilePath is specified.
+     * Checks if the given path is blank.
      *
-     * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
-     */
-    public void getFiles(final String pathToBuildFiles) {
-        // Copy the Dockerfile
-        LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-        createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
-        // Copy the rest of the files
-        for (final String fileName : dockerFiles) {
-            createFile(fileName, pathToBuildFiles, "/.ScriptBin");
-        }
-    }
-
-    /**
-     * Checks if the file paths are blank.
-     *
-     * @param pathToBuildFiles the path to the build files.
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the paths are blank.
-     */
-    private boolean checkPathsAreBlank(final String pathToBuildFiles, final String dockerfilePath) {
-        return ((checkPathToBuildFilesIsBlank(pathToBuildFiles)) ||
-                (checkDockerfilePathIsBlank(dockerfilePath)));
-    }
-
-    /**
-     * Checks if the path to the build files is blank.
-     *
-     * @param pathToBuildFiles the path to the build files.
+     * @param path the path to check.
      * @return boolean true if the path is blank.
      */
-    private boolean checkPathToBuildFilesIsBlank(final String pathToBuildFiles) {
-        return (null == pathToBuildFiles || pathToBuildFiles.equals(""));
-    }
-
-    /**
-     * Checks if the docker file path is blank.
-     *
-     * @param dockerfilePath the docker file path.
-     * @return boolean true if the path is blank.
-     */
-    private boolean checkDockerfilePathIsBlank(final String dockerfilePath) {
-        return (null == dockerfilePath || dockerfilePath.equals(""));
+    private boolean isPathBlank(final String path) {
+        return (null == path || path.equals(""));
     }
 
     /**
@@ -193,14 +177,17 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param fileName            the filename of the file to copy
      * @param destination         the destination of the file
      * @param fileLocation        the original location of the file
+     * @throws IOException        if it fails to copy the files
      */
-    private void createFile(final String fileName, final String destination, final String fileLocation) {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+    private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + "/" + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to copy files");
+            throw e;
         }
     }
 
