@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,7 @@ public class FunctionAuthoriser implements GraphHook {
             checkNoBlacklistedFunctionsArePresent(chainString);
         }
         if (authorisedFunctionPatterns != null || unauthorisedFunctionPatterns != null) {
-            checkAllFunctionsUsedAppearInPatterns(chainString);
+            checkAllFunctionsUsedAppearInCorrectPatterns(chainString);
         }
     }
 
@@ -91,20 +92,25 @@ public class FunctionAuthoriser implements GraphHook {
                 .collect(Collectors.toList());
     }
 
-    private void checkAllFunctionsUsedAppearInPatterns(final String chainString) {
+    private void checkAllFunctionsUsedAppearInCorrectPatterns(final String chainString) {
         boolean noWhitelistPatterns = (authorisedFunctionPatterns == null || authorisedFunctionPatterns.isEmpty());
         boolean noBlacklistPatterns = (unauthorisedFunctionPatterns == null || unauthorisedFunctionPatterns.isEmpty());
 
         Predicate<String> isAuthorised = createAuthorisationFunction(noBlacklistPatterns, noWhitelistPatterns);
 
-        int lastIndexMatched = chainString.indexOf("\"class\":\"");
+        final JsonNode node;
+        try {
+            node = JSONSerialiser.getJsonNodeFromString(chainString);
+        } catch (final SerialisationException e) {
+            // This should never happen as the string is derived from a
+            // serialised object. Therefore throw an exception here.
+            throw new RuntimeException("Failed to convert serialised operation" +
+                    " chain into a JsonNode", e);
+        }
 
-        while (lastIndexMatched != -1) {
-            // find the next index of \"class\":
-            lastIndexMatched += 9; // last index is now at the start of the class name
-            int endIndex = chainString.indexOf('"', lastIndexMatched);
-            String className = chainString.substring(lastIndexMatched, endIndex);
-            lastIndexMatched = chainString.indexOf("\"class\":\"", lastIndexMatched);
+        List<String> classNames = node.findValuesAsText("class");
+
+        for (final String className : classNames) {
             Class clazz;
             try {
                 clazz = Class.forName(className);
