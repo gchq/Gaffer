@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,48 +22,49 @@ import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.koryphe.impl.predicate.And;
-import uk.gov.gchq.koryphe.impl.predicate.Not;
-import uk.gov.gchq.koryphe.impl.predicate.Or;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * The FunctionAuthoriser is a {@link GraphHook} which stops a user running
  * Functions which have been banned. The Authoriser can be configured with a
- * list of unauthorised function classes or patterns, or a list of authorised
- * patterns to check against.
- * <p>
- * It should be noted that using the unauthorisedFunctions list will be more
- * efficient than using any of the patterns.
+ * list of unauthorised function classes.
  */
-@JsonPropertyOrder(value = {"unauthorisedFunctions", "unauthorisedFunctionPatterns", "authorisedFunctionPatterns"})
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class FunctionAuthoriser implements GraphHook {
 
     private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionAuthoriser.class);
-    private List<Class<? extends Function>> unauthorisedFunctions = new ArrayList<>();
-    private List<Pattern> authorisedFunctionPatterns = new ArrayList<>();
-    private List<Pattern> unauthorisedFunctionPatterns = new ArrayList<>();
+
+    private List<Class<? extends Function>> unauthorisedFunctions;
 
     public FunctionAuthoriser() {
     }
 
-    public FunctionAuthoriser(final List<Class<? extends Function>> unauthorisedFunctions, final List<Pattern> unauthorisedFunctionPatterns, final List<Pattern> authorisedFunctionPatterns) {
+    public FunctionAuthoriser(final List<Class<? extends Function>> unauthorisedFunctions) {
         this.setUnauthorisedFunctions(unauthorisedFunctions);
-        this.setAuthorisedFunctionPatterns(authorisedFunctionPatterns);
-        this.setUnauthorisedFunctionPatterns(unauthorisedFunctionPatterns);
     }
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
+        // todo test this
+        if (unauthorisedFunctions == null || unauthorisedFunctions.isEmpty()) {
+            return;
+        }
+
+        // todo test with input and non inputs
+        Object input = null;
+        // Null the input to avoid serialising potentially large inputs
+        if (opChain.getOperations().size() > 0 && opChain.getOperations().get(0) instanceof Input) {
+            input = ((Input) opChain.getOperations().get(0)).getInput();
+            ((Input) opChain.getOperations().get(0)).setInput(null);
+        }
+
+        // todo test
+        SimpleClassNameCache.setUseFullNameForSerialisation(true);
         String chainString;
         try {
             chainString = new String(JSONSerialiser.serialise(opChain));
@@ -78,68 +76,13 @@ public class FunctionAuthoriser implements GraphHook {
             return;
         }
 
-        if (unauthorisedFunctions != null) {
-            checkNoBlacklistedFunctionsArePresent(chainString);
+        checkNoBlacklistedFunctionsArePresent(chainString);
+
+        if (input != null) {
+            // The only way input could have been set to non null value would
+            // be if the first operation was an Input operation.
+            ((Input) opChain.getOperations().get(0)).setInput(input);
         }
-        if (authorisedFunctionPatterns != null || unauthorisedFunctionPatterns != null) {
-            checkAllFunctionsUsedAppearInCorrectPatterns(chainString);
-        }
-    }
-
-    private List<Predicate> convertPatternsToPredicates(final List<Pattern> patterns) {
-        return patterns.stream()
-                .map(Pattern::asPredicate)
-                .collect(Collectors.toList());
-    }
-
-    private void checkAllFunctionsUsedAppearInCorrectPatterns(final String chainString) {
-        boolean noWhitelistPatterns = (authorisedFunctionPatterns == null || authorisedFunctionPatterns.isEmpty());
-        boolean noBlacklistPatterns = (unauthorisedFunctionPatterns == null || unauthorisedFunctionPatterns.isEmpty());
-
-        Predicate<String> isAuthorised = createAuthorisationFunction(noBlacklistPatterns, noWhitelistPatterns);
-
-        final JsonNode node;
-        try {
-            node = JSONSerialiser.getJsonNodeFromString(chainString);
-        } catch (final SerialisationException e) {
-            // This should never happen as the string is derived from a
-            // serialised object. Therefore throw an exception here.
-            throw new RuntimeException("Failed to convert serialised operation" +
-                    " chain into a JsonNode", e);
-        }
-
-        List<String> classNames = node.findValuesAsText("class");
-
-        for (final String className : classNames) {
-            Class clazz;
-            try {
-                clazz = Class.forName(className);
-            } catch (final ClassNotFoundException e) {
-                // This can only happen if there is some kind of class field which isn't a java class
-                // As this is technically possible, log it but continue.
-                LOGGER.warn("Operation chain contained a class field which didn't relate to a java class: " + className);
-                continue;
-            }
-
-            if (Function.class.isAssignableFrom(clazz)) { // then we must check it exists in the whitelist
-                if (!isAuthorised.test(className)) {
-                    throw new UnauthorisedException(ERROR_MESSAGE_PREFIX + className);
-                }
-            }
-        }
-    }
-
-    private Predicate<String> createAuthorisationFunction(final boolean noBlacklistPatterns, final boolean noWhitelistPatterns) {
-        List<Predicate> predicateComponents = new ArrayList<>();
-
-        if (!noBlacklistPatterns) {
-            predicateComponents.add(new Not<>(new Or<>(convertPatternsToPredicates(unauthorisedFunctionPatterns))));
-        }
-        if (!noWhitelistPatterns) {
-            predicateComponents.add(new Or<>(convertPatternsToPredicates(authorisedFunctionPatterns)));
-        }
-
-        return new And<>(predicateComponents);
     }
 
     private void checkNoBlacklistedFunctionsArePresent(final String chainString) {
@@ -157,60 +100,5 @@ public class FunctionAuthoriser implements GraphHook {
 
     public void setUnauthorisedFunctions(final List<Class<? extends Function>> unauthorisedFunctions) {
         this.unauthorisedFunctions = unauthorisedFunctions;
-    }
-
-    public List<Pattern> getAuthorisedFunctionPatterns() {
-        return authorisedFunctionPatterns;
-    }
-
-    public void setAuthorisedFunctionPatterns(final List<Pattern> authorisedFunctionPatterns) {
-        this.authorisedFunctionPatterns = authorisedFunctionPatterns;
-    }
-
-    public List<Pattern> getUnauthorisedFunctionPatterns() {
-        return unauthorisedFunctionPatterns;
-    }
-
-    public void setUnauthorisedFunctionPatterns(final List<Pattern> unauthorisedFunctionPatterns) {
-        this.unauthorisedFunctionPatterns = unauthorisedFunctionPatterns;
-    }
-
-    public static class Builder {
-        private FunctionAuthoriser authoriser = new FunctionAuthoriser();
-
-        public Builder authorisedPatterns(final List<Pattern> authorisedPatterns) {
-            authoriser.setAuthorisedFunctionPatterns(authorisedPatterns);
-            return this;
-        }
-
-        public Builder authorsisedPatterns(final List<String> authorisedPatterns) {
-            authoriser.setAuthorisedFunctionPatterns(authorisedPatterns
-                    .stream()
-                    .map(Pattern::compile)
-                    .collect(Collectors.toList()));
-            return this;
-        }
-
-        public Builder unauthorisedFunctions(final List<Class<? extends Function>> unauthorisedFunctions) {
-            authoriser.setUnauthorisedFunctions(unauthorisedFunctions);
-            return this;
-        }
-
-        public Builder unauthorisedPatterns(final List<Pattern> unauthorisedPatterns) {
-            authoriser.setAuthorisedFunctionPatterns(unauthorisedPatterns);
-            return this;
-        }
-
-        public Builder unauthorsisedPatterns(final List<String> unauthorisedPatterns) {
-            authoriser.setAuthorisedFunctionPatterns(unauthorisedPatterns
-                    .stream()
-                    .map(Pattern::compile)
-                    .collect(Collectors.toList()));
-            return this;
-        }
-
-        public FunctionAuthoriser build() {
-            return authoriser;
-        }
     }
 }

@@ -1000,10 +1000,8 @@ public final class Graph {
                     config.getHooks().add(0, new NamedOperationResolver());
                 }
             }
-            if (!hasFunctionAuthoriserHook && !config.isSkipDefaultSecurityHooks()) {
-                config.getHooks().add(new FunctionAuthoriser.Builder()
-                        .unauthorisedFunctions(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS)
-                .build());
+            if (!hasFunctionAuthoriserHook) {
+                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
 

@@ -397,7 +397,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
-                        .skipDefaultSecurityHooks() // Otherwise close() will be invoked when operation chain is serialised
+                        .addHook(new FunctionAuthoriser()) // skips json serialisation in default hook
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -427,7 +427,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
-                        .skipDefaultSecurityHooks() // Otherwise close will be invoked when operation is serialised
+                        .addHook(new FunctionAuthoriser()) // skips json serialisation in default hook
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -2389,7 +2389,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddDefaultSecurityHooksIfNotAddedToHooksAndPropertyIsNotSet() {
+    public void shouldAddDefaultSecurityHooksIfNotAddedToHooks() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -2412,7 +2412,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldNotAddDefaultSecurityHooksIfAlreadyAddedAndPropertyIsNotSet() {
+    public void shouldNotAddDefaultSecurityHooksIfAlreadyAdded() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -2421,7 +2421,7 @@ public class GraphTest {
         // When
         final GraphConfig config = new GraphConfig.Builder()
                 .graphId("test")
-                .addHook(new FunctionAuthoriser.Builder().unauthorisedFunctions(Lists.newArrayList(Identity.class)).build())
+                .addHook(new FunctionAuthoriser(Lists.newArrayList(Identity.class)))
                 .build();
 
         final Graph graph = new Graph.Builder()
@@ -2433,31 +2433,6 @@ public class GraphTest {
         // Then
         assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
         assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
-    }
-
-    @Test
-    public void shouldNotAddDefaultSecurityHooksIfNotAddedAndPropertyIsSet() {
-        // Given
-        final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStore.class.getName());
-        TestStore.mockStore = mock(Store.class);
-        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
-
-        // When
-        final GraphConfig config = new GraphConfig.Builder()
-                .graphId("test")
-                .skipDefaultSecurityHooks()
-                .build();
-
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .storeProperties(storeProperties)
-                .config(config)
-                .build();
-
-        // Then
-        assertEquals(2, graph.getGraphHooks().size());
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class), graph.getGraphHooks());
     }
 
     public static class TestStoreImpl extends Store {
