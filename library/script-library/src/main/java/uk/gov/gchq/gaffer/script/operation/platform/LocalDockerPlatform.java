@@ -211,7 +211,7 @@ public class LocalDockerPlatform implements ImagePlatform {
     private void startContainerListener() {
         // Run a HTTP server listener here with a response handler that will then begin the next
         // method.
-        System.out.println("Starting server on port:" + listenerPort);try {
+        try {
             server = HttpServer.create(new InetSocketAddress(listenerPort), 0);
         } catch (IOException e) {
             e.printStackTrace();
