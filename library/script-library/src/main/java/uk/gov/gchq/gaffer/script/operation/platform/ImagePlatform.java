@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.script.operation.platform;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.spotify.docker.client.exceptions.DockerException;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 
+import java.io.IOException;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -40,24 +42,29 @@ public interface ImagePlatform {
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing the build files
      * @return the image
+     * @throws Exception             exception if Image is not built
      */
-    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles);
+    Image buildImage(String scriptName, Map<String, Object> scriptParameters, String pathToBuildFiles) throws Exception;
 
     /**
      * Creates a container
      *
      * @param image                  the image to create a container from
-     * @param ip                     the ip the container is connected to
      * @return the container
+     * @throws Exception             if it fails to create the container
      */
-    Container createContainer(Image image, String ip);
+    Container createContainer(Image image) throws Exception;
 
     /**
      * Runs a container
      *
      * @param container              the container to run
      * @param inputData              the data to pass to the container
-     * @return the result of the container
+     * @throws Exception             exception if container does not run
      */
-    StringBuilder runContainer(Container container, Iterable inputData);
+    void runContainer(Container container, Iterable inputData) throws Exception;
+
+    void closeContainer(Container container);
+
+    void startContainer(Container container) throws DockerException, InterruptedException, IOException;
 }

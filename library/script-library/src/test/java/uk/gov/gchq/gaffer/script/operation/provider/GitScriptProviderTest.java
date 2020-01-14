@@ -15,46 +15,123 @@
  */
 package uk.gov.gchq.gaffer.script.operation.provider;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
+import uk.gov.gchq.gaffer.script.operation.GitServerUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static java.lang.Thread.sleep;
 
 public class GitScriptProviderTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProviderTest.class);
+    private static GitServerUtils gitServerUtils;
+
+    private final GitScriptProvider gsp = new GitScriptProvider();
+    private static final String CURRENT_WORKING_DIRECTORY = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
+    private static final String DIRECTORY_PATH = CURRENT_WORKING_DIRECTORY.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
+    private static final Path PATH_ABSOLUTE_SCRIPT_REPO = DockerFileUtils.getPathAbsoluteScriptRepo(DIRECTORY_PATH, ScriptTestConstants.REPO_DIR);
+    private static final Path PATH_ABSOLUTE_CLONED_SCRIPT_REPO = Paths.get(DockerFileUtils.getPathAbsoluteScriptRepo(DIRECTORY_PATH, ScriptTestConstants.REPO_DIR).toString() + "2/" + ScriptTestConstants.REPO_NAME);
 
     @Test
+    @Order(1)
     public void shouldCloneIfNotAlreadyCloned() {
-        // Given
-        final GitScriptProvider gsp = new GitScriptProvider();
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
-        final Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
+        //Given
+        try {
+            gitServerUtils = new GitServerUtils(null);
+            gitServerUtils.start();
+            sleep(4000);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
 
         // When
-        gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        final String[] files = pathAbsoluteScriptRepo.toFile().list();
+        String[] files = new String[0];
+        try {
+            gsp.retrieveScripts(PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toString(), ScriptTestConstants.REPO_URI);
+
+            files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        } catch (GitAPIException | IOException e) {
+            Assert.fail();
+        }
 
         // Then
         Assert.assertNotNull(files);
+
+        try {
+            gitServerUtils.stopServer();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            gitServerUtils = null;
+        }
     }
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
+    @Order(2)
     public void shouldPullIfAlreadyCloned() {
-        // Given
-        GitScriptProvider gsp = new GitScriptProvider();
-        final String currentWorkingDirectory = FileSystems.getDefault().getPath(".").toAbsolutePath().toString();
-        final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
-
-        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
+        //Given
+        try {
+            gitServerUtils = new GitServerUtils(Paths.get(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2/test"));
+            gitServerUtils.start();
+            sleep(4000);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
 
         //When
-        for (int i = 0; i < 2; i++) {
-            gsp.getScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
+        String[] files = new String[0];
+        try {
+            gsp.retrieveScripts(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2", ScriptTestConstants.REPO_URI);
+            files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
+        } catch (GitAPIException | IOException e) {
+            Assert.fail();
         }
+
+        // Then
+        Assert.assertNotNull(files);
+
+        try {
+            gitServerUtils.stopServer();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        try {
+            Path pathAbsoluteScriptRepo2 = Paths.get(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2");
+            File fileName = pathAbsoluteScriptRepo2.toFile();
+
+            deleteDirectory(fileName);
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    private static void deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+
+        directoryToBeDeleted.delete();
     }
 }
 

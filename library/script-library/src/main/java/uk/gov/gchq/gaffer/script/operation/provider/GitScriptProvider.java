@@ -23,9 +23,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class GitScriptProvider implements ScriptProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitScriptProvider.class);
+
+    public static GitScriptProvider gitScriptProvider() {
+        return new GitScriptProvider();
+    }
 
     /**
      * Gets the scripts from the given GIT repo URI and places
@@ -35,13 +41,21 @@ public class GitScriptProvider implements ScriptProvider {
      * @param repoURI                the URI of the GIT repo with the scripts
      */
     @Override
-    public void getScripts(final String absoluteRepoPath,
-                           final String repoURI) {
-        try {
-            Git git = Git.open(new File(absoluteRepoPath));
-            pullRepo(git);
-        } catch (final IOException e) {
+    public void retrieveScripts(final String absoluteRepoPath,
+                                final String repoURI) throws GitAPIException, IOException {
+        if (Files.notExists(Paths.get(absoluteRepoPath))) {
             cloneRepo(absoluteRepoPath, repoURI);
+        } else {
+            try {
+                Git git = Git.open(new File(absoluteRepoPath + "/" + repoURI.substring(repoURI.lastIndexOf("/") + 1)));
+                pullRepo(git);
+            } catch (final IOException e) {
+                LOGGER.error("absoluteRepoPath: {}", absoluteRepoPath);
+                LOGGER.error("repoURI: {}", repoURI);
+                LOGGER.error(e.getMessage());
+                LOGGER.error("Failed to get the latest scripts");
+                throw e;
+            }
         }
     }
 
@@ -49,14 +63,17 @@ public class GitScriptProvider implements ScriptProvider {
      * Pull the files using GIT
      *
      * @param git                    the git client
+     * @throws GitAPIException       if it fails to pull the repo
      */
-    private synchronized void pullRepo(final Git git) {
+    private synchronized void pullRepo(final Git git) throws GitAPIException {
         try {
             LOGGER.info("Repo already cloned, pulling files...");
             git.pull().call();
             LOGGER.info("Pulled the latest files.");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
+            LOGGER.error("Failed to pull the latest files");
+            throw e;
         }
     }
 
@@ -65,14 +82,22 @@ public class GitScriptProvider implements ScriptProvider {
      *
      * @param absoluteRepoPath       the path to clone the repo to
      * @param repoURI                the URI of the GIT repo with the scripts
+     * @throws GitAPIException       if it fails to clone the repo
      */
-    private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) {
+    private synchronized void cloneRepo(final String absoluteRepoPath, final String repoURI) throws GitAPIException {
         try {
             LOGGER.info("Cloning repo...");
-            Git.cloneRepository().setDirectory(new File(absoluteRepoPath)).setURI(repoURI).call();
+            LOGGER.debug("path: {}", absoluteRepoPath);
+            LOGGER.debug("path: {}", repoURI);
+            Git.cloneRepository()
+                    .setURI(repoURI)
+                    .setDirectory(new File(absoluteRepoPath))
+                    .call();
             LOGGER.info("Cloned the repo");
         } catch (final GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to clone the repo");
+            throw e;
         }
     }
 }

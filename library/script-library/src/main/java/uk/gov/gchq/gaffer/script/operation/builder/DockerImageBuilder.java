@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.script.operation.builder;
 
 import com.google.gson.Gson;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,18 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class DockerImageBuilder implements ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
+    private static List<String> dockerFiles = Collections.unmodifiableList(new ArrayList<>(Arrays.asList("DataInputStream.py", "entrypoint.py", "modules.txt")));
 
     /**
      * Builds a docker image, which runs a script, from a Dockerfile
@@ -52,45 +58,69 @@ public class DockerImageBuilder implements ImageBuilder {
      * @return the docker image
      */
     @Override
-    public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                            final String pathToBuildFiles) {
+    public Image buildImage(final String scriptName,
+                            final int scriptPort, final Map<String, Object> scriptParameters,
+                            final String pathToBuildFiles) throws IOException, InterruptedException, DockerException, DockerCertificateException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
         // Convert the script parameters into a string
         String params = stringifyParameters(scriptParameters);
-
-        // Create the build arguments
-        StringBuilder buildargs = new StringBuilder();
-        buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
-        buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
-        buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
-        LOGGER.info(String.valueOf(buildargs));
-
+        String buildArgs = buildArguments(scriptName, scriptPort, params);
         DockerClient.BuildParam buildParam = null;
-        try {
-            buildParam = DockerClient.BuildParam.create("buildargs", URLEncoder.encode(String.valueOf(buildargs), "UTF-8"));
-        } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
 
         // Build an image from the Dockerfile
         LOGGER.info("Building the image from the Dockerfile...");
         LOGGER.info("Path to build files: " + Paths.get(pathToBuildFiles).toString());
         try {
+            buildParam = DockerClient.BuildParam.create("buildargs", buildArgs);
             final AtomicReference<String> imageIdFromMessage = new AtomicReference<>();
             return new DockerImage(docker.build(Paths.get(pathToBuildFiles + "/"),
                     "scriptoperation:" + scriptName, "Dockerfile", message -> {
-                final String imageId = message.buildImageId();
-                if (imageId != null) {
-                    imageIdFromMessage.set(imageId);
-                }
-                LOGGER.info(String.valueOf(message));
-            }, buildParam));
+                        final String imageId = message.buildImageId();
+                        if (imageId != null) {
+                            imageIdFromMessage.set(imageId);
+                        }
+                        LOGGER.info(String.valueOf(message));
+                    }, buildParam));
         } catch (final DockerException | InterruptedException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to build the image from the Dockerfile");
+            DockerClientSingleton.close();
+            throw e;
         }
-        return null;
+    }
+
+    /**
+     * Builds the arguments string to build the Docker Client.
+     *
+     * @param scriptName - String name of the script to run.
+     * @param scriptPort - Port to send a ready signal to.
+     * @param params - String parameters to be passed to the script to be run.
+     *
+     * @return String the build arguments string.
+     * @throws UnsupportedEncodingException       if it fails to encode the build arguments
+     */
+    private String buildArguments(final String scriptName, final int scriptPort, final String params) throws UnsupportedEncodingException {
+        // Create the build arguments
+        String retVal = "";
+
+        StringBuilder buildargs = new StringBuilder();
+        buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
+        buildargs.append("\"scriptPort\":\"").append(scriptPort).append("\",");
+        buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
+        buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
+        LOGGER.debug("Build arguments are: " + buildargs);
+
+        try {
+            retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to create the build arguments");
+            throw e;
+        }
+
+        return retVal;
     }
 
     /**
@@ -98,24 +128,50 @@ public class DockerImageBuilder implements ImageBuilder {
      *
      * @param pathToBuildFiles       the path to the directory containing the Dockerfile and other build files
      * @param dockerfilePath         the path to the non-default dockerfile
+     * @throws IOException           if it fails to copy the image files
      */
-    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) {
-        String[] fileNames = new String[] {"DataInputStream.py", "entrypoint.py", "modules.txt"};
+    public void getFiles(final String pathToBuildFiles, final String dockerfilePath) throws IOException {
         // Copy the Dockerfile
-        if (dockerfilePath.equals("")) {
-            LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
-            createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default/");
-        } else {
-            LOGGER.info("DockerfilePath specified, using non-default dockerfile");
-            final String[] pathSplit = dockerfilePath.split("/");
-            final String fileName = pathSplit[pathSplit.length - 1];
-            final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
-            createFile(fileName, pathToBuildFiles, fileLocation);
+        try {
+            if (isPathBlank(pathToBuildFiles)) {
+                throw new NullPointerException("The path to the build files is not specified");
+            } else if (isPathBlank(dockerfilePath)) {
+                LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
+                createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
+            } else if (!isPathBlank(dockerfilePath)) {
+                LOGGER.info("DockerfilePath specified, using non-default dockerfile");
+                final String[] pathSplit = dockerfilePath.split("/");
+                final String fileName = pathSplit[pathSplit.length - 1];
+                final String fileLocation = dockerfilePath.substring(0, dockerfilePath.length() - fileName.length());
+                createFile(fileName, pathToBuildFiles, fileLocation);
+            }
+        } catch (final IOException e) {
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
+        } catch (final NullPointerException e) {
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to copy the Dockerfile");
+            throw e;
         }
         // Copy the rest of the files
-        for (final String fileName : fileNames) {
-            createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+        try {
+            for (final String fileName : dockerFiles) {
+                createFile(fileName, pathToBuildFiles, "/.ScriptBin/");
+            }
+        } catch (final IOException e) {
+            LOGGER.error("Failed to copy the image files");
+            throw e;
         }
+    }
+
+    /**
+     * Checks if the given path is blank.
+     *
+     * @param path the path to check.
+     * @return boolean true if the path is blank.
+     */
+    private boolean isPathBlank(final String path) {
+        return (null == path || path.equals(""));
     }
 
     /**
@@ -124,15 +180,17 @@ public class DockerImageBuilder implements ImageBuilder {
      * @param fileName            the filename of the file to copy
      * @param destination         the destination of the file
      * @param fileLocation        the original location of the file
+     * @throws IOException        if it fails to copy the files
      */
-    private void createFile(final String fileName, final String destination, final String fileLocation) {
-        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + fileName);
+    private void createFile(final String fileName, final String destination, final String fileLocation) throws IOException {
+        try (InputStream inputStream = StreamUtil.openStream(getClass(), fileLocation + "/" + fileName);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String fileData = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-            inputStream.close();
             Files.write(Paths.get(destination + "/" + fileName), fileData.getBytes());
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.toString());
+            LOGGER.error("Failed to copy files");
+            throw e;
         }
     }
 

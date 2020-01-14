@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.script.operation.generator.RandomPortGenerator;
+import uk.gov.gchq.gaffer.script.operation.util.DockerClientSingleton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,16 +33,11 @@ public class LocalDockerContainer implements Container {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalDockerContainer.class);
 
     private static final String LOCALHOST = "127.0.0.1";
-    private static final Integer ONE_SECOND = 1000;
     private static final Integer TIMEOUT_100 = 100;
-    private static final Integer TIMEOUT_200 = 200;
-    private static final Integer MAX_BYTES = 65000;
     private static final Integer MAX_TRIES = 100;
 
-    private Socket clientSocket = null;
     private String containerId;
     private DataInputStream inputStream;
-    private DataOutputStream outputStream;
     private int port;
 
     public LocalDockerContainer(final String containerId, final int port) {
@@ -54,17 +51,16 @@ public class LocalDockerContainer implements Container {
      * @param data             the data being sent
      */
     @Override
-    public void sendData(final Iterable data) {
+    public void sendData(final Iterable data) throws IOException {
         LOGGER.info("Attempting to connect with the container...");
 
-        sleep(ONE_SECOND);
         // The container will need some time to start up, so keep trying to connect and check
         // that its ready to receive data.
-        Exception error = null;
+        IOException error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 // Connect to the container
-                clientSocket = new Socket(LOCALHOST, port);
+                final Socket clientSocket = new Socket(LOCALHOST, port);
                 LOGGER.info("Connected to container port at {}", clientSocket.getRemoteSocketAddress());
 
                 // Check the container is ready
@@ -73,7 +69,7 @@ public class LocalDockerContainer implements Container {
 
                 // Send the data
                 OutputStream outToContainer = clientSocket.getOutputStream();
-                outputStream = new DataOutputStream(outToContainer);
+                final DataOutputStream outputStream = new DataOutputStream(outToContainer);
                 boolean firstObject = true;
                 for (final Object current : data) {
                     if (firstObject) {
@@ -85,78 +81,33 @@ public class LocalDockerContainer implements Container {
                 }
                 outputStream.writeUTF("]");
                 LOGGER.info("Sending data to docker container from {}", clientSocket.getLocalSocketAddress() + "...");
-
                 outputStream.flush();
+                error = null;
                 break;
             } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
                 error = e;
-                sleep(TIMEOUT_100);
+                sleep();
+
             }
         }
         // Only print an error if it still fails after many tries
         if (error != null) {
-            error.printStackTrace();
+            RandomPortGenerator.getInstance().releasePort(port);
+            DockerClientSingleton.close();
+            LOGGER.error(error.toString());
+            LOGGER.error("Failed to send the data to the container");
+            throw error;
         }
     }
 
     /**
-     * Retrieves data from the docker container
+     * Retrieves the length of the data being received from the container, then retrieves the data itself as a StringBuilder
      *
-     * @return the data
+     * @return StringBuilder dataReceived
      */
     @Override
-    public StringBuilder receiveData() {
-        // First get the length of the data coming from the container. Keep trying until the container is ready.
-        LOGGER.info("Inputstream is: {}", inputStream);
-        int incomingDataLength = 0;
-        Exception error = null;
-        if (clientSocket != null && inputStream != null) {
-            int tries = 0;
-            while (tries < TIMEOUT_100) {
-                try {
-                    incomingDataLength = inputStream.readInt();
-                    LOGGER.info("Length of container...{}", incomingDataLength);
-                    error = null;
-                    break;
-                } catch (final IOException e) {
-                    tries += 1;
-                    error = e;
-                    sleep(TIMEOUT_200);
-                }
-            }
-        }
-
-        // If it failed to get the length of the incoming data then show the error, otherwise return the data.
-        StringBuilder dataReceived = new StringBuilder();
-        if (null != error) {
-            LOGGER.info("Connection failed, stopping the container...");
-            error.printStackTrace();
-        } else {
-            try {
-                // Get the data
-                for (int i = 0; i < incomingDataLength / MAX_BYTES; i++) {
-                    dataReceived.append(inputStream.readUTF());
-                }
-                dataReceived.append(inputStream.readUTF());
-                // Show the error message if the script failed and return no data
-                if (dataReceived.subSequence(0, 5) == "Error") {
-                    LOGGER.info(dataReceived.subSequence(5, dataReceived.length()).toString());
-                    dataReceived = null;
-                }
-            } catch (final IOException e) {
-                LOGGER.info(e.getMessage());
-            }
-        }
-        try {
-            if (clientSocket != null) {
-                clientSocket.close();
-            }
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        return dataReceived;
+    public DataInputStream receiveData() {
+        return inputStream;
     }
 
     @Override
@@ -173,11 +124,11 @@ public class LocalDockerContainer implements Container {
         return new DataInputStream(clientSocket.getInputStream());
     }
 
-    private void sleep(final Integer time) {
+    private void sleep() {
         try {
-            Thread.sleep(time);
+            Thread.sleep(LocalDockerContainer.TIMEOUT_100);
         } catch (final InterruptedException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.error(e.toString());
         }
     }
 }

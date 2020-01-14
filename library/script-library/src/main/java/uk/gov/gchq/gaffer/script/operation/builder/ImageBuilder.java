@@ -25,10 +25,13 @@ public interface ImageBuilder {
      * Builds an image which runs a script
      *
      * @param scriptName             the name of the script being run
+     * @param scriptPort             the port to send a ready signal to
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing any build files
      * @return the image
+     * @throws Exception             thrown if Image is not built
      */
-    Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
-                     final String pathToBuildFiles);
+    Image buildImage(final String scriptName,
+                     final int scriptPort, final Map<String, Object> scriptParameters,
+                     final String pathToBuildFiles) throws Exception;
 }

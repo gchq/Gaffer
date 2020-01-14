@@ -34,7 +34,8 @@ public final class RandomPortGenerator implements PortGenerator {
     private static volatile RandomPortGenerator portGenerator;
     private static final Integer MIN_PORT_NUM = 50000;
     private static final Integer MAX_PORT_NUM = 65535;
-    private static ArrayList<Integer> usedPorts = new ArrayList<>();
+    private final ArrayList<Integer> usedPorts = new ArrayList<>();
+    Random rand = new Random();
 
     private RandomPortGenerator() { }
 
@@ -68,13 +69,12 @@ public final class RandomPortGenerator implements PortGenerator {
                 .filter(num -> !usedPorts.contains(num))
                 .boxed()
                 .collect(Collectors.toList());
-        Random rand = new Random();
         Integer portNum = portsList.get(rand.nextInt(portsList.size()));
         usedPorts.add(portNum);
         return portNum;
     }
 
-    public synchronized void freePort(final Integer port) {
+    public synchronized void releasePort(final Integer port) {
         usedPorts.remove(port);
     }
 }

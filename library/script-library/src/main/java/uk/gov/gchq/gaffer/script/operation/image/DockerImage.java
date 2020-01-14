@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.script.operation.image;
 
 public class DockerImage implements Image {
 
-    private String imageString;
+    private String imageId;
 
-    public DockerImage(final String imageString) {
-        this.imageString = imageString;
+    public DockerImage(final String imageId) {
+        this.imageId = imageId;
     }
 
     /**
@@ -29,7 +29,7 @@ public class DockerImage implements Image {
      * @return the docker image id
      */
     @Override
-    public String getImageString() {
-        return imageString;
+    public String getImageId() {
+        return imageId;
     }
 }
