@@ -30,6 +30,7 @@ public interface ImageBuilder {
      * @return the image
      * @throws Exception             thrown if Image is not built
      */
-    Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
+    Image buildImage(final String scriptName,
+                     final int scriptPort, final Map<String, Object> scriptParameters,
                      final String pathToBuildFiles) throws Exception;
 }

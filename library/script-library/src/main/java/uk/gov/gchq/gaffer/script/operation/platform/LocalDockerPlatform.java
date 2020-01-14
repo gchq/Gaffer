@@ -52,6 +52,8 @@ public class LocalDockerPlatform implements ImagePlatform {
     private DockerClient docker = null;
     private String dockerfilePath = "";
     private int port;
+    private int listenerPort;
+    private HttpServer server;
     private static final String LOCAL_HOST = "127.0.0.1";
 
     public static LocalDockerPlatform localDockerPlatform() {
@@ -74,7 +76,7 @@ public class LocalDockerPlatform implements ImagePlatform {
     public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException
 {
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
-
+        listenerPort = RandomPortGenerator.getInstance().generatePort();
         // Get the user defined dockerfile or use the default
         dockerImageBuilder.getFiles(pathToBuildFiles, dockerfilePath);
 
@@ -83,7 +85,8 @@ public class LocalDockerPlatform implements ImagePlatform {
         LOGGER.info("Connecting to the Docker client...");
         docker = DockerClientSingleton.getInstance();
         LOGGER.info("Docker is now: {}", docker);
-        final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName, scriptParameters, pathToBuildFiles);
+        final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName,
+         listenerPort, scriptParameters, pathToBuildFiles);
 
         // Remove the old images
         List<com.spotify.docker.client.messages.Image> images = null;
@@ -171,7 +174,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      */
     public void startContainer(final Container container) throws InterruptedException, DockerException {
         // Keep trying to start the container
-        this.startContainerListener(container.getPort());
+        this.startContainerListener();
         Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
@@ -183,6 +186,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 while(!containerActive) {
                     Thread.sleep(100);
                 }
+                server.stop(0);
                 error = null;
                 break;
             } catch (final DockerException | InterruptedException e) {
@@ -204,16 +208,15 @@ public class LocalDockerPlatform implements ImagePlatform {
     boolean listenerActive = false;
     boolean containerActive = false;
 
-    private void startContainerListener(final int port) {
+    private void startContainerListener() {
         // Run a HTTP server listener here with a response handler that will then begin the next
         // method.
-        HttpServer server = null;
-        try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
+        System.out.println("Starting server on port:" + listenerPort);try {
+            server = HttpServer.create(new InetSocketAddress(listenerPort), 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpContext context = server.createContext("/");
+        HttpContext context = Objects.requireNonNull(server).createContext("/");
         context.setHandler(this::containerHTTPHandler);
         server.start();
         listenerActive = true;
@@ -225,7 +228,6 @@ public class LocalDockerPlatform implements ImagePlatform {
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
         os.close();
-        System.out.println(response);
         containerActive = true;
     }
 

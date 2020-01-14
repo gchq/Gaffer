@@ -62,7 +62,8 @@ public class DockerImageBuilderTest {
         // When
         Image returnedImage = null;
         try {
-            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, 0, null,
+                    directoryPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,7 +97,8 @@ public class DockerImageBuilderTest {
 
         Image returnedImage = null;
         try {
-            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, null, directoryPath);
+            returnedImage = dockerImageBuilder.buildImage(ScriptTestConstants.SCRIPT_NAME, 0, null,
+                    directoryPath);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

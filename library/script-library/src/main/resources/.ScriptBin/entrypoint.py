@@ -12,6 +12,7 @@ from DataInputStream import DataInputStream
 scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
+print('scriptPort is', sys.argv[2])
 
 # Get the script parameters
 scriptParameters = sys.argv[3]
@@ -24,7 +25,7 @@ print('scriptParams is ', scriptParameters)
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 80
 # Use a HTTPCLIENT here to connect to the http server on the java.
-clientHTTP = http.client.HTTPConnection("host.docker.internal", port=sys.argv[2])
+clientHTTP = http.client.HTTPConnection("host.docker.internal", port=int(sys.argv[2]))
 clientHTTP.request(method='GET', url="/")
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
