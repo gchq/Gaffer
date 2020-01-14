@@ -29,13 +29,16 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.function.DivideBy;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.function.ToString;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
+import java.util.ArrayList;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
@@ -103,13 +106,81 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
+    public void shouldAllowEmptyOperationChain() {
+        // Given
+        OperationChain chain = new OperationChain();
+
+        // When
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+
+        // Then no exceptions
+        authoriser.preExecute(chain, new Context());
+    }
+
+    @Test
+    public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreNull() {
+        // Given
+        OperationChain chain = generateOperation(Identity.class, ToString.class);
+
+        // When
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(null);
+
+        // Then no exceptions
+        authoriser.preExecute(chain, new Context());
+    }
+
+    @Test
+    public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreEmpty() {
+        // Given
+        OperationChain chain = generateOperation(Identity.class, ToString.class);
+
+        // When
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(new ArrayList<>());
+
+        // Then no exceptions
+        authoriser.preExecute(chain, new Context());
+    }
+
+    @Test
+    public void shouldNotErrorIfFirstOperationIsNotInput() {
+        // Given
+        OperationChain chain = new OperationChain.Builder()
+                .first(new GetAllElements()).build();
+
+        // When
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+
+        // Then no exceptions
+        authoriser.preExecute(chain, new Context());
+    }
+
+    @Test
+    public void shouldWorkIfUsingShortClassNames() {
+        // Given
+        OperationChain badOperation = generateOperation(Identity.class);
+        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+
+        // When
+        SimpleClassNameCache.setUseFullNameForSerialisation(false);
+        functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
+
+        // Then
+        try {
+            functionAuthoriser.preExecute(badOperation, new Context());
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldJsonSerialiseAndDeserialiseWithPopulatedFields() throws SerialisationException {
         String json = "" +
                 "{" +
-                    "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
-                    "\"unauthorisedFunctions\":[" +
-                        "\"uk.gov.gchq.koryphe.impl.function.ToString\"" +
-                    "]" +
+                "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
+                "\"unauthorisedFunctions\":[" +
+                "\"uk.gov.gchq.koryphe.impl.function.ToString\"" +
+                "]" +
                 "}";
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(ToString.class));
@@ -121,7 +192,7 @@ public class FunctionAuthoriserTest {
     public void shouldJsonSerialiseAndDeserialiseWithNoFields() throws SerialisationException {
         String json = "" +
                 "{" +
-                    "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"" +
+                "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"" +
                 "}";
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();

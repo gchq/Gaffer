@@ -50,12 +50,10 @@ public class FunctionAuthoriser implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        // todo test this
         if (unauthorisedFunctions == null || unauthorisedFunctions.isEmpty()) {
             return;
         }
 
-        // todo test with input and non inputs
         Object input = null;
         // Null the input to avoid serialising potentially large inputs
         if (opChain.getOperations().size() > 0 && opChain.getOperations().get(0) instanceof Input) {
@@ -63,7 +61,6 @@ public class FunctionAuthoriser implements GraphHook {
             ((Input) opChain.getOperations().get(0)).setInput(null);
         }
 
-        // todo test
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         String chainString;
         try {
@@ -73,6 +70,7 @@ public class FunctionAuthoriser implements GraphHook {
             // always be json serialisable. However this could happen if using a
             // mock in testing. To account for this, it will be logged.
             LOGGER.warn("Failed to serialise operation chain: " + opChain);
+            LOGGER.warn("caused by", e);
             return;
         }
 
