@@ -381,12 +381,6 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected Object doUnhandledOperation(final Operation operation,
-                                          final Context context) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
         super.startCacheServiceLoader(properties);
         try {

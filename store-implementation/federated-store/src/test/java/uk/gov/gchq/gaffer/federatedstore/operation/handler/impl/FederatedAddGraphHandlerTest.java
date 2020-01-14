@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,6 +46,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -354,5 +357,27 @@ public class FederatedAddGraphHandlerTest {
                 store);
 
         assertNotNull(elements);
+    }
+
+    @Test
+    public void shouldAddGraphAndAddSupportedOperations() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        Schema expectedSchema = new Schema.Builder().build();
+
+        assertFalse("Empty FederatedStore should NOT support GetElementsInRanges", store.isSupported(GetElementsInRanges.class));
+        assertFalse("Empty FederatedStore should NOT support AddElementsFromHdfs", store.isSupported(AddElementsFromHdfs.class));
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(STORE_PROPERTIES)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        assertTrue("FederatedStore with an added Accumulo store should support GetElementsInRanges", store.isSupported(GetElementsInRanges.class));
+        assertTrue("FederatedStore with an added Accumulo store should support AddElementsFromHdfs", store.isSupported(AddElementsFromHdfs.class));
     }
 }
