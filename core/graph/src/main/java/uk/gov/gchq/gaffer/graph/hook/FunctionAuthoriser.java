@@ -31,8 +31,8 @@ import java.util.function.Function;
 
 /**
  * The FunctionAuthoriser is a {@link GraphHook} which stops a user running
- * Functions which have been banned. The Authoriser can be configured with a
- * list of unauthorised function classes.
+ * Functions which have been banned. The Authoriser can be configured with
+ * unauthorised function classes.
  */
 public class FunctionAuthoriser implements GraphHook {
 
@@ -74,7 +74,7 @@ public class FunctionAuthoriser implements GraphHook {
             return;
         }
 
-        checkNoBlacklistedFunctionsArePresent(chainString);
+        checkNoUnauthorisedFunctionsArePresent(chainString);
 
         if (input != null) {
             // The only way input could have been set to non null value would
@@ -83,7 +83,7 @@ public class FunctionAuthoriser implements GraphHook {
         }
     }
 
-    private void checkNoBlacklistedFunctionsArePresent(final String chainString) {
+    private void checkNoUnauthorisedFunctionsArePresent(final String chainString) {
         for (final Class<? extends Function> blacklistedFunction : unauthorisedFunctions) {
             if (chainString.contains(blacklistedFunction.getName())) {
                 throw new UnauthorisedException(ERROR_MESSAGE_PREFIX +

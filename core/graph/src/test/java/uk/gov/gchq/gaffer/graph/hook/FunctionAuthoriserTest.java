@@ -47,7 +47,7 @@ import static org.junit.Assert.fail;
 public class FunctionAuthoriserTest {
 
     @Test
-    public void shouldNotAllowOperationWhichContainsBlacklistedFunction() {
+    public void shouldNotAllowOperationWhichContainsUnauthorisedFunction() {
         // Given
         OperationChain badOperation = generateOperation(Identity.class);
         FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
@@ -65,7 +65,7 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
-    public void shouldNotAllowGetElementsOperationWithBlacklistedFunctionsInTheView() {
+    public void shouldNotAllowGetElementsOperationWithUnauthorisedFunctionsInTheView() {
         final OperationChain<CloseableIterable<? extends Element>> viewOperation = new OperationChain.Builder().first(new GetElements.Builder()
                 .view(new View.Builder()
                         .globalElements(new GlobalViewElementDefinition.Builder()
@@ -92,7 +92,7 @@ public class FunctionAuthoriserTest {
     }
 
     @Test
-    public void shouldAllowOperationChainWhichDoesNotContainAnyBlacklistedElements() {
+    public void shouldAllowOperationChainWhichDoesNotContainAnyUnauthorisedElements() {
         // Given
         OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
         FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
