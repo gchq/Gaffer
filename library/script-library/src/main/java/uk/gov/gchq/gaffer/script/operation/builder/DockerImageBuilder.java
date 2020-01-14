@@ -58,14 +58,15 @@ public class DockerImageBuilder implements ImageBuilder {
      * @return the docker image
      */
     @Override
-    public Image buildImage(final String scriptName, final Map<String, Object> scriptParameters,
+    public Image buildImage(final String scriptName,
+                            final int scriptPort, final Map<String, Object> scriptParameters,
                             final String pathToBuildFiles) throws IOException, InterruptedException, DockerException, DockerCertificateException {
 
         DockerClient docker = DockerClientSingleton.getInstance();
 
         // Convert the script parameters into a string
         String params = stringifyParameters(scriptParameters);
-        String buildArgs = buildArguments(scriptName, params);
+        String buildArgs = buildArguments(scriptName, scriptPort, params);
         DockerClient.BuildParam buildParam = null;
 
         // Build an image from the Dockerfile
@@ -99,12 +100,13 @@ public class DockerImageBuilder implements ImageBuilder {
      * @return String the build arguments string.
      * @throws UnsupportedEncodingException       if it fails to encode the build arguments
      */
-    private String buildArguments(final String scriptName, final String params) throws UnsupportedEncodingException {
+    private String buildArguments(final String scriptName, final int scriptPort, final String params) throws UnsupportedEncodingException {
         // Create the build arguments
         String retVal = "";
 
         StringBuilder buildargs = new StringBuilder();
         buildargs.append("{\"scriptName\":\"").append(scriptName).append("\",");
+        buildargs.append("\"scriptPort\":\"").append(scriptPort).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
         LOGGER.debug("Build arguments are: " + buildargs);

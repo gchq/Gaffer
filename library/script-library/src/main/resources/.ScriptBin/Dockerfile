@@ -15,9 +15,12 @@ RUN pip install -r $modulesName.txt
 ARG scriptName
 ENV scriptName $scriptName
 
+ARG scriptPort
+ENV scriptPort $scriptPort
+
 ARG scriptParameters
 ENV scriptParameters $scriptParameters
 
 COPY test/$scriptName.py /
 
-ENTRYPOINT "python" "entrypoint.py" $scriptName $scriptParameters
+ENTRYPOINT "python" "entrypoint.py" $scriptName $scriptPort $scriptParameters
